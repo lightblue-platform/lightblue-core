@@ -1,0 +1,16 @@
+{
+    "$and":[
+        {
+            "field":"age",
+            "op":"$gte",
+            "rfield":"18"
+        },
+        {
+            "$not":{
+                "field":"login",
+                "op":"$eq",
+                "rfield":"someuser"
+            }
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "status":"complete",
+    "modifiedCount":1,
+    "matchCount":1,
+    "taskHandle":"handle",
+    "session":{
+        "content":"TBD"
+    },
+    "processed":[
+        {
+            "foo":"bar"
+        }
+    ],
+    "dataErrors":[
+        {
+            "data":{
+                "foo":"bar"
+            },
+            "errors":[
+                {
+                    "object_type":"error",
+                    "context":"c1/c2/c3/...",
+                    "errorCode":"SomeErrorCode",
+                    "msg":"Error message"
+                }
+            ]
+        }
+    ],
+    "otherErrors":[
+        {
+            "object_type":"error",
+            "context":"c1/c2/c3/...",
+            "errorCode":"SomeErrorCode",
+            "msg":"Error message"
+        }
+    ]
+}

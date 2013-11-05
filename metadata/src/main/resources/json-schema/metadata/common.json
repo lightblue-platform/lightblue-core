@@ -1,0 +1,88 @@
+{
+    "copyright": [
+    "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+
+    "This file is part of lightblue.",
+
+    "This program is free software: you can redistribute it and/or modify",
+    "it under the terms of the GNU General Public License as published by",
+    "the Free Software Foundation, either version 3 of the License, or",
+    "(at your option) any later version.",
+
+    "This program is distributed in the hope that it will be useful,",
+    "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+    "GNU General Public License for more details.",
+
+    "You should have received a copy of the GNU General Public License",
+    "along with this program.  If not, see <http://www.gnu.org/licenses/>." ],
+    "$schema":"http://json-schema.org/draft-04/schema#",
+    "type":"object",
+    "description":"Definitions that are used across multiple metadata schemas",
+    "definitions":{
+        "version":{
+            "type":"object",
+            "properties":{
+                "value":{
+                    "type":"string",
+                    "description":"Unique value for this version of the entity"
+                },
+                "extendVersions":{
+                    "type":"array",
+                    "description":"The versions of this entity that this version extends from.  If there are more than one it implies that the versions were merged into this.",
+                    "minItems":0,
+                    "items":{
+                        "$ref":"#/definitions/version/properties/value"
+                    }
+                },
+                "changelog":{
+                    "type":"string",
+                    "description":"Human readable summary of what changed from what was extended to this new version of the metadata or indication that it is the first version of an entity."
+                }
+            },
+            "required":[
+                "value",
+                "changelog"
+            ]
+        },
+        "reference":{
+            "type":"object",
+            "properties":{
+                "entityName":{
+                    "type":"string",
+                    "description":"The name of the referenced entity"
+                },
+                "versionValue":{
+                    "$ref":"#/definitions/version/properties/value",
+                    "description":"The version of the entity [optional]"
+                },
+                "projection":{
+                    "$ref":"/json-schema/projection/choice.json#/definitions/projection"
+                },
+                "query":{
+                    "$ref":"/json-schema/query/choice.json#/definitions/query"
+                },
+                "sort":{
+                    "$ref":"/json-schema/sort/choice.json#/definitions/sort"
+                }
+            },
+            "required":[
+                "entityName",
+                "projection",
+                "query",
+                "sort"
+            ]
+        },
+        "roleArray":{
+            "type":"array",
+            "description":"An array of roles",
+            "items":{
+                "$ref":"#/definitions/role"
+            }
+        },
+        "role":{
+            "type":"string",
+            "description":"Defines a role that a client can have."
+        }
+    }
+}

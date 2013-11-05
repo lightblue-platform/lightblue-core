@@ -1,0 +1,19 @@
+{
+    "field":"address.*",
+    "include":true,
+    "match":{
+        "field":"login",
+        "op":"$eq",
+        "rfield":"someuser"
+    },
+    "project":[
+        {
+            "field":"streetaddress",
+            "include":true
+        },
+        {
+            "field":"city",
+            "include":true
+        }
+    ]
+}

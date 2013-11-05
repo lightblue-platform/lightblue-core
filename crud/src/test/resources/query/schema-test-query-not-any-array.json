@@ -1,0 +1,16 @@
+{
+    "$not":{
+        "$any":[
+            {
+                "op":"$gte",
+                "field":"age",
+                "rfield":"18"
+            },
+            {
+                "field":"login",
+                "op":"$eq",
+                "rfield":"someuser"
+            }
+        ]
+    }
+}

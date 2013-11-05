@@ -1,0 +1,274 @@
+{
+    "copyright": [
+    "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+
+    "This file is part of lightblue.",
+
+    "This program is free software: you can redistribute it and/or modify",
+    "it under the terms of the GNU General Public License as published by",
+    "the Free Software Foundation, either version 3 of the License, or",
+    "(at your option) any later version.",
+
+    "This program is distributed in the hope that it will be useful,",
+    "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+    "GNU General Public License for more details.",
+
+    "You should have received a copy of the GNU General Public License",
+    "along with this program.  If not, see <http://www.gnu.org/licenses/>." ],
+    "$schema":"http://json-schema.org/draft-04/schema#",
+    "type":"object",
+    "properties":{
+        "name":{
+            "type":"string",
+            "description":"The name of the entity."
+        },
+        "version":{
+            "$ref":"#/definitions/version"
+        },
+        "status":{
+            "$ref":"#/definitions/status"
+        },
+        "access":{
+            "type":"object",
+            "description":"Defines what roles are required for specific operations on this entity.",
+            "properties":{
+                "insert":{
+                    "$ref":"common.json#/definitions/roleArray",
+                    "description":"Roles that can perform insert on this object."
+                },
+                "find":{
+                    "$ref":"common.json#/definitions/roleArray",
+                    "description":"Roles that can perform find on this object."
+                },
+                "update":{
+                    "$ref":"common.json#/definitions/roleArray",
+                    "description":"Roles that can perform update or save on this object."
+                },
+                "delete":{
+                    "$ref":"common.json#/definitions/roleArray",
+                    "description":"Roles that can perform delete on this object."
+                }
+            }
+        },
+        "constraints":{
+            "type":"object",
+            "description":"Entity constraints.",
+            "properties":{
+                "unique":{
+                    "type":"array",
+                    "description":"Array of fields within the entity data.  The composite value of all fields is unique for this type of entity.",
+                    "minItems":1,
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "reference":{
+                    "$ref":"#/definitions/reference"
+                }
+            },
+            "additionalProperties":false
+        },
+        "datastore":{
+            "type":"object",
+            "description":"Definition of the datastore in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.",
+            "oneOf":[
+                {
+                    "properties":{
+                        "mongo":{
+                            "type":"object",
+                            "properties":{
+                                "database":{
+                                    "type":"string",
+                                    "description":"Identifier for the database, maybe JNDI URI?"
+                                },
+                                "collection":{
+                                    "type":"string",
+                                    "description":"The name of the collection within the database"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "fields":{
+            "$ref":"#/definitions/field_single"
+        }
+    },
+    "definitions":{
+        "access_field":{
+            "type":"object",
+            "description":"Defines what roles are required for specific operations on this field.",
+            "properties":{
+                "read":{
+                    "$ref":"common.json#/definitions/roleArray",
+                    "description":"Roles that can perform read (find) operations on this field."
+                },
+                "write":{
+                    "$ref":"common.json#/definitions/roleArray",
+                    "description":"Roles that can perform write (update/save) on this field."
+                }
+            },
+            "additionalProperties":false
+        },
+        "types_simple":{
+            "enum":[
+                "boolean",
+                "integer",
+                "number",
+                "string",
+                "long",
+                "float",
+                "double",
+                "biginteger",
+                "bigdecimal",
+                "date"
+            ]
+        },
+        "types_complex":{
+            "enum":[
+                "object",
+                "array"
+            ]
+        },
+        "types_any":{
+            "oneOf":[
+                {
+                    "$ref":"#/definitions/types_complex"
+                },
+                {
+                    "$ref":"#/definitions/types_simple"
+                }
+            ]
+        },
+        "field_single":{
+            "description":"Control non-fields objects",
+            "type":"object",
+            "patternProperties":{
+                ".*":{
+                    "type":"object",
+                    "properties":{
+                        "description":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/description"
+                        },
+                        "maximum":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maximum"
+                        },
+                        "minimum":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minimum"
+                        },
+                        "maxLength":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maxLength"
+                        },
+                        "minLength":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minLength"
+                        },
+                        "items":{
+                            "oneOf":[
+                                {
+                                    "description":"Array items can be simple types.",
+                                    "properties":{
+                                        "type":{
+                                            "$ref":"#/definitions/types_simple"
+                                        }
+                                    },
+                                    "additionalProperties":false
+                                },
+                                {
+                                    "$ref":"#/definitions/field_single",
+                                    "description":"Support for a single type of 'fields' child."
+                                }
+                            ]
+                        },
+				        "enum": {
+				            "$ref":"http://json-schema.org/draft-04/schema#/properties/enum"
+				        },
+                        "maxItems":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maxItems"
+                        },
+                        "minItems":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minItems"
+                        },
+                        "maxProperties":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maxProperties"
+                        },
+                        "minProperties":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minProperties"
+                        },
+                        "uniqueItems":{
+                            "$ref":"http://json-schema.org/draft-04/schema#/properties/uniqueItems"
+                        },
+                        "type":{
+                            "$ref":"#/definitions/types_any"
+                        },
+                        "reference":{
+                            "$ref":"common.json#/definitions/reference"
+                        },
+                        "access":{
+                            "$ref":"#/definitions/access_field"
+                        },
+                        "fields":{
+                            "$ref":"#/definitions/field_single"
+                        },
+                        "required":{
+                            "type":"boolean"
+                        }
+                    },
+                    "additionalProperties":false
+                }
+            }
+        },
+        "reference":{
+            "$ref":"common.json#/definitions/reference"
+        },
+        "version":{
+            "$ref":"common.json#/definitions/version"
+        },
+        "status":{
+            "type":"object",
+            "properties":{
+                "value":{
+                    "enum":[
+                        "active",
+                        "deprecated",
+                        "disabled"
+                    ],
+                    "description":"active=usable and not expected to go away anytime soon, deprecated=can be used but is expected to go away in near future, disabled=cannot be used"
+                },
+                "log":{
+                    "type":"array",
+                    "description":"History of status changes over time.",
+                    "items":{
+                        "properties":{
+                            "date":{
+                                "type":"string"
+                            },
+                            "value":{
+                                "$ref":"#/definitions/status/properties/value"
+                            },
+                            "comment":{
+                                "type":"string"
+                            }
+                        },
+                        "required":[
+                            "date",
+                            "value",
+                            "comment"
+                        ]
+                    }
+                }
+            },
+            "required":[
+                "value"
+            ]
+        }
+    },
+    "required":[
+        "name",
+        "version",
+        "status",
+        "datastore",
+        "fields"
+    ]
+}
