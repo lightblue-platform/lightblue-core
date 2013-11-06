@@ -26,8 +26,13 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
 public class SimpleField extends Field {
+
     public SimpleField(String name) {
         super(name);
+    }
+
+    public SimpleField(String name,String type) {
+        super(name,type);
     }
 
     public int getNumChildren() {

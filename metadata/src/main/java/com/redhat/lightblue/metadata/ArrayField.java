@@ -32,8 +32,12 @@ public class ArrayField extends Field {
     private ArrayElement element;
 
     public ArrayField(String name) {
-        super(name);
-        setType(Constants.TYPE_ARRAY);
+        super(name,Constants.TYPE_ARRAY);
+    }
+
+    public ArrayField(String name,ArrayElement el) {
+        super(name,Constants.TYPE_ARRAY);
+        element=el;
     }
 
     public ArrayElement getElement() {

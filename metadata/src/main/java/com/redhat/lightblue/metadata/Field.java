@@ -41,6 +41,11 @@ public abstract class Field implements TreeNode, Serializable {
         this.name = name;
     }
 
+    public Field(String name,String type) {
+        this.name = name;
+        this.type = type;
+    }
+
     public String getName() {
         return name;
     }

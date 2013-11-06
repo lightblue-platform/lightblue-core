@@ -55,7 +55,7 @@ public class Error extends RuntimeException {
      * stack
      */
     public static void push(String context) {
-        threadContext.get().push(context);
+        threadContext.get().addLast(context);
     }
 
     /**
@@ -64,7 +64,7 @@ public class Error extends RuntimeException {
     public static void pop() {
         ArrayDeque<String> c=threadContext.get();
         if(!c.isEmpty())
-            c.pop();
+            c.removeLast();
         if(c.isEmpty())
             threadContext.remove();
     }
@@ -101,13 +101,17 @@ public class Error extends RuntimeException {
     }
 
     private Error(ArrayDeque<String> context,String errorCode,String msg) {
-        this.context=context;
+        this.context=(ArrayDeque<String>)context.clone();
         this.errorCode=errorCode;
         this.msg=msg;
     }
 
     public void pushContext(String context) {
-        this.context.push(context);
+        this.context.addLast(context);
+    }
+
+    public void popContext() {
+        this.context.removeLast();
     }
 
     public void setErrorCode(String code) {
@@ -142,8 +146,8 @@ public class Error extends RuntimeException {
     }
 
     public JsonNode toJson() {
-        ObjectNode node=(ObjectNode)factory.objectNode().
-            put("object_type",factory.textNode("error"));
+        ObjectNode node=(ObjectNode)factory.objectNode();
+        node.put("object_type",factory.textNode("error"));
         if(!context.isEmpty())
             node.put("context",factory.textNode(getContext()));
         if(errorCode!=null)

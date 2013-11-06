@@ -30,6 +30,12 @@ public abstract class ArrayElement implements TreeNode, Serializable {
 
     private String type;
 
+    public ArrayElement() {}
+
+    public ArrayElement(String type) {
+        this.type=type;
+    }
+
     /**
      * Gets the value of type
      * 

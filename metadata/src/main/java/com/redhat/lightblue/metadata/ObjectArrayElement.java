@@ -29,6 +29,10 @@ public class ObjectArrayElement extends ArrayElement {
 
     private final Fields fields = new Fields();
 
+    public ObjectArrayElement() {
+        super(Constants.TYPE_OBJECT);
+    }
+
     public Fields getFields() {
         return fields;
     }

@@ -26,6 +26,14 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
 public class SimpleArrayElement extends ArrayElement {
+    
+    public SimpleArrayElement() {
+    }
+
+    public SimpleArrayElement(String type) {
+        super(type);
+    }
+
     public int getNumChildren() {
         return 0;
     }

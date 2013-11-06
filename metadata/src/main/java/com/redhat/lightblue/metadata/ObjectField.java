@@ -30,8 +30,7 @@ public class ObjectField extends Field {
     private final Fields fields = new Fields();
 
     public ObjectField(String name) {
-        super(name);
-        setType(Constants.TYPE_OBJECT);
+        super(name,Constants.TYPE_OBJECT);
     }
 
     public Fields getFields() {
