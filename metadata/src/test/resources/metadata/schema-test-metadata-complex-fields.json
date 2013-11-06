@@ -79,6 +79,18 @@
                         "write":[
                             "admin"
                         ]
+                    },
+                    "hooks":{
+                        "insert":[
+                            "publish"
+                        ],
+                        "update":[
+                            "audit",
+                            "publish"
+                        ],
+                        "delete":[
+                            "audit"
+                        ]
                     }
                 },
                 "city":{
