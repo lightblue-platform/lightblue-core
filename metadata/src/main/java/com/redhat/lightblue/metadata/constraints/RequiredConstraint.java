@@ -17,16 +17,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.metadata.constraints;
 
-public interface FieldConstraint {
-    /**
-     * Return the constraint type
-     */
-    public String getType();
+import java.io.Serializable;
 
-    /**
-     * Determines if the constraint is valid for the given field type
-     */
-    public boolean isValidForFieldType(String fieldType);
+import com.redhat.lightblue.metadata.FieldConstraint;
+
+/**
+ * Field required constraint
+ */
+public class RequiredConstraint implements FieldConstraint, Serializable {
+    
+    private static final long serialVersionUID=1l;
+
+    public static final String REQUIRED="required";
+
+    private boolean value;
+
+    public String getType() {
+        return REQUIRED;
+    }
+
+    public boolean isValidForFieldType(String fieldType) {
+        return true;
+    }
+
+    public boolean getValue() {
+        return value;
+    }
+
+    public void setValue(boolean v) {
+        value=v;
+    }
 }

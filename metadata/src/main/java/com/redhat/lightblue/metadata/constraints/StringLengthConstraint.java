@@ -17,16 +17,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.metadata.constraints;
 
-public interface FieldConstraint {
-    /**
-     * Return the constraint type
-     */
-    public String getType();
+import java.io.Serializable;
 
-    /**
-     * Determines if the constraint is valid for the given field type
-     */
-    public boolean isValidForFieldType(String fieldType);
+import com.redhat.lightblue.metadata.Constants;
+
+/**
+ * String minlength and maxlength constraints
+ */
+public class StringLengthConstraint extends AbstractIntFieldConstraint {
+
+    public static final String MINLENGTH="minlength";
+    public static final String MAXLENGHT="maxlength";
+
+    public StringLengthConstraint(String type) {
+        super(type);
+    }
+
+    public boolean isValidForFieldType(String fieldType) {
+        return Constants.TYPE_STRING.equals(fieldType);
+    }
 }

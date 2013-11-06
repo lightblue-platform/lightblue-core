@@ -17,16 +17,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.metadata.constraints;
 
-public interface FieldConstraint {
-    /**
-     * Return the constraint type
-     */
-    public String getType();
+import java.io.Serializable;
 
-    /**
-     * Determines if the constraint is valid for the given field type
-     */
-    public boolean isValidForFieldType(String fieldType);
+import com.redhat.lightblue.metadata.Constants;
+
+/**
+ * Array min/max size  constraints
+ */
+public class ArraySizeConstraint extends AbstractIntFieldConstraint {
+
+    public static final String MIN="minItems";
+    public static final String MAX="maxItems";
+
+    public ArraySizeConstraint(String type) {
+        super(type);
+    }
+
+    public boolean isValidForFieldType(String fieldType) {
+        return Constants.TYPE_ARRAY.equals(fieldType);
+    }
 }
