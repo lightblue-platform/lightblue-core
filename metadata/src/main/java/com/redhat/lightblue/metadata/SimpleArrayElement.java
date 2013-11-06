@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class SimpleArrayElement extends ArrayElement {
     public int getNumChildren() {
@@ -45,6 +46,6 @@ public class SimpleArrayElement extends ArrayElement {
         if(p.numSegments()==level)
             return this;
         else
-            throw new InvalidArrayReference(p,p.head(level));
+            throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
     }
 }

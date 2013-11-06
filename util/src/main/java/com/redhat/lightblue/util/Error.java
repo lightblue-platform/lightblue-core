@@ -77,6 +77,13 @@ public class Error extends RuntimeException {
     }
 
     /**
+     * Constructs a new error object using the current context
+     */
+    public static Error get(String errorCode) {
+        return new Error(threadContext.get(),errorCode,null);
+    }
+
+    /**
      * Resets the stack thread context
      */
     public static void reset() {

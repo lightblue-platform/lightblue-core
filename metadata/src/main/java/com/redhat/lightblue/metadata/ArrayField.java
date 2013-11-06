@@ -25,6 +25,7 @@ import java.util.Iterator;
 import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Util;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class ArrayField extends Field {
 
@@ -74,11 +75,16 @@ public class ArrayField extends Field {
         if(l==0)
             return this;
         else {
-            if(p.isIndex(level)||
-               p.head(level).equals(Path.ANY))
-                return element.resolve(p,level+1);
-            else
-                throw new InvalidArrayReference(p,p.head(level));
+            Error.push(p.head(level));
+            try {
+                if(p.isIndex(level)||
+                   p.head(level).equals(Path.ANY))
+                    return element.resolve(p,level+1);
+                else
+                    throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+            } finally {
+                Error.pop();
+            }
         } 
     }
 

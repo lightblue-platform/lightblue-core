@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class SimpleField extends Field {
     public SimpleField(String name) {
@@ -49,6 +50,6 @@ public class SimpleField extends Field {
         if(p.numSegments()==level)
             return this;
         else
-            throw new InvalidFieldReference(p,p.head(level));
+            throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
     }
 }

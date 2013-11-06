@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class ObjectArrayElement extends ArrayElement {
 
@@ -54,13 +55,18 @@ public class ObjectArrayElement extends ArrayElement {
             return this;
         else {
             String name=p.head(level);
-            if(p.isIndex(level)||
-               name.equals(Path.ANY))
-                throw new InvalidFieldReference(p,name);
-            Field f=(Field)getChild(name);
-            if(f==null)
-                throw new InvalidFieldReference(p,name);
-            return f.resolve(p,level+1);
+            Error.push(name);
+            try {
+                if(p.isIndex(level)||
+                   name.equals(Path.ANY))
+                    throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+                Field f=(Field)getChild(name);
+                if(f==null)
+                    throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+                return f.resolve(p,level+1);
+            } finally {
+                Error.pop();
+            }
         }
     }
 }

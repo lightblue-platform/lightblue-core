@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class Fields implements TreeNode, Serializable {
 
@@ -77,7 +78,7 @@ public class Fields implements TreeNode, Serializable {
     public void addNew(Field f) {
         String name = f.getName();
         if (has(name))
-            throw new DuplicateField(name);
+            throw Error.get(Constants.ERR_DUPLICATE_FIELD,name);
         fieldMap.put(name, f);
         fields.add(f);
     }
@@ -104,18 +105,22 @@ public class Fields implements TreeNode, Serializable {
 
     protected TreeNode resolve(Path p,int level) {
         if(level>=p.numSegments())
-            throw new InvalidRedirection(p);
+            throw Error.get(Constants.ERR_INVALID_REDIRECTION,p.toString());
         String name=p.head(level);
-
-        if(p.isIndex(level))
-            throw new InvalidArrayReference(p,name);
-        if(name.equals(Path.ANY))
-            throw new InvalidArrayReference(p,name);
-
-        Field field=getField(name);
-        if(field==null)
-            throw new InvalidFieldReference(p,name);
-        return field.resolve(p,level+1);
+        Error.push(name);
+        try {
+            if(p.isIndex(level))
+                throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+            if(name.equals(Path.ANY))
+                throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+            
+            Field field=getField(name);
+            if(field==null)
+                throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+            return field.resolve(p,level+1);
+        } finally {
+            Error.pop();
+        }
     }
 
 }

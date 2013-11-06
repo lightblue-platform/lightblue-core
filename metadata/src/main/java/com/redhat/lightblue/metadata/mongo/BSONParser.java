@@ -40,7 +40,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    protected String getStringProperty(BSONObject object,String name) {
+    public String getStringProperty(BSONObject object,String name) {
         Object x=object.get(name);
         if(x!=null)
             if(x instanceof String)
@@ -52,7 +52,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    protected BSONObject getObjectProperty(BSONObject object,String name) {
+    public BSONObject getObjectProperty(BSONObject object,String name) {
         Object x=object.get(name);
         if(x!=null)
             if(x instanceof BSONObject)
@@ -64,7 +64,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    protected List<String> getStringList(BSONObject object,String name) {
+    public List<String> getStringList(BSONObject object,String name) {
         Object x=object.get(name);
         if(x!=null)
             if(x instanceof List) {
@@ -79,7 +79,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    protected List<BSONObject> getObjectList(BSONObject object,String name) {
+    public List<BSONObject> getObjectList(BSONObject object,String name) {
         Object x=object.get(name);
         if(x!=null) {
             if(x instanceof List)
@@ -91,39 +91,39 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    protected BSONObject newNode() {
+    public BSONObject newNode() {
         return new BasicDBObject();
     }
 
     @Override
-    protected Set<String> getChildNames(BSONObject object) {
+    public Set<String> getChildNames(BSONObject object) {
         return object.keySet();
     }
 
     @Override
-    protected void putString(BSONObject object,String name,String value) {
+    public void putString(BSONObject object,String name,String value) {
         object.put(name,value);
     }
 
     @Override
-    protected void putObject(BSONObject object,String name,Object value) {
+    public void putObject(BSONObject object,String name,Object value) {
         object.put(name,value);
     }
 
     @Override
-    protected  Object newArrayField(BSONObject object,String name) {
+    public  Object newArrayField(BSONObject object,String name) {
         Object ret=new ArrayList();
         object.put(name,ret);
         return ret;
     }
 
     @Override
-    protected void addStringToArray(Object array,String value) {
+    public void addStringToArray(Object array,String value) {
         ((List)array).add(value);
     }
 
     @Override
-    protected void addObjectToArray(Object array,Object value) {
+    public void addObjectToArray(Object array,Object value) {
         ((List)array).add(value);
     }
 }

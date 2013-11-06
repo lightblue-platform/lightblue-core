@@ -19,6 +19,8 @@
 
 package com.redhat.lightblue.metadata.parser;
 
+import com.redhat.lightblue.metadata.MetadataParser;
+
 /**
  * Common interface for parsers for metadata extensions
  *
@@ -32,13 +34,13 @@ public interface Parser<NodeType,T> {
     /**
      * Return an object representation of the node
      */
-    public T parse(NodeType node);
+    public T parse(MetadataParser<NodeType> p,NodeType node);
 
     /**
      * Intialize the empt node <code>emptyNode</code> with the
      * contents of <code>object</code>
      */
-    public void convert(NodeType emptyNode,T object);
+    public void convert(MetadataParser<NodeType> p,NodeType emptyNode,T object);
 }
 
     

@@ -170,7 +170,7 @@ public abstract class MetadataParser<T> {
                     EntityConstraintParser<T> parser=getEntityConstraintParser(name);
                     if(parser==null)
                         throw Error.get(INVALID_CONSTRAINT,name);
-                    EntityConstraint constraint=parser.parse(x);
+                    EntityConstraint constraint=parser.parse(this,x);
                     dest.add(constraint);
                 } finally {
                     Error.pop();
@@ -190,7 +190,7 @@ public abstract class MetadataParser<T> {
                     FieldConstraintParser<T> parser=getFieldConstraintParser(name);
                     if(parser==null)
                         throw Error.get(INVALID_CONSTRAINT,name);
-                    FieldConstraint constraint=parser.parse(x);
+                    FieldConstraint constraint=parser.parse(this,x);
                     dest.add(constraint);
                 } finally {
                     Error.pop();
@@ -262,7 +262,7 @@ public abstract class MetadataParser<T> {
             DataStoreParser<T> p=getDataStoreParser(name);
             if(p==null)
                 throw Error.get(UNKNOWN_DATASTORE,name);
-            return p.parse(getObjectProperty(object,name));
+            return p.parse(this,getObjectProperty(object,name));
         } else
             return null;
     }
@@ -355,22 +355,27 @@ public abstract class MetadataParser<T> {
      * Converts the entity metadata to T
      */
     public T convert(EntityMetadata md) {
-        T ret=newNode();
-        if(md.getName()!=null)
-            putString(ret,"name",md.getName());
-        if(md.getExtendsFrom()!=null)
-            putString(ret,"extends",md.getExtendsFrom());    
-        putObject(ret,"version",convert(md.getVersion()));
-        putObject(ret,"access",convert(md.getAccess()));
-        putObject(ret,"fields",convert(md.getFields()));
-        convertEntityConstraints(ret,md.getConstraints());
-        if(md.getDataStore()!=null) {
-            String dataStoreName=md.getDataStore().getType();
-            T dsNode=newNode();
-            convertDataStore(dsNode,md.getDataStore());
-            putObject(ret,"datastore",dsNode);
+        Error.push("convert");
+        try {
+            T ret=newNode();
+            if(md.getName()!=null)
+                putString(ret,"name",md.getName());
+            if(md.getExtendsFrom()!=null)
+                putString(ret,"extends",md.getExtendsFrom());    
+            putObject(ret,"version",convert(md.getVersion()));
+            putObject(ret,"access",convert(md.getAccess()));
+            putObject(ret,"fields",convert(md.getFields()));
+            convertEntityConstraints(ret,md.getConstraints());
+            if(md.getDataStore()!=null) {
+                String dataStoreName=md.getDataStore().getType();
+                T dsNode=newNode();
+                convertDataStore(dsNode,md.getDataStore());
+                putObject(ret,"datastore",dsNode);
+            }
+            return ret;
+        } finally {
+            Error.pop();
         }
-        return ret;
     }
 
     /**
@@ -378,18 +383,23 @@ public abstract class MetadataParser<T> {
      */
     public T convert(Version v) {
         if(v!=null) {
-            T obj=newNode();
-            if(v.getValue()!=null)
-                putString(obj,"value",v.getValue());
-            String[] ex=v.getExtendsVersions();
-            if(ex!=null&&ex.length>0) {
-                Object arr=newArrayField(obj,"extendsVersions");
-                for(String x:ex)
-                    addStringToArray(arr,x);
+            Error.push("version");
+            try {
+                T obj=newNode();
+                if(v.getValue()!=null)
+                    putString(obj,"value",v.getValue());
+                String[] ex=v.getExtendsVersions();
+                if(ex!=null&&ex.length>0) {
+                    Object arr=newArrayField(obj,"extendsVersions");
+                    for(String x:ex)
+                        addStringToArray(arr,x);
+                }
+                if(v.getChangelog()!=null)
+                    putString(obj,"changelog",v.getChangelog());
+                return obj;
+            } finally {
+                Error.pop();
             }
-            if(v.getChangelog()!=null)
-                putString(obj,"changelog",v.getChangelog());
-            return obj;
         } else
             return null;
     }
@@ -399,12 +409,17 @@ public abstract class MetadataParser<T> {
      */
     public  T convert(EntityAccess access) {
         if(access!=null) {
-            T ret=newNode();
-            convertRoles(ret,"insert",access.getInsert());
-            convertRoles(ret,"update",access.getUpdate());
-            convertRoles(ret,"find",access.getFind());
-            convertRoles(ret,"delete",access.getDelete());
-            return ret;
+            Error.push("access");
+            try {
+                T ret=newNode();
+                convertRoles(ret,"insert",access.getInsert());
+                convertRoles(ret,"update",access.getUpdate());
+                convertRoles(ret,"find",access.getFind());
+                convertRoles(ret,"delete",access.getDelete());
+                return ret;
+            } finally {
+                Error.pop();
+            }
         } else
             return null;
     }
@@ -414,10 +429,15 @@ public abstract class MetadataParser<T> {
      */
     public T convert(FieldAccess access) {
         if(access!=null) {
-            T ret=newNode();
-            convertRoles(ret,"find",access.getFind());
-            convertRoles(ret,"update",access.getUpdate());
-            return ret;
+            Error.push("access");
+            try {
+                T ret=newNode();
+                convertRoles(ret,"find",access.getFind());
+                convertRoles(ret,"update",access.getUpdate());
+                return ret;
+            } finally {
+                Error.pop();
+            }
         } else
             return null;
     }
@@ -430,18 +450,23 @@ public abstract class MetadataParser<T> {
         for(Iterator<Field> itr=fields.getFields();itr.hasNext();) {
             Field field=itr.next();
             T fieldObject=newNode();
-            putObject(ret,field.getName(),fieldObject);
-            putString(fieldObject,"type",field.getType());
-            if(field instanceof SimpleField) {
-                ; // Nothing to do
-            } else if(field instanceof ArrayField) {
-                convertArrayField((ArrayField)field,fieldObject);
-            } else if(field instanceof ObjectField) {
-                convertObjectField((ObjectField)field,fieldObject);
-            } //else if(field instanceof RelationField) {
-            //            }
-            putObject(fieldObject,"access",convert(field.getAccess()));
-            convertFieldConstraints(fieldObject,field.getConstraints());
+            Error.push(field.getName());
+            try {
+                putObject(ret,field.getName(),fieldObject);
+                putString(fieldObject,"type",field.getType());
+                if(field instanceof SimpleField) {
+                    ; // Nothing to do
+                } else if(field instanceof ArrayField) {
+                    convertArrayField((ArrayField)field,fieldObject);
+                } else if(field instanceof ObjectField) {
+                    convertObjectField((ObjectField)field,fieldObject);
+                } //else if(field instanceof RelationField) {
+                //            }
+                putObject(fieldObject,"access",convert(field.getAccess()));
+                convertFieldConstraints(fieldObject,field.getConstraints());
+            } finally {
+                Error.pop();
+            }
         }
         return ret;
     }
@@ -452,15 +477,20 @@ public abstract class MetadataParser<T> {
      */
     public void convertFieldConstraints(T parent,List<FieldConstraint> constraints) {
         if(constraints!=null&&!constraints.isEmpty()) {
-            Object arr=newArrayField(parent,"constraints");
-            for(FieldConstraint constraint:constraints) {
-                String constraintType=constraint.getType();
-                FieldConstraintParser<T> parser=getFieldConstraintParser(constraintType);
-                if(parser==null)
-                    throw Error.get(INVALID_CONSTRAINT,constraintType);
-                T constraintNode=newNode();
-                parser.convert(constraintNode,constraint);
-                addObjectToArray(arr,constraintNode);
+            Error.push("constraints");
+            try {
+                Object arr=newArrayField(parent,"constraints");
+                for(FieldConstraint constraint:constraints) {
+                    String constraintType=constraint.getType();
+                    FieldConstraintParser<T> parser=getFieldConstraintParser(constraintType);
+                    if(parser==null)
+                        throw Error.get(INVALID_CONSTRAINT,constraintType);
+                    T constraintNode=newNode();
+                    parser.convert(this,constraintNode,constraint);
+                    addObjectToArray(arr,constraintNode);
+                }
+            } finally {
+                Error.pop();
             }
         }
     }
@@ -471,15 +501,20 @@ public abstract class MetadataParser<T> {
      */
     public void convertEntityConstraints(T parent,List<EntityConstraint> constraints) {
         if(constraints!=null&&!constraints.isEmpty()) {
-            Object arr=newArrayField(parent,"constraints");
-            for(EntityConstraint constraint:constraints) {
-                String constraintType=constraint.getType();
-                EntityConstraintParser<T> parser=getEntityConstraintParser(constraintType);
-                if(parser==null)
-                    throw Error.get(INVALID_CONSTRAINT,constraintType);
-                T constraintNode=newNode();
-                parser.convert(constraintNode,constraint);
-                addObjectToArray(arr,constraintNode);
+            Error.push("constraints");
+            try {
+                Object arr=newArrayField(parent,"constraints");
+                for(EntityConstraint constraint:constraints) {
+                    String constraintType=constraint.getType();
+                    EntityConstraintParser<T> parser=getEntityConstraintParser(constraintType);
+                    if(parser==null)
+                        throw Error.get(INVALID_CONSTRAINT,constraintType);
+                    T constraintNode=newNode();
+                    parser.convert(this,constraintNode,constraint);
+                    addObjectToArray(arr,constraintNode);
+                }
+            } finally {
+                Error.pop();
             }
         }
     }
@@ -489,13 +524,18 @@ public abstract class MetadataParser<T> {
      * the type of the datastore
      */
     public void convertDataStore(T parent,DataStore store) {
-        String type=store.getType();
-        DataStoreParser<T> parser=getDataStoreParser(type);
-        if(parser==null)
-            throw Error.get(UNKNOWN_DATASTORE,type);
-        T dsNode=newNode();
-        parser.convert(dsNode,store);
-        putObject(parent,type,dsNode);
+        Error.push("datastore");
+        try {
+            String type=store.getType();
+            DataStoreParser<T> parser=getDataStoreParser(type);
+            if(parser==null)
+                throw Error.get(UNKNOWN_DATASTORE,type);
+            T dsNode=newNode();
+            parser.convert(this,dsNode,store);
+            putObject(parent,type,dsNode);
+        } finally {
+            Error.pop();
+        }
     }
     
     private void convertObjectField(ObjectField field,T fieldObject) {
@@ -536,7 +576,7 @@ public abstract class MetadataParser<T> {
      * @return The string property requested, or null if property does
      * not exist
      */
-    protected abstract String getStringProperty(T object,String name);
+    public abstract String getStringProperty(T object,String name);
 
     /**
      * Returns an object child property
@@ -547,7 +587,7 @@ public abstract class MetadataParser<T> {
      * @return The property requested, or null if property does not
      * exist
      */
-    protected abstract T getObjectProperty(T object,String name);
+    public abstract T getObjectProperty(T object,String name);
 
     /**
      * Returns a string list child property
@@ -558,7 +598,7 @@ public abstract class MetadataParser<T> {
      * @return The string list property, or null if property does not
      * exist
      */
-    protected abstract List<String> getStringList(T object,String name);
+    public abstract List<String> getStringList(T object,String name);
 
     /**
      * Returns an object list of child property
@@ -569,7 +609,7 @@ public abstract class MetadataParser<T> {
      * @return Object list property, or null if property does not
      * exist
      */
-    protected abstract List<T> getObjectList(T object,String name);
+    public abstract List<T> getObjectList(T object,String name);
 
     /**
      * Returns the names of the child elements
@@ -578,37 +618,37 @@ public abstract class MetadataParser<T> {
      *
      * @return The names of child elements
      */
-    protected abstract Set<String> getChildNames(T object);
+    public abstract Set<String> getChildNames(T object);
 
     /**
      * Creates a new node
      */
-    protected abstract T newNode();
+    public abstract T newNode();
 
     /**
      * Adds a new string field to the object. 
      */
-    protected abstract void putString(T object,String name,String value);
+    public abstract void putString(T object,String name,String value);
 
     /**
      * Adds a new object field to the object. 
      */
-    protected abstract void putObject(T object,String name,Object value);
+    public abstract void putObject(T object,String name,Object value);
 
     /**
      * Creates a new array field
      */
-    protected abstract Object newArrayField(T object,String name);
+    public abstract Object newArrayField(T object,String name);
 
     /**
      * Adds an element to the array
      */
-    protected abstract void addStringToArray(Object array,String value);
+    public abstract void addStringToArray(Object array,String value);
 
     /**
      * Adds an element to the array
      */
-    protected abstract void addObjectToArray(Object array,Object value);
+    public abstract void addObjectToArray(Object array,Object value);
 
 
 }

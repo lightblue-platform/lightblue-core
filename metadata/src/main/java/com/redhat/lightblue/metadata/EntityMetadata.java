@@ -24,6 +24,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.TreeNode;
+
 public class EntityMetadata implements Serializable {
 
     private static final long serialVersionUID = 1l;
@@ -172,4 +176,12 @@ public class EntityMetadata implements Serializable {
         return this.fields;
     }
 
+    public TreeNode resolve(Path p) {
+        Error.push(name);
+        try {
+            return fields.resolve(p);
+        } finally {
+            Error.pop();
+        }
+    }
 }

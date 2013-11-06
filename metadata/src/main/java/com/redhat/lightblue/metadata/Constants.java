@@ -30,6 +30,12 @@ public final class Constants {
     public static final String TYPE_OBJECT="object";
     public static final String TYPE_RELATION="relation";
 
+    public static final String ERR_DUPLICATE_FIELD="DUPLICATE_FIELD";
+    public static final String ERR_INVALID_ARRAY_REFERENCE="INVALID_ARRAY_REFERENCE";
+    public static final String ERR_INVALID_FIELD_REFERENCE="INVALID_FIELD_REFERENCE";
+    public static final String ERR_INVALID_REDIRECTION="INVALID_REDIRECTION";
+
+
     private Constants() {
     }
 }
