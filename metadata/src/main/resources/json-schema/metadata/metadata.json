@@ -26,6 +26,61 @@
         "status":{
             "$ref":"#/definitions/status"
         },
+        "hooks":{
+            "type":"array",
+            "description":"Definition of all hooks for use within field data.",
+            "items":{
+                "properties":{
+                    "name":{
+                        "type":"string",
+                        "description":"The name of the hook, unique in the context of an instance of metadata."
+                    },
+                    "type":{
+                        "enum":[
+                            "jms",
+                            "rest",
+                            "file"
+                        ],
+                        "description":"How the hook is triggered"
+                    },
+                    "include":{
+                        "type":"array",
+                        "items":{
+                            "enum":[
+                                "request",
+                                "response",
+                                "before",
+                                "after"
+                            ]
+                        }
+                    },
+                    "before":{
+                        "enum":[
+                            "partial",
+                            "full"
+                        ],
+                        "description":"Indicate how much of the entity's previous state is required.  If partial, can just include the subset of data impacted by the operation triggering the hook.  If full, include full original data."
+                    },
+                    "after":{
+                        "enum":[
+                            "partial",
+                            "full"
+                        ],
+                        "description":"Indicate how much of the entity's previous state is required.  If partial, can just include the subset of data impacted by the operation triggering the hook.  If full, include full original data."
+                    },
+                    "target":{
+                        "type":"string",
+                        "description":"The target of this hook firing, depends on 'type' for context.  If type is jms, it's the JNDI name to find the jms destination.  If type is rest it is a URL (relative or full) to call with the hook data.  If type is file, it's the local file to write, relative to TBD."
+                    }
+                },
+                "required":[
+                    "name",
+                    "type",
+                    "before",
+                    "after"
+                ]
+            }
+        },
         "access":{
             "type":"object",
             "description":"Defines what roles are required for specific operations on this entity.",
@@ -233,14 +288,9 @@
         "hook_value_array":{
             "type":"array",
             "items":{
-                "$ref":"#/definitions/hook_value"
+                "type":"string",
+                "description":"Names of hooks defined for this metadata."
             }
-        },
-        "hook_value":{
-            "enum":[
-                "audit",
-                "publish"
-            ]
         },
         "reference":{
             "$ref":"common.json#/definitions/reference"
