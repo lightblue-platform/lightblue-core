@@ -21,20 +21,36 @@ package com.redhat.lightblue.metadata.parser;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Allows parser extensions to be registered with the metadata parser
  */
-public class ParserRegistry<NodeType,ObjType> {
+public class ParserRegistry<NodeType,ObjType> implements ParserResolver<NodeType,ObjType> {
 
     private final Map<String,Parser<NodeType,ObjType>> parserMap=
         new HashMap<String,Parser<NodeType,ObjType>>();
+
+    private final List<ParserResolver<NodeType,ObjType>> resolvers=
+        new ArrayList<ParserResolver<NodeType,ObjType>>();
     
+    public synchronized void add(ParserResolver<NodeType,ObjType> resolver) {
+        resolvers.add(resolver);
+    }
+
     public synchronized void add(String objectName,Parser<NodeType,ObjType> parser) {
         parserMap.put(objectName,parser);
     }
 
     public Parser<NodeType,ObjType> get(String objectName) {
-        return parserMap.get(objectName);
+        Parser<NodeType,ObjType> parser=parserMap.get(objectName);
+        if(parser==null)
+            for(ParserResolver<NodeType,ObjType> resolver:resolvers) {
+                parser=resolver.get(objectName);
+                if(parser!=null)
+                    break;;
+            }
+        return parser;
     }
 }
