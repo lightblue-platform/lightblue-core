@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata;
 
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.redhat.lightblue.util.Error;
@@ -40,6 +41,7 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 public abstract class MetadataParser<T> {
 
     public static final String PARSE_MISSING_ELEMENT="PARSE_MISSING_ELEMENT";
+    public static final String PARSE_INVALID_STATUS="PARSE_INVALID_STATUS";
     public static final String INVALID_ARRAY_ELEMENT_TYPE="INVALID_ARRAY_ELEMENT_TYPE";
     public static final String ILL_FORMED_MD="ILL_FORMED_METADATA";
     public static final String INVALID_DATASTORE="INVALID_DATASTORE";
@@ -83,6 +85,10 @@ public abstract class MetadataParser<T> {
             if(version==null)
                 throw Error.get(PARSE_MISSING_ELEMENT,"version");
             md.setVersion(parseVersion(version));
+            T status=getObjectProperty(object,"status");
+            if(status==null)
+                throw Error.get(PARSE_MISSING_ELEMENT,"status");
+            parseStatus(md,status);
             T access=getObjectProperty(object,"access");
             if(access!=null)
                 parseEntityAccess(md.getAccess(),access);
@@ -125,6 +131,35 @@ public abstract class MetadataParser<T> {
                 return v;
             } else
                 return null;
+        } finally {
+            Error.pop();
+        }
+    }
+
+    /**
+     * Parses metadata status, and populates metadata
+     */ 
+    public void parseStatus(EntityMetadata md, T object) {
+        Error.push("status");
+        try {
+            String value=getStringProperty(object,"value");
+            if(value==null||value.trim().length()==0)
+                throw Error.get(PARSE_MISSING_ELEMENT,"value");
+            md.setStatus(statusFromString(value));
+            List<T> logList=getObjectList(object,"log");
+            List<StatusChange> list=new ArrayList<StatusChange>();
+            if(logList!=null) {
+                for(T log:logList) {
+                    StatusChange item=new StatusChange();
+                    // TODO: date
+                    String s=getStringProperty(log,"value");
+                    if(s!=null)
+                        item.setStatus(statusFromString(s));
+                    item.setComment(getStringProperty(log,"comment"));
+                    list.add(item);
+                }
+                md.setStatusChangeLog(list);
+            }
         } finally {
             Error.pop();
         }
@@ -363,6 +398,7 @@ public abstract class MetadataParser<T> {
             if(md.getExtendsFrom()!=null)
                 putString(ret,"extends",md.getExtendsFrom());    
             putObject(ret,"version",convert(md.getVersion()));
+            putObject(ret,"status",convert(md.getStatus(),md.getStatusChangeLog()));
             putObject(ret,"access",convert(md.getAccess()));
             putObject(ret,"fields",convert(md.getFields()));
             convertEntityConstraints(ret,md.getConstraints());
@@ -402,6 +438,33 @@ public abstract class MetadataParser<T> {
             }
         } else
             return null;
+    }
+
+    public T convert(MetadataStatus status,List<StatusChange> changeLog) {
+        if(status!=null&&changeLog!=null) {
+            Error.push("status");
+            try {
+                T obj=newNode();
+                if(status!=null) 
+                    putString(obj,"value",toString(status));
+                if(changeLog!=null&&!changeLog.isEmpty()) {
+                    Object logArray=newArrayField(obj,"log");
+                    for(StatusChange x:changeLog) {
+                        T log=newNode();
+                        // TODO: date
+                        if(x.getStatus()!=null)
+                            putString(log,"value",toString(x.getStatus()));
+                        if(x.getComment()!=null)
+                            putString(log,"comment",x.getComment());
+                        addObjectToArray(logArray,log);
+                    }
+                }
+                return obj;
+            } finally {
+                Error.pop();
+            }
+        }
+        return null;
     }
 
     /**
@@ -565,6 +628,26 @@ public abstract class MetadataParser<T> {
             for(String x:r) 
                 addStringToArray(arr,x);
         }
+    }
+
+    private String toString(MetadataStatus status) {
+        switch(status) {
+        case ACTIVE: return "active";
+        case DEPRECATED: return "deprecated";
+        case DISABLED: return "disabled";
+        }
+        return null;
+    }
+
+    private MetadataStatus statusFromString(String status) {
+        if("active".equals(status))
+            return MetadataStatus.ACTIVE;
+        else if("deprecated".equals(status))
+            return MetadataStatus.DEPRECATED;
+        else if("disabled".equals(status))
+            return MetadataStatus.DISABLED;
+        else
+            throw Error.get(PARSE_INVALID_STATUS,status);
     }
 
     /**
