@@ -29,7 +29,7 @@ import com.redhat.lightblue.metadata.Constants;
 public class StringLengthConstraint extends AbstractIntFieldConstraint {
 
     public static final String MINLENGTH="minlength";
-    public static final String MAXLENGHT="maxlength";
+    public static final String MAXLENGTH="maxlength";
 
     public StringLengthConstraint(String type) {
         super(type);

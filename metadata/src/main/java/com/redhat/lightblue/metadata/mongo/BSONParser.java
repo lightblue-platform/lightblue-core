@@ -22,6 +22,7 @@ package com.redhat.lightblue.metadata.mongo;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Date;
 
 import com.mongodb.BasicDBObject;
 
@@ -57,6 +58,21 @@ public class BSONParser extends MetadataParser<BSONObject> {
         if(x!=null)
             if(x instanceof BSONObject)
                 return (BSONObject)x;
+            else
+                throw Error.get(MetadataParser.ILL_FORMED_MD,name);
+        else
+            return null;
+    }
+
+    @Override
+    public Object getValueProperty(BSONObject object,String name) {
+        Object x=object.get(name);
+        if(x!=null)
+            if(x instanceof Number ||
+               x instanceof String ||
+               x instanceof Date ||
+               x instanceof Boolean)
+                return x;
             else
                 throw Error.get(MetadataParser.ILL_FORMED_MD,name);
         else
@@ -107,6 +123,11 @@ public class BSONParser extends MetadataParser<BSONObject> {
 
     @Override
     public void putObject(BSONObject object,String name,Object value) {
+        object.put(name,value);
+    }
+
+    @Override
+    public void putValue(BSONObject object,String name,Object value) {
         object.put(name,value);
     }
 

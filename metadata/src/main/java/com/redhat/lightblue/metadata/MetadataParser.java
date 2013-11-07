@@ -651,10 +651,12 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Returns a string child property
+     * Returns a string child property 
      *
      * @param object The object containing the property
      * @param name Name of the property to return
+     *
+     * If the property is not a string, should throw exception
      *
      * @return The string property requested, or null if property does
      * not exist
@@ -667,10 +669,24 @@ public abstract class MetadataParser<T> {
      * @param object The object containing the property
      * @param name Name of the property to return
      *
+     * If the property is not an object, should throw an exception
+     *
      * @return The property requested, or null if property does not
      * exist
      */
     public abstract T getObjectProperty(T object,String name);
+
+    /**
+     * Returns a property that is a simple value
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not a simple java value, should throw exception
+     *
+     * @return The property requested, or null if property does
+     * not exist
+     */
+    public abstract Object getValueProperty(T object,String name);
 
     /**
      * Returns a string list child property
@@ -717,6 +733,11 @@ public abstract class MetadataParser<T> {
      * Adds a new object field to the object. 
      */
     public abstract void putObject(T object,String name,Object value);
+
+    /**
+     * Adds a simple value field
+     */
+    public abstract void putValue(T object,String name,Object value);
 
     /**
      * Creates a new array field

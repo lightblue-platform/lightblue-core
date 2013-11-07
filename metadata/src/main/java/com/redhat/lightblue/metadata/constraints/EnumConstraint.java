@@ -35,13 +35,15 @@ public class EnumConstraint implements FieldConstraint, Serializable {
 
     private static final long serialVersionUID=1l;
 
+    public static final String TYPE="enum";
+
     private final HashSet<String> values=new HashSet<String>();
 
     public EnumConstraint() {
     }
 
     public String getType() {
-        return "enum";
+        return TYPE;
     }
 
     public boolean isValidForFieldType(String fieldType) {
@@ -52,7 +54,7 @@ public class EnumConstraint implements FieldConstraint, Serializable {
         return (Set<String>)values.clone();
     }
 
-    public void setValue(Collection<String> values) {
+    public void setValues(Collection<String> values) {
         this.values.clear();
         if(values!=null)
             this.values.addAll(values);
