@@ -54,6 +54,7 @@
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>query-api</module>
         <module>crud</module>
         <module>metadata</module>
         <module>util</module>
