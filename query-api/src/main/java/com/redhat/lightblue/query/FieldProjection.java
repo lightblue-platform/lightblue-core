@@ -18,6 +18,8 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class FieldProjection extends BasicProjection {
@@ -48,5 +50,12 @@ public class FieldProjection extends BasicProjection {
     public void setRecursive(boolean argRecursive) {
         this.recursive = argRecursive;
     }
-
+    
+    public JsonNode toJson() {
+        return factory.objectNode().
+            put("field",field.toString()).
+            put("include",include).
+            put("recursive",recursive);
+    }
 }
+

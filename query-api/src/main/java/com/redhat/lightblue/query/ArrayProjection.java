@@ -18,6 +18,9 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.redhat.lightblue.util.Path;
 
 public abstract class ArrayProjection extends BasicProjection {
@@ -50,4 +53,13 @@ public abstract class ArrayProjection extends BasicProjection {
         this.project = argProject;
     }
 
+    public JsonNode toJson() {
+        ObjectNode node=factory.objectNode().
+            put("field",field.toString()).
+            put("include",include);
+        if(project!=null)
+            node.put("project",project.toJson());
+        return node;
+    }
+            
 }

@@ -18,6 +18,8 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class ArrayQueryMatchProjection extends ArrayProjection {
@@ -32,5 +34,8 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
         this.match = argMatch;
     }
 
+    public JsonNode toJson() {
+        return super.toJson().put("match",match.toJson());
+    }
 }
 
