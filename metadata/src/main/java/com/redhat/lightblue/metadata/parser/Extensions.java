@@ -34,6 +34,14 @@ public class Extensions<T> {
     private final ParserRegistry<T,FieldConstraint> fieldConstraintParsers=
         new ParserRegistry<T,FieldConstraint>();
 
+    /**
+     * Initializes this to include the default extensions
+     */
+    public void addDefaultExtensions() {
+        fieldConstraintParsers.add(new DefaultFieldConstraintParsers());
+        entityConstraintParsers.add(new DefaultEntityConstraintParsers());
+    }
+
     public void registerDataStoreParser(String name,DataStoreParser<T> parser) {
         dataStoreParsers.add(name,parser);
     }

@@ -30,7 +30,12 @@ import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 
-public class DefaultFieldConstraintParsers<NodeType> implements ParserResolver<NodeType,FieldConstraint> {
+/**
+ * Convenience class to register all predefined constraint parsers to
+ * MetadataParser
+ */
+public class DefaultFieldConstraintParsers<NodeType> 
+    implements ParserResolver<NodeType,FieldConstraint> {
     
     private final Map<String,Parser<NodeType,FieldConstraint>> map;
 

@@ -27,7 +27,8 @@ import java.util.List;
 /**
  * Allows parser extensions to be registered with the metadata parser
  */
-public class ParserRegistry<NodeType,ObjType> implements ParserResolver<NodeType,ObjType> {
+public class ParserRegistry<NodeType,ObjType> 
+    implements ParserResolver<NodeType,ObjType> {
 
     private final Map<String,Parser<NodeType,ObjType>> parserMap=
         new HashMap<String,Parser<NodeType,ObjType>>();
@@ -53,4 +54,6 @@ public class ParserRegistry<NodeType,ObjType> implements ParserResolver<NodeType
             }
         return parser;
     }
+
+        
 }
