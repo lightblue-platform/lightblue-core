@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.4" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
+  realizations="true" associations="true" dependencies="false" nesting-relationships="true">  
+  <class id="1" language="java" name="com.redhat.lightblue.metadata.constraints.ReferencesConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/ReferencesConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="41" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="com.redhat.lightblue.metadata.constraints.StringLengthConstraint" 
+    project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/StringLengthConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="941" y="128"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="com.redhat.lightblue.metadata.constraints.Reference" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/Reference.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="41" y="128"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="com.redhat.lightblue.metadata.constraints.ArraySizeConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/ArraySizeConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="1166" y="128"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="com.redhat.lightblue.metadata.constraints.RequiredConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/RequiredConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="491" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="com.redhat.lightblue.metadata.constraints.EnumConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/EnumConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="716" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="com.redhat.lightblue.metadata.constraints.UniqueConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/UniqueConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="266" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="com.redhat.lightblue.metadata.constraints.AbstractIntFieldConstraint" 
+    project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/AbstractIntFieldConstraint.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="1166" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="com.redhat.lightblue.metadata.constraints.MinMaxConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/constraints/MinMaxConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="185" x="941" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="10" language="java" name="com.redhat.lightblue.metadata.FieldConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/FieldConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="136" x="765" y="128"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </interface>  
+  <interface id="11" language="java" name="com.redhat.lightblue.metadata.EntityConstraint" project="metadata" 
+    file="/metadata/src/main/java/com/redhat/lightblue/metadata/EntityConstraint.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="51" width="136" x="266" y="128"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="false" package="false" protected="false" private="false" static="true"/>      
+      <operations public="false" package="false" protected="false" private="false" static="true"/>    
+    </display>  
+  </interface>  
+  <realization id="12">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="10"/>  
+  </realization>  
+  <realization id="13">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="10"/>  
+  </realization>  
+  <realization id="14">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="11"/>  
+  </realization>  
+  <realization id="15">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="11"/>  
+  </realization>  
+  <generalization id="16">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <association id="17">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="18" name="references"/>      
+      <multiplicity id="19" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="20">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <realization id="21">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="10"/>  
+  </realization>  
+  <realization id="22">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="10"/>  
+  </realization>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
