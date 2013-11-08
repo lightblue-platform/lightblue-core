@@ -18,6 +18,9 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class RegexMatchExpression 
@@ -59,4 +62,12 @@ public class RegexMatchExpression
         this.options = argOptions;
     }
 
+    public JsonNode toJson() {
+        ObjectNode node=factory.objectNode().
+            put("field",field.toString()).
+            put("regex",regex);
+        if(options!=null)
+            node.put("options",options);
+        return node;
+    }
 }

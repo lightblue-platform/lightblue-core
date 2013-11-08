@@ -18,6 +18,8 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class ArrayMatchExpression extends ArrayComparisonExpression {
@@ -40,4 +42,8 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
         this.elemMatch = argElemMatch;
     }
 
+    public JsonNode toJson() {
+        return factory.objectNode().put("array",array.toString()).
+            put("elemMatch",elemMatch.toJson());
+    }
 }

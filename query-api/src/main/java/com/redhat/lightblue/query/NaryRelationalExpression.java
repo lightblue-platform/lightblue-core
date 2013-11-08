@@ -21,6 +21,9 @@ package com.redhat.lightblue.query;
 import java.util.List;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class NaryRelationalExpression extends RelationalExpression {
@@ -67,5 +70,14 @@ public class NaryRelationalExpression extends RelationalExpression {
 
     public void setValues(List<Value> v) {
         this.values=v;
+    }
+
+    public JsonNode toJson() {
+        ArrayNode arr=factory.arrayNode();
+        for(Value x:values)
+            arr.add(x.toJson());
+        return factory.objectNode().put("field",field.toString()).
+            put("op",op.toString()).
+            put("values",arr);
     }
 }

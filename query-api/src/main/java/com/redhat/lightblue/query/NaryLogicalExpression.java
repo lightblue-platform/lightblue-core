@@ -21,6 +21,9 @@ package com.redhat.lightblue.query;
 import java.util.List;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 public class NaryLogicalExpression extends LogicalExpression {
 
     private NaryLogicalOperator op;
@@ -53,6 +56,13 @@ public class NaryLogicalExpression extends LogicalExpression {
 
     public void setQueries(List<QueryExpression> argQuery) {
         this.queries = argQuery;
+    }
+
+    public JsonNode toJson() {
+        ArrayNode arr=factory.arrayNode();
+        for(QueryExpression x:queries)
+            arr.add(x.toJson());
+        return factory.objectNode().put(op.toString(),arr);
     }
 
 }

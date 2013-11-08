@@ -18,6 +18,8 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class UnaryLogicalExpression extends LogicalExpression {
 
     private UnaryLogicalOperator op;
@@ -47,4 +49,7 @@ public class UnaryLogicalExpression extends LogicalExpression {
         this.query = argQuery;
     }
 
+    public JsonNode toJson() {
+        return factory.objectNode().put(op.toString(),query.toJson());
+    }
 }

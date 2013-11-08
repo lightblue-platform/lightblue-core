@@ -18,6 +18,8 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class ValueComparisonExpression 
@@ -49,5 +51,11 @@ public class ValueComparisonExpression
 
     public void setRvalue(Value argValue) {
         this.rvalue = argValue;
+    }
+
+    public JsonNode toJson() {
+        return factory.objectNode().put("field",field.toString()).
+            put("op",op.toString()).
+            put("rvalue",rvalue.toJson());
     }
 }

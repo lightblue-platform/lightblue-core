@@ -18,6 +18,8 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.util.Path;
 
 public class FieldComparisonExpression 
@@ -49,5 +51,11 @@ public class FieldComparisonExpression
 
     public void setRfield(Path argRfield) {
         this.rfield = argRfield;
+    }
+
+    public JsonNode toJson() {
+        return factory.objectNode().put("field",field.toString()).
+            put("op",op.toString()).
+            put("rfield",rfield.toString());
     }
 }
