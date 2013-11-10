@@ -19,12 +19,16 @@
 package com.redhat.lightblue.query;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class NaryRelationalExpression extends RelationalExpression {
 
@@ -79,5 +83,30 @@ public class NaryRelationalExpression extends RelationalExpression {
         return factory.objectNode().put("field",field.toString()).
             put("op",op.toString()).
             put("values",arr);
+    }
+
+    public static NaryRelationalExpression fromJson(ObjectNode node) {
+        if(node.size()==3) {
+            JsonNode x=node.get("op");
+            if(x!=null) {
+                NaryRelationalOperator op=
+                    NaryRelationalOperator.fromString(x.asText());
+                if(op!=null) {
+                    x=node.get("field");
+                    if(x!=null) {
+                        Path field=new Path(x.asText());
+                        x=node.get("values");
+                        if(x!=null&&x instanceof ArrayNode) {
+                            ArrayList<Value> values=new ArrayList<Value>(((ArrayNode)x).size());
+                            for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
+                                itr.hasNext();)
+                                values.add(Value.fromJson(itr.next()));
+                            return new NaryRelationalExpression(field,op,values);
+                        }
+                    }
+                }
+            }
+        }
+        throw Error.get(INVALID_COMPARISON_EXPRESSION,node.toString());
     }
 }

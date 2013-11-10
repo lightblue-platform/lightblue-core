@@ -18,13 +18,74 @@
 */
 package com.redhat.lightblue.query;
 
-import java.io.Serializable;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public abstract class Value implements Serializable {
+import com.redhat.lightblue.util.Error;
 
-    private static final long serialVersionUID=1l;
+public class Value extends JsonObject {
+    private Object value;
 
-    public abstract JsonNode toJson();
+    public static final String INVALID_VALUE="INVALID_VALUE";
+
+    public Value() {}
+
+    public Value(Object o) {
+        this.value=o;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object o) {
+        this.value=o;
+    }
+
+    public JsonNode toJson() {
+        if(value instanceof Number) {
+            if(value instanceof BigDecimal)
+                return factory.numberNode((BigDecimal)value);
+            else if(value instanceof BigInteger)
+                return factory.numberNode((BigInteger)value);
+            else if(value instanceof Double)
+                return factory.numberNode((Double)value);
+            else if(value instanceof Float)
+                return factory.numberNode((Float)value);
+            else if(value instanceof Long)
+                return factory.numberNode((Long)value);
+            else 
+                return factory.numberNode(((Number)value).intValue());
+        } else if(value instanceof Boolean)
+            return factory.booleanNode((Boolean)value);
+        else
+            return factory.textNode(value.toString());
+    }
+
+    public static Value fromJson(JsonNode node) {
+        if(node.isValueNode()) {
+            Value ret=new Value();
+            if(node.isNumber()) {
+                if(node.isBigDecimal())
+                    ret.value=node.decimalValue();
+                else if(node.isBigInteger())
+                    ret.value=node.bigIntegerValue();
+                else if(node.isDouble())
+                    ret.value=node.doubleValue();
+                else if(node.isFloat())
+                    ret.value=node.floatValue();
+                else if(node.isLong())
+                    ret.value=node.longValue();
+                else
+                    ret.value=node.intValue();
+            } else if(node.isBoolean())
+                ret.value=node.booleanValue();
+            else
+                ret.value=node.textValue();
+            return ret;
+        } else
+            throw Error.get(INVALID_VALUE,node.toString());
+    }
 }

@@ -20,6 +20,7 @@ package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
 
@@ -27,6 +28,18 @@ public class ArrayRangeProjection extends ArrayProjection {
 
     private int from;
     private int to;
+
+    public ArrayRangeProjection() {}
+
+    public ArrayRangeProjection(Path field,
+                                boolean include,
+                                Projection project,
+                                int from,
+                                int to) {
+        super(field,include,project);
+        this.from=from;
+        this.to=to;
+    }
 
     public int getFrom() {
         return this.from;
@@ -46,9 +59,9 @@ public class ArrayRangeProjection extends ArrayProjection {
 
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
-        arr.add(factory.intNode(from)).
-            add(factory.intNode(to));
-        return super.put("range",arr);
+        arr.add(factory.numberNode(from)).
+            add(factory.numberNode(to));
+        return ((ObjectNode)super.toJson()).put("range",arr);
     }
 }
 

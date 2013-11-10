@@ -19,31 +19,53 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class ArrayMatchExpression extends ArrayComparisonExpression {
     private Path array;
     private QueryExpression elemMatch;
 
-    public final Path getArray() {
+    public ArrayMatchExpression() {}
+
+    public ArrayMatchExpression(Path array,
+                                QueryExpression elemMatch) {
+        this.array=array;
+        this.elemMatch=elemMatch;
+    }
+
+    public Path getArray() {
         return this.array;
     }
 
-    public final void setArray(final Path argArray) {
+    public void setArray(Path argArray) {
         this.array = argArray;
     }
 
-    public final QueryExpression getElemMatch() {
+    public QueryExpression getElemMatch() {
         return this.elemMatch;
     }
 
-    public final void setElemMatch(final QueryExpression argElemMatch) {
+    public void setElemMatch(QueryExpression argElemMatch) {
         this.elemMatch = argElemMatch;
     }
 
     public JsonNode toJson() {
         return factory.objectNode().put("array",array.toString()).
             put("elemMatch",elemMatch.toJson());
+    }
+
+    public static ArrayMatchExpression fromJson(ObjectNode node) {
+        JsonNode x=node.get("array");
+        if(x!=null) {
+            Path field=new Path(x.asText());
+            x=node.get("elemMatch");
+            if(x!=null) {
+                return new ArrayMatchExpression(field,QueryExpression.fromJson(x));
+            }
+        }
+        throw Error.get(INVALID_ARRAY_COMPARISON_EXPRESSION,node.toString());
     }
 }

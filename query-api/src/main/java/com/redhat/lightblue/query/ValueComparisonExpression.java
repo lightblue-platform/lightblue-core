@@ -29,6 +29,16 @@ public class ValueComparisonExpression
     private BinaryComparisonOperator op;
     private Value rvalue;
 
+    public ValueComparisonExpression() {}
+
+    public ValueComparisonExpression(Path field,
+                                     BinaryComparisonOperator op,
+                                     Value rvalue) {
+        this.field=field;
+        this.op=op;
+        this.rvalue=rvalue;
+    }
+
     public Path getField() {
         return this.field;
     }

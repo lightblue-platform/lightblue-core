@@ -18,7 +18,37 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+
 public abstract class BinaryRelationalExpression 
     extends RelationalExpression {
 
+    public static BinaryRelationalExpression fromJson(ObjectNode node) {
+        if(node.size()==3) {
+            JsonNode x=node.get("op");
+            if(x!=null) {
+                BinaryComparisonOperator op=
+                    BinaryComparisonOperator.fromString(x.asText());
+                if(op!=null) {
+                    x=node.get("field");
+                    if(x!=null) {
+                        Path field=new Path(x.asText());
+                        x=node.get("rfield");
+                        if(x!=null) 
+                            return new FieldComparisonExpression(field,op,new Path(x.asText()));
+                        else {
+                            x=node.get("rvalue");
+                            if(x!=null)
+                                return new ValueComparisonExpression(field,op,Value.fromJson(x));
+                        }
+                    }
+                }
+            }
+        }
+        throw Error.get(INVALID_COMPARISON_EXPRESSION,node.toString());
+    }
 }

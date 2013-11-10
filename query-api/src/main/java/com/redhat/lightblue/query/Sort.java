@@ -18,10 +18,18 @@
 */
 package com.redhat.lightblue.query;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
-public abstract class Sort implements Serializable {
+public abstract class Sort extends JsonObject {
 
-    private static final long serialVersionUID=1l;
+    public static final String INVALID_SORT="INVALID_SORT";
 
+    public static Sort fromJson(JsonNode node) {
+        if(node instanceof ArrayNode)
+            return CompositeSortKey.fromJson((ArrayNode)node);
+        else
+            return SortKey.fromJson((ObjectNode)node);
+    }
 }

@@ -19,12 +19,23 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
 
 public class ArrayQueryMatchProjection extends ArrayProjection {
 
     private QueryExpression match;
+
+    public ArrayQueryMatchProjection() {}
+
+    public ArrayQueryMatchProjection(Path field,
+                                     boolean include,
+                                     Projection project,
+                                     QueryExpression match) {
+        super(field,include,project);
+        this.match=match;
+    }
 
     public QueryExpression getMatch() {
         return this.match;
@@ -35,7 +46,7 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
     }
 
     public JsonNode toJson() {
-        return super.toJson().put("match",match.toJson());
+        return ((ObjectNode)super.toJson()).put("match",match.toJson());
     }
 }
 

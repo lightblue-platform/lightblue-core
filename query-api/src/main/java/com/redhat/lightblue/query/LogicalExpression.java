@@ -19,5 +19,5 @@
 package com.redhat.lightblue.query;
 
 public abstract class LogicalExpression extends QueryExpression {
-    
+    public static final String INVALID_LOGICAL_EXPRESSION="INVALID_LOGICAL_EXPRESSION";
 }

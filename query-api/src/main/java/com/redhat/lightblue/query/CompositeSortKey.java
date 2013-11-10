@@ -19,7 +19,13 @@
 package com.redhat.lightblue.query;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Arrays;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class CompositeSortKey extends Sort {
 
@@ -43,4 +49,18 @@ public class CompositeSortKey extends Sort {
         this.keys=keys;
     }
 
+    public JsonNode toJson() {
+        ArrayNode arr=factory.arrayNode();
+        for(SortKey x:keys)
+            arr.add(x.toJson());
+        return arr;
+    }
+
+    public static CompositeSortKey fromJson(ArrayNode node) {
+        ArrayList<SortKey> l=new ArrayList<SortKey>(node.size());
+        for(Iterator<JsonNode> itr=node.elements();
+            itr.hasNext();)
+            l.add(SortKey.fromJson((ObjectNode)itr.next()));
+        return new CompositeSortKey(l);
+    }
 }

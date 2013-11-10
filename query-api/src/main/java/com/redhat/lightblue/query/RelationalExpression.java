@@ -18,6 +18,27 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.util.Error;
+
 public abstract class RelationalExpression extends ComparisonExpression {
 
+    public static RelationalExpression fromJson(ObjectNode node) {
+        JsonNode x=node.get("regex");
+        if(x!=null)
+            return RegexMatchExpression.fromJson(node);
+        else {
+            x=node.get("op");
+            if(x!=null) {
+                String op=x.asText();
+                if(BinaryComparisonOperator.fromString(op)!=null)
+                    return BinaryRelationalExpression.fromJson(node);
+                else if(NaryRelationalOperator.fromString(op)!=null)
+                    return NaryRelationalExpression.fromJson(node);
+            }
+        }
+        throw Error.get(INVALID_COMPARISON_EXPRESSION,node.toString());
+    }
 }

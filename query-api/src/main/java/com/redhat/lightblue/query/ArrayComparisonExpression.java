@@ -18,7 +18,25 @@
 */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public abstract class ArrayComparisonExpression extends ComparisonExpression {
+
+    public static final String INVALID_ARRAY_COMPARISON_EXPRESSION="INVALID_ARRAY_COMPARISON_EXPRESSION";
+
+    public static ArrayComparisonExpression fromJson(ObjectNode node) {
+        JsonNode x=node.get("contains");
+        if(x!=null)
+            return ArrayContainsExpression.fromJson(node);
+        else {
+            x=node.get("elemMatch");
+            if(x!=null)
+                return ArrayMatchExpression.fromJson(node);
+        }
+        throw Error.get(INVALID_ARRAY_COMPARISON_EXPRESSION,node.toString());
+    }
 }

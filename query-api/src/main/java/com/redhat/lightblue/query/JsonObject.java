@@ -18,16 +18,22 @@
 */
 package com.redhat.lightblue.query;
 
-import com.redhat.lightblue.util.Path;
+import java.io.Serializable;
 
-public class ArraySizeProjection extends BasicProjection {
-    private Path sizeField;
+import com.fasterxml.jackson.databind.JsonNode;
 
-    public Path getSizeField() {
-        return this.sizeField;
-    }
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-    public void setSizeField(Path argSizeField) {
-        this.sizeField = argSizeField;
+public abstract class JsonObject implements Serializable {
+    
+    private static final long serialVersionUID=1l;
+
+    protected static JsonNodeFactory factory=
+        JsonNodeFactory.withExactBigDecimals(false);
+
+    public abstract JsonNode toJson();
+
+    public String toString() {
+        return toJson().toString();
     }
 }

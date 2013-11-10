@@ -20,9 +20,14 @@ package com.redhat.lightblue.query;
 
 import java.util.List;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.util.Error;
 
 public class NaryLogicalExpression extends LogicalExpression {
 
@@ -65,4 +70,22 @@ public class NaryLogicalExpression extends LogicalExpression {
         return factory.objectNode().put(op.toString(),arr);
     }
 
+    public static NaryLogicalExpression fromJson(ObjectNode node) {
+        if(node.size()!=1)
+            throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());
+        String fieldName=node.fieldNames().next();
+        NaryLogicalOperator op=NaryLogicalOperator.fromString(fieldName);
+        if(op==null)
+            throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());
+        JsonNode x=node.get(fieldName);
+        if(x instanceof ArrayNode) {
+            ArrayList<QueryExpression> list=
+                new ArrayList<QueryExpression>(((ArrayNode)x).size());
+            for( Iterator<JsonNode> itr=((ArrayNode)x).elements();
+                 itr.hasNext();)
+                list.add(QueryExpression.fromJson(itr.next()));
+            return new NaryLogicalExpression(op,list);
+        } else
+            throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());
+    }
 }

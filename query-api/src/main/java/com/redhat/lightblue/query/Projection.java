@@ -18,21 +18,18 @@
 */
 package com.redhat.lightblue.query;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-public abstract class Projection implements Serializable {
+public abstract class Projection extends JsonObject {
     
     private static final long serialVersionUID=1l;
 
-    protected static JsonNodeFactory factory=
-        JsonNodeFactory.withExactBigDecimals(false);
-
-    public abstract JsonNode toJson();
-
-    public String toString() {
-        return toJson().toString();
+    public static Projection fromJson(JsonNode node) {
+        if(node instanceof ArrayNode) 
+            return ProjectionList.fromJson((ArrayNode)node);
+        else
+            return BasicProjection.fromJson((ObjectNode)node);
+    }
 }

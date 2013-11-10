@@ -22,9 +22,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class RegexMatchExpression 
     extends RelationalExpression {
+
+    public static final String INVALID_REGEX_EXPRESSION="INVALID_REGEX_EXPRESSION";
 
     private Path field;
     private String regex;
@@ -69,5 +72,19 @@ public class RegexMatchExpression
         if(options!=null)
             node.put("options",options);
         return node;
+    }
+
+    public static RegexMatchExpression fromJson(ObjectNode node) {
+        JsonNode x=node.get("field");
+        if(x!=null) {
+            Path field=new Path(x.asText());
+            x=node.get("regex");
+            if(x!=null) {
+                String regex=x.asText();
+                x=node.get("options");
+                return new RegexMatchExpression(field,regex,x==null?null:x.asText());
+            }
+        }
+      throw Error.get(INVALID_REGEX_EXPRESSION,node.toString());
     }
 }

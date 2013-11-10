@@ -29,6 +29,16 @@ public abstract class ArrayProjection extends BasicProjection {
     private boolean include;
     private Projection project;
 
+    public ArrayProjection() {}
+
+    public ArrayProjection(Path field,
+                           boolean include,
+                           Projection project) {
+        this.field=field;
+        this.include=include;
+        this.project=project;
+    }
+
     public Path getField() {
         return this.field;
     }

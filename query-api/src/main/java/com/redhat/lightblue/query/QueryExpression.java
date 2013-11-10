@@ -18,22 +18,28 @@
 */
 package com.redhat.lightblue.query;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.util.Error;
 
-public abstract class QueryExpression implements Serializable {
+public abstract class QueryExpression extends JsonObject {
 
-    private static final long serialVersionUID=1l;
+    public static final String INVALID_QUERY="INVALID_QUERY";
 
-    protected static JsonNodeFactory factory=
-        JsonNodeFactory.withExactBigDecimals(false);
-
-    public abstract JsonNode toJson();
-
-    public String toString() {
-        return toJson().toString();
+    public static QueryExpression fromJson(JsonNode node) {
+        if(node instanceof ObjectNode) {
+            ObjectNode onode=(ObjectNode)node;
+            // If there is only one field, then that field must be a
+            // logical operator
+            String firstField=onode.fieldNames().next();
+            if(UnaryLogicalOperator.fromString(firstField)!=null)
+                return UnaryLogicalExpression.fromJson(onode);
+            else if(NaryLogicalOperator.fromString(firstField)!=null)
+                return NaryLogicalExpression.fromJson(onode);
+            else
+                return ComparisonExpression.fromJson(onode);
+        } else
+            throw Error.get(INVALID_QUERY,node.toString());
     }
 }

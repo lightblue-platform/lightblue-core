@@ -27,6 +27,16 @@ public class FieldProjection extends BasicProjection {
     private boolean include;
     private boolean recursive;
 
+    public FieldProjection() {}
+
+    public FieldProjection(Path field,
+                           boolean include,
+                           boolean recursive) {
+        this.field=field;
+        this.include=include;
+        this.recursive=recursive;
+    }
+
     public Path getField() {
         return this.field;
     }

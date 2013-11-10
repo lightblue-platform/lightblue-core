@@ -19,12 +19,16 @@
 package com.redhat.lightblue.query;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 public class ArrayContainsExpression extends  ArrayComparisonExpression {
     private Path array;
@@ -79,5 +83,27 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
             put("array",array.toString()).
             put("contains",op.toString()).
             put("values",arr);
+    }
+
+    public static ArrayContainsExpression fromJson(ObjectNode node) {
+        JsonNode x=node.get("array");
+        if(x!=null) {
+            Path field=new Path(x.asText());
+            x=node.get("contains");
+            if(x!=null) {
+                ContainsOperator op=ContainsOperator.fromString(x.asText());
+                if(op!=null) {
+                    x=node.get("values");
+                    if(x!=null&&x instanceof ArrayNode) {
+                        ArrayList<Value> values=new ArrayList<Value>(((ArrayNode)x).size());
+                        for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
+                            itr.hasNext();)
+                            values.add(Value.fromJson(itr.next()));
+                        return new ArrayContainsExpression(field,op,values);
+                    }
+                }
+            }
+        }
+        throw Error.get(INVALID_ARRAY_COMPARISON_EXPRESSION,node.toString());
     }
 }
