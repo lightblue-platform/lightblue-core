@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import com.redhat.lightblue.util.JsonUtils;
+
 public class ProjectionParseTest {
     final String doc1="{\"field\":\"field.x\", \"include\": true}";
     final String doc2="{\"field\":\"field.y.x\",\"include\": false, \"recursive\": true}";
@@ -19,7 +21,7 @@ public class ProjectionParseTest {
     
     @Test
     public void doc1Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc1));
+        Projection p=Projection.fromJson(JsonUtils.json(doc1));
         Assert.assertTrue(p instanceof FieldProjection);
         FieldProjection x=(FieldProjection)p;
         doc1Asserts(x);
@@ -33,7 +35,7 @@ public class ProjectionParseTest {
 
     @Test
     public void doc2Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc2));
+        Projection p=Projection.fromJson(JsonUtils.json(doc2));
         Assert.assertTrue(p instanceof FieldProjection);
         FieldProjection x=(FieldProjection)p;
         doc2Asserts(x);
@@ -47,7 +49,7 @@ public class ProjectionParseTest {
 
     @Test
     public void doc3Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc3));
+        Projection p=Projection.fromJson(JsonUtils.json(doc3));
         Assert.assertTrue(p instanceof FieldProjection);
         FieldProjection x=(FieldProjection)p;
         doc3Asserts(x);
@@ -61,7 +63,7 @@ public class ProjectionParseTest {
 
     @Test
     public void doc4Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc4));
+        Projection p=Projection.fromJson(JsonUtils.json(doc4));
         Assert.assertTrue(p instanceof ArrayQueryMatchProjection);
         ArrayQueryMatchProjection x=(ArrayQueryMatchProjection)p;
         Assert.assertEquals("field.x",x.getField().toString());
@@ -78,7 +80,7 @@ public class ProjectionParseTest {
 
     @Test
     public void doc5Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc5));
+        Projection p=Projection.fromJson(JsonUtils.json(doc5));
         Assert.assertTrue(p instanceof ArrayMatchingElementsProjection);
         ArrayMatchingElementsProjection x=(ArrayMatchingElementsProjection)p;
         Assert.assertEquals("field.x",x.getField().toString());
@@ -91,7 +93,7 @@ public class ProjectionParseTest {
 
     @Test
     public void doc6Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc6));
+        Projection p=Projection.fromJson(JsonUtils.json(doc6));
         Assert.assertTrue(p instanceof ArrayRangeProjection);
         ArrayRangeProjection x=(ArrayRangeProjection)p;
         Assert.assertEquals("field.x",x.getField().toString());
@@ -106,7 +108,7 @@ public class ProjectionParseTest {
 
     @Test
     public void doc7Test() throws Exception {
-        Projection p=Projection.fromJson(json(doc7));
+        Projection p=Projection.fromJson(JsonUtils.json(doc7));
         Assert.assertTrue(p instanceof ProjectionList);
         ProjectionList x=(ProjectionList)p;
         Assert.assertEquals(3,x.getItems().size());
@@ -117,17 +119,13 @@ public class ProjectionParseTest {
 
     @Test
     public void convertTest() throws Exception {
-        JSONAssert.assertEquals(doc1,Projection.fromJson(json(doc1)).toString(),false);
-        JSONAssert.assertEquals(doc2,Projection.fromJson(json(doc2)).toString(),false);
-        JSONAssert.assertEquals(doc3,Projection.fromJson(json(doc3)).toString(),false);
-        JSONAssert.assertEquals(doc4,Projection.fromJson(json(doc4)).toString(),false);
-        JSONAssert.assertEquals(doc5,Projection.fromJson(json(doc5)).toString(),false);
-        JSONAssert.assertEquals(doc6,Projection.fromJson(json(doc6)).toString(),false);
-        JSONAssert.assertEquals(doc7,Projection.fromJson(json(doc7)).toString(),false);
+        JSONAssert.assertEquals(doc1,Projection.fromJson(JsonUtils.json(doc1)).toString(),false);
+        JSONAssert.assertEquals(doc2,Projection.fromJson(JsonUtils.json(doc2)).toString(),false);
+        JSONAssert.assertEquals(doc3,Projection.fromJson(JsonUtils.json(doc3)).toString(),false);
+        JSONAssert.assertEquals(doc4,Projection.fromJson(JsonUtils.json(doc4)).toString(),false);
+        JSONAssert.assertEquals(doc5,Projection.fromJson(JsonUtils.json(doc5)).toString(),false);
+        JSONAssert.assertEquals(doc6,Projection.fromJson(JsonUtils.json(doc6)).toString(),false);
+        JSONAssert.assertEquals(doc7,Projection.fromJson(JsonUtils.json(doc7)).toString(),false);
     }
    
-    private JsonNode json(String s) throws Exception {
-        ObjectMapper mapper=new ObjectMapper();
-        return mapper.readTree(s);
-    }
 }

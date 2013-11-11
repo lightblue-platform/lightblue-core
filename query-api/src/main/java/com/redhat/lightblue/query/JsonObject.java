@@ -29,7 +29,7 @@ public abstract class JsonObject implements Serializable {
     private static final long serialVersionUID=1l;
 
     protected static JsonNodeFactory factory=
-        JsonNodeFactory.withExactBigDecimals(false);
+        JsonNodeFactory.withExactBigDecimals(true);
 
     public abstract JsonNode toJson();
 

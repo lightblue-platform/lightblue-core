@@ -8,13 +8,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import com.redhat.lightblue.util.JsonUtils;
+
 public class SortParseTest {
     final String doc1="{\"field\":\"$asc\"}";
     final String doc2="[ {\"field\":\"$asc\"},{\"field2\":\"$desc\"},{\"field3.x\":\"$desc\"} ]";
 
     @Test
     public void basicSortParseTest() throws Exception {
-        Sort s=Sort.fromJson(json(doc1));
+        Sort s=Sort.fromJson(JsonUtils.json(doc1));
         Assert.assertTrue(s instanceof SortKey);
         SortKey k=(SortKey)s;
         Assert.assertEquals("field",k.getField().toString());
@@ -23,7 +25,7 @@ public class SortParseTest {
 
     @Test
     public void compositeSortParseTest() throws Exception {
-        Sort s=Sort.fromJson(json(doc2));
+        Sort s=Sort.fromJson(JsonUtils.json(doc2));
         Assert.assertTrue(s instanceof CompositeSortKey);
         CompositeSortKey k=(CompositeSortKey)s;
         Assert.assertEquals(3,k.getKeys().size());
@@ -37,12 +39,7 @@ public class SortParseTest {
 
     @Test
     public void sortConversionTest() throws Exception {
-        JSONAssert.assertEquals(doc1,Sort.fromJson(json(doc1)).toString(),false);
-        JSONAssert.assertEquals(doc2,Sort.fromJson(json(doc2)).toString(),false);
-    }
-
-    private JsonNode json(String s) throws Exception {
-        ObjectMapper mapper=new ObjectMapper();
-        return mapper.readTree(s);
+        JSONAssert.assertEquals(doc1,Sort.fromJson(JsonUtils.json(doc1)).toString(),false);
+        JSONAssert.assertEquals(doc2,Sort.fromJson(JsonUtils.json(doc2)).toString(),false);
     }
 }

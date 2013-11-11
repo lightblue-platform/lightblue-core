@@ -68,14 +68,10 @@ public class Value extends JsonObject {
         if(node.isValueNode()) {
             Value ret=new Value();
             if(node.isNumber()) {
-                if(node.isBigDecimal())
+                if(node.isBigDecimal()||node.isDouble()||node.isFloat())
                     ret.value=node.decimalValue();
                 else if(node.isBigInteger())
                     ret.value=node.bigIntegerValue();
-                else if(node.isDouble())
-                    ret.value=node.doubleValue();
-                else if(node.isFloat())
-                    ret.value=node.floatValue();
                 else if(node.isLong())
                     ret.value=node.longValue();
                 else
