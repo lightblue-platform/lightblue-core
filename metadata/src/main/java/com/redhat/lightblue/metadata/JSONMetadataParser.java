@@ -51,7 +51,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         JsonNode x=object.get(name);
         if(x!=null)
             if(x.isContainerNode())
-                throw Error.get(MetadataParser.ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
             else
                 return x.asText();
         else
@@ -75,7 +75,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
                     return x.asText();
                 }
             } else
-                throw Error.get(MetadataParser.ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
         else
             return null;
     }
@@ -90,7 +90,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
                     ret.add(itr.next().asText());
                 return ret;
             } else
-                throw Error.get(MetadataParser.ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
         else
             return null;
     }
@@ -105,7 +105,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
                     ret.add(itr.next());
                 return ret;
             }  else
-                throw Error.get(MetadataParser.ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
         } else
             return null;
     }

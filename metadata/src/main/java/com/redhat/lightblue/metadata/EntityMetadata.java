@@ -32,11 +32,13 @@ public class EntityMetadata implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private final String name;
     private String extendsFrom;
+
+    private final String name;
+    private Version version;
     private MetadataStatus status;
     private final ArrayList<StatusChange> statusChangeLog=new ArrayList<StatusChange>();
-    private Version version;
+    //hooks
     private final EntityAccess access = new EntityAccess();
     private final ArrayList<EntityConstraint> constraints = new ArrayList<EntityConstraint>();
     private DataStore dataStore;

@@ -38,8 +38,8 @@ public class Extensions<T> {
      * Initializes this to include the default extensions
      */
     public void addDefaultExtensions() {
-        fieldConstraintParsers.add(new DefaultFieldConstraintParsers());
-        entityConstraintParsers.add(new DefaultEntityConstraintParsers());
+        fieldConstraintParsers.add(new DefaultFieldConstraintParsers<T>());
+        entityConstraintParsers.add(new DefaultEntityConstraintParsers<T>());
     }
 
     public void registerDataStoreParser(String name,DataStoreParser<T> parser) {

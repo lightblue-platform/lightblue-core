@@ -19,18 +19,19 @@
 
 package com.redhat.lightblue.metadata;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.Iterator;
 
-import com.redhat.lightblue.util.Error;
-
-import com.redhat.lightblue.metadata.parser.Parser;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
-import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Base class for converting metadata to/from json/bson and
@@ -39,14 +40,16 @@ import com.redhat.lightblue.metadata.parser.Extensions;
  * The metadata parser is thread safe.
  */
 public abstract class MetadataParser<T> {
+    
+    public SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMDD HHmmssSSSS");
 
-    public static final String PARSE_MISSING_ELEMENT="PARSE_MISSING_ELEMENT";
-    public static final String PARSE_INVALID_STATUS="PARSE_INVALID_STATUS";
-    public static final String INVALID_ARRAY_ELEMENT_TYPE="INVALID_ARRAY_ELEMENT_TYPE";
-    public static final String ILL_FORMED_MD="ILL_FORMED_METADATA";
-    public static final String INVALID_DATASTORE="INVALID_DATASTORE";
-    public static final String UNKNOWN_DATASTORE="UNKNOWN_DATASTORE";
-    public static final String INVALID_CONSTRAINT="INVALID_CONSTRAINT";
+    public static final String ERR_PARSE_MISSING_ELEMENT="PARSE_MISSING_ELEMENT";
+    public static final String ERR_PARSE_INVALID_STATUS="PARSE_INVALID_STATUS";
+    public static final String ERR_INVALID_ARRAY_ELEMENT_TYPE="INVALID_ARRAY_ELEMENT_TYPE";
+    public static final String ERR_ILL_FORMED_MD="ILL_FORMED_METADATA";
+    public static final String ERR_INVALID_DATASTORE="INVALID_DATASTORE";
+    public static final String ERR_UNKNOWN_DATASTORE="UNKNOWN_DATASTORE";
+    public static final String ERR_INVALID_CONSTRAINT="INVALID_CONSTRAINT";
 
     private final Extensions<T> extensions;
 
@@ -69,38 +72,37 @@ public abstract class MetadataParser<T> {
     /**
      * Entry point for entity metadata parser. Expects an Object
      * corresponding to the EntityMetadata object.
+     * @throws ParseException 
      */
-    public EntityMetadata parseEntityMetadata(T object) {
+    public EntityMetadata parseEntityMetadata(T object) throws ParseException {
         Error.push("parseEntityMetadata");
         try {
-            String name=getStringProperty(object,"name");
-            if(name==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"name");
+            String name=getRequiredStringProperty(object,"name");
         
             EntityMetadata md=new EntityMetadata(name);
             String ex=getStringProperty(object,"extends");
             if(ex!=null)
                 md.setExtendsFrom(ex);
-            T version=getObjectProperty(object,"version");
-            if(version==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"version");
+            
+            T version=getRequiredObjectProperty(object,"version");
             md.setVersion(parseVersion(version));
-            T status=getObjectProperty(object,"status");
-            if(status==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"status");
+            
+            T status=getRequiredObjectProperty(object,"status");
             parseStatus(md,status);
+
+            // TODO hooks
+            
             T access=getObjectProperty(object,"access");
             if(access!=null)
                 parseEntityAccess(md.getAccess(),access);
-            T fields=getObjectProperty(object,"fields");
-            if(fields==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"fields");
+            
+            T fields=getRequiredObjectProperty(object,"fields");
             parseFields(md.getFields(),fields);
+            
             List<T> constraints=getObjectList(object,"constraints");
             parseEntityConstraints(md.getConstraints(),constraints);
-            T datastore=getObjectProperty(object,"datastore");
-            if(datastore==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"datastore");
+            
+            T datastore=getRequiredObjectProperty(object,"datastore");
             md.setDataStore(parseDataStore(datastore));
             return md;
         } finally {
@@ -120,14 +122,11 @@ public abstract class MetadataParser<T> {
         try {
             if(object!=null) {
                 Version v=new Version();
-                String value=getStringProperty(object,"value");
-                if(value==null||value.trim().length()==0)
-                    throw Error.get(PARSE_MISSING_ELEMENT,"value");
-                v.setValue(value);
+                v.setValue(getRequiredStringProperty(object,"value"));
                 List<String> l=getStringList(object,"extendedVersions");
                 if(l!=null) 
                     v.setExtendsVersions(l.toArray(new String[l.size()]));
-                v.setChangelog(getStringProperty(object,"changelog"));
+                v.setChangelog(getRequiredStringProperty(object,"changelog"));
                 return v;
             } else
                 return null;
@@ -138,24 +137,22 @@ public abstract class MetadataParser<T> {
 
     /**
      * Parses metadata status, and populates metadata
+     * @throws ParseException 
      */ 
-    public void parseStatus(EntityMetadata md, T object) {
+    public void parseStatus(EntityMetadata md, T object) throws ParseException {
         Error.push("status");
         try {
-            String value=getStringProperty(object,"value");
-            if(value==null||value.trim().length()==0)
-                throw Error.get(PARSE_MISSING_ELEMENT,"value");
-            md.setStatus(statusFromString(value));
+            md.setStatus(statusFromString(getRequiredStringProperty(object,"value")));
             List<T> logList=getObjectList(object,"log");
             List<StatusChange> list=new ArrayList<StatusChange>();
             if(logList!=null) {
                 for(T log:logList) {
                     StatusChange item=new StatusChange();
-                    // TODO: date
-                    String s=getStringProperty(log,"value");
-                    if(s!=null)
-                        item.setStatus(statusFromString(s));
-                    item.setComment(getStringProperty(log,"comment"));
+                    String d=getRequiredStringProperty(log,"date");
+                    Date date = dateFormat.parse(d);
+                    item.setDate(date);
+                    item.setStatus(statusFromString(getRequiredStringProperty(log,"value")));
+                    item.setComment(getRequiredStringProperty(log,"comment"));
                     list.add(item);
                 }
                 md.setStatusChangeLog(list);
@@ -199,12 +196,12 @@ public abstract class MetadataParser<T> {
         if(constraintList!=null) {
             for(T x:constraintList) {
                 // The constraint object must contain a single field
-                String name=getSingleFieldName(x,INVALID_CONSTRAINT);
+                String name=getSingleFieldName(x,ERR_INVALID_CONSTRAINT);
                 Error.push(name);
                 try {
                     EntityConstraintParser<T> parser=getEntityConstraintParser(name);
                     if(parser==null)
-                        throw Error.get(INVALID_CONSTRAINT,name);
+                        throw Error.get(ERR_INVALID_CONSTRAINT,name);
                     EntityConstraint constraint=parser.parse(this,x);
                     dest.add(constraint);
                 } finally {
@@ -219,12 +216,12 @@ public abstract class MetadataParser<T> {
         if(constraintList!=null) {
             for(T x:constraintList) {
                 // The constraint object must contain a single field
-                String name=getSingleFieldName(x,INVALID_CONSTRAINT);
+                String name=getSingleFieldName(x,ERR_INVALID_CONSTRAINT);
                 Error.push(name);
                 try {
                     FieldConstraintParser<T> parser=getFieldConstraintParser(name);
                     if(parser==null)
-                        throw Error.get(INVALID_CONSTRAINT,name);
+                        throw Error.get(ERR_INVALID_CONSTRAINT,name);
                     FieldConstraint constraint=parser.parse(this,x);
                     dest.add(constraint);
                 } finally {
@@ -293,10 +290,10 @@ public abstract class MetadataParser<T> {
      */
     public DataStore parseDataStore(T object) {
         if(object!=null) {
-            String name=getSingleFieldName(object,INVALID_DATASTORE);
+            String name=getSingleFieldName(object,ERR_INVALID_DATASTORE);
             DataStoreParser<T> p=getDataStoreParser(name);
             if(p==null)
-                throw Error.get(UNKNOWN_DATASTORE,name);
+                throw Error.get(ERR_UNKNOWN_DATASTORE,name);
             return p.parse(this,getObjectProperty(object,name));
         } else
             return null;
@@ -317,9 +314,7 @@ public abstract class MetadataParser<T> {
     private Field parseField(String name,T object) {
         Field field;
         if(object!=null) {
-            String type=getStringProperty(object,"type");
-            if(type==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"type");
+            String type=getRequiredStringProperty(object,"type");
             if(type.equals(Constants.TYPE_ARRAY))
                 field=parseArrayField(name,object);
             else if(type.equals(Constants.TYPE_OBJECT))
@@ -347,9 +342,7 @@ public abstract class MetadataParser<T> {
     private Field parseObjectField(String name,
                                    T object) {
         ObjectField field=new ObjectField(name);
-        T fields=getObjectProperty(object,"fields");
-        if(fields==null)
-            throw Error.get(PARSE_MISSING_ELEMENT,"fields");
+        T fields=getRequiredObjectProperty(object,"fields");
         parseFields(field.getFields(),fields);
         return field;
     }
@@ -357,28 +350,23 @@ public abstract class MetadataParser<T> {
     private Field parseArrayField(String name,
                                   T object) {
         ArrayField field=new ArrayField(name);
-        T items=getObjectProperty(object,"items");
-        if(items==null)
-            throw Error.get(PARSE_MISSING_ELEMENT,"items");
+        T items=getRequiredObjectProperty(object,"items");
         field.setElement(parseArrayItem(items));
         return field;
     }
 
     private ArrayElement parseArrayItem(T items) {
-        String type=getStringProperty(items,"type");
-        if(type==null)
-            Error.get(PARSE_MISSING_ELEMENT,"type");
+        String type=getRequiredStringProperty(items,"type");
+
         if(type.equals(Constants.TYPE_OBJECT)) {
-            T fields=getObjectProperty(items,"fields");
-            if(fields==null)
-                throw Error.get(PARSE_MISSING_ELEMENT,"fields");
+            T fields=getRequiredObjectProperty(items,"fields");
             ObjectArrayElement ret=new ObjectArrayElement();
             ret.setType(type);
             parseFields(ret.getFields(),fields);
             return ret; 
         } else if(type.equals(Constants.TYPE_ARRAY)||
                   type.equals(Constants.TYPE_RELATION)) {
-            throw Error.get(INVALID_ARRAY_ELEMENT_TYPE,type);
+            throw Error.get(ERR_INVALID_ARRAY_ELEMENT_TYPE,type);
         } else {
             SimpleArrayElement ret=new SimpleArrayElement();
             ret.setType(type);
@@ -403,7 +391,6 @@ public abstract class MetadataParser<T> {
             putObject(ret,"fields",convert(md.getFields()));
             convertEntityConstraints(ret,md.getConstraints());
             if(md.getDataStore()!=null) {
-                String dataStoreName=md.getDataStore().getType();
                 T dsNode=newNode();
                 convertDataStore(dsNode,md.getDataStore());
                 putObject(ret,"datastore",dsNode);
@@ -445,18 +432,22 @@ public abstract class MetadataParser<T> {
             Error.push("status");
             try {
                 T obj=newNode();
-                if(status!=null) 
+                if(status!=null) {
                     putString(obj,"value",toString(status));
-                if(changeLog!=null&&!changeLog.isEmpty()) {
-                    Object logArray=newArrayField(obj,"log");
-                    for(StatusChange x:changeLog) {
-                        T log=newNode();
-                        // TODO: date
-                        if(x.getStatus()!=null)
-                            putString(log,"value",toString(x.getStatus()));
-                        if(x.getComment()!=null)
-                            putString(log,"comment",x.getComment());
-                        addObjectToArray(logArray,log);
+
+                    // only create log if you have a value for status, else isn't schema compliant 
+                    if(changeLog!=null&&!changeLog.isEmpty()) {
+                        Object logArray=newArrayField(obj,"log");
+                        for(StatusChange x:changeLog) {
+                            T log=newNode();
+                            if(x.getDate()!=null)
+                                putString(log,"date",dateFormat.format(x.getDate()));
+                            if(x.getStatus()!=null)
+                                putString(log,"value",toString(x.getStatus()));
+                            if(x.getComment()!=null)
+                                putString(log,"comment",x.getComment());
+                            addObjectToArray(logArray,log);
+                        }
                     }
                 }
                 return obj;
@@ -547,7 +538,7 @@ public abstract class MetadataParser<T> {
                     String constraintType=constraint.getType();
                     FieldConstraintParser<T> parser=getFieldConstraintParser(constraintType);
                     if(parser==null)
-                        throw Error.get(INVALID_CONSTRAINT,constraintType);
+                        throw Error.get(ERR_INVALID_CONSTRAINT,constraintType);
                     T constraintNode=newNode();
                     parser.convert(this,constraintNode,constraint);
                     addObjectToArray(arr,constraintNode);
@@ -571,7 +562,7 @@ public abstract class MetadataParser<T> {
                     String constraintType=constraint.getType();
                     EntityConstraintParser<T> parser=getEntityConstraintParser(constraintType);
                     if(parser==null)
-                        throw Error.get(INVALID_CONSTRAINT,constraintType);
+                        throw Error.get(ERR_INVALID_CONSTRAINT,constraintType);
                     T constraintNode=newNode();
                     parser.convert(this,constraintNode,constraint);
                     addObjectToArray(arr,constraintNode);
@@ -592,7 +583,7 @@ public abstract class MetadataParser<T> {
             String type=store.getType();
             DataStoreParser<T> parser=getDataStoreParser(type);
             if(parser==null)
-                throw Error.get(UNKNOWN_DATASTORE,type);
+                throw Error.get(ERR_UNKNOWN_DATASTORE,type);
             T dsNode=newNode();
             parser.convert(this,dsNode,store);
             putObject(parent,type,dsNode);
@@ -647,7 +638,7 @@ public abstract class MetadataParser<T> {
         else if("disabled".equals(status))
             return MetadataStatus.DISABLED;
         else
-            throw Error.get(PARSE_INVALID_STATUS,status);
+            throw Error.get(ERR_PARSE_INVALID_STATUS,status);
     }
 
     /**
@@ -664,6 +655,24 @@ public abstract class MetadataParser<T> {
     public abstract String getStringProperty(T object,String name);
 
     /**
+     * Returns a string child property, fail if the child property is not found.
+     *
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not a string, should throw exception
+     *
+     * @return The string property requested, or null if property does
+     * not exist
+     */
+    public  String getRequiredStringProperty(T object,String name) {
+        String property=getStringProperty(object,name);
+        if(property==null||property.trim().length()==0)
+            throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
+        return property;
+    }
+
+    /**
      * Returns an object child property
      *
      * @param object The object containing the property
@@ -675,6 +684,24 @@ public abstract class MetadataParser<T> {
      * exist
      */
     public abstract T getObjectProperty(T object,String name);
+
+    /**
+     * Returns an object child property, fail if the child property is not found.
+     *
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not an object, should throw an exception
+     *
+     * @return The property requested, or null if property does not
+     * exist
+     */
+    public T getRequiredObjectProperty(T object,String name) {
+        T property=getObjectProperty(object,name);
+        if(property==null)
+            throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
+        return property;
+    }
 
     /**
      * Returns a property that is a simple value

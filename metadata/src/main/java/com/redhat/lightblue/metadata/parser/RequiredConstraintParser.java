@@ -35,7 +35,7 @@ public class RequiredConstraintParser<T> implements FieldConstraintParser<T> {
         if(value instanceof Boolean)
             ret.setValue( (Boolean)value);
         else
-            throw Error.get(MetadataParser.ILL_FORMED_MD,ret.getType());
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,ret.getType());
         return ret;
     }
     
