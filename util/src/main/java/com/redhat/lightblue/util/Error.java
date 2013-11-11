@@ -66,7 +66,7 @@ public class Error extends RuntimeException {
         if(!c.isEmpty())
             c.removeLast();
         if(c.isEmpty())
-            threadContext.remove();
+            reset();
     }
 
     /**
