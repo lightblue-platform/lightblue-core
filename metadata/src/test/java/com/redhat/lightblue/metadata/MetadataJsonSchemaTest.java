@@ -39,13 +39,53 @@ public class MetadataJsonSchemaTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void validManyConstraints() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-many-constraints.json");
+    public void validEnum() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-enum.json");
     }
 
     @Test
-    public void validComplexFields() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-complex-fields.json");
+    public void validArraySimple() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-array-simple.json");
+    }
+
+    @Test
+    public void validArrayEnum() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-array-enum.json");
+    }
+
+    @Test
+    public void validArrayObject() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-array-object.json");
+    }
+
+    @Test
+    public void validObjectSimple() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-object-simple.json");
+    }
+
+    @Test
+    public void validObjectEnum() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-object-enum.json");
+    }
+
+    @Test
+    public void validObjectObject() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-object-object.json");
+    }
+
+    @Test
+    public void validObjectEverything() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-object-everything.json");
+    }
+
+    @Test
+    public void validObjectArray() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-object-array.json");
+    }
+
+    @Test
+    public void validManyConstraints() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/metadata/metadata.json", "metadata/schema-test-metadata-many-constraints.json");
     }
 
     @Test

@@ -67,48 +67,51 @@
         "address":{
             "type":"array",
             "items":{
-                "street":{
-                    "type":"array",
-                    "items":{
+                "type":"object",
+                "fields":{
+                    "street":{
+                        "type":"array",
+                        "items":{
+                            "type":"string"
+                        },
+                        "access":{
+                            "read":[
+                                "all"
+                            ],
+                            "write":[
+                                "admin"
+                            ]
+                        },
+                        "hooks":{
+                            "insert":[
+                                "publish"
+                            ],
+                            "update":[
+                                "audit",
+                                "publish"
+                            ],
+                            "delete":[
+                                "audit"
+                            ]
+                        }
+                    },
+                    "city":{
+                        "type":"string",
+                        "access":{
+                            "read":[
+                                "all"
+                            ],
+                            "write":[
+                                "admin"
+                            ]
+                        }
+                    },
+                    "state":{
                         "type":"string"
                     },
-                    "access":{
-                        "read":[
-                            "all"
-                        ],
-                        "write":[
-                            "admin"
-                        ]
-                    },
-                    "hooks":{
-                        "insert":[
-                            "publish"
-                        ],
-                        "update":[
-                            "audit",
-                            "publish"
-                        ],
-                        "delete":[
-                            "audit"
-                        ]
+                    "postalCode":{
+                        "type":"string"
                     }
-                },
-                "city":{
-                    "type":"string",
-                    "access":{
-                        "read":[
-                            "all"
-                        ],
-                        "write":[
-                            "admin"
-                        ]
-                    }
-                },
-                "state":{
-                    "type":"string"
-                },
-                "postalCode":{
-                    "type":"string"
                 }
             }
         }
