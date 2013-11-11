@@ -67,7 +67,7 @@ public class NaryLogicalExpression extends LogicalExpression {
         ArrayNode arr=factory.arrayNode();
         for(QueryExpression x:queries)
             arr.add(x.toJson());
-        return factory.objectNode().put(op.toString(),arr);
+        return factory.objectNode().set(op.toString(),arr);
     }
 
     public static NaryLogicalExpression fromJson(ObjectNode node) {

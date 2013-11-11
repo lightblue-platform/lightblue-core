@@ -61,7 +61,7 @@ public class ArrayRangeProjection extends ArrayProjection {
         ArrayNode arr=factory.arrayNode();
         arr.add(factory.numberNode(from)).
             add(factory.numberNode(to));
-        return ((ObjectNode)super.toJson()).put("range",arr);
+        return ((ObjectNode)super.toJson()).set("range",arr);
     }
 }
 

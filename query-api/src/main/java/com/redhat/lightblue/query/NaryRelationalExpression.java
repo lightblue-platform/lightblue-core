@@ -82,7 +82,7 @@ public class NaryRelationalExpression extends RelationalExpression {
             arr.add(x.toJson());
         return factory.objectNode().put("field",field.toString()).
             put("op",op.toString()).
-            put("values",arr);
+            set("values",arr);
     }
 
     public static NaryRelationalExpression fromJson(ObjectNode node) {

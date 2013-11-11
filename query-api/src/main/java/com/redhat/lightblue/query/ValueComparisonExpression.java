@@ -66,6 +66,6 @@ public class ValueComparisonExpression
     public JsonNode toJson() {
         return factory.objectNode().put("field",field.toString()).
             put("op",op.toString()).
-            put("rvalue",rvalue.toJson());
+            set("rvalue",rvalue.toJson());
     }
 }

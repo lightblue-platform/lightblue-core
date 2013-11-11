@@ -54,7 +54,7 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
 
     public JsonNode toJson() {
         return factory.objectNode().put("array",array.toString()).
-            put("elemMatch",elemMatch.toJson());
+            set("elemMatch",elemMatch.toJson());
     }
 
     public static ArrayMatchExpression fromJson(ObjectNode node) {

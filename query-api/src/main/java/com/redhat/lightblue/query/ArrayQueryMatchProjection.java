@@ -46,7 +46,9 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
     }
 
     public JsonNode toJson() {
-        return ((ObjectNode)super.toJson()).put("match",match.toJson());
+        ObjectNode node=(ObjectNode)super.toJson();
+        node.set("match",match.toJson());
+        return node;
     }
 }
 

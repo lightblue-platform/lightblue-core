@@ -53,7 +53,7 @@ public class UnaryLogicalExpression extends LogicalExpression {
     }
 
     public JsonNode toJson() {
-        return factory.objectNode().put(op.toString(),query.toJson());
+        return factory.objectNode().set(op.toString(),query.toJson());
     }
 
     public static UnaryLogicalExpression fromJson(ObjectNode node) {

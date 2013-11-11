@@ -82,7 +82,7 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
         return factory.objectNode().
             put("array",array.toString()).
             put("contains",op.toString()).
-            put("values",arr);
+            set("values",arr);
     }
 
     public static ArrayContainsExpression fromJson(ObjectNode node) {

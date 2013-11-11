@@ -24,8 +24,8 @@ import com.redhat.lightblue.util.Path;
 
 public class FieldProjection extends BasicProjection {
     private Path field;
-    private boolean include;
-    private boolean recursive;
+    private boolean include=true;
+    private boolean recursive=false;
 
     public FieldProjection() {}
 
