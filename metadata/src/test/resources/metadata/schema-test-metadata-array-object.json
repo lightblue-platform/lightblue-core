@@ -37,11 +37,8 @@
         "street":{
             "type":"array",
             "items":{
-                "type":"object",
-                "fields":{
-                    "name":{
-                        "type":"string"
-                    }
+                "name":{
+                    "type":"string"
                 }
             }
         }

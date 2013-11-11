@@ -228,6 +228,15 @@
                                     "additionalProperties":false
                                 },
                                 {
+                                    "description":"Array items can be enums.",
+                                    "properties":{
+                                        "enum":{
+                                            "$ref":"http://json-schema.org/draft-04/schema#/properties/enum"
+                                        }
+                                    },
+                                    "additionalProperties":false
+                                },
+                                {
                                     "$ref":"#/definitions/field_single",
                                     "description":"Support for a single type of 'fields' child."
                                 }
