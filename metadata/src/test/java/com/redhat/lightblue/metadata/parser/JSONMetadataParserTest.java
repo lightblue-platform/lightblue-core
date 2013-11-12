@@ -48,9 +48,15 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     public void fullObjectEverything() throws IOException, ParseException {
         JsonNode object = loadJsonNode("JSONMetadataParserTest-object-everything.json");
 
+        // json to java
         EntityMetadata em = parser.parseEntityMetadata(object);
         
+        // verify got something
         Assert.assertNotNull(em);
+        
+        // java back to json
+        JsonNode converted = parser.convert(em);
+        String s = converted.toString();
     }
 
     @Test
