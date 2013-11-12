@@ -19,7 +19,6 @@
 
 package com.redhat.lightblue.metadata;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +40,7 @@ import com.redhat.lightblue.util.Error;
  */
 public abstract class MetadataParser<T> {
     
-    public SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMDD HHmmssSSSS");
+    //public SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMDD HHmmssSSSS");
 
     public static final String ERR_PARSE_MISSING_ELEMENT="PARSE_MISSING_ELEMENT";
     public static final String ERR_PARSE_INVALID_STATUS="PARSE_INVALID_STATUS";
@@ -74,7 +73,7 @@ public abstract class MetadataParser<T> {
      * corresponding to the EntityMetadata object.
      * @throws ParseException 
      */
-    public EntityMetadata parseEntityMetadata(T object) throws ParseException {
+    public EntityMetadata parseEntityMetadata(T object) {
         Error.push("parseEntityMetadata");
         try {
             String name=getRequiredStringProperty(object,"name");
@@ -139,7 +138,7 @@ public abstract class MetadataParser<T> {
      * Parses metadata status, and populates metadata
      * @throws ParseException 
      */ 
-    public void parseStatus(EntityMetadata md, T object) throws ParseException {
+    public void parseStatus(EntityMetadata md, T object) {
         Error.push("status");
         try {
             md.setStatus(statusFromString(getRequiredStringProperty(object,"value")));
@@ -149,8 +148,8 @@ public abstract class MetadataParser<T> {
                 for(T log:logList) {
                     StatusChange item=new StatusChange();
                     String d=getRequiredStringProperty(log,"date");
-                    Date date = dateFormat.parse(d);
-                    item.setDate(date);
+                    //Date date = dateFormat.parse(d);
+                    //item.setDate(date);
                     item.setStatus(statusFromString(getRequiredStringProperty(log,"value")));
                     item.setComment(getRequiredStringProperty(log,"comment"));
                     list.add(item);
@@ -449,8 +448,9 @@ public abstract class MetadataParser<T> {
                         Object logArray=newArrayField(obj,"log");
                         for(StatusChange x:changeLog) {
                             T log=newNode();
-                            if(x.getDate()!=null)
-                                putString(log,"date",dateFormat.format(x.getDate()));
+                            // TODO: Fix date handling
+                            //if(x.getDate()!=null)
+                            //    putString(log,"date",dateFormat.format(x.getDate()));
                             if(x.getStatus()!=null)
                                 putString(log,"value",toString(x.getStatus()));
                             if(x.getComment()!=null)

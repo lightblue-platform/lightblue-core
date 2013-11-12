@@ -56,6 +56,12 @@
                 <artifactId>jsonassert</artifactId>
                 <version>1.2.1</version>
             </dependency>       
+            <dependency>
+                <groupId>de.flapdoodle.embed</groupId>
+                <artifactId>de.flapdoodle.embed.mongo</artifactId>
+                <version>1.33</version>
+                <scope>test</scope>
+            </dependency>
          </dependencies>
     </dependencyManagement>
     <modules>

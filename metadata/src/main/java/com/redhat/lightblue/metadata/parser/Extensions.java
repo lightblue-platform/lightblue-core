@@ -23,6 +23,8 @@ import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
 
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+
 public class Extensions<T> {
 
     private final ParserRegistry<T,DataStore> dataStoreParsers=
@@ -40,6 +42,7 @@ public class Extensions<T> {
     public void addDefaultExtensions() {
         fieldConstraintParsers.add(new DefaultFieldConstraintParsers<T>());
         entityConstraintParsers.add(new DefaultEntityConstraintParsers<T>());
+        dataStoreParsers.add("mongo",new MongoDataStoreParser<T>());
     }
 
     public void registerDataStoreParser(String name,DataStoreParser<T> parser) {
@@ -64,5 +67,11 @@ public class Extensions<T> {
 
     public FieldConstraintParser<T> getFieldConstraintParser(String constraintName) {
         return (FieldConstraintParser<T>)fieldConstraintParsers.get(constraintName);
+    }
+
+    public String toString() {
+        return dataStoreParsers.toString()+"\n"+
+            entityConstraintParsers.toString()+"\n"+
+            fieldConstraintParsers.toString();
     }
 }

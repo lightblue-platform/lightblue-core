@@ -31,6 +31,16 @@ public class MongoDataStore implements DataStore, Serializable {
     private String databaseName;
     private String collectionName;
 
+    public MongoDataStore() {}
+
+    public MongoDataStore(String clientJndiName,
+                          String databaseName,
+                          String collectionName) {
+        this.clientJndiName=clientJndiName;
+        this.databaseName=databaseName;
+        this.collectionName=collectionName;
+    }
+
     public String getType() {
         return "mongo";
     }

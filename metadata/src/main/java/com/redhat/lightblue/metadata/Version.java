@@ -29,6 +29,14 @@ public class Version implements Serializable {
     private String[] extendsVersions;
     private String changelog;
 
+    public Version() {}
+
+    public Version(String value,String[] extendsVersions,String changeLog) {
+        this.value=value;
+        this.extendsVersions=extendsVersions;
+        this.changelog=changeLog;
+    }
+
     /**
      * Gets the value of value
      * 

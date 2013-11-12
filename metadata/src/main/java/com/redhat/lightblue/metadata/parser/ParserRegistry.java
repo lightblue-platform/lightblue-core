@@ -55,5 +55,9 @@ public class ParserRegistry<NodeType,ObjType>
         return parser;
     }
 
+    public String toString() {
+        return resolvers.toString()+"\n"+
+            parserMap.toString();
+    }
         
 }

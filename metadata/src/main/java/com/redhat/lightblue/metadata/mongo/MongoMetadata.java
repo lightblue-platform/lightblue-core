@@ -22,6 +22,7 @@ package com.redhat.lightblue.metadata.mongo;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Date;
+import java.util.List;
 
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -31,6 +32,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+
+import org.bson.BSONObject;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -53,14 +56,14 @@ public class MongoMetadata implements Metadata {
 
     public MongoMetadata(DB db,
                          String metadataCollection,
-                         Extensions parserExtensions) {
+                         Extensions<BSONObject> parserExtensions) {
         this.db=db;
         this.collection=db.getCollection(metadataCollection);
         this.mdParser=new BSONParser(parserExtensions);
     }
 
     public MongoMetadata(DB db,
-                         Extensions parserExtensions) {
+                         Extensions<BSONObject> parserExtensions) {
         this(db,DEFAULT_METADATA_COLLECTION,parserExtensions);
     }
 
@@ -82,35 +85,29 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public String[] getEntityNames() {
-        BasicDBObject groupFields=new BasicDBObject("_id","$entityName");
-        BasicDBObject sortFields=new BasicDBObject("_id",1);
-        AggregationOutput output=collection.
-            aggregate(new BasicDBObject("$group",groupFields),
-                      new BasicDBObject("$sort",sortFields));
-        Iterable<DBObject> result=output.results();
-        ArrayList<String> ret=new ArrayList<String>();
-        if(result!=null) {
-            for(Iterator<DBObject> itr=result.iterator();itr.hasNext(); ) {
-                DBObject obj=itr.next();
-                ret.add((String)obj.get("_id"));
-            }
-        }
-        return ret.toArray(new String[ret.size()]);
+        List l=collection.distinct("name");
+        String[] arr=new String[l.size()];
+        int i=0;
+        for(Object x:l)
+            arr[i++]=x.toString();
+        return arr;
     }
 
     @Override
     public Version[] getEntityVersions(String entityName) {
         if(entityName==null||entityName.length()==0)
             throw new IllegalArgumentException("entityName");
-        BasicDBObject query=new BasicDBObject("entityName",entityName);
+        BasicDBObject query=new BasicDBObject("name",entityName);
         BasicDBObject project=new BasicDBObject("version",1);
         project.append("_id",0);
         DBCursor cursor=collection.find(query,project);
         int n=cursor.count();
         Version[] ret=new Version[n];
         int i=0;
-        while(cursor.hasNext()) 
-            ret[i++]=mdParser.parseVersion(cursor.next());
+        while(cursor.hasNext()) {
+            DBObject object=cursor.next();
+            ret[i++]=mdParser.parseVersion((BSONObject)object.get("version"));
+        }
         return ret;
     }
 
