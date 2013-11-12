@@ -269,6 +269,10 @@ public abstract class MetadataParser<T> {
             if(object!=null) {
                 Set<String> names=getChildNames(object);
                 for(String name:names) {
+                    if ("type".equals(name)) {
+                        //TODO need to exclude non-field property names from processing as fields.
+                        continue;
+                    }
                     T fieldObject=getObjectProperty(object,name);
                     Field field=parseField(name,fieldObject);
                     fields.addNew(field);
@@ -306,30 +310,35 @@ public abstract class MetadataParser<T> {
      */
     private String getSingleFieldName(T object,String errorCode) {
         Set<String> names=getChildNames(object);
-        if(names.size()!=-1)
+        if(names.size()!=1)
             throw Error.get(errorCode,names.toString());
         return names.iterator().next();
     }
 
     private Field parseField(String name,T object) {
         Field field;
-        if(object!=null) {
-            String type=getRequiredStringProperty(object,"type");
-            if(type.equals(Constants.TYPE_ARRAY))
-                field=parseArrayField(name,object);
-            else if(type.equals(Constants.TYPE_OBJECT))
-                field=parseObjectField(name,object);
-            //else if(type.equals(Constants.TYPE_RELATION))
-            //    field=parseRelationField(name,object);
-            else
-                field=parseSimpleField(name,type);
-            parseFieldAccess(field.getAccess(),
-                             getObjectProperty(object,"access"));
-            parseFieldConstraints(field.getConstraints(),
-                                  getObjectList(object,"constraints"));
-        } else
-            field=null;
-        return field;
+        Error.push(name);
+        try {
+            if(object!=null) {
+                String type=getRequiredStringProperty(object,"type");
+                if(type.equals(Constants.TYPE_ARRAY))
+                    field=parseArrayField(name,object);
+                else if(type.equals(Constants.TYPE_OBJECT))
+                    field=parseObjectField(name,object);
+                //else if(type.equals(Constants.TYPE_RELATION))
+                //    field=parseRelationField(name,object);
+                else
+                    field=parseSimpleField(name,type);
+                parseFieldAccess(field.getAccess(),
+                                 getObjectProperty(object,"access"));
+                parseFieldConstraints(field.getConstraints(),
+                                      getObjectList(object,"constraints"));
+            } else
+                field=null;
+            return field;
+        } finally {
+            Error.pop();
+        }
     }
 
     private Field parseSimpleField(String name,
@@ -666,10 +675,17 @@ public abstract class MetadataParser<T> {
      * not exist
      */
     public  String getRequiredStringProperty(T object,String name) {
-        String property=getStringProperty(object,name);
-        if(property==null||property.trim().length()==0)
-            throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
-        return property;
+        Error.push("required");
+        Error.push(name);
+        try {
+            String property=getStringProperty(object,name);
+            if(property==null||property.trim().length()==0)
+                throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
+            return property;
+        } finally {
+            Error.pop();
+            Error.pop();
+        }
     }
 
     /**
@@ -697,10 +713,17 @@ public abstract class MetadataParser<T> {
      * exist
      */
     public T getRequiredObjectProperty(T object,String name) {
-        T property=getObjectProperty(object,name);
-        if(property==null)
-            throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
-        return property;
+        Error.push("required");
+        Error.push(name);
+        try {
+            T property=getObjectProperty(object,name);
+            if(property==null)
+                throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
+            return property;
+        } finally {
+            Error.pop();
+            Error.pop();
+        }
     }
 
     /**

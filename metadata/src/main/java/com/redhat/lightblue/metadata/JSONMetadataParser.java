@@ -48,14 +48,19 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public String getStringProperty(JsonNode object,String name) {
-        JsonNode x=object.get(name);
-        if(x!=null)
-            if(x.isContainerNode())
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+        Error.push(name);
+        try {
+            JsonNode x=object.get(name);
+            if(x!=null)
+                if(x.isContainerNode())
+                    throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+                else
+                    return x.asText();
             else
-                return x.asText();
-        else
-            return null;
+                return null;
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override
@@ -65,49 +70,64 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public Object getValueProperty(JsonNode object,String name) {
-        JsonNode x=object.get(name);
-        if(x!=null)
-            if(x.isValueNode()) {
-                Number n=x.numberValue();
-                if(n!=null)
-                    return x;
-                else {
-                    return x.asText();
-                }
-            } else
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        else
-            return null;
+        Error.push(name);
+        try {
+            JsonNode x=object.get(name);
+            if(x!=null)
+                if(x.isValueNode()) {
+                    Number n=x.numberValue();
+                    if(n!=null)
+                        return x;
+                    else {
+                        return x.asText();
+                    }
+                } else
+                    throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+            else
+                return null;
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override
     public List<String> getStringList(JsonNode object,String name) {
-        JsonNode x=object.get(name);
-        if(x!=null)
-            if(x instanceof ArrayNode) {
-                ArrayList<String> ret=new ArrayList<String>();
-                for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) 
-                    ret.add(itr.next().asText());
-                return ret;
-            } else
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        else
-            return null;
+        Error.push(name);
+        try {
+            JsonNode x=object.get(name);
+            if(x!=null)
+                if(x instanceof ArrayNode) {
+                    ArrayList<String> ret=new ArrayList<String>();
+                    for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) 
+                        ret.add(itr.next().asText());
+                    return ret;
+                } else
+                    throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+            else
+                return null;
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override
     public List<JsonNode> getObjectList(JsonNode object,String name) {
-        JsonNode x=object.get(name);
-        if(x!=null) {
-            if(x instanceof ArrayNode) {
-                ArrayList<JsonNode> ret=new ArrayList<JsonNode>();
-                for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) 
-                    ret.add(itr.next());
-                return ret;
-            }  else
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        } else
-            return null;
+        Error.push(name);
+        try {
+            JsonNode x=object.get(name);
+            if(x!=null) {
+                if(x instanceof ArrayNode) {
+                    ArrayList<JsonNode> ret=new ArrayList<JsonNode>();
+                    for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) 
+                        ret.add(itr.next());
+                    return ret;
+                }  else
+                    throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+            } else
+                return null;
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override

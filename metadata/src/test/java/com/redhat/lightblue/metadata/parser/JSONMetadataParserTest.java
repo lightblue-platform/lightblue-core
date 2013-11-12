@@ -15,11 +15,16 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ParseException;
 
-public class JSONMetadataParserTest {
+public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 
     JsonNodeFactory factory = new JsonNodeFactory(true);
 
@@ -29,6 +34,7 @@ public class JSONMetadataParserTest {
     public void setup() {
         Extensions<JsonNode> extensions = new Extensions<JsonNode>();
         extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
 
         parser = new JSONMetadataParser(extensions, factory);
     }
@@ -36,6 +42,15 @@ public class JSONMetadataParserTest {
     @After
     public void tearDown() {
         parser = null;
+    }
+
+    @Test
+    public void fullObjectEverything() throws IOException, ParseException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-object-everything.json");
+
+        EntityMetadata em = parser.parseEntityMetadata(object);
+        
+        Assert.assertNotNull(em);
     }
 
     @Test

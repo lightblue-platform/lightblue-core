@@ -1,0 +1,95 @@
+{
+    "name": "test",
+    "version": {
+        "value": "1.0",
+        "changelog": "Initial version"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access": {
+        "insert": ["admin"],
+        "find": ["admin", "all"],
+        "update": ["admin"],
+        "delete": ["admin"]
+    },
+    "constraints": [
+        {
+            "unique": ["name"]
+        }
+    ],
+    "datastore": {
+        "mongo": {
+            "database": "some/identifier",
+            "collection": "test"
+        }
+    },
+    "fields": {
+        "type": "object",
+        "name": {
+            "type": "string"
+        },
+        "customerType": {
+            "type": "string",
+            "enum": ["person", "organization"]
+        },
+        "creationDate": {
+            "type": "date",
+            "required": true
+        },
+        "lastUpdateDate": {
+            "type": "date"
+        },
+        "credentials": {
+            "type": "object",
+            "fields": {
+                "type": "object",
+                "login": {
+                    "type": "string",
+                    "required": true
+                },
+                "password": {
+                    "type": "string",
+                    "required": true
+                }
+            },
+            "required": true
+        },
+        "address": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "fields": {
+                    "street": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "access": {
+                            "read": ["all"],
+                            "write": ["admin"]
+                        },
+                        "hooks": {
+                            "insert": ["publish"],
+                            "update": ["audit", "publish"],
+                            "delete": ["audit"]
+                        }
+                    },
+                    "city": {
+                        "type": "string",
+                        "access": {
+                            "read": ["all"],
+                            "write": ["admin"]
+                        }
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "postalCode": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

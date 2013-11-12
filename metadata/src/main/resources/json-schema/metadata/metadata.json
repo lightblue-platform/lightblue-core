@@ -1,5 +1,5 @@
 {
-    "copyright":[
+    "copyright": [
         "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
         "This file is part of lightblue.",
         "This program is free software: you can redistribute it and/or modify",
@@ -13,40 +13,40 @@
         "You should have received a copy of the GNU General Public License",
         "along with this program.  If not, see <http://www.gnu.org/licenses/>."
     ],
-    "$schema":"http://json-schema.org/draft-04/schema#",
-    "type":"object",
-    "properties":{
-        "name":{
-            "type":"string",
-            "description":"The name of the entity."
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "The name of the entity."
         },
-        "version":{
-            "$ref":"#/definitions/version"
+        "version": {
+            "$ref": "#/definitions/version"
         },
-        "status":{
-            "$ref":"#/definitions/status"
+        "status": {
+            "$ref": "#/definitions/status"
         },
-        "hooks":{
-            "type":"array",
-            "description":"Definition of all hooks for use within field data.",
-            "items":{
-                "properties":{
-                    "name":{
-                        "type":"string",
-                        "description":"The name of the hook, unique in the context of an instance of metadata."
+        "hooks": {
+            "type": "array",
+            "description": "Definition of all hooks for use within field data.",
+            "items": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the hook, unique in the context of an instance of metadata."
                     },
-                    "type":{
-                        "enum":[
+                    "type": {
+                        "enum": [
                             "jms",
                             "rest",
                             "file"
                         ],
-                        "description":"How the hook is triggered"
+                        "description": "How the hook is triggered"
                     },
-                    "include":{
-                        "type":"array",
-                        "items":{
-                            "enum":[
+                    "include": {
+                        "type": "array",
+                        "items": {
+                            "enum": [
                                 "request",
                                 "response",
                                 "before",
@@ -54,26 +54,26 @@
                             ]
                         }
                     },
-                    "before":{
-                        "enum":[
+                    "before": {
+                        "enum": [
                             "partial",
                             "full"
                         ],
-                        "description":"Indicate how much of the entity's previous state is required.  If partial, can just include the subset of data impacted by the operation triggering the hook.  If full, include full original data."
+                        "description": "Indicate how much of the entity's previous state is required.  If partial, can just include the subset of data impacted by the operation triggering the hook.  If full, include full original data."
                     },
-                    "after":{
-                        "enum":[
+                    "after": {
+                        "enum": [
                             "partial",
                             "full"
                         ],
-                        "description":"Indicate how much of the entity's previous state is required.  If partial, can just include the subset of data impacted by the operation triggering the hook.  If full, include full original data."
+                        "description": "Indicate how much of the entity's previous state is required.  If partial, can just include the subset of data impacted by the operation triggering the hook.  If full, include full original data."
                     },
-                    "target":{
-                        "type":"string",
-                        "description":"The target of this hook firing, depends on 'type' for context.  If type is jms, it's the JNDI name to find the jms destination.  If type is rest it is a URL (relative or full) to call with the hook data.  If type is file, it's the local file to write, relative to TBD."
+                    "target": {
+                        "type": "string",
+                        "description": "The target of this hook firing, depends on 'type' for context.  If type is jms, it's the JNDI name to find the jms destination.  If type is rest it is a URL (relative or full) to call with the hook data.  If type is file, it's the local file to write, relative to TBD."
                     }
                 },
-                "required":[
+                "required": [
                     "name",
                     "type",
                     "before",
@@ -81,62 +81,64 @@
                 ]
             }
         },
-        "access":{
-            "type":"object",
-            "description":"Defines what roles are required for specific operations on this entity.",
-            "properties":{
-                "insert":{
-                    "$ref":"common.json#/definitions/roleArray",
-                    "description":"Roles that can perform insert on this object."
+        "access": {
+            "type": "object",
+            "description": "Defines what roles are required for specific operations on this entity.",
+            "properties": {
+                "insert": {
+                    "$ref": "common.json#/definitions/roleArray",
+                    "description": "Roles that can perform insert on this object."
                 },
-                "find":{
-                    "$ref":"common.json#/definitions/roleArray",
-                    "description":"Roles that can perform find on this object."
+                "find": {
+                    "$ref": "common.json#/definitions/roleArray",
+                    "description": "Roles that can perform find on this object."
                 },
-                "update":{
-                    "$ref":"common.json#/definitions/roleArray",
-                    "description":"Roles that can perform update or save on this object."
+                "update": {
+                    "$ref": "common.json#/definitions/roleArray",
+                    "description": "Roles that can perform update or save on this object."
                 },
-                "delete":{
-                    "$ref":"common.json#/definitions/roleArray",
-                    "description":"Roles that can perform delete on this object."
+                "delete": {
+                    "$ref": "common.json#/definitions/roleArray",
+                    "description": "Roles that can perform delete on this object."
                 }
             }
         },
-        "constraints":{
-            "type":"object",
-            "description":"Entity constraints.",
-            "properties":{
-                "unique":{
-                    "type":"array",
-                    "description":"Array of fields within the entity data.  The composite value of all fields is unique for this type of entity.",
-                    "minItems":1,
-                    "items":{
-                        "type":"string"
+        "constraints": {
+            "type": "array",
+            "description": "Entity constraints.",
+            "items": {
+                "properties": {
+                    "unique": {
+                        "type": "array",
+                        "description": "Array of fields within the entity data.  The composite value of all fields is unique for this type of entity.",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "reference": {
+                        "$ref": "#/definitions/reference"
                     }
-                },
-                "reference":{
-                    "$ref":"#/definitions/reference"
                 }
             },
-            "additionalProperties":false
+            "additionalProperties": false
         },
-        "datastore":{
-            "type":"object",
-            "description":"Definition of the datastore in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.",
-            "oneOf":[
+        "datastore": {
+            "type": "object",
+            "description": "Definition of the datastore in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.",
+            "oneOf": [
                 {
-                    "properties":{
-                        "mongo":{
-                            "type":"object",
-                            "properties":{
-                                "database":{
-                                    "type":"string",
-                                    "description":"Identifier for the database, maybe JNDI URI?"
+                    "properties": {
+                        "mongo": {
+                            "type": "object",
+                            "properties": {
+                                "database": {
+                                    "type": "string",
+                                    "description": "Identifier for the database, maybe JNDI URI?"
                                 },
-                                "collection":{
-                                    "type":"string",
-                                    "description":"The name of the collection within the database"
+                                "collection": {
+                                    "type": "string",
+                                    "description": "The name of the collection within the database"
                                 }
                             }
                         }
@@ -144,28 +146,28 @@
                 }
             ]
         },
-        "fields":{
-            "$ref":"#/definitions/field_single"
+        "fields": {
+            "$ref": "#/definitions/field_single"
         }
     },
-    "definitions":{
-        "access_field":{
-            "type":"object",
-            "description":"Defines what roles are required for specific operations on this field.",
-            "properties":{
-                "read":{
-                    "$ref":"common.json#/definitions/roleArray",
-                    "description":"Roles that can perform read (find) operations on this field."
+    "definitions": {
+        "access_field": {
+            "type": "object",
+            "description": "Defines what roles are required for specific operations on this field.",
+            "properties": {
+                "read": {
+                    "$ref": "common.json#/definitions/roleArray",
+                    "description": "Roles that can perform read (find) operations on this field."
                 },
-                "write":{
-                    "$ref":"common.json#/definitions/roleArray",
-                    "description":"Roles that can perform write (update/save) on this field."
+                "write": {
+                    "$ref": "common.json#/definitions/roleArray",
+                    "description": "Roles that can perform write (update/save) on this field."
                 }
             },
-            "additionalProperties":false
+            "additionalProperties": false
         },
-        "types_simple":{
-            "enum":[
+        "types_simple": {
+            "enum": [
                 "boolean",
                 "integer",
                 "number",
@@ -178,162 +180,166 @@
                 "date"
             ]
         },
-        "types_complex":{
-            "enum":[
+        "types_complex": {
+            "enum": [
                 "object",
                 "array"
             ]
         },
-        "types_any":{
-            "oneOf":[
+        "types_any": {
+            "oneOf": [
                 {
-                    "$ref":"#/definitions/types_complex"
+                    "$ref": "#/definitions/types_complex"
                 },
                 {
-                    "$ref":"#/definitions/types_simple"
+                    "$ref": "#/definitions/types_simple"
                 }
             ]
         },
-        "field_single":{
-            "description":"Control non-fields objects",
-            "type":"object",
-            "patternProperties":{
-                ".*":{
-                    "type":"object",
-                    "properties":{
-                        "description":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/description"
+        "field_single": {
+            "description": "Control non-fields objects",
+            "type": "object",
+            "patternProperties": {
+                ".*": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/description"
                         },
-                        "maximum":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maximum"
+                        "maximum": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maximum"
                         },
-                        "minimum":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minimum"
+                        "minimum": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minimum"
                         },
-                        "maxLength":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maxLength"
+                        "maxLength": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maxLength"
                         },
-                        "minLength":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minLength"
+                        "minLength": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minLength"
                         },
-                        "items":{
-                            "oneOf":[
+                        "items": {
+                            "oneOf": [
                                 {
-                                    "description":"Array items can be simple types.",
-                                    "properties":{
-                                        "type":{
-                                            "$ref":"#/definitions/types_simple"
+                                    "description": "Array items can be simple types.",
+                                    "properties": {
+                                        "type": {
+                                            "$ref": "#/definitions/types_simple"
                                         }
                                     },
-                                    "additionalProperties":false
+                                    "additionalProperties": false
                                 },
                                 {
-                                    "description":"Array items can be enums.",
-                                    "properties":{
-                                        "enum":{
-                                            "$ref":"http://json-schema.org/draft-04/schema#/properties/enum"
+                                    "description": "Array items can be enums.",
+                                    "properties": {
+                                        "enum": {
+                                            "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
                                         }
                                     },
-                                    "additionalProperties":false
+                                    "additionalProperties": false
                                 },
                                 {
-                                    "$ref":"#/definitions/field_single",
-                                    "description":"Support for a single type of 'fields' child."
+                                    "$ref": "#/definitions/field_single",
+                                    "description": "Support for a single type of 'fields' child."
                                 }
                             ]
                         },
-                        "enum":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/enum"
+                        "enum": {
+                            "description": "Should set type of 'string' when using enum.",
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
                         },
-                        "maxItems":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maxItems"
+                        "maxItems": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maxItems"
                         },
-                        "minItems":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minItems"
+                        "minItems": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems"
                         },
-                        "maxProperties":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/maxProperties"
+                        "maxProperties": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maxProperties"
                         },
-                        "minProperties":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/minProperties"
+                        "minProperties": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minProperties"
                         },
-                        "uniqueItems":{
-                            "$ref":"http://json-schema.org/draft-04/schema#/properties/uniqueItems"
+                        "uniqueItems": {
+                            "$ref": "http://json-schema.org/draft-04/schema#/properties/uniqueItems"
                         },
-                        "type":{
-                            "$ref":"#/definitions/types_any"
+                        "type": {
+                            "$ref": "#/definitions/types_any"
                         },
-                        "reference":{
-                            "$ref":"common.json#/definitions/reference"
+                        "reference": {
+                            "$ref": "common.json#/definitions/reference"
                         },
-                        "access":{
-                            "$ref":"#/definitions/access_field"
+                        "access": {
+                            "$ref": "#/definitions/access_field"
                         },
-                        "fields":{
-                            "$ref":"#/definitions/field_single"
+                        "fields": {
+                            "$ref": "#/definitions/field_single"
                         },
-                        "hooks":{
-                            "type":"object",
-                            "properties":{
-                                "insert":{
-                                    "$ref":"#/definitions/hook_value_array"
+                        "hooks": {
+                            "type": "object",
+                            "properties": {
+                                "insert": {
+                                    "$ref": "#/definitions/hook_value_array"
                                 },
-                                "update":{
-                                    "$ref":"#/definitions/hook_value_array"
+                                "update": {
+                                    "$ref": "#/definitions/hook_value_array"
                                 },
-                                "delete":{
-                                    "$ref":"#/definitions/hook_value_array"
+                                "delete": {
+                                    "$ref": "#/definitions/hook_value_array"
                                 }
                             }
                         },
-                        "required":{
-                            "type":"boolean"
+                        "required": {
+                            "type": "boolean"
                         }
                     },
-                    "additionalProperties":false
+                    "required":[
+                        "type"
+                    ],
+                    "additionalProperties": false
                 }
             }
         },
-        "hook_value_array":{
-            "type":"array",
-            "items":{
-                "type":"string",
-                "description":"Names of hooks defined for this metadata."
+        "hook_value_array": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "description": "Names of hooks defined for this metadata."
             }
         },
-        "reference":{
-            "$ref":"common.json#/definitions/reference"
+        "reference": {
+            "$ref": "common.json#/definitions/reference"
         },
-        "version":{
-            "$ref":"common.json#/definitions/version"
+        "version": {
+            "$ref": "common.json#/definitions/version"
         },
-        "status":{
-            "type":"object",
-            "properties":{
-                "value":{
-                    "enum":[
+        "status": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "enum": [
                         "active",
                         "deprecated",
                         "disabled"
                     ],
-                    "description":"active=usable and not expected to go away anytime soon, deprecated=can be used but is expected to go away in near future, disabled=cannot be used"
+                    "description": "active=usable and not expected to go away anytime soon, deprecated=can be used but is expected to go away in near future, disabled=cannot be used"
                 },
-                "log":{
-                    "type":"array",
-                    "description":"History of status changes over time.",
-                    "items":{
-                        "properties":{
-                            "date":{
-                                "type":"string"
+                "log": {
+                    "type": "array",
+                    "description": "History of status changes over time.",
+                    "items": {
+                        "properties": {
+                            "date": {
+                                "type": "string"
                             },
-                            "value":{
-                                "$ref":"#/definitions/status/properties/value"
+                            "value": {
+                                "$ref": "#/definitions/status/properties/value"
                             },
-                            "comment":{
-                                "type":"string"
+                            "comment": {
+                                "type": "string"
                             }
                         },
-                        "required":[
+                        "required": [
                             "date",
                             "value",
                             "comment"
@@ -341,12 +347,12 @@
                     }
                 }
             },
-            "required":[
+            "required": [
                 "value"
             ]
         }
     },
-    "required":[
+    "required": [
         "name",
         "version",
         "status",
