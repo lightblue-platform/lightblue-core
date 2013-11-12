@@ -1,5 +1,7 @@
 package com.redhat.lightblue.query;
 
+import java.util.List;
+
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
@@ -16,43 +18,116 @@ import com.redhat.lightblue.util.JsonUtils;
 
 public class QueryParseTest {
     
-    final String fieldQuery1="{\"field\":\"x.y.z\", \"op\":\"$eq\", \"rvalue\":\"string\"}";
-    final String fieldQuery2="{\"field\":\"x.y.[1]\", \"op\":\"$gte\", \"rvalue\":1}";
-    final String fieldQuery3="{\"field\":\"x.y.[1]\", \"op\":\"$neq\", \"rvalue\":12345678901234567890}";
-    final String fieldQuery4="{\"field\":\"x.y.[1]\", \"op\":\"$eq\", \"rvalue\":true}";
-    final String fieldQuery5="{\"field\":\"x.y.[1]\", \"op\":\"$neq\", \"rvalue\":12345678901234567890123456789123456789.123456}";
+    final String valueQuery1="{\"field\":\"x.y.z\", \"op\":\"$eq\", \"rvalue\":\"string\"}";
+    final String valueQuery2="{\"field\":\"x.y.1\", \"op\":\"$gte\", \"rvalue\":1}";
+    final String valueQuery3="{\"field\":\"x.y.1\", \"op\":\"$neq\", \"rvalue\":12345678901234567890}";
+    final String valueQuery4="{\"field\":\"x.y.1\", \"op\":\"$eq\", \"rvalue\":true}";
+    final String valueQuery5="{\"field\":\"x.y.-1.x\", \"op\":\"$neq\", \"rvalue\":12345678901234567890123456789123456789.123456}";
 
-    @Test
-    public void testQuery1() throws Exception {
-        testValueComparisonExpression(fieldQuery1,"x.y.z",BinaryComparisonOperator._eq,"string");
+    final String fieldQuery1="{\"field\":\"x.-1.y\", \"op\":\"$eq\", \"rfield\":\"y.z.-1\"}";
+    final String fieldQuery2="{\"field\":\"x.1.y\", \"op\":\"$neq\", \"rfield\":\"y\"}";
+
+    final String naryQuery1="{\"field\":\"x.y\", \"op\":\"$in\", \"values\":[1,2,3,4,5]}";
+    final String naryQuery2="{\"field\":\"x.y.x\", \"op\":\"$nin\", \"values\":[\"x\",\"y\",\"z\"]}";
+
+    final String regexQuery1="{\"field\":\"x.y\", \"regex\":\"*pat*\"}";
+    final String regexQuery2="{\"field\":\"x.y\", \"regex\":\"*pat*\",\"options\":\"o\"}";
+
+    final String unaryQuery1="{ \"$not\": "+valueQuery1+"}";
+    final String unaryQuery2="{ \"$not\": "+regexQuery1+"}";
+
+    final String naryLogQuery1="{ \"$and\" : ["+valueQuery1+","+fieldQuery1+","+naryQuery1+","+unaryQuery1+"]}";
+
+    final String arrContains1="{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[1,2,3,4,5]}";
+    final String arrContains2="{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[\"x\", \"y\"]}";
+    
+    final String arrMatch1="{\"array\":\"x.y\",\"elemMatch\":"+regexQuery1+"}";
+
+
+    interface NestedTest {
+        public void test(QueryExpression x);
     }
 
     @Test
-    public void testQuery2() throws Exception {
-        testValueComparisonExpression(fieldQuery2,"x.y.[1]",BinaryComparisonOperator._gte,new Integer(1));
+    public void testValueQueries() throws Exception {
+        testValueComparisonExpression(valueQuery1,"x.y.z",BinaryComparisonOperator._eq,"string");
+        testValueComparisonExpression(valueQuery2,"x.y.1",BinaryComparisonOperator._gte,new Integer(1));
+        testValueComparisonExpression(valueQuery3,"x.y.1",BinaryComparisonOperator._neq,new BigInteger("12345678901234567890"));
+        testValueComparisonExpression(valueQuery4,"x.y.1",BinaryComparisonOperator._eq,Boolean.TRUE);
+        testValueComparisonExpression(valueQuery5,"x.y.-1.x",BinaryComparisonOperator._neq,new BigDecimal("12345678901234567890123456789123456789.123456"));
+    }
+    
+    @Test
+    public void testFieldQueries() throws Exception {
+        testFieldComparisonExpression(fieldQuery1,"x.-1.y",BinaryComparisonOperator._eq,"y.z.-1");
+        testFieldComparisonExpression(fieldQuery2,"x.1.y",BinaryComparisonOperator._neq,"y");
+    }
+    
+    @Test
+    public void testNaryQueries() throws Exception {
+        testNaryRelationalExpression(naryQuery1,"x.y",NaryRelationalOperator._in,1,2,3,4,5);
+        testNaryRelationalExpression(naryQuery2,"x.y.x",NaryRelationalOperator._not_in,"x","y","z");
     }
 
     @Test
-    public void testQuery3() throws Exception {
-        testValueComparisonExpression(fieldQuery3,"x.y.[1]",BinaryComparisonOperator._neq,new BigInteger("12345678901234567890"));
+    public void testRegexQueries() throws Exception {
+        testRegexQuery(regexQuery1,"x.y","*pat*",null);
+        testRegexQuery(regexQuery2,"x.y","*pat*","o");
+    }
+
+    private static NestedTest u1NestedTest=new NestedTest() {
+            public void test(QueryExpression x) {
+                asserts((ValueComparisonExpression)x,"x.y.z",BinaryComparisonOperator._eq,"string");
+            }
+        };
+
+    @Test
+    public void testUnaries() throws Exception {
+        testUnaryQuery(unaryQuery1,u1NestedTest);
+         testUnaryQuery(unaryQuery2,new NestedTest() {
+                 public void test(QueryExpression x) {
+                     asserts((RegexMatchExpression)x,"x.y","*pat*",null);
+                 }
+             });
     }
 
     @Test
-    public void testQuery4() throws Exception {
-        testValueComparisonExpression(fieldQuery4,"x.y.[1]",BinaryComparisonOperator._eq,Boolean.TRUE);
+    public void testNaries() throws Exception {
+        testNaryQuery(naryLogQuery1,new NestedTest() {
+                public void test(QueryExpression x) {
+                    asserts((ValueComparisonExpression)x,"x.y.z",BinaryComparisonOperator._eq,"string");
+                } 
+            },
+            new NestedTest() {
+                public void test(QueryExpression x) {
+                    asserts((FieldComparisonExpression)x,"x.-1.y",BinaryComparisonOperator._eq,"y.z.-1");
+                }
+            },
+            new NestedTest() {
+                public void test(QueryExpression x) {
+                    asserts((NaryRelationalExpression)x,"x.y",NaryRelationalOperator._in,1,2,3,4,5);
+                }
+            },
+            new NestedTest() {
+                public void test(QueryExpression x) {
+                    asserts((UnaryLogicalExpression)x,u1NestedTest);
+                }
+            });
     }
 
     @Test
-    public void testQuery5() throws Exception {
-        testValueComparisonExpression(fieldQuery5,"x.y.[1]",BinaryComparisonOperator._neq,new BigDecimal("12345678901234567890123456789123456789.123456"));
+    public void testArrContains() throws Exception {
+        testArrContains(arrContains1,"x.y",ContainsOperator._any,1,2,3,4,5);
+        testArrContains(arrContains2,"x.y",ContainsOperator._any,"x","y");
     }
 
-   @Test
-    public void convertTest() throws Exception {
-       JSONAssert.assertEquals(fieldQuery1,QueryExpression.fromJson(JsonUtils.json(fieldQuery1)).toString(),false);
-       JSONAssert.assertEquals(fieldQuery2,QueryExpression.fromJson(JsonUtils.json(fieldQuery2)).toString(),false);
-       JSONAssert.assertEquals(fieldQuery3,QueryExpression.fromJson(JsonUtils.json(fieldQuery3)).toString(),false);
-       JSONAssert.assertEquals(fieldQuery4,QueryExpression.fromJson(JsonUtils.json(fieldQuery4)).toString(),false);
+    @Test
+    public void testArrMatch() throws Exception {
+        testArrMatch(arrMatch1,"x.y",new NestedTest() {
+                public void test(QueryExpression x) {
+                    asserts((RegexMatchExpression)x,"x.y","*pat*",null);
+                }
+            });
     }
 
     private void testValueComparisonExpression(String q,
@@ -62,11 +137,127 @@ public class QueryParseTest {
         throws Exception {
         QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof ValueComparisonExpression);
-        ValueComparisonExpression x=(ValueComparisonExpression)query;
+        asserts((ValueComparisonExpression)query,field,op,value);
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+   }
+
+    private static void asserts(ValueComparisonExpression x,
+                                String field,
+                                BinaryComparisonOperator op,
+                                Object value) {
         Assert.assertEquals(field,x.getField().toString());
         Assert.assertEquals(op,x.getOp());
         Assert.assertTrue(value.getClass().equals(x.getRvalue().getValue().getClass()));
         Assert.assertEquals(value.toString(),x.getRvalue().getValue().toString());
     }
+
+    private void testFieldComparisonExpression(String q,
+                                               String field,
+                                               BinaryComparisonOperator op,
+                                               String rfield) 
+        throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof FieldComparisonExpression);
+        asserts((FieldComparisonExpression)query,field,op,rfield);
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+    }
+
+    private void asserts(FieldComparisonExpression x,String field,BinaryComparisonOperator op,String rfield) {
+        Assert.assertEquals(field,x.getField().toString());
+        Assert.assertEquals(op,x.getOp());
+        Assert.assertEquals(rfield,x.getRfield().toString());
+    }
    
+    private void testNaryRelationalExpression(String q,
+                                              String field,
+                                              NaryRelationalOperator op,
+                                              Object...value) 
+        throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof NaryRelationalExpression);
+        asserts((NaryRelationalExpression)query,field,op,value);
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+    }
+
+    private static void asserts(NaryRelationalExpression x,String field,NaryRelationalOperator op,Object... value) {
+        Assert.assertEquals(field,x.getField().toString());
+        Assert.assertEquals(op,x.getOp());
+        Assert.assertEquals(value.length,x.getValues().size());
+        for(int i=0;i<value.length;i++) {
+            Assert.assertEquals(value[i].getClass(),x.getValues().get(i).getValue().getClass());
+        }
+    }
+    
+    private void testRegexQuery(String q,
+                                String field,
+                                String regex,
+                                String op)
+        throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof RegexMatchExpression);
+        RegexMatchExpression x=(RegexMatchExpression)query;
+        asserts(x,field,regex,op);
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+    }
+
+    private static void asserts(RegexMatchExpression x,
+                                String field,
+                                String regex,
+                                String op) {
+        Assert.assertEquals(field,x.getField().toString());
+        Assert.assertEquals(regex,x.getRegex());
+        Assert.assertEquals(op,x.getOptions());
+    }
+
+    private void testUnaryQuery(String q,NestedTest t) throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof UnaryLogicalExpression);
+        UnaryLogicalExpression x=(UnaryLogicalExpression)query;
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+   }
+
+    private static void asserts(UnaryLogicalExpression x,NestedTest t) {
+        t.test(x.getQuery());
+    }
+        
+    private void testNaryQuery(String q,NestedTest...t) throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof NaryLogicalExpression);
+        NaryLogicalExpression x=(NaryLogicalExpression)query;
+        List<QueryExpression> queries=x.getQueries();
+        Assert.assertEquals(t.length,queries.size());
+        for(int i=0;i<t.length;i++)
+            t[i].test(queries.get(i));
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+    }
+
+
+    private void testArrContains(String q,String field,ContainsOperator op,Object... value) throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof ArrayContainsExpression);
+        asserts((ArrayContainsExpression)query,field,op,value);
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+    }
+
+    private void asserts(ArrayContainsExpression x,String field,ContainsOperator op,Object... value) {
+        Assert.assertEquals(field,x.getArray().toString());
+        Assert.assertEquals(op,x.getOp());
+        Assert.assertEquals(value.length,x.getValues().size());
+        for(int i=0;i<value.length;i++) {
+            Assert.assertEquals(value[i].getClass(),x.getValues().get(i).getValue().getClass());
+            Assert.assertEquals(value[i].toString(),x.getValues().get(i).getValue().toString());
+        }
+    }
+
+    private void testArrMatch(String q,String field,NestedTest t) throws Exception {
+        QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof ArrayMatchExpression);
+        asserts((ArrayMatchExpression)query,field,t);
+        JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
+    }
+    
+    private void asserts(ArrayMatchExpression x,String field,NestedTest t) {
+        Assert.assertEquals(field,x.getArray().toString());
+        t.test(x.getElemMatch());
+    }
 }
