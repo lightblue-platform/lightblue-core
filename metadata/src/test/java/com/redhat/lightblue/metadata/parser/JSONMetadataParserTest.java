@@ -14,7 +14,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class JSONMetadataParserTest {
 
@@ -146,52 +149,215 @@ public class JSONMetadataParserTest {
         }
 
         Set<String> s = parser.getChildNames(parent);
-        
+
         Assert.assertNotNull(s);
         Assert.assertEquals(childNames.size(), s.size());
-        
+
         for (int i = 0; i < childNames.size(); i++) {
             s.remove(childNames.get(i));
         }
-        
+
         Assert.assertTrue("not all child names were removed..", s.isEmpty());
     }
 
     @Test
     public void newNode() {
         JsonNode x = parser.newNode();
-        
+
         Assert.assertNotNull(x);
     }
 
-    public void putString(JsonNode object, String name, String value) {
-        // TODO Auto-generated method stub
+    @Test
+    public void putString() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        String value = "bar";
 
+        parser.putString(parent, name, value);
+
+        JsonNode x = parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value, x.textValue());
     }
 
-    public void putObject(JsonNode object, String name, Object value) {
-        // TODO Auto-generated method stub
+    @Test
+    public void putObject() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Object value = new ObjectNode(factory);
 
+        parser.putObject(parent, name, value);
+
+        JsonNode x = parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertTrue("expected instanceof ObjectNode", x instanceof ObjectNode);
+        Assert.assertEquals(value, x);
     }
 
-    public void putValue(JsonNode object, String name, Object value) {
-        // TODO Auto-generated method stub
+    @Test
+    public void putValueBoolean() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Boolean value = Boolean.TRUE;
 
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value.booleanValue(), x.booleanValue());
     }
 
-    public Object newArrayField(JsonNode object, String name) {
-        // TODO Auto-generated method stub
-        return null;
+    @Test
+    public void putValueBigDecimal() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        BigDecimal value = new BigDecimal("213.55");
+
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value, x.decimalValue());
     }
 
-    public void addStringToArray(Object array, String value) {
-        // TODO Auto-generated method stub
+    @Test
+    public void putValueBigInteger() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        BigInteger value = new BigInteger("123444");
 
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value, x.bigIntegerValue());
     }
 
-    public void addObjectToArray(Object array, Object value) {
-        // TODO Auto-generated method stub
+    @Test
+    public void putValueDouble() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Double value = new Double("12928.222");
 
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value.doubleValue(), x.doubleValue());
+    }
+
+    @Test
+    public void putValueFloat() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Float value = new Float("123.222");
+
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value.floatValue(), x.floatValue());
+    }
+
+    @Test
+    public void putValueInteger() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Integer value = 123444;
+
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value.intValue(), x.intValue());
+    }
+
+    @Test
+    public void putValueLong() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Long value = 1272722l;
+
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value.longValue(), x.longValue());
+    }
+
+    @Test
+    public void putValueSohrt() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Short value = 123;
+
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value.shortValue(), x.shortValue());
+    }
+
+    @Test
+    public void putValueString() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        String value = "bar";
+
+        parser.putValue(parent, name, value);
+
+        JsonNode x = (JsonNode) parent.get(name);
+
+        Assert.assertNotNull(x);
+        Assert.assertEquals(value, x.textValue());
+    }
+
+    @Test
+    public void newArrayField() {
+        ObjectNode parent = new ObjectNode(factory);
+        String name = "foo";
+        Object array = parser.newArrayField(parent, name);
+
+        Assert.assertNotNull(array);
+        Assert.assertEquals(array, parent.get(name));
+    }
+
+    @Test
+    public void addStringToArray() {
+        String name = "foo";
+        String value = "bar";
+        ArrayNode array = new ArrayNode(factory);
+
+        Assert.assertEquals(0, array.size());
+
+        parser.addStringToArray(array, value);
+
+        Assert.assertEquals(1, array.size());
+        Assert.assertEquals(value, array.get(0).textValue());
+    }
+
+    @Test
+    public void addObjectToArray() {
+        String name = "foo";
+        JsonNode value = new TextNode("asdf");
+        ArrayNode array = new ArrayNode(factory);
+
+        Assert.assertEquals(0, array.size());
+
+        parser.addObjectToArray(array, value);
+
+        Assert.assertEquals(1, array.size());
+        Assert.assertEquals(value, array.get(0));
     }
 
 }
