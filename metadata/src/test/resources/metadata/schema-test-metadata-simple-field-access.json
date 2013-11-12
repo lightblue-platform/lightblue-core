@@ -7,26 +7,17 @@
     "status":{
         "value":"active"
     },
-    "access":{
-        "insert":[
-            "admin"
-        ],
-        "find":[
-            "admin",
-            "all"
-        ],
-        "update":[
-            "admin"
-        ],
-        "delete":[
-            "admin"
-        ]
+    "access": {
+        "insert": ["admin"],
+        "find": ["admin", "all"],
+        "update": ["admin"],
+        "delete": ["admin"]
     },
-    "constraints":{
-        "unique":[
-            "name"
-        ]
-    },
+    "constraints": [
+        {
+            "unique": ["name"]
+        }
+    ],
     "datastore":{
         "mongo":{
             "database":"some/identifier",

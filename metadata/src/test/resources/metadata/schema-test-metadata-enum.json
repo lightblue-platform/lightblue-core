@@ -1,41 +1,44 @@
 {
-    "name":"test",
-    "version":{
-        "value":"1.0",
-        "changelog":"Initial version"
+    "name": "test",
+    "version": {
+        "value": "1.0",
+        "changelog": "Initial version"
     },
-    "status":{
-        "value":"active"
+    "status": {
+        "value": "active"
     },
-    "access":{
-        "insert":[
+    "access": {
+        "insert": [
             "admin"
         ],
-        "find":[
+        "find": [
             "admin",
             "all"
         ],
-        "update":[
+        "update": [
             "admin"
         ],
-        "delete":[
+        "delete": [
             "admin"
         ]
     },
-    "constraints":{
-        "unique":[
-            "name"
-        ]
-    },
-    "datastore":{
-        "mongo":{
-            "database":"some/identifier",
-            "collection":"test"
+    "constraints": [
+        {
+            "unique": [
+                "name"
+            ]
+        }
+    ],
+    "datastore": {
+        "mongo": {
+            "database": "some/identifier",
+            "collection": "test"
         }
     },
-    "fields":{
-        "customerType":{
-            "enum":[
+    "fields": {
+        "customerType": {
+            "type": "string",
+            "enum": [
                 "person",
                 "organization"
             ]

@@ -119,9 +119,9 @@
                     "reference": {
                         "$ref": "#/definitions/reference"
                     }
-                }
-            },
-            "additionalProperties": false
+                },
+                "additionalProperties": false
+            }
         },
         "datastore": {
             "type": "object",
