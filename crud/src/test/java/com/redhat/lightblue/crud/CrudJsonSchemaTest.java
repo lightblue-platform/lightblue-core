@@ -39,16 +39,6 @@ public class CrudJsonSchemaTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void validateSchemaError() throws ProcessingException, IOException {
-        validateSchema("json-schema/error.json");
-    }
-
-    @Test
-    public void validErrorSimple() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/error.json", "crud/error/schema-test-error-simple.json");
-    }
-
-    @Test
     public void validResponseSimple() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/response.json", "crud/response/schema-test-response-simple.json");
     }

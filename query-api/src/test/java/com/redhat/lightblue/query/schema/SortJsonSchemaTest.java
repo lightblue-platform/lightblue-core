@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.query.schema;
 
 
 import java.io.IOException;

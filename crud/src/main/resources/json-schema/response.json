@@ -66,7 +66,7 @@
                     "errors":{
                         "type":"array",
                         "items":{
-                            "$ref":"error.json#"
+                            "$ref":"/json-schema/error/error.json#"
                         },
                         "description":"Array of errors for that particular object"
                     }
@@ -76,7 +76,7 @@
         "otherErrors":{
             "type":"array",
             "items":{
-                "$ref":"error.json#"
+                "$ref":"/json-schema/error/error.json#"
             },
             "description":"Errors not related to data"
         }
