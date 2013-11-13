@@ -77,9 +77,10 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             JsonNode x=object.get(name);
             if(x!=null)
                 if(x.isValueNode()) {
-                    Number n=x.numberValue();
-                    if(n!=null)
-                        return x;
+                    if(x.isNumber())
+                        return x.numberValue();
+                    else if (x.isBoolean())
+                        return x.booleanValue();
                     else {
                         return x.asText();
                     }

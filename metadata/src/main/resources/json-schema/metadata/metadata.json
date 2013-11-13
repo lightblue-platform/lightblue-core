@@ -196,6 +196,44 @@
                 }
             ]
         },
+        "field_constraint": {
+            "properties": {
+                "maximum": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maximum"
+                },
+                "minimum": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minimum"
+                },
+                "maxLength": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxLength"
+                },
+                "minLength": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minLength"
+                },
+                "enum": {
+                    "description": "Should set type of 'string' when using enum.",
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
+                },
+                "maxItems": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxItems"
+                },
+                "minItems": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems"
+                },
+                "maxProperties": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxProperties"
+                },
+                "minProperties": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minProperties"
+                },
+                "uniqueItems": {
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/uniqueItems"
+                },
+                "reference": {
+                    "$ref": "common.json#/definitions/reference"
+                }
+            }
+        },
         "field_single": {
             "description": "Control non-fields objects",
             "type": "object",
@@ -205,18 +243,6 @@
                     "properties": {
                         "description": {
                             "$ref": "http://json-schema.org/draft-04/schema#/properties/description"
-                        },
-                        "maximum": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maximum"
-                        },
-                        "minimum": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minimum"
-                        },
-                        "maxLength": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maxLength"
-                        },
-                        "minLength": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minLength"
                         },
                         "items": {
                             "oneOf": [
@@ -244,36 +270,17 @@
                                 }
                             ]
                         },
-                        "enum": {
-                            "description": "Should set type of 'string' when using enum.",
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
-                        },
-                        "maxItems": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maxItems"
-                        },
-                        "minItems": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems"
-                        },
-                        "maxProperties": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/maxProperties"
-                        },
-                        "minProperties": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/minProperties"
-                        },
-                        "uniqueItems": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/uniqueItems"
-                        },
                         "type": {
                             "$ref": "#/definitions/types_any"
-                        },
-                        "reference": {
-                            "$ref": "common.json#/definitions/reference"
                         },
                         "access": {
                             "$ref": "#/definitions/access_field"
                         },
                         "fields": {
                             "$ref": "#/definitions/field_single"
+                        },
+                        "constraints":{
+                            "$ref":"#/definitions/field_constraint"
                         },
                         "hooks": {
                             "type": "object",

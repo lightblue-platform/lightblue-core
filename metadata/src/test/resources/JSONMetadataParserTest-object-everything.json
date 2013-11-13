@@ -74,6 +74,7 @@
                             "update": ["audit", "publish"],
                             "delete": ["audit"]
                         }
+
                     },
                     "city": {
                         "type": "string",

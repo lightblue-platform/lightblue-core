@@ -62,6 +62,9 @@ public abstract class Field implements TreeNode, Serializable {
         return this.access;
     }
 
+    /**
+     * @return a deep copy of the constraints
+     */
     public List<FieldConstraint> getConstraints() {
         return new ArrayList<FieldConstraint>(constraints);
     }

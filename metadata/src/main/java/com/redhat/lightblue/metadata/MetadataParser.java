@@ -224,22 +224,28 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public void parseFieldConstraints(List<FieldConstraint> dest,
-                                      List<T> constraintList) {
-        if(constraintList!=null) {
-            for(T x:constraintList) {
-                // The constraint object must contain a single field
-                String name=getSingleFieldName(x,ERR_INVALID_CONSTRAINT);
+    public void parseFieldConstraints(Field field,
+                                      T fieldConstraints) {
+        if(fieldConstraints!=null) {
+            // The constraint object must contain a single field
+            Set<String> childNames = getChildNames(fieldConstraints);
+            List<FieldConstraint> constraints = new ArrayList<FieldConstraint>();
+            for (String name: childNames) {
                 Error.push(name);
                 try {
+                    T x = getObjectProperty(fieldConstraints, name);
                     FieldConstraintParser<T> parser=getFieldConstraintParser(name);
                     if(parser==null)
                         throw Error.get(ERR_INVALID_CONSTRAINT,name);
-                    FieldConstraint constraint=parser.parse(this,x);
-                    dest.add(constraint);
+                    // for each FieldConstraint call parse on the parent object
+                    FieldConstraint constraint=parser.parse(this,fieldConstraints);
+                    constraints.add(constraint);
                 } finally {
                     Error.pop();
                 }
+            }
+            if (!constraints.isEmpty()) {
+                field.setConstraints(constraints);
             }
         }
     }
@@ -340,8 +346,8 @@ public abstract class MetadataParser<T> {
                     field=parseSimpleField(name,type);
                 parseFieldAccess(field.getAccess(),
                                  getObjectProperty(object,"access"));
-                parseFieldConstraints(field.getConstraints(),
-                                      getObjectList(object,"constraints"));
+                parseFieldConstraints(field,
+                                      getObjectProperty(object,"constraints"));
             } else
                 field=null;
             return field;
@@ -564,15 +570,14 @@ public abstract class MetadataParser<T> {
         if(constraints!=null&&!constraints.isEmpty()) {
             Error.push("constraints");
             try {
-                Object arr=newArrayField(parent,"constraints");
+                T constraintNode=newNode();
+                putObject(parent, "constraints", constraintNode);
                 for(FieldConstraint constraint:constraints) {
                     String constraintType=constraint.getType();
                     FieldConstraintParser<T> parser=getFieldConstraintParser(constraintType);
                     if(parser==null)
                         throw Error.get(ERR_INVALID_CONSTRAINT,constraintType);
-                    T constraintNode=newNode();
                     parser.convert(this,constraintNode,constraint);
-                    addObjectToArray(arr,constraintNode);
                 }
             } finally {
                 Error.pop();
@@ -750,12 +755,12 @@ public abstract class MetadataParser<T> {
 
     /**
      * Returns a property that is a simple value
-     * @param object The object containing the property
+     * @param object The object  containing the property
      * @param name Name of the property to return
      *
      * If the property is not a simple java value, should throw exception
      *
-     * @return The property requested, or null if property does
+     * @return The property value requested (String, Number, Boolean, etc), or null if property does
      * not exist
      */
     public abstract Object getValueProperty(T object,String name);
