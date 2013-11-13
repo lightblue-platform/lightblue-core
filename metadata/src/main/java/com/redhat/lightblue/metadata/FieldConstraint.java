@@ -28,5 +28,5 @@ public interface FieldConstraint {
     /**
      * Determines if the constraint is valid for the given field type
      */
-    public boolean isValidForFieldType(String fieldType);
+    public boolean isValidForFieldType(Type fieldType);
 }

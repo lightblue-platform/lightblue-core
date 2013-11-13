@@ -41,8 +41,10 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     private final JsonNodeFactory factory;
 
-    public JSONMetadataParser(Extensions<JsonNode> ex, JsonNodeFactory factory) {
-        super(ex);
+    public JSONMetadataParser(Extensions<JsonNode> ex, 
+                              TypeResolver resolver,
+                              JsonNodeFactory factory) {
+        super(ex,resolver);
         this.factory=factory;
     }
 

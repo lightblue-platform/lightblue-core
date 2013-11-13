@@ -30,7 +30,7 @@ public class SimpleArrayElement extends ArrayElement {
     public SimpleArrayElement() {
     }
 
-    public SimpleArrayElement(String type) {
+    public SimpleArrayElement(Type type) {
         super(type);
     }
 

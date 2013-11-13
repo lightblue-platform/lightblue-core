@@ -31,7 +31,7 @@ public class SimpleField extends Field {
         super(name);
     }
 
-    public SimpleField(String name,String type) {
+    public SimpleField(String name,Type type) {
         super(name,type);
     }
 

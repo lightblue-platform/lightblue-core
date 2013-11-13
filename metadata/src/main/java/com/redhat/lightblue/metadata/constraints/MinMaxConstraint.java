@@ -24,6 +24,12 @@ import java.io.Serializable;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Constants;
 
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.DoubleType;
+import com.redhat.lightblue.metadata.types.BigIntegerType;
+import com.redhat.lightblue.metadata.types.BigDecimalType;
+
 /**
  * Minimum/maximum number constraint
  */
@@ -41,15 +47,17 @@ public class MinMaxConstraint implements FieldConstraint, Serializable {
         this.type=type;
     }
 
+    @Override
     public String getType() {
         return type;
     }
 
-    public boolean isValidForFieldType(String fieldType) {
-        return Constants.TYPE_INTEGER.equals(fieldType)||
-            Constants.TYPE_DOUBLE.equals(fieldType)||
-            Constants.TYPE_BIGDECIMAL.equals(fieldType)||
-            Constants.TYPE_BIGINTEGER.equals(fieldType);
+    @Override
+    public boolean isValidForFieldType(Type fieldType) {
+        return IntegerType.TYPE.equals(fieldType)||
+            DoubleType.TYPE.equals(fieldType)||
+            BigDecimalType.TYPE.equals(fieldType)||
+            BigIntegerType.TYPE.equals(fieldType);
     }
 
     public Number getValue() {

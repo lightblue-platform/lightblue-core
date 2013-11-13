@@ -17,38 +17,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.redhat.lightblue.metadata.constraints;
+package com.redhat.lightblue.metadata.types;
 
-import java.io.Serializable;
-
-import com.redhat.lightblue.metadata.FieldConstraint;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.Type;
 
-/**
- * Field required constraint
- */
-public class RequiredConstraint implements FieldConstraint, Serializable {
-    
-    private static final long serialVersionUID=1l;
+public final class ArrayType extends ContainerType {
 
-    public static final String REQUIRED="required";
+    public static final String NAME="array";
+    public static final Type TYPE=new ArrayType();
 
-    private boolean value;
-
-    public String getType() {
-        return REQUIRED;
-    }
-
-    public boolean isValidForFieldType(Type fieldType) {
-        return true;
-    }
-
-    public boolean getValue() {
-        return value;
-    }
-
-    public void setValue(boolean v) {
-        value=v;
+    private ArrayType() {
+        super(NAME);
     }
 }

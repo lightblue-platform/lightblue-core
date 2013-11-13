@@ -31,13 +31,15 @@ import org.bson.BSONObject;
 import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.metadata.MetadataParser;
+import com.redhat.lightblue.metadata.TypeResolver;
 
 import com.redhat.lightblue.metadata.parser.Extensions;
 
 public class BSONParser extends MetadataParser<BSONObject> {
 
-    public BSONParser(Extensions<BSONObject> ex) {
-        super(ex);
+    public BSONParser(Extensions<BSONObject> ex,
+                      TypeResolver resolver) {
+        super(ex,resolver);
     }
 
     @Override

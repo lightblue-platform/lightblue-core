@@ -42,6 +42,7 @@ import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.UnknownEntityVersion;
+import com.redhat.lightblue.metadata.TypeResolver;
 
 import com.redhat.lightblue.metadata.parser.Extensions;
 
@@ -56,15 +57,17 @@ public class MongoMetadata implements Metadata {
 
     public MongoMetadata(DB db,
                          String metadataCollection,
-                         Extensions<BSONObject> parserExtensions) {
+                         Extensions<BSONObject> parserExtensions,
+                         TypeResolver typeResolver) {
         this.db=db;
         this.collection=db.getCollection(metadataCollection);
-        this.mdParser=new BSONParser(parserExtensions);
+        this.mdParser=new BSONParser(parserExtensions,typeResolver);
     }
 
     public MongoMetadata(DB db,
-                         Extensions<BSONObject> parserExtensions) {
-        this(db,DEFAULT_METADATA_COLLECTION,parserExtensions);
+                         Extensions<BSONObject> parserExtensions,
+                         TypeResolver typeResolver) {
+        this(db,DEFAULT_METADATA_COLLECTION,parserExtensions,typeResolver);
     }
 
     @Override

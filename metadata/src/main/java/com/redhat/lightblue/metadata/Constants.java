@@ -26,18 +26,6 @@ public final class Constants {
 
     public static final String ARRAY_ANY_ELEM="*";
 
-    public static final String TYPE_STRING="string";
-    public static final String TYPE_BOOLEAN="boolean";
-    public static final String TYPE_INTEGER="integer";
-    public static final String TYPE_DOUBLE="double";
-    public static final String TYPE_BIGINTEGER="biginteger";
-    public static final String TYPE_BIGDECIMAL="bigdecimal";
-    public static final String TYPE_DATE="date";
-
-    public static final String TYPE_ARRAY="array";
-    public static final String TYPE_OBJECT="object";
-    public static final String TYPE_RELATION="relation";
-
     public static final String ERR_DUPLICATE_FIELD="DUPLICATE_FIELD";
     public static final String ERR_INVALID_ARRAY_REFERENCE="INVALID_ARRAY_REFERENCE";
     public static final String ERR_INVALID_FIELD_REFERENCE="INVALID_FIELD_REFERENCE";

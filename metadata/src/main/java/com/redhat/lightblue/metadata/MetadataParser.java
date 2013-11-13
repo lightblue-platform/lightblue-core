@@ -24,10 +24,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
+
+import com.redhat.lightblue.metadata.types.ArrayType;
+import com.redhat.lightblue.metadata.types.ObjectType;
+import com.redhat.lightblue.metadata.types.RelationType;
+
 import com.redhat.lightblue.util.Error;
 
 /**
@@ -47,11 +55,15 @@ public abstract class MetadataParser<T> {
     public static final String ERR_INVALID_DATASTORE="INVALID_DATASTORE";
     public static final String ERR_UNKNOWN_DATASTORE="UNKNOWN_DATASTORE";
     public static final String ERR_INVALID_CONSTRAINT="INVALID_CONSTRAINT";
+    public static final String ERR_INVALID_TYPE="INVALID_TYPE";
 
     private final Extensions<T> extensions;
+    private final TypeResolver typeResolver;
 
-    public MetadataParser(Extensions<T> ex) {
+    public MetadataParser(Extensions<T> ex,
+                          TypeResolver typeResolver) {
         this.extensions=ex;
+        this.typeResolver=typeResolver;
     }
 
     public DataStoreParser<T> getDataStoreParser(String dataStoreName) {
@@ -266,10 +278,6 @@ public abstract class MetadataParser<T> {
             if(object!=null) {
                 Set<String> names=getChildNames(object);
                 for(String name:names) {
-                    if ("type".equals(name)) {
-                        //TODO need to exclude non-field property names from processing as fields.
-                        continue;
-                    }
                     T fieldObject=getObjectProperty(object,name);
                     Field field=parseField(name,fieldObject);
                     fields.addNew(field);
@@ -318,9 +326,9 @@ public abstract class MetadataParser<T> {
         try {
             if(object!=null) {
                 String type=getRequiredStringProperty(object,"type");
-                if(type.equals(Constants.TYPE_ARRAY))
+                if(type.equals(ArrayType.TYPE.getName()))
                     field=parseArrayField(name,object);
-                else if(type.equals(Constants.TYPE_OBJECT))
+                else if(type.equals(ObjectType.TYPE.getName()))
                     field=parseObjectField(name,object);
                 //else if(type.equals(Constants.TYPE_RELATION))
                 //    field=parseRelationField(name,object);
@@ -341,7 +349,10 @@ public abstract class MetadataParser<T> {
     private Field parseSimpleField(String name,
                                    String type) {
         SimpleField field=new SimpleField(name);
-        field.setType(type);
+        Type t=typeResolver.getType(type);
+        if(t==null)
+            throw Error.get(ERR_INVALID_TYPE,type);
+        field.setType(t);
         return field;
     }
 
@@ -364,18 +375,21 @@ public abstract class MetadataParser<T> {
     private ArrayElement parseArrayItem(T items) {
         String type=getRequiredStringProperty(items,"type");
 
-        if(type.equals(Constants.TYPE_OBJECT)) {
+        if(type.equals(ObjectType.TYPE.getName())) {
             T fields=getRequiredObjectProperty(items,"fields");
             ObjectArrayElement ret=new ObjectArrayElement();
-            ret.setType(type);
+            ret.setType(ObjectType.TYPE);
             parseFields(ret.getFields(),fields);
             return ret; 
-        } else if(type.equals(Constants.TYPE_ARRAY)||
-                  type.equals(Constants.TYPE_RELATION)) {
+        } else if(type.equals(ArrayType.TYPE.getName())||
+                  type.equals(RelationType.TYPE.getName())) {
             throw Error.get(ERR_INVALID_ARRAY_ELEMENT_TYPE,type);
         } else {
             SimpleArrayElement ret=new SimpleArrayElement();
-            ret.setType(type);
+            Type t=typeResolver.getType(type);
+            if(t==null)
+                throw Error.get(ERR_INVALID_TYPE,type);
+            ret.setType(t);
             return ret;
         }
     }
@@ -518,7 +532,7 @@ public abstract class MetadataParser<T> {
             Error.push(field.getName());
             try {
                 putObject(ret,field.getName(),fieldObject);
-                putString(fieldObject,"type",field.getType());
+                putString(fieldObject,"type",field.getType().getName());
                 if(field instanceof SimpleField) {
                     ; // Nothing to do
                 } else if(field instanceof ArrayField) {
@@ -614,7 +628,7 @@ public abstract class MetadataParser<T> {
         ArrayElement el=field.getElement();
         T items=newNode();
         putObject(fieldObject,"items",items);
-        putString(items,"type",el.getType());
+        putString(items,"type",el.getType().getName());
         if(el instanceof SimpleArrayElement) {
             ; // Nothing to do
         } else if(el instanceof ObjectArrayElement) {

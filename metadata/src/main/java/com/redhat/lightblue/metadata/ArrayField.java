@@ -27,16 +27,18 @@ import com.redhat.lightblue.util.Util;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+import com.redhat.lightblue.metadata.types.ArrayType;
+
 public class ArrayField extends Field {
 
     private ArrayElement element;
 
     public ArrayField(String name) {
-        super(name,Constants.TYPE_ARRAY);
+        super(name,ArrayType.TYPE);
     }
 
     public ArrayField(String name,ArrayElement el) {
-        super(name,Constants.TYPE_ARRAY);
+        super(name,ArrayType.TYPE);
         element=el;
     }
 

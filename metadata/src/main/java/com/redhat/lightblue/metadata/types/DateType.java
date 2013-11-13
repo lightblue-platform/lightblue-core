@@ -40,7 +40,7 @@ public final class DateType implements Type, Serializable {
     public static final Type TYPE=new DateType();
     public static final String NAME="date";
 
-    public static final String DATE_FORMAT_STR="yyyyMMddTHH:mm:ss.SSSZ";
+    public static final String DATE_FORMAT_STR="yyyyMMdd'T'HH:mm:ss.SSSZ";
     private static final DateFormat DATE_FORMAT;
 
     static {

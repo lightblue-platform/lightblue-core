@@ -21,6 +21,7 @@ import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.types.*;
 
 public class MongoMetadataTest {
 
@@ -48,7 +49,7 @@ public class MongoMetadataTest {
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION,null);
         Extensions<BSONObject> x=new Extensions<BSONObject>();
         x.addDefaultExtensions();
-        md=new MongoMetadata(db,x);
+        md=new MongoMetadata(db,x,new DefaultTypes());
         BasicDBObject index=new BasicDBObject("name",1);
         index.put("version.value",1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index,"name",true);
@@ -69,9 +70,9 @@ public class MongoMetadataTest {
         e.setVersion(new Version("1.0",null,"some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null,null,"testCollection"));
-        e.getFields().put(new SimpleField("field1","string"));
+        e.getFields().put(new SimpleField("field1",StringType.TYPE));
         ObjectField o=new ObjectField("field2");
-        o.getFields().put(new SimpleField("x","int"));
+        o.getFields().put(new SimpleField("x",IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
         EntityMetadata g=md.getEntityMetadata("testEntity","1.0");
@@ -99,9 +100,9 @@ public class MongoMetadataTest {
         e.setVersion(new Version("1.0",null,"some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null,null,"testCollection"));
-        e.getFields().put(new SimpleField("field1","string"));
+        e.getFields().put(new SimpleField("field1",StringType.TYPE));
         ObjectField o=new ObjectField("field2");
-        o.getFields().put(new SimpleField("x","int"));
+        o.getFields().put(new SimpleField("x",IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
         EntityMetadata g=md.getEntityMetadata("testEntity","1.0");

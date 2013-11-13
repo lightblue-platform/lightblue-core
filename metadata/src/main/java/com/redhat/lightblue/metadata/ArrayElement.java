@@ -28,11 +28,11 @@ public abstract class ArrayElement implements TreeNode, Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private String type;
+    private Type type;
 
     public ArrayElement() {}
 
-    public ArrayElement(String type) {
+    public ArrayElement(Type type) {
         this.type=type;
     }
 
@@ -41,7 +41,7 @@ public abstract class ArrayElement implements TreeNode, Serializable {
      * 
      * @return the value of type
      */
-    public String getType() {
+    public Type getType() {
         return this.type;
     }
 
@@ -51,7 +51,7 @@ public abstract class ArrayElement implements TreeNode, Serializable {
      * @param argType
      *            Value to assign to this.type
      */
-    public void setType(String argType) {
+    public void setType(Type argType) {
         this.type = argType;
     }
 

@@ -28,6 +28,9 @@ import java.util.Collection;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Constants;
 
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.StringType;
+
 /**
  * Enumerated field constraint
  */
@@ -42,12 +45,14 @@ public class EnumConstraint implements FieldConstraint, Serializable {
     public EnumConstraint() {
     }
 
+    @Override
     public String getType() {
         return TYPE;
     }
 
-    public boolean isValidForFieldType(String fieldType) {
-        return Constants.TYPE_STRING.equals(fieldType);
+    @Override
+    public boolean isValidForFieldType(Type fieldType) {
+        return StringType.TYPE.equals(fieldType);
     }
 
     public Set<String> getValues() {

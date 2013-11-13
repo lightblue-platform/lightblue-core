@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import java.io.IOException;
@@ -37,9 +38,7 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     public void setup() {
         Extensions<JsonNode> extensions = new Extensions<JsonNode>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
-
-        parser = new JSONMetadataParser(extensions, factory);
+        parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
 
     @After

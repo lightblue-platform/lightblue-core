@@ -33,7 +33,7 @@ public abstract class Field implements TreeNode, Serializable {
     private static final long serialVersionUID = 1l;
 
     private final String name;
-    private String type;
+    private Type type;
     private final FieldAccess access=new FieldAccess();
     private final List<FieldConstraint> constraints=new ArrayList<FieldConstraint>();
 
@@ -41,7 +41,7 @@ public abstract class Field implements TreeNode, Serializable {
         this.name = name;
     }
 
-    public Field(String name,String type) {
+    public Field(String name,Type type) {
         this.name = name;
         this.type = type;
     }
@@ -50,11 +50,11 @@ public abstract class Field implements TreeNode, Serializable {
         return name;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 

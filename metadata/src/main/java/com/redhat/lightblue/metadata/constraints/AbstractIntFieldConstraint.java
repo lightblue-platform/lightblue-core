@@ -42,6 +42,7 @@ public abstract class AbstractIntFieldConstraint
         this.type=type;
     }
 
+    @Override
     public String getType() {
         return type;
     }

@@ -41,7 +41,7 @@ public class Types implements TypeResolver {
      * Adds the default type resolvers to this instance
      */
     public void addDefaultTypeResolvers() {
-        addTypeResolver(DefaultTypes.INSTANCE);
+        addTypeResolver(new DefaultTypes());
     }
 
     @Override

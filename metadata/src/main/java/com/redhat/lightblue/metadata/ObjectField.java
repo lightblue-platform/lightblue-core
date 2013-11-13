@@ -25,12 +25,14 @@ import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+import com.redhat.lightblue.metadata.types.ObjectType;
+
 public class ObjectField extends Field {
 
     private final Fields fields = new Fields();
 
     public ObjectField(String name) {
-        super(name,Constants.TYPE_OBJECT);
+        super(name,ObjectType.TYPE);
     }
 
     public Fields getFields() {

@@ -21,7 +21,9 @@ package com.redhat.lightblue.metadata.constraints;
 
 import java.io.Serializable;
 
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.Type;
+
+import com.redhat.lightblue.metadata.types.ArrayType;
 
 /**
  * Array min/max size  constraints
@@ -35,7 +37,8 @@ public class ArraySizeConstraint extends AbstractIntFieldConstraint {
         super(type);
     }
 
-    public boolean isValidForFieldType(String fieldType) {
-        return Constants.TYPE_ARRAY.equals(fieldType);
+    @Override
+    public boolean isValidForFieldType(Type fieldType) {
+        return ArrayType.TYPE.equals(fieldType);
     }
 }

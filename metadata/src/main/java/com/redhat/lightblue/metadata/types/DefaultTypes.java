@@ -26,11 +26,13 @@ import com.redhat.lightblue.metadata.TypeResolver;
 
 public final class DefaultTypes implements TypeResolver {
 
-    public static final TypeResolver INSTANCE=new DefaultTypes();
-
-    private static final HashMap<String,Type> TYPE_MAP;
-
-    static {
+    private final HashMap<String,Type> TYPE_MAP;
+    
+    public Type getType(String name) {
+        return TYPE_MAP.get(name);
+    }
+    
+    public DefaultTypes() {
         TYPE_MAP=new HashMap<String,Type>();
         TYPE_MAP.put(BooleanType.NAME,BooleanType.TYPE);
         TYPE_MAP.put(IntegerType.NAME,IntegerType.TYPE);
@@ -40,13 +42,10 @@ public final class DefaultTypes implements TypeResolver {
         TYPE_MAP.put(StringType.NAME,StringType.TYPE);
         TYPE_MAP.put(DateType.NAME,DateType.TYPE);
         TYPE_MAP.put(BinaryType.NAME,BinaryType.TYPE);
+        TYPE_MAP.put(ArrayType.NAME,ArrayType.TYPE);
+        TYPE_MAP.put(ObjectType.NAME,ObjectType.TYPE);
+        TYPE_MAP.put(RelationType.NAME,RelationType.TYPE);
     }
-
-    public Type getType(String name) {
-        return TYPE_MAP.get(name);
-    }
-
-    private DefaultTypes() {}
 }
 
 

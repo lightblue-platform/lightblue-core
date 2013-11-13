@@ -23,6 +23,9 @@ import java.io.Serializable;
 
 import com.redhat.lightblue.metadata.Constants;
 
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.StringType;
+
 /**
  * String minlength and maxlength constraints
  */
@@ -35,7 +38,8 @@ public class StringLengthConstraint extends AbstractIntFieldConstraint {
         super(type);
     }
 
-    public boolean isValidForFieldType(String fieldType) {
-        return Constants.TYPE_STRING.equals(fieldType);
+    @Override
+    public boolean isValidForFieldType(Type fieldType) {
+        return StringType.TYPE.equals(fieldType);
     }
 }

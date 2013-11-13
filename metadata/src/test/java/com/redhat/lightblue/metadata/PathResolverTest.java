@@ -25,26 +25,28 @@ import org.junit.Assert;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+import com.redhat.lightblue.metadata.types.*;
+
 public class PathResolverTest {
     
     private EntityMetadata getMD1() {
         EntityMetadata md=new EntityMetadata("test");
-        md.getFields().addNew(new SimpleField("simpleInteger","integer"));
-        md.getFields().addNew(new SimpleField("simpleString","string"));
+        md.getFields().addNew(new SimpleField("simpleInteger",IntegerType.TYPE));
+        md.getFields().addNew(new SimpleField("simpleString",StringType.TYPE));
         ObjectField x=new ObjectField("obj1");
         md.getFields().addNew(x);
-        x.getFields().addNew(new SimpleField("nestedSimpleInteger","integer"));
-        x.getFields().addNew(new SimpleField("nestedSimpleString","string"));
+        x.getFields().addNew(new SimpleField("nestedSimpleInteger",IntegerType.TYPE));
+        x.getFields().addNew(new SimpleField("nestedSimpleString",StringType.TYPE));
         ObjectField y=new ObjectField("nested");
         x.getFields().addNew(y);
-        y.getFields().addNew(new SimpleField("doubleNestedString","string"));
-        ArrayField arr=new ArrayField("simpleArr",new SimpleArrayElement("string"));
+        y.getFields().addNew(new SimpleField("doubleNestedString",StringType.TYPE));
+        ArrayField arr=new ArrayField("simpleArr",new SimpleArrayElement(StringType.TYPE));
         y.getFields().addNew(arr);
         
         ObjectArrayElement oarr=new ObjectArrayElement();
         arr=new ArrayField("objArr",oarr);
         y.getFields().addNew(arr);
-        oarr.getFields().addNew(new SimpleField("nestedArrObjString","string"));
+        oarr.getFields().addNew(new SimpleField("nestedArrObjString",StringType.TYPE));
 
         return md;
     }
