@@ -110,7 +110,7 @@ public abstract class MetadataParser<T> {
             parseFields(md.getFields(),fields);
             
             List<T> constraints=getObjectList(object,"constraints");
-            parseEntityConstraints(md.getConstraints(),constraints);
+            parseEntityConstraints(md,constraints);
             
             T datastore=getRequiredObjectProperty(object,"datastore");
             md.setDataStore(parseDataStore(datastore));
@@ -204,9 +204,10 @@ public abstract class MetadataParser<T> {
      * contains only one field, the constraint name. The constraint
      * data can be a simple value, an array, or an object.
      */
-    public void parseEntityConstraints(List<EntityConstraint> dest,
+    public void parseEntityConstraints(EntityMetadata md,
                                        List<T> constraintList) {
         if(constraintList!=null) {
+            List<EntityConstraint> entityConstraintList = new ArrayList<EntityConstraint>();
             for(T x:constraintList) {
                 // The constraint object must contain a single field
                 String name=getSingleFieldName(x,ERR_INVALID_CONSTRAINT);
@@ -216,10 +217,13 @@ public abstract class MetadataParser<T> {
                     if(parser==null)
                         throw Error.get(ERR_INVALID_CONSTRAINT,name);
                     EntityConstraint constraint=parser.parse(this,x);
-                    dest.add(constraint);
+                    entityConstraintList.add(constraint);
                 } finally {
                     Error.pop();
                 }
+            }
+            if (!entityConstraintList.isEmpty()) {
+                md.setConstraints(entityConstraintList);
             }
         }
     }

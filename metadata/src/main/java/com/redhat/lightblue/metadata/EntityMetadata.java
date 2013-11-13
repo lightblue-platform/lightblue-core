@@ -135,7 +135,7 @@ public class EntityMetadata implements Serializable {
     }
 
     /**
-     * Returns a list of constraints
+     * Returns a deep copy list of constraints
      */
     public List<EntityConstraint> getConstraints() {
         return (List<EntityConstraint>) constraints.clone();

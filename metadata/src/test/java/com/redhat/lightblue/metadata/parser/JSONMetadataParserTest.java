@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -44,7 +43,7 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     public void tearDown() {
         parser = null;
     }
-    
+
     private void testResource(String resource) throws IOException, JSONException {
         JsonNode object = loadJsonNode(resource);
 
@@ -68,7 +67,7 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     public void fullObjectEverythingNoHooks() throws IOException, ParseException, JSONException {
         testResource("JSONMetadataParserTest-object-everything-no-hooks.json");
     }
-    
+
 //    @Test hooks not implemented yet
     public void fullObjectEverything() throws IOException, ParseException, JSONException {
         testResource("JSONMetadataParserTest-object-everything.json");
