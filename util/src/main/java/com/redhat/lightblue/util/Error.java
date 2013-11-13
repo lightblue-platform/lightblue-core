@@ -70,6 +70,15 @@ public class Error extends RuntimeException {
     }
 
     /**
+     * Constructs a new error object by pushing the given context on
+     * top of the current context
+     */
+    public static Error get(String ctx,String errorCode,String msg) {
+        push(ctx);
+        return new Error(threadContext.get(),errorCode,msg);
+    }
+
+    /**
      * Constructs a new error object using the current context
      */
     public static Error get(String errorCode,String msg) {
