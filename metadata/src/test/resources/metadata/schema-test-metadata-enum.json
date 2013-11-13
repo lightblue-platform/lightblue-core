@@ -38,10 +38,12 @@
     "fields": {
         "customerType": {
             "type": "string",
-            "enum": [
-                "person",
-                "organization"
-            ]
+            "constraints": {
+                "enum": [
+                    "person",
+                    "organization"
+                ]
+            }
         }
     }
 }

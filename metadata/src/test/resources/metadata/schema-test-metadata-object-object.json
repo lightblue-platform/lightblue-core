@@ -1,11 +1,11 @@
 {
-    "name":"test",
-    "version":{
-        "value":"1.0",
-        "changelog":"Initial version"
+    "name": "test",
+    "version": {
+        "value": "1.0",
+        "changelog": "Initial version"
     },
-    "status":{
-        "value":"active"
+    "status": {
+        "value": "active"
     },
     "access": {
         "insert": ["admin"],
@@ -18,43 +18,53 @@
             "unique": ["name"]
         }
     ],
-    "datastore":{
-        "mongo":{
-            "database":"some/identifier",
-            "collection":"test"
+    "datastore": {
+        "mongo": {
+            "database": "some/identifier",
+            "collection": "test"
         }
     },
-    "fields":{
-        "name":{
-            "type":"string"
+    "fields": {
+        "name": {
+            "type": "string"
         },
-        "customerType":{
-            "type":"string",
-            "enum":[
-                "person",
-                "organization"
-            ]
+        "customerType": {
+            "type": "string",
+            "constraints": {
+                "enum": [
+                    "person",
+                    "organization"
+                ]
+            }
         },
-        "creationDate":{
-            "type":"date",
-            "required":true
+        "creationDate": {
+            "type": "date",
+            "constraints": {
+                "required": true
+            }
         },
-        "lastUpdateDate":{
-            "type":"date"
+        "lastUpdateDate": {
+            "type": "date"
         },
-        "credentials":{
-            "type":"object",
-            "fields":{
-                "login":{
-                    "type":"string",
-                    "required":true
+        "credentials": {
+            "type": "object",
+            "fields": {
+                "login": {
+                    "type": "string",
+                    "constraints": {
+                        "required": true
+                    }
                 },
-                "password":{
-                    "type":"string",
-                    "required":true
+                "password": {
+                    "type": "string",
+                    "constraints": {
+                        "required": true
+                    }
                 }
             },
-            "required":true
+            "constraints": {
+                "required": true
+            }
         }
     }
 }
