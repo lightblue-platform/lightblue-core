@@ -35,6 +35,7 @@ import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.ObjectType;
 import com.redhat.lightblue.metadata.types.RelationType;
+import com.redhat.lightblue.metadata.types.DateType;
 
 import com.redhat.lightblue.util.Error;
 
@@ -158,8 +159,11 @@ public abstract class MetadataParser<T> {
                 for(T log:logList) {
                     StatusChange item=new StatusChange();
                     String d=getRequiredStringProperty(log,"date");
-                    //Date date = dateFormat.parse(d);
-                    //item.setDate(date);
+                    try {
+                        item.setDate(DateType.getDateFormat().parse(d));
+                    } catch (Exception e) {
+                        throw Error.get(ERR_ILL_FORMED_MD,d);
+                    }
                     item.setStatus(statusFromString(getRequiredStringProperty(log,"value")));
                     item.setComment(getRequiredStringProperty(log,"comment"));
                     list.add(item);
@@ -460,9 +464,8 @@ public abstract class MetadataParser<T> {
                         Object logArray=newArrayField(obj,"log");
                         for(StatusChange x:changeLog) {
                             T log=newNode();
-                            // TODO: Fix date handling
-                            //if(x.getDate()!=null)
-                            //    putString(log,"date",dateFormat.format(x.getDate()));
+                            if(x.getDate()!=null) 
+                                putString(log,"date",DateType.getDateFormat().format(x.getDate()));
                             if(x.getStatus()!=null)
                                 putString(log,"value",toString(x.getStatus()));
                             if(x.getComment()!=null)
