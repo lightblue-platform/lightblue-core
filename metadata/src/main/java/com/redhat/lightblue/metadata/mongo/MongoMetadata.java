@@ -32,8 +32,11 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import com.mongodb.MongoException;
 
 import org.bson.BSONObject;
+
+import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -41,12 +44,14 @@ import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.StatusChange;
-import com.redhat.lightblue.metadata.UnknownEntityVersion;
 import com.redhat.lightblue.metadata.TypeResolver;
 
 import com.redhat.lightblue.metadata.parser.Extensions;
 
 public class MongoMetadata implements Metadata {
+
+    public static final String ERR_DUPLICATE_METADATA="DUPLICATE_METADATA";
+    public static final String ERR_UNKNOWN_VERSION="UNKNOWN_VERSION";
 
     public static final String DEFAULT_METADATA_COLLECTION="metadata";
 
@@ -77,41 +82,56 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException("entityName");
         if(version==null||version.length()==0)
             throw new IllegalArgumentException("version");
-        BasicDBObject query=new BasicDBObject("name",entityName).
-            append("version.value",version);
-        DBObject md=collection.findOne(query);
-        if(md!=null)
-            return mdParser.parseEntityMetadata(md);
-        else
-            return null;
+        Error.push("getEntityMetadata("+entityName+":"+version+")");
+        try {
+            BasicDBObject query=new BasicDBObject("name",entityName).
+                append("version.value",version);
+            DBObject md=collection.findOne(query);
+            if(md!=null)
+                return mdParser.parseEntityMetadata(md);
+            else
+                return null;
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override
     public String[] getEntityNames() {
-        List l=collection.distinct("name");
-        String[] arr=new String[l.size()];
-        int i=0;
-        for(Object x:l)
-            arr[i++]=x.toString();
-        return arr;
+        Error.push("getEntityNames");
+        try {
+            List l=collection.distinct("name");
+            String[] arr=new String[l.size()];
+            int i=0;
+            for(Object x:l)
+                arr[i++]=x.toString();
+            return arr;
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override
     public Version[] getEntityVersions(String entityName) {
         if(entityName==null||entityName.length()==0)
             throw new IllegalArgumentException("entityName");
-        BasicDBObject query=new BasicDBObject("name",entityName);
-        BasicDBObject project=new BasicDBObject("version",1);
-        project.append("_id",0);
-        DBCursor cursor=collection.find(query,project);
-        int n=cursor.count();
-        Version[] ret=new Version[n];
-        int i=0;
-        while(cursor.hasNext()) {
-            DBObject object=cursor.next();
-            ret[i++]=mdParser.parseVersion((BSONObject)object.get("version"));
+        Error.push("getEntityVersions("+entityName+")");
+        try {
+            BasicDBObject query=new BasicDBObject("name",entityName);
+            BasicDBObject project=new BasicDBObject("version",1);
+            project.append("_id",0);
+            DBCursor cursor=collection.find(query,project);
+            int n=cursor.count();
+            Version[] ret=new Version[n];
+            int i=0;
+            while(cursor.hasNext()) {
+                DBObject object=cursor.next();
+                ret[i++]=mdParser.parseVersion((BSONObject)object.get("version"));
+            }
+            return ret;
+        } finally {
+            Error.pop();
         }
-        return ret;
     }
 
     @Override
@@ -131,9 +151,17 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException("Invalid version");
         if(ver.getValue().indexOf(' ')!=-1)
             throw new IllegalArgumentException("Invalid version number");
-        DBObject obj=(DBObject)mdParser.convert(md);
-        WriteResult result=collection.insert(obj,WriteConcern.SAFE);
-        //// TODO:  deal with error here
+        Error.push("createNewMetadata("+md.getName()+")");
+        try {
+            DBObject obj=(DBObject)mdParser.convert(md);
+            try {
+                WriteResult result=collection.insert(obj,WriteConcern.SAFE);
+            } catch (MongoException.DuplicateKey dke) {
+                throw Error.get(ERR_DUPLICATE_METADATA,ver.getValue());
+            } 
+        } finally {
+            Error.pop();
+        }
     }
 
     @Override
@@ -150,21 +178,25 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException("status");
         BasicDBObject query=new BasicDBObject("name",entityName).
             append("version.value",version);
-        DBObject md=collection.findOne(query);
-        if(md==null) 
-            throw new UnknownEntityVersion(entityName,version);
-        EntityMetadata metadata=mdParser.parseEntityMetadata(md);
-        
-        StatusChange newLog=new StatusChange();
-        newLog.setDate(new Date());
-        newLog.setStatus(metadata.getStatus());
-        newLog.setComment(comment);
-        metadata.getStatusChangeLog().add(newLog);
-        metadata.setStatus(newStatus);
-
-        query=new BasicDBObject("_id",md.get("_id"));
-        WriteResult result=collection.
-            update(query,(DBObject)mdParser.convert(metadata),false,false);
-        // TODO: deal with errors here
+        Error.push("setMetadataStatus("+entityName+":"+version+")");
+        try {
+            DBObject md=collection.findOne(query);
+            if(md==null) 
+                throw Error.get(ERR_UNKNOWN_VERSION,entityName+":"+version);
+            EntityMetadata metadata=mdParser.parseEntityMetadata(md);
+            
+            StatusChange newLog=new StatusChange();
+            newLog.setDate(new Date());
+            newLog.setStatus(metadata.getStatus());
+            newLog.setComment(comment);
+            metadata.getStatusChangeLog().add(newLog);
+            metadata.setStatus(newStatus);
+            
+            query=new BasicDBObject("_id",md.get("_id"));
+            WriteResult result=collection.
+                update(query,(DBObject)mdParser.convert(metadata),false,false);
+        } finally {
+            Error.pop();
+        }
     }
 }
