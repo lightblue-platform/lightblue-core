@@ -69,9 +69,9 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     }
 
 //    @Test hooks not implemented yet
-    public void fullObjectEverything() throws IOException, ParseException, JSONException {
-        testResource("JSONMetadataParserTest-object-everything.json");
-    }
+//    public void fullObjectEverything() throws IOException, ParseException, JSONException {
+//        testResource("JSONMetadataParserTest-object-everything.json");
+//    }
 
     @Test
     public void getStringProperty() {
