@@ -155,13 +155,13 @@
             "type": "object",
             "description": "Defines what roles are required for specific operations on this field.",
             "properties": {
-                "read": {
+                "find": {
                     "$ref": "common.json#/definitions/roleArray",
-                    "description": "Roles that can perform read (find) operations on this field."
+                    "description": "Roles that can perform find operations on this field."
                 },
-                "write": {
+                "update": {
                     "$ref": "common.json#/definitions/roleArray",
-                    "description": "Roles that can perform write (update/save) on this field."
+                    "description": "Roles that can perform write update/save on this field."
                 }
             },
             "additionalProperties": false
@@ -293,7 +293,7 @@
                             "type": "boolean"
                         }
                     },
-                    "required":[
+                    "required": [
                         "type"
                     ],
                     "additionalProperties": false

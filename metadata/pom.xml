@@ -28,7 +28,7 @@
     <artifactId>metadata</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>Metadata management</name>
+    <name>lightblue: Metadata management</name>
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>

@@ -28,7 +28,7 @@
     <artifactId>query-api</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>Query api</name>
+    <name>lightblue: Query api</name>
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>

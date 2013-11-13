@@ -65,10 +65,10 @@
                         "type":"string"
                     },
                     "access":{
-                        "read":[
+                        "find":[
                             "all"
                         ],
-                        "write":[
+                        "update":[
                             "admin"
                         ]
                     },
@@ -88,10 +88,10 @@
                 "city":{
                     "type":"string",
                     "access":{
-                        "read":[
+                        "find":[
                             "all"
                         ],
-                        "write":[
+                        "update":[
                             "admin"
                         ]
                     }

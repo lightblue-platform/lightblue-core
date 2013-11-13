@@ -49,6 +49,7 @@ public class DefaultFieldConstraintParsers<NodeType>
         map.put(RequiredConstraint.REQUIRED,new RequiredConstraintParser<NodeType>());
         map.put(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<NodeType>());
         map.put(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<NodeType>());
+        map.put(EnumConstraint.TYPE, new EnumConstraintParser<NodeType>());
     }
     
     public Parser<NodeType,FieldConstraint> get(String objectName) {

@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
+import org.json.JSONException;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 
@@ -45,8 +48,9 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void fullObjectEverything() throws IOException, ParseException {
-        JsonNode object = loadJsonNode("JSONMetadataParserTest-object-everything.json");
+    public void fullObjectEverything() throws IOException, ParseException, JSONException {
+        String resource = "JSONMetadataParserTest-object-everything.json";
+        JsonNode object = loadJsonNode(resource);
 
         // json to java
         EntityMetadata em = parser.parseEntityMetadata(object);
@@ -56,7 +60,12 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
         
         // java back to json
         JsonNode converted = parser.convert(em);
-        String s = converted.toString();
+        
+        String original = loadResource(resource);
+        String before = object.toString();
+        String after = converted.toString();
+        JSONAssert.assertEquals(original, before, false);
+        JSONAssert.assertEquals(original, after, false);
     }
 
     @Test

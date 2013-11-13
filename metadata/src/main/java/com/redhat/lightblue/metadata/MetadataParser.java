@@ -19,9 +19,7 @@
 
 package com.redhat.lightblue.metadata;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -491,12 +489,16 @@ public abstract class MetadataParser<T> {
      * Converts field access to T
      */
     public T convert(FieldAccess access) {
-        if(access!=null) {
+        if (access != null && (access.getFind().getRoles().size() > 0 || access.getUpdate().getRoles().size() > 0)) {
             Error.push("access");
             try {
                 T ret=newNode();
-                convertRoles(ret,"find",access.getFind());
-                convertRoles(ret,"update",access.getUpdate());
+                if (access.getFind().getRoles().size()>0) {
+                    convertRoles(ret,"find",access.getFind());
+                }
+                if (access.getUpdate().getRoles().size()>0) {
+                    convertRoles(ret,"update",access.getUpdate());
+                }
                 return ret;
             } finally {
                 Error.pop();
@@ -525,7 +527,10 @@ public abstract class MetadataParser<T> {
                     convertObjectField((ObjectField)field,fieldObject);
                 } //else if(field instanceof RelationField) {
                 //            }
-                putObject(fieldObject,"access",convert(field.getAccess()));
+                T access = convert(field.getAccess());
+                if (access != null) {
+                    putObject(fieldObject,"access",access);
+                }
                 convertFieldConstraints(fieldObject,field.getConstraints());
             } finally {
                 Error.pop();

@@ -66,8 +66,8 @@
                             "type": "string"
                         },
                         "access": {
-                            "read": ["all"],
-                            "write": ["admin"]
+                            "find": ["all"],
+                            "update": ["admin"]
                         },
                         "hooks": {
                             "insert": ["publish"],
@@ -78,8 +78,8 @@
                     "city": {
                         "type": "string",
                         "access": {
-                            "read": ["all"],
-                            "write": ["admin"]
+                            "find": ["all"],
+                            "update": ["admin"]
                         }
                     },
                     "state": {
