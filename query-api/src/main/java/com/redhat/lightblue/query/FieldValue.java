@@ -18,16 +18,38 @@
 */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.Serializable;
 
-public abstract class Projection extends JsonObject {
-    
-    public static Projection fromJson(JsonNode node) {
-        if(node instanceof ArrayNode) 
-            return ProjectionList.fromJson((ArrayNode)node);
-        else
-            return BasicProjection.fromJson((ObjectNode)node);
+import com.redhat.lightblue.util.Path;
+
+public class FieldValue implements Serializable {
+
+    private static final long serialVersionUID=1l;
+
+    private Path field;
+    private Value value;
+
+    public FieldValue() {}
+
+    public FieldValue(Path field,Value value) {
+        this.field=field;
+        this.value=value;
     }
+
+    public Path getField() {
+        return field;
+    }
+
+    public void setPath(Path p) {
+        this.field=p;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
+    public void setValue(Value v) {
+        value=v;
+    }
+
 }

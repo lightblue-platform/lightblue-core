@@ -22,12 +22,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public abstract class Projection extends JsonObject {
-    
-    public static Projection fromJson(JsonNode node) {
+public abstract class UpdateExpression extends JsonObject {
+
+    public static UpdateExpression fromJson(JsonNode node) {
         if(node instanceof ArrayNode) 
-            return ProjectionList.fromJson((ArrayNode)node);
+            return UpdateExpressionList.fromJson((ArrayNode)node);
         else
-            return BasicProjection.fromJson((ObjectNode)node);
+            return PartialUpdateExpression.fromJson((ObjectNode)node);
     }
+
 }

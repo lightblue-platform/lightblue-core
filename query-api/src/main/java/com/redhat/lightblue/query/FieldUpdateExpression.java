@@ -18,16 +18,6 @@
 */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+public abstract class FieldUpdateExpression extends PartialUpdateExpression {
 
-public abstract class Projection extends JsonObject {
-    
-    public static Projection fromJson(JsonNode node) {
-        if(node instanceof ArrayNode) 
-            return ProjectionList.fromJson((ArrayNode)node);
-        else
-            return BasicProjection.fromJson((ObjectNode)node);
-    }
 }

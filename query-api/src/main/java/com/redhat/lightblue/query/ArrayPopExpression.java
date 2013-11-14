@@ -19,15 +19,39 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public abstract class Projection extends JsonObject {
-    
-    public static Projection fromJson(JsonNode node) {
-        if(node instanceof ArrayNode) 
-            return ProjectionList.fromJson((ArrayNode)node);
-        else
-            return BasicProjection.fromJson((ObjectNode)node);
+import com.redhat.lightblue.util.Path;
+
+public class ArrayPopExpression extends  ArrayUpdateExpression {
+    private boolean first;
+
+    public ArrayPopExpression() {}
+
+    public ArrayPopExpression(Path field,boolean first) {
+        super(field);
+        this.first=first;
+    }
+
+    @Override
+    public UpdateOperator getOp() {
+        return UpdateOperator._pop;
+    }
+
+    public boolean isFirst() {
+        return first;
+    }
+
+    public void setFirst(boolean b) {
+        first=b;
+    }
+
+    @Override
+    protected JsonNode jsonValue() {
+        return factory.textNode(first?"first":"last");
+    }
+
+    public static ArrayPopExpression fromJson(Path field,JsonNode node) {
+        return new ArrayPopExpression(field,
+                                      "first".equals(node.asText()));
     }
 }
