@@ -59,6 +59,8 @@ public class Path implements Comparable<Path>, Serializable  {
 
     public static final String ANY="*";
 
+    public static final Path EMPTY=new Path();
+
     class PathRep implements Serializable {
         ArrayList<String> segments;
         transient String stringValue=null;

@@ -49,8 +49,7 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
     @Test
     public void getSimple() throws IOException {
         JsonNode node = createJsonNode("simple");
-        JsonDocAdapter adapter = new JsonDocAdapter();
-        Doc<JsonNode> doc = new Doc<JsonNode>(adapter, node);
+        JsonDoc doc = new JsonDoc(node);
 
         JsonNode result = doc.get(new Path("simple"));
         Assert.assertNotNull(result);
@@ -61,13 +60,11 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
     @Test
     public void getObject() {
         JsonNode node = createJsonNode("object");
-        JsonDocAdapter adapter = new JsonDocAdapter();
-        Doc<JsonNode> doc = new Doc<JsonNode>(adapter, node);
+        JsonDoc doc = new JsonDoc(node);
 
         JsonNode result = doc.get(new Path("object"));
         Assert.assertNotNull(result);
         Assert.assertTrue("unexpected class", result instanceof ObjectNode);
-        Assert.assertTrue(adapter.getNumChildren(node) > 0);
 
         result = doc.get(new Path("object.simple"));
         Assert.assertNotNull(result);
@@ -78,26 +75,24 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
     @Test
     public void getArray() {
         JsonNode node = createJsonNode("array");
-        JsonDocAdapter adapter = new JsonDocAdapter();
-        Doc<JsonNode> doc = new Doc<JsonNode>(adapter, node);
+        JsonDoc doc = new JsonDoc(node);
 
         JsonNode result = doc.get(new Path("array"));
         Assert.assertNotNull(result);
         Assert.assertTrue("unexpected class", result instanceof ArrayNode);
-        Assert.assertTrue(adapter.getNumChildren(node) > 0);
+        Assert.assertTrue(node.size() > 0);
 
-        Iterator<JsonNode> i = adapter.getChildren(result);
+        NodeIterator i = doc.iterator(new Path("array"));
 
-        for (int a = 0; i.hasNext(); a++) {
-            Assert.assertEquals(String.valueOf(a), ((TextNode) i.next()).textValue());
+        for (int a = 0; i.nextSibling(); a++) {
+            Assert.assertEquals(String.valueOf(a), ((TextNode) i.getCurrentNode()).textValue());
         }
     }
 
     @Test
     public void getComplex() {
         JsonNode node = createJsonNode("complex");
-        JsonDocAdapter adapter = new JsonDocAdapter();
-        Doc<JsonNode> doc = new Doc<JsonNode>(adapter, node);
+        JsonDoc doc = new JsonDoc(node);
 
         JsonNode result = doc.get(new Path("object1.array1.1.simple2"));
         Assert.assertNotNull(result);
@@ -112,6 +107,6 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
         result = doc.get(new Path("object2.array2.0"));
         Assert.assertNotNull(result);
         Assert.assertTrue("unexpected class", result instanceof ObjectNode);
-        Assert.assertTrue(adapter.getNumChildren(result) > 0);
+
     }
 }
