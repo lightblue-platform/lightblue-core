@@ -19,6 +19,9 @@
 package com.redhat.lightblue.crud;
 
 public interface CRUDApi {
+    
+    public static final String ERR_CRUD="CRUD";
+
     public Response insert(InsertionRequest req);
     public Response save(SaveRequest req);
     public Response update(UpdateRequest req);

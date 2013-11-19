@@ -21,6 +21,7 @@ package com.redhat.lightblue.crud;
 import java.io.Serializable;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -36,8 +37,8 @@ public class Response implements Serializable {
     private String taskHandle;
     private SessionInfo session;
     private JsonNode entityData;
-    private List<DataError> dataErrors;
-    private List<Error> errors;
+    private final List<DataError> dataErrors=new ArrayList<DataError>();
+    private final List<Error> errors=new ArrayList<Error>();
 
     public OperationStatus getStatus() {
         return status;
@@ -83,15 +84,7 @@ public class Response implements Serializable {
         return dataErrors;
     }
 
-    public void setDataErrors(List<DataError> l) {
-        dataErrors=l;
-    }
-
     public List<Error> getErrors() {
         return errors;
-    }
-
-    public void setErrors(List<Error> l) {
-        errors=l;
     }
 }

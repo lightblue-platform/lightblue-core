@@ -27,4 +27,28 @@ public abstract class Request implements Serializable {
     private EntityVersion entity;
     private ClientIdentification clientId;
     private ExecutionOptions execution;
+
+    public EntityVersion getEntity() {
+        return entity;
+    }
+
+    public void setEntity(EntityVersion e) {
+        entity=e;
+    }
+
+    public ClientIdentification getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(ClientIdentification c) {
+        clientId=c;
+    }
+
+    public ExecutionOptions getExecution() {
+        return execution;
+    }
+
+    public void setExecution(ExecutionOptions e) {
+        execution=e;
+    }
 }
