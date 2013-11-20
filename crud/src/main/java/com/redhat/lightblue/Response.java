@@ -18,18 +18,18 @@
 */
 package com.redhat.lightblue;
 
-import java.io.Serializable;
-
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonObject;
 
-public class Response implements Serializable {
-
-    private static final long serialVersionUID=1l;
+public class Response extends JsonObject {
 
     private OperationStatus status;
     private long modifiedCount;
@@ -86,5 +86,81 @@ public class Response implements Serializable {
 
     public List<Error> getErrors() {
         return errors;
+    }
+
+    static public Response fromJson(ObjectNode node) {
+        Response ret=new Response();
+        JsonNode x=node.get("status");
+        if(x!=null) {
+            String s=x.asText();
+            if("complete".equals(s))
+                ret.status=OperationStatus.COMPLETE;
+            else if("async".equals(s))
+                ret.status=OperationStatus.ASYNC;
+            else if("partial".equals(s))
+                ret.status=OperationStatus.PARTIAL;
+            else
+                ret.status=OperationStatus.ERROR;
+        }
+        x=node.get("modifiedCount");
+        if(x!=null)
+            ret.modifiedCount=x.asLong();
+        x=node.get("matchCount");
+        if(x!=null)
+            ret.matchCount=x.asLong();
+        x=node.get("taskHandle");
+        if(x!=null)
+            ret.taskHandle=x.asText();
+        x=node.get("session");
+        // TODO
+        x=node.get("processed");
+        if(x!=null)
+            ret.entityData=x;
+        x=node.get("dataErrors");
+        if(x!=null&&x instanceof ArrayNode) {
+            for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
+                itr.hasNext();)
+                ret.dataErrors.add(DataError.fromJson((ObjectNode)itr.next()));
+        }
+        x=node.get("errors");
+        if(x!=null&&x instanceof ArrayNode) {
+            for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
+                itr.hasNext();)
+                ret.errors.add(Error.fromJson(itr.next()));
+        }
+        return ret;
+    }
+
+    public JsonNode toJson() {
+        ObjectNode node=factory.objectNode();
+        if(status!=null) {
+            switch(status) {
+            case COMPLETE: node.put("status","complete");break;
+            case ASYNC: node.put("status","async");break;
+            case PARTIAL: node.put("status","partial");break;
+            case ERROR: node.put("status","error");break;
+            }
+        }
+        node.put("modifiedCount",modifiedCount);
+        node.put("matchCount",matchCount);
+        if(taskHandle!=null)
+            node.put("taskHandle",taskHandle);
+        if(session!=null)
+            node.set("session",session.toJson());
+        if(entityData!=null)
+            node.set("processed",entityData);
+        if(!dataErrors.isEmpty()) {
+            ArrayNode arr=factory.arrayNode();
+            node.set("dataErrors",arr);
+            for(DataError err:dataErrors)
+                arr.add(err.toJson());
+        }
+        if(!errors.isEmpty()) {
+            ArrayNode arr=factory.arrayNode();
+            node.set("errors",arr);
+            for(Error err:errors)
+                arr.add(err.toJson());
+        }
+        return node;
     }
 }

@@ -18,9 +18,8 @@
 */
 package com.redhat.lightblue;
 
-import java.io.Serializable;
+import com.redhat.lightblue.util.JsonObject;
 
-public class SessionInfo implements Serializable {
+public abstract class SessionInfo extends JsonObject {
 
-    private static final long serialVersionUID=1l;
 }
