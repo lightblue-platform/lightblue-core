@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud.controller;
+package com.redhat.lightblue.crud.mediator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,22 +33,23 @@ import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.Metadata;
 
-import com.redhat.lightblue.crud.CRUDApi;
-import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.crud.SaveRequest;
-import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.FindRequest;
-import com.redhat.lightblue.crud.Response;
-import com.redhat.lightblue.crud.Request;
-import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.InsertionRequest;
+import com.redhat.lightblue.SaveRequest;
+import com.redhat.lightblue.UpdateRequest;
+import com.redhat.lightblue.FindRequest;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.DeleteRequest;
 
-public class BasicCRUDController implements CRUDApi {
+public class Mediator {
 
-    private static final Logger logger=LoggerFactory.getLogger(BasicCRUDController.class);
+    public static final String ERR_CRUD="CRUD";
+
+    private static final Logger logger=LoggerFactory.getLogger(Mediator.class);
 
     private final Metadata metadata;
 
-    public BasicCRUDController(Metadata md) {
+    public Mediator(Metadata md) {
         this.metadata=md;
     }
 
@@ -162,6 +163,7 @@ public class BasicCRUDController implements CRUDApi {
                 docs.add(new JsonDoc(entityData));
             }  else
                 docs=null;
+            logger.debug("There are {} docs in request",docs.size());
             ctx.setDocs(docs);
         }
         logger.debug("getOperationContext return");

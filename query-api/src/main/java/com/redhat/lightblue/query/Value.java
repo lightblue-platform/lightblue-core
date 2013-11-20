@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonObject;
 
 public class Value extends JsonObject {
     private Object value;

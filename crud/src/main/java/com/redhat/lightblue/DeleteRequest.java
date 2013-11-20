@@ -16,19 +16,17 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
 
-public class FindRequest extends Request {
+public class DeleteRequest extends Request {
 
     private QueryExpression query;
-    private Projection projection;
-    private Sort sort;
-    private Long from;
-    private Long to;
 
     public QueryExpression getQuery() {
         return query;
@@ -36,37 +34,21 @@ public class FindRequest extends Request {
 
     public void setQuery(QueryExpression q) {
         query=q;
-    } 
+    }        
 
-    public Projection getProjection() {
-        return projection;
+    public JsonNode toJson() {
+        ObjectNode node=(ObjectNode)super.toJson();
+        if(query!=null)
+            node.set("query",query.toJson());
+        return node;
     }
 
-    public void setProjection(Projection x) {
-        projection=x;
-    }
-
-    public Sort getSort() {
-        return sort;
-    }
-
-    public void setSort(Sort s) {
-        sort=s;
-    }
-
-    public Long getFrom() {
-        return from;
-    }
-
-    public void setFrom(Long l) {
-        from=l;
-    }
-
-    public Long getTo() {
-        return to;
-    }
-
-    public void setTo(Long l) {
-        to=l;
+    public static DeleteRequest fromJson(ObjectNode node) {
+        DeleteRequest req=new DeleteRequest();
+        req.parse(node);
+        JsonNode x=node.get("query");
+        if(x!=null)
+            req.query=QueryExpression.fromJson(x);
+        return req;
     }
 }

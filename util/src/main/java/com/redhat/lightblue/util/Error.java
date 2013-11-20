@@ -21,6 +21,8 @@ package com.redhat.lightblue.util;
 
 import java.util.ArrayDeque;
 
+import java.util.StringTokenizer;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -46,7 +48,7 @@ public class Error extends RuntimeException {
         }
     };
     
-    private ArrayDeque<String> context;
+    private ArrayDeque<String> context=new ArrayDeque<String>();
     private String errorCode;
     private String msg;
 
@@ -170,4 +172,23 @@ public class Error extends RuntimeException {
         return toJson().toString();
     }
 
+    public static Error fromJson(JsonNode node) {
+        if(node instanceof ObjectNode) {
+            Error ret=new Error();
+            JsonNode x=((ObjectNode)node).get("context");
+            if(x!=null) {
+                StringTokenizer tok=new StringTokenizer(x.asText(),"/");
+                while(tok.hasMoreTokens())
+                    ret.pushContext(tok.nextToken());
+            }
+            x=((ObjectNode)node).get("errorCode");
+            if(x!=null)
+                ret.errorCode=x.asText();
+            x=((ObjectNode)node).get("msg");
+            if(x!=null)
+                ret.msg=x.asText();
+            return ret;
+        } 
+        return null;
+    }
 }

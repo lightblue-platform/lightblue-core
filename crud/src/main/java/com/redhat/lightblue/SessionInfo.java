@@ -16,11 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
 import java.io.Serializable;
 
-public abstract class ClientIdentification implements Serializable {
+public class SessionInfo implements Serializable {
 
     private static final long serialVersionUID=1l;
 }

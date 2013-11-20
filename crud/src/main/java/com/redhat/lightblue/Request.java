@@ -16,13 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public abstract class Request implements Serializable {
+import com.redhat.lightblue.util.JsonObject;
 
-    private static final long serialVersionUID=1l;
+public abstract class Request extends JsonObject {
 
     private EntityVersion entity;
     private ClientIdentification clientId;
@@ -50,5 +51,30 @@ public abstract class Request implements Serializable {
 
     public void setExecution(ExecutionOptions e) {
         execution=e;
+    }
+
+    public JsonNode toJson() {
+        ObjectNode node=factory.objectNode();
+        node.put("entity",entity.getEntity());
+        node.put("entityVersion",entity.getVersion());
+        if(clientId!=null)
+            node.set("clientId",clientId.toJson());
+        if(execution!=null)
+            node.set("execution",execution.toJson());
+        return node;
+    }
+
+    protected void parse(ObjectNode node) {
+        entity=new EntityVersion();
+        JsonNode x=node.get("entity");
+        if(x!=null)
+            entity.setEntity(x.asText());
+        x=node.get("entityVersion");
+        if(x!=null)
+            entity.setVersion(x.asText());
+        // TODO: clientIdentification
+        x=node.get("execution");
+        if(x!=null)
+            execution=ExecutionOptions.fromJson((ObjectNode)x);
     }
 }

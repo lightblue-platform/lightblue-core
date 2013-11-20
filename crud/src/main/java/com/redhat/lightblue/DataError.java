@@ -16,19 +16,20 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
-
-import java.io.Serializable;
+package com.redhat.lightblue;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonObject;
 
-public class DataError implements Serializable {
-
-    private static long serialVersionUID=1l;
+public class DataError extends JsonObject {
 
     private JsonNode entityData;
     private List<Error> errors;
@@ -48,4 +49,32 @@ public class DataError implements Serializable {
     public void setErrors(List<Error> e) {
         errors=e;
     }
+
+    public JsonNode toJson() {
+        ObjectNode node=factory.objectNode();
+        if(entityData!=null)
+            node.set("data",entityData);
+        if(errors!=null&&!errors.isEmpty()) {
+            ArrayNode arr=factory.arrayNode();
+            node.set("errors",arr);
+            for(Error x:errors)
+                arr.add(x.toJson());
+        }
+        return node;
+    }
+    
+    public static DataError fromJson(ObjectNode node) {
+        DataError error=new DataError();
+        JsonNode x=node.get("data");
+        if(x!=null)
+            error.entityData=x;
+        x=node.get("errors");
+        if(x!=null&&x instanceof ArrayNode) {
+            error.errors=new ArrayList<Error>();
+            for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
+                itr.hasNext();)
+                error.errors.add(Error.fromJson(itr.next()));
+        }
+        return error;
+    }       
 }

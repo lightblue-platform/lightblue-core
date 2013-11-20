@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import com.redhat.lightblue.util.JsonObject;
+
 public abstract class Sort extends JsonObject {
 
     public static final String INVALID_SORT="INVALID_SORT";

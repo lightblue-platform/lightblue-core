@@ -16,20 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.util.JsonObject;
 
-public class DeleteRequest extends Request {
-
-    private QueryExpression query;
-
-    public QueryExpression getQuery() {
-        return query;
-    }
-
-    public void setQuery(QueryExpression q) {
-        query=q;
-    }        
+public abstract class ClientIdentification extends JsonObject {
+    
 }

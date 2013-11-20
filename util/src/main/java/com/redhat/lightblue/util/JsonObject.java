@@ -16,15 +16,24 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.util;
 
-public interface CRUDApi {
+import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
+public abstract class JsonObject implements Serializable {
     
-    public static final String ERR_CRUD="CRUD";
+    private static final long serialVersionUID=1l;
 
-    public Response insert(InsertionRequest req);
-    public Response save(SaveRequest req);
-    public Response update(UpdateRequest req);
-    public Response delete(DeleteRequest req);
-    public Response find(FindRequest req);
+    protected static JsonNodeFactory factory=
+        JsonNodeFactory.withExactBigDecimals(true);
+
+    public abstract JsonNode toJson();
+
+    public String toString() {
+        return toJson().toString();
+    }
 }

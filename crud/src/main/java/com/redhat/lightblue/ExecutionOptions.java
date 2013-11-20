@@ -16,13 +16,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class ExecutionOptions implements Serializable {
+import com.redhat.lightblue.util.JsonObject;
 
-    private static final long serialVersionUID=1l;
+public class ExecutionOptions extends JsonObject {
 
     private long timeLimit;
     private long asynchronous;
@@ -41,5 +42,23 @@ public class ExecutionOptions implements Serializable {
 
     public void setAsynchronous(long b) {
         asynchronous=b;
+    }
+
+    public JsonNode toJson() {
+        ObjectNode node=factory.objectNode();
+        node.put("timeLimit",timeLimit);
+        node.put("asynchronous",asynchronous);
+        return node;
+    }
+
+    public static ExecutionOptions fromJson(ObjectNode node) {
+        ExecutionOptions ret=new ExecutionOptions();
+        JsonNode x=node.get("timeLimit");
+        if(x!=null)
+            ret.timeLimit=x.asLong();
+        x=node.get("asynchronous");
+        if(x!=null)
+            ret.asynchronous=x.asLong();
+        return ret;
     }
 }

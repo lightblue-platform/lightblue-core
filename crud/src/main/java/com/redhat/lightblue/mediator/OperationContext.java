@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud.controller;
+package com.redhat.lightblue.crud.mediator;
 
 import java.io.Serializable;
 
@@ -26,8 +26,8 @@ import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-import com.redhat.lightblue.crud.Request;
-import com.redhat.lightblue.crud.Response;
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.Response;
 
 public class OperationContext implements Serializable {
 

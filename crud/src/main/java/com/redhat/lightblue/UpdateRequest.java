@@ -16,7 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
@@ -50,5 +53,31 @@ public class UpdateRequest extends Request {
 
     public void setQuery(QueryExpression q) {
         query=q;
-    }        
+    }  
+      
+    public JsonNode toJson() {
+        ObjectNode node=(ObjectNode)super.toJson();
+        if(query!=null)
+            node.set("query",query.toJson());
+        if(updateExpression!=null)
+            node.set("update",updateExpression.toJson());
+        if(returnFields!=null)
+            node.set("returning",returnFields.toJson());
+        return node;
+    }
+
+    public static UpdateRequest fromJson(ObjectNode node) {
+        UpdateRequest req=new UpdateRequest();
+        req.parse(node);
+        JsonNode x=node.get("query");
+        if(x!=null)
+            req.query=QueryExpression.fromJson(x);
+        x=node.get("update");
+        if(x!=null)
+            req.updateExpression=UpdateExpression.fromJson(x);
+        x=node.get("returning");
+        if(x!=null)
+            req.returnFields=Projection.fromJson(x);
+        return req;
+    }
 }

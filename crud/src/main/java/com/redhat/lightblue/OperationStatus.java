@@ -16,31 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import com.redhat.lightblue.query.Projection;
-
-public class InsertionRequest extends Request {
-
-    private JsonNode entityData;
-    private Projection returnFields;
-
-    public JsonNode getEntityData() {
-        return entityData;
-    }
-
-    public void setEntityData(JsonNode data) {
-        this.entityData=data;
-    }
-
-    public Projection getReturnFields() {
-        return returnFields;
-    }
-
-    public void setReturnFields(Projection p) {
-        returnFields=p;
-    }
-
+public enum OperationStatus {
+    COMPLETE, PARTIAL, ASYNC, ERROR;
 }

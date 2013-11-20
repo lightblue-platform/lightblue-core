@@ -16,9 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.Projection;
 
@@ -50,5 +51,28 @@ public class SaveRequest extends Request {
 
     public void setUpsert(boolean b) {
         upsert=b;
+    }
+
+    public JsonNode toJson() {
+        ObjectNode node=(ObjectNode)super.toJson();
+        if(entityData!=null)
+            node.set("data",entityData);
+        if(returnFields!=null)
+            node.set("returning",returnFields.toJson());
+        node.put("upsert",upsert);
+        return node;
+    }
+
+    public static SaveRequest fromJson(ObjectNode node) {
+        SaveRequest req=new SaveRequest();
+        req.parse(node);
+        req.entityData=node.get("data");
+        JsonNode x=node.get("returning");
+        if(x!=null)
+            req.returnFields=Projection.fromJson(x);
+        x=node.get("upsert");
+        if(x!=null)
+            req.upsert=x.asBoolean();
+        return req;
     }
 }
