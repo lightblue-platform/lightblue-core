@@ -19,9 +19,30 @@
 
 package com.redhat.lightblue.util;
 
-public class CannotResolvePathException extends RuntimeException {
+/**
+ * Interface representing a cursor into a key-value collection. Upon
+ * construction, cursor points to the location before the first
+ * element, so calling next() is required.
+ */
+public interface KeyValueCursor<K,V> {
 
-    public CannotResolvePathException(Path x) {
-        super(x.toString());
-    }
+    /**
+     * Returns if there is a next element
+     */
+    public boolean hasNext();
+
+    /**
+     * Position the cursor to the next element.
+     */
+    public void next();
+
+    /**
+     * Get the current key 
+     */
+    public K getCurrentKey();
+
+    /**
+     * Get the current value for the key
+     */
+    public V getCurrentValue();
 }

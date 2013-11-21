@@ -19,7 +19,38 @@
 
 package com.redhat.lightblue.util;
 
-public class InvalidObjectAccessException extends RuntimeException {
-    public InvalidObjectAccessException() {
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Adapter to plug in a Map.Entry<K,V> iterator into KeyValueCursor
+ */
+public class KeyValueCursorIteratorAdapter<K,V> implements KeyValueCursor<K,V> {
+
+    private final Iterator<Map.Entry<K,V>> itr;
+
+    private K key;
+    private V value;
+
+    public KeyValueCursorIteratorAdapter(Iterator<Map.Entry<K,V>> itr) {
+        this.itr=itr;
+    }
+
+    public boolean hasNext() {
+        return itr.hasNext();
+    }
+
+    public void next() {
+        Map.Entry<K,V> v=itr.next();
+        key=v.getKey();
+        value=v.getValue();
+    }
+        
+    public K getCurrentKey() {
+        return key;
+    }
+
+    public V getCurrentValue() {
+        return value;
     }
 }

@@ -20,90 +20,52 @@
 package com.redhat.lightblue.util;
 
 import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
-public final class NodeIterator {
-    private final LinkedList<LevelState> stack=new LinkedList<LevelState>();
+/**
+ * Abstract cursor for tree structures of name-value pairs. The type
+ * parameter N denotes the type of the value object. Implementations
+ * should provide the hasChildren() and getCursor() methods.
+ */
+public abstract class AbstractTreeCursor<N> {
+
+    private final LinkedList<LevelState<N>> stack=new LinkedList<LevelState<N>>();
     private MutablePath currentPath;
-    private JsonNode currentNode;
+    private N currentNode;
 
-    private static final class Pair implements Map.Entry<String,JsonNode> {
-        String key;
-        JsonNode value;
+    private static final class LevelState<T> {
+        final T node;
+        final KeyValueCursor<String,T> cursor;
         
-        public String getKey() {return key;}
-        public JsonNode getValue() {return value;}
-        public JsonNode setValue(JsonNode v) {value=v;return value;}
-    }
-
-    private static final class ArrayIteratorAdapter 
-        implements Iterator<Map.Entry<String,JsonNode>> {
-        private final Iterator<JsonNode> nodeIterator;
-        private int index=0;
-        private Pair node=new Pair();
-        
-        public ArrayIteratorAdapter(Iterator<JsonNode> itr) {
-            this.nodeIterator=itr;
+        public LevelState(T node,KeyValueCursor<String,T> cursor) {
+            this.node=node;
+            this.cursor=cursor;
         }
         
         public boolean hasNext() {
-            return nodeIterator.hasNext();
+            return cursor.hasNext();
         }
         
-        public Map.Entry<String,JsonNode> next() {
-            node.key=Integer.toString(index++);
-            node.value=nodeIterator.next();
-            return node;
-        }
-        
-        public void remove() {
-            nodeIterator.remove();
-        }
-    }
-
-    private static final class LevelState {
-        final JsonNode node;
-        final Iterator<Map.Entry<String,JsonNode>> iterator;
-        
-        public LevelState(ObjectNode node) {
-            this.node=node;
-            this.iterator=node.fields();
-        }
-        
-        public LevelState(ArrayNode node) {
-            this.node=node;
-            this.iterator=new ArrayIteratorAdapter(node.elements());
-        }
-        
-        public boolean hasNext() {
-            return iterator.hasNext();
-        }
-        
-        public JsonNode next(MutablePath path,boolean newLevel) {
-            Map.Entry<String,JsonNode> value=iterator.next();
+        public T next(MutablePath path,boolean newLevel) {
+            cursor.next();
+            T value=cursor.getCurrentValue();
             if(newLevel)
-                path.push(value.getKey());
+                path.push(cursor.getCurrentKey());
             else
-                path.setLast(value.getKey());
-            return value.getValue();
+                path.setLast(cursor.getCurrentKey());
+            return value;
         }
     }
         
-    public NodeIterator(Path p,JsonNode start) {
+    public AbstractTreeCursor(Path p,N start) {
         currentPath=new MutablePath(p);
         if(pushNode(start)==null)
             throw new IllegalArgumentException(start.getClass().getName());
     }
 
-    public JsonNode getCurrentNode() {
+    public N getCurrentNode() {
         return currentNode;                
     }
     
@@ -115,12 +77,12 @@ public final class NodeIterator {
         // If currentNode==null, get the first child of TOS
         // If not null, push current state to stack, and get the first child of TOS
         if(currentNode!=null) {
-            if(currentNode.isContainerNode()&&currentNode.size()>0) {
+            if(hasChildren(currentNode)) {
                 pushNode(currentNode);
             } else
                 return false;
         }
-        LevelState tos=stack.peekLast();
+        LevelState<N> tos=stack.peekLast();
         if(tos.hasNext()) {
             currentNode=tos.next(currentPath,true);
         } else {
@@ -134,7 +96,7 @@ public final class NodeIterator {
         // the parent node
         if(currentNode!=null) {
             // If currentNode!=null, TOS exists
-            LevelState tos=stack.peekLast();
+            LevelState<N> tos=stack.peekLast();
             if(tos.hasNext()) {
                 currentNode=tos.next(currentPath,false);
                 return true;
@@ -163,16 +125,12 @@ public final class NodeIterator {
         return false;
     }
 
-    private LevelState pushNode(JsonNode node) {
-        LevelState ret;
-        if(node instanceof ObjectNode)
-            ret=new LevelState((ObjectNode)node);
-        else if(node instanceof ArrayNode)
-            ret=new LevelState((ArrayNode)node);
-        else
-            ret=null;
-        if(ret!=null)
-            stack.addLast(ret);
+    protected abstract KeyValueCursor<String,N> getCursor(N node);
+    protected abstract boolean hasChildren(N node);
+
+    private LevelState<N> pushNode(N node) {
+        LevelState<N> ret=new LevelState<N>(node,getCursor(node));
+        stack.addLast(ret);
         return ret;
     }
     

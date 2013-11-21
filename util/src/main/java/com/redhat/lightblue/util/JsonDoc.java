@@ -35,23 +35,16 @@ public class JsonDoc implements Serializable {
 
     private final JsonNode docRoot;
 
-    private static final Iterator<Map.Entry<Path,JsonNode>> EMPTY_ITERATOR=
-        new Iterator<Map.Entry<Path,JsonNode>>() {
-        public boolean hasNext() { return false;}
-        public Map.Entry<Path,JsonNode> next() {throw new NoSuchElementException();}
-        public void remove() {throw new UnsupportedOperationException();}
-    };
-
     public JsonDoc(JsonNode doc) {
         this.docRoot=doc;
     }
 
-    public NodeIterator iterator() {
-        return iterator(Path.EMPTY);
+    public JsonNodeCursor cursor() {
+        return cursor(Path.EMPTY);
     }
 
-    public NodeIterator iterator(Path p) {
-        return new NodeIterator(p,docRoot);
+    public JsonNodeCursor cursor(Path p) {
+        return new JsonNodeCursor(p,docRoot);
     }
 
     public JsonNode get(Path p) {

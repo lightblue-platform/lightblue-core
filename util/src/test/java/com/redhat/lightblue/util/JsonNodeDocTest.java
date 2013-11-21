@@ -82,7 +82,8 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
         Assert.assertTrue("unexpected class", result instanceof ArrayNode);
         Assert.assertTrue(node.size() > 0);
 
-        NodeIterator i = doc.iterator(new Path("array"));
+        JsonNodeCursor i = doc.cursor(new Path("array"));
+        Assert.assertTrue(i.firstChild());
 
         for (int a = 0; i.nextSibling(); a++) {
             Assert.assertEquals(String.valueOf(a), ((TextNode) i.getCurrentNode()).textValue());
