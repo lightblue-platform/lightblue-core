@@ -24,47 +24,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
-public class Fields implements TreeNode, Serializable {
+public class Fields implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
     private final HashMap<String, Field> fieldMap = new HashMap<String, Field>();
     private final ArrayList<Field> fields = new ArrayList<Field>();
 
-    public String getNodeName() {
-        return "";
-    }
-
     public int getNumChildren() {
         return fields.size();
     }
 
-    public TreeNode getChild(int index) {
-        try {
-            return fields.get(index);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public Field getField(int index) {
-        return (Field) getChild(index);
-    }
-
-    public TreeNode getChild(String name) {
-        return fieldMap.get(name);
+       try {
+           return fields.get(index);
+       } catch (Exception e) {
+           return null;
+       }
     }
 
     public Field getField(String name) {
-        return (Field) getChild(name);
-    }
-
-    public Iterator<? extends TreeNode> getChildren() {
-        return fields.iterator();
+        return fieldMap.get(name);
     }
 
     public Iterator<Field> getFields() {
@@ -99,11 +82,11 @@ public class Fields implements TreeNode, Serializable {
         fieldMap.put(name, f);
     }
 
-    public TreeNode resolve(Path p) {
+    public FieldTreeNode resolve(Path p) {
         return resolve(p,0);
     }
 
-    protected TreeNode resolve(Path p,int level) {
+    protected FieldTreeNode resolve(Path p,int level) {
         if(level>=p.numSegments())
             throw Error.get(Constants.ERR_INVALID_REDIRECTION,p.toString());
         String name=p.head(level);

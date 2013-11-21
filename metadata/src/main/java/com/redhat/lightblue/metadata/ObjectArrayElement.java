@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata;
 
 import java.util.Iterator;
 
-import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
@@ -39,23 +38,17 @@ public class ObjectArrayElement extends ArrayElement {
         return fields;
     }
 
-    public int getNumChildren() {
-        return fields.getNumChildren();
+    @Override
+    public boolean hasChildren() {
+        return true;
     }
 
-    public TreeNode getChild(int index) {
-        return fields.getChild(index);
+    @Override
+    public Iterator<? extends FieldTreeNode> getChildren() {
+        return fields.getFields();
     }
 
-    public TreeNode getChild(String name) {
-        return fields.getChild(name);
-    }
-
-    public Iterator<? extends TreeNode> getChildren() {
-        return fields.getChildren();
-    }
-
-    protected TreeNode resolve(Path p,int level) {
+    protected FieldTreeNode resolve(Path p,int level) {
         int l=p.numSegments()-level;
         if(l==0)
             return this;
@@ -66,7 +59,7 @@ public class ObjectArrayElement extends ArrayElement {
                 if(p.isIndex(level)||
                    name.equals(Path.ANY))
                     throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-                Field f=(Field)getChild(name);
+                Field f=fields.getField(name);
                 if(f==null)
                     throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
                 return f.resolve(p,level+1);

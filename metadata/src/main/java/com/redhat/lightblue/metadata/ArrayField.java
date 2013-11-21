@@ -22,7 +22,6 @@ package com.redhat.lightblue.metadata;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Util;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
@@ -50,33 +49,23 @@ public class ArrayField extends Field {
         element = el;
     }
 
-    public int getNumChildren() {
-        return element == null ? 0 : 1;
+    @Override
+    public boolean hasChildren() {
+        return true;
     }
 
-    public TreeNode getChild(int index) {
-        if (index == 0 && element != null)
-            return element;
-        return null;
-    }
-
-    public TreeNode getChild(String name) {
-        if (Constants.ARRAY_ANY_ELEM.equals(name) || Util.isNumber(name))
-            if (element != null)
-                return element;
-        return null;
-    }
-
-    public Iterator<? extends TreeNode> getChildren() {
+    @Override
+    public Iterator<? extends FieldTreeNode> getChildren() {
         if (element != null) {
-            ArrayList<TreeNode> l = new ArrayList<TreeNode>(1);
+            ArrayList<FieldTreeNode> l = new ArrayList<FieldTreeNode>(1);
             l.add(element);
             return l.iterator();
         }
-        return null;
+        return FieldTreeNode.EMPTY;
     }
 
-    protected TreeNode resolve(Path p,int level) {
+    @Override
+    protected FieldTreeNode resolve(Path p,int level) {
         int l=p.numSegments()-level;
         if(l==0)
             return this;

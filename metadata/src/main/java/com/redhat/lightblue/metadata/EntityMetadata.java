@@ -23,10 +23,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Iterator;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.TreeNode;
 
 public class EntityMetadata implements Serializable {
 
@@ -178,7 +178,16 @@ public class EntityMetadata implements Serializable {
         return this.fields;
     }
 
-    public TreeNode resolve(Path p) {
+    public FieldCursor getFieldCursor() {
+        return new FieldCursor(new Path(),new FieldTreeNode() {
+                public String getName() {return "";}
+                public Type getType() {return null;}
+                public boolean hasChildren() {return true;}
+                public Iterator<? extends FieldTreeNode> getChildren() {return fields.getFields();}
+            });
+    }
+
+    public FieldTreeNode resolve(Path p) {
         Error.push(name);
         try {
             return fields.resolve(p);

@@ -25,10 +25,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
 
-public abstract class Field implements TreeNode, Serializable {
+public abstract class Field implements FieldTreeNode, Serializable {
 
     private static final long serialVersionUID = 1l;
 
@@ -75,5 +74,5 @@ public abstract class Field implements TreeNode, Serializable {
             constraints.addAll(l);
     }
 
-    protected abstract TreeNode resolve(Path p,int level);
+    protected abstract FieldTreeNode resolve(Path p,int level);
 }

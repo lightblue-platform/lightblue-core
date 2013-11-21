@@ -21,10 +21,9 @@ package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
 
-import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
 
-public abstract class ArrayElement implements TreeNode, Serializable {
+public abstract class ArrayElement implements FieldTreeNode, Serializable {
 
     private static final long serialVersionUID = 1l;
 
@@ -34,6 +33,11 @@ public abstract class ArrayElement implements TreeNode, Serializable {
 
     public ArrayElement(Type type) {
         this.type=type;
+    }
+
+    @Override
+    public String getName() {
+        return Path.ANY;
     }
 
     /**
@@ -55,5 +59,5 @@ public abstract class ArrayElement implements TreeNode, Serializable {
         this.type = argType;
     }
 
-    protected abstract TreeNode resolve(Path p,int level);
+    protected abstract FieldTreeNode resolve(Path p,int level);
 }

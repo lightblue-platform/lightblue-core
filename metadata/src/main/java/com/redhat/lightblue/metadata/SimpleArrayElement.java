@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata;
 
 import java.util.Iterator;
 
-import com.redhat.lightblue.util.TreeNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
@@ -34,23 +33,18 @@ public class SimpleArrayElement extends ArrayElement {
         super(type);
     }
 
-    public int getNumChildren() {
-        return 0;
+    @Override
+    public boolean hasChildren() {
+        return false;
+    }
+ 
+    @Override
+    public Iterator<FieldTreeNode> getChildren() {
+        return FieldTreeNode.EMPTY;
     }
 
-    public TreeNode getChild(int index) {
-        return null;
-    }
-
-    public TreeNode getChild(String name) {
-        return null;
-    }
-
-    public Iterator<? extends TreeNode> getChildren() {
-        return TreeNode.EMPTY;
-    }
-
-    protected TreeNode resolve(Path p,int level) {
+    @Override
+    protected FieldTreeNode resolve(Path p,int level) {
         if(p.numSegments()==level)
             return this;
         else

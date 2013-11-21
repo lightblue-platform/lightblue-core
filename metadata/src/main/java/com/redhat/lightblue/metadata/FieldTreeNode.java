@@ -21,34 +21,14 @@ package com.redhat.lightblue.metadata;
 
 import java.util.Iterator;
 
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.EmptyIterator;
 
-public class SimpleField extends Field {
+public interface FieldTreeNode {
 
-    public SimpleField(String name) {
-        super(name);
-    }
+    public static final Iterator<FieldTreeNode> EMPTY=new EmptyIterator<FieldTreeNode>();
 
-    public SimpleField(String name,Type type) {
-        super(name,type);
-    }
-
-    @Override
-    public Iterator<FieldTreeNode> getChildren() {
-        return FieldTreeNode.EMPTY;
-    }
-
-    @Override
-    public boolean hasChildren() {
-        return false;
-    }
-
-    @Override
-    protected FieldTreeNode resolve(Path p,int level) {
-        if(p.numSegments()==level)
-            return this;
-        else
-            throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-    }
+    public String getName();
+    public Type getType();
+    public boolean hasChildren();
+    public Iterator<? extends FieldTreeNode> getChildren();
 }
