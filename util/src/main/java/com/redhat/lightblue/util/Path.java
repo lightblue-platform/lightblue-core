@@ -76,6 +76,18 @@ public class Path implements Comparable<Path>, Serializable  {
             hashValue=data.hashValue;
         }
 
+        public PathRep(PathRep data,int x) {
+            int k=data.segments.size();
+            segments=new ArrayList<String>(k);
+            int n;
+            if(x>=0)
+                n=k>x?x:k;
+            else
+                n=k+x;
+            for(int i=0;i<n;i++)
+                segments.add(data.segments.get(i));
+        }
+
         public void resetState() {
             stringValue=null;
             hashValue=0;
@@ -123,15 +135,31 @@ public class Path implements Comparable<Path>, Serializable  {
         }
     }
 
-    protected PathRep data=new PathRep();
+    protected PathRep data;
 
-    public Path() {}
+    public Path() {
+        data=new PathRep();
+    }
 
     public Path(Path x) {
+        this();
         data.segments.addAll(x.data.segments);
     }
 
+    /**
+     * Create a mutable path as a prefix of the given path
+     * 
+     * @param x Source path
+     * @param pfix If positive, the new path is a prefix of x
+     * containing pfix elements. If negative, the new path is a prefix
+     * of x with last -pfix elements removed.
+     */
+    public Path(Path x,int pfix) {
+        data=new PathRep(x.data,pfix);
+    }
+
     public Path(String x) {
+        this();
         parse(x,data.segments);
     }
 
@@ -223,24 +251,24 @@ public class Path implements Comparable<Path>, Serializable  {
 
     /**
      * Returns a new path that is a prefix of this path obtained by
-     * removing x elements from the end. If the path is a mutable
-     * path, the returned path is a mutable path. If the path is an
-     * immutable path, the returned path is an immutable path.
+     * removing -x elements from the end (if x is negative), or
+     * selecting x elements from the beginning (if x is positive). If
+     * the path is a mutable path, the returned path is a mutable
+     * path. If the path is an immutable path, the returned path is an
+     * immutable path.
      * 
-     * @param x number of elements to remove from end of path
+     * @param x number of elements to remove from end, or include from
+     * the beginning
      * @return the new path
      * @throws IndexOutOfBoundException number of elements to remove is greater than number of segments available
      */
     public Path prefix(int x) {
         Path p = null;
         if(this instanceof MutablePath) {
-            p=new MutablePath((MutablePath)this);
+            p=new MutablePath((MutablePath)this,x);
         } else {
-            p=new Path(this);
+            p=new Path(this,x);
         }
-        for(int i=0;i<x;i++)
-            p.data.segments.remove(p.data.segments.size()-1);
-        p.data.resetState();
         return p;
     }
 

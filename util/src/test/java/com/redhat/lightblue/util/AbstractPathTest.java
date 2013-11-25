@@ -168,16 +168,40 @@ public abstract class AbstractPathTest<T extends Path> {
     }
 
     @Test
+    public void prefix_1() {
+        T p = createPath();
+        int x = -1;
+        try {
+            Path prefix = p.prefix(x);
+
+            Assert.assertEquals(Math.max(0,p.numSegments() + x), prefix.numSegments());
+            for (int i = 0; i < prefix.numSegments(); i++) {
+                Assert.assertEquals(p.head(i), prefix.head(i));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            if (0 == expectedSize()) {
+                // this is ok
+            } else {
+                // not ok, throw the exception to force failure
+                throw e;
+            }
+        }
+    }
+
+    @Test
     public void prefix1() {
         T p = createPath();
         int x = 1;
         try {
             Path prefix = p.prefix(x);
-
-            Assert.assertEquals(p.numSegments() - x, prefix.numSegments());
-            for (int i = 0; i < prefix.numSegments(); i++) {
-                Assert.assertEquals(p.head(i), prefix.head(i));
-            }
+            
+            if(p.numSegments()>0) {
+                Assert.assertEquals(x, prefix.numSegments());
+                for (int i = 0; i < prefix.numSegments(); i++) {
+                    Assert.assertEquals(p.head(i), prefix.head(i));
+                }
+            } else
+                Assert.assertEquals(0,prefix.numSegments());
         } catch (IndexOutOfBoundsException e) {
             if (0 == expectedSize()) {
                 // this is ok

@@ -51,6 +51,19 @@ public class MutablePath extends Path  {
         pathOwned=true;
     }
 
+    /**
+     * Create a mutable path as a prefix of the given path
+     * 
+     * @param x Source path
+     * @param pfix If positive, the new path is a prefix of x
+     * containing pfix elements. If negative, the new path is a prefix
+     * of x with last -pfix elements removed.
+     */
+    public MutablePath(Path x,int pfix) {
+        data=new PathRep(x.data,pfix);
+        pathOwned=true;
+    }
+
     public MutablePath(String x) {
         super(x);
         pathOwned=true;
@@ -135,6 +148,17 @@ public class MutablePath extends Path  {
      */
     public Path setLast(int x) {
         return setLast(String.valueOf(x));
+    }
+
+    public Path set(int i,String x) {
+        own();
+        data.segments.set(i,x);
+        data.resetState();
+        return this;
+    }
+
+    public Path set(int i,int value) {
+        return set(i,Integer.toString(value));
     }
 
     /**
