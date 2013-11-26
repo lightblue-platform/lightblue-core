@@ -17,13 +17,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package com.redhat.lightblue.metadata.parser;
+package com.redhat.lightblue.util;
 
-/**
- * Interface that describes objects that can return parsers for an
- * object with the given name.
- */
-public interface ParserResolver<NodeType,ObjType> {
+import java.util.Map;
+import java.util.HashMap;
 
-    public Parser<NodeType,ObjType> get(String objectName);
+public class DefaultResolver<K,V> implements Resolver<K,V> {
+
+    private final Map<K,V> map=new HashMap<K,V>();
+    
+    public void addValue(K name,V value) {
+        map.put(name,value);
+    }
+    
+    public V find(K name) {
+        return map.get(name);
+    }
+
 }

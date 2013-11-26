@@ -50,7 +50,7 @@ public class Extensions<T> {
     }
 
     public DataStoreParser<T> getDataStoreParser(String dataStoreName) {
-        return (DataStoreParser<T>)dataStoreParsers.get(dataStoreName);
+        return (DataStoreParser<T>)dataStoreParsers.find(dataStoreName);
     }
 
     public void registerEntityConstraintParser(String name,EntityConstraintParser<T> parser) {
@@ -58,7 +58,7 @@ public class Extensions<T> {
     }
 
     public EntityConstraintParser<T> getEntityConstraintParser(String constraintName) {
-        return (EntityConstraintParser<T>)entityConstraintParsers.get(constraintName);
+        return (EntityConstraintParser<T>)entityConstraintParsers.find(constraintName);
     }
 
     public void registerFieldConstraintParser(String name,FieldConstraintParser<T> parser) {
@@ -66,7 +66,7 @@ public class Extensions<T> {
     }
 
     public FieldConstraintParser<T> getFieldConstraintParser(String constraintName) {
-        return (FieldConstraintParser<T>)fieldConstraintParsers.get(constraintName);
+        return (FieldConstraintParser<T>)fieldConstraintParsers.find(constraintName);
     }
 
     public String toString() {

@@ -28,6 +28,6 @@ public class ParserRegistryTest {
 
         reg.add(name, parser);
 
-        Assert.assertEquals(parser, reg.get(name));
+        Assert.assertEquals(parser, reg.find(name));
     }
 }

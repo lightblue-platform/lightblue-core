@@ -19,8 +19,7 @@
 
 package com.redhat.lightblue.metadata.parser;
 
-import java.util.Map;
-import java.util.HashMap;
+import com.redhat.lightblue.util.DefaultResolver;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
 
@@ -35,24 +34,17 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
  * MetadataParser
  */
 public class DefaultFieldConstraintParsers<NodeType> 
-    implements ParserResolver<NodeType,FieldConstraint> {
+    extends DefaultResolver<String,Parser<NodeType,FieldConstraint>> {
     
-    private final Map<String,Parser<NodeType,FieldConstraint>> map;
-
     public DefaultFieldConstraintParsers() {
-        map=new HashMap<String,Parser<NodeType,FieldConstraint>>();
-        map.put(ArraySizeConstraint.MIN,new ArraySizeConstraintParser<NodeType>());
-        map.put(ArraySizeConstraint.MAX,new ArraySizeConstraintParser<NodeType>());
-        map.put(EnumConstraint.TYPE,new EnumConstraintParser<NodeType>());
-        map.put(MinMaxConstraint.MIN,new MinMaxConstraintParser<NodeType>());
-        map.put(MinMaxConstraint.MAX,new MinMaxConstraintParser<NodeType>());
-        map.put(RequiredConstraint.REQUIRED,new RequiredConstraintParser<NodeType>());
-        map.put(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<NodeType>());
-        map.put(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<NodeType>());
-        map.put(EnumConstraint.TYPE, new EnumConstraintParser<NodeType>());
-    }
-    
-    public Parser<NodeType,FieldConstraint> get(String objectName) {
-        return map.get(objectName);
+        addValue(ArraySizeConstraint.MIN,new ArraySizeConstraintParser<NodeType>());
+        addValue(ArraySizeConstraint.MAX,new ArraySizeConstraintParser<NodeType>());
+        addValue(EnumConstraint.TYPE,new EnumConstraintParser<NodeType>());
+        addValue(MinMaxConstraint.MIN,new MinMaxConstraintParser<NodeType>());
+        addValue(MinMaxConstraint.MAX,new MinMaxConstraintParser<NodeType>());
+        addValue(RequiredConstraint.REQUIRED,new RequiredConstraintParser<NodeType>());
+        addValue(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<NodeType>());
+        addValue(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<NodeType>());
+        addValue(EnumConstraint.TYPE, new EnumConstraintParser<NodeType>());
     }
 }

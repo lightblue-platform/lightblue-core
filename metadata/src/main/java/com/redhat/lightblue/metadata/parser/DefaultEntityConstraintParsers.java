@@ -19,8 +19,7 @@
 
 package com.redhat.lightblue.metadata.parser;
 
-import java.util.Map;
-import java.util.HashMap;
+import com.redhat.lightblue.util.DefaultResolver;
 
 import com.redhat.lightblue.metadata.EntityConstraint;
 
@@ -32,17 +31,10 @@ import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
  * MetadataParser
  */
 public class DefaultEntityConstraintParsers<NodeType> 
-    implements ParserResolver<NodeType,EntityConstraint> {
+    extends DefaultResolver<String,Parser<NodeType,EntityConstraint>> {
     
-    private final Map<String,Parser<NodeType,EntityConstraint>> map;
-
     public DefaultEntityConstraintParsers() {
-        map=new HashMap<String,Parser<NodeType,EntityConstraint>>();
-        map.put(UniqueConstraint.UNIQUE,new UniqueConstraintParser<NodeType>());
-        map.put(ReferencesConstraint.REFERENCES,new ReferencesConstraintParser<NodeType>());
-    }
-    
-    public Parser<NodeType,EntityConstraint> get(String objectName) {
-        return map.get(objectName);
+        addValue(UniqueConstraint.UNIQUE,new UniqueConstraintParser<NodeType>());
+        addValue(ReferencesConstraint.REFERENCES,new ReferencesConstraintParser<NodeType>());
     }
 }
