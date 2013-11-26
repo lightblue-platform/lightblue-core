@@ -24,12 +24,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+/**
+ * Base class for objects constructed from Json nodes. Optionally
+ * contains a pointer to the json node the object is constructed from.
+ */
 public abstract class JsonObject implements Serializable {
     
     private static final long serialVersionUID=1l;
 
     protected static JsonNodeFactory factory=
         JsonNodeFactory.withExactBigDecimals(true);
+
+    protected JsonNode sourceNode;
+
+    public JsonObject() {}
+
+    public JsonObject(JsonNode node) {
+        sourceNode=node;
+    }
+
+    public JsonNode getSourceNode() {
+        return sourceNode;
+    }
 
     public abstract JsonNode toJson();
 

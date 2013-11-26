@@ -137,7 +137,8 @@ public class JsonDoc implements Serializable {
     private class PathCursor implements KeyValueCursor<Path,JsonNode> {
 
         final Path path;
-        CursorResolver resolver=new CursorResolver();;
+        final MutablePath mpath;
+        final CursorResolver resolver=new CursorResolver();;
         JsonNode nextNode;
         boolean ended=false;
         boolean nextFound=false;
@@ -147,14 +148,13 @@ public class JsonDoc implements Serializable {
         public PathCursor(Path p) {
             path=p;
             nextNode=resolver.resolve(path,docRoot,0);
-            if(nextNode!=null) {
+            if(nextNode!=null) 
                 nextFound=true;
-                if(resolver.iterators==null) 
-                    ended=true;
-            } else {
-                if(resolver.iterators==null)
-                    ended=true;
-            }                    
+            if(resolver.iterators==null)  {
+                ended=true;
+                mpath=null;
+            } else
+                mpath=new MutablePath(path);
         }
 
         public Path getCurrentKey() {
@@ -178,14 +178,13 @@ public class JsonDoc implements Serializable {
                     nextNode=seekNext();
             if(nextFound) {
                 if(resolver.iterators!=null) {
-                    MutablePath p=new MutablePath(path);
                     int i=0;
                     for(Iteration x:resolver.iterators) {
                         if(x!=null)
-                            p.set(i,x.index);
+                            mpath.set(i,x.index);
                         i++;
                     }
-                    currentPath=p.immutableCopy();
+                    currentPath=mpath.immutableCopy();
                 } else
                     currentPath=path;
                 currentNode=nextNode;
@@ -206,25 +205,18 @@ public class JsonDoc implements Serializable {
                 boolean done=false;
                 do {
                     Iteration itr=resolver.iterators[level];
-                    if(itr!=null) {
-                        if(itr.next()) {
-                            node=resolver.resolve(path,itr.currentNode,level+1);
-                            if(node!=null) {
-                                nextFound=true;
-                                done=true;
-                            } else {
-                                continue;
-                            }
-                        } else { 
-                            level--;
-                            if(level<0)
-                                done=ended=true;
+                    if(itr!=null&&itr.next()) {
+                        node=resolver.resolve(path,itr.currentNode,level+1);
+                        if(node!=null) {
+                            nextFound=true;
+                            done=true;
+                        } else {
+                            continue;
                         }
-                    } else {
+                    } else { 
                         level--;
-                        if(level<0) {
+                        if(level<0)
                             done=ended=true;
-                        }
                     }
                 } while(!done);
             }
