@@ -36,36 +36,125 @@ public class JsonDoc implements Serializable {
 
     private final JsonNode docRoot;
 
-    private class PathCursor implements KeyValueCursor<Path,JsonNode> {
-        MutablePath path;
-        Path currentPath;
+    private static final Resolver DEFAULT_RESOLVER=new Resolver();
+
+    private static final class Iteration {
+        Iterator<JsonNode> iterator;
         JsonNode currentNode;
-        JsonNode node;
-        int anys[];
-        int values[];
-        boolean nextFound=false;
+        int index;
+
+        boolean next() {
+            if(iterator.hasNext()) {
+                currentNode=iterator.next();
+                index++;
+                return true;
+            } else
+                return false;
+        }
+    }
+
+    /**
+     * Internal class that overrides the behavior for '*' processing
+     * during path resolution
+     */
+    private static final class CursorResolver extends Resolver {
+        Iteration[] iterators;
+
+        protected JsonNode handleAny(Path p,JsonNode node,int level) {
+            if(iterators==null) {
+                int n=p.numSegments();
+                iterators=new Iteration[n];
+            }
+            if(node instanceof ArrayNode) {
+                Iteration itr=iterators[level];
+                if(itr==null)
+                    iterators[level]=itr=new Iteration();
+                itr.index=-1;
+                itr.iterator=((ArrayNode)node).elements();
+                if(itr.next()) 
+                    node=itr.currentNode;
+                else
+                    node=null;
+            } else
+                node=null;
+            return node;
+        }
+    }
+
+    /**
+     * Internal class containing the algorithm for path resolution
+     * starting from a node and path level. Handling of '*' is
+     * overridable, by default, throws an exception
+     */
+    private static class Resolver {
+        public JsonNode resolve(Path p,JsonNode node,int level) {
+            int n=p.numSegments();
+            for(int l=level;l<n;l++) {
+                String name=p.head(l);
+                if(name.equals(Path.ANY)) {
+                    node=handleAny(p,node,l);
+                } else if(node instanceof ArrayNode) {
+                    int index=Integer.valueOf(name);
+                    node=((ArrayNode)node).get(index);
+                } else if(node instanceof ObjectNode) {
+                    node=node.get(name);
+                } else
+                    node=null;
+                if(node==null)
+                    break;
+            }
+            return node;
+        }
+
+        protected JsonNode handleAny(Path p,JsonNode node,int level) {
+            throw new IllegalArgumentException(p.toString());           
+        }
+    }
+    
+    /**
+     * A cursor that iterates through all elements of a document that
+     * matches the path. If the path has no '*', the initialization
+     * code finds the node if any, and the iteration runs only
+     * once. If the path contains '*', iterators for all arrays
+     * corresponding to '*' are kept in CursorResolver.
+     *
+     * The algorithms is somewhat complicated because not all elements
+     * of the array are guaranteed to have the same structure. For
+     * instance, a path of the form x.*.y, when evaluated on a
+     * document of the form:
+     *
+     * <pre>
+     *   x : [
+     *        { a:1 },
+     *        { y:2 },
+     *        { y:3 }
+     *    ]
+     * </pre>
+     * 
+     * the iterator starts iterating from the second element of the
+     * array x, because x.0.y does not exist.
+     */
+    private class PathCursor implements KeyValueCursor<Path,JsonNode> {
+
+        final Path path;
+        CursorResolver resolver=new CursorResolver();;
+        JsonNode nextNode;
         boolean ended=false;
+        boolean nextFound=false;
+        JsonNode currentNode;
+        Path currentPath;
 
         public PathCursor(Path p) {
-            path=new MutablePath(p);
-            int n=path.numSegments();
-            int nAnys=0;
-            for(int i=0;i<n;i++)
-                if(Path.ANY.equals(path.head(i)))
-                    nAnys++;
-            anys=new int[nAnys];
-            values=new int[nAnys];
-            int j=0;
-            if(nAnys>0)
-                for(int i=0;i<n;i++)
-                    if(Path.ANY.equals(path.head(i))) 
-                        anys[j++]=i;
-            // First initialization
-            // Point to the element before the first
-            if(anys.length>0) {
-                for(int i=0;i<values.length;i++)
-                    values[i]=-1;
-           }
+            path=p;
+            nextNode=resolver.resolve(path,docRoot,0);
+            if(nextNode!=null) {
+                nextFound=true;
+                if(resolver.iterators==null) 
+                    ended=true;
+            } else {
+                if(resolver.iterators==null)
+                    ended=true;
+            }                    
         }
 
         public Path getCurrentKey() {
@@ -79,104 +168,67 @@ public class JsonDoc implements Serializable {
         public boolean hasNext() {
             if(!nextFound)
                 if(!ended)
-                    seekNext();
+                    nextNode=seekNext();
             return nextFound;
         }
 
         public void next() {
             if(!nextFound)
                 if(!ended)
-                    seekNext();
+                    nextNode=seekNext();
             if(nextFound) {
-                currentPath=path.immutableCopy();
-                currentNode=node;
+                if(resolver.iterators!=null) {
+                    MutablePath p=new MutablePath(path);
+                    int i=0;
+                    for(Iteration x:resolver.iterators) {
+                        if(x!=null)
+                            p.set(i,x.index);
+                        i++;
+                    }
+                    currentPath=p.immutableCopy();
+                } else
+                    currentPath=path;
+                currentNode=nextNode;
             } else {
                 currentPath=null;
-                node=null;
+                currentNode=null;
             }
             nextFound=false;
+            nextNode=null;
         }
 
-        private void seekNext() {
+        private JsonNode seekNext() {
             nextFound=false;
-            
-            if(anys.length==0) {
-                // Non-array ref
-                nextFound=(node=get(path))!=null;
-                ended=true;
-            } else {
-                // Array ref
-                // values[i]=-1 means we need to initialize that level first
-                // dir: determines the direction digptr will advance.
-                int dir=1;
-                int digptr=0;
+            JsonNode node=null;
+            if(resolver.iterators!=null) {
+                int n=resolver.iterators.length;
+                int level=n-1;
+                boolean done=false;
                 do {
-                    if(dir==1) {
-                        boolean newInit=false;
-                        if(values[digptr]==-1) {
-                            // See if this is accessible
-                            values[digptr]=0;
-                            path.set(anys[digptr],values[digptr]);
-                            Path prefix=path.prefix(anys[digptr]+1);
-                            if(get(prefix)==null) {
-                                // Level is not accesible, go back
-                                values[digptr]=-1;
-                                dir=-1;
-                            } else
-                                newInit=true;
-                        } 
-
-                        digptr+=dir;
-                        if(digptr<0) {
-                            ended=true;
-                        } else if(digptr>=anys.length) {
-                            digptr=anys.length-1;
-                            dir=-1;
-                            if(newInit&&(node=get(path))!=null) {
+                    Iteration itr=resolver.iterators[level];
+                    if(itr!=null) {
+                        if(itr.next()) {
+                            node=resolver.resolve(path,itr.currentNode,level+1);
+                            if(node!=null) {
                                 nextFound=true;
+                                done=true;
+                            } else {
+                                continue;
                             }
+                        } else { 
+                            level--;
+                            if(level<0)
+                                done=ended=true;
                         }
                     } else {
-                        values[digptr]++;
-                        path.set(anys[digptr],values[digptr]);
-                        Path prefix=path.prefix(anys[digptr]+1);
-                        if(get(prefix)!=null) {
-                            // Level is accessible, go deeper
-                            dir=1;
-                        } else {
-                            // Reset level and go back
-                            values[digptr]=-1;
-                            dir=-1;
-                        }
-                        digptr+=dir;
-                        if(digptr<0) {
-                            ended=true;
-                        } else if(digptr>=anys.length) {
-                            digptr=anys.length-1;
-                            dir=-1;
-                            if((node=get(path))!=null)
-                                nextFound=true;
+                        level--;
+                        if(level<0) {
+                            done=ended=true;
                         }
                     }
-                } while(!nextFound&&!ended);
+                } while(!done);
             }
-        }
-
-        public String toString() {
-            StringBuilder str=new StringBuilder(128);
-            str.append("path=").append(path).append('\n').
-                append("currentPath=").append(currentPath).append('\n');
-            if(anys!=null) {
-                str.append("anys=");
-                for(int i=0;i<anys.length;i++) {
-                    if(i>0)
-                        str.append(',');
-                    str.append(anys[i]);
-                }
-                str.append('\n');
-            }
-            str.append("nextFound=").append(nextFound).append(" ended=").append(ended);
-            return str.toString();
+            return node;
         }
     }
 
@@ -213,22 +265,6 @@ public class JsonDoc implements Serializable {
      * @returns The node, or null if the node cannot be found
      */
     public JsonNode get(Path p) {
-        JsonNode current = docRoot;
-        int n = p.numSegments();
-        for (int level = 0; level < n; level++) {
-            String name = p.head(level);
-            if (name.equals(Path.ANY))
-                throw new IllegalArgumentException(p.toString());
-            else if(current instanceof ArrayNode) {
-                int index=Integer.valueOf(name);
-                current=((ArrayNode)current).get(index);
-            } else if(current instanceof ObjectNode) {
-                current=current.get(name);
-            } else
-                current=null;
-            if(current==null)
-                break;
-        }
-        return current;
+        return DEFAULT_RESOLVER.resolve(p,docRoot,0);
     }
 }

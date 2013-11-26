@@ -96,6 +96,45 @@ public class PathResolverTest {
         invalid(md,"obj1.blah",Constants.ERR_INVALID_FIELD_REFERENCE);
     }
 
+    @Test
+    public void testCursor() throws Exception {
+        EntityMetadata md=getMD1();
+        FieldCursor cursor=md.getFieldCursor();
+
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(new Path("simpleInteger"),cursor.getCurrentPath());
+        FieldTreeNode node=cursor.getCurrentNode();
+        Assert.assertEquals("simpleInteger",node.getName());
+
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(new Path("simpleString"),cursor.getCurrentPath());
+        node=cursor.getCurrentNode();
+        Assert.assertEquals("simpleString",node.getName());
+
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(new Path("obj1"),cursor.getCurrentPath());
+        node=cursor.getCurrentNode();
+        Assert.assertEquals("obj1",node.getName());
+
+        Assert.assertTrue(cursor.next());
+        Assert.assertTrue(cursor.next());
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(new Path("obj1.nested"),cursor.getCurrentPath());
+        node=cursor.getCurrentNode();
+        Assert.assertEquals("nested",node.getName());
+
+        Assert.assertTrue(cursor.next());
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(new Path("obj1.nested.simpleArr"),cursor.getCurrentPath());
+        node=cursor.getCurrentNode();
+        Assert.assertEquals("simpleArr",node.getName());
+
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(SimpleArrayElement.class,cursor.getCurrentNode().getClass());
+        Assert.assertEquals(new Path("obj1.nested.simpleArr.*"),cursor.getCurrentPath());
+
+    }
+
     private void invalid(EntityMetadata md,String p,String errCode) {
         try {
             md.resolve(new Path(p));
