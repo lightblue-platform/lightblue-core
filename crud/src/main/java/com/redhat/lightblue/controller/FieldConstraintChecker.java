@@ -16,34 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+package com.redhat.lightblue.crud.controller;
 
-package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
+public interface FieldConstraintChecker {
 
-import com.redhat.lightblue.util.EmptyIterator;
-
-public interface FieldTreeNode {
-
-    public static final Iterator<FieldTreeNode> EMPTY=new EmptyIterator<FieldTreeNode>();
-
-    /**
-     * Return field name
-     */
-    public String getName();
-
-    /**
-     * Return field type
-     */
-    public Type getType();
-
-    /**
-     * Returns true if field has children
-     */
-    public boolean hasChildren();
-
-    /**
-     * Returns an iterator over the children of the field
-     */
-    public Iterator<? extends FieldTreeNode> getChildren();
 }
