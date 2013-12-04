@@ -1,7 +1,7 @@
 {
     "find":{
         "object_type":"some_entity",
-        "clientId":"1",
+        "client": {"id": "1"},
         "execution":{
             "timeLimit":5000,
             "asynchronous":4500

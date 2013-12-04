@@ -26,7 +26,7 @@ import com.redhat.lightblue.util.JsonObject;
 public abstract class Request extends JsonObject {
 
     private EntityVersion entity;
-    private ClientIdentification clientId;
+    private ClientIdentification client;
     private ExecutionOptions execution;
 
     public EntityVersion getEntity() {
@@ -38,11 +38,11 @@ public abstract class Request extends JsonObject {
     }
 
     public ClientIdentification getClientId() {
-        return clientId;
+        return client;
     }
 
     public void setClientId(ClientIdentification c) {
-        clientId=c;
+        client=c;
     }
 
     public ExecutionOptions getExecution() {
@@ -57,8 +57,8 @@ public abstract class Request extends JsonObject {
         ObjectNode node=factory.objectNode();
         node.put("entity",entity.getEntity());
         node.put("entityVersion",entity.getVersion());
-        if(clientId!=null)
-            node.set("clientId",clientId.toJson());
+        if(client!=null)
+            node.set("client",client.toJson());
         if(execution!=null)
             node.set("execution",execution.toJson());
         return node;
