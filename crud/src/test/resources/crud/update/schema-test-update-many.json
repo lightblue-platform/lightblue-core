@@ -37,6 +37,12 @@
                 }
             },
             {
+                "$push":{
+                    "arrayFieldName":"first",
+                    "otherArray":"last"
+                }
+            },
+            {
                 "$pop":{
                     "arrayFieldName":"first",
                     "otherArray":"last"

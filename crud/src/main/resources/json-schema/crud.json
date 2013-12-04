@@ -328,8 +328,8 @@
                 },
                 {
                     "properties":{
-                        "$add":{
-                            "$ref":"#/definitions/update_array_add"
+                        "$push":{
+                            "$ref":"#/definitions/update_array_push"
                         }
                     },
                     "additionalProperties":false
@@ -399,9 +399,9 @@
             },
             "additionalProperties":false
         },
-        "update_array_add":{
+        "update_array_push":{
             "type":"object",
-            "description":"Adds given values to the field (attribute name).  Values are added at the end of the array.  Doesn't check for uniqueness before adding.",
+            "description":"Pushes (adds) given values to the field (attribute name).  Values are added at the end of the array.  Doesn't check for uniqueness before adding.",
             "patternProperties":{
                 ".*":{
                     "oneOf":[
