@@ -44,7 +44,7 @@ public final class DefaultTypes implements TypeResolver {
         TYPE_MAP.put(BinaryType.NAME,BinaryType.TYPE);
         TYPE_MAP.put(ArrayType.NAME,ArrayType.TYPE);
         TYPE_MAP.put(ObjectType.NAME,ObjectType.TYPE);
-        TYPE_MAP.put(RelationType.NAME,RelationType.TYPE);
+        TYPE_MAP.put(ReferenceType.NAME,ReferenceType.TYPE);
     }
 }
 

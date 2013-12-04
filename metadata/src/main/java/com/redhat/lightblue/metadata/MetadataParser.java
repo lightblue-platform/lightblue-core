@@ -27,6 +27,10 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.QueryExpression;
+
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -34,10 +38,11 @@ import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
 
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.ObjectType;
-import com.redhat.lightblue.metadata.types.RelationType;
+import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.metadata.types.DateType;
 
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * Base class for converting metadata to/from json/bson and
@@ -90,10 +95,6 @@ public abstract class MetadataParser<T> {
             String name=getRequiredStringProperty(object,"name");
         
             EntityMetadata md=new EntityMetadata(name);
-            String ex=getStringProperty(object,"extends");
-            if(ex!=null)
-                md.setExtendsFrom(ex);
-            
             T version=getRequiredObjectProperty(object,"version");
             md.setVersion(parseVersion(version));
             
@@ -344,8 +345,8 @@ public abstract class MetadataParser<T> {
                     field=parseArrayField(name,object);
                 else if(type.equals(ObjectType.TYPE.getName()))
                     field=parseObjectField(name,object);
-                //else if(type.equals(Constants.TYPE_RELATION))
-                //    field=parseRelationField(name,object);
+                else if(type.equals(ReferenceType.TYPE))
+                    field=parseReferenceField(name,object);
                 else
                     field=parseSimpleField(name,type);
                 parseFieldAccess(field.getAccess(),
@@ -367,6 +368,25 @@ public abstract class MetadataParser<T> {
         if(t==null)
             throw Error.get(ERR_INVALID_TYPE,type);
         field.setType(t);
+        return field;
+    }
+
+    private Field parseReferenceField(String name,
+                                      T object) {
+        ReferenceField field=new ReferenceField(name);
+        field.setEntityName(getRequiredStringProperty(object,"entity"));
+        field.setVersionValue(getRequiredStringProperty(object,"versionValue"));
+        try {
+            String x=getRequiredStringProperty(object,"projection");
+            field.setProjection(Projection.fromJson(JsonUtils.json(x)));
+            x=getRequiredStringProperty(object,"query");
+            field.setQuery(QueryExpression.fromJson(JsonUtils.json(x)));
+            x=getStringProperty(object,"sort");
+            if(x!=null)
+                field.setSort(Sort.fromJson(JsonUtils.json(x)));
+        } catch (Exception e) {
+            throw Error.get(ERR_ILL_FORMED_MD,e.toString());
+        }
         return field;
     }
 
@@ -396,7 +416,7 @@ public abstract class MetadataParser<T> {
             parseFields(ret.getFields(),fields);
             return ret; 
         } else if(type.equals(ArrayType.TYPE.getName())||
-                  type.equals(RelationType.TYPE.getName())) {
+                  type.equals(ReferenceType.TYPE.getName())) {
             throw Error.get(ERR_INVALID_ARRAY_ELEMENT_TYPE,type);
         } else {
             SimpleArrayElement ret=new SimpleArrayElement();
@@ -417,8 +437,6 @@ public abstract class MetadataParser<T> {
             T ret=newNode();
             if(md.getName()!=null)
                 putString(ret,"name",md.getName());
-            if(md.getExtendsFrom()!=null)
-                putString(ret,"extends",md.getExtendsFrom());    
             putObject(ret,"version",convert(md.getVersion()));
             putObject(ret,"status",convert(md.getStatus(),md.getStatusChangeLog()));
             putObject(ret,"access",convert(md.getAccess()));
@@ -552,8 +570,9 @@ public abstract class MetadataParser<T> {
                     convertArrayField((ArrayField)field,fieldObject);
                 } else if(field instanceof ObjectField) {
                     convertObjectField((ObjectField)field,fieldObject);
-                } //else if(field instanceof RelationField) {
-                //            }
+                } else if(field instanceof ReferenceField) {
+                    convertReferenceField((ReferenceField)field,fieldObject);
+                }
                 T access = convert(field.getAccess());
                 if (access != null) {
                     putObject(fieldObject,"access",access);
@@ -646,6 +665,17 @@ public abstract class MetadataParser<T> {
         } else if(el instanceof ObjectArrayElement) {
             convertObjectArrayElement((ObjectArrayElement)el,items);
         }
+    }
+
+    private void convertReferenceField(ReferenceField field,T fieldObject) {
+        putString(fieldObject,"entity",field.getEntityName());
+        putString(fieldObject,"versionValue",field.getVersionValue());
+        if(field.getProjection()!=null)
+            putString(fieldObject,"projection",field.getProjection().toString());
+        if(field.getQuery()!=null)
+            putString(fieldObject,"query",field.getQuery().toString());
+        if(field.getSort()!=null)
+            putString(fieldObject,"sort",field.getSort().toString());
     }
 
     private void convertObjectArrayElement(ObjectArrayElement el,T items) {

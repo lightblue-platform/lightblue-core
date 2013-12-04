@@ -32,8 +32,6 @@ public class EntityMetadata implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private String extendsFrom;
-
     private final String name;
     private Version version;
     private MetadataStatus status;
@@ -57,24 +55,6 @@ public class EntityMetadata implements Serializable {
         return this.name;
     }
 
-
-    /**
-     * Gets the value of extendsFrom
-     *
-     * @return the value of extendsFrom
-     */
-    public String getExtendsFrom() {
-        return this.extendsFrom;
-    }
-
-    /**
-     * Sets the value of extendsFrom
-     *
-     * @param argExtendsFrom Value to assign to this.extendsFrom
-     */
-    public void setExtendsFrom(String argExtendsFrom) {
-        this.extendsFrom = argExtendsFrom;
-    }
 
     /**
      * Return the status of this particular version of the entity

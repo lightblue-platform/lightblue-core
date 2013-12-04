@@ -24,12 +24,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.Type;
 
-public final class RelationType extends ContainerType {
+public final class ReferenceType extends ContainerType {
 
-    public static final String NAME="relation";
-    public static final Type TYPE=new RelationType();
+    public static final String NAME="reference";
+    public static final Type TYPE=new ReferenceType();
 
-    private RelationType() {
+    private ReferenceType() {
         super(NAME);
     }
 }
