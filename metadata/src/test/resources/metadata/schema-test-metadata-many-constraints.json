@@ -23,7 +23,7 @@
         {
             "reference": {
                 "entityName": "other",
-                "versionId": "0.1",
+                "versionValue": "0.1",
                 "projection": {
                     "field": "firstname",
                     "include": true,
