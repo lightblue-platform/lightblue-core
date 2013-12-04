@@ -344,8 +344,14 @@
             "additionalProperties": true
         },
         "update_field_unset": {
-            "type": "string",
-            "description": "Name of field to unset"
+            "type": "array",
+            "description": "Name of fields to unset",
+            "minItems": 1,
+            "items": [
+                {
+                    "type": "string"
+                }
+            ]
         },
         "update_field_add": {
             "type": "object",
