@@ -18,36 +18,23 @@
 */
 package com.redhat.lightblue.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.metadata.EntityConstraint;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
-public interface FieldConstraintValueChecker extends FieldConstraintChecker {
+public interface EntityConstraintChecker {
 
     /**
-     * Constraint checker function that validates the value of a field
+     * Entity constraint checker function 
      *
      * @param validator The constraint validator instance from which
      * the implementation can access the metadata and context information
-     * @param fieldMedata The field metadata
-     * @param fieldMetadataPath The path for the field metadata (i.e. may contain *)
      * @param constraint field constraint
-     * @param valuePath The path to the current value being validated
-     * @param doc The document containing the field
-     * @param fieldValue The field value
+     * @param doc The document
      *
-     * The function should add the field errors to validator
+     * The function should add the errors to validator
      */
     public void checkConstraint(ConstraintValidator validator,
-                                FieldTreeNode fieldMetadata,
-                                Path fieldMetadataPath,
-                                FieldConstraint constraint,
-                                Path valuePath,
-                                JsonDoc doc,
-                                JsonNode fieldValue);
+                                EntityConstraint constraint,
+                                JsonDoc doc);
 }

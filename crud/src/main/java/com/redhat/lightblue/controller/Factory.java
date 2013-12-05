@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud.controller;
+package com.redhat.lightblue.controller;
 
 import com.redhat.lightblue.util.DefaultRegistry;
 import com.redhat.lightblue.util.Resolver;
@@ -32,6 +32,8 @@ public class Factory {
 
     private final DefaultRegistry<String,FieldConstraintChecker> fieldConstraintValidatorRegistry=
         new DefaultRegistry<String,FieldConstraintChecker>();
+    private final DefaultRegistry<String,EntityConstraintChecker> entityConstraintValidatorRegistry=
+        new DefaultRegistry<String,EntityConstraintChecker>();
 
     public synchronized void addFieldConstraintValidator(String name,FieldConstraintChecker checker) {
         fieldConstraintValidatorRegistry.add(name,checker);
@@ -40,8 +42,18 @@ public class Factory {
     public synchronized void addFieldConstraintValidators(Resolver<String,FieldConstraintChecker> r) {
         fieldConstraintValidatorRegistry.add(r);
     }
+
+    public synchronized void addEntityConstraintValidator(String name,EntityConstraintChecker checker) {
+        entityConstraintValidatorRegistry.add(name,checker);
+    }
+
+    public synchronized void addEntityConstraintValidators(Resolver<String,EntityConstraintChecker> r) {
+        entityConstraintValidatorRegistry.add(r);
+    }
         
-    public FieldConstraintValidator getFieldConstraintValidator(EntityMetadata md) {
-        return new FieldConstraintValidator(fieldConstraintValidatorRegistry,md);
+    public ConstraintValidator getConstraintValidator(EntityMetadata md) {
+        return new ConstraintValidator(fieldConstraintValidatorRegistry,
+                                       entityConstraintValidatorRegistry,
+                                       md);
     }
 }

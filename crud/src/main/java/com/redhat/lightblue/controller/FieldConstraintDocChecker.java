@@ -16,9 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud.controller;
-
-import java.util.List;
+package com.redhat.lightblue.controller;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -41,7 +39,7 @@ public interface FieldConstraintDocChecker extends FieldConstraintChecker {
      *
      * The function should add the errors to validator
      */
-    public void checkConstraint(FieldConstraintValidator validator,
+    public void checkConstraint(ConstraintValidator validator,
                                 FieldTreeNode fieldMetadata,
                                 Path fieldMetadataPath,
                                 FieldConstraint constraint,

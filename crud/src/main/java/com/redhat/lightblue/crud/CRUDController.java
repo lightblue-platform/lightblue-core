@@ -16,9 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.controller;
+package com.redhat.lightblue.crud;
 
-
-public interface FieldConstraintChecker {
-
+public interface CRUDController {
+    
 }
+

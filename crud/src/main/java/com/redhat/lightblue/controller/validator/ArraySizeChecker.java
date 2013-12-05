@@ -16,9 +16,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.controller;
+package com.redhat.lightblue.controller.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -26,28 +27,34 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Error;
 
-public interface FieldConstraintValueChecker extends FieldConstraintChecker {
+import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
 
-    /**
-     * Constraint checker function that validates the value of a field
-     *
-     * @param validator The constraint validator instance from which
-     * the implementation can access the metadata and context information
-     * @param fieldMedata The field metadata
-     * @param fieldMetadataPath The path for the field metadata (i.e. may contain *)
-     * @param constraint field constraint
-     * @param valuePath The path to the current value being validated
-     * @param doc The document containing the field
-     * @param fieldValue The field value
-     *
-     * The function should add the field errors to validator
-     */
+import com.redhat.lightblue.controller.FieldConstraintValueChecker;
+import com.redhat.lightblue.controller.ConstraintValidator;
+
+public class ArraySizeChecker implements FieldConstraintValueChecker {
+
+    public static final String ERR_ARRAY_TOO_SMALL="ARRAY_TOO_SMALL";
+    public static final String ERR_ARRAY_TOO_LARGE="ARRAY_TOO_LARGE";
+
+    @Override
     public void checkConstraint(ConstraintValidator validator,
                                 FieldTreeNode fieldMetadata,
                                 Path fieldMetadataPath,
                                 FieldConstraint constraint,
                                 Path valuePath,
                                 JsonDoc doc,
-                                JsonNode fieldValue);
+                                JsonNode fieldValue) {
+        int value=((ArraySizeConstraint)constraint).getValue();
+        String type=((ArraySizeConstraint)constraint).getType();
+        if(ArraySizeConstraint.MIN.equals(type)) {
+            if(((ArrayNode)fieldValue).size()<value)
+                validator.addDocError(Error.get(ERR_ARRAY_TOO_SMALL,Integer.toString(((ArrayNode)fieldValue).size())));
+        } else {
+            if(((ArrayNode)fieldValue).size()>value)
+                validator.addDocError(Error.get(ERR_ARRAY_TOO_LARGE,Integer.toString(((ArrayNode)fieldValue).size())));
+        }
+    }
 }

@@ -245,6 +245,17 @@ public class Path implements Comparable<Path>, Serializable  {
         return Util.isNumber(data.segments.get(i));
     }
 
+    /**
+     * Returns the number of ANY elements in the path
+     */
+    public int nAnys() {
+        int n=0;
+        for(String x:data.segments)
+            if(ANY.equals(x))
+                n++;
+        return n;
+    }
+
     public int hashCode() {
         return data.hashCode();
     }

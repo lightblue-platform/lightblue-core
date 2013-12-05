@@ -21,7 +21,7 @@ package com.redhat.lightblue;
 import java.io.Serializable;
 
 /**
- * Represents entity:value, a paritcular version of the entity
+ * Represents entity:value, a particular version of the entity
  * metadata
  */
 public final class EntityVersion {

@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud.controller;
+package com.redhat.lightblue.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -37,16 +37,18 @@ import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldCursor;
 
-public class FieldConstraintValidator {
+public class ConstraintValidator {
 
     public static final String ERR_NO_CONSTRAINT="NO_CONSTRAINT";
 
-    private static final Logger logger=LoggerFactory.getLogger(FieldConstraintValidator.class);
+    private static final Logger logger=LoggerFactory.getLogger(ConstraintValidator.class);
 
-    private final Registry<String,FieldConstraintChecker> registry;
+    private final Registry<String,FieldConstraintChecker> fRegistry;
+    private final Registry<String,EntityConstraintChecker> eRegistry;
     private final EntityMetadata md;
     
     private final Map<JsonDoc,List<Error>> docErrors=new HashMap<JsonDoc,List<Error>>();
@@ -56,13 +58,16 @@ public class FieldConstraintValidator {
     private JsonDoc currentDoc;
     private FieldTreeNode currentFieldNode;
     private Path currentFieldPath;
-    private FieldConstraint currentConstraint;
+    private FieldConstraint currentFieldConstraint;
+    private EntityConstraint currentEntityConstraint;
     private Path currentValuePath;
     private JsonNode currentValue;
 
-    protected FieldConstraintValidator(Registry<String,FieldConstraintChecker> r,
-                                       EntityMetadata md) {
-        this.registry=r;
+    protected ConstraintValidator(Registry<String,FieldConstraintChecker> r,
+                                  Registry<String,EntityConstraintChecker> e,
+                                  EntityMetadata md) {
+        this.fRegistry=r;
+        this.eRegistry=e;
         this.md=md;
     }
     
@@ -82,8 +87,12 @@ public class FieldConstraintValidator {
         return currentFieldPath;
     }
 
-    public FieldConstraint getCurrentConstraint() {
-        return currentConstraint;
+    public FieldConstraint getCurrentFieldConstraint() {
+        return currentFieldConstraint;
+    }
+
+    public EntityConstraint getCurrentEntityConstraint() {
+        return currentEntityConstraint;
     }
 
     public Map<JsonDoc,List<Error>> getDocErrors() {
@@ -115,6 +124,11 @@ public class FieldConstraintValidator {
         return errors;
     }
 
+    public boolean hasErrors() {
+        return !errors.isEmpty() ||
+            !docErrors.isEmpty();
+    }
+
     public void validateDocs(List<JsonDoc> docList) {
         currentDocList=docList;
         currentDoc=null;
@@ -135,10 +149,36 @@ public class FieldConstraintValidator {
         Error.push("validateDoc");
         logger.debug("validateDoc() enter with entity {}",md.getName());
         try {
+            currentFieldConstraint=null;
+            currentFieldNode=null;
+            currentFieldPath=null;
+            currentValuePath=null;
+            currentValue=null;
+            logger.debug("checking entity constraints");
+            for(EntityConstraint x:md.getConstraints()) {
+                currentEntityConstraint=x;
+                String constraintType=currentEntityConstraint.getType();
+                logger.debug("checking entity constraint "+constraintType);
+                Error.push(constraintType);
+                try {
+                    EntityConstraintChecker checker=eRegistry.find(constraintType);
+                    if(checker==null)
+                        throw Error.get(ERR_NO_CONSTRAINT);
+                    checker.checkConstraint(this,
+                                            currentEntityConstraint,
+                                            doc);
+                    
+                } finally {
+                    Error.pop();
+                }
+            }
+            currentEntityConstraint=null;
+            logger.debug("checking field constraints");
             FieldCursor cursor=md.getFieldCursor();
             while(cursor.next()) {
                 currentFieldNode=cursor.getCurrentNode();
                 currentFieldPath=cursor.getCurrentPath();
+                logger.debug("checking field {}",currentFieldPath);
                 Error.push(currentFieldPath.toString());
                 try {
                     List<FieldConstraint> constraints=null;
@@ -146,19 +186,23 @@ public class FieldConstraintValidator {
                         constraints=((Field)currentFieldNode).getConstraints();
                     }
                     if(constraints!=null&&!constraints.isEmpty()) {
-                        for(FieldConstraint currentConstraint:constraints) {
-                            String constraintType=currentConstraint.getType();
+                        for(FieldConstraint x:constraints) {
+                            currentFieldConstraint=x;
+                            String constraintType=currentFieldConstraint.getType();
+                            logger.debug("checking constraint "+constraintType);
                             Error.push(constraintType);
                             try {
-                                FieldConstraintChecker checker=registry.find(constraintType);
+                                FieldConstraintChecker checker=fRegistry.find(constraintType);
                                 if(checker==null)
                                     throw Error.get(ERR_NO_CONSTRAINT);
+                                currentValuePath=null;
+                                currentValue=null;
                                 if(checker instanceof FieldConstraintDocChecker) {
                                     // Constraint needs to be checked once for the doc
                                     ((FieldConstraintDocChecker)checker).checkConstraint(this,
                                                                                          currentFieldNode,
                                                                                          currentFieldPath,
-                                                                                         currentConstraint,
+                                                                                         currentFieldConstraint,
                                                                                          doc);
                                 } else if(checker instanceof FieldConstraintValueChecker) {
                                     // Constraint needs to be checked for all the values in the doc
@@ -167,13 +211,18 @@ public class FieldConstraintValidator {
                                         fieldValues.next();
                                         currentValuePath=fieldValues.getCurrentKey();
                                         currentValue=fieldValues.getCurrentValue();
-                                        ((FieldConstraintValueChecker)checker).checkConstraint(this,
-                                                                                               currentFieldNode,
-                                                                                               currentFieldPath,
-                                                                                               currentConstraint,
-                                                                                               currentValuePath,
-                                                                                               doc,
-                                                                                               currentValue);
+                                        Error.push(currentValuePath.toString());
+                                        try {
+                                            ((FieldConstraintValueChecker)checker).checkConstraint(this,
+                                                                                                   currentFieldNode,
+                                                                                                   currentFieldPath,
+                                                                                                   currentFieldConstraint,
+                                                                                                   currentValuePath,
+                                                                                                   doc,
+                                                                                                   currentValue);
+                                        } finally {
+                                            Error.pop();
+                                        }
                                     }
                                 }
                             } finally {
@@ -188,6 +237,12 @@ public class FieldConstraintValidator {
         } finally {
             Error.pop();
         }
+        currentDoc=null;
+        currentFieldConstraint=null;
+        currentFieldNode=null;
+        currentFieldPath=null;
+        currentValuePath=null;
+        currentValue=null;
         logger.debug("validateDoc() complete");
     }
     

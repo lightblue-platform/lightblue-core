@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.crud.mediator;
+package com.redhat.lightblue.mediator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,6 +33,9 @@ import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.Metadata;
 
+import com.redhat.lightblue.controller.Factory;
+import com.redhat.lightblue.controller.ConstraintValidator;
+
 import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.SaveRequest;
 import com.redhat.lightblue.UpdateRequest;
@@ -48,9 +51,12 @@ public class Mediator {
     private static final Logger logger=LoggerFactory.getLogger(Mediator.class);
 
     private final Metadata metadata;
+    private final Factory factory;
 
-    public Mediator(Metadata md) {
+    public Mediator(Metadata md,
+                    Factory factory) {
         this.metadata=md;
+        this.factory=factory;
     }
 
     public Response insert(InsertionRequest req) {
@@ -58,8 +64,12 @@ public class Mediator {
         Error.push("insert("+req.getEntity().toString()+")");
         Response response=new Response();
         try {
-            OperationContext ctx=getOperationContext(req,response,req.getEntityData());
+            OperationContext ctx=getOperationContext(req,response,req.getEntityData(),Operation.INSERT);
             
+            ConstraintValidator constraintValidator=factory.getConstraintValidator(ctx.getEntityMetadata(req.getEntity().getEntity()));
+            constraintValidator.validateDocs(ctx.getDocs());
+            if(!constraintValidator.hasErrors()) {
+            }
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -75,8 +85,12 @@ public class Mediator {
         Error.push("save("+req.getEntity().toString()+")");
         Response response=new Response();
         try {
-            OperationContext ctx=getOperationContext(req,response,req.getEntityData());
+            OperationContext ctx=getOperationContext(req,response,req.getEntityData(),Operation.SAVE);
 
+            ConstraintValidator constraintValidator=factory.getConstraintValidator(ctx.getEntityMetadata(req.getEntity().getEntity()));
+            constraintValidator.validateDocs(ctx.getDocs());
+            if(!constraintValidator.hasErrors()) {
+            }
             
         } catch (Error e) {
             response.getErrors().add(e);
@@ -93,7 +107,7 @@ public class Mediator {
         Error.push("update("+req.getEntity().toString()+")");
         Response response=new Response();
         try {
-            OperationContext ctx=getOperationContext(req,response,null);
+            OperationContext ctx=getOperationContext(req,response,null,Operation.UPDATE);
 
             
         } catch (Error e) {
@@ -111,7 +125,7 @@ public class Mediator {
         Error.push("delete("+req.getEntity().toString()+")");
         Response response=new Response();
         try {
-            OperationContext ctx=getOperationContext(req,response,null);
+            OperationContext ctx=getOperationContext(req,response,null,Operation.DELETE);
 
             
         } catch (Error e) {
@@ -129,7 +143,7 @@ public class Mediator {
         Error.push("find("+req.getEntity().toString()+")");
         Response response=new Response();
         try {
-            OperationContext ctx=getOperationContext(req,response,null);
+            OperationContext ctx=getOperationContext(req,response,null,Operation.FIND);
 
         } catch (Error e) {
             response.getErrors().add(e);
@@ -143,13 +157,17 @@ public class Mediator {
 
     private OperationContext getOperationContext(Request req,
                                                  Response resp,
-                                                 JsonNode entityData) {
+                                                 JsonNode entityData,
+                                                 Operation op) {
         logger.debug("getOperationContext start");
         OperationContext ctx=
             new OperationContext(req,resp,
                                  metadata.
                                  getEntityMetadata(req.getEntity().getEntity(),
-                                                   req.getEntity().getVersion()));
+                                                   req.getEntity().getVersion()),
+                                 metadata,
+                                 factory);
+        ctx.setOperation(op);
         logger.debug("metadata retrieved for {}",req.getEntity());
         if(entityData!=null) {
             ArrayList<JsonDoc> docs;

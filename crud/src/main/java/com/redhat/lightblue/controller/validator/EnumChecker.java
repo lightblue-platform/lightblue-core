@@ -16,7 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.controller;
+package com.redhat.lightblue.controller.validator;
+
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -26,28 +28,27 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Error;
 
-public interface FieldConstraintValueChecker extends FieldConstraintChecker {
+import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 
-    /**
-     * Constraint checker function that validates the value of a field
-     *
-     * @param validator The constraint validator instance from which
-     * the implementation can access the metadata and context information
-     * @param fieldMedata The field metadata
-     * @param fieldMetadataPath The path for the field metadata (i.e. may contain *)
-     * @param constraint field constraint
-     * @param valuePath The path to the current value being validated
-     * @param doc The document containing the field
-     * @param fieldValue The field value
-     *
-     * The function should add the field errors to validator
-     */
+import com.redhat.lightblue.controller.FieldConstraintValueChecker;
+import com.redhat.lightblue.controller.ConstraintValidator;
+
+public class EnumChecker implements FieldConstraintValueChecker {
+
+    public static final String ERR_INVALID_ENUM="INVALID_ENUM";
+
+    @Override
     public void checkConstraint(ConstraintValidator validator,
                                 FieldTreeNode fieldMetadata,
                                 Path fieldMetadataPath,
                                 FieldConstraint constraint,
                                 Path valuePath,
                                 JsonDoc doc,
-                                JsonNode fieldValue);
+                                JsonNode fieldValue) {
+        Set<String> values=((EnumConstraint)constraint).getValues();
+        if(!values.contains(fieldValue.asText()))
+            validator.addDocError(Error.get(ERR_INVALID_ENUM,fieldValue.asText()));
+    }
 }

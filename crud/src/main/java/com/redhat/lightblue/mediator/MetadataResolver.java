@@ -16,9 +16,21 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.redhat.lightblue.controller;
+package com.redhat.lightblue.mediator;
 
+import com.redhat.lightblue.metadata.EntityMetadata;
 
-public interface FieldConstraintChecker {
+/**
+ * This resolver should return the correct version of the entity
+ * metadata based on the current operation context. If the operation
+ * involves an entity containing references to other entities, the
+ * mediator pre-loads the correct versions for all relevant entities,
+ * and serves them using an implementation of this interface.
+ */
+public interface MetadataResolver {
 
+    /**
+     * Return the correct version of the entity metadata based on current context
+     */
+    public EntityMetadata getEntityMetadata(String entityName);
 }
