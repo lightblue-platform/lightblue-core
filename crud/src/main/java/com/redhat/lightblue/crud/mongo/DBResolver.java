@@ -18,12 +18,10 @@
 */
 package com.redhat.lightblue.crud.mongo;
 
-import com.redhat.lightblue.mediator.OperationContext;
+import com.mongodb.DB;
 
-public class MongoCRUDController {
+import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 
-    public void insert(OperationContext ctx) {
-        
-    }
+public interface DBResolver {
+    public DB get(MongoDataStore store);
 }
-

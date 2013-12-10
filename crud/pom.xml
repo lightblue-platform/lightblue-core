@@ -41,6 +41,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>query-api</artifactId>
             <version>${project.version}</version>

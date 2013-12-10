@@ -28,8 +28,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.SimpleField;
@@ -40,6 +42,7 @@ import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.FieldCursor;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -49,9 +52,12 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.mediator.MetadataResolver;
 
 /**
- * Translations between BSON and JSON
+ * Translations between BSON and JSON. This class is thread-safe, and can be shared between threads
  */
 public class Translator {
+
+    public static final String OBJECT_TYPE_STR="object_type";
+    public static final Path OBJECT_TYPE=new Path(OBJECT_TYPE_STR);
 
     public static final String ERR_NO_OBJECT_TYPE="NO_OBJECT_TYPE";
     public static final String ERR_INVALID_OBJECTTYPE="INVALID_OBJECTTYPE";
@@ -59,23 +65,25 @@ public class Translator {
 
     private static final Logger logger=LoggerFactory.getLogger(Translator.class);
 
-    private static final Path OBJECT_TYPE=new Path("object_type");
 
     private final MetadataResolver mdResolver;
+    private final JsonNodeFactory factory;
 
-    public Translator(MetadataResolver mdResolver) {
+    public Translator(MetadataResolver mdResolver,
+                      JsonNodeFactory factory) {
         this.mdResolver=mdResolver;
+        this.factory=factory;
     }
     
-    public BasicDBObject[] toBson(List<JsonDoc> docs) {
-        BasicDBObject[] ret=new BasicDBObject[docs.size()];
+    public DBObject[] toBson(List<JsonDoc> docs) {
+        DBObject[] ret=new DBObject[docs.size()];
         int i=0;
         for(JsonDoc doc:docs)
             ret[i++]=toBson(doc);
         return ret;
     }
 
-    public BasicDBObject toBson(JsonDoc doc) {
+    public DBObject toBson(JsonDoc doc) {
         logger.debug("toBson() enter");
         JsonNode node=doc.get(OBJECT_TYPE);
         if(node==null)
@@ -83,7 +91,100 @@ public class Translator {
         EntityMetadata md=mdResolver.getEntityMetadata(node.asText());
         if(md==null)
             throw Error.get(ERR_INVALID_OBJECTTYPE,node.asText());
-        return toBson(doc,md);
+        DBObject ret=toBson(doc,md);
+        logger.debug("toBson() return");
+        return ret;
+    }
+
+    public JsonDoc toJson(DBObject object) {
+        logger.debug("toJson() enter");
+        Object type=object.get(OBJECT_TYPE_STR);
+        if(type==null)
+            throw Error.get(ERR_NO_OBJECT_TYPE);
+        EntityMetadata md=mdResolver.getEntityMetadata(type.toString());
+        if(md==null)
+            throw Error.get(ERR_INVALID_OBJECTTYPE,type.toString());
+        JsonDoc doc=toJson(object,md);
+        logger.debug("toJson() return");
+        return doc;
+    }
+
+    private JsonDoc toJson(DBObject object,EntityMetadata md) {
+        // Translation is metadata driven. We don't know how to
+        // translate something that's not defined in metadata.
+        FieldCursor cursor=md.getFieldCursor();
+        if(cursor.firstChild()) 
+            return new JsonDoc(objectToJson(object,md,cursor));
+        else
+            return null;
+    }
+        
+    /**
+     * Called after firstChild is called on cursor
+     */
+    private ObjectNode objectToJson(DBObject object,EntityMetadata md,FieldCursor mdCursor) {
+        ObjectNode node=factory.objectNode();
+        do {
+            Path p=mdCursor.getCurrentPath();
+            FieldTreeNode field=mdCursor.getCurrentNode();
+            String fieldName=field.getName();
+            logger.debug("{}",p);
+            // Retrieve field value
+            Object value=object.get(fieldName);
+            if(value!=null) {
+                if(field instanceof SimpleField) {
+                    JsonNode valueNode=((SimpleField)field).getType().toJson(factory,value);
+                    if(valueNode!=null)
+                        node.set(fieldName,valueNode);
+                } else if(field instanceof ObjectField) {
+                    if(value instanceof DBObject) {
+                        if(mdCursor.firstChild()) {
+                            JsonNode valueNode=objectToJson((DBObject)value,md,mdCursor);
+                            if(valueNode!=null)
+                                node.set(fieldName,valueNode);
+                            mdCursor.parent();
+                        }
+                    } else
+                        logger.error("Expected DBObject, found {} for {}",value.getClass(),p);
+                } else if(field instanceof ArrayField) {
+                    if(value instanceof List) {
+                        if(mdCursor.firstChild()) {
+                            ArrayNode  valueNode=factory.arrayNode();
+                            // We must have an array element here
+                            FieldTreeNode x=mdCursor.getCurrentNode();
+                            if(x instanceof ArrayElement)
+                                for(Object item:(List)value)
+                                    valueNode.add(arrayElementToJson(item,(ArrayElement)x,md,mdCursor));
+                            mdCursor.parent();
+                        }
+                    }
+                } else if(field instanceof ReferenceField) {
+                    // TODO
+                }
+            }
+        } while(mdCursor.nextSibling());
+        return node;
+    }
+
+    private JsonNode arrayElementToJson(Object value,
+                                        ArrayElement el,
+                                        EntityMetadata md,
+                                        FieldCursor mdCursor) {
+        JsonNode ret=null;
+        if(el instanceof SimpleArrayElement) {
+            if(value!=null)
+                ret=((SimpleArrayElement)el).getType().toJson(factory,value);
+        } else {
+            if(value!=null)
+                if(value instanceof DBObject) {
+                    if(mdCursor.firstChild()) {
+                        ret=objectToJson((DBObject)value,md,mdCursor);
+                        mdCursor.parent();
+                    }
+                } else
+                    logger.error("Expected DBObject, got {}",value.getClass().getName());
+        }
+        return ret;
     }
 
     private BasicDBObject toBson(JsonDoc doc,EntityMetadata md) {
@@ -93,7 +194,6 @@ public class Translator {
         if(cursor.firstChild()) {
             ret=objectToBson(cursor,md);
         }
-        logger.debug("toBson() return");
         return ret;
     }
 

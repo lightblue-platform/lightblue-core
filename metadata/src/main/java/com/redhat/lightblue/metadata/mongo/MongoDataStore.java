@@ -99,4 +99,37 @@ public class MongoDataStore implements DataStore, Serializable {
         this.collectionName = argCollectionName;
     }
 
+    public String toString() {
+        StringBuilder bld=new StringBuilder(64);
+        if(databaseName!=null)
+            bld.append(databaseName).append(':');
+        bld.append(collectionName);
+        if(clientJndiName!=null)
+            bld.append('@').append(clientJndiName);
+        return bld.toString();
+    }
+    
+    public boolean equals(Object x) {
+        return equals((MongoDataStore)x);
+    }
+
+    public boolean equals(MongoDataStore x) {
+        if(x!=null)
+            try {
+                return ((x.clientJndiName==null&&clientJndiName==null)||
+                        (x.clientJndiName!=null&&clientJndiName!=null&&x.clientJndiName.equals(clientJndiName))) &&
+                    ( (x.databaseName==null&&databaseName==null)||
+                      (x.databaseName!=null&&databaseName!=null&&x.databaseName.equals(databaseName)) ) &&
+                    ( (x.collectionName==null&&collectionName==null) ||
+                      (x.collectionName!=null&&collectionName!=null&&x.collectionName.equals(collectionName)) );
+            } catch (ClassCastException e) {}
+        return false;
+    }
+
+    public int hashCode() {
+        return (clientJndiName==null?1:clientJndiName.hashCode())*
+            (databaseName==null?1:databaseName.hashCode())*
+            (collectionName==null?1:collectionName.hashCode());
+    }
 }
+
