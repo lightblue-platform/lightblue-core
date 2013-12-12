@@ -50,6 +50,29 @@ public enum BinaryComparisonOperator {
     private BinaryComparisonOperator(String... op) {
         this.ops=op;
     }
+    
+    /**
+     * Returns the result of the test operator performs based on the comparison
+     * 
+     * @param cmp Comparison result of x and y, wheres <0 denotes x<y,
+     * >0 denotes x>y, and 0 denotes x=y
+     *
+     *  @return Returns the value of x op y based on the comparison result of x and y
+     */
+    public boolean test(int cmp) {
+        if(cmp<0)
+            return this==_neq||
+                this==_lt||
+                this==_lte;
+        else if(cmp==0)
+            return this==_eq||
+                this==_lte||
+                this==_gte;
+        else 
+            return this==_neq||
+                this==_gt||
+                this==_gte;
+    }
 
     public String toString() {
         return ops[0];

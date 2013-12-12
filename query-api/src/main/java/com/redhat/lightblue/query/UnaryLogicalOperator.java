@@ -21,6 +21,10 @@ package com.redhat.lightblue.query;
 public enum UnaryLogicalOperator { 
     _not;
 
+    public boolean test(boolean value) {
+        return !value;
+    }
+
     public String toString() {
         return "$not";
     }

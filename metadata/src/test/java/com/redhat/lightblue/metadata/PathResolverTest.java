@@ -135,6 +135,17 @@ public class PathResolverTest {
 
     }
 
+    public void testSubCursor() throws Exception {
+        EntityMetadata md=getMD1();
+        FieldCursor cursor=md.getFieldCursor(new Path("obj1"));
+        Assert.assertTrue(cursor.next());
+        Assert.assertTrue(cursor.next());
+        Assert.assertTrue(cursor.next());
+        Assert.assertEquals(new Path("obj1.nested"),cursor.getCurrentPath());
+        FieldTreeNode node=cursor.getCurrentNode();
+        Assert.assertEquals("nested",node.getName());
+    }
+
     private void invalid(EntityMetadata md,String p,String errCode) {
         try {
             md.resolve(new Path(p));

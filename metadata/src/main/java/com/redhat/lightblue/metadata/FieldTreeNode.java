@@ -22,6 +22,7 @@ package com.redhat.lightblue.metadata;
 import java.util.Iterator;
 
 import com.redhat.lightblue.util.EmptyIterator;
+import com.redhat.lightblue.util.Path;
 
 public interface FieldTreeNode {
 
@@ -46,4 +47,6 @@ public interface FieldTreeNode {
      * Returns an iterator over the children of the field
      */
     public Iterator<? extends FieldTreeNode> getChildren();
+
+    public FieldTreeNode resolve(Path p);
 }

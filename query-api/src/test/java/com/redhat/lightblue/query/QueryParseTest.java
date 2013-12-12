@@ -31,7 +31,7 @@ public class QueryParseTest {
     final String naryQuery2="{\"field\":\"x.y.x\", \"op\":\"$nin\", \"values\":[\"x\",\"y\",\"z\"]}";
 
     final String regexQuery1="{\"field\":\"x.y\", \"regex\":\"*pat*\"}";
-    final String regexQuery2="{\"field\":\"x.y\", \"regex\":\"*pat*\",\"options\":\"o\"}";
+    final String regexQuery2="{\"field\":\"x.y\", \"regex\":\"*pat*\",\"case_insensitive\":true}";
 
     final String unaryQuery1="{ \"$not\": "+valueQuery1+"}";
     final String unaryQuery2="{ \"$not\": "+regexQuery1+"}";
@@ -71,8 +71,8 @@ public class QueryParseTest {
 
     @Test
     public void testRegexQueries() throws Exception {
-        testRegexQuery(regexQuery1,"x.y","*pat*",null);
-        testRegexQuery(regexQuery2,"x.y","*pat*","o");
+        testRegexQuery(regexQuery1,"x.y","*pat*",false,false,false,false);
+        testRegexQuery(regexQuery2,"x.y","*pat*",true,false,false,false);
     }
 
     private static NestedTest u1NestedTest=new NestedTest() {
@@ -86,7 +86,7 @@ public class QueryParseTest {
         testUnaryQuery(unaryQuery1,u1NestedTest);
          testUnaryQuery(unaryQuery2,new NestedTest() {
                  public void test(QueryExpression x) {
-                     asserts((RegexMatchExpression)x,"x.y","*pat*",null);
+                     asserts((RegexMatchExpression)x,"x.y","*pat*",false,false,false,false);
                  }
              });
     }
@@ -125,7 +125,7 @@ public class QueryParseTest {
     public void testArrMatch() throws Exception {
         testArrMatch(arrMatch1,"x.y",new NestedTest() {
                 public void test(QueryExpression x) {
-                    asserts((RegexMatchExpression)x,"x.y","*pat*",null);
+                    asserts((RegexMatchExpression)x,"x.y","*pat*",false,false,false,false);
                 }
             });
     }
@@ -191,22 +191,31 @@ public class QueryParseTest {
     private void testRegexQuery(String q,
                                 String field,
                                 String regex,
-                                String op)
+                                boolean c,
+                                boolean m,
+                                boolean x,
+                                boolean d)
         throws Exception {
         QueryExpression query=QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof RegexMatchExpression);
-        RegexMatchExpression x=(RegexMatchExpression)query;
-        asserts(x,field,regex,op);
+        RegexMatchExpression mx=(RegexMatchExpression)query;
+        asserts(mx,field,regex,c,m,x,d);
         JSONAssert.assertEquals(q,QueryExpression.fromJson(JsonUtils.json(q)).toString(),false);
     }
 
     private static void asserts(RegexMatchExpression x,
                                 String field,
                                 String regex,
-                                String op) {
+                                boolean c,
+                                boolean m,
+                                boolean ox,
+                                boolean d) {
         Assert.assertEquals(field,x.getField().toString());
         Assert.assertEquals(regex,x.getRegex());
-        Assert.assertEquals(op,x.getOptions());
+        Assert.assertEquals(c,x.isCaseInsensitive());
+        Assert.assertEquals(m,x.isMultiline());
+        Assert.assertEquals(ox,x.isExtended());
+        Assert.assertEquals(d,x.isDotAll());
     }
 
     private void testUnaryQuery(String q,NestedTest t) throws Exception {

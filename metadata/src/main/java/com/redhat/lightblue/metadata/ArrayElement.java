@@ -59,5 +59,10 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
         this.type = argType;
     }
 
+    @Override
+    public FieldTreeNode resolve(Path p) {
+        return resolve(p,0);
+    }
+
     protected abstract FieldTreeNode resolve(Path p,int level);
 }

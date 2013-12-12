@@ -63,7 +63,7 @@
         {
             "field":"login",
             "regex":"something",
-            "options":"i"
+            "case_insensitive":true
         },
         {
             "array":"email",

@@ -164,7 +164,20 @@ public class EntityMetadata implements Serializable {
                 public Type getType() {return null;}
                 public boolean hasChildren() {return true;}
                 public Iterator<? extends FieldTreeNode> getChildren() {return fields.getFields();}
+                public FieldTreeNode resolve(Path p) {return fields.resolve(p);}
             });
+    }
+
+    public FieldCursor getFieldCursor(Path p) {
+        if(p.numSegments()==0)
+            return getFieldCursor();
+        else {
+            FieldTreeNode tn=resolve(p);
+            if(tn!=null)
+                return new FieldCursor(p,tn);
+            else
+                return null;
+        }
     }
 
     public FieldTreeNode resolve(Path p) {

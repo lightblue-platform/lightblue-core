@@ -27,14 +27,22 @@
             "type":"string",
             "format":"regex"
         },
-        "options":{
-            "type":"string"
+        "case_insensitive":{
+            "type":"boolean"
+        },
+        "multiline": {
+            "type":"boolean"
+        },
+        "extended":{
+            "type":"boolean"
+        },
+        "dotall":{
+            "type":"boolean"
         }
     },
     "required":[
         "field",
-        "regex",
-        "options"
+        "regex"
     ],
     "additionalProperties":false
 }

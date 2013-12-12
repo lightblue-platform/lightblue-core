@@ -31,14 +31,24 @@ public class RegexMatchExpression
 
     private Path field;
     private String regex;
-    private String options;
+    private boolean caseInsensitive;
+    private boolean multiline;
+    private boolean extended;
+    private boolean dotall;
 
     public RegexMatchExpression() {}
 
-    public RegexMatchExpression(Path field,String regex,String options) {
+    public RegexMatchExpression(Path field,String regex,
+                                boolean caseInsensitive,
+                                boolean multiline,
+                                boolean extended,
+                                boolean dotall) {
         this.field=field;
         this.regex=regex;
-        this.options=options;
+        this.caseInsensitive=caseInsensitive;
+        this.multiline=multiline;
+        this.extended=extended;
+        this.dotall=dotall;
     }
 
     public Path getField() {
@@ -57,20 +67,50 @@ public class RegexMatchExpression
         this.regex = argRegex;
     }
 
-    public String getOptions() {
-        return this.options;
+    public boolean isCaseInsensitive() {
+        return caseInsensitive;
     }
 
-    public void setOptions(String argOptions) {
-        this.options = argOptions;
+    public void setCaseInsensitive(boolean b) {
+        caseInsensitive=b;
+    }
+
+    public boolean isMultiline() {
+        return multiline;
+    }
+
+    public void setMultiline(boolean b) {
+        multiline=b;
+    }
+
+    public boolean isExtended() {
+        return extended;
+    }
+
+    public void setExtended(boolean b) {
+        extended=b;
+    }
+
+    public boolean isDotAll() {
+        return dotall;
+    }
+
+    public void setDotAll(boolean b) {
+        dotall=b;
     }
 
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode().
             put("field",field.toString()).
             put("regex",regex);
-        if(options!=null)
-            node.put("options",options);
+        if(caseInsensitive)
+            node.put("case_insensitive",true);
+        if(multiline)
+            node.put("multiline",true);
+        if(extended)
+            node.put("extended",true);
+        if(dotall)
+            node.put("dotall",true);
         return node;
     }
 
@@ -81,10 +121,19 @@ public class RegexMatchExpression
             x=node.get("regex");
             if(x!=null) {
                 String regex=x.asText();
-                x=node.get("options");
-                return new RegexMatchExpression(field,regex,x==null?null:x.asText());
+                return new RegexMatchExpression(field,regex,
+                                                asBoolean(node.get("case_insensitive")),
+                                                asBoolean(node.get("multiline")),
+                                                asBoolean(node.get("extended")),
+                                                asBoolean(node.get("dotall")));
             }
         }
       throw Error.get(INVALID_REGEX_EXPRESSION,node.toString());
+    }
+
+    private static boolean asBoolean(JsonNode node) {
+        if(node!=null)
+            return node.asBoolean();
+        return false;
     }
 }

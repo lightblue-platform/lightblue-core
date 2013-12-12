@@ -147,6 +147,15 @@ public class Path implements Comparable<Path>, Serializable  {
     }
 
     /**
+     * Constructs a path with x+y
+     */
+    public Path(Path x,Path y) {
+        this();
+        data.segments.addAll(x.data.segments);
+        data.segments.addAll(y.data.segments);
+    }
+
+    /**
      * Create a mutable path as a prefix of the given path
      * 
      * @param x Source path
@@ -301,6 +310,27 @@ public class Path implements Comparable<Path>, Serializable  {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check if this path is a matching descendant of the pattern, that is:
+     *  - path matches pattern, or
+     *  - a prefix of the path matches the pattern
+     */
+    public boolean matchingDescendant(Path pattern) {
+        int n=pattern.numSegments();
+        if(n<numSegments())
+            return prefix(n).matches(pattern);
+        else if(n==numSegments())
+            return matches(pattern);
+        return false;
+    }
+
+    /**
+     * Returns this+p
+     */
+    public Path add(Path p) {
+        return new Path(this,p);
     }
     
     public boolean equals(Object x) {

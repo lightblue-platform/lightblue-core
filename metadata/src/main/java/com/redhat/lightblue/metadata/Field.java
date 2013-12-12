@@ -74,5 +74,9 @@ public abstract class Field implements FieldTreeNode, Serializable {
             constraints.addAll(l);
     }
 
+    public FieldTreeNode resolve(Path p) {
+        return resolve(p,0);
+    }
+
     protected abstract FieldTreeNode resolve(Path p,int level);
 }
