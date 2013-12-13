@@ -54,22 +54,7 @@ public final class BigIntegerType implements Type, Serializable {
     
     @Override
     public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        BigInteger value;
-        if(obj instanceof BigInteger)
-            value=(BigInteger)obj;
-        else if(obj instanceof Number)
-            value=new BigInteger(Long.toString(((Number)obj).longValue()));
-        else if(obj instanceof Boolean)
-            value=new BigInteger(((Boolean)obj)?"1":"0");
-        else if(obj instanceof String)
-            try {
-                value=new BigInteger((String)obj);
-            } catch (Exception e) {
-                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-            }
-        else 
-            throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-        return factory.numberNode(value);
+        return factory.numberNode((BigInteger)cast(obj));
     }
 
     @Override
@@ -78,6 +63,41 @@ public final class BigIntegerType implements Type, Serializable {
             return node.bigIntegerValue();
         else
             throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
+    }
+
+    public Object cast(Object obj) {
+        BigInteger value=null;
+        if(obj!=null) {
+            if(obj instanceof BigInteger)
+                value=(BigInteger)obj;
+            else if(obj instanceof Number)
+                value=new BigInteger(Long.toString(((Number)obj).longValue()));
+            else if(obj instanceof Boolean)
+                value=new BigInteger(((Boolean)obj)?"1":"0");
+            else if(obj instanceof String)
+                try {
+                    value=new BigInteger((String)obj);
+                } catch (Exception e) {
+                    throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+                }
+            else 
+                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+        }
+        return value;
+    }
+
+    @Override
+    public int compare(Object v1,Object v2) {
+        if(v1==null)
+            if(v2==null)
+                return 0;
+            else
+                return -1;
+        else if(v2==null)
+            return 1;
+        else {
+            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override

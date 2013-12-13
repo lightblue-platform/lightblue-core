@@ -52,6 +52,16 @@ public interface Type {
      */
     public Object fromJson(JsonNode value);
 
+    /**
+     * Compares v1 and v2, and returns <0 if v1<v2, 0 if v1=v2 and >0 if v1>v2
+     */
+    public int compare(Object v1,Object v2);
+
+    /**
+     * Try to cast java object v to this type. 
+     */
+    public Object cast(Object v);
+
     public boolean equals(Object obj);
 
     public int hashCode();

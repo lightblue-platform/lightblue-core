@@ -74,19 +74,7 @@ public final class DateType implements Type, Serializable {
     
     @Override
     public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        Date value;
-        DateFormat fmt=getDateFormat();
-        if(obj instanceof Date)
-            value=(Date)obj;
-        else if(obj instanceof String) {
-            try {
-                value=fmt.parse((String)obj);
-            } catch (Exception e) {
-                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-            }
-        } else
-            throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-        return factory.textNode(fmt.format(value));
+        return factory.textNode(getDateFormat().format((Date)cast(obj)));
     }
 
     @Override
@@ -99,6 +87,39 @@ public final class DateType implements Type, Serializable {
             }
         else
             throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
+    }
+
+    @Override
+    public Object cast(Object obj) {
+        Date value=null;
+        if(obj!=null) {
+            DateFormat fmt=getDateFormat();
+            if(obj instanceof Date)
+                value=(Date)obj;
+            else if(obj instanceof String) {
+                try {
+                    value=fmt.parse((String)obj);
+                } catch (Exception e) {
+                    throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+                }
+            } else
+                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+        }
+        return value;
+    }
+
+   @Override
+    public int compare(Object v1,Object v2) {
+        if(v1==null)
+            if(v2==null)
+                return 0;
+            else
+                return -1;
+        else if(v2==null)
+            return 1;
+        else {
+            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override

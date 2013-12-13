@@ -54,26 +54,7 @@ public final class BigDecimalType implements Type, Serializable {
     
     @Override
     public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        BigDecimal value;
-        if(obj instanceof BigDecimal)
-            value=(BigDecimal)obj;
-        else if(obj instanceof Number) {
-            if(obj instanceof Double ||
-               obj instanceof Float)
-                value=new BigDecimal(((Number)obj).doubleValue());
-            else
-                value=new BigDecimal(((Number)obj).longValue());
-        } else if(obj instanceof Boolean)
-            value=new BigDecimal(((Boolean)obj)?1:0);
-        else if(obj instanceof String)
-            try {
-                value=new BigDecimal((String)obj);
-            } catch (Exception e) {
-                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-            }
-        else 
-            throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-        return factory.numberNode(value);
+        return factory.numberNode((BigDecimal)cast(obj));
     }
 
     @Override
@@ -82,6 +63,47 @@ public final class BigDecimalType implements Type, Serializable {
             return node.decimalValue();
         else
             throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
+    }
+    
+    @Override
+    public Object cast(Object obj) {
+        BigDecimal value=null;
+        if(obj!=null) {
+            if(obj instanceof BigDecimal)
+                value=(BigDecimal)obj;
+            else if(obj instanceof Number) {
+                if(obj instanceof Double ||
+                   obj instanceof Float)
+                    value=new BigDecimal(((Number)obj).doubleValue());
+                else
+                    value=new BigDecimal(((Number)obj).longValue());
+            } else if(obj instanceof Boolean)
+                value=new BigDecimal(((Boolean)obj)?1:0);
+            else if(obj instanceof String)
+                try {
+                    value=new BigDecimal((String)obj);
+                } catch (Exception e) {
+                    throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+                }
+            else 
+                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+                  
+        }
+        return value;
+    }
+
+    @Override
+    public int compare(Object v1,Object v2) {
+        if(v1==null)
+            if(v2==null)
+                return 0;
+            else
+                return -1;
+        else if(v2==null)
+            return 1;
+        else {
+            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override

@@ -51,15 +51,29 @@ public final class BinaryType implements Type, Serializable {
     }
     
     @Override
-        public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        if(obj.getClass().isArray()) {
-            Class<?> component=obj.getClass().getComponentType();
-            if(component.equals(byte.class)||
-               component.equals(Byte.class)) {
-                return factory.binaryNode((byte[])obj);
-            }
-        }
-        throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+    public int compare(Object v1,Object v2) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object cast(Object obj) {
+        byte[] ret=null;
+        if(obj!=null)
+            if(obj.getClass().isArray()) {
+                Class<?> component=obj.getClass().getComponentType();
+                if(component.equals(byte.class)) {
+                    ret=(byte[])obj;
+                } else
+                    throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+            } else
+                throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+        
+        return ret;
+    }
+
+    @Override
+    public JsonNode toJson(JsonNodeFactory factory,Object obj) {
+       return factory.binaryNode((byte[])cast(obj));
     }
 
     @Override

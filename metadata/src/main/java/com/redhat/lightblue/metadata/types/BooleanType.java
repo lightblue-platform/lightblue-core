@@ -52,16 +52,7 @@ public final class BooleanType implements Type, Serializable {
     
     @Override
     public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        Boolean value;
-        if(obj instanceof Boolean)
-            value=((Boolean)obj);
-        else if(obj instanceof Number)
-            value=((Number)obj).intValue()!=0;
-        else if(obj instanceof String)
-            value=Boolean.valueOf((String)obj);
-        else 
-            throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-        return factory.booleanNode(value);
+        return factory.booleanNode((Boolean)cast(obj));
     }
 
     @Override
@@ -70,6 +61,36 @@ public final class BooleanType implements Type, Serializable {
             return node.asBoolean();
         else
             throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
+    }
+
+    @Override
+    public Object cast(Object obj) {
+       Boolean value=null;
+       if(obj!=null) {
+           if(obj instanceof Boolean)
+               value=((Boolean)obj);
+           else if(obj instanceof Number)
+               value=((Number)obj).intValue()!=0;
+           else if(obj instanceof String)
+               value=Boolean.valueOf((String)obj);
+           else 
+               throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+       }
+       return value;
+    }
+
+    @Override
+    public int compare(Object v1,Object v2) {
+        if(v1==null)
+            if(v2==null)
+                return 0;
+            else
+                return -1;
+        else if(v2==null)
+            return 1;
+        else {
+            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override

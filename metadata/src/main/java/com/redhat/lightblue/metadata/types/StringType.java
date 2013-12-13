@@ -52,7 +52,7 @@ public final class StringType implements Type, Serializable {
     
     @Override
     public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        return factory.textNode(obj.toString());
+        return factory.textNode((String)cast(obj));
     }
 
     @Override
@@ -61,6 +61,24 @@ public final class StringType implements Type, Serializable {
             return node.asText();
         else
             throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
+    }
+
+    public Object cast(Object obj) {
+        return obj==null?null:obj.toString();
+    }
+
+    @Override
+    public int compare(Object v1,Object v2) {
+        if(v1==null)
+            if(v2==null)
+                return 0;
+            else
+                return -1;
+        else if(v2==null)
+            return 1;
+        else {
+            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override

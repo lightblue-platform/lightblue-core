@@ -47,6 +47,16 @@ abstract class ContainerType implements Type {
     }
 
     @Override
+    public int compare(Object v1,Object v2) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object cast(Object v) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public JsonNode toJson(JsonNodeFactory factory,Object value) {
         throw new UnsupportedOperationException();
     }

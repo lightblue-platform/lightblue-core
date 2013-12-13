@@ -52,20 +52,41 @@ public final class DoubleType implements Type, Serializable {
     
     @Override
     public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        double value;
-        if(obj instanceof Number)
-            value=((Number)obj).doubleValue();
-        else if(obj instanceof Boolean)
-            value=((Boolean)obj)?1:0;
-        else if(obj instanceof String)
-            try {
-                value=Double.valueOf((String)obj);
-            } catch (Exception e) {
+        return factory.numberNode((Double)cast(obj));
+    }
+
+    @Override
+    public Object cast(Object obj) {
+        Double value=null;
+        if(obj!=null) {
+            if(obj instanceof Number)
+                value=((Number)obj).doubleValue();
+            else if(obj instanceof Boolean)
+                value=((Boolean)obj)?1.0:0.0;
+            else if(obj instanceof String)
+                try {
+                    value=Double.valueOf((String)obj);
+                } catch (Exception e) {
+                    throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
+                }
+            else 
                 throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-            }
-        else 
-            throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-        return factory.numberNode(value);
+        } 
+        return value;
+    }
+
+    @Override
+    public int compare(Object v1,Object v2) {
+        if(v1==null)
+            if(v2==null)
+                return 0;
+            else
+                return -1;
+        else if(v2==null)
+            return 1;
+        else {
+            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override
