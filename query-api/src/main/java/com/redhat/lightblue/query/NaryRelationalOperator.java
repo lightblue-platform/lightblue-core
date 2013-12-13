@@ -27,6 +27,10 @@ public enum NaryRelationalOperator {
         this.ops=op;
     }
 
+    public boolean test(boolean valueExists) {
+        return this==_in?valueExists:!valueExists;
+    }
+
     public String toString() {
         return ops[0];
     }
