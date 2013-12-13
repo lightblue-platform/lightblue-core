@@ -228,6 +228,10 @@ public class JsonDoc implements Serializable {
         this.docRoot=doc;
     }
 
+    public JsonNode getRoot() {
+        return docRoot;
+    }
+
     public JsonNodeCursor cursor() {
         return cursor(Path.EMPTY);
     }

@@ -32,7 +32,7 @@ public abstract class AbstractMutablePathTest extends AbstractPathTest<MutablePa
         MutablePath p = createPath();
 
         try {
-            p.push(null);
+            p.push((String)null);
             Assert.fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected

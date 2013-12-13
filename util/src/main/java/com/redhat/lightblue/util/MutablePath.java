@@ -96,6 +96,15 @@ public class MutablePath extends Path  {
         return this;
     }
 
+    public MutablePath push(Path x) {
+        if(x==null)
+            throw new IllegalArgumentException("null value passed to push");
+        own();
+        data.segments.addAll(x.data.segments);
+        data.resetState();
+        return this;
+    }
+
     /**
      * Appends the given integer (array index) to the current path segments.
      * 
@@ -159,6 +168,18 @@ public class MutablePath extends Path  {
 
     public Path set(int i,int value) {
         return set(i,Integer.toString(value));
+    }
+
+    /**
+     * Reduces the length of the path to the given length
+     */
+    public MutablePath cut(int length) {
+        own();
+        int l=data.segments.size();
+        while(l>length)
+            data.segments.remove(--l);
+        data.resetState();
+        return this;
     }
 
     /**
