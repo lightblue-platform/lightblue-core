@@ -104,6 +104,23 @@ public class Path implements Comparable<Path>, Serializable  {
             return r!=null&&r.segments.equals(segments);
         }
 
+        public void shiftLeft(int from) {
+            if(from>0) {
+                int n=segments.size();
+                if(from>=n)
+                    segments.clear();
+                else {
+                    int k=n-from;
+                    int to=0;
+                    for(int i=0;i<k;i++)
+                        segments.set(to++,segments.get(from++));
+                    k=n-k;
+                    for(int i=0;i<k;i++)
+                        segments.remove(--n);
+                }
+            }
+        }
+
         public int compareTo(PathRep x) {
             int tn=segments.size();
             int xn=x.segments.size();
@@ -289,6 +306,34 @@ public class Path implements Comparable<Path>, Serializable  {
         } else {
             p=new Path(this,x);
         }
+        return p;
+    }
+                                                
+    /**
+     * Returns a new path that is a suffix of this path obtained by
+     * removing -x elements from the beginning (if x is negative), or
+     * selecting x elements from the end (if x is positive). If the
+     * path is a mutable path, the returned path is a mutable path.
+     */
+    public Path suffix(int x) {
+        Path p = null;
+        if(this instanceof MutablePath) {
+            p=new MutablePath((MutablePath)this);
+        } else {
+            p=new Path(this);
+        }
+        int n=p.data.segments.size();
+        if(x>=0) {
+            if(x>n)
+                x=n;
+            p.data.shiftLeft(n-x);
+        } else {
+            x=-x;
+            if(x>n)
+                x=n;
+            p.data.shiftLeft(x);
+        }
+            
         return p;
     }
 
