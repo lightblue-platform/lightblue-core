@@ -18,8 +18,8 @@
 */
 package com.redhat.lightblue.eval;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -36,58 +36,88 @@ import com.redhat.lightblue.util.MutablePath;
  * any, once the evaluation is complete.
  */
 public class QueryEvaluationContext {
-    private final JsonNode root;
-    private final Map<Path,List<Integer>> matchingArrayElements=new HashMap<Path,List<Integer>>();
+    private JsonNode contextRoot;
+    private final MutablePath contextPath;
+    private final Set<Path> excludedArrayElements;    
     private boolean result;
-    private final ArrayList<StackItem> context=new ArrayList<StackItem>(16);
-    private final MutablePath currentPath=new MutablePath();
-
-    private static final class StackItem {
-        JsonNode node;
-        final int pathLength;
-
-        public StackItem(JsonNode node,int length) {
-            this.node=node;
-            this.pathLength=length;
-        }
-    }
 
     public QueryEvaluationContext(JsonNode root) {
-        this.root=root;
-        context.add(new StackItem(root,0));
+        this(root,Path.EMPTY);
     }
 
-    public JsonNode getRoot() {
-        return root;
+    public QueryEvaluationContext(JsonNode root,Path p) {
+        this.contextRoot=root;
+        this.contextPath=p.mutableCopy();
+        excludedArrayElements=new HashSet<Path>();
+    }
+    
+    private QueryEvaluationContext(QueryEvaluationContext ctx,JsonNode root,Path relativePath) {
+        this.contextRoot=root;
+        this.contextPath=new MutablePath(ctx.contextPath);
+        this.contextPath.push(relativePath);
+        this.excludedArrayElements=ctx.excludedArrayElements;
     }
 
-    public QueryEvaluationContext getNestedContext() {
-        return new QueryEvaluationContext(getCurrentContextNode());
+    public JsonNode getNode() {
+        return contextRoot;
     }
 
-    public Map<Path,List<Integer>> getMatchingArrayElements() {
-        return matchingArrayElements;
+    public JsonNode getNode(Path relativePath) {
+        return JsonDoc.get(contextRoot,relativePath);
     }
 
-    public List<Integer> getMatchingArrayElements(Path p) {
-        return matchingArrayElements.get(p);
+    public Path getPath() {
+        return contextPath.immutableCopy();
+    }
+
+    public QueryEvaluationContext getNestedContext(JsonNode node,Path relativePath) {
+        return new QueryEvaluationContext(this,node,relativePath);
+    }
+
+    public QueryEvaluationContext firstElementNestedContext(JsonNode node,Path arrayField) {
+        MutablePath p=new MutablePath(arrayField);
+        p.push(0);
+        return new QueryEvaluationContext(this,node,p);
+    }
+
+    public void elementNestedContext(JsonNode node,int index) {
+        contextRoot=node;
+        contextPath.setLast(index);
+    }
+
+    public Path absolutePath(Path p) {
+        if(contextPath.numSegments()==0)
+            return p.immutableCopy();
+        else
+            return new Path(contextPath,p);
+    }
+
+    public Set<Path> getExcludedArrayElements() {
+        return excludedArrayElements;
     }
 
     public boolean isMatchingElement(Path p) {
-        List<Integer> l=getMatchingArrayElements(p.prefix(-1));
-        if(l!=null)
-            return l.contains(p.getIndex(p.numSegments()-1));
-        return false;
+        return !excludedArrayElements.contains(p);
     }
 
     /**
-     * Adds a matching array element index for the given field.
+     * Adds an excluded array element index for the given field.
      */
-    public void addMatchingArrayElement(Path p,int index) {
-        List<Integer> l=matchingArrayElements.get(p);
-        if(l==null)
-            matchingArrayElements.put(p.immutableCopy(),l=new ArrayList<Integer>());
-        l.add(index);
+    public void addExcludedArrayElement(Path relativePath,int index) {
+        MutablePath p=new MutablePath(contextPath);
+        p.push(relativePath);
+        p.push(index);
+        excludedArrayElements.add(p.immutableCopy());
+    }
+
+    public void addExcludedArrayElements(Path relativePath,List<Integer> indexes) {
+        MutablePath p=new MutablePath(contextPath);
+        p.push(relativePath);
+        p.push(0);
+        for(Integer x:indexes) {
+            p.setLast(x);
+            excludedArrayElements.add(p.immutableCopy());
+        }
     }
 
     /**
@@ -99,46 +129,5 @@ public class QueryEvaluationContext {
 
     public void setResult(boolean b) {
         result=b;
-    }
-
-    public JsonNode getCurrentContextNode() {
-        return context.get(context.size()-1).node;
-    }
-
-    public Path getCurrentContextPath() {
-        return currentPath.immutableCopy();
-    }
-
-    /**
-     * Pushes a relative path, and the node corresponding to it
-     */
-    public void push(JsonNode node,Path p) {
-        currentPath.push(p);
-        context.add(new StackItem(node,currentPath.numSegments()));
-    }
-
-    /**
-     * Pushed an array index and the node corresponding to that element
-     */
-    public void push(JsonNode node,int index) {
-        currentPath.push(index);
-        context.add(new StackItem(node,currentPath.numSegments()));
-    }
-
-    /**
-     * Rewrites the last index and node
-     */
-    public void setLast(JsonNode node,int index) {
-        currentPath.setLast(index);
-        context.get(context.size()-1).node=node;
-    }
-
-    /**
-     * Pops the context
-     */
-    public void pop() {
-        int n=context.size()-1;
-        context.remove(n);
-        currentPath.cut(context.get(n-1).pathLength);
     }
 }

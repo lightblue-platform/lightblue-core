@@ -51,8 +51,8 @@ public class ArrayQueryProjector extends Projector {
         // if it is a matching descendant
         if(p.numSegments()==arrayFieldPattern.numSegments()+1&&
            p.matchingDescendant(arrayFieldPattern)) {
-            QueryEvaluationContext nestedContext=ctx.getNestedContext();
-            if(query.evaluate(nestedContext))
+            //QueryEvaluationContext nestedContext=ctx.getNestedContext();
+            //if(query.evaluate(nestedContext))
                 return include?Boolean.TRUE:Boolean.FALSE;
         }
         return null;

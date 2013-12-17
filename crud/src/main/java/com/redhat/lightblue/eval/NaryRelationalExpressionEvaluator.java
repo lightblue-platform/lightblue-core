@@ -62,7 +62,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         logger.debug("evaluate {} {} {}",field,operator,values);
-        JsonNode valueNode=JsonDoc.get(ctx.getCurrentContextNode(),field);
+        JsonNode valueNode=ctx.getNode(field);
         Object docValue;
         if(valueNode!=null)
             docValue=fieldMd.getType().fromJson(valueNode);

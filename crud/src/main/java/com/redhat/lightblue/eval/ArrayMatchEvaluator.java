@@ -29,6 +29,8 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Type;
@@ -47,38 +49,41 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
         FieldTreeNode node=context.resolve(field);
         if(node==null)
             throw new EvaluationError(expr);
-        if(node instanceof ObjectArrayElement) {
-            elem=(ObjectArrayElement)node;
-            ev=QueryEvaluator.getInstance(expr.getElemMatch(),context);
+        if(node instanceof ArrayField) {
+            ArrayElement el=((ArrayField)node).getElement();
+            if(el instanceof ObjectArrayElement) {
+                elem=(ObjectArrayElement)el;
+                ev=QueryEvaluator.getInstance(expr.getElemMatch(),elem);
+            } else
+                throw new EvaluationError(expr,"Expected object array for "+field);
         } else
-            throw new EvaluationError(expr,"Expected object array for "+field);
+            throw new EvaluationError(expr,"Expected array for "+field);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret=false;
-        JsonNode node=JsonDoc.get(ctx.getCurrentContextNode(),field);
+        JsonNode node=ctx.getNode(field);
         if(node!=null) 
             if(node instanceof ArrayNode) {
                 ArrayNode array=(ArrayNode)node;
-                Path arrayPath=ctx.getCurrentContextPath();
                 int index=0;
-                ctx.push(node,field);
+                ArrayList<Integer> indexList=new ArrayList<Integer>(array.size());
+                QueryEvaluationContext nestedCtx=null;
                 for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
                     JsonNode elem=itr.next();
-                    if(index==0)
-                        ctx.push(elem,index);
+                    if(index==0) 
+                        nestedCtx=ctx.firstElementNestedContext(elem,field);
                     else
-                        ctx.setLast(elem,index);
-                    if(ev.evaluate(ctx)) {
-                        ctx.addMatchingArrayElement(arrayPath,index);
+                        nestedCtx.elementNestedContext(elem,index);
+                    if(ev.evaluate(nestedCtx))
                         ret=true;
-                    }
+                    else
+                        indexList.add(index);
                     index++;
                 }
-                if(index>0)
-                    ctx.pop();
-                ctx.pop();
+                if(ret) 
+                    ctx.addExcludedArrayElements(field,indexList);
             }
         ctx.setResult(ret);
         return ret;

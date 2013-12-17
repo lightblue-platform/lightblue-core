@@ -37,9 +37,9 @@ public abstract class QueryEvaluator {
 
     public abstract boolean evaluate(QueryEvaluationContext ctx);
 
-    public static QueryEvaluationContext evaluate(QueryEvaluator eval,JsonDoc doc) {
+    public QueryEvaluationContext evaluate(JsonDoc doc) {
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        eval.evaluate(ctx);
+        evaluate(ctx);
         return ctx;
     }
 

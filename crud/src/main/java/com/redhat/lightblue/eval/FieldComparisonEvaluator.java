@@ -65,13 +65,13 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         logger.debug("evaluate {} {} {}",relativePath,operator,rfieldRelativePath);
-        JsonNode lvalueNode=JsonDoc.get(ctx.getCurrentContextNode(),relativePath);
+        JsonNode lvalueNode=ctx.getNode(relativePath);
         Object ldocValue;
         if(lvalueNode!=null)
             ldocValue=fieldMd.getType().fromJson(lvalueNode);
         else
             ldocValue=null;
-        JsonNode rvalueNode=JsonDoc.get(ctx.getCurrentContextNode(),rfieldRelativePath);
+        JsonNode rvalueNode=ctx.getNode(rfieldRelativePath);
         Object rdocValue;
         if(rvalueNode!=null)
             rdocValue=rfieldMd.getType().fromJson(rvalueNode);

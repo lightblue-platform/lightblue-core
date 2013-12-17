@@ -19,6 +19,7 @@
 package com.redhat.lightblue.eval;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,6 +31,8 @@ import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Type;
 
@@ -52,16 +55,20 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
         FieldTreeNode node=context.resolve(expr.getArray());
         if(node==null)
             throw new EvaluationError(expr);
-        if(node instanceof SimpleArrayElement) {
-            elem=(SimpleArrayElement)node;
+        if(node instanceof ArrayField) {
+            ArrayElement el=((ArrayField)node).getElement();
+            if(el instanceof SimpleArrayElement) {
+                elem=(SimpleArrayElement)el;
+            } else
+                throw new EvaluationError(expr,"Expected simple array");
         } else
-            throw new EvaluationError(expr,"Expected simple array");
+            throw new EvaluationError(expr,"Expected array field");
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret=false;
-        JsonNode node=JsonDoc.get(ctx.getCurrentContextNode(),expr.getArray());
+        JsonNode node=ctx.getNode(expr.getArray());
         if(node!=null) 
             if(node instanceof ArrayNode) {
                 ArrayNode array=(ArrayNode)node;
@@ -69,24 +76,40 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
                 ContainsOperator op=expr.getOp();
                 Type t=elem.getType();
                 int numElementsContained=0;
-                for(Value value:values)
-                    for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
-                        JsonNode valueNode=itr.next();
+                List<Integer> nonmatchingIndexes=new ArrayList<Integer>();
+                int index=0;
+                for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
+                    boolean match=false;
+                    JsonNode valueNode=itr.next();
+                    for(Value value:values) {
                         Object v=value.getValue();
                         if(valueNode==null||valueNode instanceof NullNode) {
-                            if(v==null)
+                            if(v==null) {
                                 numElementsContained++;
+                                match=true;
+                                break;
+                            } 
                         } else {
                             if(v!=null) {
-                                if(elem.getType().compare(v,t.fromJson(valueNode))==0)
+                                if(elem.getType().compare(v,t.fromJson(valueNode))==0) {
                                     numElementsContained++;
+                                    match=true;
+                                    break;
+                                } 
                             }
                         }
                     }
+                    if(!match)
+                        nonmatchingIndexes.add(index);
+                    index++;
+                }
                 switch(op) {
                 case _any: ret=numElementsContained>0;break;
-                case _all: ret=numElementsContained==array.size();break;
+                case _all: ret=numElementsContained==values.size();break;
                 case _none: ret=numElementsContained==0;break;
+                }
+                if(ret) {
+                    ctx.addExcludedArrayElements(expr.getArray(),nonmatchingIndexes);
                 }
             }
         ctx.setResult(ret);

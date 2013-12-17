@@ -69,7 +69,7 @@ public class RegexEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         logger.debug("evaluate {} {}",relativePath,regex);
-        JsonNode valueNode=JsonDoc.get(ctx.getCurrentContextNode(),relativePath);
+        JsonNode valueNode=ctx.getNode(relativePath);
         Object docValue;
         if(valueNode!=null)
             docValue=fieldMd.getType().fromJson(valueNode);
