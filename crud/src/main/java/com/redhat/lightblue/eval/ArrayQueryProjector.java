@@ -31,12 +31,14 @@ public class ArrayQueryProjector extends Projector {
     private final QueryEvaluator query;
     private final Projector nestedProjector;
 
-    public ArrayQueryProjector(ArrayQueryMatchProjection p,FieldTreeNode context) {
-        arrayFieldPattern=p.getField();
+    public ArrayQueryProjector(ArrayQueryMatchProjection p,Path ctxPath,FieldTreeNode context) {
+        arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
-        FieldTreeNode nestedCtx=context.resolve(arrayFieldPattern);
+        FieldTreeNode nestedCtx=context.resolve(p.getField());
         query=QueryEvaluator.getInstance(p.getMatch(),nestedCtx);
-        nestedProjector=Projector.getInstance(p.getProject(),nestedCtx);
+        nestedProjector=Projector.getInstance(p.getProject(),
+                                              new Path(arrayFieldPattern,Path.ANYPATH),
+                                              nestedCtx);
     }
 
     @Override

@@ -67,10 +67,10 @@ public class DocProjector {
         do {
             Path fieldPath=cursor.getCurrentPath();
             // The context path *is* a prefix of the field path 
-            Path contextRelativePath=fieldPath.suffix(-contextPath.numSegments());
+            Path contextRelativePath=contextPath.isEmpty()?fieldPath:fieldPath.suffix(-contextPath.numSegments());
             JsonNode fieldNode=cursor.getCurrentNode();
-            FieldTreeNode fieldMd=mdContext.resolve(contextRelativePath);
             logger.debug("projectObject context={} fieldPath={} contextRelativePath={}",contextPath,fieldPath,contextRelativePath);
+            FieldTreeNode fieldMd=mdContext.resolve(contextRelativePath);
             if(fieldMd!=null) {
                 logger.debug("Projecting {} in context {}",contextRelativePath,contextPath);
                 Boolean result=projector.project(fieldPath,ctx);
@@ -128,17 +128,22 @@ public class DocProjector {
                                          JsonNodeCursor cursor,
                                          QueryEvaluationContext ctx) {
         Path elemPath=cursor.getCurrentPath();
-        Path contextRelativeElemPath=elemPath.suffix(-contextPath.numSegments());
-        logger.debug("Project array element {} contextRelative {} context {}",elemPath,contextRelativeElemPath,contextPath);
-        Boolean result=projector.project(contextRelativeElemPath,ctx);
+        logger.debug("Project array element {}  context {}",elemPath,contextPath);
+        Boolean result=projector.project(elemPath,ctx);
         if(result!=null)
             if(result) {
                 logger.debug("Projection includes {}",elemPath);
                 if(mdContext instanceof SimpleArrayElement) {            
                     return cursor.getCurrentNode();
                 } else {
-                    // Object array element
-                    return projectObject(projector,mdContext,contextPath,cursor,ctx);
+                    JsonNode ret;
+                    if(cursor.firstChild()) {
+                        // Object array element
+                        ret=projectObject(projector,mdContext,elemPath,cursor,ctx);
+                        cursor.parent();
+                        return ret;
+                    } else
+                        ret=factory.objectNode();
                 }
             } else
                 logger.debug("Projection excludes {}",elemPath);

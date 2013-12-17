@@ -44,24 +44,27 @@ public abstract class Projector {
 
     /**
      * Returns true, false, or null if the result cannot be determined.
+     *
+     * @param p The absolute field path
+     * @param ctx Query evaluation context
      */
     public abstract Boolean project(Path p,QueryEvaluationContext ctx);
 
     public static Projector getInstance(Projection projection,EntityMetadata md) {
-        return getInstance(projection,md.getFieldTreeRoot());
+        return getInstance(projection,Path.EMPTY,md.getFieldTreeRoot());
     }
 
-    public static Projector getInstance(Projection projection,FieldTreeNode ctx) {
+    public static Projector getInstance(Projection projection,Path ctxPath,FieldTreeNode ctx) {
         if(projection instanceof FieldProjection) 
-            return new FieldProjector((FieldProjection)projection);
+            return new FieldProjector((FieldProjection)projection,ctxPath);
         else if(projection instanceof ProjectionList)
-            return new ListProjector((ProjectionList)projection,ctx);
+            return new ListProjector((ProjectionList)projection,ctxPath,ctx);
         else if(projection instanceof ArrayMatchingElementsProjection) 
-            return new ArrayMatchingElementsProjector((ArrayMatchingElementsProjection)projection,ctx);
+            return new ArrayMatchingElementsProjector((ArrayMatchingElementsProjection)projection,ctxPath,ctx);
         else if(projection instanceof ArrayRangeProjection) 
-            return new ArrayRangeProjector((ArrayRangeProjection)projection,ctx);
+            return new ArrayRangeProjector((ArrayRangeProjection)projection,ctxPath,ctx);
         else 
-            return new ArrayQueryProjector((ArrayQueryMatchProjection)projection,ctx);
+            return new ArrayQueryProjector((ArrayQueryMatchProjection)projection,ctxPath,ctx);
     }
 
 }

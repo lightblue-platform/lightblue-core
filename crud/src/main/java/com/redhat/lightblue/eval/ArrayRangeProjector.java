@@ -32,12 +32,12 @@ public class ArrayRangeProjector extends Projector {
     private final int to;
     private final Projector nestedProjector;
 
-    public ArrayRangeProjector(ArrayRangeProjection p,FieldTreeNode ctx) {
-        arrayFieldPattern=p.getField();
+    public ArrayRangeProjector(ArrayRangeProjection p,Path ctxPath,FieldTreeNode ctx) {
+        arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
         from=p.getFrom();
         to=p.getTo();
-        nestedProjector=Projector.getInstance(p.getProject(),ctx);
+        nestedProjector=Projector.getInstance(p.getProject(),new Path(arrayFieldPattern,Path.ANYPATH),ctx);
     }
 
     @Override

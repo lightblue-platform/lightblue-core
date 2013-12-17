@@ -34,11 +34,11 @@ public class ListProjector extends Projector {
 
     private Projector nestedProjector;
 
-    public ListProjector(ProjectionList l,FieldTreeNode ctx) {
+    public ListProjector(ProjectionList l,Path ctxPath,FieldTreeNode ctx) {
         List<Projection> projections=l.getItems();
         items=new ArrayList<Projector>(projections.size());
         for(Projection x:projections)
-            items.add(Projector.getInstance(x,ctx));
+            items.add(Projector.getInstance(x,ctxPath,ctx));
     }
 
     @Override

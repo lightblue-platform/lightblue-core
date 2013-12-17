@@ -30,10 +30,12 @@ public class ArrayMatchingElementsProjector extends Projector {
     private final boolean include;
     private final Projector nestedProjector;
 
-    public ArrayMatchingElementsProjector(ArrayMatchingElementsProjection p,FieldTreeNode ctx) {
-        arrayFieldPattern=p.getField();
+    public ArrayMatchingElementsProjector(ArrayMatchingElementsProjection p,Path ctxPath,FieldTreeNode ctx) {
+        arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
-        nestedProjector=Projector.getInstance(p.getProject(),ctx);
+        nestedProjector=Projector.getInstance(p.getProject(),
+                                              new Path(arrayFieldPattern,Path.ANYPATH),
+                                              ctx);
     }
 
     @Override

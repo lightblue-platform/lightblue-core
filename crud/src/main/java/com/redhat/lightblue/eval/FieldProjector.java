@@ -28,8 +28,8 @@ public class FieldProjector extends Projector {
     private final boolean include;
     private final boolean recursive;
 
-    public FieldProjector(FieldProjection p) {
-        field=p.getField();
+    public FieldProjector(FieldProjection p,Path ctxPath) {
+        field=new Path(ctxPath,p.getField());
         include=p.isInclude();
         recursive=p.isRecursive();
     }
