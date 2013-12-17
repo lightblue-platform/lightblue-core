@@ -60,6 +60,7 @@ public class Path implements Comparable<Path>, Serializable  {
     public static final String ANY="*";
 
     public static final Path EMPTY=new Path();
+    public static final Path ANYPATH=new Path(ANY);
 
     class PathRep implements Serializable {
         ArrayList<String> segments;
@@ -229,6 +230,13 @@ public class Path implements Comparable<Path>, Serializable  {
      */
     public int numSegments() {
         return data.segments.size();
+    }
+
+    /**
+     * Check if path is empty
+     */
+    public boolean isEmpty() {
+        return data.segments.isEmpty();
     }
 
     /**
