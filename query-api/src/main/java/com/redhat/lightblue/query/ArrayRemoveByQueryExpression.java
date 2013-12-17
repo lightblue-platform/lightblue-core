@@ -32,7 +32,7 @@ public class ArrayRemoveByQueryExpression extends  ArrayUpdateExpression {
 
     public ArrayRemoveByQueryExpression(Path field,QueryExpression q) {
         super(field);
-        this.query=query;
+        this.query=q;
     }
 
     @Override
