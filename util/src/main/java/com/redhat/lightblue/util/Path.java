@@ -380,6 +380,20 @@ public class Path implements Comparable<Path>, Serializable  {
     }
 
     /**
+     * Check if this path is a matching prefix of the pattern, that is:
+     *  - path matches pattern, or
+     *  - path matches a prefix of the pattern 
+     */
+    public boolean matchingPrefix(Path pattern) {
+        int n=pattern.numSegments();
+        if(n>numSegments())
+            return matches(pattern.prefix(numSegments()));
+        else if(n==numSegments())
+            return matches(pattern);
+        return false;
+    }
+
+    /**
      * Returns this+p
      */
     public Path add(Path p) {
