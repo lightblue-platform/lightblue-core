@@ -70,6 +70,10 @@ public class QueryEvaluationContext {
         return contextPath.immutableCopy();
     }
 
+    public QueryEvaluationContext getNestedContext(Path relativePath) {
+        return getNestedContext(JsonDoc.get(contextRoot,relativePath),relativePath);
+    }
+
     public QueryEvaluationContext getNestedContext(JsonNode node,Path relativePath) {
         return new QueryEvaluationContext(this,node,relativePath);
     }

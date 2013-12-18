@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.util.Path;
 
 public class FieldProjection extends BasicProjection {
+
+    public static final FieldProjection ALL=new FieldProjection(Path.ANYPATH,true,true);
+
     private Path field;
     private boolean include=true;
     private boolean recursive=false;

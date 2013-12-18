@@ -36,7 +36,7 @@ public abstract class ArrayProjection extends BasicProjection {
                            Projection project) {
         this.field=field;
         this.include=include;
-        this.project=project;
+        this.project=project==null?FieldProjection.ALL:project;
     }
 
     public Path getField() {

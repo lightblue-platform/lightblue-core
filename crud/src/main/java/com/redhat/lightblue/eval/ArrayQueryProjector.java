@@ -21,6 +21,7 @@ package com.redhat.lightblue.eval;
 import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.ArrayField;
 
 import com.redhat.lightblue.query.ArrayQueryMatchProjection;
 
@@ -36,10 +37,13 @@ public class ArrayQueryProjector extends Projector {
         arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
         FieldTreeNode nestedCtx=context.resolve(p.getField());
-        query=QueryEvaluator.getInstance(p.getMatch(),nestedCtx);
+        if(nestedCtx instanceof ArrayField)
+            query=QueryEvaluator.getInstance(p.getMatch(),((ArrayField)nestedCtx).getElement());
+        else
+            throw new EvaluationError("Expecting array element for "+arrayFieldPattern);
         nestedProjector=Projector.getInstance(p.getProject(),
                                               new Path(arrayFieldPattern,Path.ANYPATH),
-                                              nestedCtx);
+                                              ((ArrayField)nestedCtx).getElement());
     }
 
     @Override
@@ -58,8 +62,10 @@ public class ArrayQueryProjector extends Projector {
         if(p.numSegments()==arrayFieldPattern.numSegments()+1&&
            p.matchingDescendant(arrayFieldPattern)) {
             lastMatch=true;
-            //QueryEvaluationContext nestedContext=ctx.getNestedContext();
-            //if(query.evaluate(nestedContext))
+            Path contextRoot=ctx.getPath();
+            QueryEvaluationContext nestedContext=ctx.getNestedContext(contextRoot.isEmpty()?p:
+                                                                      p.suffix(-contextRoot.numSegments()));
+            if(query.evaluate(nestedContext))
                 return include?Boolean.TRUE:Boolean.FALSE;
         }
         return null;
