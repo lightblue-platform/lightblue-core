@@ -26,25 +26,46 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Wrapper for primitive values in queries. Provides the basics to
+ * convert a primitive value to/from json. during query evaluation,
+ * metadata is used to interpret the actual value.
+ */
 public class Value extends JsonObject {
     private Object value;
 
     public static final String INVALID_VALUE="INVALID_VALUE";
 
+    /**
+     * Default ctor with value=null
+     */
     public Value() {}
 
+    /**
+     * Creates a Value with value=o
+     */
     public Value(Object o) {
         this.value=o;
     }
 
+    /**
+     * Returns the value
+     */
     public Object getValue() {
         return value;
     }
 
+    /**
+     * Sets the value
+     */
     public void setValue(Object o) {
         this.value=o;
     }
 
+    /**
+     * Creates the appropriate json node based on the type of the value
+     */
+    @Override
     public JsonNode toJson() {
         if(value instanceof Number) {
             if(value instanceof BigDecimal)
@@ -65,6 +86,15 @@ public class Value extends JsonObject {
             return factory.textNode(value.toString());
     }
 
+    /**
+     * Creates a value from a json node
+     *
+     * If the node is decimal, double, or float, create s a BigDecimal
+     * value. If the node is BigInteger, creates a BigIngeter
+     * value. If the node is a long or int, creates a long or int
+     * value. If the node is a boolean, creates a boolean
+     * value. Otherwise, creates a string value.
+     */
     public static Value fromJson(JsonNode node) {
         if(node.isValueNode()) {
             Value ret=new Value();

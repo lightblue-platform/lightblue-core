@@ -27,29 +27,48 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Represents a list of projections
+ */
 public class ProjectionList extends Projection {
 
     private List<Projection> items;
 
+    /**
+     * Default ctor, with null <code>items</code>
+     */
     public ProjectionList() {
     }
 
+    /**
+     * Ctor with the given list
+     */
     public ProjectionList(List<Projection> items) {
         this.items=items;
     }
 
+    /**
+     * Ctor with the given args
+     */
     public ProjectionList(Projection... i) {
         this(Arrays.asList(i));
     }
 
+    /**
+     * Returns the nested projections
+     */
     public List<Projection> getItems() {
         return items;
     }
 
+    /**
+     * Sets the nested projections
+     */
     public void setItems(List<Projection> i) {
         items=i;
     }
 
+    @Override
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
         for(Projection x:items)

@@ -22,6 +22,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Path;
 
+/**
+ * Represents an expression of the form 
+ * <pre>
+ * {
+ *   field: <fieldName>,
+ *   op: <operator>,
+ *   rvalue: <value>
+ * }
+ * </pre>
+ *
+ * If this is part of a nested query, the field is a relative path.
+ */
 public class ValueComparisonExpression 
     extends BinaryRelationalExpression {
 
@@ -29,8 +41,14 @@ public class ValueComparisonExpression
     private BinaryComparisonOperator op;
     private Value rvalue;
 
+    /**
+     * Default ctor
+     */
     public ValueComparisonExpression() {}
 
+    /**
+     * Initializes all fields
+     */
     public ValueComparisonExpression(Path field,
                                      BinaryComparisonOperator op,
                                      Value rvalue) {
@@ -39,30 +57,49 @@ public class ValueComparisonExpression
         this.rvalue=rvalue;
     }
 
+    /**
+     * Returns the field path. 
+     */
     public Path getField() {
         return this.field;
     }
 
+    /**
+     * Sets the field path
+     */
     public void setField(Path argField) {
         this.field = argField;
     }
 
+    /**
+     * Returns the operator
+     */
     public BinaryComparisonOperator getOp() {
         return this.op;
     }
 
+    /**
+     * Sets the operator
+     */
     public void setOp(BinaryComparisonOperator argOp) {
         this.op = argOp;
     }
 
+    /**
+     * Returns the right-value
+     */
     public Value getRvalue() {
         return this.rvalue;
     }
 
+    /**
+     * Sets the right-value
+     */
     public void setRvalue(Value argValue) {
         this.rvalue = argValue;
     }
 
+    @Override
     public JsonNode toJson() {
         return factory.objectNode().put("field",field.toString()).
             put("op",op.toString()).

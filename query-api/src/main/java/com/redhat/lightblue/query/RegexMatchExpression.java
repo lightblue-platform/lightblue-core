@@ -24,6 +24,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Represents a regular expression match query of the form
+ * <pre>
+ * { field: <field>, regex: <pattern>,  
+ *      case_insensitive: false, extended: false, multiline: false, dotall: false }  
+ * </pre>           
+ * 
+ */
 public class RegexMatchExpression 
     extends RelationalExpression {
 
@@ -38,6 +46,9 @@ public class RegexMatchExpression
 
     public RegexMatchExpression() {}
 
+    /**
+     *  Constructs a regular expression match expression using the values
+     */
     public RegexMatchExpression(Path field,String regex,
                                 boolean caseInsensitive,
                                 boolean multiline,
@@ -51,54 +62,109 @@ public class RegexMatchExpression
         this.dotall=dotall;
     }
 
+    /**
+     * Returns the field to me matched
+     */
     public Path getField() {
         return this.field;
     }
 
+    /**
+     * Sets the field to be matched
+     */
     public void setField(Path argField) {
         this.field = argField;
     }
 
+    /**
+     * Returns the regular expression
+     */
     public String getRegex() {
         return this.regex;
     }
 
+    /**
+     * Sets the regular expression
+     */
     public void setRegex(String argRegex) {
         this.regex = argRegex;
     }
 
+    /**
+     * Determines if the regex match will be case sensitive
+     */
     public boolean isCaseInsensitive() {
         return caseInsensitive;
     }
 
+    /**
+     * Determines if the regex match will be case sensitive
+     */
     public void setCaseInsensitive(boolean b) {
         caseInsensitive=b;
     }
 
+    /**
+     * (from regex javadoc)
+     * In multiline mode the expressions ^ and $ match just after or
+     * just before, respectively, a line terminator or the end of the
+     * input sequence. By default these expressions only match at the
+     * beginning and the end of the entire input sequence.
+     */
     public boolean isMultiline() {
         return multiline;
     }
 
+    /**
+     * (from regex javadoc)
+     * In multiline mode the expressions ^ and $ match just after or
+     * just before, respectively, a line terminator or the end of the
+     * input sequence. By default these expressions only match at the
+     * beginning and the end of the entire input sequence.
+     */
     public void setMultiline(boolean b) {
         multiline=b;
     }
 
+    /**
+     * (from regex javadoc)
+     *  In this mode, whitespace is ignored, and embedded comments
+     *  starting with # are ignored until the end of a line.
+     */
     public boolean isExtended() {
         return extended;
     }
 
+    /**
+     * (from regex javadoc)
+     *  In this mode, whitespace is ignored, and embedded comments
+     *  starting with # are ignored until the end of a line.
+     */
     public void setExtended(boolean b) {
         extended=b;
     }
 
+    /**
+     * (from regex javadoc)
+     * In dotall mode, the expression . matches any character,
+     *  including a line terminator. By default this expression does
+     *  not match line terminators.  
+     */
     public boolean isDotAll() {
-        return dotall;
+      return dotall; 
     }
 
+    /**
+     * (from regex javadoc)
+     * In dotall mode, the expression . matches any character,
+     *  including a line terminator. By default this expression does
+     *  not match line terminators.  
+     */
     public void setDotAll(boolean b) {
         dotall=b;
     }
 
+    @Override
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode().
             put("field",field.toString()).

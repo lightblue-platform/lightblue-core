@@ -18,6 +18,9 @@
 */
 package com.redhat.lightblue.query;
 
+/**
+ * N-ary logical operators, and, or, and nor
+ */
 public enum NaryLogicalOperator { 
     _and("$and"), _or("$or"), _nor("$nor");
 

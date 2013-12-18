@@ -18,10 +18,20 @@
 */
 package com.redhat.lightblue.query;
 
+/**
+ * Unary logical operators (not)
+ */
 public enum UnaryLogicalOperator { 
     _not;
-
-    public boolean test(boolean value) {
+    
+    /**
+     * Applies the operator to a value
+     *
+     * @param value The value to which the operator is to be applied
+     *
+     * @return Returns op(value). For _not, returns !value.
+     */
+    public boolean apply(boolean value) {
         return !value;
     }
 

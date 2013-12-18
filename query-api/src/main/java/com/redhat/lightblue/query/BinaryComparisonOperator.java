@@ -20,6 +20,9 @@ package com.redhat.lightblue.query;
 
 import java.util.HashMap;
 
+/**
+ * Comparison operators
+ */
 public enum BinaryComparisonOperator { 
     _eq("$eq","="), 
     _neq("$neq","!="), 
@@ -52,14 +55,14 @@ public enum BinaryComparisonOperator {
     }
     
     /**
-     * Returns the result of the test operator performs based on the comparison
+     * Applies the operator 
      * 
      * @param cmp Comparison result of x and y, wheres <0 denotes x<y,
      * >0 denotes x>y, and 0 denotes x=y
      *
      *  @return Returns the value of x op y based on the comparison result of x and y
      */
-    public boolean test(int cmp) {
+    public boolean apply(int cmp) {
         if(cmp<0)
             return this==_neq||
                 this==_lt||

@@ -69,7 +69,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
         logger.debug(" value={}",valueNode);
         int result=fieldMd.getType().compare(docValue,value);
         logger.debug(" result={}",result);
-        ctx.setResult(operator.test(result));
+        ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }
 }

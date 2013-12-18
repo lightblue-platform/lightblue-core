@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Base class for all relational expression
+ */
 public abstract class RelationalExpression extends ComparisonExpression {
 
     public static RelationalExpression fromJson(ObjectNode node) {

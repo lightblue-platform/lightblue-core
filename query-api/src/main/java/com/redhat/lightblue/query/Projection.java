@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Base class for all projection objects
+ */
 public abstract class Projection extends JsonObject {
     
     public static Projection fromJson(JsonNode node) {

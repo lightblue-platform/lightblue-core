@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Base class for Sort objects.
+ */
 public abstract class Sort extends JsonObject {
 
     public static final String INVALID_SORT="INVALID_SORT";

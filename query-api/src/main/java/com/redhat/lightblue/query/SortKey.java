@@ -24,33 +24,55 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Represents a sort key of the form:
+ * <pre>
+ * { fieldName: $asc} or { fieldName: $desc }
+ * </pre>
+ */
 public class SortKey extends Sort {
     private Path field;
     private boolean desc;
 
     public SortKey() {}
 
+    /**
+     * Constructs a sort key with the values
+     */
     public SortKey(Path field,boolean desc) {
         this.field=field;
         this.desc=desc;
     }
 
+    /**
+     * Returns the sort field
+     */
     public Path getField() {
         return this.field;
     }
 
+    /**
+     * Sets the sort field
+     */
     public void setField(Path argField) {
         this.field = argField;
     }
 
+    /**
+     * Returns if the sort is descending
+     */
     public boolean isDesc() {
         return this.desc;
     }
 
+    /**
+     * Sets if the sort is descending
+     */
     public void setDesc(boolean argDesc) {
         this.desc = argDesc;
     }
 
+    @Override
     public JsonNode toJson() {
         return factory.objectNode().put(field.toString(),desc?"$desc":"$asc");
     }

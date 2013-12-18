@@ -23,6 +23,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Expression of the form
+ * <pre>
+ * { $not : { query } }
+ * </pre>
+ */
 public class UnaryLogicalExpression extends LogicalExpression {
 
     private UnaryLogicalOperator op;
@@ -36,22 +42,35 @@ public class UnaryLogicalExpression extends LogicalExpression {
         this.query=query;
     }
     
+    /**
+     * Returns the operator
+     */
     public UnaryLogicalOperator getOp() {
         return this.op;
     }
 
+    /**
+     * Sets the operator
+     */
     public void setOp(UnaryLogicalOperator argOp) {
         this.op = argOp;
     }
 
+    /**
+     * Returns the query to which the operator will be applied
+     */
     public QueryExpression getQuery() {
         return this.query;
     }
 
+    /**
+     * Sets the query to which the operator will be applied
+     */
     public void setQuery(QueryExpression argQuery) {
         this.query = argQuery;
     }
 
+    @Override
     public JsonNode toJson() {
         return factory.objectNode().set(op.toString(),query.toJson());
     }

@@ -44,7 +44,7 @@ public class UnaryLogicalExpressionEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         logger.debug("evaluate {}",operator);
-        ctx.setResult(operator.test(evaluator.evaluate(ctx)));
+        ctx.setResult(operator.apply(evaluator.evaluate(ctx)));
         return ctx.getResult();
     }
 }

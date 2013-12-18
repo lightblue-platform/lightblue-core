@@ -18,6 +18,9 @@
 */
 package com.redhat.lightblue.query;
 
+/**
+ * N-ary relational operator definitions
+ */
 public enum NaryRelationalOperator { 
     _in("$in"), _not_in("$nin","$not_in");
 
@@ -27,7 +30,16 @@ public enum NaryRelationalOperator {
         this.ops=op;
     }
 
-    public boolean test(boolean valueExists) {
+    /**
+     * Applies the operator
+     *
+     * @param valueExists Whether the value of the field exists in the
+     * value list in a query of the form { field op
+     * [value1,value2,...] }
+     *
+     * @return The value when the operator is applied to the predicate <code>valueExists</code>
+     */
+    public boolean apply(boolean valueExists) {
         return this==_in?valueExists:!valueExists;
     }
 

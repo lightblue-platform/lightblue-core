@@ -20,6 +20,9 @@ package com.redhat.lightblue.query;
 
 import java.util.HashMap;
 
+/**
+ * Operators than can be used in an update expression
+ */
 public enum UpdateOperator {
     _set("$set"),
     _unset("$unset"),

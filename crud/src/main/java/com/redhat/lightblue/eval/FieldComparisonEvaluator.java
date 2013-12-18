@@ -80,7 +80,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         logger.debug(" lvalue={} rvalue={}",lvalueNode,rvalueNode);
         int result=fieldMd.getType().compare(ldocValue,rdocValue);
         logger.debug(" result={}",result);
-        ctx.setResult(operator.test(result));
+        ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }
 }

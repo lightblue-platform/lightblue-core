@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Base class for all query expressions
+ */
 public abstract class QueryExpression extends JsonObject {
 
     public static final String INVALID_QUERY="INVALID_QUERY";

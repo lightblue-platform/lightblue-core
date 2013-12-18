@@ -83,7 +83,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
                 }
         }
         logger.debug(" result={}",in);
-        ctx.setResult(operator.test(in));
+        ctx.setResult(operator.apply(in));
         return ctx.getResult();
     }
 }
