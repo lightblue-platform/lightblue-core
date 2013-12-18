@@ -48,40 +48,34 @@ public abstract class BasicProjection extends Projection {
 
         Projection projection;
         x=node.get("project");
-        if(x==null) {
-            // No projection. This is a field projection
-            x=node.get("recursive");
-            return new FieldProjection(path,include,
-                                       x==null?false:x.asBoolean());
-        }
-        else {
-            // Array projection
+        if(x!=null)
             projection=Projection.fromJson(x);
-            x=node.get("match");
-            if(x!=null) 
+        else
+            projection=null;
+        x=node.get("range");
+        if(x!=null) {
+            if(x instanceof ArrayNode &&
+               ((ArrayNode)x).size()==2) {
+                int from=((ArrayNode)x).get(0).asInt();
+                int to=((ArrayNode)x).get(1).asInt();
+                return new ArrayRangeProjection(path,
+                                                include,
+                                                projection,
+                                                from,to);
+            } else
+                throw Error.get(INVALID_ARRAY_RANGE_PROJECTION,node.toString());
+        }
+        x=node.get("match");
+        if(x!=null) 
                 return new ArrayQueryMatchProjection(path,
                                                      include,
                                                      projection,
                                                      QueryExpression.fromJson(x));
-            else {
-                x=node.get("range");
-                if(x!=null) {
-                    if(x instanceof ArrayNode &&
-                       ((ArrayNode)x).size()==2) {
-                        int from=((ArrayNode)x).get(0).asInt();
-                        int to=((ArrayNode)x).get(1).asInt();
-                        return new ArrayRangeProjection(path,
-                                                        include,
-                                                        projection,
-                                                        from,to);
-                    } else
-                        throw Error.get(INVALID_ARRAY_RANGE_PROJECTION,node.toString());
-                } else {
-                    return new ArrayMatchingElementsProjection(path,
-                                                               include,
-                                                               projection);
-                }
-            }
-        }
+
+        if(projection!=null)
+            return new ArrayMatchingElementsProjection(path,include,projection);
+        x=node.get("recursive");
+        return new FieldProjection(path,include,
+                                   x==null?false:x.asBoolean());
     }
 }

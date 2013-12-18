@@ -80,106 +80,132 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         return Projector.getInstance(p,md);
     }
 
-    @Test
-    public void basicProjectionTest() throws Exception {
-        EntityMetadata md=getMd("query/testMetadata.json");
-        JsonDoc doc=getDoc("query/sample1.json");
-        String pr="{'field':'*','include':1}";
-        Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
-        System.out.println(pr+":"+newDoc.getRoot());
-        Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
-        Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
-        Assert.assertEquals("value2",newDoc.get(new Path("field2")).asText());
-        Assert.assertEquals(3,newDoc.get(new Path("field3")).asInt());
-        Assert.assertEquals(4.0,newDoc.get(new Path("field4")).asDouble(),0.001);
-        Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
-        Assert.assertNotNull(newDoc.get(new Path("field6")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf1")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf2")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf3")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf4")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf5")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf6")));
-        Assert.assertNull(newDoc.get(new Path("field6.nf7")));
-        Assert.assertNotNull(newDoc.get(new Path("field7")));
-        Assert.assertEquals(0,newDoc.get(new Path("field7")).size());
-    }
+    // @Test
+    // public void basicProjectionTest() throws Exception {
+    //     EntityMetadata md=getMd("query/testMetadata.json");
+    //     JsonDoc doc=getDoc("query/sample1.json");
+    //     String pr="{'field':'*','include':1}";
+    //     Projector projector=projector(pr,md);
+    //     JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+    //     System.out.println(pr+":"+newDoc.getRoot());
+    //     Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
+    //     Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
+    //     Assert.assertEquals("value2",newDoc.get(new Path("field2")).asText());
+    //     Assert.assertEquals(3,newDoc.get(new Path("field3")).asInt());
+    //     Assert.assertEquals(4.0,newDoc.get(new Path("field4")).asDouble(),0.001);
+    //     Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
+    //     Assert.assertNotNull(newDoc.get(new Path("field6")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf1")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf2")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf3")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf4")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf5")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf6")));
+    //     Assert.assertNull(newDoc.get(new Path("field6.nf7")));
+    //     Assert.assertNotNull(newDoc.get(new Path("field7")));
+    //     Assert.assertEquals(0,newDoc.get(new Path("field7")).size());
+    // }
+
+    // @Test
+    // public void basicProjectionTest_recursive() throws Exception {
+    //     EntityMetadata md=getMd("query/testMetadata.json");
+    //     JsonDoc doc=getDoc("query/sample1.json");
+    //     String pr="{'field':'*','include':1,'recursive':1}";
+    //     Projector projector=projector(pr,md);
+    //     JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+    //     System.out.println(pr+":"+newDoc.getRoot());
+    //     Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
+    //     Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
+    //     Assert.assertEquals("value2",newDoc.get(new Path("field2")).asText());
+    //     Assert.assertEquals(3,newDoc.get(new Path("field3")).asInt());
+    //     Assert.assertEquals(4.0,newDoc.get(new Path("field4")).asDouble(),0.001);
+    //     Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
+    //     Assert.assertNotNull(newDoc.get(new Path("field6")));
+    //     Assert.assertEquals("nvalue1",newDoc.get(new Path("field6.nf1")).asText());
+    //     Assert.assertEquals("nvalue2",newDoc.get(new Path("field6.nf2")).asText());
+    //     Assert.assertEquals(4,newDoc.get(new Path("field6.nf3")).asInt());
+    //     Assert.assertEquals(false,newDoc.get(new Path("field6.nf4")).asBoolean());
+    //     Assert.assertEquals(5,newDoc.get(new Path("field6.nf5.0")).asInt());
+    //     Assert.assertEquals(10,newDoc.get(new Path("field6.nf5.1")).asInt());
+    //     Assert.assertEquals(15,newDoc.get(new Path("field6.nf5.2")).asInt());
+    //     Assert.assertEquals(20,newDoc.get(new Path("field6.nf5.3")).asInt());
+    //     Assert.assertEquals("one",newDoc.get(new Path("field6.nf6.0")).asText());
+    //     Assert.assertEquals("two",newDoc.get(new Path("field6.nf6.1")).asText());
+    //     Assert.assertEquals("three",newDoc.get(new Path("field6.nf6.2")).asText());
+    //     Assert.assertEquals("four",newDoc.get(new Path("field6.nf6.3")).asText());
+    //     Assert.assertEquals("nnvalue1",newDoc.get(new Path("field6.nf7.nnf1")).asText());
+    //     Assert.assertEquals(2,newDoc.get(new Path("field6.nf7.nnf2")).asInt());
+    //     Assert.assertEquals(4,newDoc.get(new Path("field7")).size());
+    //     Assert.assertEquals("elvalue0_1",newDoc.get(new Path("field7.0.elemf1")).asText());
+    //     Assert.assertEquals("elvalue1_1",newDoc.get(new Path("field7.1.elemf1")).asText());
+    //     Assert.assertEquals("elvalue2_1",newDoc.get(new Path("field7.2.elemf1")).asText());
+    //     Assert.assertEquals("elvalue3_1",newDoc.get(new Path("field7.3.elemf1")).asText());
+    // }
+
+    // @Test
+    // public void basicProjectionTest_exclusion() throws Exception {
+    //     EntityMetadata md=getMd("query/testMetadata.json");
+    //     JsonDoc doc=getDoc("query/sample1.json");
+    //     String pr="[{'field':'*','include':1,'recursive':1},{'field':'field7','include':0}]";
+    //     Projector projector=projector(pr,md);
+    //     JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+    //     System.out.println(pr+":"+newDoc.getRoot());
+    //     Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
+    //     Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
+    //     Assert.assertEquals("value2",newDoc.get(new Path("field2")).asText());
+    //     Assert.assertEquals(3,newDoc.get(new Path("field3")).asInt());
+    //     Assert.assertEquals(4.0,newDoc.get(new Path("field4")).asDouble(),0.001);
+    //     Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
+    //     Assert.assertNotNull(newDoc.get(new Path("field6")));
+    //     Assert.assertEquals("nvalue1",newDoc.get(new Path("field6.nf1")).asText());
+    //     Assert.assertEquals("nvalue2",newDoc.get(new Path("field6.nf2")).asText());
+    //     Assert.assertEquals(4,newDoc.get(new Path("field6.nf3")).asInt());
+    //     Assert.assertEquals(false,newDoc.get(new Path("field6.nf4")).asBoolean());
+    //     Assert.assertEquals(5,newDoc.get(new Path("field6.nf5.0")).asInt());
+    //     Assert.assertEquals(10,newDoc.get(new Path("field6.nf5.1")).asInt());
+    //     Assert.assertEquals(15,newDoc.get(new Path("field6.nf5.2")).asInt());
+    //     Assert.assertEquals(20,newDoc.get(new Path("field6.nf5.3")).asInt());
+    //     Assert.assertEquals("one",newDoc.get(new Path("field6.nf6.0")).asText());
+    //     Assert.assertEquals("two",newDoc.get(new Path("field6.nf6.1")).asText());
+    //     Assert.assertEquals("three",newDoc.get(new Path("field6.nf6.2")).asText());
+    //     Assert.assertEquals("four",newDoc.get(new Path("field6.nf6.3")).asText());
+    //     Assert.assertEquals("nnvalue1",newDoc.get(new Path("field6.nf7.nnf1")).asText());
+    //     Assert.assertEquals(2,newDoc.get(new Path("field6.nf7.nnf2")).asInt());
+    //     Assert.assertNull(newDoc.get(new Path("field7")));
+    // }
+
+    // @Test
+    // public void projectionListTest() throws Exception {
+    //     EntityMetadata md=getMd("query/testMetadata.json");
+    //     JsonDoc doc=getDoc("query/sample1.json");
+    //     String pr="[{'field':'field6.*','include':1},{'field':'field5'}]";
+    //     Projector projector=projector(pr,md);
+    //     JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+    //     System.out.println(pr+":"+newDoc.getRoot());
+    //     Assert.assertNull(newDoc.get(new Path("object_type")));
+    //     Assert.assertNull(newDoc.get(new Path("field1")));
+    //     Assert.assertNull(newDoc.get(new Path("field2")));
+    //     Assert.assertNull(newDoc.get(new Path("field3")));
+    //     Assert.assertNull(newDoc.get(new Path("field4")));
+    //     Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
+    //     Assert.assertNotNull(newDoc.get(new Path("field6")));
+    //     Assert.assertEquals("nvalue1",newDoc.get(new Path("field6.nf1")).asText());
+    //     Assert.assertEquals("nvalue2",newDoc.get(new Path("field6.nf2")).asText());
+    //     Assert.assertEquals(4,newDoc.get(new Path("field6.nf3")).asInt());
+    //     Assert.assertEquals(false,newDoc.get(new Path("field6.nf4")).asBoolean());
+    //     Assert.assertEquals(0,newDoc.get(new Path("field6.nf5")).size());
+    //     Assert.assertEquals(0,newDoc.get(new Path("field6.nf6")).size());
+    //     Assert.assertEquals(0,newDoc.get(new Path("field6.nf7")).size());
+    //     Assert.assertNull(newDoc.get(new Path("field7")));
+    // }
 
     @Test
-    public void basicProjectionTest_recursive() throws Exception {
+    public void arrayRangeTest() throws Exception {
         EntityMetadata md=getMd("query/testMetadata.json");
         JsonDoc doc=getDoc("query/sample1.json");
-        String pr="{'field':'*','include':1,'recursive':1}";
+        String pr="{'field':'field6.nf6','range':[1,2],'project':{'field':'*'}}";
         Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
-        System.out.println(pr+":"+newDoc.getRoot());
-        Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
-        Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
-        Assert.assertEquals("value2",newDoc.get(new Path("field2")).asText());
-        Assert.assertEquals(3,newDoc.get(new Path("field3")).asInt());
-        Assert.assertEquals(4.0,newDoc.get(new Path("field4")).asDouble(),0.001);
-        Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
-        Assert.assertNotNull(newDoc.get(new Path("field6")));
-        Assert.assertEquals("nvalue1",newDoc.get(new Path("field6.nf1")).asText());
-        Assert.assertEquals("nvalue2",newDoc.get(new Path("field6.nf2")).asText());
-        Assert.assertEquals(4,newDoc.get(new Path("field6.nf3")).asInt());
-        Assert.assertEquals(false,newDoc.get(new Path("field6.nf4")).asBoolean());
-        Assert.assertEquals(5,newDoc.get(new Path("field6.nf5.0")).asInt());
-        Assert.assertEquals(10,newDoc.get(new Path("field6.nf5.1")).asInt());
-        Assert.assertEquals(15,newDoc.get(new Path("field6.nf5.2")).asInt());
-        Assert.assertEquals(20,newDoc.get(new Path("field6.nf5.3")).asInt());
-        Assert.assertEquals("one",newDoc.get(new Path("field6.nf6.0")).asText());
-        Assert.assertEquals("two",newDoc.get(new Path("field6.nf6.1")).asText());
-        Assert.assertEquals("three",newDoc.get(new Path("field6.nf6.2")).asText());
-        Assert.assertEquals("four",newDoc.get(new Path("field6.nf6.3")).asText());
-        Assert.assertEquals("nnvalue1",newDoc.get(new Path("field6.nf7.nnf1")).asText());
-        Assert.assertEquals(2,newDoc.get(new Path("field6.nf7.nnf2")).asInt());
-        Assert.assertEquals(4,newDoc.get(new Path("field7")).size());
-        Assert.assertEquals("elvalue0_1",newDoc.get(new Path("field7.0.elemf1")).asText());
-        Assert.assertEquals("elvalue1_1",newDoc.get(new Path("field7.1.elemf1")).asText());
-        Assert.assertEquals("elvalue2_1",newDoc.get(new Path("field7.2.elemf1")).asText());
-        Assert.assertEquals("elvalue3_1",newDoc.get(new Path("field7.3.elemf1")).asText());
-    }
-
-    @Test
-    public void basicProjectionTest_exclusion() throws Exception {
-        EntityMetadata md=getMd("query/testMetadata.json");
-        JsonDoc doc=getDoc("query/sample1.json");
-        String pr="[{'field':'*','include':1,'recursive':1},{'field':'field7','include':0}]";
-        Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
-        System.out.println(pr+":"+newDoc.getRoot());
-        Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
-        Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
-        Assert.assertEquals("value2",newDoc.get(new Path("field2")).asText());
-        Assert.assertEquals(3,newDoc.get(new Path("field3")).asInt());
-        Assert.assertEquals(4.0,newDoc.get(new Path("field4")).asDouble(),0.001);
-        Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
-        Assert.assertNotNull(newDoc.get(new Path("field6")));
-        Assert.assertEquals("nvalue1",newDoc.get(new Path("field6.nf1")).asText());
-        Assert.assertEquals("nvalue2",newDoc.get(new Path("field6.nf2")).asText());
-        Assert.assertEquals(4,newDoc.get(new Path("field6.nf3")).asInt());
-        Assert.assertEquals(false,newDoc.get(new Path("field6.nf4")).asBoolean());
-        Assert.assertEquals(5,newDoc.get(new Path("field6.nf5.0")).asInt());
-        Assert.assertEquals(10,newDoc.get(new Path("field6.nf5.1")).asInt());
-        Assert.assertEquals(15,newDoc.get(new Path("field6.nf5.2")).asInt());
-        Assert.assertEquals(20,newDoc.get(new Path("field6.nf5.3")).asInt());
-        Assert.assertEquals("one",newDoc.get(new Path("field6.nf6.0")).asText());
-        Assert.assertEquals("two",newDoc.get(new Path("field6.nf6.1")).asText());
-        Assert.assertEquals("three",newDoc.get(new Path("field6.nf6.2")).asText());
-        Assert.assertEquals("four",newDoc.get(new Path("field6.nf6.3")).asText());
-        Assert.assertEquals("nnvalue1",newDoc.get(new Path("field6.nf7.nnf1")).asText());
-        Assert.assertEquals(2,newDoc.get(new Path("field6.nf7.nnf2")).asInt());
-        Assert.assertNull(newDoc.get(new Path("field7")));
-    }
-
-    @Test
-    public void projectionListTest() throws Exception {
-        EntityMetadata md=getMd("query/testMetadata.json");
-        JsonDoc doc=getDoc("query/sample1.json");
-        String pr="[{'field':'field6.*','include':1},{'field':'field5'}]";
-        Projector projector=projector(pr,md);
+        System.out.println(projector.toString());
         JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertNull(newDoc.get(new Path("object_type")));
@@ -187,15 +213,17 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("field2")));
         Assert.assertNull(newDoc.get(new Path("field3")));
         Assert.assertNull(newDoc.get(new Path("field4")));
-        Assert.assertEquals(true,newDoc.get(new Path("field5")).asBoolean());
+        Assert.assertNull(newDoc.get(new Path("field5")));
         Assert.assertNotNull(newDoc.get(new Path("field6")));
-        Assert.assertEquals("nvalue1",newDoc.get(new Path("field6.nf1")).asText());
-        Assert.assertEquals("nvalue2",newDoc.get(new Path("field6.nf2")).asText());
-        Assert.assertEquals(4,newDoc.get(new Path("field6.nf3")).asInt());
-        Assert.assertEquals(false,newDoc.get(new Path("field6.nf4")).asBoolean());
-        Assert.assertEquals(0,newDoc.get(new Path("field6.nf5")).size());
-        Assert.assertEquals(0,newDoc.get(new Path("field6.nf6")).size());
-        Assert.assertEquals(0,newDoc.get(new Path("field6.nf7")).size());
+        Assert.assertNull(newDoc.get(new Path("field6.nf1")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf2")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf3")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf4")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf5")));
+        Assert.assertEquals("two",newDoc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals("three",newDoc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals(2,newDoc.get(new Path("field6.nf6")).size());
+        Assert.assertNull(newDoc.get(new Path("field6.nf7")));
         Assert.assertNull(newDoc.get(new Path("field7")));
     }
 }

@@ -30,6 +30,7 @@ public class ArrayQueryProjector extends Projector {
     private final boolean include;
     private final QueryEvaluator query;
     private final Projector nestedProjector;
+    private boolean lastMatch;
 
     public ArrayQueryProjector(ArrayQueryMatchProjection p,Path ctxPath,FieldTreeNode context) {
         arrayFieldPattern=new Path(ctxPath,p.getField());
@@ -43,16 +44,20 @@ public class ArrayQueryProjector extends Projector {
 
     @Override
     public Projector getNestedProjector() {
-        return nestedProjector;
+        return lastMatch?nestedProjector:null;
     }
 
     @Override
     public Boolean project(Path p,QueryEvaluationContext ctx) {
+        lastMatch=false;
+        if(p.matchingPrefix(arrayFieldPattern))
+            return include?Boolean.TRUE:Boolean.FALSE;
         // Is this field pointing to an element of the array
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
         if(p.numSegments()==arrayFieldPattern.numSegments()+1&&
            p.matchingDescendant(arrayFieldPattern)) {
+            lastMatch=true;
             //QueryEvaluationContext nestedContext=ctx.getNestedContext();
             //if(query.evaluate(nestedContext))
                 return include?Boolean.TRUE:Boolean.FALSE;

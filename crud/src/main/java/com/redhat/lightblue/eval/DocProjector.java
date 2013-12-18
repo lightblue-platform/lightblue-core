@@ -98,8 +98,7 @@ public class DocProjector {
                                 ret.set(fieldPath.tail(0),newNode);
                                 if(cursor.firstChild()) {
                                     do {
-                                        JsonNode node=projectArrayElement(projector.getNestedProjector()==null?projector:
-                                                                          projector.getNestedProjector(),
+                                        JsonNode node=projectArrayElement(projector,
                                                                           ((ArrayField)fieldMd).getElement(),
                                                                           fieldPath,
                                                                           cursor,
@@ -130,24 +129,26 @@ public class DocProjector {
         Path elemPath=cursor.getCurrentPath();
         logger.debug("Project array element {}  context {}",elemPath,contextPath);
         Boolean result=projector.project(elemPath,ctx);
-        if(result!=null)
+        if(result!=null) {
             if(result) {
+                Projector nestedProjector=projector.getNestedProjector();
+                if(nestedProjector==null)
+                    nestedProjector=projector;
                 logger.debug("Projection includes {}",elemPath);
                 if(mdContext instanceof SimpleArrayElement) {            
                     return cursor.getCurrentNode();
                 } else {
-                    JsonNode ret;
                     if(cursor.firstChild()) {
                         // Object array element
-                        ret=projectObject(projector,mdContext,elemPath,cursor,ctx);
+                        JsonNode ret=projectObject(nestedProjector,mdContext,elemPath,cursor,ctx);
                         cursor.parent();
                         return ret;
                     } else
-                        ret=factory.objectNode();
+                        return factory.objectNode();
                 }
             } else
                 logger.debug("Projection excludes {}",elemPath);
-        else
+        } else
             logger.debug("No projection match for {}",elemPath);
         return null;
     }
