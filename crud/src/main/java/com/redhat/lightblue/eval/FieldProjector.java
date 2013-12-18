@@ -22,13 +22,16 @@ import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.query.FieldProjection;
 
+import com.redhat.lightblue.metadata.FieldTreeNode;
+
 public class FieldProjector extends Projector {
 
     private final Path field;
     private final boolean include;
     private final boolean recursive;
 
-    public FieldProjector(FieldProjection p,Path ctxPath) {
+    public FieldProjector(FieldProjection p,Path ctxPath,FieldTreeNode ctx) {
+        super(ctxPath,ctx);
         field=new Path(ctxPath,p.getField());
         include=p.isInclude();
         recursive=p.isRecursive();

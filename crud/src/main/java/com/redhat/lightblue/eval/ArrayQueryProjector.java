@@ -34,6 +34,7 @@ public class ArrayQueryProjector extends Projector {
     private boolean lastMatch;
 
     public ArrayQueryProjector(ArrayQueryMatchProjection p,Path ctxPath,FieldTreeNode context) {
+        super(ctxPath,context);
         arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
         FieldTreeNode nestedCtx=context.resolve(p.getField());

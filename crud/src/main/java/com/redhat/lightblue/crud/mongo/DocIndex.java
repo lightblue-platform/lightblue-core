@@ -98,5 +98,8 @@ public class DocIndex {
         else
             return null;
     }
-    
+
+    public Set<String> getObjectTypes() {
+        return objectTypeToStoreIndex.keySet();
+    }
 }

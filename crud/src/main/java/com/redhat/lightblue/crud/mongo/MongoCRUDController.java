@@ -21,6 +21,8 @@ package com.redhat.lightblue.crud.mongo;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +36,25 @@ import com.mongodb.MongoException;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+import com.redhat.lightblue.DataError;
+
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonDoc;
+
+import com.redhat.lightblue.query.Projection;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
+import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.mediator.OperationContext;
+import com.redhat.lightblue.mediator.MetadataResolver;
 
-public class MongoCRUDController {
+import com.redhat.lightblue.eval.Projector;
+
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDController;
+
+public class MongoCRUDController implements CRUDController {
 
     public static final String ERR_INVALID_OBJECT="INVALID_OBJECT";
     public static final String ERR_DUPLICATE="DUPLICATE";
@@ -57,23 +71,30 @@ public class MongoCRUDController {
         this.dbResolver=dbResolver;
     }
         
-    public int insert(OperationContext ctx) {
+    /**
+     * Insertion operation for mongo
+     */
+    @Override
+    public CRUDInsertionResponse insert(MetadataResolver resolver,
+                                        List<JsonDoc> documents,
+                                        Projection projection) {
         logger.debug("insert() start");
         Error.push("insert");
-        Translator translator=new Translator(ctx,factory);
-        int n=0;
+        Translator translator=new Translator(resolver,factory);
+        CRUDInsertionResponse response=new CRUDInsertionResponse();
         try {
             logger.debug("insert: Translating docs");
-            DBObject[] dbObjects=translator.toBson(ctx.getDocs());
+            DBObject[] dbObjects=translator.toBson(documents);
             if(dbObjects!=null) {
                 logger.debug("insert: {} docs translated to bson",dbObjects.length);
                 logger.debug("insert: inserting docs");
-                HashMap<DBObject,Error> errorMap=new HashMap<DBObject,Error>();
+                Map<DBObject,List<Error>> errorMap=new HashMap<DBObject,List<Error>>();
                 // Group docs by collection
-                DocIndex index=new DocIndex(ctx,dbResolver);
+                DocIndex index=new DocIndex(resolver,dbResolver);
                 for(DBObject obj:dbObjects) 
                     index.addDoc(obj);
                 Set<MongoDataStore> stores=index.getDataStores();
+                List<DBObject> successfulInsertions=new ArrayList<DBObject>(documents.size());
                 for(MongoDataStore store:stores) {
                     List<DBObject> docs=index.getDocs(store);
                     logger.debug("inserting {} docs into collection {}",docs.size(),store);
@@ -83,38 +104,100 @@ public class MongoCRUDController {
                             WriteResult result=collection.insert(doc,WriteConcern.SAFE);
                             String error=result.getError();
                             if(error!=null) {
-                                Error err=new Error();
-                                err.pushContext("insert");
-                                err.setErrorCode(ERR_INSERTION_ERROR);
-                                err.setMsg(error);
-                                errorMap.put(doc,err);
+                                addErrorToMap(errorMap,doc,"insert",ERR_INSERTION_ERROR,error);
                             } else
-                                n++;
+                                successfulInsertions.add(doc);
                         } catch(MongoException.DuplicateKey dke) {
-                            Error err=new Error();
-                            err.pushContext("insert");
-                            err.setErrorCode(ERR_DUPLICATE);
-                            err.setMsg(dke.toString());
-                            errorMap.put(doc,err);
+                            addErrorToMap(errorMap,doc,"insert",ERR_DUPLICATE,dke.toString());
                         } catch(Exception e) {
-                            Error err=new Error();
-                            err.pushContext("insert");
-                            err.setErrorCode(ERR_INSERTION_ERROR);
-                            err.setMsg(e.toString());
-                            errorMap.put(doc,err);
+                            addErrorToMap(errorMap,doc,"insert",ERR_INSERTION_ERROR,e.toString());
                         } 
                     }
                 }
-                // Set operation context
-                // Put errors back into the operation context
-                
-                // Insertion complete, now project
+                logger.debug("insertion comlete, {} sucessful insertions",successfulInsertions.size());
+                // Build projectors and translate docs
+                Map<String,Projector> projectorMap=buildProjectorMap(projection,
+                                                                     index.getObjectTypes(),
+                                                                     resolver);
+                if(!successfulInsertions.isEmpty()) {
+                    ArrayList<JsonDoc> resultDocs=new ArrayList<JsonDoc>(successfulInsertions.size());
+                    for(DBObject doc:successfulInsertions) { 
+                        resultDocs.add(translateAndProject(doc,translator,projectorMap));
+                    }
+                    response.setDocuments(resultDocs);
+                }
+                // Reorganize errors
+                List<DataError> dataErrors=new ArrayList<DataError>();
+                for(Map.Entry<DBObject,List<Error>> entry:errorMap.entrySet()) {
+                    JsonDoc errorDoc;
+                    if(projection!=null) {
+                        errorDoc=translateAndProject(entry.getKey(),translator,projectorMap);
+                    } else
+                        errorDoc=null;
+                    DataError error=new DataError();
+                    if(errorDoc!=null)
+                        error.setEntityData(errorDoc.getRoot());
+                    error.setErrors(entry.getValue());
+                }
+                response.setDataErrors(dataErrors);
             }
         } finally {
             Error.pop();
         }
-        logger.debug("insert() end: {} docs requested, {} inserted",ctx.getDocs().size(),n);
-        return n;
+        logger.debug("insert() end: {} docs requested, {} inserted",documents.size(),response.getDocuments().size());
+        return response;
+    }
+
+    private JsonDoc translateAndProject(DBObject doc,
+                                        Translator translator,
+                                        Map<String,Projector> projectorMap) {
+        JsonDoc jsonDoc=translator.toJson(doc);
+        logger.debug("Translated doc: {}",jsonDoc);
+        String objectType=jsonDoc.get(Translator.OBJECT_TYPE).asText();
+        Projector projector=projectorMap.get(objectType);
+        JsonDoc result=projector.project(jsonDoc,factory,null);
+        logger.debug("projected doc: {}",result);
+        return result;
+     }
+
+    /**
+     * Builds a map of objectType->DocProjector for all the object types given
+     */
+    private Map<String,Projector> buildProjectorMap(Projection projection,
+                                                    Set<String> objectTypes,
+                                                    MetadataResolver resolver) {
+        Map<String,Projector> projectorMap=new HashMap<String,Projector>();
+        if(projection!=null) {
+            for(String objectType:objectTypes) {
+                EntityMetadata md=resolver.getEntityMetadata(objectType);
+                Projector projector=Projector.getInstance(projection,md);
+                logger.debug("projector {} for {}",projector,objectType);
+                projectorMap.put(objectType,projector);
+            }
+        }
+        return projectorMap;
+    }
+
+    private void addErrorToMap(Map<DBObject,List<Error>> map,
+                               DBObject obj,
+                               String context,
+                               String errorCode,
+                               String msg) {
+        Error error=new Error();
+        error.pushContext(context);
+        error.setErrorCode(errorCode);
+        error.setMsg(msg);
+        addErrorToMap(map,obj,error);
+    }
+
+    /**
+     * Adds a new error for the document to the errormap
+     */
+    private void addErrorToMap(Map<DBObject,List<Error>> map,DBObject object,Error error) {
+        List l=map.get(object);
+        if(l==null)
+            map.put(object,l=new ArrayList<Error>());
+        l.add(error);
     }
 }
 

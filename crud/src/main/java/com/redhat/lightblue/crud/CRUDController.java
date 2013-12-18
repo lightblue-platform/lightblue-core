@@ -18,7 +18,35 @@
 */
 package com.redhat.lightblue.crud;
 
+import java.util.List;
+
+import com.redhat.lightblue.util.JsonDoc;
+
+import com.redhat.lightblue.query.Projection;
+
+import com.redhat.lightblue.mediator.MetadataResolver;
+
 public interface CRUDController {
-    
+
+    /**
+     * Performs insertion of documents to the back end
+     *
+     * @param resolver The metadata resolver
+     * @param documents The documents to insert
+     * @param projection If non-null, the inserted documents are
+     * projected using this projection and returned in the response
+     *
+     * The resolver must provide access to the correct versions of
+     * metadata used to insert all the documents. There is no
+     * limitation on the list of documents other than that they all
+     * have to belong to this particular back-end. Documents can
+     * belong to different data stores of the same back-end. If
+     * projection is non-null, the data must be projected and
+     * returned, otherwise, no data is returned.
+     */
+    public CRUDInsertionResponse insert(MetadataResolver resolver,
+                                        List<JsonDoc> documents,
+                                        Projection projection);
+
 }
 

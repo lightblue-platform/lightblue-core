@@ -32,6 +32,7 @@ public class ArrayMatchingElementsProjector extends Projector {
     private boolean lastMatch=false;
 
     public ArrayMatchingElementsProjector(ArrayMatchingElementsProjection p,Path ctxPath,FieldTreeNode ctx) {
+        super(ctxPath,ctx);
         arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
         nestedProjector=Projector.getInstance(p.getProject(),

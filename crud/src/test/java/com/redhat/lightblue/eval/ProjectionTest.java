@@ -45,14 +45,7 @@ import com.redhat.lightblue.query.Projection;
 public class ProjectionTest extends AbstractJsonNodeTest {
 
     private static final JsonNodeFactory factory=JsonNodeFactory.withExactBigDecimals(true);
-    private DocProjector dp;
     
-    @Before
-    public void init() {
-        dp=new DocProjector(factory);
-    }
-        
-
     private static JsonNode json(String q) {
         try {
             return JsonUtils.json(q.replace('\'','\"'));
@@ -86,7 +79,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         JsonDoc doc=getDoc("query/sample1.json");
         String pr="{'field':'*','include':1}";
         Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc=projector.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
         Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
@@ -112,7 +105,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         JsonDoc doc=getDoc("query/sample1.json");
         String pr="{'field':'*','include':1,'recursive':1}";
         Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc=projector.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
         Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
@@ -148,7 +141,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         JsonDoc doc=getDoc("query/sample1.json");
         String pr="[{'field':'*','include':1,'recursive':1},{'field':'field7','include':0}]";
         Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc=projector.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertEquals("test",newDoc.get(new Path("object_type")).asText());
         Assert.assertEquals("value1",newDoc.get(new Path("field1")).asText());
@@ -180,7 +173,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         JsonDoc doc=getDoc("query/sample1.json");
         String pr="[{'field':'field6.*','include':1},{'field':'field5'}]";
         Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc=projector.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertNull(newDoc.get(new Path("object_type")));
         Assert.assertNull(newDoc.get(new Path("field1")));
@@ -206,7 +199,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         String pr="{'field':'field6.nf6','range':[1,2],'project':{'field':'*'}}";
         Projector projector=projector(pr,md);
         System.out.println(projector.toString());
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc=projector.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertNull(newDoc.get(new Path("object_type")));
         Assert.assertNull(newDoc.get(new Path("field1")));
@@ -233,7 +226,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         JsonDoc doc=getDoc("query/sample1.json");
         String pr="{'field':'field7','match':{'field':'elemf1','op':'$eq','rvalue':'elvalue0_1'}}";
         Projector projector=projector(pr,md);
-        JsonDoc newDoc=dp.project(doc,projector,md,new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc=projector.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         System.out.println(pr+":"+newDoc.getRoot());
         Assert.assertNull(newDoc.get(new Path("object_type")));
         Assert.assertNull(newDoc.get(new Path("field1")));

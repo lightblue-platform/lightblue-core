@@ -34,6 +34,7 @@ public class ArrayRangeProjector extends Projector {
     private boolean lastMatch;
 
     public ArrayRangeProjector(ArrayRangeProjection p,Path ctxPath,FieldTreeNode ctx) {
+        super(ctxPath,ctx);
         arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
         from=p.getFrom();
