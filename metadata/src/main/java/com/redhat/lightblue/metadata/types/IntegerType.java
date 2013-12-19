@@ -70,7 +70,7 @@ public final class IntegerType implements Type, Serializable {
             if(obj instanceof Number)
                 value=((Number)obj).longValue();
             else if(obj instanceof Boolean)
-                value=((Boolean)obj)?new Long(1):new Long(0);
+                value=((Boolean)obj)?Long.valueOf(1):Long.valueOf(0);
             else if(obj instanceof String)
                 try {
                     value=Long.valueOf((String)obj);

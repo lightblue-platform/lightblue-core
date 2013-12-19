@@ -101,6 +101,10 @@ public class Path implements Comparable<Path>, Serializable  {
             return hashValue;
         }
 
+        public boolean equals(Object o) {
+            return o!=null&&o instanceof PathRep?equals((PathRep)o):false;
+        }
+
         public boolean equals(PathRep r) {
             return r!=null&&r.segments.equals(segments);
         }

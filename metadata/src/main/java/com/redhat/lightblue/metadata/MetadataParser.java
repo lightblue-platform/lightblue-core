@@ -345,7 +345,7 @@ public abstract class MetadataParser<T> {
                     field=parseArrayField(name,object);
                 else if(type.equals(ObjectType.TYPE.getName()))
                     field=parseObjectField(name,object);
-                else if(type.equals(ReferenceType.TYPE))
+                else if(type.equals(ReferenceType.TYPE.getName()))
                     field=parseReferenceField(name,object);
                 else
                     field=parseSimpleField(name,type);
@@ -484,22 +484,20 @@ public abstract class MetadataParser<T> {
             Error.push("status");
             try {
                 T obj=newNode();
-                if(status!=null) {
-                    putString(obj,"value",toString(status));
-
-                    // only create log if you have a value for status, else isn't schema compliant 
-                    if(changeLog!=null&&!changeLog.isEmpty()) {
-                        Object logArray=newArrayField(obj,"log");
-                        for(StatusChange x:changeLog) {
-                            T log=newNode();
-                            if(x.getDate()!=null) 
-                                putString(log,"date",DateType.getDateFormat().format(x.getDate()));
-                            if(x.getStatus()!=null)
-                                putString(log,"value",toString(x.getStatus()));
-                            if(x.getComment()!=null)
-                                putString(log,"comment",x.getComment());
-                            addObjectToArray(logArray,log);
-                        }
+                putString(obj,"value",toString(status));
+                
+                // only create log if you have a value for status, else isn't schema compliant 
+                if(!changeLog.isEmpty()) {
+                    Object logArray=newArrayField(obj,"log");
+                    for(StatusChange x:changeLog) {
+                        T log=newNode();
+                        if(x.getDate()!=null) 
+                            putString(log,"date",DateType.getDateFormat().format(x.getDate()));
+                        if(x.getStatus()!=null)
+                            putString(log,"value",toString(x.getStatus()));
+                        if(x.getComment()!=null)
+                            putString(log,"comment",x.getComment());
+                        addObjectToArray(logArray,log);
                     }
                 }
                 return obj;
