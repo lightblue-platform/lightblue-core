@@ -20,6 +20,8 @@ package com.redhat.lightblue.crud.mongo;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +41,27 @@ import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldCursor;
+
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.query.UnaryLogicalOperator;
+import com.redhat.lightblue.query.UnaryLogicalExpression;
+import com.redhat.lightblue.query.RegexMatchExpression;
+import com.redhat.lightblue.query.NaryRelationalOperator;
+import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.NaryLogicalExpression;
+import com.redhat.lightblue.query.FieldComparisonExpression;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
+import com.redhat.lightblue.query.ArrayMatchExpression;
+import com.redhat.lightblue.query.ArrayContainsExpression;
+import com.redhat.lightblue.query.Value;
+
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -62,6 +81,7 @@ public class Translator {
     public static final String ERR_NO_OBJECT_TYPE="NO_OBJECT_TYPE";
     public static final String ERR_INVALID_OBJECTTYPE="INVALID_OBJECTTYPE";
     public static final String ERR_INVALID_FIELD="INVALID_FIELD";
+    public static final String ERR_INVALID_COMPARISON="INVALID_COMPARISON";
 
     private static final Logger logger=LoggerFactory.getLogger(Translator.class);
 
@@ -69,12 +89,57 @@ public class Translator {
     private final MetadataResolver mdResolver;
     private final JsonNodeFactory factory;
 
+
+    private static final Map<BinaryComparisonOperator,String> BINARY_COMPARISON_OPERATOR_JS_MAP;
+    private static final Map<BinaryComparisonOperator,String> BINARY_COMPARISON_OPERATOR_MAP;
+    private static final Map<NaryLogicalOperator,String> NARY_LOGICAL_OPERATOR_MAP;
+    private static final Map<UnaryLogicalOperator,String> UNARY_LOGICAL_OPERATOR_MAP;
+    private static final Map<NaryRelationalOperator,String> NARY_RELATIONAL_OPERATOR_MAP;
+
+
+    static {
+        BINARY_COMPARISON_OPERATOR_JS_MAP=new HashMap<BinaryComparisonOperator,String>();
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._eq,"==");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._neq,"!=");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lt,"<");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gt,">");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lte,"<=");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gte,">=");
+
+        BINARY_COMPARISON_OPERATOR_MAP=new HashMap<BinaryComparisonOperator,String>();
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._eq,"$eq");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._neq,"$neq");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lt,"$lt");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gt,"$gt");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lte,"$lte");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gte,"$gte");
+
+        NARY_LOGICAL_OPERATOR_MAP=new HashMap<NaryLogicalOperator,String>();
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and,"$and");
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and,"$or");
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and,"$nor");
+
+        UNARY_LOGICAL_OPERATOR_MAP=new HashMap<UnaryLogicalOperator,String>();
+        UNARY_LOGICAL_OPERATOR_MAP.put(UnaryLogicalOperator._not,"$not");
+
+        NARY_RELATIONAL_OPERATOR_MAP=new HashMap<NaryRelationalOperator,String>();
+        NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._in,"$in");
+        NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._not_in,"$nin");
+
+    }
+
+    /**
+     * Constructs a translator using the given metadata resolver and factory
+     */
     public Translator(MetadataResolver mdResolver,
                       JsonNodeFactory factory) {
         this.mdResolver=mdResolver;
         this.factory=factory;
     }
     
+    /**
+     * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
+     */
     public DBObject[] toBson(List<JsonDoc> docs) {
         DBObject[] ret=new DBObject[docs.size()];
         int i=0;
@@ -83,6 +148,9 @@ public class Translator {
         return ret;
     }
 
+    /**
+     * Translates a JSON document to DBObject. Translation is metadata driven.
+     */
     public DBObject toBson(JsonDoc doc) {
         logger.debug("toBson() enter");
         JsonNode node=doc.get(OBJECT_TYPE);
@@ -96,6 +164,9 @@ public class Translator {
         return ret;
     }
 
+    /**
+     * Traslates a DBObject document to Json document
+     */
     public JsonDoc toJson(DBObject object) {
         logger.debug("toJson() enter");
         Object type=object.get(OBJECT_TYPE_STR);
@@ -107,6 +178,190 @@ public class Translator {
         JsonDoc doc=toJson(object,md);
         logger.debug("toJson() return");
         return doc;
+    }
+
+    public DBObject translate(EntityMetadata md,QueryExpression query) {
+        logger.debug("translate {}",query);
+        Error.push("translateQuery");
+        FieldTreeNode mdRoot=md.getFieldTreeRoot();
+        try {
+            return translate(mdRoot,query);
+        } finally {
+            Error.pop();
+        }
+    }
+
+    private DBObject translate(FieldTreeNode context,QueryExpression query) {
+        DBObject ret;
+        if(query instanceof ArrayContainsExpression)
+            ret=translateArrayContains(context,(ArrayContainsExpression)query);
+        else if(query instanceof ArrayMatchExpression)
+            ret=translateArrayElemMatch(context,(ArrayMatchExpression)query);
+        else if(query instanceof FieldComparisonExpression)
+            ret=translateFieldComparison(context,(FieldComparisonExpression)query);
+        else if(query instanceof NaryLogicalExpression)
+            ret=translateNaryLogicalExpression(context,(NaryLogicalExpression)query);
+        else if(query instanceof NaryRelationalExpression)
+            ret=translateNaryRelationalExpression(context,(NaryRelationalExpression)query);
+        else if(query instanceof RegexMatchExpression)
+            ret=translateRegexMatchExpression(context,(RegexMatchExpression)query);
+        else if(query instanceof UnaryLogicalExpression)
+            ret=translateUnaryLogicalExpression(context,(UnaryLogicalExpression)query);
+        else
+            ret=translateValueComparisonExpression(context,(ValueComparisonExpression)query);
+        return ret;
+    }
+
+    private FieldTreeNode resolve(FieldTreeNode context,Path field) {
+        FieldTreeNode node=context.resolve(field);
+        if(node==null)
+            throw Error.get(ERR_INVALID_FIELD,field.toString());
+        return node;
+    }
+
+    /**
+     * Converts a value list to a list of values with the proper type
+     */
+    private List<Object> translateValueList(Type t,List<Value> values) {
+        if(values==null||values.isEmpty())
+            throw new IllegalArgumentException("Empty value list");
+        List<Object> ret=new ArrayList<Object>(values.size());
+        for(Value v:values) {
+            Object value=v==null?null:v.getValue();
+            if(value!=null) 
+                value=t.cast(value);
+            ret.add(value);
+        }
+        return ret;
+    }
+
+    private DBObject translateValueComparisonExpression(FieldTreeNode context,ValueComparisonExpression expr) {
+        Type t=resolve(context,expr.getField()).getType();
+        if(expr.getOp()==BinaryComparisonOperator._eq||
+           expr.getOp()==BinaryComparisonOperator._neq) {
+            if(!t.supportsEq())
+                throw Error.get(ERR_INVALID_COMPARISON,expr.toString());
+        } else {
+            if(!t.supportsOrdering())
+                throw Error.get(ERR_INVALID_COMPARISON,expr.toString());
+        }
+        if(expr.getOp()==BinaryComparisonOperator._eq)
+            return new BasicDBObject(expr.getField().toString(),
+                                     t.cast(expr.getRvalue()));
+        else
+            return new BasicDBObject(expr.getField().toString(),
+                                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
+                                                       t.cast(expr.getRvalue())));
+                                 
+    }
+
+    private DBObject translateRegexMatchExpression(FieldTreeNode context,RegexMatchExpression expr) {
+        StringBuilder options=new StringBuilder();
+        BasicDBObject regex=new BasicDBObject("$regex",expr.getRegex());
+        if(expr.isCaseInsensitive())
+            options.append('i');
+        if(expr.isMultiline())
+            options.append('m');
+        if(expr.isExtended())
+            options.append('x');
+        if(expr.isDotAll())
+            options.append('s');
+        String opStr=options.toString();
+        if(opStr.length()>0)
+            regex.append("$options",opStr);
+        return new BasicDBObject(expr.getField().toString(),regex);
+   }
+
+    private DBObject translateNaryRelationalExpression(FieldTreeNode context,NaryRelationalExpression expr) {
+        Type t=resolve(context,expr.getField()).getType();
+        if(t.supportsEq()) {
+            List<Object> values=translateValueList(t,expr.getValues());
+            return new BasicDBObject(expr.getField().toString(),
+                                     new BasicDBObject(NARY_RELATIONAL_OPERATOR_MAP.get(expr.getOp()),
+                                                       values));
+        } else
+            throw Error.get(ERR_INVALID_FIELD,expr.toString());
+    }
+
+    private DBObject translateUnaryLogicalExpression(FieldTreeNode context,UnaryLogicalExpression expr) {
+        return new BasicDBObject(UNARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()),translate(context,expr.getQuery()));
+    }
+
+    private DBObject translateNaryLogicalExpression(FieldTreeNode context,NaryLogicalExpression expr) {
+        List<QueryExpression> queries=expr.getQueries();
+        List<DBObject> list=new ArrayList<DBObject>(queries.size());
+        for(QueryExpression query:queries)
+            list.add(translate(context,query));
+        return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()),list);
+    }
+
+    private DBObject translateFieldComparison(FieldTreeNode context,FieldComparisonExpression expr) {
+        StringBuilder str=new StringBuilder(64);
+        str.append("this.").
+            append(expr.getField().toString()).
+            append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+            append("this.").
+            append(expr.getRfield().toString());
+        return new BasicDBObject("$where",str.toString());
+    }
+
+    private DBObject translateArrayElemMatch(FieldTreeNode context,ArrayMatchExpression expr) {
+        FieldTreeNode arrayNode=resolve(context,expr.getArray());
+        if(arrayNode instanceof ArrayField) {
+            ArrayElement el=((ArrayField)arrayNode).getElement();
+            if(el instanceof ObjectArrayElement) 
+                return new BasicDBObject(expr.getArray().toString(),
+                                         translate(el,expr.getElemMatch()));
+        }
+        throw Error.get(ERR_INVALID_FIELD,expr.toString());
+    }
+
+    private DBObject translateArrayContains(FieldTreeNode context,ArrayContainsExpression expr) {
+        DBObject ret=null;
+        FieldTreeNode arrayNode=resolve(context,expr.getArray());
+        if(arrayNode instanceof ArrayField) {
+            Type t=((ArrayField)arrayNode).getElement().getType();
+            switch(expr.getOp()) {
+            case _all: ret=translateArrayContainsAll(t,expr.getArray(),expr.getValues());break;
+            case _any: ret=translateArrayContainsAny(t,expr.getArray(),expr.getValues());break;
+            case _none: ret=translateArrayContainsNone(t,expr.getArray(),expr.getValues());break;
+            }
+        } else
+            throw Error.get(ERR_INVALID_FIELD,expr.toString());
+        return ret;
+    }
+
+    /**
+     * <pre>
+     *   { field : { $all:[values] } }
+     * </pre>
+     */
+    private DBObject translateArrayContainsAll(Type t,Path array,List<Value> values) {
+        return new BasicDBObject(array.toString(),
+                                 new BasicDBObject("$all",
+                                                   translateValueList(t,values)));
+    }
+
+    /**
+     * <pre>
+     *     { $or : [ {field:value1},{field:value2},...] }
+     * </pre>
+     */
+    private DBObject translateArrayContainsAny(Type t,Path array,List<Value> values) {
+        List<BasicDBObject> l=new ArrayList<BasicDBObject>(values.size());
+        for(Value x:values) 
+            l.add(new BasicDBObject(array.toString(),x==null?null:
+                                    x.getValue()==null?null:t.cast(x.getValue())));
+        return new BasicDBObject("$or",l);
+    } 
+
+    /**
+     * <pre>
+     * { $not : { $or : [ {field:value1},{field:value2},...]}}
+     * </pre>
+     */
+    private DBObject translateArrayContainsNone(Type t,Path array,List<Value> values) {
+        return new BasicDBObject("$not",translateArrayContainsAny(t,array,values));
     }
 
     private JsonDoc toJson(DBObject object,EntityMetadata md) {

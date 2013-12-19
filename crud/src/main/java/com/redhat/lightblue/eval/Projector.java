@@ -54,8 +54,8 @@ public abstract class Projector {
 
     private static final Logger logger=LoggerFactory.getLogger(Projector.class);
 
-    protected final FieldTreeNode rootMdNode;
-    protected final Path rootMdPath;
+    private final FieldTreeNode rootMdNode;
+    private final Path rootMdPath;
 
     protected Projector(Path ctxPath,FieldTreeNode ctx) {
         this.rootMdNode=ctx;

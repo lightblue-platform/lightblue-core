@@ -42,6 +42,8 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -51,6 +53,7 @@ import com.redhat.lightblue.mediator.MetadataResolver;
 
 import com.redhat.lightblue.eval.Projector;
 
+import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDController;
 
@@ -78,6 +81,8 @@ public class MongoCRUDController implements CRUDController {
     public CRUDInsertionResponse insert(MetadataResolver resolver,
                                         List<JsonDoc> documents,
                                         Projection projection) {
+        if(documents==null||documents.isEmpty())
+            throw new IllegalArgumentException("Empty documents");
         logger.debug("insert() start");
         Error.push("insert");
         Translator translator=new Translator(resolver,factory);
@@ -147,6 +152,38 @@ public class MongoCRUDController implements CRUDController {
         logger.debug("insert() end: {} docs requested, {} inserted",documents.size(),response.getDocuments().size());
         return response;
     }
+
+    /**
+     * Search implementation for mongo
+     */
+    @Override
+    public CRUDFindResponse find(MetadataResolver resolver,
+                                 String entity,
+                                 QueryExpression query,
+                                 Projection projection,
+                                 Sort sort,
+                                 Long from,
+                                 Long to) {
+        if(query==null)
+            throw new IllegalArgumentException("Null query");
+        if(projection==null)
+            throw new IllegalArgumentException("Null projection");
+        logger.debug("find start: q:{} p:{} sort:{} from:{} to:{}",query,projection,sort,from,to);
+        Error.push("find");
+        CRUDFindResponse response=new CRUDFindResponse();
+        Translator translator=new Translator(resolver,factory);
+        try {
+            logger.debug("Translating query");
+            DBObject mongoQuery=translator.translate(resolver.getEntityMetadata(entity),query);
+            logger.debug("Translated query:{}"+mongoQuery);
+            
+        } finally {
+            Error.pop();
+        }
+        logger.debug("find end: query: {} results: {}",response.getResults().size());
+        return response;
+    }
+
 
     private JsonDoc translateAndProject(DBObject doc,
                                         Translator translator,

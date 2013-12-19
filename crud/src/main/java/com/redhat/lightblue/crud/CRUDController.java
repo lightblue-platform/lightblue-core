@@ -23,6 +23,8 @@ import java.util.List;
 import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
 
 import com.redhat.lightblue.mediator.MetadataResolver;
 
@@ -47,6 +49,14 @@ public interface CRUDController {
     public CRUDInsertionResponse insert(MetadataResolver resolver,
                                         List<JsonDoc> documents,
                                         Projection projection);
+
+    public CRUDFindResponse find(MetadataResolver resolver,
+                                 String entity,
+                                 QueryExpression query,
+                                 Projection projection,
+                                 Sort sort,
+                                 Long from,
+                                 Long to);
 
 }
 

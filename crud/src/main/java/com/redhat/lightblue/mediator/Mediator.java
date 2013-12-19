@@ -180,12 +180,23 @@ public class Mediator {
         return response;
     }
 
+    /**
+     * Finds documents
+     *
+     * @param req Find request
+     * 
+     * The implementation passes the request to the back-end.
+     */
     public Response find(FindRequest req) {
         logger.debug("find {}",req.getEntity());
         Error.push("find("+req.getEntity().toString()+")");
         Response response=new Response();
         try {
             OperationContext ctx=getOperationContext(req,response,null,Operation.FIND);
+            EntityMetadata md=ctx.getEntityMetadata(req.getEntity().getEntity());
+            CRUDController controller=factory.getCRUDController(md);
+            logger.debug("CRUD controller={}",controller.getClass().getName());
+
 
         } catch (Error e) {
             response.getErrors().add(e);
