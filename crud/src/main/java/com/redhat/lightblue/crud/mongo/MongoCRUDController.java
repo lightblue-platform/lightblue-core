@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.MongoException;
@@ -52,6 +53,8 @@ import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.mediator.MetadataResolver;
 
 import com.redhat.lightblue.eval.Projector;
+import com.redhat.lightblue.eval.QueryEvaluator;
+import com.redhat.lightblue.eval.QueryEvaluationContext;
 
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
@@ -173,10 +176,43 @@ public class MongoCRUDController implements CRUDController {
         CRUDFindResponse response=new CRUDFindResponse();
         Translator translator=new Translator(resolver,factory);
         try {
-            logger.debug("Translating query");
-            DBObject mongoQuery=translator.translate(resolver.getEntityMetadata(entity),query);
-            logger.debug("Translated query:{}"+mongoQuery);
-            
+            EntityMetadata md=resolver.getEntityMetadata(entity);
+            logger.debug("Translating query {}",query);
+            DBObject mongoQuery=translator.translate(md,query);
+            logger.debug("Translated query {}",mongoQuery);
+            DB db=dbResolver.get((MongoDataStore)md.getDataStore());
+            DBCollection coll=db.getCollection(((MongoDataStore)md.getDataStore()).getCollectionName());
+            logger.debug("Retrieve db collection:"+coll);
+            logger.debug("Submitting query");
+            DBCursor cursor=coll.find(mongoQuery);
+            logger.debug("Query evaluated");
+            if(sort!=null) {
+                logger.debug("Translating sort {}",sort);
+                DBObject mongoSort=translator.translate(sort);
+                logger.debug("Translated sort {}",mongoSort);
+                cursor=cursor.sort(mongoSort);
+                logger.debug("Result set sorted");
+            }
+            logger.debug("Applying limits: {} - {}",from,to);
+            response.setSize(cursor.size());
+            if(from!=null)
+                cursor.skip(from.intValue());
+            if(to!=null)
+                cursor.limit(to.intValue()-(from==null?0:from.intValue())+1);
+            logger.debug("Retrieving results");
+            List<DBObject> mongoResults=cursor.toArray();
+            logger.debug("Retrieved {} results",mongoResults.size());
+            List<JsonDoc> jsonDocs=translator.toJson(mongoResults);
+            logger.debug("Translated DBObjects to json");
+            // Project results
+            Projector projector=Projector.getInstance(projection,md);
+            QueryEvaluator qeval=QueryEvaluator.getInstance(query,md);
+            List<JsonDoc> results=new ArrayList<JsonDoc>(jsonDocs.size());
+            for(JsonDoc document:jsonDocs) {
+                QueryEvaluationContext ctx=qeval.evaluate(document);
+                results.add(projector.project(document,factory,ctx));
+            }
+            response.setResults(results);
         } finally {
             Error.pop();
         }

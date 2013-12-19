@@ -30,6 +30,7 @@ public class CRUDFindResponse implements Serializable {
     private static final long serialVersionUID=1l;
 
     private List<JsonDoc> results;
+    private long size;
 
     public CRUDFindResponse() {}
 
@@ -45,6 +46,20 @@ public class CRUDFindResponse implements Serializable {
      */
     public void setResults(List<JsonDoc> results) {
         this.results=results;
+    }
+
+    /**
+     * Number of documents mathcing the query
+     */
+    public long getSize() {
+        return size;
+    }
+
+    /**
+     * Number of documents mathcing the query
+     */
+    public void setSize(long l) {
+        size=l;
     }
 }
 

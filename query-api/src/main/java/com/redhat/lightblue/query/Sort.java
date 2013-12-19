@@ -31,6 +31,9 @@ public abstract class Sort extends JsonObject {
 
     public static final String INVALID_SORT="INVALID_SORT";
 
+    /**
+     * Parses a sort expression using the given json object
+     */
     public static Sort fromJson(JsonNode node) {
         if(node instanceof ArrayNode)
             return CompositeSortKey.fromJson((ArrayNode)node);

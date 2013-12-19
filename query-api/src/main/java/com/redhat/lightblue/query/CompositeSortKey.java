@@ -27,28 +27,49 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Represents a composite sort key
+ */
 public class CompositeSortKey extends Sort {
 
     private List<SortKey> keys;
 
+    /**
+     * Default ctor
+     */
     public CompositeSortKey() {}
 
+    /**
+     * Ctor using the given values
+     */
     public CompositeSortKey(List<SortKey> keys) {
         this.keys=keys;
     }
 
+    /**
+     * Ctor using the given values
+     */
     public CompositeSortKey(SortKey... k) {
         this(Arrays.asList(k));
     }
-
+    
+    /**
+     * The list of sort keys
+     */
     public List<SortKey> getKeys() {
         return keys;
     }
 
+    /**
+     * The list of sort keys
+     */
     public void setKeys(List<SortKey> keys) {
         this.keys=keys;
     }
-
+    
+    /**
+     * Returns a json representation of the sort expression
+     */
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
         for(SortKey x:keys)
@@ -56,6 +77,9 @@ public class CompositeSortKey extends Sort {
         return arr;
     }
 
+    /**
+     * Parses a composite sort key using the json array node
+     */
     public static CompositeSortKey fromJson(ArrayNode node) {
         ArrayList<SortKey> l=new ArrayList<SortKey>(node.size());
         for(Iterator<JsonNode> itr=node.elements();

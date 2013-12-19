@@ -61,6 +61,9 @@ import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.SortKey;
+import com.redhat.lightblue.query.CompositeSortKey;
 
 
 import com.redhat.lightblue.util.Error;
@@ -180,6 +183,40 @@ public class Translator {
         return doc;
     }
 
+    /**
+     * Translates DBObjects into Json documents
+     */
+    public List<JsonDoc> toJson(List<DBObject> objects) {
+        List<JsonDoc> list=new ArrayList<JsonDoc>(objects.size());
+        for(DBObject object:objects)
+            list.add(toJson(object));
+        return list;
+    }
+
+    /**
+     * Translates a sort expression to Mongo sort expression
+     */
+    public DBObject translate(Sort sort) {
+        logger.debug("translate {}",sort);
+        Error.push("translateSort");
+        DBObject ret;
+        try {
+            if(sort instanceof CompositeSortKey)
+                ret=translateCompositeSortKey((CompositeSortKey)sort);
+            else 
+                ret=translateSortKey((SortKey)sort);
+        } finally {
+            Error.pop();
+        }
+        return new BasicDBObject("$sort",ret);
+    }
+
+    /**
+     * Translates a query to Mongo query
+     * 
+     * @param md Entity metadata
+     * @param query The query expression
+     */
     public DBObject translate(EntityMetadata md,QueryExpression query) {
         logger.debug("translate {}",query);
         Error.push("translateQuery");
@@ -189,6 +226,21 @@ public class Translator {
         } finally {
             Error.pop();
         }
+    }
+
+    private DBObject translateSortKey(SortKey sort) {
+        return new BasicDBObject(sort.getField().toString(),sort.isDesc()?-1:1);
+    }
+
+    private DBObject translateCompositeSortKey(CompositeSortKey sort) {
+        DBObject ret=null;
+        for(SortKey key:sort.getKeys()) {
+            if(ret==null)
+                ret=translateSortKey(key);
+            else
+                ret.put(key.getField().toString(),key.isDesc()?-1:1);
+        }
+        return ret;
     }
 
     private DBObject translate(FieldTreeNode context,QueryExpression query) {
