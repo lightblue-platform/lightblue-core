@@ -23,27 +23,50 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Execution options setting time limit and whether the execution is
+ * to be completed asynchronously
+ */
 public class ExecutionOptions extends JsonObject {
 
     private long timeLimit;
     private long asynchronous;
 
+    /**
+     * The time limit within which the call should complete. The call
+     * stops execution once the limit is exceeded, and partial results
+     * are returned
+     */
     public long getTimeLimit() {
         return timeLimit;
     }
 
+    /**
+     * The time limit within which the call should complete. The call
+     * stops execution once the limit is exceeded, and partial results
+     * are returned
+     */
     public void setTimeLimit(long l) {
         timeLimit=l;
     }
 
-    public long gerAsynchronous() {
+    /**
+     * If execution lasts longer than this timeout, continue asynchronously
+     */
+    public long getAsynchronous() {
         return asynchronous;
     }
 
+    /**
+     * If execution lasts longer than this timeout, continue asynchronously
+     */
     public void setAsynchronous(long b) {
         asynchronous=b;
     }
 
+    /**
+     * Returns a json representation of this
+     */
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
         node.put("timeLimit",timeLimit);
@@ -51,6 +74,10 @@ public class ExecutionOptions extends JsonObject {
         return node;
     }
 
+    /**
+     * Parses execution options from a json object. Unrecognized
+     * elements are ignored.
+     */
     public static ExecutionOptions fromJson(ObjectNode node) {
         ExecutionOptions ret=new ExecutionOptions();
         JsonNode x=node.get("timeLimit");

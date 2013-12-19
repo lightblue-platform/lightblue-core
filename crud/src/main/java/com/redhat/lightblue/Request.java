@@ -23,36 +23,60 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Common part of all requests to the mediator
+ */
 public abstract class Request extends JsonObject {
 
     private EntityVersion entity;
     private ClientIdentification client;
     private ExecutionOptions execution;
 
+    /**
+     * Entity name and version
+     */
     public EntityVersion getEntity() {
         return entity;
     }
 
+    /**
+     * Entity name and version
+     */
     public void setEntity(EntityVersion e) {
         entity=e;
     }
 
+    /**
+     * Information that uniquely identifies the caller
+     */
     public ClientIdentification getClientId() {
         return client;
     }
 
+    /**
+     * Information that uniquely identifies the caller
+     */
     public void setClientId(ClientIdentification c) {
         client=c;
     }
 
+    /**
+     * Information about requested execution options
+     */
     public ExecutionOptions getExecution() {
         return execution;
     }
 
+    /**
+     * Information about requested execution options
+     */
     public void setExecution(ExecutionOptions e) {
         execution=e;
     }
 
+    /**
+     * Returns a JSON representation of this
+     */
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
         node.put("entity",entity.getEntity());
@@ -64,6 +88,10 @@ public abstract class Request extends JsonObject {
         return node;
     }
 
+    /**
+     * Parses the entity, client identification and execution options
+     * from the given json object
+     */
     protected void parse(ObjectNode node) {
         entity=new EntityVersion();
         JsonNode x=node.get("entity");

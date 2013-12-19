@@ -25,36 +25,60 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UpdateExpression;
 
+/**
+ * Request to update documents based on a query
+ */
 public class UpdateRequest extends Request {
 
     private QueryExpression query;
     private UpdateExpression updateExpression;
     private Projection returnFields;
 
+    /**
+     * The fields to return from the updated documents
+     */
     public Projection getReturnFields() {
         return returnFields;
     }
 
+    /**
+     * The fields to return from the updated documents
+     */
     public void setReturnFields(Projection p) {
         returnFields=p;
     }
 
+    /**
+     * The expression specifying how to modify the documents
+     */
     public UpdateExpression getUpdateExpression() {
         return updateExpression;
     }
 
+    /**
+     * The expression specifying how to modify the documents
+     */
     public void setUpdateExpression(UpdateExpression x) {
         updateExpression=x;
     }
 
+    /**
+     * The query specifying which documents to be updated
+     */
     public QueryExpression getQuery() {
         return query;
     }
 
+    /**
+     * The query specifying which documents to be updated
+     */
     public void setQuery(QueryExpression q) {
         query=q;
     }  
       
+    /**
+     * Returns a json representation of this
+     */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
         if(query!=null)
@@ -66,6 +90,9 @@ public class UpdateRequest extends Request {
         return node;
     }
 
+    /**
+     * Parses an update request from a Json object
+     */
     public static UpdateRequest fromJson(ObjectNode node) {
         UpdateRequest req=new UpdateRequest();
         req.parse(node);

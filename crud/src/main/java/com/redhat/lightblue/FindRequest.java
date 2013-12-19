@@ -26,6 +26,9 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 
+/**
+ * Request to find documents
+ */
 public class FindRequest extends Request {
 
     private QueryExpression query;
@@ -34,46 +37,83 @@ public class FindRequest extends Request {
     private Long from;
     private Long to;
 
+    /**
+     * The query
+     */
     public QueryExpression getQuery() {
         return query;
     }
 
+    /**
+     * The query
+     */
     public void setQuery(QueryExpression q) {
         query=q;
     } 
-
+    
+    /**
+     * Specifies what fields of the documents to return
+     */
     public Projection getProjection() {
         return projection;
     }
 
+    /**
+     * Specifies what fields of the documents to return
+     */
     public void setProjection(Projection x) {
         projection=x;
     }
 
+    /**
+     * Specifies the order in which the documents will be returned
+     */
     public Sort getSort() {
         return sort;
     }
 
+    /**
+     * Specifies the order in which the documents will be returned
+     */
     public void setSort(Sort s) {
         sort=s;
     }
 
+    /**
+     * Specifies the index in the result set to start returning
+     * documents. Meaningful only if sort is given. Starts from 0.
+     */
     public Long getFrom() {
         return from;
     }
 
+    /**
+     * Specifies the index in the result set to start returning
+     * documents. Meaningful only if sort is given. Starts from 0.
+     */
     public void setFrom(Long l) {
         from=l;
     }
 
+    /**
+     * Specifies the last index of the document in the result set to
+     * be returned. Meaningful only if sort is given. Starts from 0.
+     */
     public Long getTo() {
         return to;
     }
 
+    /**
+     * Specifies the last index of the document in the result set to
+     * be returned. Meaningful only if sort is given. Starts from 0.
+     */
     public void setTo(Long l) {
         to=l;
     }
 
+    /**
+     * Returns JSON representation of this
+     */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
         if(query!=null)
@@ -91,6 +131,10 @@ public class FindRequest extends Request {
         return node;
     }
 
+    /**
+     * Parses a find request from a json object. Unrecognized elements
+     * are ignored.
+     */
     public static FindRequest fromJson(ObjectNode node) {
         FindRequest req=new FindRequest();
         req.parse(node);

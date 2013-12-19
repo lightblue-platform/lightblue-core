@@ -29,6 +29,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Response information from mediator APIs
+ */
 public class Response extends JsonObject {
 
     private OperationStatus status;
@@ -40,54 +43,113 @@ public class Response extends JsonObject {
     private final List<DataError> dataErrors=new ArrayList<DataError>();
     private final List<Error> errors=new ArrayList<Error>();
 
+    /**
+     * Status of the completed operation
+     */
     public OperationStatus getStatus() {
         return status;
     }
 
+    /**
+     * Status of the completed operation
+     */
     public void setStatus(OperationStatus s) {
         status=s;
     }
 
+    /**
+     * Number of documents inserted/updated/deleted
+     */
     public long getModifiedCount() {
         return modifiedCount;
     }
 
+    /**
+     * Number of documents inserted/updated/deleted
+     */
     public void setModifiedCount(long l) {
         modifiedCount=l;
     }
 
+    /**
+     * Number of documents that matched the search criteria
+     */
     public long getMatchCount() {
         return matchCount;
     }
 
+    /**
+     * Number of documents that matched the search criteria
+     */
     public void setMatchCount(long l) {
         matchCount=l;
     }
 
+    /**
+     * If the operation continues asynchronously, the task handle can
+     * be used to retrieve status information, and the result of the
+     * call once the operation is complete
+     */
     public String getTaskHandle() {
         return taskHandle;
     }
 
+    /**
+     * If the operation continues asynchronously, the task handle can
+     * be used to retrieve status information, and the result of the
+     * call once the operation is complete
+     */
     public void setTaskHandle(String t) {
         taskHandle=t;
     }
 
+    /**
+     * If the operation starts a session or uses an existing session,
+     * the session information
+     */
     public SessionInfo getSessionInfo() {
         return session;
     }
 
+    /**
+     * If the operation starts a session or uses an existing session,
+     * the session information
+     */
     public void setSessionInfo(SessionInfo s) {
         session=s;
     }
 
+    /**
+     * Returns the entity data resulting from the call.
+     */
+    public JsonNode getEntityData() {
+        return entityData;
+    }
+
+    /**
+     * Returns the entity data resulting from the call.
+     */
+    public void setEntityData(JsonNode node) {
+        entityData=node;
+    }
+
+    /**
+     * Errors related to each document
+     */
     public List<DataError> getDataErrors() {
         return dataErrors;
     }
 
+    /**
+     * Errors related to the operation
+     */
     public List<Error> getErrors() {
         return errors;
     }
-
+    
+    /**
+     * Parses a response from a Json object
+     */
     static public Response fromJson(ObjectNode node) {
         Response ret=new Response();
         JsonNode x=node.get("status");
@@ -131,6 +193,9 @@ public class Response extends JsonObject {
         return ret;
     }
 
+    /**
+     * Returns JSON representation of this
+     */
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
         if(status!=null) {

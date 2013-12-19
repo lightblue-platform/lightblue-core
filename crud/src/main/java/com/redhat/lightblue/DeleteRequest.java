@@ -24,18 +24,30 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 
+/**
+ * Request to delete documents matching a query
+ */
 public class DeleteRequest extends Request {
 
     private QueryExpression query;
 
+    /**
+     * The query whose result set will be deleted
+     */
     public QueryExpression getQuery() {
         return query;
     }
 
+    /**
+     * The query whose result set will be deleted
+     */
     public void setQuery(QueryExpression q) {
         query=q;
     }        
 
+    /**
+     * Returns a Json node representation of the request
+     */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
         if(query!=null)
@@ -43,6 +55,11 @@ public class DeleteRequest extends Request {
         return node;
     }
 
+    /**
+     * Parses an object node and populates a DeleteRequest. It is up
+     * to the caller to make sure that the node is actually a
+     * DeleteRequest. Any unrecignized elements are ignored.
+     */
     public static DeleteRequest fromJson(ObjectNode node) {
         DeleteRequest req=new DeleteRequest();
         req.parse(node);

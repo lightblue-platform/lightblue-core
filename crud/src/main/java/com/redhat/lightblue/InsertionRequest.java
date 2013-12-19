@@ -23,27 +23,55 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.Projection;
 
+/**
+ * Request to insert documents
+ */
 public class InsertionRequest extends Request {
 
     private JsonNode entityData;
     private Projection returnFields;
 
+    /**
+     * The entity data to inserts. This can be an ObjectNode
+     * specifying one entity to be inserted, or an ArrayNode,
+     * specifying an array of entities to be inserted. All the
+     * inserted entities must be of the same type.
+     */
     public JsonNode getEntityData() {
         return entityData;
     }
 
+    /**
+     * The entity data to inserts. This can be an ObjectNode
+     * specifying one entity to be inserted, or an ArrayNode,
+     * specifying an array of entities to be inserted. All the
+     * inserted entities must be of the same type.
+     */
     public void setEntityData(JsonNode data) {
         this.entityData=data;
     }
 
+    /**
+     * Specifies the fields of the inserted entities to return. This
+     * can be used to retrieve the _id fields of the inserted
+     * entities.
+     */
     public Projection getReturnFields() {
         return returnFields;
     }
 
+    /**
+     * Specifies the fields of the inserted entities to return. This
+     * can be used to retrieve the _id fields of the inserted
+     * entities.
+     */
     public void setReturnFields(Projection p) {
         returnFields=p;
     }
-
+    
+    /**
+     * Returns JSON representation of this
+     */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
         if(entityData!=null)
@@ -53,6 +81,10 @@ public class InsertionRequest extends Request {
         return node;
     }
 
+    /**
+     * Parses an insertion request from a json object. Unrecognized
+     * elements are ignored.
+     */
     public static InsertionRequest fromJson(ObjectNode node) {
         InsertionRequest req=new InsertionRequest();
         req.parse(node);

@@ -18,6 +18,16 @@
 */
 package com.redhat.lightblue;
 
+/**
+ * The operation status
+ *
+ * <ul>
+ * <li>COMPLETE: Operation completed successfully</li>
+ * <li>PARTIAL: Some of the documents were inserted/updated, and some failed</li>
+ * <li>ASYNC: Execution continues asynchronously</li>
+ * <li>ERROR: None of the documents were updated because of errors</li>
+ * </ul>
+ */
 public enum OperationStatus {
     COMPLETE, PARTIAL, ASYNC, ERROR;
 }

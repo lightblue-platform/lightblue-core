@@ -29,27 +29,47 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Represents errors related to data in a document
+ */
 public class DataError extends JsonObject {
 
     private JsonNode entityData;
     private List<Error> errors;
 
+    /**
+     * The entity data for which these errors apply. Generated using
+     * the same projection as the API generated this error.
+     */
     public JsonNode getEntityData() {
         return entityData;
     }
 
+    /**
+     * The entity data for which these errors apply. Generated using
+     * the same projection as the API generated this error.
+     */
     public void setEntityData(JsonNode node) {
         entityData=node;
     }
 
+    /**
+     * List of errors for this document
+     */
     public List<Error> getErrors() {
         return errors;
     }
 
+    /**
+     * List of errors for this document
+     */
     public void setErrors(List<Error> e) {
         errors=e;
     }
 
+    /**
+     * converts this object to json representation
+     */
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
         if(entityData!=null)
@@ -62,7 +82,13 @@ public class DataError extends JsonObject {
         }
         return node;
     }
-    
+
+    /**
+     * Parses a Json object node and returns the DataError
+     * corresponding to it. It is up to the client to make sure that
+     * the object node is a DataError representation. Any unrecognized
+     * elements are ignored.
+     */
     public static DataError fromJson(ObjectNode node) {
         DataError error=new DataError();
         JsonNode x=node.get("data");

@@ -39,27 +39,39 @@ public final class EntityVersion {
         this.version=version;
     }
 
+    /**
+     * The entity name
+     */
     public String getEntity() {
         return entity;
     }
 
+    /**
+     * The entity name
+     */
     public void setEntity(String entity) {
         this.entity=entity;
     }
 
+    /**
+     * The entity version
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * The entity version
+     */
     public void setVersion(String v) {
         version=v;
     }
 
     public boolean equals(Object o) {
-        return equals((EntityVersion)o);
+        return equalsVersion((EntityVersion)o);
     }
 
-    public boolean equals(EntityVersion o) {
+    public boolean equalsVersion(EntityVersion o) {
         return o!=null&&
             ( (o.entity==null&&entity==null) ||
               (entity!=null&&entity.equals(o.entity)) ) &&
