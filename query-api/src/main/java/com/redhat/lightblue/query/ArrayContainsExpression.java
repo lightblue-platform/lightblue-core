@@ -30,13 +30,27 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Query of the form
+ * <pre>
+ * array_contains_expression := { array: <field>,  
+ *                               contains: "$any" | "$all" | "$none",  
+ *                               values: value_list_array }  
+ * </pre>
+ */
 public class ArrayContainsExpression extends  ArrayComparisonExpression {
     private Path array;
     private ContainsOperator op;
     private List<Value> values;
 
+    /**
+     * Default ctor
+     */
     public ArrayContainsExpression() {}
 
+    /**
+     * Ctor with the given values
+     */
     public ArrayContainsExpression(Path array,
                                    ContainsOperator op,
                                    List<Value> values) {
@@ -45,36 +59,64 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
         this.values=values;
     }
 
+    /**
+     * Ctor with multiple values
+     *
+     * @param array the array field
+     * @param op Operator
+     * @param v Values
+     */
     public ArrayContainsExpression(Path array,
                                    ContainsOperator op,
                                    Value... v) {
         this(array,op,Arrays.asList(v));
     }
 
+    /**
+     * The array field. If this is included in a nested query, relative to the context
+     */
     public Path getArray() {
         return this.array;
     }
 
+    /**
+     * The array field. If this is included in a nested query, relative to the context
+     */
     public void setArray(Path argArray) {
         this.array = argArray;
     }
 
+    /**
+     * Contains operator
+     */
     public ContainsOperator getOp() {
         return this.op;
     }
 
+    /**
+     * Contains operator
+     */
     public void setOp(ContainsOperator argOp) {
         this.op = argOp;
     }
 
+    /**
+     * The values
+     */
     public List<Value> getValues() {
         return values;
     }
 
+    /**
+     * The values
+     */
     public void setValues(List<Value> v) {
         this.values=v;
     }
 
+    /**
+     * Returns a json representation of the query
+     */
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
         for(Value x:values)
@@ -85,6 +127,9 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
             set("values",arr);
     }
 
+    /**
+     * Parses an ArrayContainsExpression from a JSON object node.
+     */
     public static ArrayContainsExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("array");
         if(x!=null) {

@@ -30,14 +30,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Represents a query of the form
+ * <pre>
+ * nary_relational_expression := { field: <field>,  
+ *                                op: nary_comparison_operator,  
+ *                                values: value_list_array }  
+ * </pre>
+ */
 public class NaryRelationalExpression extends RelationalExpression {
 
     private Path field;
     private NaryRelationalOperator op;
     private List<Value> values;
     
+    /**
+     * Default ctor
+     */
     public NaryRelationalExpression() {}
 
+    /**
+     * Ctor with the given values
+     */
     public NaryRelationalExpression(Path field,
                                     NaryRelationalOperator op,
                                     List<Value> values) {
@@ -46,36 +60,60 @@ public class NaryRelationalExpression extends RelationalExpression {
         this.values=values;
     }
 
+    /**
+     * Ctor with the given values
+     */
     public NaryRelationalExpression(Path field,
                                     NaryRelationalOperator op,
                                     Value... v) {
         this(field,op,Arrays.asList(v));
     }
 
+    /**
+     * The field. If this is a nested query, the field is relative to the context
+     */
     public Path getField() {
         return this.field;
     }
 
+    /**
+     * The field. If this is a nested query, the field is relative to the context
+     */
     public void setField(Path argField) {
         this.field = argField;
     }
 
+    /**
+     * The operator
+     */
     public NaryRelationalOperator getOp() {
         return this.op;
     }
 
+    /**
+     * The operator
+     */
     public void setOp(NaryRelationalOperator argOp) {
         this.op = argOp;
     }
 
+    /**
+     * List of values against which to compare the field
+     */
     public List<Value> getValues() {
         return values;
     }
 
+    /**
+     * List of values against which to compare the field
+     */
     public void setValues(List<Value> v) {
         this.values=v;
     }
 
+    /**
+     * Returns a json representation of this query
+     */
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
         for(Value x:values)
@@ -85,6 +123,9 @@ public class NaryRelationalExpression extends RelationalExpression {
             set("values",arr);
     }
 
+    /**
+     * Parses an n-ary relational expression from the given json object
+     */
     public static NaryRelationalExpression fromJson(ObjectNode node) {
         if(node.size()==3) {
             JsonNode x=node.get("op");

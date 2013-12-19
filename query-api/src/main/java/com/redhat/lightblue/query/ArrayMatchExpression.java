@@ -24,39 +24,70 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Represents a query of the form
+ * <pre>
+ * array_match_expression := {array: <field>,  
+ *                            elemMatch: query_expression }  
+ * </pre>
+ */
 public class ArrayMatchExpression extends ArrayComparisonExpression {
     private Path array;
     private QueryExpression elemMatch;
 
+    /**
+     * Default ctor
+     */
     public ArrayMatchExpression() {}
 
+    /**
+     * Ctor with the given values
+     */
     public ArrayMatchExpression(Path array,
                                 QueryExpression elemMatch) {
         this.array=array;
         this.elemMatch=elemMatch;
     }
 
+    /**
+     * The array field. If this is a nested query, relative to the context
+     */
     public Path getArray() {
         return this.array;
     }
 
+    /**
+     * The array field. If this is a nested query, relative to the context
+     */
     public void setArray(Path argArray) {
         this.array = argArray;
     }
 
+    /**
+     * The nested query that will be matched agains array elements
+     */
     public QueryExpression getElemMatch() {
         return this.elemMatch;
     }
 
+    /**
+     * The nested query that will be matched agains array elements
+     */
     public void setElemMatch(QueryExpression argElemMatch) {
         this.elemMatch = argElemMatch;
     }
 
+    /**
+     * Returns JSON representation of this query
+     */
     public JsonNode toJson() {
         return factory.objectNode().put("array",array.toString()).
             set("elemMatch",elemMatch.toJson());
     }
 
+    /**
+     * Parses an array match expression from the given json object
+     */
     public static ArrayMatchExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("array");
         if(x!=null) {

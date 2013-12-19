@@ -70,11 +70,17 @@ public class UnaryLogicalExpression extends LogicalExpression {
         this.query = argQuery;
     }
 
+    /**
+     * Returns a json representation of the query
+     */
     @Override
     public JsonNode toJson() {
         return factory.objectNode().set(op.toString(),query.toJson());
     }
 
+    /**
+     * Parses a unary logical expression using the given object node
+     */
     public static UnaryLogicalExpression fromJson(ObjectNode node) {
         if(node.size()!=1)
             throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());

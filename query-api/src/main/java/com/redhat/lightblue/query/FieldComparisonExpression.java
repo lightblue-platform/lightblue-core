@@ -22,6 +22,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Path;
 
+/**
+ * Represents a field comparison query of the form
+ * <pre>
+ * field_comparison_expression := { field: <field>,  
+ *                                 op: binary_comparison_operator,  
+ *                                 rfield: <field> }  
+ * </pre>
+ */
 public class FieldComparisonExpression 
     extends BinaryRelationalExpression {
 
@@ -29,8 +37,14 @@ public class FieldComparisonExpression
     private BinaryComparisonOperator op;
     private Path rfield;
 
+    /**
+     * Default ctor
+     */
     public FieldComparisonExpression() {}
 
+    /**
+     * Ctor with the given values
+     */
     public FieldComparisonExpression(Path field,
                                      BinaryComparisonOperator op,
                                      Path rfield) {
@@ -39,30 +53,51 @@ public class FieldComparisonExpression
         this.rfield=rfield;
     }
 
+    /**
+     * The field on the left side of the operator
+     */
     public Path getField() {
         return this.field;
     }
 
+    /**
+     * The field on the left side of the operator
+     */
     public void setField(Path argField) {
         this.field = argField;
     }
 
+    /**
+     * The comparison operator
+     */
     public BinaryComparisonOperator getOp() {
         return this.op;
     }
 
+    /**
+     * The comparison operator
+     */
     public void setOp(BinaryComparisonOperator argOp) {
         this.op = argOp;
     }
 
+    /**
+     * The field on the right side of the operator
+     */
     public Path getRfield() {
         return this.rfield;
     }
 
+    /**
+     * The field on the right side of the operator
+     */
     public void setRfield(Path argRfield) {
         this.rfield = argRfield;
     }
 
+    /**
+     * Returns json representation of the query
+     */
     public JsonNode toJson() {
         return factory.objectNode().put("field",field.toString()).
             put("op",op.toString()).

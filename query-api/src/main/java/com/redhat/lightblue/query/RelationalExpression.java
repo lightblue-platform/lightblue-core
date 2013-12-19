@@ -28,6 +28,9 @@ import com.redhat.lightblue.util.Error;
  */
 public abstract class RelationalExpression extends ComparisonExpression {
 
+    /**
+     * Parses a relational expression using the given object node
+     */
     public static RelationalExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("regex");
         if(x!=null)

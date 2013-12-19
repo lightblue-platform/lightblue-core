@@ -99,6 +99,9 @@ public class ValueComparisonExpression
         this.rvalue = argValue;
     }
 
+    /**
+     * Returns the json representation of the query
+     */
     @Override
     public JsonNode toJson() {
         return factory.objectNode().put("field",field.toString()).

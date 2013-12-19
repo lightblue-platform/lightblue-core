@@ -24,10 +24,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Base class for array contains and array match expressions
+ */
 public abstract class ArrayComparisonExpression extends ComparisonExpression {
 
     public static final String INVALID_ARRAY_COMPARISON_EXPRESSION="INVALID_ARRAY_COMPARISON_EXPRESSION";
 
+    /**
+     * Parses an array contains or array match expression from the given object node
+     */
     public static ArrayComparisonExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("contains");
         if(x!=null)

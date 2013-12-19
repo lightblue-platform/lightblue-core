@@ -29,40 +29,70 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Represents a query of the form
+ * <pre>
+ * { nary_logical_operator : [ query_expression,...] }  
+ * </pre>
+ */
 public class NaryLogicalExpression extends LogicalExpression {
 
     private NaryLogicalOperator op;
     private List<QueryExpression> queries;
     
+    /**
+     * Default ctor
+     */
     public NaryLogicalExpression() {}
 
+    /**
+     * Ctor with the given values
+     */
     public NaryLogicalExpression(NaryLogicalOperator op,
                                  List<QueryExpression> queries) {
         this.op=op;
         this.queries=queries;
     }
 
+    /**
+     * Contructs an n-ary logical expression with the given expressions
+     */
     public NaryLogicalExpression(NaryLogicalOperator op,QueryExpression... q) {
         this.op=op;
         this.queries=Arrays.asList(q);
     }
 
+    /**
+     * The operator
+     */
     public NaryLogicalOperator getOp() {
         return this.op;
     }
 
+    /**
+     * The operator
+     */
     public void setOp(NaryLogicalOperator argOp) {
         this.op = argOp;
     }
 
+    /**
+     * The nested queries
+     */
     public List<QueryExpression> getQueries() {
         return this.queries;
     }
 
+    /**
+     * The nested queries
+     */
     public void setQueries(List<QueryExpression> argQuery) {
         this.queries = argQuery;
     }
 
+    /**
+     * Returns a json representation of this query
+     */
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
         for(QueryExpression x:queries)
@@ -70,6 +100,9 @@ public class NaryLogicalExpression extends LogicalExpression {
         return factory.objectNode().set(op.toString(),arr);
     }
 
+    /**
+     * Parses an n-ary logical expression from the given json object
+     */
     public static NaryLogicalExpression fromJson(ObjectNode node) {
         if(node.size()!=1)
             throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());

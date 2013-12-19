@@ -31,6 +31,9 @@ public abstract class QueryExpression extends JsonObject {
 
     public static final String INVALID_QUERY="INVALID_QUERY";
 
+    /**
+     * Parses a query expression from the given json node
+     */
     public static QueryExpression fromJson(JsonNode node) {
         if(node instanceof ObjectNode) {
             ObjectNode onode=(ObjectNode)node;

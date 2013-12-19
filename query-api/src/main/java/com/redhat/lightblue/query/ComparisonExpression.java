@@ -23,10 +23,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Base class for comparison expressions
+ */
 public abstract class ComparisonExpression extends QueryExpression {
 
     public static final String INVALID_COMPARISON_EXPRESSION="INVALID_COMPARISON_EXPRESSION";
 
+    /**
+     * Parses a relational expression or an array comparison
+     * expression from the given json object
+     */
     public static ComparisonExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("field");
         if(x!=null)

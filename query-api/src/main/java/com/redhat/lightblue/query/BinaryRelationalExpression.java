@@ -24,9 +24,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
+/**
+ * Base class for all binary relational expression
+ */
 public abstract class BinaryRelationalExpression 
     extends RelationalExpression {
-
+    
+    /**
+     * Parses a field comparison or value comparison expression from
+     * the given json object
+     */
     public static BinaryRelationalExpression fromJson(ObjectNode node) {
         if(node.size()==3) {
             JsonNode x=node.get("op");
