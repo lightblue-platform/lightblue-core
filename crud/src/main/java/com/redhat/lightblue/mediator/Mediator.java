@@ -20,6 +20,7 @@ package com.redhat.lightblue.mediator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,14 +28,19 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.controller.Factory;
 import com.redhat.lightblue.controller.ConstraintValidator;
+
+import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
 
 import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.SaveRequest;
@@ -43,12 +49,20 @@ import com.redhat.lightblue.FindRequest;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.DeleteRequest;
+import com.redhat.lightblue.OperationStatus;
 
+/**
+ * The mediator looks at a request, performs basic validation, and
+ * passes the operation to one or more of the controllers based on the
+ * request attributes.
+ */
 public class Mediator {
 
     public static final String ERR_CRUD="CRUD";
 
     private static final Logger logger=LoggerFactory.getLogger(Mediator.class);
+
+    private static final JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
 
     private final Metadata metadata;
     private final Factory factory;
@@ -59,6 +73,16 @@ public class Mediator {
         this.factory=factory;
     }
 
+    /**
+     * Inserts data
+     *
+     * @param req Insertion request
+     *
+     * First, the mediator performs constraint validation. All the
+     * constraints that can be validated at this level without the
+     * knowledge of the underlying backed are validated. Then the
+     * request is transferred to the CRUD controller for the entity.
+     */
     public Response insert(InsertionRequest req) {
         logger.debug("insert {}",req.getEntity());
         Error.push("insert("+req.getEntity().toString()+")");
@@ -66,10 +90,28 @@ public class Mediator {
         try {
             OperationContext ctx=getOperationContext(req,response,req.getEntityData(),Operation.INSERT);
             
-            ConstraintValidator constraintValidator=factory.getConstraintValidator(ctx.getEntityMetadata(req.getEntity().getEntity()));
+            EntityMetadata md=ctx.getEntityMetadata(req.getEntity().getEntity());
+            logger.debug("Constraint validation");
+            ConstraintValidator constraintValidator=factory.getConstraintValidator(md);
             constraintValidator.validateDocs(ctx.getDocs());
             if(!constraintValidator.hasErrors()) {
-            }
+                logger.debug("Constraint validation has no errors");
+                CRUDController controller=factory.getCRUDController(md);
+                logger.debug("CRUD controller={}",controller.getClass().getName());
+                CRUDInsertionResponse insertionResponse=controller.insert(ctx,ctx.getDocs(),req.getReturnFields());
+                response.setEntityData(toJsonDocList(insertionResponse.getDocuments(),nodeFactory));
+                if(insertionResponse.getDataErrors()!=null)
+                    response.getDataErrors().addAll(insertionResponse.getDataErrors());
+                if(insertionResponse.getErrors()!=null)
+                    response.getErrors().addAll(insertionResponse.getErrors());
+                response.setModifiedCount(insertionResponse.getDocuments().size());
+                if(insertionResponse.getDocuments().size()==ctx.getDocs().size())
+                    response.setStatus(OperationStatus.COMPLETE);
+                else if(!insertionResponse.getDocuments().isEmpty())
+                    response.setStatus(OperationStatus.PARTIAL);
+                else
+                    response.setStatus(OperationStatus.ERROR);
+           }
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -155,6 +197,37 @@ public class Mediator {
         return response;
     }
 
+    private List<JsonDoc> fromJsonDocList(JsonNode data) {
+        ArrayList<JsonDoc> docs=null;
+        if(data!=null) {
+            if(data instanceof ArrayNode) {
+                docs=new ArrayList<JsonDoc>(((ArrayNode)data).size());
+                for(Iterator<JsonNode> itr=((ArrayNode)data).elements();
+                    itr.hasNext();)
+                    docs.add(new JsonDoc(itr.next()));
+            } else if(data instanceof ObjectNode) {
+                docs=new ArrayList<JsonDoc>(1);
+                docs.add(new JsonDoc(data));
+            } 
+        }
+        return docs;
+    }
+
+    private JsonNode toJsonDocList(List<JsonDoc> docs,JsonNodeFactory nodeFactory) {
+        if(docs==null)
+            return null;
+        else if(docs.isEmpty())
+            return nodeFactory.arrayNode();
+        else if(docs.size()==1) 
+            return docs.get(0).getRoot();
+        else {
+            ArrayNode node=nodeFactory.arrayNode();
+            for(JsonDoc doc:docs)
+                node.add(doc.getRoot());
+            return node;
+        }
+    }
+
     private OperationContext getOperationContext(Request req,
                                                  Response resp,
                                                  JsonNode entityData,
@@ -169,21 +242,9 @@ public class Mediator {
                                  factory);
         ctx.setOperation(op);
         logger.debug("metadata retrieved for {}",req.getEntity());
-        if(entityData!=null) {
-            ArrayList<JsonDoc> docs;
-            if(entityData instanceof ArrayNode) {
-                docs=new ArrayList<JsonDoc>(((ArrayNode)entityData).size());
-                for(Iterator<JsonNode> itr=((ArrayNode)entityData).elements();
-                    itr.hasNext();)
-                    docs.add(new JsonDoc(itr.next()));
-            } else if(entityData instanceof ObjectNode) {
-                docs=new ArrayList<JsonDoc>(1);
-                docs.add(new JsonDoc(entityData));
-            }  else
-                docs=null;
-            logger.debug("There are {} docs in request",docs.size());
-            ctx.setDocs(docs);
-        }
+        ctx.setDocs(fromJsonDocList(entityData));
+        if(ctx.getDocs()!=null)
+            logger.debug("There are {} docs in request",ctx.getDocs().size());
         logger.debug("getOperationContext return");
         return ctx;
     }
