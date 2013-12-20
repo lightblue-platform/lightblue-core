@@ -41,6 +41,7 @@ import com.redhat.lightblue.controller.ConstraintValidator;
 
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDFindResponse;
 
 import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.SaveRequest;
@@ -191,13 +192,22 @@ public class Mediator {
         logger.debug("find {}",req.getEntity());
         Error.push("find("+req.getEntity().toString()+")");
         Response response=new Response();
+        response.setStatus(OperationStatus.ERROR);
         try {
             OperationContext ctx=getOperationContext(req,response,null,Operation.FIND);
             EntityMetadata md=ctx.getEntityMetadata(req.getEntity().getEntity());
             CRUDController controller=factory.getCRUDController(md);
             logger.debug("CRUD controller={}",controller.getClass().getName());
-
-
+            CRUDFindResponse result=controller.find(ctx,
+                                                    req.getEntity().getEntity(),
+                                                    req.getQuery(),
+                                                    req.getProjection(),
+                                                    req.getSort(),
+                                                    req.getFrom(),
+                                                    req.getTo());
+            response.setStatus(OperationStatus.COMPLETE);
+            response.setMatchCount(result.getSize());
+            response.setEntityData(toJsonDocList(result.getResults(),nodeFactory));
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {

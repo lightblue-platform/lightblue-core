@@ -60,7 +60,6 @@ public class ArrayRangeProjector extends Projector {
             lastMatch=true;
             // Is this array element in range?
             int index=p.getIndex(p.numSegments()-1);
-            System.out.println("index="+index+" from="+from+" to="+to);
             if(index>=from&&index<=to) 
                 // This array element is selected.
                 return include?Boolean.TRUE:Boolean.FALSE;

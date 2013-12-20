@@ -19,7 +19,7 @@
 
 package com.redhat.lightblue.util;
 
-public class Util {
+public final class Util {
 
     public static boolean isNumber(String value) {
         if (value != null) {

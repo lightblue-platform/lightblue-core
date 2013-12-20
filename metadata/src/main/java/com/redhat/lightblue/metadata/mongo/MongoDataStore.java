@@ -110,7 +110,10 @@ public class MongoDataStore implements DataStore, Serializable {
     }
     
     public boolean equals(Object x) {
-        return equals((MongoDataStore)x);
+        try {
+            return equals((MongoDataStore)x);
+        } catch (Exception e) {}
+        return false;
     }
 
     public boolean equals(MongoDataStore x) {

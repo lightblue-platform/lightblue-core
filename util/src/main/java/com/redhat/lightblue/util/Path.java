@@ -57,12 +57,14 @@ import java.util.ArrayList;
  */
 public class Path implements Comparable<Path>, Serializable  {
 
+    private static final long serialVersionUID=1l;
+
     public static final String ANY="*";
 
     public static final Path EMPTY=new Path();
     public static final Path ANYPATH=new Path(ANY);
 
-    class PathRep implements Serializable {
+    static class PathRep {        
         ArrayList<String> segments;
         transient String stringValue=null;
         transient int hashValue=0;
@@ -404,6 +406,7 @@ public class Path implements Comparable<Path>, Serializable  {
         return new Path(this,p);
     }
     
+    @Override
     public boolean equals(Object x) {
         if(x!=null&&x instanceof Path)
             return ((Path)x).data.equals(data);
@@ -411,10 +414,12 @@ public class Path implements Comparable<Path>, Serializable  {
             return false;
     }
 
+    @Override
     public int compareTo(Path x) {
         return x==null?-1:data.compareTo(x.data);
     }
 
+    @Override
     public String toString() {
         return data.toString();
     }

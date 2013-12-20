@@ -55,7 +55,6 @@ public class MongoMetadata implements Metadata {
 
     public static final String DEFAULT_METADATA_COLLECTION="metadata";
 
-    private final DB db;
     private final DBCollection collection;
 
     private final BSONParser mdParser;
@@ -64,7 +63,6 @@ public class MongoMetadata implements Metadata {
                          String metadataCollection,
                          Extensions<BSONObject> parserExtensions,
                          TypeResolver typeResolver) {
-        this.db=db;
         this.collection=db.getCollection(metadataCollection);
         this.mdParser=new BSONParser(parserExtensions,typeResolver);
     }

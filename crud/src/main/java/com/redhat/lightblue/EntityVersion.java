@@ -68,7 +68,10 @@ public final class EntityVersion {
     }
 
     public boolean equals(Object o) {
-        return equalsVersion((EntityVersion)o);
+        try {
+            return equalsVersion((EntityVersion)o);
+        } catch (Exception e) {}
+        return false;
     }
 
     public boolean equalsVersion(EntityVersion o) {

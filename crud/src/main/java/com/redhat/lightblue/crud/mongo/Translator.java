@@ -250,13 +250,13 @@ public class Translator {
         else if(query instanceof ArrayMatchExpression)
             ret=translateArrayElemMatch(context,(ArrayMatchExpression)query);
         else if(query instanceof FieldComparisonExpression)
-            ret=translateFieldComparison(context,(FieldComparisonExpression)query);
+            ret=translateFieldComparison((FieldComparisonExpression)query);
         else if(query instanceof NaryLogicalExpression)
             ret=translateNaryLogicalExpression(context,(NaryLogicalExpression)query);
         else if(query instanceof NaryRelationalExpression)
             ret=translateNaryRelationalExpression(context,(NaryRelationalExpression)query);
         else if(query instanceof RegexMatchExpression)
-            ret=translateRegexMatchExpression(context,(RegexMatchExpression)query);
+            ret=translateRegexMatchExpression((RegexMatchExpression)query);
         else if(query instanceof UnaryLogicalExpression)
             ret=translateUnaryLogicalExpression(context,(UnaryLogicalExpression)query);
         else
@@ -307,7 +307,7 @@ public class Translator {
                                  
     }
 
-    private DBObject translateRegexMatchExpression(FieldTreeNode context,RegexMatchExpression expr) {
+    private DBObject translateRegexMatchExpression(RegexMatchExpression expr) {
         StringBuilder options=new StringBuilder();
         BasicDBObject regex=new BasicDBObject("$regex",expr.getRegex());
         if(expr.isCaseInsensitive())
@@ -347,7 +347,7 @@ public class Translator {
         return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()),list);
     }
 
-    private DBObject translateFieldComparison(FieldTreeNode context,FieldComparisonExpression expr) {
+    private DBObject translateFieldComparison(FieldComparisonExpression expr) {
         StringBuilder str=new StringBuilder(64);
         str.append("this.").
             append(expr.getField().toString()).
