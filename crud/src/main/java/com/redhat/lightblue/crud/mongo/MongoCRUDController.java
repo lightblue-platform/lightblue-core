@@ -34,6 +34,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.MongoException;
+import com.mongodb.BasicDBObject;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
@@ -65,8 +66,13 @@ public class MongoCRUDController implements CRUDController {
     public static final String ERR_INVALID_OBJECT="INVALID_OBJECT";
     public static final String ERR_DUPLICATE="DUPLICATE";
     public static final String ERR_INSERTION_ERROR="INSERTION_ERROR";
+    public static final String ERR_SAVE_ERROR="SAVE_ERROR";
+
+    public static final String ID_STR="_id";
 
     private static final String OP_INSERT="insert";
+    private static final String OP_SAVE="save";
+    private static final String OP_FIND="find";
 
     private static final Logger logger=LoggerFactory.getLogger(MongoCRUDController.class);
 
@@ -168,7 +174,86 @@ public class MongoCRUDController implements CRUDController {
                                  List<JsonDoc> documents,
                                  boolean upsert,
                                  Projection projection) {
-        return null;
+        if(documents==null||documents.isEmpty()) {
+            throw new IllegalArgumentException("Empty documents");
+        }
+        logger.debug("save() start");
+        Error.push(OP_SAVE);
+        Translator translator=new Translator(resolver,factory);
+        CRUDSaveResponse response=new CRUDSaveResponse();
+        try {
+            logger.debug("save: Translating docs");
+            DBObject[] dbObjects=translator.toBson(documents);
+            if(dbObjects!=null) {
+                logger.debug("save: {} docs translated to bson",dbObjects.length);
+                logger.debug("save: saving docs");
+                Map<DBObject,List<Error>> errorMap=new HashMap<DBObject,List<Error>>();
+                // Group docs by collection
+                DocIndex index=new DocIndex(resolver,dbResolver);
+                for(DBObject obj:dbObjects) {
+                    index.addDoc(obj);
+                }
+                Set<MongoDataStore> stores=index.getDataStores();
+                List<DBObject> successfulUpdates=new ArrayList<DBObject>(documents.size());
+                for(MongoDataStore store:stores) {
+                    List<DBObject> docs=index.getDocs(store);
+                    logger.debug("saving {} docs into collection {}",docs.size(),store);
+                    DBCollection collection=index.getDBCollection(store);
+                    for(DBObject doc:docs) {
+                        try {
+                            WriteResult result;
+                            Object x=doc.get(ID_STR);
+                            if(x==null)
+                                result=collection.insert(doc,WriteConcern.SAFE);
+                            else 
+                                result=collection.update(new BasicDBObject(ID_STR,x),doc,upsert,false,WriteConcern.SAFE);
+                            String error=result.getError();
+                            if(error!=null) {
+                                addErrorToMap(errorMap,doc,OP_SAVE,ERR_SAVE_ERROR,error);
+                            } else {
+                                successfulUpdates.add(doc);
+                            }
+                        } catch(MongoException.DuplicateKey dke) {
+                            addErrorToMap(errorMap,doc,OP_SAVE,ERR_DUPLICATE,dke.toString());
+                        } catch(Exception e) {
+                            addErrorToMap(errorMap,doc,OP_SAVE,ERR_SAVE_ERROR,e.toString());
+                        } 
+                    }
+                }
+                logger.debug("save comlete, {} sucessful updates",successfulUpdates.size());
+                // Build projectors and translate docs
+                Map<String,Projector> projectorMap=buildProjectorMap(projection,
+                                                                     index.getObjectTypes(),
+                                                                     resolver);
+                if(!successfulUpdates.isEmpty()) {
+                    ArrayList<JsonDoc> resultDocs=new ArrayList<JsonDoc>(successfulUpdates.size());
+                    for(DBObject doc:successfulUpdates) { 
+                        resultDocs.add(translateAndProject(doc,translator,projectorMap));
+                    }
+                    response.setDocuments(resultDocs);
+                }
+                // Reorganize errors
+                List<DataError> dataErrors=new ArrayList<DataError>();
+                for(Map.Entry<DBObject,List<Error>> entry:errorMap.entrySet()) {
+                    JsonDoc errorDoc;
+                    if(projection!=null) {
+                        errorDoc=translateAndProject(entry.getKey(),translator,projectorMap);
+                    } else {
+                        errorDoc=null;
+                    }
+                    DataError error=new DataError();
+                    if(errorDoc!=null) {
+                        error.setEntityData(errorDoc.getRoot());
+                    }
+                    error.setErrors(entry.getValue());
+                }
+                response.setDataErrors(dataErrors);
+            }
+        } finally {
+            Error.pop();
+        }
+        logger.debug("save() end: {} docs requested, {} saved",documents.size(),response.getDocuments().size());
+        return response;
     }
 
    /**
@@ -189,7 +274,7 @@ public class MongoCRUDController implements CRUDController {
             throw new IllegalArgumentException("Null projection");
         }
         logger.debug("find start: q:{} p:{} sort:{} from:{} to:{}",query,projection,sort,from,to);
-        Error.push("find");
+        Error.push(OP_FIND);
         CRUDFindResponse response=new CRUDFindResponse();
         Translator translator=new Translator(resolver,factory);
         try {
