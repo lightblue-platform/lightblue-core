@@ -35,10 +35,10 @@ public class EntityMetadata implements Serializable {
     private final String name;
     private Version version;
     private MetadataStatus status;
-    private final List<StatusChange> statusChangeLog=new ArrayList<StatusChange>();
+    private final ArrayList<StatusChange> statusChangeLog=new ArrayList<StatusChange>();
     //hooks
     private final EntityAccess access = new EntityAccess();
-    private final List<EntityConstraint> constraints = new ArrayList<EntityConstraint>();
+    private final ArrayList<EntityConstraint> constraints = new ArrayList<EntityConstraint>();
     private DataStore dataStore;
     private final Fields fields = new Fields();
 

@@ -32,7 +32,7 @@ import com.redhat.lightblue.util.Path;
  */
 public abstract class AbstractTreeCursor<N> {
 
-    private final List<LevelState<N>> stack=new LinkedList<LevelState<N>>();
+    private final LinkedList<LevelState<N>> stack=new LinkedList<LevelState<N>>();
     private MutablePath currentPath;
     private N currentNode;
 

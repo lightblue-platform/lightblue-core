@@ -42,6 +42,7 @@ import com.redhat.lightblue.controller.ConstraintValidator;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
 
 import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.SaveRequest;
@@ -133,11 +134,30 @@ public class Mediator {
         try {
             OperationContext ctx=getOperationContext(req,response,req.getEntityData(),Operation.SAVE);
 
+            EntityMetadata md=ctx.getEntityMetadata(req.getEntity().getEntity());
             ConstraintValidator constraintValidator=factory.getConstraintValidator(ctx.getEntityMetadata(req.getEntity().getEntity()));
             constraintValidator.validateDocs(ctx.getDocs());
             if(!constraintValidator.hasErrors()) {
-            }
-            
+                logger.debug("Constraint validation has no errors");
+                CRUDController controller=factory.getCRUDController(md);
+                logger.debug("CRUD controller={}",controller.getClass().getName());
+                CRUDSaveResponse saveResponse=controller.save(ctx,ctx.getDocs(),req.isUpsert(),req.getReturnFields());
+                response.setEntityData(toJsonDocList(saveResponse.getDocuments(),nodeFactory));
+                if(saveResponse.getDataErrors()!=null) {
+                    response.getDataErrors().addAll(saveResponse.getDataErrors());
+                }
+                if(saveResponse.getErrors()!=null) {
+                    response.getErrors().addAll(saveResponse.getErrors());
+                }
+                response.setModifiedCount(saveResponse.getDocuments().size());
+                if(saveResponse.getDocuments().size()==ctx.getDocs().size()) {
+                    response.setStatus(OperationStatus.COMPLETE);
+                } else if(!saveResponse.getDocuments().isEmpty()) {
+                    response.setStatus(OperationStatus.PARTIAL);
+                } else {
+                    response.setStatus(OperationStatus.ERROR);
+                }
+             }
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {

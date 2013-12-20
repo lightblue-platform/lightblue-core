@@ -31,7 +31,7 @@ public class Access implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private final Set<String> values = new HashSet<String>();
+    private final HashSet<String> values = new HashSet<String>();
     
     /**
      * Default ctor

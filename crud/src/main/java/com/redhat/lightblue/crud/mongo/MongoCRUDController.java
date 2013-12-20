@@ -57,6 +57,7 @@ import com.redhat.lightblue.eval.QueryEvaluationContext;
 
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDController;
 
 public class MongoCRUDController implements CRUDController {
@@ -162,7 +163,15 @@ public class MongoCRUDController implements CRUDController {
         return response;
     }
 
-    /**
+    @Override
+    public CRUDSaveResponse save(MetadataResolver resolver,
+                                 List<JsonDoc> documents,
+                                 boolean upsert,
+                                 Projection projection) {
+        return null;
+    }
+
+   /**
      * Search implementation for mongo
      */
     @Override
