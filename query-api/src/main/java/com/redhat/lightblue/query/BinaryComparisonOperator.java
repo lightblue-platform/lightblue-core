@@ -47,8 +47,9 @@ public enum BinaryComparisonOperator {
     }    
                 
     private void init(Map<String,BinaryComparisonOperator> map) {
-        for(String x:ops)
+        for(String x:ops) {
             map.put(x,this);
+        }
     }
 
     private BinaryComparisonOperator(String... op) {

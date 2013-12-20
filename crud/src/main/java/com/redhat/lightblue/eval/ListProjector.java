@@ -38,8 +38,9 @@ public class ListProjector extends Projector {
         super(ctxPath,ctx);
         List<Projection> projections=l.getItems();
         items=new ArrayList<Projector>(projections.size());
-        for(Projection x:projections)
+        for(Projection x:projections) {
             items.add(Projector.getInstance(x,ctxPath,ctx));
+        }
     }
 
     @Override

@@ -42,8 +42,9 @@ public class UniqueConstraintParser<T> implements EntityConstraintParser<T> {
         UniqueConstraint ret=new UniqueConstraint();
         List<String> values=p.getStringList(node,UniqueConstraint.UNIQUE);
         ArrayList<Path> l=new ArrayList<Path>();
-        for(String x:values) 
+        for(String x:values) {
             l.add(new Path(x));
+        }
         ret.setFields(l);
         return ret;
     }
@@ -54,8 +55,9 @@ public class UniqueConstraintParser<T> implements EntityConstraintParser<T> {
     @Override
     public void convert(MetadataParser<T> p,T emptyNode,EntityConstraint object) {
         Object arr=p.newArrayField(emptyNode,UniqueConstraint.UNIQUE);
-        for(Path x:((UniqueConstraint)object).getFields())
+        for(Path x:((UniqueConstraint)object).getFields()) {
             p.addStringToArray(arr,x.toString());
+        }
     }
 }
 

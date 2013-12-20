@@ -83,12 +83,14 @@ public class Path implements Comparable<Path>, Serializable  {
             int k=data.segments.size();
             segments=new ArrayList<String>(k);
             int n;
-            if(x>=0)
+            if(x>=0) {
                 n=k>x?x:k;
-            else
+            } else {
                 n=k+x;
-            for(int i=0;i<n;i++)
+            }
+            for(int i=0;i<n;i++) {
                 segments.add(data.segments.get(i));
+            }
         }
 
         public void resetState() {
@@ -114,16 +116,18 @@ public class Path implements Comparable<Path>, Serializable  {
         public void shiftLeft(int from) {
             if(from>0) {
                 int n=segments.size();
-                if(from>=n)
+                if(from>=n) {
                     segments.clear();
-                else {
+                } else {
                     int k=n-from;
                     int to=0;
-                    for(int i=0;i<k;i++)
+                    for(int i=0;i<k;i++) {
                         segments.set(to++,segments.get(from++));
+                    }
                     k=n-k;
-                    for(int i=0;i<k;i++)
+                    for(int i=0;i<k;i++) {
                         segments.remove(--n);
+                    }
                 }
             }
         }
@@ -135,8 +139,9 @@ public class Path implements Comparable<Path>, Serializable  {
             int index=0;
             while(index<n) {
                 int cmp=segments.get(index).compareTo(x.segments.get(index));
-                if(cmp!=0)
+                if(cmp!=0) {
                     return cmp;
+                }
                 index++;
             }
             return tn-xn;
@@ -147,11 +152,12 @@ public class Path implements Comparable<Path>, Serializable  {
                 StringBuilder buf=new StringBuilder(segments.size()*8);
                 boolean first=true;
                 for(String x:segments) {
-                if(first)
-                    first=false;
-                else
-                    buf.append('.');
-                buf.append(x);
+                    if(first) {
+                        first=false;
+                    } else {
+                        buf.append('.');
+                    }
+                    buf.append(x);
                 }
                 stringValue=buf.toString();
             }
@@ -290,9 +296,11 @@ public class Path implements Comparable<Path>, Serializable  {
      */
     public int nAnys() {
         int n=0;
-        for(String x:data.segments)
-            if(ANY.equals(x))
+        for(String x:data.segments) {
+            if(ANY.equals(x)) {
                 n++;
+            }
+        }
         return n;
     }
 
@@ -338,13 +346,15 @@ public class Path implements Comparable<Path>, Serializable  {
         }
         int n=p.data.segments.size();
         if(x>=0) {
-            if(x>n)
+            if(x>n) {
                 x=n;
+            }
             p.data.shiftLeft(n-x);
         } else {
             x=-x;
-            if(x>n)
+            if(x>n) {
                 x=n;
+            }
             p.data.shiftLeft(x);
         }
             
@@ -363,8 +373,9 @@ public class Path implements Comparable<Path>, Serializable  {
             for(int i=0;i<n;i++) {
                 String pat=pattern.data.segments.get(i);
                 String val=data.segments.get(i);
-                if(!(val.equals(pat)||pat.equals(ANY)))
+                if(!(val.equals(pat)||pat.equals(ANY))) {
                     return false;
+                }
             }
             return true;
         }
@@ -378,10 +389,11 @@ public class Path implements Comparable<Path>, Serializable  {
      */
     public boolean matchingDescendant(Path pattern) {
         int n=pattern.numSegments();
-        if(n<numSegments())
+        if(n<numSegments()) {
             return prefix(n).matches(pattern);
-        else if(n==numSegments())
+        } else if(n==numSegments()) {
             return matches(pattern);
+        }
         return false;
     }
 
@@ -392,10 +404,11 @@ public class Path implements Comparable<Path>, Serializable  {
      */
     public boolean matchingPrefix(Path pattern) {
         int n=pattern.numSegments();
-        if(n>numSegments())
+        if(n>numSegments()) {
             return matches(pattern.prefix(numSegments()));
-        else if(n==numSegments())
+        } else if(n==numSegments()) {
             return matches(pattern);
+        }
         return false;
     }
 
@@ -408,10 +421,11 @@ public class Path implements Comparable<Path>, Serializable  {
     
     @Override
     public boolean equals(Object x) {
-        if(x!=null&&x instanceof Path)
+        if(x!=null&&x instanceof Path) {
             return ((Path)x).data.equals(data);
-        else
+        } else {
             return false;
+        }
     }
 
     @Override
@@ -439,13 +453,14 @@ public class Path implements Comparable<Path>, Serializable  {
             switch(state) {
             case 0: 
                 // Beginning of path, or after .
-                if(!Character.isWhitespace(c))
-                    if(c=='.')
+                if(!Character.isWhitespace(c)) {
+                    if(c=='.') {
                         throw new InvalidPathException("Unexpected '.' at " + i, x);
-                    else {
+                    } else {
                         buf.append(c);
                         state=1;
                     }
+                }
                 break;
 
             case 1: 
@@ -458,24 +473,28 @@ public class Path implements Comparable<Path>, Serializable  {
                     segments.add(buf.toString());
                     buf=new StringBuilder(32);
                     state=0;
-                } else
+                } else {
                     buf.append(c);
+                }
                 break;
 
             case 2: 
                 // Parsing end of word
-                if(!Character.isWhitespace(c))
+                if(!Character.isWhitespace(c)) {
                     if(c=='.') {
                         state=0;
-                    } else
+                    } else {
                         throw new InvalidPathException("Expected whitespace or '.' at " + i, x);
-                else
+                    }
+                } else {
                     throw new InvalidPathException("Unexpected character at " + i, x);
+                }
                 break;
             }
         }
-        if(state==1)
+        if(state==1) {
             segments.add(buf.toString());
+        }
     }
 }
    

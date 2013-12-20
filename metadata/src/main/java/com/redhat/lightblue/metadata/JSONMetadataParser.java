@@ -53,13 +53,15 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         Error.push(name);
         try {
             JsonNode x=object.get(name);
-            if(x!=null)
-                if(x.isContainerNode())
+            if(x!=null) {
+                if(x.isContainerNode()) {
                     throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-                else
+                } else {
                     return x.asText();
-            else
+                }
+            } else {
                 return null;
+            }
         } finally {
             Error.pop();
         }
@@ -75,19 +77,21 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         Error.push(name);
         try {
             JsonNode x=object.get(name);
-            if(x!=null)
+            if(x!=null) {
                 if(x.isValueNode()) {
-                    if(x.isNumber())
+                    if(x.isNumber()) {
                         return x.numberValue();
-                    else if (x.isBoolean())
+                    } else if (x.isBoolean()) {
                         return x.booleanValue();
-                    else {
+                    } else {
                         return x.asText();
                     }
-                } else
+                } else {
                     throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-            else
+                }
+            } else {
                 return null;
+            }
         } finally {
             Error.pop();
         }
@@ -98,16 +102,19 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         Error.push(name);
         try {
             JsonNode x=object.get(name);
-            if(x!=null)
+            if(x!=null) {
                 if(x instanceof ArrayNode) {
                     ArrayList<String> ret=new ArrayList<String>();
-                    for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) 
+                    for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();)  {
                         ret.add(itr.next().asText());
+                    }
                     return ret;
-                } else
+                } else {
                     throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-            else
+                }
+            } else {
                 return null;
+            }
         } finally {
             Error.pop();
         }
@@ -121,13 +128,16 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             if(x!=null) {
                 if(x instanceof ArrayNode) {
                     ArrayList<JsonNode> ret=new ArrayList<JsonNode>();
-                    for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) 
+                    for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) {
                         ret.add(itr.next());
+                    }
                     return ret;
-                }  else
+                }  else {
                     throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-            } else
+                }
+            } else {
                 return null;
+            }
         } finally {
             Error.pop();
         }
@@ -142,11 +152,13 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     public Set<String> getChildNames(JsonNode object) {
         if(object instanceof ObjectNode) {
             HashSet<String> names=new HashSet<String>();
-            for(Iterator<String> itr=((ObjectNode)object).fieldNames();itr.hasNext();)
+            for(Iterator<String> itr=((ObjectNode)object).fieldNames();itr.hasNext();) {
                 names.add(itr.next());
+            }
             return names;
-        } else
+        } else {
             return new HashSet<String>();
+        }
     }
 
     @Override
@@ -162,24 +174,25 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public void putValue(JsonNode object,String name,Object value) {
         ObjectNode o=(ObjectNode)object;
-        if(value instanceof Boolean)
+        if(value instanceof Boolean) {
             o.put(name,(Boolean)value);
-        else if(value instanceof BigDecimal)
+        } else if(value instanceof BigDecimal) {
             o.put(name,(BigDecimal)value);
-        else if(value instanceof BigInteger)
+        } else if(value instanceof BigInteger) {
             o.put(name,factory.numberNode((BigInteger)value));
-        else if(value instanceof Double)
+        } else if(value instanceof Double) {
             o.put(name,(Double)value);
-        else if(value instanceof Float)
+        } else if(value instanceof Float) {
             o.put(name,(Float)value);
-        else if(value instanceof Integer)
+        } else if(value instanceof Integer) {
             o.put(name,(Integer)value);
-        else if(value instanceof Long)
+        } else if(value instanceof Long) {
             o.put(name,(Long)value);
-        else if(value instanceof Short)
+        } else if(value instanceof Short) {
             o.put(name,(Short)value);
-        else 
+        } else  {
             o.put(name,value.toString());
+        }
     }
 
     @Override

@@ -471,17 +471,20 @@ public abstract class MetadataParser<T> {
                 String[] ex=v.getExtendsVersions();
                 if(ex!=null&&ex.length>0) {
                     Object arr=newArrayField(obj,"extendsVersions");
-                    for(String x:ex)
+                    for(String x:ex) {
                         addStringToArray(arr,x);
+                    }
                 }
-                if(v.getChangelog()!=null)
+                if(v.getChangelog()!=null) {
                     putString(obj,"changelog",v.getChangelog());
+                }
                 return obj;
             } finally {
                 Error.pop();
             }
-        } else
+        } else {
             return null;
+        }
     }
 
     public T convert(MetadataStatus status,List<StatusChange> changeLog) {
@@ -496,12 +499,15 @@ public abstract class MetadataParser<T> {
                     Object logArray=newArrayField(obj,"log");
                     for(StatusChange x:changeLog) {
                         T log=newNode();
-                        if(x.getDate()!=null) 
+                        if(x.getDate()!=null) {
                             putString(log,"date",DateType.getDateFormat().format(x.getDate()));
-                        if(x.getStatus()!=null)
+                        }
+                        if(x.getStatus()!=null) {
                             putString(log,STR_VALUE,toString(x.getStatus()));
-                        if(x.getComment()!=null)
+                        }
+                        if(x.getComment()!=null) {
                             putString(log,"comment",x.getComment());
+                        }
                         addObjectToArray(logArray,log);
                     }
                 }
@@ -529,8 +535,9 @@ public abstract class MetadataParser<T> {
             } finally {
                 Error.pop();
             }
-        } else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -551,8 +558,9 @@ public abstract class MetadataParser<T> {
             } finally {
                 Error.pop();
             }
-        } else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -621,8 +629,9 @@ public abstract class MetadataParser<T> {
                 for(EntityConstraint constraint:constraints) {
                     String constraintType=constraint.getType();
                     EntityConstraintParser<T> parser=getEntityConstraintParser(constraintType);
-                    if(parser==null)
+                    if(parser==null) {
                         throw Error.get(ERR_INVALID_CONSTRAINT,constraintType);
+                    }
                     T constraintNode=newNode();
                     parser.convert(this,constraintNode,constraint);
                     addObjectToArray(arr,constraintNode);
@@ -642,8 +651,9 @@ public abstract class MetadataParser<T> {
         try {
             String type=store.getType();
             DataStoreParser<T> parser=getDataStoreParser(type);
-            if(parser==null)
+            if(parser==null) {
                 throw Error.get(ERR_UNKNOWN_DATASTORE,type);
+            }
             T dsNode=newNode();
             parser.convert(this,dsNode,store);
             putObject(parent,type,dsNode);
@@ -669,12 +679,15 @@ public abstract class MetadataParser<T> {
     private void convertReferenceField(ReferenceField field,T fieldObject) {
         putString(fieldObject,"entity",field.getEntityName());
         putString(fieldObject,"versionValue",field.getVersionValue());
-        if(field.getProjection()!=null)
+        if(field.getProjection()!=null) {
             putString(fieldObject,"projection",field.getProjection().toString());
-        if(field.getQuery()!=null)
+        }
+        if(field.getQuery()!=null) {
             putString(fieldObject,"query",field.getQuery().toString());
-        if(field.getSort()!=null)
+        }
+        if(field.getSort()!=null) {
             putString(fieldObject,"sort",field.getSort().toString());
+        }
     }
 
     private void convertObjectArrayElement(ObjectArrayElement el,T items) {
@@ -685,8 +698,9 @@ public abstract class MetadataParser<T> {
         if(roles!=null) {
             Object arr=newArrayField(node,name);
             Set<String> r=roles.getRoles();
-            for(String x:r) 
+            for(String x:r) {
                 addStringToArray(arr,x);
+            }
         }
     }
 
@@ -700,14 +714,15 @@ public abstract class MetadataParser<T> {
     }
 
     private MetadataStatus statusFromString(String status) {
-        if("active".equals(status))
+        if("active".equals(status)) {
             return MetadataStatus.ACTIVE;
-        else if("deprecated".equals(status))
+        } else if("deprecated".equals(status)) {
             return MetadataStatus.DEPRECATED;
-        else if("disabled".equals(status))
+        } else if("disabled".equals(status)) {
             return MetadataStatus.DISABLED;
-        else
+        } else {
             throw Error.get(ERR_PARSE_INVALID_STATUS,status);
+        }
     }
 
     /**
@@ -739,8 +754,9 @@ public abstract class MetadataParser<T> {
         Error.push(name);
         try {
             String property=getStringProperty(object,name);
-            if(property==null||property.trim().length()==0)
+            if(property==null||property.trim().length()==0) {
                 throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
+            }
             return property;
         } finally {
             Error.pop();
@@ -777,8 +793,9 @@ public abstract class MetadataParser<T> {
         Error.push(name);
         try {
             T property=getObjectProperty(object,name);
-            if(property==null)
+            if(property==null) {
                 throw Error.get(ERR_PARSE_MISSING_ELEMENT,name);
+            }
             return property;
         } finally {
             Error.pop();

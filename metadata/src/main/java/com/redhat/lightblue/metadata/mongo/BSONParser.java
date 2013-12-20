@@ -45,67 +45,78 @@ public class BSONParser extends MetadataParser<BSONObject> {
     @Override
     public String getStringProperty(BSONObject object,String name) {
         Object x=object.get(name);
-        if(x!=null)
-            if(x instanceof String)
+        if(x!=null) {
+            if(x instanceof String) {
                 return (String)x;
-            else
+            } else {
                 throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        else
+            }
+        } else {
             return null;
+        }
     }
 
     @Override
     public BSONObject getObjectProperty(BSONObject object,String name) {
         Object x=object.get(name);
-        if(x!=null)
-            if(x instanceof BSONObject)
+        if(x!=null) {
+            if(x instanceof BSONObject) {
                 return (BSONObject)x;
-            else
+            } else {
                 throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        else
+            }
+        } else {
             return null;
+        }
     }
 
     @Override
     public Object getValueProperty(BSONObject object,String name) {
         Object x=object.get(name);
-        if(x!=null)
+        if(x!=null) {
             if(x instanceof Number ||
                x instanceof String ||
                x instanceof Date ||
-               x instanceof Boolean)
+               x instanceof Boolean) {
                 return x;
-            else
+            } else {
                 throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        else
+            }
+        } else {
             return null;
+        }
     }
 
     @Override
     public List<String> getStringList(BSONObject object,String name) {
         Object x=object.get(name);
-        if(x!=null)
+        if(x!=null) {
             if(x instanceof List) {
                 ArrayList<String> ret=new ArrayList<String>();
-                for(Object o:(List)x)
+                for(Object o:(List)x) {
                     ret.add(o.toString());
+                }
                 return ret;
-            } else
+            } else {
                 throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        else
+            }
+        } else {
             return null;
+        }
     }
 
     @Override
     public List<BSONObject> getObjectList(BSONObject object,String name) {
         Object x=object.get(name);
         if(x!=null) {
-            if(x instanceof List)
+            if(x instanceof List) {
                 return (List<BSONObject>)x;
-            else
+            } else {
                 throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
-        } else
+            }
+        } else {
             return null;
+        }
     }
 
     @Override
