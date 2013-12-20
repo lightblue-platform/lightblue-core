@@ -41,8 +41,9 @@ public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
                                           FieldTreeNode context) {
         List<QueryExpression> queries=expr.getQueries();
         evaluators=new ArrayList<QueryEvaluator>(queries.size());
-        for(QueryExpression q:queries)
+        for(QueryExpression q:queries) {
             evaluators.add(QueryEvaluator.getInstance(q,context));
+        }
         operator=expr.getOp();
     }
 
@@ -52,27 +53,30 @@ public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
         logger.debug("evaluate {}",operator);
         switch(operator) {
         case _and:
-            for(QueryEvaluator q:evaluators)
+            for(QueryEvaluator q:evaluators) {
                 if(!q.evaluate(ctx)) {
                     ret=false;
                     break;
                 }
+            }
             ret=true;
             break;
         case _or:
-            for(QueryEvaluator q:evaluators)
+            for(QueryEvaluator q:evaluators) {
                 if(q.evaluate(ctx)) {
                     ret=true;
                     break;
                 }
+            }
             ret=false;
             break;
         case _nor:
-            for(QueryEvaluator q:evaluators)
+            for(QueryEvaluator q:evaluators) {
                 if(q.evaluate(ctx)) {
                     ret=false;
                     break;
                 }
+            }
             ret=true;
             break;
         }

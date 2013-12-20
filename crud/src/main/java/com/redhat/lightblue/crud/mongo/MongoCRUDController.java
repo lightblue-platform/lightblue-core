@@ -85,8 +85,9 @@ public class MongoCRUDController implements CRUDController {
     public CRUDInsertionResponse insert(MetadataResolver resolver,
                                         List<JsonDoc> documents,
                                         Projection projection) {
-        if(documents==null||documents.isEmpty())
+        if(documents==null||documents.isEmpty()) {
             throw new IllegalArgumentException("Empty documents");
+        }
         logger.debug("insert() start");
         Error.push(OP_INSERT);
         Translator translator=new Translator(resolver,factory);
@@ -100,8 +101,9 @@ public class MongoCRUDController implements CRUDController {
                 Map<DBObject,List<Error>> errorMap=new HashMap<DBObject,List<Error>>();
                 // Group docs by collection
                 DocIndex index=new DocIndex(resolver,dbResolver);
-                for(DBObject obj:dbObjects) 
+                for(DBObject obj:dbObjects) {
                     index.addDoc(obj);
+                }
                 Set<MongoDataStore> stores=index.getDataStores();
                 List<DBObject> successfulInsertions=new ArrayList<DBObject>(documents.size());
                 for(MongoDataStore store:stores) {
@@ -114,8 +116,9 @@ public class MongoCRUDController implements CRUDController {
                             String error=result.getError();
                             if(error!=null) {
                                 addErrorToMap(errorMap,doc,OP_INSERT,ERR_INSERTION_ERROR,error);
-                            } else
+                            } else {
                                 successfulInsertions.add(doc);
+                            }
                         } catch(MongoException.DuplicateKey dke) {
                             addErrorToMap(errorMap,doc,OP_INSERT,ERR_DUPLICATE,dke.toString());
                         } catch(Exception e) {
@@ -141,11 +144,13 @@ public class MongoCRUDController implements CRUDController {
                     JsonDoc errorDoc;
                     if(projection!=null) {
                         errorDoc=translateAndProject(entry.getKey(),translator,projectorMap);
-                    } else
+                    } else {
                         errorDoc=null;
+                    }
                     DataError error=new DataError();
-                    if(errorDoc!=null)
+                    if(errorDoc!=null) {
                         error.setEntityData(errorDoc.getRoot());
+                    }
                     error.setErrors(entry.getValue());
                 }
                 response.setDataErrors(dataErrors);
@@ -168,10 +173,12 @@ public class MongoCRUDController implements CRUDController {
                                  Sort sort,
                                  Long from,
                                  Long to) {
-        if(query==null)
+        if(query==null) {
             throw new IllegalArgumentException("Null query");
-        if(projection==null)
+        }
+        if(projection==null) {
             throw new IllegalArgumentException("Null projection");
+        }
         logger.debug("find start: q:{} p:{} sort:{} from:{} to:{}",query,projection,sort,from,to);
         Error.push("find");
         CRUDFindResponse response=new CRUDFindResponse();
@@ -196,10 +203,12 @@ public class MongoCRUDController implements CRUDController {
             }
             logger.debug("Applying limits: {} - {}",from,to);
             response.setSize(cursor.size());
-            if(from!=null)
+            if(from!=null) {
                 cursor.skip(from.intValue());
-            if(to!=null)
+            }
+            if(to!=null) {
                 cursor.limit(to.intValue()-(from==null?0:from.intValue())+1);
+            }
             logger.debug("Retrieving results");
             List<DBObject> mongoResults=cursor.toArray();
             logger.debug("Retrieved {} results",mongoResults.size());
@@ -269,8 +278,9 @@ public class MongoCRUDController implements CRUDController {
      */
     private void addErrorToMap(Map<DBObject,List<Error>> map,DBObject object,Error error) {
         List l=map.get(object);
-        if(l==null)
+        if(l==null) {
             map.put(object,l=new ArrayList<Error>());
+        }
         l.add(error);
     }
 }

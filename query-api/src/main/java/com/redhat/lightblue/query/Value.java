@@ -116,7 +116,8 @@ public class Value extends JsonObject {
                 ret.value=node.textValue();
             }
             return ret;
-        } else
+        } else {
             throw Error.get(INVALID_VALUE,node.toString());
+        }
     }
 }

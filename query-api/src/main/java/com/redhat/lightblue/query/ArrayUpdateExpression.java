@@ -63,10 +63,11 @@ public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
             case _pop:
                 return ArrayPopExpression.fromJson(field,value);
             case _remove:
-                if(value instanceof ArrayNode)
+                if(value instanceof ArrayNode) {
                     return ArrayRemoveValuesExpression.fromJson(field,(ArrayNode)value);
-                else
+                } else {
                     return ArrayRemoveByQueryExpression.fromJson(field,value);
+                }
             case _push:
                 return ArrayPushExpression.fromJson(field,value);
             }

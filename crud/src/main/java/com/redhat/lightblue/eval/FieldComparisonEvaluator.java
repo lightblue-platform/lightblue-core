@@ -52,11 +52,13 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         this.relativePath=expr.getField();
         this.rfieldRelativePath=expr.getRfield();
         fieldMd=context.resolve(relativePath);
-        if(fieldMd==null)
+        if(fieldMd==null) {
             throw new EvaluationError(expr,"No field " +relativePath);
+        }
         rfieldMd=context.resolve(rfieldRelativePath);
-        if(rfieldMd==null)
+        if(rfieldMd==null) {
             throw new EvaluationError(expr,"No field "+rfieldRelativePath);
+        }
         operator=expr.getOp();
         logger.debug("ctor {} {} {}",relativePath,operator,rfieldRelativePath);
     }
@@ -66,16 +68,18 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         logger.debug("evaluate {} {} {}",relativePath,operator,rfieldRelativePath);
         JsonNode lvalueNode=ctx.getNode(relativePath);
         Object ldocValue;
-        if(lvalueNode!=null)
+        if(lvalueNode!=null) {
             ldocValue=fieldMd.getType().fromJson(lvalueNode);
-        else
+        } else {
             ldocValue=null;
+        }
         JsonNode rvalueNode=ctx.getNode(rfieldRelativePath);
         Object rdocValue;
-        if(rvalueNode!=null)
+        if(rvalueNode!=null) {
             rdocValue=rfieldMd.getType().fromJson(rvalueNode);
-        else
+        } else {
             rdocValue=null;
+        }
         logger.debug(" lvalue={} rvalue={}",lvalueNode,rvalueNode);
         int result=fieldMd.getType().compare(ldocValue,rdocValue);
         logger.debug(" result={}",result);

@@ -33,9 +33,9 @@ public abstract class RelationalExpression extends ComparisonExpression {
      */
     public static RelationalExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("regex");
-        if(x!=null)
+        if(x!=null) {
             return RegexMatchExpression.fromJson(node);
-        else {
+        } else {
             x=node.get("op");
             if(x!=null) {
                 String op=x.asText();

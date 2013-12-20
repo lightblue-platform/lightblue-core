@@ -206,28 +206,34 @@ public class Response extends JsonObject {
             case PARTIAL: statusStr="partial";break;
             case ERROR: statusStr="error";break;
             }
-            if(statusStr!=null)
+            if(statusStr!=null) {
                 node.put("status",statusStr);
+            }
         }
         node.put("modifiedCount",modifiedCount);
         node.put("matchCount",matchCount);
-        if(taskHandle!=null)
+        if(taskHandle!=null) {
             node.put("taskHandle",taskHandle);
-        if(session!=null)
+        }
+        if(session!=null) {
             node.set("session",session.toJson());
-        if(entityData!=null)
+        }
+        if(entityData!=null) {
             node.set("processed",entityData);
+        }
         if(!dataErrors.isEmpty()) {
             ArrayNode arr=factory.arrayNode();
             node.set("dataErrors",arr);
-            for(DataError err:dataErrors)
+            for(DataError err:dataErrors) {
                 arr.add(err.toJson());
+            }
         }
         if(!errors.isEmpty()) {
             ArrayNode arr=factory.arrayNode();
             node.set("errors",arr);
-            for(Error err:errors)
+            for(Error err:errors) {
                 arr.add(err.toJson());
+            }
         }
         return node;
     }

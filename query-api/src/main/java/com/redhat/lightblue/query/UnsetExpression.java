@@ -77,8 +77,9 @@ public class UnsetExpression extends FieldUpdateExpression {
                 itr.hasNext();) {
                 list.add(new Path(itr.next().asText()));
             }
-        } else
+        } else {
             list.add(new Path(node.asText()));
+        }
         return new UnsetExpression(list);
     }
 }

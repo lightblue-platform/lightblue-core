@@ -146,8 +146,9 @@ public class Translator {
     public DBObject[] toBson(List<JsonDoc> docs) {
         DBObject[] ret=new DBObject[docs.size()];
         int i=0;
-        for(JsonDoc doc:docs)
+        for(JsonDoc doc:docs) {
             ret[i++]=toBson(doc);
+        }
         return ret;
     }
 
@@ -157,11 +158,13 @@ public class Translator {
     public DBObject toBson(JsonDoc doc) {
         logger.debug("toBson() enter");
         JsonNode node=doc.get(OBJECT_TYPE);
-        if(node==null)
+        if(node==null) {
             throw Error.get(ERR_NO_OBJECT_TYPE);
+        }
         EntityMetadata md=mdResolver.getEntityMetadata(node.asText());
-        if(md==null)
+        if(md==null) {
             throw Error.get(ERR_INVALID_OBJECTTYPE,node.asText());
+        }
         DBObject ret=toBson(doc,md);
         logger.debug("toBson() return");
         return ret;
@@ -173,11 +176,13 @@ public class Translator {
     public JsonDoc toJson(DBObject object) {
         logger.debug("toJson() enter");
         Object type=object.get(OBJECT_TYPE_STR);
-        if(type==null)
+        if(type==null) {
             throw Error.get(ERR_NO_OBJECT_TYPE);
+        }
         EntityMetadata md=mdResolver.getEntityMetadata(type.toString());
-        if(md==null)
+        if(md==null) {
             throw Error.get(ERR_INVALID_OBJECTTYPE,type.toString());
+        }
         JsonDoc doc=toJson(object,md);
         logger.debug("toJson() return");
         return doc;
@@ -188,8 +193,9 @@ public class Translator {
      */
     public List<JsonDoc> toJson(List<DBObject> objects) {
         List<JsonDoc> list=new ArrayList<JsonDoc>(objects.size());
-        for(DBObject object:objects)
+        for(DBObject object:objects) {
             list.add(toJson(object));
+        }
         return list;
     }
 
@@ -201,10 +207,11 @@ public class Translator {
         Error.push("translateSort");
         DBObject ret;
         try {
-            if(sort instanceof CompositeSortKey)
+            if(sort instanceof CompositeSortKey) {
                 ret=translateCompositeSortKey((CompositeSortKey)sort);
-            else 
+            } else  {
                 ret=translateSortKey((SortKey)sort);
+            }
         } finally {
             Error.pop();
         }
@@ -235,39 +242,42 @@ public class Translator {
     private DBObject translateCompositeSortKey(CompositeSortKey sort) {
         DBObject ret=null;
         for(SortKey key:sort.getKeys()) {
-            if(ret==null)
+            if(ret==null) {
                 ret=translateSortKey(key);
-            else
+            } else {
                 ret.put(key.getField().toString(),key.isDesc()?-1:1);
+            }
         }
         return ret;
     }
 
     private DBObject translate(FieldTreeNode context,QueryExpression query) {
         DBObject ret;
-        if(query instanceof ArrayContainsExpression)
+        if(query instanceof ArrayContainsExpression) {
             ret=translateArrayContains(context,(ArrayContainsExpression)query);
-        else if(query instanceof ArrayMatchExpression)
+        } else if(query instanceof ArrayMatchExpression) {
             ret=translateArrayElemMatch(context,(ArrayMatchExpression)query);
-        else if(query instanceof FieldComparisonExpression)
+        } else if(query instanceof FieldComparisonExpression) {
             ret=translateFieldComparison((FieldComparisonExpression)query);
-        else if(query instanceof NaryLogicalExpression)
+        } else if(query instanceof NaryLogicalExpression) {
             ret=translateNaryLogicalExpression(context,(NaryLogicalExpression)query);
-        else if(query instanceof NaryRelationalExpression)
+        } else if(query instanceof NaryRelationalExpression) {
             ret=translateNaryRelationalExpression(context,(NaryRelationalExpression)query);
-        else if(query instanceof RegexMatchExpression)
+        } else if(query instanceof RegexMatchExpression) {
             ret=translateRegexMatchExpression((RegexMatchExpression)query);
-        else if(query instanceof UnaryLogicalExpression)
+        } else if(query instanceof UnaryLogicalExpression) {
             ret=translateUnaryLogicalExpression(context,(UnaryLogicalExpression)query);
-        else
+        } else {
             ret=translateValueComparisonExpression(context,(ValueComparisonExpression)query);
+        }
         return ret;
     }
 
     private FieldTreeNode resolve(FieldTreeNode context,Path field) {
         FieldTreeNode node=context.resolve(field);
-        if(node==null)
+        if(node==null) {
             throw Error.get(ERR_INVALID_FIELD,field.toString());
+        }
         return node;
     }
 
@@ -275,13 +285,15 @@ public class Translator {
      * Converts a value list to a list of values with the proper type
      */
     private List<Object> translateValueList(Type t,List<Value> values) {
-        if(values==null||values.isEmpty())
+        if(values==null||values.isEmpty()) {
             throw new IllegalArgumentException("Empty value list");
+        }
         List<Object> ret=new ArrayList<Object>(values.size());
         for(Value v:values) {
             Object value=v==null?null:v.getValue();
-            if(value!=null) 
+            if(value!=null)  {
                 value=t.cast(value);
+            }
             ret.add(value);
         }
         return ret;
@@ -291,36 +303,43 @@ public class Translator {
         Type t=resolve(context,expr.getField()).getType();
         if(expr.getOp()==BinaryComparisonOperator._eq||
            expr.getOp()==BinaryComparisonOperator._neq) {
-            if(!t.supportsEq())
+            if(!t.supportsEq()) {
                 throw Error.get(ERR_INVALID_COMPARISON,expr.toString());
+            }
         } else {
-            if(!t.supportsOrdering())
+            if(!t.supportsOrdering()) {
                 throw Error.get(ERR_INVALID_COMPARISON,expr.toString());
+            }
         }
-        if(expr.getOp()==BinaryComparisonOperator._eq)
+        if(expr.getOp()==BinaryComparisonOperator._eq) {
             return new BasicDBObject(expr.getField().toString(),
                                      t.cast(expr.getRvalue()));
-        else
+        } else {
             return new BasicDBObject(expr.getField().toString(),
                                      new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
                                                        t.cast(expr.getRvalue())));
-                                 
+        }
     }
 
     private DBObject translateRegexMatchExpression(RegexMatchExpression expr) {
         StringBuilder options=new StringBuilder();
         BasicDBObject regex=new BasicDBObject("$regex",expr.getRegex());
-        if(expr.isCaseInsensitive())
+        if(expr.isCaseInsensitive()) {
             options.append('i');
-        if(expr.isMultiline())
+        }
+        if(expr.isMultiline()) {
             options.append('m');
-        if(expr.isExtended())
+        }
+        if(expr.isExtended()) {
             options.append('x');
-        if(expr.isDotAll())
+        }
+        if(expr.isDotAll()) {
             options.append('s');
+        }
         String opStr=options.toString();
-        if(opStr.length()>0)
+        if(opStr.length()>0) {
             regex.append("$options",opStr);
+        }
         return new BasicDBObject(expr.getField().toString(),regex);
    }
 
@@ -342,8 +361,9 @@ public class Translator {
     private DBObject translateNaryLogicalExpression(FieldTreeNode context,NaryLogicalExpression expr) {
         List<QueryExpression> queries=expr.getQueries();
         List<DBObject> list=new ArrayList<DBObject>(queries.size());
-        for(QueryExpression query:queries)
+        for(QueryExpression query:queries) {
             list.add(translate(context,query));
+        }
         return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()),list);
     }
 
@@ -361,9 +381,10 @@ public class Translator {
         FieldTreeNode arrayNode=resolve(context,expr.getArray());
         if(arrayNode instanceof ArrayField) {
             ArrayElement el=((ArrayField)arrayNode).getElement();
-            if(el instanceof ObjectArrayElement) 
+            if(el instanceof ObjectArrayElement) {
                 return new BasicDBObject(expr.getArray().toString(),
                                          translate(el,expr.getElemMatch()));
+            }
         }
         throw Error.get(ERR_INVALID_FIELD,expr.toString());
     }
@@ -378,8 +399,9 @@ public class Translator {
             case _any: ret=translateArrayContainsAny(t,expr.getArray(),expr.getValues());break;
             case _none: ret=translateArrayContainsNone(t,expr.getArray(),expr.getValues());break;
             }
-        } else
+        } else {
             throw Error.get(ERR_INVALID_FIELD,expr.toString());
+        }
         return ret;
     }
 
@@ -401,9 +423,10 @@ public class Translator {
      */
     private DBObject translateArrayContainsAny(Type t,Path array,List<Value> values) {
         List<BasicDBObject> l=new ArrayList<BasicDBObject>(values.size());
-        for(Value x:values) 
+        for(Value x:values) {
             l.add(new BasicDBObject(array.toString(),x==null?null:
                                     x.getValue()==null?null:t.cast(x.getValue())));
+        }
         return new BasicDBObject("$or",l);
     } 
 
@@ -420,10 +443,11 @@ public class Translator {
         // Translation is metadata driven. We don't know how to
         // translate something that's not defined in metadata.
         FieldCursor cursor=md.getFieldCursor();
-        if(cursor.firstChild()) 
+        if(cursor.firstChild()) {
             return new JsonDoc(objectToJson(object,md,cursor));
-        else
+        } else {
             return null;
+        }
     }
         
     /**
@@ -441,14 +465,16 @@ public class Translator {
             if(value!=null) {
                 if(field instanceof SimpleField) {
                     JsonNode valueNode=((SimpleField)field).getType().toJson(factory,value);
-                    if(valueNode!=null)
+                    if(valueNode!=null) {
                         node.set(fieldName,valueNode);
+                    }
                 } else if(field instanceof ObjectField) {
                     if(value instanceof DBObject) {
                         if(mdCursor.firstChild()) {
                             JsonNode valueNode=objectToJson((DBObject)value,md,mdCursor);
-                            if(valueNode!=null)
+                            if(valueNode!=null) {
                                 node.set(fieldName,valueNode);
+                            }
                             mdCursor.parent();
                         }
                     } else
@@ -459,9 +485,11 @@ public class Translator {
                     ArrayNode  valueNode=factory.arrayNode();
                     // We must have an array element here
                     FieldTreeNode x=mdCursor.getCurrentNode();
-                    if(x instanceof ArrayElement)
-                        for(Object item:(List)value)
+                    if(x instanceof ArrayElement) {
+                        for(Object item:(List)value) {
                             valueNode.add(arrayElementToJson(item,(ArrayElement)x,md,mdCursor));
+                        }
+                    }
                     mdCursor.parent();
                 } else if(field instanceof ReferenceField) {
                     // TODO
@@ -477,10 +505,11 @@ public class Translator {
                                         FieldCursor mdCursor) {
         JsonNode ret=null;
         if(el instanceof SimpleArrayElement) {
-            if(value!=null)
+            if(value!=null) {
                 ret=((SimpleArrayElement)el).getType().toJson(factory,value);
+            }
         } else {
-            if(value!=null)
+            if(value!=null) {
                 if(value instanceof DBObject) {
                     if(mdCursor.firstChild()) {
                         ret=objectToJson((DBObject)value,md,mdCursor);
@@ -488,6 +517,7 @@ public class Translator {
                     }
                 } else
                     logger.error("Expected DBObject, got {}",value.getClass().getName());
+            }
         }
         return ret;
     }
@@ -503,10 +533,11 @@ public class Translator {
     }
 
     private Object toValue(Type t,JsonNode node) {
-        if(node==null||node instanceof NullNode)
+        if(node==null||node instanceof NullNode) {
             return null;
-        else
+        } else {
             return t.fromJson(node);
+        }
     }
 
     private void toBson(BasicDBObject dest,
@@ -531,8 +562,9 @@ public class Translator {
             JsonNode node=cursor.getCurrentNode();
             logger.debug("field: {}",path);
             FieldTreeNode fieldMdNode=md.resolve(path);
-            if(fieldMdNode==null)
+            if(fieldMdNode==null) {
                 throw Error.get(ERR_INVALID_FIELD,path.toString());
+            }
             
             if(fieldMdNode instanceof SimpleField) {
                 toBson(ret,(SimpleField)fieldMdNode,path,node);
@@ -543,8 +575,9 @@ public class Translator {
                             ret.append(path.tail(0),objectToBson(cursor,md));
                             cursor.parent();
                         } 
-                    } else
+                    } else {
                         throw Error.get(ERR_INVALID_FIELD,path.toString());
+                    }
                 }
             } else if(fieldMdNode instanceof ArrayField) {
                 if(node!=null) {
@@ -553,8 +586,9 @@ public class Translator {
                             ret.append(path.tail(0),arrayToBson(cursor,((ArrayField)fieldMdNode).getElement(),md));
                             cursor.parent();
                         } 
-                    } else
+                    } else {
                         throw Error.get(ERR_INVALID_FIELD,path.toString());
+                    }
                 }
             } else if(fieldMdNode instanceof ReferenceField) {
                 //toBson(ret,(ReferenceNode)fieldMdNode,path,node);
@@ -577,14 +611,15 @@ public class Translator {
         } else {
             do {
                 JsonNode node=cursor.getCurrentNode();
-                if(node==null||node instanceof NullNode)
+                if(node==null||node instanceof NullNode) {
                     l.add(null);
-                else {
+                } else {
                     if(cursor.firstChild())  {
                         l.add(objectToBson(cursor,md));
                         cursor.parent();
-                    } else
+                    } else {
                         l.add(null);
+                    }
                 }
             } while(cursor.nextSibling());
         }

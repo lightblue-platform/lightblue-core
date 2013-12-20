@@ -89,16 +89,17 @@ public abstract class Projector {
      * projection, and the location in the metadata field tree.
      */
     public static Projector getInstance(Projection projection,Path ctxPath,FieldTreeNode ctx) {
-        if(projection instanceof FieldProjection) 
+        if(projection instanceof FieldProjection) {
             return new FieldProjector((FieldProjection)projection,ctxPath,ctx);
-        else if(projection instanceof ProjectionList)
+        } else if(projection instanceof ProjectionList) {
             return new ListProjector((ProjectionList)projection,ctxPath,ctx);
-        else if(projection instanceof ArrayMatchingElementsProjection) 
+        } else if(projection instanceof ArrayMatchingElementsProjection)  {
             return new ArrayMatchingElementsProjector((ArrayMatchingElementsProjection)projection,ctxPath,ctx);
-        else if(projection instanceof ArrayRangeProjection) 
+        } else if(projection instanceof ArrayRangeProjection)  {
             return new ArrayRangeProjector((ArrayRangeProjection)projection,ctxPath,ctx);
-        else 
+        } else  {
             return new ArrayQueryProjector((ArrayQueryMatchProjection)projection,ctxPath,ctx);
+        }
     }
 
     /**
@@ -144,15 +145,18 @@ public abstract class Projector {
                                     ObjectNode newNode=projectObject(projector,factory,mdContext,contextPath,cursor,ctx);
                                     ret.set(fieldPath.tail(0),newNode);
                                     cursor.parent();
-                                } else
+                                } else {
                                     ret.set(fieldPath.tail(0),factory.objectNode());
-                            } else
+                                }
+                            } else {
                                 logger.warn("Expecting object node, found {} for {}",fieldNode.getClass().getName(),fieldPath);
+                            }
                         } else if(fieldMd instanceof SimpleField) {
                             if(fieldNode.isValueNode()) {
                                 ret.set(fieldPath.tail(0),fieldNode);
-                            } else
+                            } else {
                                 logger.warn("Expecting value node, found {} for {}",fieldNode.getClass().getName(),fieldPath);
+                            }
                         } else if(fieldMd instanceof ArrayField) {
                             if(fieldNode instanceof ArrayNode) {
                                 ArrayNode newNode=factory.arrayNode();
@@ -165,20 +169,25 @@ public abstract class Projector {
                                                                           fieldPath,
                                                                           cursor,
                                                                           ctx);
-                                        if(node!=null)
+                                        if(node!=null) {
                                             newNode.add(node);
+                                        }
                                     } while(cursor.nextSibling());
                                     cursor.parent();
                                 }
-                            } else
+                            } else {
                                 logger.warn("Expecting array node, found {} for {}",fieldNode.getClass().getName(),fieldPath);
+                            }
                         }
-                    } else
+                    } else {
                         logger.debug("Projection excludes {}",fieldPath);
-                } else
+                    }
+                } else {
                     logger.debug("No projection match for {}",fieldPath);
-            } else
+                }
+            } else {
                 logger.warn("Unknown field {}",fieldPath);
+            }
         } while(cursor.nextSibling());
         return ret;
     }
@@ -195,8 +204,9 @@ public abstract class Projector {
         if(result!=null) {
             if(result) {
                 Projector nestedProjector=projector.getNestedProjector();
-                if(nestedProjector==null)
+                if(nestedProjector==null) {
                     nestedProjector=projector;
+                }
                 logger.debug("Projection includes {}",elemPath);
                 if(mdContext instanceof SimpleArrayElement) {            
                     return cursor.getCurrentNode();
@@ -206,13 +216,16 @@ public abstract class Projector {
                         JsonNode ret=projectObject(nestedProjector,factory,mdContext,elemPath,cursor,ctx);
                         cursor.parent();
                         return ret;
-                    } else
+                    } else {
                         return factory.objectNode();
+                    }
                 }
-            } else
+            } else {
                 logger.debug("Projection excludes {}",elemPath);
-        } else
+            }
+        } else {
             logger.debug("No projection match for {}",elemPath);
+        }
         return null;
     }
 }

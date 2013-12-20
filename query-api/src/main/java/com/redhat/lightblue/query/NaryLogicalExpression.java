@@ -95,8 +95,9 @@ public class NaryLogicalExpression extends LogicalExpression {
      */
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
-        for(QueryExpression x:queries)
+        for(QueryExpression x:queries) {
             arr.add(x.toJson());
+        }
         return factory.objectNode().set(op.toString(),arr);
     }
 
@@ -121,7 +122,8 @@ public class NaryLogicalExpression extends LogicalExpression {
                 list.add(QueryExpression.fromJson(itr.next()));
             }
             return new NaryLogicalExpression(op,list);
-        } else
+        } else {
             throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());
+        }
     }
 }

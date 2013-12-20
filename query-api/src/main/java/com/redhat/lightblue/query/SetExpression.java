@@ -63,8 +63,9 @@ public class SetExpression extends FieldUpdateExpression {
             } else {
                 throw new IllegalArgumentException(op.toString());
             }
-        } else
+        } else {
             this.op=null;
+        }
     }
 
     public List<FieldValue> getValues() {

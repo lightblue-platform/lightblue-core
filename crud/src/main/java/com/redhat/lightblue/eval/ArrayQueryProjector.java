@@ -38,10 +38,11 @@ public class ArrayQueryProjector extends Projector {
         arrayFieldPattern=new Path(ctxPath,p.getField());
         include=p.isInclude();
         FieldTreeNode nestedCtx=context.resolve(p.getField());
-        if(nestedCtx instanceof ArrayField)
+        if(nestedCtx instanceof ArrayField) {
             query=QueryEvaluator.getInstance(p.getMatch(),((ArrayField)nestedCtx).getElement());
-        else
+        } else {
             throw new EvaluationError("Expecting array element for "+arrayFieldPattern);
+        }
         nestedProjector=Projector.getInstance(p.getProject(),
                                               new Path(arrayFieldPattern,Path.ANYPATH),
                                               ((ArrayField)nestedCtx).getElement());
@@ -55,8 +56,9 @@ public class ArrayQueryProjector extends Projector {
     @Override
     public Boolean project(Path p,QueryEvaluationContext ctx) {
         lastMatch=false;
-        if(p.matchingPrefix(arrayFieldPattern))
+        if(p.matchingPrefix(arrayFieldPattern)) {
             return include?Boolean.TRUE:Boolean.FALSE;
+        }
         // Is this field pointing to an element of the array
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
@@ -66,8 +68,9 @@ public class ArrayQueryProjector extends Projector {
             Path contextRoot=ctx.getPath();
             QueryEvaluationContext nestedContext=ctx.getNestedContext(contextRoot.isEmpty()?p:
                                                                       p.suffix(-contextRoot.numSegments()));
-            if(query.evaluate(nestedContext))
+            if(query.evaluate(nestedContext)) {
                 return include?Boolean.TRUE:Boolean.FALSE;
+            }
         }
         return null;
     }

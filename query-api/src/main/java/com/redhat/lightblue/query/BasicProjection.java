@@ -38,8 +38,9 @@ public abstract class BasicProjection extends Projection {
      */
     public static BasicProjection fromJson(ObjectNode node) {
         String field=node.get("field").asText();
-        if(field==null)
+        if(field==null) {
             throw Error.get(INVALID_PROJECTION,"field");
+        }
         Path path=new Path(field);
         // Processing of optional elements. We decide on the type of
         // the final object based on what fields this object has
@@ -68,8 +69,9 @@ public abstract class BasicProjection extends Projection {
                                                 include,
                                                 projection,
                                                 from,to);
-            } else
+            } else {
                 throw Error.get(INVALID_ARRAY_RANGE_PROJECTION,node.toString());
+            }
         }
         x=node.get("match");
         if(x!=null) {

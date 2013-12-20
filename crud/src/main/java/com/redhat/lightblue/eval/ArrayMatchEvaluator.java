@@ -44,17 +44,20 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
         // field needs to be resolved relative to the current context
         field=expr.getArray();
         FieldTreeNode node=context.resolve(field);
-        if(node==null)
+        if(node==null) {
             throw new EvaluationError(expr);
+        }
         if(node instanceof ArrayField) {
             ArrayElement el=((ArrayField)node).getElement();
             if(el instanceof ObjectArrayElement) {
                 elem=(ObjectArrayElement)el;
                 ev=QueryEvaluator.getInstance(expr.getElemMatch(),elem);
-            } else
+            } else {
                 throw new EvaluationError(expr,"Expected object array for "+field);
-        } else
+            }
+        } else {
             throw new EvaluationError(expr,"Expected array for "+field);
+        }
     }
 
     @Override
@@ -68,18 +71,21 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
             QueryEvaluationContext nestedCtx=null;
             for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
                 JsonNode elem=itr.next();
-                if(index==0) 
+                if(index==0) {
                     nestedCtx=ctx.firstElementNestedContext(elem,field);
-                else
+                } else {
                     nestedCtx.elementNestedContext(elem,index);
-                if(ev.evaluate(nestedCtx))
+                }
+                if(ev.evaluate(nestedCtx)) {
                     ret=true;
-                else
+                } else {
                     indexList.add(index);
+                }
                 index++;
             }
-            if(ret) 
+            if(ret) {
                 ctx.addExcludedArrayElements(field,indexList);
+            }
         }
         ctx.setResult(ret);
         return ret;

@@ -85,18 +85,20 @@ public class DocIndex {
 
     public DBCollection getDBCollection(MongoDataStore store) {
         DocGroup group=storeToGroupIndex.get(store);
-        if(group!=null)
+        if(group!=null) {
             return group.collection;
-        else
+        } else {
             return null;
+        }
     }
 
     public List<DBObject> getDocs(MongoDataStore store) {
         DocGroup group=storeToGroupIndex.get(store);
-        if(group!=null)
+        if(group!=null) {
             return group.docs;
-        else
+        } else {
             return null;
+        }
     }
 
     public Set<String> getObjectTypes() {

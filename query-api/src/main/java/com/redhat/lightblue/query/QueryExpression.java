@@ -47,7 +47,8 @@ public abstract class QueryExpression extends JsonObject {
             } else {
                 return ComparisonExpression.fromJson(onode);
             }
-        } else
+        } else {
             throw Error.get(INVALID_QUERY,node.toString());
+        }
     }
 }

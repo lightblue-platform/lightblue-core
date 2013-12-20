@@ -50,17 +50,22 @@ public class RegexEvaluator extends QueryEvaluator {
                           FieldTreeNode context) {
         this.relativePath=expr.getField();
         fieldMd=context.resolve(relativePath);
-        if(fieldMd==null)
+        if(fieldMd==null) {
             throw new EvaluationError(expr,"No field " +relativePath);
+        }
         int flags=0;
-        if(expr.isCaseInsensitive())
+        if(expr.isCaseInsensitive()) {
             flags|=Pattern.CASE_INSENSITIVE;
-        if(expr.isMultiline())
+        }
+        if(expr.isMultiline()) {
             flags|=Pattern.MULTILINE;
-        if(expr.isExtended())
+        }
+        if(expr.isExtended()) {
             flags|=Pattern.COMMENTS;
-        if(expr.isDotAll())
+        }
+        if(expr.isDotAll()) {
             flags|=Pattern.DOTALL;
+        }
         regex=Pattern.compile(expr.getRegex(),flags);
         logger.debug("ctor {} {}",relativePath,regex);
     }
@@ -70,14 +75,16 @@ public class RegexEvaluator extends QueryEvaluator {
         logger.debug("evaluate {} {}",relativePath,regex);
         JsonNode valueNode=ctx.getNode(relativePath);
         Object docValue;
-        if(valueNode!=null)
+        if(valueNode!=null) {
             docValue=fieldMd.getType().fromJson(valueNode);
-        else
+        } else {
             docValue=null;
+        }
         logger.debug(" value={}",valueNode);
         ctx.setResult(false);
-        if(docValue!=null)
+        if(docValue!=null) {
             ctx.setResult(regex.matcher(docValue.toString()).matches());
+        }
         return ctx.getResult();
     }
 }

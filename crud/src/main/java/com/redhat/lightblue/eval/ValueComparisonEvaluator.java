@@ -49,8 +49,9 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
                                     FieldTreeNode context) {
         this.field=expr.getField();
         fieldMd=context.resolve(field);
-        if(fieldMd==null)
+        if(fieldMd==null) {
             throw new EvaluationError(expr,"No field "+field);
+        }
         operator=expr.getOp();
         value=expr.getRvalue().getValue();
         logger.debug("ctor {} {} {}",field,operator,value);
@@ -61,10 +62,11 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
         logger.debug("evaluate {} {} {}",field,operator,value);
         JsonNode valueNode=ctx.getNode(field);
         Object docValue;
-        if(valueNode!=null)
+        if(valueNode!=null) {
             docValue=fieldMd.getType().fromJson(valueNode);
-        else
+        } else {
             docValue=null;
+        }
         logger.debug(" value={}",valueNode);
         int result=fieldMd.getType().compare(docValue,value);
         logger.debug(" result={}",result);

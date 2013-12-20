@@ -47,14 +47,17 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
                                              FieldTreeNode context) {
         field=expr.getField();
         fieldMd=context.resolve(field);
-        if(fieldMd==null)
+        if(fieldMd==null) {
             throw new EvaluationError(expr,"No field "+field);
+        }
         operator=expr.getOp();
         List<Value> l=expr.getValues();
         values=new ArrayList<Object>(l.size());
-        for(Value x:l)
-            if(x!=null)
-                values.add(x.getValue());
+        for(Value x:l) {
+            if(x!=null) {
+                values.add(x.getValue()); 
+            }
+        }
         logger.debug("ctor {} {} {}",expr.getField(),operator,values);
     }
 
@@ -63,10 +66,11 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
         logger.debug("evaluate {} {} {}",field,operator,values);
         JsonNode valueNode=ctx.getNode(field);
         Object docValue;
-        if(valueNode!=null)
+        if(valueNode!=null) {
             docValue=fieldMd.getType().fromJson(valueNode);
-        else
+        } else {
             docValue=null;
+        }
         logger.debug(" value={}",valueNode);
         boolean in=false;
         for(Object x:values) {
