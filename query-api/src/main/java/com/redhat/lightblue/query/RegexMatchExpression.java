@@ -169,14 +169,18 @@ public class RegexMatchExpression
         ObjectNode node=factory.objectNode().
             put("field",field.toString()).
             put("regex",regex);
-        if(caseInsensitive)
+        if(caseInsensitive) {
             node.put("case_insensitive",true);
-        if(multiline)
+        }
+        if(multiline) {
             node.put("multiline",true);
-        if(extended)
+        }
+        if(extended) {
             node.put("extended",true);
-        if(dotall)
+        }
+        if(dotall) {
             node.put("dotall",true);
+        }
         return node;
     }
 
@@ -198,8 +202,9 @@ public class RegexMatchExpression
     }
 
     private static boolean asBoolean(JsonNode node) {
-        if(node!=null)
+        if(node!=null) {
             return node.asBoolean();
+        }
         return false;
     }
 }

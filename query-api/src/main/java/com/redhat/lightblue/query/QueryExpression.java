@@ -40,12 +40,13 @@ public abstract class QueryExpression extends JsonObject {
             // If there is only one field, then that field must be a
             // logical operator
             String firstField=onode.fieldNames().next();
-            if(UnaryLogicalOperator.fromString(firstField)!=null)
+            if(UnaryLogicalOperator.fromString(firstField)!=null) {
                 return UnaryLogicalExpression.fromJson(onode);
-            else if(NaryLogicalOperator.fromString(firstField)!=null)
+            } else if(NaryLogicalOperator.fromString(firstField)!=null) {
                 return NaryLogicalExpression.fromJson(onode);
-            else
+            } else {
                 return ComparisonExpression.fromJson(onode);
+            }
         } else
             throw Error.get(INVALID_QUERY,node.toString());
     }

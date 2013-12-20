@@ -104,19 +104,22 @@ public class NaryLogicalExpression extends LogicalExpression {
      * Parses an n-ary logical expression from the given json object
      */
     public static NaryLogicalExpression fromJson(ObjectNode node) {
-        if(node.size()!=1)
+        if(node.size()!=1) {
             throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());
+        }
         String fieldName=node.fieldNames().next();
         NaryLogicalOperator op=NaryLogicalOperator.fromString(fieldName);
-        if(op==null)
+        if(op==null) {
             throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());
+        }
         JsonNode x=node.get(fieldName);
         if(x instanceof ArrayNode) {
             ArrayList<QueryExpression> list=
                 new ArrayList<QueryExpression>(((ArrayNode)x).size());
             for( Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                 itr.hasNext();)
+                 itr.hasNext();) {
                 list.add(QueryExpression.fromJson(itr.next()));
+            }
             return new NaryLogicalExpression(op,list);
         } else
             throw Error.get(INVALID_LOGICAL_EXPRESSION,node.toString());

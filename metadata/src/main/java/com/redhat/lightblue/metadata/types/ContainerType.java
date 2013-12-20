@@ -68,7 +68,7 @@ abstract class ContainerType implements Type {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj==this;
+        return obj!=null&&obj.getClass().equals(this.getClass());
     }
     
     @Override

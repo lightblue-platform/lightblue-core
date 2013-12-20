@@ -34,9 +34,10 @@ public abstract class ComparisonExpression extends QueryExpression {
      */
     public static ComparisonExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("field");
-        if(x!=null)
+        if(x!=null) {
             return RelationalExpression.fromJson(node);
-        else
+        } else {
             return ArrayComparisonExpression.fromJson(node);
+        }
     }
 }

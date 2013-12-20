@@ -61,27 +61,26 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret=false;
         JsonNode node=ctx.getNode(field);
-        if(node!=null) 
-            if(node instanceof ArrayNode) {
-                ArrayNode array=(ArrayNode)node;
-                int index=0;
-                ArrayList<Integer> indexList=new ArrayList<Integer>(array.size());
-                QueryEvaluationContext nestedCtx=null;
-                for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
-                    JsonNode elem=itr.next();
-                    if(index==0) 
-                        nestedCtx=ctx.firstElementNestedContext(elem,field);
-                    else
-                        nestedCtx.elementNestedContext(elem,index);
-                    if(ev.evaluate(nestedCtx))
-                        ret=true;
-                    else
-                        indexList.add(index);
-                    index++;
-                }
-                if(ret) 
-                    ctx.addExcludedArrayElements(field,indexList);
+        if(node!=null&&node instanceof ArrayNode) {
+            ArrayNode array=(ArrayNode)node;
+            int index=0;
+            ArrayList<Integer> indexList=new ArrayList<Integer>(array.size());
+            QueryEvaluationContext nestedCtx=null;
+            for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
+                JsonNode elem=itr.next();
+                if(index==0) 
+                    nestedCtx=ctx.firstElementNestedContext(elem,field);
+                else
+                    nestedCtx.elementNestedContext(elem,index);
+                if(ev.evaluate(nestedCtx))
+                    ret=true;
+                else
+                    indexList.add(index);
+                index++;
             }
+            if(ret) 
+                ctx.addExcludedArrayElements(field,indexList);
+        }
         ctx.setResult(ret);
         return ret;
     }

@@ -45,17 +45,19 @@ public abstract class BasicProjection extends Projection {
         // the final object based on what fields this object has
         JsonNode x=node.get("include");
         boolean include;
-        if(x==null)
+        if(x==null) {
             include=true;
-        else
+        } else {
             include=x.asBoolean();
+        }
 
         Projection projection;
         x=node.get("project");
-        if(x!=null)
+        if(x!=null) {
             projection=Projection.fromJson(x);
-        else
+        } else {
             projection=null;
+        }
         x=node.get("range");
         if(x!=null) {
             if(x instanceof ArrayNode &&
@@ -70,14 +72,15 @@ public abstract class BasicProjection extends Projection {
                 throw Error.get(INVALID_ARRAY_RANGE_PROJECTION,node.toString());
         }
         x=node.get("match");
-        if(x!=null) 
-                return new ArrayQueryMatchProjection(path,
-                                                     include,
-                                                     projection,
-                                                     QueryExpression.fromJson(x));
-
-        if(projection!=null)
+        if(x!=null) {
+            return new ArrayQueryMatchProjection(path,
+                                                 include,
+                                                 projection,
+                                                 QueryExpression.fromJson(x));
+        }
+        if(projection!=null) {
             return new ArrayMatchingElementsProjection(path,include,projection);
+        }
         x=node.get("recursive");
         return new FieldProjection(path,include,
                                    x==null?false:x.asBoolean());

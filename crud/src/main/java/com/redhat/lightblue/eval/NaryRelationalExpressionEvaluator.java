@@ -75,11 +75,11 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
                     in=true;
                     break;
                 } 
-            } else if(x!=null)
-                if(fieldMd.getType().compare(docValue,x)==0) {
-                    in=true;
-                    break;
-                }
+            } else if(x!=null&&
+                      fieldMd.getType().compare(docValue,x)==0) {
+                in=true;
+                break;
+            }
         }
         logger.debug(" result={}",in);
         ctx.setResult(operator.apply(in));

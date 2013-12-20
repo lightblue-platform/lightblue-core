@@ -22,6 +22,9 @@ import com.redhat.lightblue.metadata.EntityConstraint;
 
 import com.redhat.lightblue.util.JsonDoc;
 
+/**
+ * Validates entity constraints
+ */
 public interface EntityConstraintChecker {
 
     /**
@@ -34,7 +37,7 @@ public interface EntityConstraintChecker {
      *
      * The function should add the errors to validator
      */
-    public void checkConstraint(ConstraintValidator validator,
-                                EntityConstraint constraint,
-                                JsonDoc doc);
+    void checkConstraint(ConstraintValidator validator,
+                         EntityConstraint constraint,
+                         JsonDoc doc);
 }

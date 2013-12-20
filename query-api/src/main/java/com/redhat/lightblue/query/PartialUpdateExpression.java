@@ -33,8 +33,9 @@ public abstract class PartialUpdateExpression extends UpdateExpression {
         if(node.size()==1) {
             String fld=node.fieldNames().next();
             UpdateOperator op=UpdateOperator.fromString(fld);
-            if(op==null)
+            if(op==null) {
                 throw Error.get(ERR_INVALID_OPERATOR,fld);
+            }
             JsonNode value=node.get(fld);
             switch(op) {
             case _set:

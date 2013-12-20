@@ -116,8 +116,9 @@ public class NaryRelationalExpression extends RelationalExpression {
      */
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
-        for(Value x:values)
+        for(Value x:values) {
             arr.add(x.toJson());
+        }
         return factory.objectNode().put("field",field.toString()).
             put("op",op.toString()).
             set("values",arr);
@@ -140,8 +141,9 @@ public class NaryRelationalExpression extends RelationalExpression {
                         if(x!=null&&x instanceof ArrayNode) {
                             ArrayList<Value> values=new ArrayList<Value>(((ArrayNode)x).size());
                             for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                                itr.hasNext();)
+                                itr.hasNext();) {
                                 values.add(Value.fromJson(itr.next()));
+                            }
                             return new NaryRelationalExpression(field,op,values);
                         }
                     }

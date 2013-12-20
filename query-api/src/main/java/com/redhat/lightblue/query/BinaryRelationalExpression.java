@@ -45,12 +45,13 @@ public abstract class BinaryRelationalExpression
                     if(x!=null) {
                         Path field=new Path(x.asText());
                         x=node.get("rfield");
-                        if(x!=null) 
+                        if(x!=null)  {
                             return new FieldComparisonExpression(field,op,new Path(x.asText()));
-                        else {
+                        } else {
                             x=node.get("rvalue");
-                            if(x!=null)
+                            if(x!=null) {
                                 return new ValueComparisonExpression(field,op,Value.fromJson(x));
+                            }
                         }
                     }
                 }

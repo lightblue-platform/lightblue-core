@@ -64,16 +64,20 @@ public class JsonDoc implements Serializable {
             }
             if(node instanceof ArrayNode) {
                 Iteration itr=iterators[level];
-                if(itr==null)
+                if(itr==null) {
                     iterators[level]=itr=new Iteration();
+                }
                 itr.index=-1;
                 itr.iterator=((ArrayNode)node).elements();
-                if(itr.next()) 
+                if(itr.next())  {
                     node=itr.currentNode;
-                else
+                }
+                else {
                     node=null;
-            } else
+                }
+            } else {
                 node=null;
+            }
             return node;
         }
     }
@@ -95,10 +99,12 @@ public class JsonDoc implements Serializable {
                     node=((ArrayNode)node).get(index);
                 } else if(node instanceof ObjectNode) {
                     node=node.get(name);
-                } else
+                } else {
                     node=null;
-                if(node==null)
+                }
+                if(node==null) {
                     break;
+                }
             }
             return node;
         }
@@ -145,13 +151,15 @@ public class JsonDoc implements Serializable {
         public PathCursor(Path p) {
             path=p;
             nextNode=resolver.resolve(path,docRoot,0);
-            if(nextNode!=null) 
+            if(nextNode!=null) {
                 nextFound=true;
+            }
             if(resolver.iterators==null)  {
                 ended=true;
                 mpath=null;
-            } else
+            } else {
                 mpath=new MutablePath(path);
+            }
         }
 
         public Path getCurrentKey() {
@@ -163,27 +171,29 @@ public class JsonDoc implements Serializable {
         }
 
         public boolean hasNext() {
-            if(!nextFound)
-                if(!ended)
-                    nextNode=seekNext();
+            if(!nextFound&&!ended) {
+                nextNode=seekNext();
+            }
             return nextFound;
         }
 
         public void next() {
-            if(!nextFound)
-                if(!ended)
-                    nextNode=seekNext();
+            if(!nextFound&&!ended) {
+                nextNode=seekNext();
+            }
             if(nextFound) {
                 if(resolver.iterators!=null) {
                     int i=0;
                     for(Iteration x:resolver.iterators) {
-                        if(x!=null)
+                        if(x!=null) {
                             mpath.set(i,x.index);
+                        }
                         i++;
                     }
                     currentPath=mpath.immutableCopy();
-                } else
+                } else {
                     currentPath=path;
+                }
                 currentNode=nextNode;
             } else {
                 currentPath=null;
@@ -212,8 +222,9 @@ public class JsonDoc implements Serializable {
                         }
                     } else { 
                         level--;
-                        if(level<0)
+                        if(level<0) {
                             done=ended=true;
+                        }
                     }
                 } while(!done);
             }

@@ -63,18 +63,19 @@ public enum BinaryComparisonOperator {
      *  @return Returns the value of x op y based on the comparison result of x and y
      */
     public boolean apply(int cmp) {
-        if(cmp<0)
+        if(cmp<0) {
             return this==_neq||
                 this==_lt||
                 this==_lte;
-        else if(cmp==0)
+        } else if(cmp==0) {
             return this==_eq||
                 this==_lte||
                 this==_gte;
-        else 
+        } else {
             return this==_neq||
                 this==_gt||
                 this==_gte;
+        }
     }
 
     public String toString() {

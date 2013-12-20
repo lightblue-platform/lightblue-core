@@ -19,12 +19,10 @@
 
 package com.redhat.lightblue.metadata.types;
 
-import com.redhat.lightblue.metadata.Type;
-
 public final class ObjectType extends ContainerType {
 
     public static final String NAME="object";
-    public static final Type TYPE=new ObjectType();
+    public static final ObjectType TYPE=new ObjectType();
 
     private ObjectType() {
         super(NAME);

@@ -35,13 +35,14 @@ public enum NaryLogicalOperator {
     }
 
     public static NaryLogicalOperator fromString(String s) {
-        if(_and.op.equals(s))
+        if(_and.op.equals(s)) {
             return _and;
-        else if(_or.op.equals(s))
+        } else if(_or.op.equals(s)) {
             return _or;
-        else if(_nor.op.equals(s))
+        } else if(_nor.op.equals(s)) {
             return _nor;
-        else
+        } else {
             return null;
+        }
     }
 }

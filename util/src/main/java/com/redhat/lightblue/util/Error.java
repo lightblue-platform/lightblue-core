@@ -65,10 +65,12 @@ public class Error extends RuntimeException {
      */
     public static void pop() {
         ArrayDeque<String> c=threadContext.get();
-        if(!c.isEmpty())
+        if(!c.isEmpty()) {
             c.removeLast();
-        if(c.isEmpty())
+        }
+        if(c.isEmpty()) {
             reset();
+        }
     }
 
     /**
@@ -146,10 +148,11 @@ public class Error extends RuntimeException {
         if(!context.isEmpty()) {
             boolean first=true;
             for(String x:context) {
-                if(first)
+                if(first) {
                     first=false;
-                else
+                } else {
                     s.append('/');
+                }
                 s.append(x);
             }
         }
@@ -159,12 +162,15 @@ public class Error extends RuntimeException {
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)factory.objectNode();
         node.put("object_type",factory.textNode("error"));
-        if(!context.isEmpty())
+        if(!context.isEmpty()) {
             node.put("context",factory.textNode(getContext()));
-        if(errorCode!=null)
+        }
+        if(errorCode!=null) {
             node.put("errorCode",factory.textNode(errorCode));
-        if(msg!=null)
+        }
+        if(msg!=null) {
             node.put("msg",factory.textNode(msg));
+        }
         return node;
     }
 
@@ -178,15 +184,18 @@ public class Error extends RuntimeException {
             JsonNode x=((ObjectNode)node).get("context");
             if(x!=null) {
                 StringTokenizer tok=new StringTokenizer(x.asText(),"/");
-                while(tok.hasMoreTokens())
+                while(tok.hasMoreTokens()) {
                     ret.pushContext(tok.nextToken());
+                }
             }
             x=((ObjectNode)node).get("errorCode");
-            if(x!=null)
+            if(x!=null) {
                 ret.errorCode=x.asText();
+            }
             x=((ObjectNode)node).get("msg");
-            if(x!=null)
+            if(x!=null) {
                 ret.msg=x.asText();
+            }
             return ret;
         } 
         return null;

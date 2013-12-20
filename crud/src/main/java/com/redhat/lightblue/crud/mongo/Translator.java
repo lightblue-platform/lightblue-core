@@ -453,18 +453,16 @@ public class Translator {
                         }
                     } else
                         logger.error("Expected DBObject, found {} for {}",value.getClass(),p);
-                } else if(field instanceof ArrayField) {
-                    if(value instanceof List) {
-                        if(mdCursor.firstChild()) {
-                            ArrayNode  valueNode=factory.arrayNode();
-                            // We must have an array element here
-                            FieldTreeNode x=mdCursor.getCurrentNode();
-                            if(x instanceof ArrayElement)
-                                for(Object item:(List)value)
-                                    valueNode.add(arrayElementToJson(item,(ArrayElement)x,md,mdCursor));
-                            mdCursor.parent();
-                        }
-                    }
+                } else if(field instanceof ArrayField&&
+                          value instanceof List&&
+                          mdCursor.firstChild()) {
+                    ArrayNode  valueNode=factory.arrayNode();
+                    // We must have an array element here
+                    FieldTreeNode x=mdCursor.getCurrentNode();
+                    if(x instanceof ArrayElement)
+                        for(Object item:(List)value)
+                            valueNode.add(arrayElementToJson(item,(ArrayElement)x,md,mdCursor));
+                    mdCursor.parent();
                 } else if(field instanceof ReferenceField) {
                     // TODO
                 }

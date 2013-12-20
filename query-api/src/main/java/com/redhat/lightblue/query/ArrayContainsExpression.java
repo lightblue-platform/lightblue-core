@@ -142,8 +142,9 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
                     if(x!=null&&x instanceof ArrayNode) {
                         ArrayList<Value> values=new ArrayList<Value>(((ArrayNode)x).size());
                         for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                            itr.hasNext();)
+                            itr.hasNext();) {
                             values.add(Value.fromJson(itr.next()));
+                        }
                         return new ArrayContainsExpression(field,op,values);
                     }
                 }

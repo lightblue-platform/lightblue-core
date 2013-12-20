@@ -68,22 +68,24 @@ public class Value extends JsonObject {
     @Override
     public JsonNode toJson() {
         if(value instanceof Number) {
-            if(value instanceof BigDecimal)
+            if(value instanceof BigDecimal) {
                 return factory.numberNode((BigDecimal)value);
-            else if(value instanceof BigInteger)
+            } else if(value instanceof BigInteger) {
                 return factory.numberNode((BigInteger)value);
-            else if(value instanceof Double)
+            } else if(value instanceof Double) {
                 return factory.numberNode((Double)value);
-            else if(value instanceof Float)
+            } else if(value instanceof Float) {
                 return factory.numberNode((Float)value);
-            else if(value instanceof Long)
+            } else if(value instanceof Long) {
                 return factory.numberNode((Long)value);
-            else 
+            } else  {
                 return factory.numberNode(((Number)value).intValue());
-        } else if(value instanceof Boolean)
+            }
+        } else if(value instanceof Boolean) {
             return factory.booleanNode((Boolean)value);
-        else
+        } else {
             return factory.textNode(value.toString());
+        }
     }
 
     /**
@@ -99,18 +101,20 @@ public class Value extends JsonObject {
         if(node.isValueNode()) {
             Value ret=new Value();
             if(node.isNumber()) {
-                if(node.isBigDecimal()||node.isDouble()||node.isFloat())
+                if(node.isBigDecimal()||node.isDouble()||node.isFloat()) {
                     ret.value=node.decimalValue();
-                else if(node.isBigInteger())
+                } else if(node.isBigInteger()) {
                     ret.value=node.bigIntegerValue();
-                else if(node.isLong())
+                } else if(node.isLong()) {
                     ret.value=node.longValue();
-                else
+                } else {
                     ret.value=node.intValue();
-            } else if(node.isBoolean())
+                }
+            } else if(node.isBoolean()) {
                 ret.value=node.booleanValue();
-            else
+            } else {
                 ret.value=node.textValue();
+            }
             return ret;
         } else
             throw Error.get(INVALID_VALUE,node.toString());

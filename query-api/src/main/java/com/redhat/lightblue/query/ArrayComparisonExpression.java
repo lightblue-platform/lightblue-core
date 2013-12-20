@@ -35,12 +35,13 @@ public abstract class ArrayComparisonExpression extends ComparisonExpression {
      */
     public static ArrayComparisonExpression fromJson(ObjectNode node) {
         JsonNode x=node.get("contains");
-        if(x!=null)
+        if(x!=null) {
             return ArrayContainsExpression.fromJson(node);
-        else {
+        } else {
             x=node.get("elemMatch");
-            if(x!=null)
+            if(x!=null) {
                 return ArrayMatchExpression.fromJson(node);
+            }
         }
         throw Error.get(INVALID_ARRAY_COMPARISON_EXPRESSION,node.toString());
     }

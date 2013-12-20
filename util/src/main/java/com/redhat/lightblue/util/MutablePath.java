@@ -176,8 +176,9 @@ public class MutablePath extends Path  {
     public MutablePath cut(int length) {
         own();
         int l=data.segments.size();
-        while(l>length)
+        while(l>length) {
             data.segments.remove(--l);
+        }
         data.resetState();
         return this;
     }

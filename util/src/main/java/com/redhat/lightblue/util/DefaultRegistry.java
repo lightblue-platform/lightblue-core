@@ -42,10 +42,13 @@ public class DefaultRegistry<K,V> implements Registry<K,V> {
     @Override
     public V find(K name) {
         V value=items.get(name);
-        if(value==null)
-            for(Resolver<K,V> x:resolvers)
-                if( (value=x.find(name))!=null )
+        if(value==null) {
+            for(Resolver<K,V> x:resolvers) {
+                if( (value=x.find(name))!=null ) {
                     break;
+                }
+            }
+        }
         return value;
     }
 }

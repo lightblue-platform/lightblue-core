@@ -150,7 +150,7 @@ public class Response extends JsonObject {
     /**
      * Parses a response from a Json object
      */
-    static public Response fromJson(ObjectNode node) {
+    public static Response fromJson(ObjectNode node) {
         Response ret=new Response();
         JsonNode x=node.get("status");
         if(x!=null) {
@@ -199,12 +199,15 @@ public class Response extends JsonObject {
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
         if(status!=null) {
+            String statusStr=null;
             switch(status) {
-            case COMPLETE: node.put("status","complete");break;
-            case ASYNC: node.put("status","async");break;
-            case PARTIAL: node.put("status","partial");break;
-            case ERROR: node.put("status","error");break;
+            case COMPLETE: statusStr="complete";break;
+            case ASYNC: statusStr="async";break;
+            case PARTIAL: statusStr="partial";break;
+            case ERROR: statusStr="error";break;
             }
+            if(statusStr!=null)
+                node.put("status",statusStr);
         }
         node.put("modifiedCount",modifiedCount);
         node.put("matchCount",matchCount);

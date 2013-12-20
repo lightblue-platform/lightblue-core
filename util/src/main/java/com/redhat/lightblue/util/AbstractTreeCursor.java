@@ -51,18 +51,20 @@ public abstract class AbstractTreeCursor<N> {
         public T next(MutablePath path,boolean newLevel) {
             cursor.next();
             T value=cursor.getCurrentValue();
-            if(newLevel)
+            if(newLevel) {
                 path.push(cursor.getCurrentKey());
-            else
+            } else {
                 path.setLast(cursor.getCurrentKey());
+            }
             return value;
         }
     }
         
     public AbstractTreeCursor(Path p,N start) {
         currentPath=new MutablePath(p);
-        if(pushNode(start)==null)
+        if(pushNode(start)==null) {
             throw new IllegalArgumentException(start.getClass().getName());
+        }
     }
 
     public N getCurrentNode() {

@@ -39,10 +39,11 @@ public abstract class RelationalExpression extends ComparisonExpression {
             x=node.get("op");
             if(x!=null) {
                 String op=x.asText();
-                if(BinaryComparisonOperator.fromString(op)!=null)
+                if(BinaryComparisonOperator.fromString(op)!=null) {
                     return BinaryRelationalExpression.fromJson(node);
-                else if(NaryRelationalOperator.fromString(op)!=null)
+                } else if(NaryRelationalOperator.fromString(op)!=null) {
                     return NaryRelationalExpression.fromJson(node);
+                }
             }
         }
         throw Error.get(INVALID_COMPARISON_EXPRESSION,node.toString());

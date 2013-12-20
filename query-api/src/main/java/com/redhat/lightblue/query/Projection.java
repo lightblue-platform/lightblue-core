@@ -30,9 +30,10 @@ import com.redhat.lightblue.util.JsonObject;
 public abstract class Projection extends JsonObject {
     
     public static Projection fromJson(JsonNode node) {
-        if(node instanceof ArrayNode) 
+        if(node instanceof ArrayNode) {
             return ProjectionList.fromJson((ArrayNode)node);
-        else
+        } else {
             return BasicProjection.fromJson((ObjectNode)node);
+        }
     }
 }

@@ -38,8 +38,8 @@ import com.redhat.lightblue.query.ContainsOperator;
 import com.redhat.lightblue.query.Value;
 
 /**
- * Initialize the class with the corresponding expression, metadata,
- * and the context path.  If this is a nested query, the context path
+ * Initialize the class with the corresponding expression and the
+ * context path.  If this is a nested query, the context path
  * determines the field from which the query needs to be evaluated.
  */
 public class ArrayContainsEvaluator extends QueryEvaluator {
@@ -66,49 +66,46 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret=false;
         JsonNode node=ctx.getNode(expr.getArray());
-        if(node!=null) 
-            if(node instanceof ArrayNode) {
-                ArrayNode array=(ArrayNode)node;
-                List<Value> values=expr.getValues();
-                ContainsOperator op=expr.getOp();
-                Type t=elem.getType();
-                int numElementsContained=0;
-                List<Integer> nonmatchingIndexes=new ArrayList<Integer>();
-                int index=0;
-                for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
-                    boolean match=false;
-                    JsonNode valueNode=itr.next();
-                    for(Value value:values) {
-                        Object v=value.getValue();
-                        if(valueNode==null||valueNode instanceof NullNode) {
-                            if(v==null) {
-                                numElementsContained++;
-                                match=true;
-                                break;
-                            } 
-                        } else {
-                            if(v!=null) {
-                                if(elem.getType().compare(v,t.fromJson(valueNode))==0) {
-                                    numElementsContained++;
-                                    match=true;
-                                    break;
-                                } 
-                            }
+        if(node!=null&&node instanceof ArrayNode) {
+            ArrayNode array=(ArrayNode)node;
+            List<Value> values=expr.getValues();
+            ContainsOperator op=expr.getOp();
+            Type t=elem.getType();
+            int numElementsContained=0;
+            List<Integer> nonmatchingIndexes=new ArrayList<Integer>();
+            int index=0;
+            for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
+                boolean match=false;
+                JsonNode valueNode=itr.next();
+                for(Value value:values) {
+                    Object v=value.getValue();
+                    if(valueNode==null||valueNode instanceof NullNode) {
+                        if(v==null) {
+                            numElementsContained++;
+                            match=true;
+                            break;
+                        } 
+                    } else {
+                        if(v!=null&&elem.getType().compare(v,t.fromJson(valueNode))==0) {
+                            numElementsContained++;
+                            match=true;
+                            break;
                         }
                     }
-                    if(!match)
-                        nonmatchingIndexes.add(index);
-                    index++;
                 }
-                switch(op) {
-                case _any: ret=numElementsContained>0;break;
-                case _all: ret=numElementsContained==values.size();break;
-                case _none: ret=numElementsContained==0;break;
-                }
-                if(ret) {
-                    ctx.addExcludedArrayElements(expr.getArray(),nonmatchingIndexes);
-                }
+                if(!match)
+                    nonmatchingIndexes.add(index);
+                index++;
             }
+            switch(op) {
+            case _any: ret=numElementsContained>0;break;
+            case _all: ret=numElementsContained==values.size();break;
+            case _none: ret=numElementsContained==0;break;
+            }
+            if(ret) {
+                ctx.addExcludedArrayElements(expr.getArray(),nonmatchingIndexes);
+            }
+        }
         ctx.setResult(ret);
         return ret;
     }

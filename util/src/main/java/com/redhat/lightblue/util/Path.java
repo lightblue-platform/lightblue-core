@@ -437,7 +437,8 @@ public class Path implements Comparable<Path>, Serializable  {
         for(int i=0;i<n;i++) {
             char c=x.charAt(i);
             switch(state) {
-            case 0: // Beginning of path, or after .
+            case 0: 
+                // Beginning of path, or after .
                 if(!Character.isWhitespace(c))
                     if(c=='.')
                         throw new InvalidPathException("Unexpected '.' at " + i, x);
@@ -447,7 +448,8 @@ public class Path implements Comparable<Path>, Serializable  {
                     }
                 break;
 
-            case 1: // Parsing word
+            case 1: 
+                // Parsing word
                 if(Character.isWhitespace(c)) {
                     segments.add(buf.toString());
                     buf=new StringBuilder(32);
@@ -460,7 +462,8 @@ public class Path implements Comparable<Path>, Serializable  {
                     buf.append(c);
                 break;
 
-            case 2: // Parsing end of word
+            case 2: 
+                // Parsing end of word
                 if(!Character.isWhitespace(c))
                     if(c=='.') {
                         state=0;

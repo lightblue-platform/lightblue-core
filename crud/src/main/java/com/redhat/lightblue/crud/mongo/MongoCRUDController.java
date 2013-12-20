@@ -65,6 +65,8 @@ public class MongoCRUDController implements CRUDController {
     public static final String ERR_DUPLICATE="DUPLICATE";
     public static final String ERR_INSERTION_ERROR="INSERTION_ERROR";
 
+    private static final String OP_INSERT="insert";
+
     private static final Logger logger=LoggerFactory.getLogger(MongoCRUDController.class);
 
     private final JsonNodeFactory factory;
@@ -86,7 +88,7 @@ public class MongoCRUDController implements CRUDController {
         if(documents==null||documents.isEmpty())
             throw new IllegalArgumentException("Empty documents");
         logger.debug("insert() start");
-        Error.push("insert");
+        Error.push(OP_INSERT);
         Translator translator=new Translator(resolver,factory);
         CRUDInsertionResponse response=new CRUDInsertionResponse();
         try {
@@ -111,13 +113,13 @@ public class MongoCRUDController implements CRUDController {
                             WriteResult result=collection.insert(doc,WriteConcern.SAFE);
                             String error=result.getError();
                             if(error!=null) {
-                                addErrorToMap(errorMap,doc,"insert",ERR_INSERTION_ERROR,error);
+                                addErrorToMap(errorMap,doc,OP_INSERT,ERR_INSERTION_ERROR,error);
                             } else
                                 successfulInsertions.add(doc);
                         } catch(MongoException.DuplicateKey dke) {
-                            addErrorToMap(errorMap,doc,"insert",ERR_DUPLICATE,dke.toString());
+                            addErrorToMap(errorMap,doc,OP_INSERT,ERR_DUPLICATE,dke.toString());
                         } catch(Exception e) {
-                            addErrorToMap(errorMap,doc,"insert",ERR_INSERTION_ERROR,e.toString());
+                            addErrorToMap(errorMap,doc,OP_INSERT,ERR_INSERTION_ERROR,e.toString());
                         } 
                     }
                 }

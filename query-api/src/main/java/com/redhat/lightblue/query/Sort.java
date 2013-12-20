@@ -35,9 +35,10 @@ public abstract class Sort extends JsonObject {
      * Parses a sort expression using the given json object
      */
     public static Sort fromJson(JsonNode node) {
-        if(node instanceof ArrayNode)
+        if(node instanceof ArrayNode) {
             return CompositeSortKey.fromJson((ArrayNode)node);
-        else
+        } else {
             return SortKey.fromJson((ObjectNode)node);
+        }
     }
 }

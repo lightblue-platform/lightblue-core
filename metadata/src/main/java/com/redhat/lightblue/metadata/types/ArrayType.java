@@ -19,12 +19,10 @@
 
 package com.redhat.lightblue.metadata.types;
 
-import com.redhat.lightblue.metadata.Type;
-
 public final class ArrayType extends ContainerType {
 
     public static final String NAME="array";
-    public static final Type TYPE=new ArrayType();
+    public static final ArrayType TYPE=new ArrayType();
 
     private ArrayType() {
         super(NAME);

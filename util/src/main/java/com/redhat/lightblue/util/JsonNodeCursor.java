@@ -46,12 +46,13 @@ public final class JsonNodeCursor extends AbstractTreeCursor<JsonNode> {
     }
 
     protected KeyValueCursor<String,JsonNode> getCursor(JsonNode node) {
-        if(node instanceof ArrayNode)
+        if(node instanceof ArrayNode) {
             return new ArrayElementCursor(((ArrayNode)node).elements());
-        else if(node instanceof ObjectNode)
+        } else if(node instanceof ObjectNode) {
             return new KeyValueCursorIteratorAdapter<String,JsonNode>(((ObjectNode)node).fields());
-        else
+        } else {
             throw new IllegalArgumentException(node.getClass().getName());
+        }
     }
 
     protected boolean hasChildren(JsonNode node) {

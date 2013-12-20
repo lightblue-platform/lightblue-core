@@ -71,16 +71,18 @@ public class ProjectionList extends Projection {
     @Override
     public JsonNode toJson() {
         ArrayNode arr=factory.arrayNode();
-        for(Projection x:items)
+        for(Projection x:items) {
             arr.add(x.toJson());
+        }
         return arr;
     }
 
     public static ProjectionList fromJson(ArrayNode node) {
         ArrayList<Projection> list=new ArrayList<Projection>(node.size());
         for(Iterator<JsonNode> itr=node.elements();
-            itr.hasNext();)
+            itr.hasNext();) {
             list.add(BasicProjection.fromJson((ObjectNode)itr.next()));
+        }
         return new ProjectionList(list);
     }
 }

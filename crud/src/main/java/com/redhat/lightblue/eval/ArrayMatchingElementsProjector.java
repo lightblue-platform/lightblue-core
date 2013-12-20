@@ -54,11 +54,10 @@ public class ArrayMatchingElementsProjector extends Projector {
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
         if(p.numSegments()==arrayFieldPattern.numSegments()+1&&
-           p.matchingDescendant(arrayFieldPattern)) {            
-            if(ctx.isMatchingElement(p)) {
-                lastMatch=true;
-                return include?Boolean.TRUE:Boolean.FALSE;
-            }
+           p.matchingDescendant(arrayFieldPattern)&&
+           ctx.isMatchingElement(p)) {
+            lastMatch=true;
+            return include?Boolean.TRUE:Boolean.FALSE;
         } 
         return null;
     }

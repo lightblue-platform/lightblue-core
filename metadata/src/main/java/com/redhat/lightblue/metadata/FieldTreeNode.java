@@ -31,7 +31,7 @@ import com.redhat.lightblue.util.Path;
  */
 public interface FieldTreeNode {
 
-    public static final Iterator<FieldTreeNode> EMPTY=new EmptyIterator<FieldTreeNode>();
+    static final Iterator<FieldTreeNode> EMPTY=new EmptyIterator<FieldTreeNode>();
 
     /**
      * Return field name

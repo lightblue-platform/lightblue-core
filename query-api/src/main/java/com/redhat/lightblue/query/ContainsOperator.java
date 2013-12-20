@@ -32,13 +32,14 @@ public enum ContainsOperator {
     }
 
     public static ContainsOperator fromString(String s) {
-        if(_any.op.equals(s))
+        if(_any.op.equals(s)) {
             return _any;
-        else if(_all.op.equals(s))
+        } else if(_all.op.equals(s)) {
             return _all;
-        else if(_none.op.equals(s))
+        } else if(_none.op.equals(s)) {
             return _none;
-        else
+        } else {
             return null;
+        }
     }
 }

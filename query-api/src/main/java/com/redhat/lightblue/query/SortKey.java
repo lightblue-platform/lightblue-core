@@ -78,18 +78,20 @@ public class SortKey extends Sort {
     }
 
     public static SortKey fromJson(ObjectNode node) {
-        if(node.size()!=1)
+        if(node.size()!=1) {
             throw Error.get(INVALID_SORT,node.toString());
+        }
         String field=node.fieldNames().next();
         String dir=node.get(field).asText();
         SortKey sk=new SortKey();
         sk.setField(new Path(field));
-        if("$asc".equals(dir))
+        if("$asc".equals(dir)) {
             sk.setDesc(false);
-        else if("$desc".equals(dir))
+        } else if("$desc".equals(dir)) {
             sk.setDesc(true);
-        else
+        } else {
             throw Error.get(INVALID_SORT,node.toString());
+        }
         return sk;
     }
 }

@@ -26,9 +26,10 @@ public final class Util {
             int n = value.length();
             for (int i = 0; i < n; i++) {
                 char x=value.charAt(i);
-                if (!Character.isDigit(x))
-                    if(!(i==0&&(x=='-'||x=='+')) )
-                        return false;
+                if (!Character.isDigit(x)&&
+                    !(i==0&&(x=='-'||x=='+')) ) {
+                    return false;
+                }
             }
             return n > 0;
         }

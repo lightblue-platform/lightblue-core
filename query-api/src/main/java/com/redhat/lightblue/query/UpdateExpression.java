@@ -27,10 +27,11 @@ import com.redhat.lightblue.util.JsonObject;
 public abstract class UpdateExpression extends JsonObject {
 
     public static UpdateExpression fromJson(JsonNode node) {
-        if(node instanceof ArrayNode) 
+        if(node instanceof ArrayNode) {
             return UpdateExpressionList.fromJson((ArrayNode)node);
-        else
+        } else {
             return PartialUpdateExpression.fromJson((ObjectNode)node);
+        }
     }
 
 }

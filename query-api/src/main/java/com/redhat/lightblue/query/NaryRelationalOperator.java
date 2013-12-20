@@ -48,18 +48,21 @@ public enum NaryRelationalOperator {
     }
 
     private boolean has(String s) {
-        for(String x:ops)
-            if(x.equals(s))
+        for(String x:ops) {
+            if(x.equals(s)) {
                 return true;
+            }
+        }
         return false;
     }
 
     public static NaryRelationalOperator fromString(String s) {
-        if(_in.has(s))
+        if(_in.has(s)) {
             return _in;
-        else if(_not_in.has(s))
+        } else if(_not_in.has(s)) {
             return _not_in;
-        else
+        } else {
             return null;
+        }
     }
 }

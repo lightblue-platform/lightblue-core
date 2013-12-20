@@ -58,10 +58,11 @@ public class SetExpression extends FieldUpdateExpression {
         if(op!=null) {
             if(op==UpdateOperator._set ||
                op==UpdateOperator._add ||
-               op==UpdateOperator._setOnInsert)
+               op==UpdateOperator._setOnInsert) {
                 this.op=op;
-            else
+            } else {
                 throw new IllegalArgumentException(op.toString());
+            }
         } else
             this.op=null;
     }

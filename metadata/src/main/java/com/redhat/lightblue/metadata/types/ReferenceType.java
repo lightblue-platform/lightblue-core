@@ -19,12 +19,10 @@
 
 package com.redhat.lightblue.metadata.types;
 
-import com.redhat.lightblue.metadata.Type;
-
 public final class ReferenceType extends ContainerType {
 
     public static final String NAME="reference";
-    public static final Type TYPE=new ReferenceType();
+    public static final ReferenceType TYPE=new ReferenceType();
 
     private ReferenceType() {
         super(NAME);
