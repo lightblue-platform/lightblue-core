@@ -32,5 +32,5 @@ public interface MetadataResolver {
     /**
      * Return the correct version of the entity metadata based on current context
      */
-    public EntityMetadata getEntityMetadata(String entityName);
+    EntityMetadata getEntityMetadata(String entityName);
 }

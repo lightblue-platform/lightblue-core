@@ -19,14 +19,17 @@
 
 package com.redhat.lightblue.metadata;
 
+/**
+ * Interface for constraints that apply to a field
+ */
 public interface FieldConstraint {
     /**
      * Return the constraint type
      */
-    public String getType();
+    String getType();
 
     /**
      * Determines if the constraint is valid for the given field type
      */
-    public boolean isValidForFieldType(Type fieldType);
+    boolean isValidForFieldType(Type fieldType);
 }

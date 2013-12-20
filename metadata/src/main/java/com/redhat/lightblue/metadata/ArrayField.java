@@ -22,7 +22,6 @@ package com.redhat.lightblue.metadata;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.redhat.lightblue.util.Util;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 

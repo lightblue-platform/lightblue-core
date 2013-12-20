@@ -18,8 +18,6 @@
 */
 package com.redhat.lightblue.query;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,11 +25,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Base class for field and array projections
+ */
 public abstract class BasicProjection extends Projection {
 
     public static final String INVALID_PROJECTION="INVALID_PROJECTION";
     public static final String INVALID_ARRAY_RANGE_PROJECTION="INVALID_ARRAY_RANGE_PROJECTION";
 
+    /**
+     * Parses a field or array projection from the given json object
+     */
     public static BasicProjection fromJson(ObjectNode node) {
         String field=node.get("field").asText();
         if(field==null)

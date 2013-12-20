@@ -19,9 +19,6 @@
 
 package com.redhat.lightblue.metadata.types;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.metadata.Type;
 
 public final class ReferenceType extends ContainerType {

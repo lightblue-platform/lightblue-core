@@ -18,9 +18,6 @@
 */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.Arrays;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Path;

@@ -30,8 +30,6 @@ import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.QueryExpression;
 
-import com.redhat.lightblue.util.Path;
-
 public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
 
     private static final Logger logger=LoggerFactory.getLogger(NaryLogicalExpressionEvaluator.class);

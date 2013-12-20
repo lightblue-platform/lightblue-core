@@ -26,8 +26,6 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
 
-import com.redhat.lightblue.util.Path;
-
 public class UnaryLogicalExpressionEvaluator extends QueryEvaluator {
 
     private static final Logger logger=LoggerFactory.getLogger(UnaryLogicalExpressionEvaluator.class);

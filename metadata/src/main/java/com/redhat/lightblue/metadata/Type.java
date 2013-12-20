@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+/**
+ * Interface defining a data type 
+ */
 public interface Type {
 
     public static final String ERR_INCOMPATIBLE_VALUE="INCOMPATIBLE_VALUE";
@@ -30,42 +33,51 @@ public interface Type {
     /**
      * Returns the type name
      */
-    public String getName();
+    String getName();
 
     /**
      * Returns if values of this type can be compared for equality
      */
-    public boolean supportsEq();
+    boolean supportsEq();
 
     /**
      * Returns if values of this type can be ordered (i.e. <, <=, >, >=)
      */
-    public boolean supportsOrdering();
+    boolean supportsOrdering();
 
     /**
      * Convert the non-null value to Json node
      */
-    public JsonNode toJson(JsonNodeFactory factory,Object value);
+    JsonNode toJson(JsonNodeFactory factory,Object value);
 
     /**
      * Convert the non-null json node value to Java native value
      */
-    public Object fromJson(JsonNode value);
+    Object fromJson(JsonNode value);
 
     /**
      * Compares v1 and v2, and returns <0 if v1<v2, 0 if v1=v2 and >0 if v1>v2
      */
-    public int compare(Object v1,Object v2);
+    int compare(Object v1,Object v2);
 
     /**
      * Try to cast java object v to this type. 
      */
-    public Object cast(Object v);
+    Object cast(Object v);
 
-    public boolean equals(Object obj);
+    /**
+     * Determine if two Types are the same
+     */
+    boolean equals(Object obj);
 
-    public int hashCode();
+    /**
+     * Returns the hashcode for the type
+     */
+    int hashCode();
 
-    public String toString();
+    /**
+     * Returns the name of the type
+     */
+    String toString();
 }
 

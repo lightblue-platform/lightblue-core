@@ -30,7 +30,6 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.RegexMatchExpression;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 
 public class RegexEvaluator extends QueryEvaluator {
 

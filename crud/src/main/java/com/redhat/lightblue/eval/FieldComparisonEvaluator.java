@@ -29,7 +29,6 @@ import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 
 public class FieldComparisonEvaluator extends QueryEvaluator {
 

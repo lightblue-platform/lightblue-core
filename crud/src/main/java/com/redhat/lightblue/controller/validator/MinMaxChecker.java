@@ -23,7 +23,6 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 

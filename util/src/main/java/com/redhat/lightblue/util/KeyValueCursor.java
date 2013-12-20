@@ -29,5 +29,5 @@ public interface KeyValueCursor<K,V> extends Cursor<V> {
     /**
      * Get the current key 
      */
-    public K getCurrentKey();
+    K getCurrentKey();
 }

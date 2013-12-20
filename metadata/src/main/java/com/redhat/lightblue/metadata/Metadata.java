@@ -19,33 +19,36 @@
 
 package com.redhat.lightblue.metadata;
 
+/**
+ * Metadata manager interface
+ */
 public interface Metadata {
 
     /**
      * Returns a particular version of the entity metadata
      */
-    public EntityMetadata getEntityMetadata(String entityName, String version);
+    EntityMetadata getEntityMetadata(String entityName, String version);
 
     /**
      * Returns the names of all entities
      */
-    public String[] getEntityNames();
+    String[] getEntityNames();
 
     /**
      * Returns all versions of an entity
      */
-    public Version[] getEntityVersions(String entityName);
+    Version[] getEntityVersions(String entityName);
 
     /**
      * Creates a new entity metadata
      */
-    public void createNewMetadata(EntityMetadata md);
+    void createNewMetadata(EntityMetadata md);
 
     /**
      * Sets the status of a particular version of an entity
      */
-    public void setMetadataStatus(String entityName,
-                                  String version,
-                                  MetadataStatus newStatus,
-                                  String comment);
+    void setMetadataStatus(String entityName,
+                           String version,
+                           MetadataStatus newStatus,
+                           String comment);
 }

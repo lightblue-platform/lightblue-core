@@ -46,17 +46,17 @@ public interface CRUDController {
      * projection is non-null, the data must be projected and
      * returned, otherwise, no data is returned.
      */
-    public CRUDInsertionResponse insert(MetadataResolver resolver,
-                                        List<JsonDoc> documents,
-                                        Projection projection);
+    CRUDInsertionResponse insert(MetadataResolver resolver,
+                                 List<JsonDoc> documents,
+                                 Projection projection);
 
-    public CRUDFindResponse find(MetadataResolver resolver,
-                                 String entity,
-                                 QueryExpression query,
-                                 Projection projection,
-                                 Sort sort,
-                                 Long from,
-                                 Long to);
+    CRUDFindResponse find(MetadataResolver resolver,
+                          String entity,
+                          QueryExpression query,
+                          Projection projection,
+                          Sort sort,
+                          Long from,
+                          Long to);
 
 }
 

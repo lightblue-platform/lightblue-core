@@ -18,7 +18,6 @@
 */
 package com.redhat.lightblue.controller;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
@@ -39,9 +38,9 @@ public interface FieldConstraintDocChecker extends FieldConstraintChecker {
      *
      * The function should add the errors to validator
      */
-    public void checkConstraint(ConstraintValidator validator,
-                                FieldTreeNode fieldMetadata,
-                                Path fieldMetadataPath,
-                                FieldConstraint constraint,
-                                JsonDoc doc);
+    void checkConstraint(ConstraintValidator validator,
+                         FieldTreeNode fieldMetadata,
+                         Path fieldMetadataPath,
+                         FieldConstraint constraint,
+                         JsonDoc doc);
 }

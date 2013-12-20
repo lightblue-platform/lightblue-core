@@ -33,7 +33,6 @@ import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.Value;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 
 public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
 

@@ -20,7 +20,6 @@ package com.redhat.lightblue.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
@@ -43,11 +42,11 @@ public interface FieldConstraintValueChecker extends FieldConstraintChecker {
      *
      * The function should add the field errors to validator
      */
-    public void checkConstraint(ConstraintValidator validator,
-                                FieldTreeNode fieldMetadata,
-                                Path fieldMetadataPath,
-                                FieldConstraint constraint,
-                                Path valuePath,
-                                JsonDoc doc,
-                                JsonNode fieldValue);
+    void checkConstraint(ConstraintValidator validator,
+                         FieldTreeNode fieldMetadata,
+                         Path fieldMetadataPath,
+                         FieldConstraint constraint,
+                         Path valuePath,
+                         JsonDoc doc,
+                         JsonNode fieldValue);
 }

@@ -18,7 +18,6 @@
 */
 package com.redhat.lightblue.eval;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -28,12 +27,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.Type;
 
 import com.redhat.lightblue.query.ArrayMatchExpression;
 

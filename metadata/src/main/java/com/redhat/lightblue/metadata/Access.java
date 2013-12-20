@@ -24,21 +24,34 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Keeps a set of roles that can perform a certain operation
+ */
 public class Access implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
     private final HashSet<String> values = new HashSet<String>();
-
+    
+    /**
+     * Default ctor
+     */
     public Access() {
     }
 
+    /**
+     * Sets the roles. The given collection contents are copied to
+     * internal storage.
+     */
     public void setRoles(Collection<String> roles) {
         values.clear();
         if (roles != null)
             values.addAll(roles);
     }
 
+    /**
+     * Retrieves the roles. A copy of the internal storage is returned.
+     */
     public Set<String> getRoles() {
         return (Set<String>) values.clone();
     }

@@ -29,15 +29,15 @@ public interface Cursor<V> {
     /**
      * Returns if there is a next element
      */
-    public boolean hasNext();
+    boolean hasNext();
 
     /**
      * Position the cursor to the next element.
      */
-    public void next();
+    void next();
 
     /**
      * Get the current value 
      */
-    public V getCurrentValue();
+    V getCurrentValue();
 }

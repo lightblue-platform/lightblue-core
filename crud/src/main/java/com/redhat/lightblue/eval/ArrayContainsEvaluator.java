@@ -26,9 +26,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.ArrayElement;

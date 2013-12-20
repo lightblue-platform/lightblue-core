@@ -24,7 +24,7 @@ import java.io.Serializable;
  * Represents entity:value, a particular version of the entity
  * metadata
  */
-public final class EntityVersion {
+public final class EntityVersion implements Serializable {
 
     private static final long serialVersionUID=1l;
 

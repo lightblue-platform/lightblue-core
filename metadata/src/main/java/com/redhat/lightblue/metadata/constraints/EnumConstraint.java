@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.Collection;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.Constants;
 
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.StringType;

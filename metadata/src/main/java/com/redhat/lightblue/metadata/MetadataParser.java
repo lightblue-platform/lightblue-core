@@ -24,9 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.QueryExpression;

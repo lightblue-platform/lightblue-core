@@ -34,13 +34,13 @@ public interface Parser<NodeType,T> {
     /**
      * Return an object representation of the node
      */
-    public T parse(MetadataParser<NodeType> p,NodeType node);
+    T parse(MetadataParser<NodeType> p,NodeType node);
 
     /**
      * Intialize the empt node <code>emptyNode</code> with the
      * contents of <code>object</code>
      */
-    public void convert(MetadataParser<NodeType> p,NodeType emptyNode,T object);
+    void convert(MetadataParser<NodeType> p,NodeType emptyNode,T object);
 }
 
     

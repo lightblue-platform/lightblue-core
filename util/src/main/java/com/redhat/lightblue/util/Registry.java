@@ -23,6 +23,13 @@ package com.redhat.lightblue.util;
  * A registry is a mapper that contains key-value pairs and resolver of key/value pairs.
  */
 public interface Registry<K,V> extends Resolver<K,V> {
-    public void add(Resolver<K,V> resolver);
-    public void add(K name,V value);
+    /**
+     * Adds a collection of items to this registry.
+     */
+    void add(Resolver<K,V> resolver);
+
+    /**
+     * Adds an item to the registry
+     */
+    void add(K name,V value);
 }

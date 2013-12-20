@@ -19,6 +19,14 @@
 
 package com.redhat.lightblue.metadata;
 
+/**
+ * Interface for datastore metadata implementations. The actual
+ * contents are defined by the implementation.
+ */
 public interface DataStore {
-    public String getType();
+
+    /**
+     * Returns the type of the datastore
+     */
+    String getType();
 }

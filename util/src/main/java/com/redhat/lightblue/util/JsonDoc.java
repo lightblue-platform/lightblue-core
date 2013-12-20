@@ -21,10 +21,7 @@ package com.redhat.lightblue.util;
 
 import java.io.Serializable;
 
-import java.util.Map;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

@@ -19,15 +19,12 @@
 
 package com.redhat.lightblue.metadata.mongo;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Date;
 import java.util.List;
 
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.BasicDBObject;
-import com.mongodb.AggregationOutput;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.WriteConcern;
@@ -52,6 +49,7 @@ public class MongoMetadata implements Metadata {
 
     public static final String ERR_DUPLICATE_METADATA="DUPLICATE_METADATA";
     public static final String ERR_UNKNOWN_VERSION="UNKNOWN_VERSION";
+    public static final String ERR_DB_ERROR="DB_ERROR";
 
     public static final String DEFAULT_METADATA_COLLECTION="metadata";
 
@@ -154,7 +152,10 @@ public class MongoMetadata implements Metadata {
             DBObject obj=(DBObject)mdParser.convert(md);
             try {
                 WriteResult result=collection.insert(obj,WriteConcern.SAFE);
-            } catch (MongoException.DuplicateKey dke) {
+                String error=result.getError();
+                if(error!=null)
+                    throw Error.get(ERR_DB_ERROR,error);
+           } catch (MongoException.DuplicateKey dke) {
                 throw Error.get(ERR_DUPLICATE_METADATA,ver.getValue());
             } 
         } finally {
@@ -193,6 +194,9 @@ public class MongoMetadata implements Metadata {
             query=new BasicDBObject("_id",md.get("_id"));
             WriteResult result=collection.
                 update(query,(DBObject)mdParser.convert(metadata),false,false);
+            String error=result.getError();
+            if(error!=null)
+                throw Error.get(ERR_DB_ERROR,error);
         } finally {
             Error.pop();
         }

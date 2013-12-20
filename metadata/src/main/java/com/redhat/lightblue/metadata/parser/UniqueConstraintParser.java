@@ -22,8 +22,6 @@ package com.redhat.lightblue.metadata.parser;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.MetadataParser;
 
@@ -31,8 +29,14 @@ import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
 
+/**
+ * Parses a Unique constraint
+ */
 public class UniqueConstraintParser<T> implements EntityConstraintParser<T> {
 
+    /**
+     * Parses a UniqueConstraint at the given node
+     */
     @Override
     public EntityConstraint parse(MetadataParser<T> p,T node) {
         UniqueConstraint ret=new UniqueConstraint();
@@ -44,6 +48,9 @@ public class UniqueConstraintParser<T> implements EntityConstraintParser<T> {
         return ret;
     }
 
+    /**
+     * Converts a unique constraint into document
+     */
     @Override
     public void convert(MetadataParser<T> p,T emptyNode,EntityConstraint object) {
         Object arr=p.newArrayField(emptyNode,UniqueConstraint.UNIQUE);

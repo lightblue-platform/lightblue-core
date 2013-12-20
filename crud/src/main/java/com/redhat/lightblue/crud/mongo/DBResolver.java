@@ -22,6 +22,12 @@ import com.mongodb.DB;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 
+/**
+ * Returns a DB object based on the MongoDataStore.
+ */
 public interface DBResolver {
-    public DB get(MongoDataStore store);
+    /**
+     * Returns a DB object based on the datastore definition
+     */
+    DB get(MongoDataStore store);
 }

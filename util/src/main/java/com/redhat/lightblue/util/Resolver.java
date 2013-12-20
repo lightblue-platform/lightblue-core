@@ -25,6 +25,9 @@ package com.redhat.lightblue.util;
  */
 public interface Resolver<K,V> {
     
-    public V find(K name);
+    /**
+     * Find the object with the given name
+     */
+    V find(K name);
 
 }

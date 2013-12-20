@@ -19,6 +19,13 @@
 
 package com.redhat.lightblue.metadata;
 
+/**
+ * Defines a constraint that applies to the entity
+ */
 public interface EntityConstraint {
-    public String getType();
+    
+    /**
+     * Returns the constraint type
+     */
+    String getType();
 }

@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import java.util.List;
 
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 public class CRUDFindResponse implements Serializable {

@@ -21,7 +21,6 @@ package com.redhat.lightblue.eval;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

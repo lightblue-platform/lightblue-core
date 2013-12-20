@@ -24,6 +24,11 @@ import java.util.Iterator;
 import com.redhat.lightblue.util.EmptyIterator;
 import com.redhat.lightblue.util.Path;
 
+/**
+ * Interface for items of the field tree. This interface allows
+ * resolution of Paths based on an arbitrary location in the field
+ * tree.
+ */
 public interface FieldTreeNode {
 
     public static final Iterator<FieldTreeNode> EMPTY=new EmptyIterator<FieldTreeNode>();
@@ -31,22 +36,25 @@ public interface FieldTreeNode {
     /**
      * Return field name
      */
-    public String getName();
+    String getName();
 
     /**
      * Return field type
      */
-    public Type getType();
+    Type getType();
 
     /**
      * Returns true if field has children
      */
-    public boolean hasChildren();
+    boolean hasChildren();
 
     /**
      * Returns an iterator over the children of the field
      */
-    public Iterator<? extends FieldTreeNode> getChildren();
+    Iterator<? extends FieldTreeNode> getChildren();
 
-    public FieldTreeNode resolve(Path p);
+    /**
+     * Returns the field tree node for the given Path relative to this
+     */
+    FieldTreeNode resolve(Path p);
 }

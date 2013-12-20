@@ -27,6 +27,6 @@ public interface TypeResolver {
     /**
      * Return the type object for the given type. If not found, return null.
      */
-    public Type getType(String typeName);
+    Type getType(String typeName);
 }
 
