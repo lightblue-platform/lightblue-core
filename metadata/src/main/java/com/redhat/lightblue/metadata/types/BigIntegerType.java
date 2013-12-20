@@ -102,7 +102,7 @@ public final class BigIntegerType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof BigIntegerType;
+        return obj instanceof BigIntegerType;
     }
 
     @Override

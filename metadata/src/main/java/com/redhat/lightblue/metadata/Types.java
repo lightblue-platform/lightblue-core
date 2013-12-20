@@ -20,12 +20,13 @@
 package com.redhat.lightblue.metadata;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 public class Types implements TypeResolver {
 
-    private static final ArrayList<TypeResolver> typeResolvers=new ArrayList<TypeResolver>();
+    private static final List<TypeResolver> typeResolvers=new ArrayList<TypeResolver>();
 
     /**
      * Adds a new type resolver. If the new type resolver redefined

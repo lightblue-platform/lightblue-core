@@ -72,13 +72,15 @@ public class DataError extends JsonObject {
      */
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
-        if(entityData!=null)
+        if(entityData!=null) {
             node.set("data",entityData);
+        }
         if(errors!=null&&!errors.isEmpty()) {
             ArrayNode arr=factory.arrayNode();
             node.set("errors",arr);
-            for(Error x:errors)
+            for(Error x:errors) {
                 arr.add(x.toJson());
+            }
         }
         return node;
     }
@@ -92,14 +94,16 @@ public class DataError extends JsonObject {
     public static DataError fromJson(ObjectNode node) {
         DataError error=new DataError();
         JsonNode x=node.get("data");
-        if(x!=null)
+        if(x!=null) {
             error.entityData=x;
+        }
         x=node.get("errors");
-        if(x!=null&&x instanceof ArrayNode) {
+        if(x instanceof ArrayNode) {
             error.errors=new ArrayList<Error>();
             for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                itr.hasNext();)
+                itr.hasNext();) {
                 error.errors.add(Error.fromJson(itr.next()));
+            }
         }
         return error;
     }       

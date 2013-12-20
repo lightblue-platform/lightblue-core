@@ -99,7 +99,7 @@ public final class IntegerType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof IntegerType;
+        return obj instanceof IntegerType;
     }
 
     @Override

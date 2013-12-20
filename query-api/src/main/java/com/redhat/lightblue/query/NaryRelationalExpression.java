@@ -138,7 +138,7 @@ public class NaryRelationalExpression extends RelationalExpression {
                     if(x!=null) {
                         Path field=new Path(x.asText());
                         x=node.get("values");
-                        if(x!=null&&x instanceof ArrayNode) {
+                        if(x instanceof ArrayNode) {
                             ArrayList<Value> values=new ArrayList<Value>(((ArrayNode)x).size());
                             for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
                                 itr.hasNext();) {

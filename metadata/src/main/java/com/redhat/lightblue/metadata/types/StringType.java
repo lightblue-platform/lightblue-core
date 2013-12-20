@@ -83,7 +83,7 @@ public final class StringType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof StringType;
+        return obj instanceof StringType;
     }
 
     @Override

@@ -89,10 +89,12 @@ public class SaveRequest extends Request {
      */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
-        if(entityData!=null)
+        if(entityData!=null) {
             node.set("data",entityData);
-        if(returnFields!=null)
+        }
+        if(returnFields!=null) {
             node.set("returning",returnFields.toJson());
+        }
         node.put("upsert",upsert);
         return node;
     }
@@ -105,11 +107,13 @@ public class SaveRequest extends Request {
         req.parse(node);
         req.entityData=node.get("data");
         JsonNode x=node.get("returning");
-        if(x!=null)
+        if(x!=null) {
             req.returnFields=Projection.fromJson(x);
+        }
         x=node.get("upsert");
-        if(x!=null)
+        if(x!=null) {
             req.upsert=x.asBoolean();
+        }
         return req;
     }
 }

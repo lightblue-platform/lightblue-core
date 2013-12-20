@@ -65,7 +65,7 @@ public class Path implements Comparable<Path>, Serializable  {
     public static final Path ANYPATH=new Path(ANY);
 
     static class PathRep {        
-        ArrayList<String> segments;
+        List<String> segments;
         transient String stringValue=null;
         transient int hashValue=0;
 
@@ -104,7 +104,7 @@ public class Path implements Comparable<Path>, Serializable  {
         }
 
         public boolean equals(Object o) {
-            return o!=null&&o instanceof PathRep?equals((PathRep)o):false;
+            return o instanceof PathRep?equals((PathRep)o):false;
         }
 
         public boolean equals(PathRep r) {

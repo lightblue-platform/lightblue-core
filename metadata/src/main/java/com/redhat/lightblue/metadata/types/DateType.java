@@ -124,7 +124,7 @@ public final class DateType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof DateType;
+        return obj instanceof DateType;
     }
 
     @Override

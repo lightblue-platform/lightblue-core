@@ -66,7 +66,7 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret=false;
         JsonNode node=ctx.getNode(expr.getArray());
-        if(node!=null&&node instanceof ArrayNode) {
+        if(node instanceof ArrayNode) {
             ArrayNode array=(ArrayNode)node;
             List<Value> values=expr.getValues();
             ContainsOperator op=expr.getOp();

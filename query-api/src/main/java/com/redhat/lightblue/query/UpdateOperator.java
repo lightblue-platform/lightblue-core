@@ -19,6 +19,7 @@
 package com.redhat.lightblue.query;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Operators than can be used in an update expression
@@ -34,7 +35,7 @@ public enum UpdateOperator {
     
     private final String op;
     
-    private static final HashMap<String,UpdateOperator> map;
+    private static final Map<String,UpdateOperator> map;
 
     static {
         map=new HashMap<String,UpdateOperator>();

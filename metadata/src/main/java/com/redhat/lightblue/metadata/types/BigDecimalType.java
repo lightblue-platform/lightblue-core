@@ -108,7 +108,7 @@ public final class BigDecimalType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof BigDecimalType;
+        return obj instanceof BigDecimalType;
     }
 
     @Override

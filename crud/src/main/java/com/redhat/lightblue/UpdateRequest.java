@@ -81,12 +81,15 @@ public class UpdateRequest extends Request {
      */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
-        if(query!=null)
+        if(query!=null) {
             node.set("query",query.toJson());
-        if(updateExpression!=null)
+        }
+        if(updateExpression!=null) {
             node.set("update",updateExpression.toJson());
-        if(returnFields!=null)
+        }
+        if(returnFields!=null) {
             node.set("returning",returnFields.toJson());
+        }
         return node;
     }
 
@@ -97,14 +100,17 @@ public class UpdateRequest extends Request {
         UpdateRequest req=new UpdateRequest();
         req.parse(node);
         JsonNode x=node.get("query");
-        if(x!=null)
+        if(x!=null) {
             req.query=QueryExpression.fromJson(x);
+        }
         x=node.get("update");
-        if(x!=null)
+        if(x!=null) {
             req.updateExpression=UpdateExpression.fromJson(x);
+        }
         x=node.get("returning");
-        if(x!=null)
+        if(x!=null) {
             req.returnFields=Projection.fromJson(x);
+        }
         return req;
     }
 }

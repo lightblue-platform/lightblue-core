@@ -58,15 +58,15 @@ public abstract class MetadataParser<T> {
     public static final String ERR_INVALID_CONSTRAINT="INVALID_CONSTRAINT";
     public static final String ERR_INVALID_TYPE="INVALID_TYPE";
 
-    private final String STR_VALUE="value";
-    private final String STR_VERSION="version";
-    private final String STR_FIND="find";
-    private final String STR_STATUS="status";
-    private final String STR_CONSTRAINTS="constraints";
-    private final String STR_ACCESS="access";
-    private final String STR_UPDATE="update";
-    private final String STR_FIELDS="fields";
-    private final String STR_TYPE="type";
+    private static final String STR_VALUE="value";
+    private static final String STR_VERSION="version";
+    private static final String STR_FIND="find";
+    private static final String STR_STATUS="status";
+    private static final String STR_CONSTRAINTS="constraints";
+    private static final String STR_ACCESS="access";
+    private static final String STR_UPDATE="update";
+    private static final String STR_FIELDS="fields";
+    private static final String STR_TYPE="type";
 
     private final Extensions<T> extensions;
     private final TypeResolver typeResolver;

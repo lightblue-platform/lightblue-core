@@ -35,7 +35,7 @@ public class UniqueConstraint implements EntityConstraint, Serializable {
 
     public static final String UNIQUE="unique";
 
-    private final ArrayList<Path> fields=new ArrayList<Path>();
+    private final List<Path> fields=new ArrayList<Path>();
 
     public String getType() {
         return UNIQUE;

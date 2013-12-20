@@ -99,7 +99,7 @@ public final class DoubleType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof DoubleType;
+        return obj instanceof DoubleType;
     }
 
     @Override

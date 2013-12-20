@@ -50,8 +50,9 @@ public class DeleteRequest extends Request {
      */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
-        if(query!=null)
+        if(query!=null) {
             node.set("query",query.toJson());
+        }
         return node;
     }
 
@@ -64,8 +65,9 @@ public class DeleteRequest extends Request {
         DeleteRequest req=new DeleteRequest();
         req.parse(node);
         JsonNode x=node.get("query");
-        if(x!=null)
+        if(x!=null) {
             req.query=QueryExpression.fromJson(x);
+        }
         return req;
     }
 }

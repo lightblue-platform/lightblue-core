@@ -19,6 +19,7 @@
 package com.redhat.lightblue.query;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Comparison operators
@@ -33,7 +34,7 @@ public enum BinaryComparisonOperator {
 
     private final String[] ops;
 
-    private static final HashMap<String,BinaryComparisonOperator> map;
+    private static final Map<String,BinaryComparisonOperator> map;
 
     static {
         map=new HashMap<String,BinaryComparisonOperator>();
@@ -45,7 +46,7 @@ public enum BinaryComparisonOperator {
         _gte.init(map);
     }    
                 
-    private void init(HashMap<String,BinaryComparisonOperator> map) {
+    private void init(Map<String,BinaryComparisonOperator> map) {
         for(String x:ops)
             map.put(x,this);
     }

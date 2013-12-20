@@ -155,40 +155,47 @@ public class Response extends JsonObject {
         JsonNode x=node.get("status");
         if(x!=null) {
             String s=x.asText();
-            if("complete".equals(s))
+            if("complete".equals(s)) {
                 ret.status=OperationStatus.COMPLETE;
-            else if("async".equals(s))
+            } else if("async".equals(s)) {
                 ret.status=OperationStatus.ASYNC;
-            else if("partial".equals(s))
+            } else if("partial".equals(s)) {
                 ret.status=OperationStatus.PARTIAL;
-            else
+            } else {
                 ret.status=OperationStatus.ERROR;
+            }
         }
         x=node.get("modifiedCount");
-        if(x!=null)
+        if(x!=null) {
             ret.modifiedCount=x.asLong();
+        }
         x=node.get("matchCount");
-        if(x!=null)
+        if(x!=null) {
             ret.matchCount=x.asLong();
+        }
         x=node.get("taskHandle");
-        if(x!=null)
+        if(x!=null) {
             ret.taskHandle=x.asText();
+        }
         x=node.get("session");
         // TODO
         x=node.get("processed");
-        if(x!=null)
+        if(x!=null) {
             ret.entityData=x;
+        }
         x=node.get("dataErrors");
-        if(x!=null&&x instanceof ArrayNode) {
+        if(x instanceof ArrayNode) {
             for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                itr.hasNext();)
+                itr.hasNext();) {
                 ret.dataErrors.add(DataError.fromJson((ObjectNode)itr.next()));
+            }
         }
         x=node.get("errors");
-        if(x!=null&&x instanceof ArrayNode) {
+        if(x instanceof ArrayNode) {
             for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                itr.hasNext();)
+                itr.hasNext();) {
                 ret.errors.add(Error.fromJson(itr.next()));
+            }
         }
         return ret;
     }

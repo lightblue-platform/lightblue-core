@@ -95,7 +95,7 @@ public final class BooleanType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof BooleanType;
+        return obj instanceof BooleanType;
     }
 
     @Override

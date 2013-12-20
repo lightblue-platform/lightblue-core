@@ -101,17 +101,20 @@ public class Mediator {
                 logger.debug("CRUD controller={}",controller.getClass().getName());
                 CRUDInsertionResponse insertionResponse=controller.insert(ctx,ctx.getDocs(),req.getReturnFields());
                 response.setEntityData(toJsonDocList(insertionResponse.getDocuments(),nodeFactory));
-                if(insertionResponse.getDataErrors()!=null)
+                if(insertionResponse.getDataErrors()!=null) {
                     response.getDataErrors().addAll(insertionResponse.getDataErrors());
-                if(insertionResponse.getErrors()!=null)
+                }
+                if(insertionResponse.getErrors()!=null) {
                     response.getErrors().addAll(insertionResponse.getErrors());
+                }
                 response.setModifiedCount(insertionResponse.getDocuments().size());
-                if(insertionResponse.getDocuments().size()==ctx.getDocs().size())
+                if(insertionResponse.getDocuments().size()==ctx.getDocs().size()) {
                     response.setStatus(OperationStatus.COMPLETE);
-                else if(!insertionResponse.getDocuments().isEmpty())
+                } else if(!insertionResponse.getDocuments().isEmpty()) {
                     response.setStatus(OperationStatus.PARTIAL);
-                else
+                } else {
                     response.setStatus(OperationStatus.ERROR);
+                }
            }
         } catch (Error e) {
             response.getErrors().add(e);
@@ -224,8 +227,9 @@ public class Mediator {
             if(data instanceof ArrayNode) {
                 docs=new ArrayList<JsonDoc>(((ArrayNode)data).size());
                 for(Iterator<JsonNode> itr=((ArrayNode)data).elements();
-                    itr.hasNext();)
+                    itr.hasNext();) {
                     docs.add(new JsonDoc(itr.next()));
+                }
             } else if(data instanceof ObjectNode) {
                 docs=new ArrayList<JsonDoc>(1);
                 docs.add(new JsonDoc(data));
@@ -235,16 +239,17 @@ public class Mediator {
     }
 
     private JsonNode toJsonDocList(List<JsonDoc> docs,JsonNodeFactory nodeFactory) {
-        if(docs==null)
+        if(docs==null) {
             return null;
-        else if(docs.isEmpty())
+        } else if(docs.isEmpty()) {
             return nodeFactory.arrayNode();
-        else if(docs.size()==1) 
+        } else if(docs.size()==1)  {
             return docs.get(0).getRoot();
-        else {
+        } else {
             ArrayNode node=nodeFactory.arrayNode();
-            for(JsonDoc doc:docs)
+            for(JsonDoc doc:docs) {
                 node.add(doc.getRoot());
+            }
             return node;
         }
     }
@@ -264,8 +269,9 @@ public class Mediator {
         ctx.setOperation(op);
         logger.debug("metadata retrieved for {}",req.getEntity());
         ctx.setDocs(fromJsonDocList(entityData));
-        if(ctx.getDocs()!=null)
+        if(ctx.getDocs()!=null) {
             logger.debug("There are {} docs in request",ctx.getDocs().size());
+        }
         logger.debug("getOperationContext return");
         return ctx;
     }

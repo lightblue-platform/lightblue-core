@@ -116,12 +116,15 @@ public class FindRequest extends Request {
      */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
-        if(query!=null)
+        if(query!=null) {
             node.set("query",query.toJson());
-        if(projection!=null)
+        }
+        if(projection!=null) {
             node.set("returning",projection.toJson());
-        if(sort!=null)
+        }
+        if(sort!=null) {
             node.set("sort",sort.toJson());
+        }
         if(from!=null&&to!=null) {
             ArrayNode arr=factory.arrayNode();
             arr.add(from);
@@ -139,16 +142,19 @@ public class FindRequest extends Request {
         FindRequest req=new FindRequest();
         req.parse(node);
         JsonNode x=node.get("query");
-        if(x!=null)
+        if(x!=null) {
             req.query=QueryExpression.fromJson(x);
+        }
         x=node.get("returning");
-        if(x!=null)
+        if(x!=null) {
             req.projection=Projection.fromJson(x);
+        }
         x=node.get("sort");
-        if(x!=null)
+        if(x!=null) {
             req.sort=Sort.fromJson(x);
+        }
         x=node.get("range");
-        if(x!=null&&x instanceof ArrayNode&&((ArrayNode)x).size()==2) {
+        if(x instanceof ArrayNode&&((ArrayNode)x).size()==2) {
             req.from=((ArrayNode)x).get(0).asLong();
             req.to=((ArrayNode)x).get(1).asLong();
         }

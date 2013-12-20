@@ -22,6 +22,8 @@ package com.redhat.lightblue.metadata;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 import java.util.Iterator;
 
 import com.redhat.lightblue.util.Path;
@@ -31,8 +33,8 @@ public class Fields implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private final HashMap<String, Field> fieldMap = new HashMap<String, Field>();
-    private final ArrayList<Field> fields = new ArrayList<Field>();
+    private final Map<String, Field> fieldMap = new HashMap<String, Field>();
+    private final List<Field> fields = new ArrayList<Field>();
 
     public int getNumChildren() {
         return fields.size();

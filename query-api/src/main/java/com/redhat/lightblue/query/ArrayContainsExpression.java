@@ -139,7 +139,7 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
                 ContainsOperator op=ContainsOperator.fromString(x.asText());
                 if(op!=null) {
                     x=node.get("values");
-                    if(x!=null&&x instanceof ArrayNode) {
+                    if(x instanceof ArrayNode) {
                         ArrayList<Value> values=new ArrayList<Value>(((ArrayNode)x).size());
                         for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
                             itr.hasNext();) {

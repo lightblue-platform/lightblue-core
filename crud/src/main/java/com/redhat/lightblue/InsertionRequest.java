@@ -74,10 +74,12 @@ public class InsertionRequest extends Request {
      */
     public JsonNode toJson() {
         ObjectNode node=(ObjectNode)super.toJson();
-        if(entityData!=null)
+        if(entityData!=null) {
             node.set("data",entityData);
-        if(returnFields!=null)
+        }
+        if(returnFields!=null) {
             node.set("returning",returnFields.toJson());
+        }
         return node;
     }
 
@@ -90,8 +92,9 @@ public class InsertionRequest extends Request {
         req.parse(node);
         req.entityData=node.get("data");
         JsonNode x=node.get("returning");
-        if(x!=null)
+        if(x!=null) {
             req.returnFields=Projection.fromJson(x);
+        }
         return req;
     }
 }

@@ -64,7 +64,7 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret=false;
         JsonNode node=ctx.getNode(field);
-        if(node!=null&&node instanceof ArrayNode) {
+        if(node instanceof ArrayNode) {
             ArrayNode array=(ArrayNode)node;
             int index=0;
             ArrayList<Integer> indexList=new ArrayList<Integer>(array.size());

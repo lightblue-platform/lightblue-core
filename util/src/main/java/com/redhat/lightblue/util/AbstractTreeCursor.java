@@ -20,6 +20,7 @@
 package com.redhat.lightblue.util;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
@@ -31,7 +32,7 @@ import com.redhat.lightblue.util.Path;
  */
 public abstract class AbstractTreeCursor<N> {
 
-    private final LinkedList<LevelState<N>> stack=new LinkedList<LevelState<N>>();
+    private final List<LevelState<N>> stack=new LinkedList<LevelState<N>>();
     private MutablePath currentPath;
     private N currentNode;
 

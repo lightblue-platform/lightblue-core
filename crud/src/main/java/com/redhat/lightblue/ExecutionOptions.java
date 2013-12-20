@@ -81,11 +81,13 @@ public class ExecutionOptions extends JsonObject {
     public static ExecutionOptions fromJson(ObjectNode node) {
         ExecutionOptions ret=new ExecutionOptions();
         JsonNode x=node.get("timeLimit");
-        if(x!=null)
+        if(x!=null) {
             ret.timeLimit=x.asLong();
+        }
         x=node.get("asynchronous");
-        if(x!=null)
+        if(x!=null) {
             ret.asynchronous=x.asLong();
+        }
         return ret;
     }
 }

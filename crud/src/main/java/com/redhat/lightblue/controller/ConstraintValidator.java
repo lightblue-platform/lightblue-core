@@ -108,11 +108,13 @@ public class ConstraintValidator {
     }
 
     private List<Error> getDocError() {
-        if(currentDoc==null)
+        if(currentDoc==null) {
             throw new IllegalStateException();
+        }
         List<Error> list=docErrors.get(currentDoc);
-        if(list==null)
+        if(list==null) {
             docErrors.put(currentDoc,list=new ArrayList<Error>());
+        }
         return list;
     }
 
@@ -136,8 +138,9 @@ public class ConstraintValidator {
         logger.debug("validateDocs() enter with {} docs",docList.size());
         Error.push("validateDocs");
         try {
-            for(JsonDoc doc:docList)
+            for(JsonDoc doc:docList) {
                 validateDoc(doc);
+            }
         } finally {
             Error.pop();
         }
@@ -162,8 +165,9 @@ public class ConstraintValidator {
                 Error.push(constraintType);
                 try {
                     EntityConstraintChecker checker=eRegistry.find(constraintType);
-                    if(checker==null)
+                    if(checker==null) {
                         throw Error.get(ERR_NO_CONSTRAINT);
+                    }
                     checker.checkConstraint(this,
                                             currentEntityConstraint,
                                             doc);
@@ -193,8 +197,9 @@ public class ConstraintValidator {
                             Error.push(constraintType);
                             try {
                                 FieldConstraintChecker checker=fRegistry.find(constraintType);
-                                if(checker==null)
+                                if(checker==null) {
                                     throw Error.get(ERR_NO_CONSTRAINT);
+                                }
                                 currentValuePath=null;
                                 currentValue=null;
                                 if(checker instanceof FieldConstraintDocChecker) {
