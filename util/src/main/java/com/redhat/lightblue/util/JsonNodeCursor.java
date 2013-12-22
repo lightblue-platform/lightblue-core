@@ -30,9 +30,9 @@ import com.redhat.lightblue.util.Path;
 public final class JsonNodeCursor extends AbstractTreeCursor<JsonNode> {
 
     private static final class ArrayElementCursor implements KeyValueCursor<String,JsonNode> {
-        int index=-1;
-        final Iterator<JsonNode> itr;
-        JsonNode node;
+        private int index=-1;
+        private final Iterator<JsonNode> itr;
+        private JsonNode node;
         
         public ArrayElementCursor(Iterator<JsonNode> itr) {this.itr=itr; }
         public boolean hasNext() {return itr.hasNext();}

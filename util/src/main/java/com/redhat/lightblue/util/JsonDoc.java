@@ -36,9 +36,9 @@ public class JsonDoc implements Serializable {
     private static final Resolver DEFAULT_RESOLVER=new Resolver();
 
     private static final class Iteration {
-        Iterator<JsonNode> iterator;
-        JsonNode currentNode;
-        int index;
+        private Iterator<JsonNode> iterator;
+        private JsonNode currentNode;
+        private int index;
 
         boolean next() {
             if(iterator.hasNext()) {
@@ -55,7 +55,7 @@ public class JsonDoc implements Serializable {
      * during path resolution
      */
     private static final class CursorResolver extends Resolver {
-        Iteration[] iterators;
+        private Iteration[] iterators;
 
         protected JsonNode handleAny(Path p,JsonNode node,int level) {
             if(iterators==null) {
@@ -139,14 +139,14 @@ public class JsonDoc implements Serializable {
      */
     private class PathCursor implements KeyValueCursor<Path,JsonNode> {
 
-        final Path path;
-        final MutablePath mpath;
-        final CursorResolver resolver=new CursorResolver();;
-        JsonNode nextNode;
-        boolean ended=false;
-        boolean nextFound=false;
-        JsonNode currentNode;
-        Path currentPath;
+        private final Path path;
+        private final MutablePath mpath;
+        private final CursorResolver resolver=new CursorResolver();;
+        private JsonNode nextNode;
+        private boolean ended=false;
+        private boolean nextFound=false;
+        private JsonNode currentNode;
+        private Path currentPath;
 
         public PathCursor(Path p) {
             path=p;

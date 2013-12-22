@@ -37,8 +37,8 @@ public abstract class AbstractTreeCursor<N> {
     private N currentNode;
 
     private static final class LevelState<T> {
-        final T node;
-        final KeyValueCursor<String,T> cursor;
+        private final T node;
+        private final KeyValueCursor<String,T> cursor;
         
         public LevelState(T node,KeyValueCursor<String,T> cursor) {
             this.node=node;

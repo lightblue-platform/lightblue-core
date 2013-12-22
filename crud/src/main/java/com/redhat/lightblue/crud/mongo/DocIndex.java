@@ -42,10 +42,10 @@ public class DocIndex {
     private final DBResolver dbResolver;
 
     private static final class DocGroup {
-        public final String objectType;
-        public final DB db;
-        public final DBCollection collection;
-        public final List<DBObject> docs=new ArrayList<DBObject>();
+        private final String objectType;
+        private final DB db;
+        private final DBCollection collection;
+        private final List<DBObject> docs=new ArrayList<DBObject>();
 
         public DocGroup(String objectType,
                         DB db,

@@ -29,8 +29,8 @@ public class FieldCursor extends AbstractTreeCursor<FieldTreeNode> {
 
     private static final class Adapter implements KeyValueCursor<String,FieldTreeNode> {
 
-        Iterator<? extends FieldTreeNode> itr;
-        FieldTreeNode node;
+        private Iterator<? extends FieldTreeNode> itr;
+        private FieldTreeNode node;
 
         public Adapter(Iterator<? extends FieldTreeNode> itr) {
             this.itr=itr;
