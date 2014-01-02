@@ -65,6 +65,8 @@ public class Path implements Comparable<Path>, Serializable  {
     public static final Path ANYPATH=new Path(ANY);
 
     static class PathRep implements Serializable {        
+        private static final long serialVersionUID=1l;
+
         private List<String> segments;
         private transient String stringValue=null;
         private transient int hashValue=0;
@@ -108,7 +110,7 @@ public class Path implements Comparable<Path>, Serializable  {
 
         @Override
         public boolean equals(Object o) {
-            if (o != null && o instanceof PathRep) {
+            if (o instanceof PathRep) {
                 PathRep r = (PathRep)o;
                 return r.segments.equals(segments);
             } 
@@ -176,7 +178,7 @@ public class Path implements Comparable<Path>, Serializable  {
     private PathRep data;
 
     public Path() {
-        setData(new PathRep());
+        data=new PathRep();
     }
 
     public Path(Path x) {

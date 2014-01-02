@@ -37,7 +37,7 @@ public class Version implements Serializable {
         if (extendsVersions != null) {
             this.extendsVersions=Arrays.copyOf(extendsVersions, extendsVersions.length);
         } else {
-            this.extendsVersions=null;
+            this.extendsVersions=new String[0];
         }
         this.changelog=changeLog;
     }

@@ -24,5 +24,5 @@ import com.redhat.lightblue.util.DefaultRegistry;
 /**
  * Allows parser extensions to be registered with the metadata parser
  */
-public class ParserRegistry<NODETYPE,OBJECTTYPE> extends DefaultRegistry<String,Parser<NODETYPE,OBJECTTYPE>> {
+public class ParserRegistry<N,O> extends DefaultRegistry<String,Parser<N,O>> {
 }

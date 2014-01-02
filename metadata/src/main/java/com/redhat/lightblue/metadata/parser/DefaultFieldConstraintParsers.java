@@ -33,18 +33,18 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
  * Convenience class to register all predefined constraint parsers to
  * MetadataParser
  */
-public class DefaultFieldConstraintParsers<NODE_TYPE> 
-    extends DefaultResolver<String,Parser<NODE_TYPE,FieldConstraint>> {
+public class DefaultFieldConstraintParsers<N> 
+    extends DefaultResolver<String,Parser<N,FieldConstraint>> {
     
     public DefaultFieldConstraintParsers() {
-        addValue(ArraySizeConstraint.MIN,new ArraySizeConstraintParser<NODE_TYPE>());
-        addValue(ArraySizeConstraint.MAX,new ArraySizeConstraintParser<NODE_TYPE>());
-        addValue(EnumConstraint.TYPE,new EnumConstraintParser<NODE_TYPE>());
-        addValue(MinMaxConstraint.MIN,new MinMaxConstraintParser<NODE_TYPE>());
-        addValue(MinMaxConstraint.MAX,new MinMaxConstraintParser<NODE_TYPE>());
-        addValue(RequiredConstraint.REQUIRED,new RequiredConstraintParser<NODE_TYPE>());
-        addValue(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<NODE_TYPE>());
-        addValue(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<NODE_TYPE>());
-        addValue(EnumConstraint.TYPE, new EnumConstraintParser<NODE_TYPE>());
+        addValue(ArraySizeConstraint.MIN,new ArraySizeConstraintParser<N>());
+        addValue(ArraySizeConstraint.MAX,new ArraySizeConstraintParser<N>());
+        addValue(EnumConstraint.TYPE,new EnumConstraintParser<N>());
+        addValue(MinMaxConstraint.MIN,new MinMaxConstraintParser<N>());
+        addValue(MinMaxConstraint.MAX,new MinMaxConstraintParser<N>());
+        addValue(RequiredConstraint.REQUIRED,new RequiredConstraintParser<N>());
+        addValue(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<N>());
+        addValue(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<N>());
+        addValue(EnumConstraint.TYPE, new EnumConstraintParser<N>());
     }
 }
