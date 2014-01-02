@@ -24,6 +24,10 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
+/**
+ * Parser extensions where T is the node type of the underlying object
+ * tree (for JSon, T is JsonNode).
+ */
 public class Extensions<T> {
 
     private final ParserRegistry<T, DataStore> dataStoreParsers
@@ -44,30 +48,73 @@ public class Extensions<T> {
         dataStoreParsers.add("mongo", new MongoDataStoreParser<T>());
     }
 
+    /**
+     * Adds a parser that parses DataStore
+     *
+     * @param name Name of the datastore type (such as 'mongo')
+     * @param parser The parser that parses datastores of the given type
+     */
     public void registerDataStoreParser(String name, DataStoreParser<T> parser) {
         dataStoreParsers.add(name, parser);
     }
 
+    /**
+     * Gets a datastore parser
+     *
+     * @param dataStoreName Name of the datastore (such as 'mongo')
+     *
+     * @return The parser for the datastore, or null if it does not exist
+     */
     public DataStoreParser<T> getDataStoreParser(String dataStoreName) {
         return (DataStoreParser<T>) dataStoreParsers.find(dataStoreName);
     }
 
+    /**
+     * Registers an entity constraint parser for a given constraint name.
+     *
+     * @param name Name of the constraint
+     * @param parser The parser for the constraint
+     */
     public void registerEntityConstraintParser(String name, EntityConstraintParser<T> parser) {
         entityConstraintParsers.add(name, parser);
     }
 
+    /**
+     * Returns an entity constraint parser
+     *
+     * @param constraintName
+     *
+     * @return The parser that parses the constraint, or null if a
+     * parser is not found
+     */
     public EntityConstraintParser<T> getEntityConstraintParser(String constraintName) {
         return (EntityConstraintParser<T>) entityConstraintParsers.find(constraintName);
     }
 
-    public void registerFieldConstraintParser(String name, FieldConstraintParser<T> parser) {
+    /**
+     * Adds a contraint parser for a given constraint name
+     *
+     * @param name Name of the constraint
+     * @param parser The parser for the constraint
+     *
+     */
+    public void registerFieldConstraintParser(String name, FieldConstraintParser< T> parser) {
         fieldConstraintParsers.add(name, parser);
     }
 
+    /**
+     * Returns a parser that parses the given constraint
+     *
+     * @param constraintName Name of the constraint
+     *
+     * @return The parser that parses the constraint, or null if
+     * parser is not found
+     */
     public FieldConstraintParser<T> getFieldConstraintParser(String constraintName) {
         return (FieldConstraintParser<T>) fieldConstraintParsers.find(constraintName);
     }
 
+    @Override
     public String toString() {
         return dataStoreParsers.toString() + "\n"
                 + entityConstraintParsers.toString() + "\n"
