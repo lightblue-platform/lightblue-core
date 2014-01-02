@@ -12,35 +12,33 @@
         "GNU General Public License for more details.",
         "You should have received a copy of the GNU General Public License",
         "along with this program.  If not, see <http://www.gnu.org/licenses/>."],
-    "id": "#choice",
+    "id": "#fieldbinary",
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
-    "definitions": {
-        "query": {
-            "oneOf": [
-                {
-                    "$ref": "/json-schema/query/array-contains.json#"
-                },
-                {
-                    "$ref": "/json-schema/query/array-matches.json#"
-                },
-                {
-                    "$ref": "/json-schema/query/field-binary-field.json#"
-                },
-                {
-                    "$ref": "/json-schema/query/field-binary-value.json#"
-                },
-                {
-                    "$ref": "/json-schema/query/field-nary-values.json#"
-                },
-                {
-                    "$ref": "/json-schema/query/field-regex.json#"
-                },
-                {
-                    "$ref": "/json-schema/query/conditional.json#"
-                }
+    "properties": {
+        "field": {
+            "type": "string"
+        },
+        "op": {
+            "enum": [
+                "$in",
+                "$nin",
+                "$not_in"
             ]
+        },
+        "values": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            },
+            "uniqueItems": true
         }
     },
+    "required": [
+        "field",
+        "op",
+        "values"
+    ],
     "additionalProperties": false
 }

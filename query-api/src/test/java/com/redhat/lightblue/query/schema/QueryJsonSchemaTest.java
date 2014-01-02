@@ -126,4 +126,9 @@ public class QueryJsonSchemaTest extends AbstractJsonSchemaTest {
     public void validFieldBinaryValue() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/query/field-binary-value.json", "query/schema-test-query-field-binary-value.json");
     }
+
+    @Test
+    public void validFieldNaryValue() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/query/field-nary-values.json", "query/schema-test-query-field-nary-value.json");
+    }
 }
