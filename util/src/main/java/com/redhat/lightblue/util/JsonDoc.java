@@ -37,8 +37,8 @@ public class JsonDoc implements Serializable {
 
     private static final class Iteration {
         private Iterator<JsonNode> iterator;
-        private JsonNode currentNode;
-        private int index;
+        public JsonNode currentNode;
+        public int index;
 
         boolean next() {
             if(iterator.hasNext()) {

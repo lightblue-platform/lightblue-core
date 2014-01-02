@@ -87,7 +87,7 @@ public final class BinaryType implements Type, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj!=null&&obj instanceof BinaryType;
+        return obj instanceof BinaryType;
     }
 
     @Override

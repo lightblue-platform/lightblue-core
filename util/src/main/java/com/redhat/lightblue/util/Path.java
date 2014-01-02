@@ -421,7 +421,7 @@ public class Path implements Comparable<Path>, Serializable  {
     
     @Override
     public boolean equals(Object x) {
-        if(x!=null&&x instanceof Path) {
+        if(x instanceof Path) {
             return ((Path)x).data.equals(data);
         } else {
             return false;
