@@ -156,28 +156,30 @@ public class EntityMetadata implements Serializable {
         return this.fields;
     }
 
+    class RootTreeNode implements FieldTreeNode {
+        public String getName() {
+            return "";
+        }
+
+        public Type getType() {
+            return null;
+        }
+
+        public boolean hasChildren() {
+            return true;
+        }
+
+        public Iterator<? extends FieldTreeNode> getChildren() {
+            return fields.getFields();
+        }
+
+        public FieldTreeNode resolve(Path p) {
+            return fields.resolve(p);
+        }
+    }
+
     public FieldTreeNode getFieldTreeRoot() {
-        return new FieldTreeNode() {
-            public String getName() {
-                return "";
-            }
-
-            public Type getType() {
-                return null;
-            }
-
-            public boolean hasChildren() {
-                return true;
-            }
-
-            public Iterator<? extends FieldTreeNode> getChildren() {
-                return fields.getFields();
-            }
-
-            public FieldTreeNode resolve(Path p) {
-                return fields.resolve(p);
-            }
-        };
+        return new RootTreeNode();
     }
 
     public FieldCursor getFieldCursor() {
