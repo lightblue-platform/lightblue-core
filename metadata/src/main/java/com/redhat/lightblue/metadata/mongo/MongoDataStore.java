@@ -99,6 +99,7 @@ public class MongoDataStore implements DataStore, Serializable {
         this.collectionName = argCollectionName;
     }
 
+    @Override
     public String toString() {
         StringBuilder bld=new StringBuilder(64);
         if(databaseName!=null)
@@ -109,26 +110,25 @@ public class MongoDataStore implements DataStore, Serializable {
         return bld.toString();
     }
     
+    @Override
     public boolean equals(Object x) {
         try {
-            return equals((MongoDataStore)x);
+            if(x!=null) {
+                MongoDataStore mds = (MongoDataStore)x;
+                try {
+                    return ((mds.clientJndiName==null&&clientJndiName==null)||
+                            (mds.clientJndiName!=null&&clientJndiName!=null&&mds.clientJndiName.equals(clientJndiName))) &&
+                        ( (mds.databaseName==null&&databaseName==null)||
+                          (mds.databaseName!=null&&databaseName!=null&&mds.databaseName.equals(databaseName)) ) &&
+                        ( (mds.collectionName==null&&collectionName==null) ||
+                          (mds.collectionName!=null&&collectionName!=null&&mds.collectionName.equals(collectionName)) );
+                } catch (ClassCastException e) {}
+            }
         } catch (Exception e) {}
         return false;
     }
 
-    public boolean equals(MongoDataStore x) {
-        if(x!=null)
-            try {
-                return ((x.clientJndiName==null&&clientJndiName==null)||
-                        (x.clientJndiName!=null&&clientJndiName!=null&&x.clientJndiName.equals(clientJndiName))) &&
-                    ( (x.databaseName==null&&databaseName==null)||
-                      (x.databaseName!=null&&databaseName!=null&&x.databaseName.equals(databaseName)) ) &&
-                    ( (x.collectionName==null&&collectionName==null) ||
-                      (x.collectionName!=null&&collectionName!=null&&x.collectionName.equals(collectionName)) );
-            } catch (ClassCastException e) {}
-        return false;
-    }
-
+    @Override
     public int hashCode() {
         return (clientJndiName==null?1:clientJndiName.hashCode())*
             (databaseName==null?1:databaseName.hashCode())*

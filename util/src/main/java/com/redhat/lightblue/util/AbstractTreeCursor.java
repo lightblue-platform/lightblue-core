@@ -20,10 +20,6 @@
 package com.redhat.lightblue.util;
 
 import java.util.LinkedList;
-import java.util.List;
-
-import com.redhat.lightblue.util.MutablePath;
-import com.redhat.lightblue.util.Path;
 
 /**
  * Abstract cursor for tree structures of name-value pairs. The type
@@ -33,7 +29,7 @@ import com.redhat.lightblue.util.Path;
 public abstract class AbstractTreeCursor<N> {
 
     private final LinkedList<LevelState<N>> stack=new LinkedList<LevelState<N>>();
-    private MutablePath currentPath;
+    private final MutablePath currentPath;
     private N currentNode;
 
     private static final class LevelState<T> {

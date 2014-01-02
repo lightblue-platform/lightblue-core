@@ -88,25 +88,26 @@ public class JsonDoc implements Serializable {
      * overridable, by default, throws an exception
      */
     private static class Resolver {
-        public JsonNode resolve(Path p,JsonNode node,int level) {
+        public JsonNode resolve(Path p,final JsonNode node,int level) {
+            JsonNode output = node;
             int n=p.numSegments();
             for(int l=level;l<n;l++) {
                 String name=p.head(l);
                 if(name.equals(Path.ANY)) {
-                    node=handleAny(p,node,l);
-                } else if(node instanceof ArrayNode) {
+                    output=handleAny(p,output,l);
+                } else if(output instanceof ArrayNode) {
                     int index=Integer.valueOf(name);
-                    node=((ArrayNode)node).get(index);
-                } else if(node instanceof ObjectNode) {
-                    node=node.get(name);
+                    output=((ArrayNode)output).get(index);
+                } else if(output instanceof ObjectNode) {
+                    output=output.get(name);
                 } else {
-                    node=null;
+                    output=null;
                 }
-                if(node==null) {
+                if(output==null) {
                     break;
                 }
             }
-            return node;
+            return output;
         }
 
         protected JsonNode handleAny(Path p,JsonNode node,int level) {

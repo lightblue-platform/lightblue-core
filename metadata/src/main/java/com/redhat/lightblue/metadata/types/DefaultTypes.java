@@ -27,25 +27,25 @@ import com.redhat.lightblue.metadata.TypeResolver;
 
 public final class DefaultTypes implements TypeResolver {
 
-    private final Map<String,Type> TYPE_MAP;
+    private final Map<String,Type> typeMap;
     
     public Type getType(String name) {
-        return TYPE_MAP.get(name);
+        return typeMap.get(name);
     }
     
     public DefaultTypes() {
-        TYPE_MAP=new HashMap<String,Type>();
-        TYPE_MAP.put(BooleanType.NAME,BooleanType.TYPE);
-        TYPE_MAP.put(IntegerType.NAME,IntegerType.TYPE);
-        TYPE_MAP.put(BigIntegerType.NAME,BigIntegerType.TYPE);
-        TYPE_MAP.put(DoubleType.NAME,DoubleType.TYPE);
-        TYPE_MAP.put(BigDecimalType.NAME,BigDecimalType.TYPE);
-        TYPE_MAP.put(StringType.NAME,StringType.TYPE);
-        TYPE_MAP.put(DateType.NAME,DateType.TYPE);
-        TYPE_MAP.put(BinaryType.NAME,BinaryType.TYPE);
-        TYPE_MAP.put(ArrayType.NAME,ArrayType.TYPE);
-        TYPE_MAP.put(ObjectType.NAME,ObjectType.TYPE);
-        TYPE_MAP.put(ReferenceType.NAME,ReferenceType.TYPE);
+        typeMap=new HashMap<String,Type>();
+        typeMap.put(BooleanType.NAME,BooleanType.TYPE);
+        typeMap.put(IntegerType.NAME,IntegerType.TYPE);
+        typeMap.put(BigIntegerType.NAME,BigIntegerType.TYPE);
+        typeMap.put(DoubleType.NAME,DoubleType.TYPE);
+        typeMap.put(BigDecimalType.NAME,BigDecimalType.TYPE);
+        typeMap.put(StringType.NAME,StringType.TYPE);
+        typeMap.put(DateType.NAME,DateType.TYPE);
+        typeMap.put(BinaryType.NAME,BinaryType.TYPE);
+        typeMap.put(ArrayType.NAME,ArrayType.TYPE);
+        typeMap.put(ObjectType.NAME,ObjectType.TYPE);
+        typeMap.put(ReferenceType.NAME,ReferenceType.TYPE);
     }
 }
 

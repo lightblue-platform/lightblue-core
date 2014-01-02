@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -70,11 +69,11 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
             ArrayList<Integer> indexList=new ArrayList<Integer>(array.size());
             QueryEvaluationContext nestedCtx=null;
             for(Iterator<JsonNode> itr=array.elements();itr.hasNext();) {
-                JsonNode elem=itr.next();
+                JsonNode arrayElem=itr.next();
                 if(index==0) {
-                    nestedCtx=ctx.firstElementNestedContext(elem,field);
+                    nestedCtx=ctx.firstElementNestedContext(arrayElem,field);
                 } else {
-                    nestedCtx.elementNestedContext(elem,index);
+                    nestedCtx.elementNestedContext(arrayElem,index);
                 }
                 if(ev.evaluate(nestedCtx)) {
                     ret=true;

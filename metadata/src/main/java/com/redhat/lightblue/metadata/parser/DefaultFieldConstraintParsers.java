@@ -33,18 +33,18 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
  * Convenience class to register all predefined constraint parsers to
  * MetadataParser
  */
-public class DefaultFieldConstraintParsers<NodeType> 
-    extends DefaultResolver<String,Parser<NodeType,FieldConstraint>> {
+public class DefaultFieldConstraintParsers<NODE_TYPE> 
+    extends DefaultResolver<String,Parser<NODE_TYPE,FieldConstraint>> {
     
     public DefaultFieldConstraintParsers() {
-        addValue(ArraySizeConstraint.MIN,new ArraySizeConstraintParser<NodeType>());
-        addValue(ArraySizeConstraint.MAX,new ArraySizeConstraintParser<NodeType>());
-        addValue(EnumConstraint.TYPE,new EnumConstraintParser<NodeType>());
-        addValue(MinMaxConstraint.MIN,new MinMaxConstraintParser<NodeType>());
-        addValue(MinMaxConstraint.MAX,new MinMaxConstraintParser<NodeType>());
-        addValue(RequiredConstraint.REQUIRED,new RequiredConstraintParser<NodeType>());
-        addValue(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<NodeType>());
-        addValue(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<NodeType>());
-        addValue(EnumConstraint.TYPE, new EnumConstraintParser<NodeType>());
+        addValue(ArraySizeConstraint.MIN,new ArraySizeConstraintParser<NODE_TYPE>());
+        addValue(ArraySizeConstraint.MAX,new ArraySizeConstraintParser<NODE_TYPE>());
+        addValue(EnumConstraint.TYPE,new EnumConstraintParser<NODE_TYPE>());
+        addValue(MinMaxConstraint.MIN,new MinMaxConstraintParser<NODE_TYPE>());
+        addValue(MinMaxConstraint.MAX,new MinMaxConstraintParser<NODE_TYPE>());
+        addValue(RequiredConstraint.REQUIRED,new RequiredConstraintParser<NODE_TYPE>());
+        addValue(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<NODE_TYPE>());
+        addValue(StringLengthConstraint.MAXLENGTH,new StringLengthConstraintParser<NODE_TYPE>());
+        addValue(EnumConstraint.TYPE, new EnumConstraintParser<NODE_TYPE>());
     }
 }

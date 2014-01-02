@@ -98,6 +98,7 @@ public class Path implements Comparable<Path>, Serializable  {
             hashValue=0;
         }
         
+        @Override
         public int hashCode() {
             if(hashValue==0) {
                 hashValue=segments.hashCode();
@@ -105,12 +106,13 @@ public class Path implements Comparable<Path>, Serializable  {
             return hashValue;
         }
 
+        @Override
         public boolean equals(Object o) {
-            return o instanceof PathRep?equals((PathRep)o):false;
-        }
-
-        public boolean equals(PathRep r) {
-            return r!=null&&r.segments.equals(segments);
+            if (o != null && o instanceof PathRep) {
+                PathRep r = (PathRep)o;
+                return r.segments.equals(segments);
+            } 
+            return false;
         }
 
         public void shiftLeft(int from) {
@@ -337,7 +339,7 @@ public class Path implements Comparable<Path>, Serializable  {
      * selecting x elements from the end (if x is positive). If the
      * path is a mutable path, the returned path is a mutable path.
      */
-    public Path suffix(int x) {
+    public Path suffix(final int x) {
         Path p = null;
         if(this instanceof MutablePath) {
             p=new MutablePath((MutablePath)this);
@@ -346,16 +348,9 @@ public class Path implements Comparable<Path>, Serializable  {
         }
         int n=p.data.segments.size();
         if(x>=0) {
-            if(x>n) {
-                x=n;
-            }
-            p.data.shiftLeft(n-x);
+            p.data.shiftLeft(n-Math.min(n,x));
         } else {
-            x=-x;
-            if(x>n) {
-                x=n;
-            }
-            p.data.shiftLeft(x);
+            p.data.shiftLeft(Math.min(n,Math.abs(x)));
         }
             
         return p;
