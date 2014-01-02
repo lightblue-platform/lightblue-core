@@ -154,14 +154,9 @@ public class Response extends JsonObject {
         Response ret=new Response();
         JsonNode x=node.get("status");
         if(x!=null) {
-            String s=x.asText();
-            if("complete".equals(s)) {
-                ret.status=OperationStatus.COMPLETE;
-            } else if("async".equals(s)) {
-                ret.status=OperationStatus.ASYNC;
-            } else if("partial".equals(s)) {
-                ret.status=OperationStatus.PARTIAL;
-            } else {
+            try {
+                ret.status=OperationStatus.valueOf(x.asText().toUpperCase());
+            } catch (IllegalArgumentException e) {
                 ret.status=OperationStatus.ERROR;
             }
         }
@@ -206,16 +201,7 @@ public class Response extends JsonObject {
     public JsonNode toJson() {
         ObjectNode node=factory.objectNode();
         if(status!=null) {
-            String statusStr=null;
-            switch(status) {
-            case COMPLETE: statusStr="complete";break;
-            case ASYNC: statusStr="async";break;
-            case PARTIAL: statusStr="partial";break;
-            case ERROR: statusStr="error";break;
-            }
-            if(statusStr!=null) {
-                node.put("status",statusStr);
-            }
+            node.put("status",status.name().toLowerCase());
         }
         node.put("modifiedCount",modifiedCount);
         node.put("matchCount",matchCount);

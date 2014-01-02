@@ -54,7 +54,7 @@ public class SetExpression extends FieldUpdateExpression {
         return op;
     }
 
-    public void setOp(UpdateOperator op) {
+    public final void setOp(UpdateOperator op) {
         if(op!=null) {
             if(op==UpdateOperator._set ||
                op==UpdateOperator._add ||
