@@ -34,18 +34,18 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  */
 public class Error extends RuntimeException {
 
-    private static final JsonNodeFactory factory
-            = JsonNodeFactory.withExactBigDecimals(true);
+    private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
-    private static final ThreadLocal<ArrayDeque<String>> threadContext
-            = new ThreadLocal< ArrayDeque<String>>() {
-                @Override
-                protected ArrayDeque<String> initialValue() {
-                    return new ArrayDeque<String>();
-                }
-            };
+    private static final ThreadLocal<ArrayDeque<String>> threadContext = new ThreadLocal< ArrayDeque<String>>() {
+        @Override
+        protected ArrayDeque<String> initialValue() {
+            return new ArrayDeque<>();
+        }
+    };
+    
+    public static final char DELIMITER = '/';
 
-    private ArrayDeque<String> context = new ArrayDeque<String>();
+    private ArrayDeque<String> context = new ArrayDeque<>();
     private String errorCode;
     private String msg;
 
@@ -99,7 +99,7 @@ public class Error extends RuntimeException {
     }
 
     public Error() {
-        context = new ArrayDeque<String>();
+        context = new ArrayDeque<>();
     }
 
     public Error(String errorCode, String msg) {
@@ -146,7 +146,7 @@ public class Error extends RuntimeException {
                 if (first) {
                     first = false;
                 } else {
-                    s.append('/');
+                    s.append(DELIMITER);
                 }
                 s.append(x);
             }
@@ -169,6 +169,7 @@ public class Error extends RuntimeException {
         return node;
     }
 
+    @Override
     public String toString() {
         return toJson().toString();
     }
