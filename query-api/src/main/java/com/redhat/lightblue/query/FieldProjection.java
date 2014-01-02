@@ -26,12 +26,9 @@ public class FieldProjection extends BasicProjection {
 
     public static final FieldProjection ALL = new FieldProjection(Path.ANYPATH, true, true);
 
-    private Path field;
+    private final Path field;
     private boolean include = true;
     private boolean recursive = false;
-
-    public FieldProjection() {
-    }
 
     public FieldProjection(Path field,
             boolean include,
@@ -45,26 +42,15 @@ public class FieldProjection extends BasicProjection {
         return this.field;
     }
 
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
     public boolean isInclude() {
         return this.include;
-    }
-
-    public void setInclude(boolean argInclude) {
-        this.include = argInclude;
     }
 
     public boolean isRecursive() {
         return this.recursive;
     }
 
-    public void setRecursive(boolean argRecursive) {
-        this.recursive = argRecursive;
-    }
-
+    @Override
     public JsonNode toJson() {
         return getFactory().objectNode().
                 put("field", field.toString()).

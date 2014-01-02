@@ -72,7 +72,7 @@ public class UnsetExpression extends FieldUpdateExpression {
     }
 
     public static UnsetExpression fromJson(JsonNode node) {
-        List<Path> list = new ArrayList<Path>();
+        List<Path> list = new ArrayList<>();
         if (node instanceof ArrayNode) {
             for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
                     itr.hasNext();) {

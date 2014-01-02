@@ -37,14 +37,8 @@ import com.redhat.lightblue.util.Error;
  */
 public class NaryLogicalExpression extends LogicalExpression {
 
-    private NaryLogicalOperator op;
-    private List<QueryExpression> queries;
-
-    /**
-     * Default ctor
-     */
-    public NaryLogicalExpression() {
-    }
+    private final NaryLogicalOperator op;
+    private final List<QueryExpression> queries;
 
     /**
      * Ctor with the given values

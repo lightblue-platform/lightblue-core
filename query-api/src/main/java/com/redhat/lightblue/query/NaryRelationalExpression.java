@@ -40,9 +40,9 @@ import com.redhat.lightblue.util.Error;
  */
 public class NaryRelationalExpression extends RelationalExpression {
 
-    private Path field;
-    private NaryRelationalOperator op;
-    private List<Value> values;
+    private final Path field;
+    private final NaryRelationalOperator op;
+    private final List<Value> values;
 
     /**
      * Ctor with the given values
@@ -88,6 +88,7 @@ public class NaryRelationalExpression extends RelationalExpression {
     /**
      * Returns a json representation of this query
      */
+    @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();
         for (Value x : values) {
@@ -113,7 +114,7 @@ public class NaryRelationalExpression extends RelationalExpression {
                         Path field = new Path(x.asText());
                         x = node.get("values");
                         if (x instanceof ArrayNode) {
-                            ArrayList<Value> values = new ArrayList<Value>(((ArrayNode) x).size());
+                            ArrayList<Value> values = new ArrayList<>(((ArrayNode) x).size());
                             for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
                                     itr.hasNext();) {
                                 values.add(Value.fromJson(itr.next()));

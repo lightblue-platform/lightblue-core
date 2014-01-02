@@ -35,12 +35,6 @@ public class ProjectionList extends Projection {
     private List<Projection> items;
 
     /**
-     * Default ctor, with null <code>items</code>
-     */
-    public ProjectionList() {
-    }
-
-    /**
      * Ctor with the given list
      */
     public ProjectionList(List<Projection> items) {
@@ -59,13 +53,6 @@ public class ProjectionList extends Projection {
      */
     public List<Projection> getItems() {
         return items;
-    }
-
-    /**
-     * Sets the nested projections
-     */
-    public void setItems(List<Projection> i) {
-        items = i;
     }
 
     @Override

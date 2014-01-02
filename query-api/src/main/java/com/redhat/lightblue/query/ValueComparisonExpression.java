@@ -37,9 +37,9 @@ import com.redhat.lightblue.util.Path;
 public class ValueComparisonExpression
         extends BinaryRelationalExpression {
 
-    private Path field;
-    private BinaryComparisonOperator op;
-    private Value rvalue;
+    private final Path field;
+    private final BinaryComparisonOperator op;
+    private final Value rvalue;
 
     /**
      * Initializes all fields

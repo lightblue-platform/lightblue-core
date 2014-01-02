@@ -67,7 +67,7 @@ public class ArrayPushExpression extends ArrayUpdateExpression {
     }
 
     public static ArrayPushExpression fromJson(Path field, JsonNode node) {
-        ArrayList<Value> list = new ArrayList<Value>();
+        ArrayList<Value> list = new ArrayList<>();
         if (node instanceof ArrayNode) {
             for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
                     itr.hasNext();) {

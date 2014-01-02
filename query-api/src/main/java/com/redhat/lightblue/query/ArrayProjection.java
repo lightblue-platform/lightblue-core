@@ -25,12 +25,9 @@ import com.redhat.lightblue.util.Path;
 
 public abstract class ArrayProjection extends BasicProjection {
 
-    private Path field;
-    private boolean include;
-    private Projection project;
-
-    public ArrayProjection() {
-    }
+    private final Path field;
+    private final boolean include;
+    private final Projection project;
 
     public ArrayProjection(Path field,
             boolean include,
@@ -44,26 +41,15 @@ public abstract class ArrayProjection extends BasicProjection {
         return this.field;
     }
 
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
     public boolean isInclude() {
         return this.include;
-    }
-
-    public void setInclude(boolean argInclude) {
-        this.include = argInclude;
     }
 
     public Projection getProject() {
         return this.project;
     }
 
-    public void setProject(Projection argProject) {
-        this.project = argProject;
-    }
-
+    @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode().
                 put("field", field.toString()).

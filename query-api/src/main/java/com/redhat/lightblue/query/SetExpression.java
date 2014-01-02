@@ -89,7 +89,7 @@ public class SetExpression extends FieldUpdateExpression {
     }
 
     public static SetExpression fromJson(UpdateOperator op, ObjectNode node) {
-        ArrayList<FieldValue> list = new ArrayList<FieldValue>(node.size());
+        ArrayList<FieldValue> list = new ArrayList<>(node.size());
         for (Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
                 fields.hasNext();) {
             Map.Entry<String, JsonNode> entry = fields.next();

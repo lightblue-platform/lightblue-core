@@ -79,6 +79,7 @@ public class UpdateRequest extends Request {
     /**
      * Returns a json representation of this
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         if (query != null) {

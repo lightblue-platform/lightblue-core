@@ -30,9 +30,8 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class UnaryLogicalExpression extends LogicalExpression {
-
-    private UnaryLogicalOperator op;
-    private QueryExpression query;
+    private final UnaryLogicalOperator op;
+    private final QueryExpression query;
 
     public UnaryLogicalExpression(UnaryLogicalOperator op,
             QueryExpression query) {

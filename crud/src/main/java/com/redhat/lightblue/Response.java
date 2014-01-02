@@ -40,8 +40,8 @@ public class Response extends JsonObject {
     private String taskHandle;
     private SessionInfo session;
     private JsonNode entityData;
-    private final List<DataError> dataErrors = new ArrayList<DataError>();
-    private final List<Error> errors = new ArrayList<Error>();
+    private final List<DataError> dataErrors = new ArrayList<>();
+    private final List<Error> errors = new ArrayList<>();
 
     /**
      * Status of the completed operation
@@ -194,6 +194,7 @@ public class Response extends JsonObject {
     /**
      * Returns JSON representation of this
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
         if (status != null) {

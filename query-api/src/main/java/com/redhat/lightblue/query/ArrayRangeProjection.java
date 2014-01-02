@@ -26,11 +26,8 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayRangeProjection extends ArrayProjection {
 
-    private int from;
-    private int to;
-
-    public ArrayRangeProjection() {
-    }
+    private final int from;
+    private final int to;
 
     public ArrayRangeProjection(Path field,
             boolean include,
@@ -46,18 +43,11 @@ public class ArrayRangeProjection extends ArrayProjection {
         return this.from;
     }
 
-    public void setFrom(int argFrom) {
-        this.from = argFrom;
-    }
-
     public int getTo() {
         return this.to;
     }
 
-    public void setTo(int argTo) {
-        this.to = argTo;
-    }
-
+    @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();
         arr.add(getFactory().numberNode(from)).

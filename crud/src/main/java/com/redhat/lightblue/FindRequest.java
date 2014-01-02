@@ -114,6 +114,7 @@ public class FindRequest extends Request {
     /**
      * Returns JSON representation of this
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         if (query != null) {

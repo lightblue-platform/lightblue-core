@@ -67,7 +67,7 @@ public class ArrayRemoveValuesExpression extends ArrayUpdateExpression {
     }
 
     public static ArrayRemoveValuesExpression fromJson(Path field, ArrayNode node) {
-        ArrayList<Value> list = new ArrayList<Value>(node.size());
+        ArrayList<Value> list = new ArrayList<>(node.size());
         for (Iterator<JsonNode> itr = node.elements();
                 itr.hasNext();) {
             list.add(Value.fromJson(itr.next()));

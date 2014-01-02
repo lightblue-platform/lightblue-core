@@ -70,6 +70,7 @@ public class DataError extends JsonObject {
     /**
      * converts this object to json representation
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
         if (entityData != null) {
@@ -97,7 +98,7 @@ public class DataError extends JsonObject {
         }
         x = node.get("errors");
         if (x instanceof ArrayNode) {
-            error.errors = new ArrayList<Error>();
+            error.errors = new ArrayList<>();
             for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
                     itr.hasNext();) {
                 error.errors.add(Error.fromJson(itr.next()));

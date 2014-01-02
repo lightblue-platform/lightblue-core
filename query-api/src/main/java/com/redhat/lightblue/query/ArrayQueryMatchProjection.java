@@ -25,10 +25,7 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayQueryMatchProjection extends ArrayProjection {
 
-    private QueryExpression match;
-
-    public ArrayQueryMatchProjection() {
-    }
+    private final QueryExpression match;
 
     public ArrayQueryMatchProjection(Path field,
             boolean include,
@@ -42,10 +39,7 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
         return this.match;
     }
 
-    public void setMatch(QueryExpression argMatch) {
-        this.match = argMatch;
-    }
-
+    @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         node.set("match", match.toJson());

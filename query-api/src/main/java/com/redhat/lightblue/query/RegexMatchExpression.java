@@ -37,12 +37,12 @@ public class RegexMatchExpression
 
     public static final String INVALID_REGEX_EXPRESSION = "INVALID_REGEX_EXPRESSION";
 
-    private Path field;
-    private String regex;
-    private boolean caseInsensitive;
-    private boolean multiline;
-    private boolean extended;
-    private boolean dotall;
+    private final Path field;
+    private final String regex;
+    private final boolean caseInsensitive;
+    private final boolean multiline;
+    private final boolean extended;
+    private final boolean dotall;
 
     /**
      * Constructs a regular expression match expression using the values

@@ -45,6 +45,7 @@ public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
         field = p;
     }
 
+    @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
         ObjectNode child = getFactory().objectNode();

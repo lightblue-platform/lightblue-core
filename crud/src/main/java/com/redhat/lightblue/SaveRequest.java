@@ -83,6 +83,7 @@ public class SaveRequest extends Request {
     /**
      * Returns json representation of this
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         if (entityData != null) {

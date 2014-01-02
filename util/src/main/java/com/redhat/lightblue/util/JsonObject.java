@@ -56,6 +56,7 @@ public abstract class JsonObject implements Serializable {
 
     public abstract JsonNode toJson();
 
+    @Override
     public String toString() {
         return toJson().toString();
     }

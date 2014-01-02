@@ -86,12 +86,15 @@ public class SortKey extends Sort {
         String dir = node.get(field).asText();
         SortKey sk = new SortKey();
         sk.setField(new Path(field));
-        if ("$asc".equals(dir)) {
-            sk.setDesc(false);
-        } else if ("$desc".equals(dir)) {
-            sk.setDesc(true);
-        } else {
-            throw Error.get(INVALID_SORT, node.toString());
+        switch (dir) {
+            case "$asc":
+                sk.setDesc(false);
+                break;
+            case "$desc":
+                sk.setDesc(true);
+                break;
+            default:
+                throw Error.get(INVALID_SORT, node.toString());
         }
         return sk;
     }

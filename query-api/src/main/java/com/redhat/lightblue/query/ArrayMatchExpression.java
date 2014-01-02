@@ -32,8 +32,8 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class ArrayMatchExpression extends ArrayComparisonExpression {
-    private Path array;
-    private QueryExpression elemMatch;
+    private final Path array;
+    private final QueryExpression elemMatch;
 
     /**
      * Ctor with the given values
@@ -61,6 +61,7 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
     /**
      * Returns JSON representation of this query
      */
+    @Override
     public JsonNode toJson() {
         return getFactory().objectNode().put("array", array.toString()).
                 set("elemMatch", elemMatch.toJson());

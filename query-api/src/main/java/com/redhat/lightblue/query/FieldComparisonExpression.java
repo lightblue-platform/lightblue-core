@@ -33,9 +33,9 @@ import com.redhat.lightblue.util.Path;
 public class FieldComparisonExpression
         extends BinaryRelationalExpression {
 
-    private Path field;
-    private BinaryComparisonOperator op;
-    private Path rfield;
+    private final Path field;
+    private final BinaryComparisonOperator op;
+    private final Path rfield;
 
     /**
      * Ctor with the given values
@@ -72,6 +72,7 @@ public class FieldComparisonExpression
     /**
      * Returns json representation of the query
      */
+    @Override
     public JsonNode toJson() {
         return getFactory().objectNode().put("field", field.toString()).
                 put("op", op.toString()).

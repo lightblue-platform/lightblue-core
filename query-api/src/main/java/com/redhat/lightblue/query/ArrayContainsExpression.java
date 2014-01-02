@@ -39,9 +39,9 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class ArrayContainsExpression extends ArrayComparisonExpression {
-    private Path array;
-    private ContainsOperator op;
-    private List<Value> values;
+    private final Path array;
+    private final ContainsOperator op;
+    private final List<Value> values;
 
     /**
      * Ctor with the given values
@@ -91,6 +91,7 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
     /**
      * Returns a json representation of the query
      */
+    @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();
         for (Value x : values) {
@@ -115,7 +116,7 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
                 if (op != null) {
                     x = node.get("values");
                     if (x instanceof ArrayNode) {
-                        ArrayList<Value> values = new ArrayList<Value>(((ArrayNode) x).size());
+                        ArrayList<Value> values = new ArrayList<>(((ArrayNode) x).size());
                         for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
                                 itr.hasNext();) {
                             values.add(Value.fromJson(itr.next()));

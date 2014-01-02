@@ -21,7 +21,6 @@ package com.redhat.lightblue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 
 /**
@@ -48,6 +47,7 @@ public class DeleteRequest extends Request {
     /**
      * Returns a Json node representation of the request
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         if (query != null) {
