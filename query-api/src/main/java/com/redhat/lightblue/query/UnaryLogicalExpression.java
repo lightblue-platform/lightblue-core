@@ -34,9 +34,6 @@ public class UnaryLogicalExpression extends LogicalExpression {
     private UnaryLogicalOperator op;
     private QueryExpression query;
 
-    public UnaryLogicalExpression() {
-    }
-
     public UnaryLogicalExpression(UnaryLogicalOperator op,
             QueryExpression query) {
         this.op = op;
@@ -51,24 +48,10 @@ public class UnaryLogicalExpression extends LogicalExpression {
     }
 
     /**
-     * Sets the operator
-     */
-    public void setOp(UnaryLogicalOperator argOp) {
-        this.op = argOp;
-    }
-
-    /**
      * Returns the query to which the operator will be applied
      */
     public QueryExpression getQuery() {
         return this.query;
-    }
-
-    /**
-     * Sets the query to which the operator will be applied
-     */
-    public void setQuery(QueryExpression argQuery) {
-        this.query = argQuery;
     }
 
     /**

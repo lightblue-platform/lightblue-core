@@ -38,12 +38,6 @@ public class FieldComparisonExpression
     private Path rfield;
 
     /**
-     * Default ctor
-     */
-    public FieldComparisonExpression() {
-    }
-
-    /**
      * Ctor with the given values
      */
     public FieldComparisonExpression(Path field,
@@ -62,13 +56,6 @@ public class FieldComparisonExpression
     }
 
     /**
-     * The field on the left side of the operator
-     */
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
-    /**
      * The comparison operator
      */
     public BinaryComparisonOperator getOp() {
@@ -76,24 +63,10 @@ public class FieldComparisonExpression
     }
 
     /**
-     * The comparison operator
-     */
-    public void setOp(BinaryComparisonOperator argOp) {
-        this.op = argOp;
-    }
-
-    /**
      * The field on the right side of the operator
      */
     public Path getRfield() {
         return this.rfield;
-    }
-
-    /**
-     * The field on the right side of the operator
-     */
-    public void setRfield(Path argRfield) {
-        this.rfield = argRfield;
     }
 
     /**

@@ -45,12 +45,6 @@ public class NaryRelationalExpression extends RelationalExpression {
     private List<Value> values;
 
     /**
-     * Default ctor
-     */
-    public NaryRelationalExpression() {
-    }
-
-    /**
      * Ctor with the given values
      */
     public NaryRelationalExpression(Path field,
@@ -78,13 +72,6 @@ public class NaryRelationalExpression extends RelationalExpression {
     }
 
     /**
-     * The field. If this is a nested query, the field is relative to the context
-     */
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
-    /**
      * The operator
      */
     public NaryRelationalOperator getOp() {
@@ -92,24 +79,10 @@ public class NaryRelationalExpression extends RelationalExpression {
     }
 
     /**
-     * The operator
-     */
-    public void setOp(NaryRelationalOperator argOp) {
-        this.op = argOp;
-    }
-
-    /**
      * List of values against which to compare the field
      */
     public List<Value> getValues() {
         return values;
-    }
-
-    /**
-     * List of values against which to compare the field
-     */
-    public void setValues(List<Value> v) {
-        this.values = v;
     }
 
     /**

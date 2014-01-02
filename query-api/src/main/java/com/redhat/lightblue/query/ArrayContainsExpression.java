@@ -44,12 +44,6 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
     private List<Value> values;
 
     /**
-     * Default ctor
-     */
-    public ArrayContainsExpression() {
-    }
-
-    /**
      * Ctor with the given values
      */
     public ArrayContainsExpression(Path array,
@@ -81,13 +75,6 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
     }
 
     /**
-     * The array field. If this is included in a nested query, relative to the context
-     */
-    public void setArray(Path argArray) {
-        this.array = argArray;
-    }
-
-    /**
      * Contains operator
      */
     public ContainsOperator getOp() {
@@ -95,24 +82,10 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
     }
 
     /**
-     * Contains operator
-     */
-    public void setOp(ContainsOperator argOp) {
-        this.op = argOp;
-    }
-
-    /**
      * The values
      */
     public List<Value> getValues() {
         return values;
-    }
-
-    /**
-     * The values
-     */
-    public void setValues(List<Value> v) {
-        this.values = v;
     }
 
     /**

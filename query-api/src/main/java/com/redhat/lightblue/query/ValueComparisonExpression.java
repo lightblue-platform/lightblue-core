@@ -42,12 +42,6 @@ public class ValueComparisonExpression
     private Value rvalue;
 
     /**
-     * Default ctor
-     */
-    public ValueComparisonExpression() {
-    }
-
-    /**
      * Initializes all fields
      */
     public ValueComparisonExpression(Path field,
@@ -66,13 +60,6 @@ public class ValueComparisonExpression
     }
 
     /**
-     * Sets the field path
-     */
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
-    /**
      * Returns the operator
      */
     public BinaryComparisonOperator getOp() {
@@ -80,24 +67,10 @@ public class ValueComparisonExpression
     }
 
     /**
-     * Sets the operator
-     */
-    public void setOp(BinaryComparisonOperator argOp) {
-        this.op = argOp;
-    }
-
-    /**
      * Returns the right-value
      */
     public Value getRvalue() {
         return this.rvalue;
-    }
-
-    /**
-     * Sets the right-value
-     */
-    public void setRvalue(Value argValue) {
-        this.rvalue = argValue;
     }
 
     /**

@@ -36,12 +36,6 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
     private QueryExpression elemMatch;
 
     /**
-     * Default ctor
-     */
-    public ArrayMatchExpression() {
-    }
-
-    /**
      * Ctor with the given values
      */
     public ArrayMatchExpression(Path array,
@@ -58,24 +52,10 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
     }
 
     /**
-     * The array field. If this is a nested query, relative to the context
-     */
-    public void setArray(Path argArray) {
-        this.array = argArray;
-    }
-
-    /**
      * The nested query that will be matched agains array elements
      */
     public QueryExpression getElemMatch() {
         return this.elemMatch;
-    }
-
-    /**
-     * The nested query that will be matched agains array elements
-     */
-    public void setElemMatch(QueryExpression argElemMatch) {
-        this.elemMatch = argElemMatch;
     }
 
     /**

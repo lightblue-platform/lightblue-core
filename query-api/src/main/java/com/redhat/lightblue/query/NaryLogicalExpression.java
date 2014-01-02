@@ -71,13 +71,6 @@ public class NaryLogicalExpression extends LogicalExpression {
     }
 
     /**
-     * The operator
-     */
-    public void setOp(NaryLogicalOperator argOp) {
-        this.op = argOp;
-    }
-
-    /**
      * The nested queries
      */
     public List<QueryExpression> getQueries() {
@@ -85,15 +78,9 @@ public class NaryLogicalExpression extends LogicalExpression {
     }
 
     /**
-     * The nested queries
-     */
-    public void setQueries(List<QueryExpression> argQuery) {
-        this.queries = argQuery;
-    }
-
-    /**
      * Returns a json representation of this query
      */
+    @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();
         for (QueryExpression x : queries) {
@@ -117,7 +104,7 @@ public class NaryLogicalExpression extends LogicalExpression {
         JsonNode x = node.get(fieldName);
         if (x instanceof ArrayNode) {
             ArrayList<QueryExpression> list
-                    = new ArrayList<QueryExpression>(((ArrayNode) x).size());
+                    = new ArrayList<>(((ArrayNode) x).size());
             for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
                     itr.hasNext();) {
                 list.add(QueryExpression.fromJson(itr.next()));

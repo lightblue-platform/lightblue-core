@@ -44,9 +44,6 @@ public class RegexMatchExpression
     private boolean extended;
     private boolean dotall;
 
-    public RegexMatchExpression() {
-    }
-
     /**
      * Constructs a regular expression match expression using the values
      */
@@ -71,13 +68,6 @@ public class RegexMatchExpression
     }
 
     /**
-     * Sets the field to be matched
-     */
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
-    /**
      * Returns the regular expression
      */
     public String getRegex() {
@@ -85,24 +75,10 @@ public class RegexMatchExpression
     }
 
     /**
-     * Sets the regular expression
-     */
-    public void setRegex(String argRegex) {
-        this.regex = argRegex;
-    }
-
-    /**
      * Determines if the regex match will be case sensitive
      */
     public boolean isCaseInsensitive() {
         return caseInsensitive;
-    }
-
-    /**
-     * Determines if the regex match will be case sensitive
-     */
-    public void setCaseInsensitive(boolean b) {
-        caseInsensitive = b;
     }
 
     /**
@@ -115,15 +91,6 @@ public class RegexMatchExpression
     }
 
     /**
-     * (from regex javadoc) In multiline mode the expressions ^ and $ match just after or just before, respectively, a
-     * line terminator or the end of the input sequence. By default these expressions only match at the beginning and
-     * the end of the entire input sequence.
-     */
-    public void setMultiline(boolean b) {
-        multiline = b;
-    }
-
-    /**
      * (from regex javadoc) In this mode, whitespace is ignored, and embedded comments starting with # are ignored until
      * the end of a line.
      */
@@ -132,27 +99,11 @@ public class RegexMatchExpression
     }
 
     /**
-     * (from regex javadoc) In this mode, whitespace is ignored, and embedded comments starting with # are ignored until
-     * the end of a line.
-     */
-    public void setExtended(boolean b) {
-        extended = b;
-    }
-
-    /**
      * (from regex javadoc) In dotall mode, the expression . matches any character, including a line terminator. By
      * default this expression does not match line terminators.
      */
     public boolean isDotAll() {
         return dotall;
-    }
-
-    /**
-     * (from regex javadoc) In dotall mode, the expression . matches any character, including a line terminator. By
-     * default this expression does not match line terminators.
-     */
-    public void setDotAll(boolean b) {
-        dotall = b;
     }
 
     @Override
