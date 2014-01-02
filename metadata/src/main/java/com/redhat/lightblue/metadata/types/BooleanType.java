@@ -1,22 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.metadata.types;
 
 import java.io.Serializable;
@@ -30,10 +29,10 @@ import com.redhat.lightblue.util.Error;
 
 public final class BooleanType implements Type, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
-    public static final Type TYPE=new BooleanType();
-    public static final String NAME="boolean";
+    public static final Type TYPE = new BooleanType();
+    public static final String NAME = "boolean";
 
     @Override
     public String getName() {
@@ -49,47 +48,50 @@ public final class BooleanType implements Type, Serializable {
     public boolean supportsOrdering() {
         return true;
     }
-    
+
     @Override
-    public JsonNode toJson(JsonNodeFactory factory,Object obj) {
-        return factory.booleanNode((Boolean)cast(obj));
+    public JsonNode toJson(JsonNodeFactory factory, Object obj) {
+        return factory.booleanNode((Boolean) cast(obj));
     }
 
     @Override
     public Object fromJson(JsonNode node) {
-        if(node.isValueNode())
+        if (node.isValueNode()) {
             return node.asBoolean();
-        else
-            throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
+        } else {
+            throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, node.toString());
+        }
     }
 
     @Override
     public Object cast(Object obj) {
-       Boolean value=null;
-       if(obj!=null) {
-           if(obj instanceof Boolean)
-               value=((Boolean)obj);
-           else if(obj instanceof Number)
-               value=((Number)obj).intValue()!=0;
-           else if(obj instanceof String)
-               value=Boolean.valueOf((String)obj);
-           else 
-               throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
-       }
-       return value;
+        Boolean value = null;
+        if (obj != null) {
+            if (obj instanceof Boolean) {
+                value = ((Boolean) obj);
+            } else if (obj instanceof Number) {
+                value = ((Number) obj).intValue() != 0;
+            } else if (obj instanceof String) {
+                value = Boolean.valueOf((String) obj);
+            } else {
+                throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, obj.toString());
+            }
+        }
+        return value;
     }
 
     @Override
-    public int compare(Object v1,Object v2) {
-        if(v1==null)
-            if(v2==null)
+    public int compare(Object v1, Object v2) {
+        if (v1 == null) {
+            if (v2 == null) {
                 return 0;
-            else
+            } else {
                 return -1;
-        else if(v2==null)
+            }
+        } else if (v2 == null) {
             return 1;
-        else {
-            return ((Comparable)cast(v1)).compareTo(cast(v2));
+        } else {
+            return ((Comparable) cast(v1)).compareTo(cast(v2));
         }
     }
 
@@ -108,5 +110,6 @@ public final class BooleanType implements Type, Serializable {
         return NAME;
     }
 
-    private BooleanType() {}
+    private BooleanType() {
+    }
 }

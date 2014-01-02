@@ -1,22 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.metadata.mongo;
 
 import java.util.List;
@@ -38,18 +37,18 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 public class BSONParser extends MetadataParser<BSONObject> {
 
     public BSONParser(Extensions<BSONObject> ex,
-                      TypeResolver resolver) {
-        super(ex,resolver);
+            TypeResolver resolver) {
+        super(ex, resolver);
     }
 
     @Override
-    public String getStringProperty(BSONObject object,String name) {
-        Object x=object.get(name);
-        if(x!=null) {
-            if(x instanceof String) {
-                return (String)x;
+    public String getStringProperty(BSONObject object, String name) {
+        Object x = object.get(name);
+        if (x != null) {
+            if (x instanceof String) {
+                return (String) x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -57,13 +56,13 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    public BSONObject getObjectProperty(BSONObject object,String name) {
-        Object x=object.get(name);
-        if(x!=null) {
-            if(x instanceof BSONObject) {
-                return (BSONObject)x;
+    public BSONObject getObjectProperty(BSONObject object, String name) {
+        Object x = object.get(name);
+        if (x != null) {
+            if (x instanceof BSONObject) {
+                return (BSONObject) x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -71,16 +70,16 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    public Object getValueProperty(BSONObject object,String name) {
-        Object x=object.get(name);
-        if(x!=null) {
-            if(x instanceof Number ||
-               x instanceof String ||
-               x instanceof Date ||
-               x instanceof Boolean) {
+    public Object getValueProperty(BSONObject object, String name) {
+        Object x = object.get(name);
+        if (x != null) {
+            if (x instanceof Number
+                    || x instanceof String
+                    || x instanceof Date
+                    || x instanceof Boolean) {
                 return x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -88,17 +87,17 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    public List<String> getStringList(BSONObject object,String name) {
-        Object x=object.get(name);
-        if(x!=null) {
-            if(x instanceof List) {
-                ArrayList<String> ret=new ArrayList<String>();
-                for(Object o:(List)x) {
+    public List<String> getStringList(BSONObject object, String name) {
+        Object x = object.get(name);
+        if (x != null) {
+            if (x instanceof List) {
+                ArrayList<String> ret = new ArrayList<String>();
+                for (Object o : (List) x) {
                     ret.add(o.toString());
                 }
                 return ret;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -106,13 +105,13 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    public List<BSONObject> getObjectList(BSONObject object,String name) {
-        Object x=object.get(name);
-        if(x!=null) {
-            if(x instanceof List) {
-                return (List<BSONObject>)x;
+    public List<BSONObject> getObjectList(BSONObject object, String name) {
+        Object x = object.get(name);
+        if (x != null) {
+            if (x instanceof List) {
+                return (List<BSONObject>) x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -130,34 +129,34 @@ public class BSONParser extends MetadataParser<BSONObject> {
     }
 
     @Override
-    public void putString(BSONObject object,String name,String value) {
-        object.put(name,value);
+    public void putString(BSONObject object, String name, String value) {
+        object.put(name, value);
     }
 
     @Override
-    public void putObject(BSONObject object,String name,Object value) {
-        object.put(name,value);
+    public void putObject(BSONObject object, String name, Object value) {
+        object.put(name, value);
     }
 
     @Override
-    public void putValue(BSONObject object,String name,Object value) {
-        object.put(name,value);
+    public void putValue(BSONObject object, String name, Object value) {
+        object.put(name, value);
     }
 
     @Override
-    public  Object newArrayField(BSONObject object,String name) {
-        Object ret=new ArrayList();
-        object.put(name,ret);
+    public Object newArrayField(BSONObject object, String name) {
+        Object ret = new ArrayList();
+        object.put(name, ret);
         return ret;
     }
 
     @Override
-    public void addStringToArray(Object array,String value) {
-        ((List)array).add(value);
+    public void addStringToArray(Object array, String value) {
+        ((List) array).add(value);
     }
 
     @Override
-    public void addObjectToArray(Object array,Object value) {
-        ((List)array).add(value);
+    public void addObjectToArray(Object array, Object value) {
+        ((List) array).add(value);
     }
 }

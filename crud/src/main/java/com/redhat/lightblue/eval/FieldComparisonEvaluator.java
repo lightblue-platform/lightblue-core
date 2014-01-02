@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.eval;
 
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import com.redhat.lightblue.util.Path;
 
 public class FieldComparisonEvaluator extends QueryEvaluator {
 
-    private static final Logger logger=LoggerFactory.getLogger(FieldComparisonEvaluator.class);
+    private static final Logger logger = LoggerFactory.getLogger(FieldComparisonEvaluator.class);
 
     private final FieldTreeNode fieldMd;
     private final FieldTreeNode rfieldMd;
@@ -48,41 +48,41 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
      * @param context The path relative to which the expression will be evaluated
      */
     public FieldComparisonEvaluator(FieldComparisonExpression expr,
-                                    FieldTreeNode context) {
-        this.relativePath=expr.getField();
-        this.rfieldRelativePath=expr.getRfield();
-        fieldMd=context.resolve(relativePath);
-        if(fieldMd==null) {
-            throw new EvaluationError(expr,"No field " +relativePath);
+            FieldTreeNode context) {
+        this.relativePath = expr.getField();
+        this.rfieldRelativePath = expr.getRfield();
+        fieldMd = context.resolve(relativePath);
+        if (fieldMd == null) {
+            throw new EvaluationError(expr, "No field " + relativePath);
         }
-        rfieldMd=context.resolve(rfieldRelativePath);
-        if(rfieldMd==null) {
-            throw new EvaluationError(expr,"No field "+rfieldRelativePath);
+        rfieldMd = context.resolve(rfieldRelativePath);
+        if (rfieldMd == null) {
+            throw new EvaluationError(expr, "No field " + rfieldRelativePath);
         }
-        operator=expr.getOp();
-        logger.debug("ctor {} {} {}",relativePath,operator,rfieldRelativePath);
+        operator = expr.getOp();
+        logger.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {} {} {}",relativePath,operator,rfieldRelativePath);
-        JsonNode lvalueNode=ctx.getNode(relativePath);
+        logger.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
+        JsonNode lvalueNode = ctx.getNode(relativePath);
         Object ldocValue;
-        if(lvalueNode!=null) {
-            ldocValue=fieldMd.getType().fromJson(lvalueNode);
+        if (lvalueNode != null) {
+            ldocValue = fieldMd.getType().fromJson(lvalueNode);
         } else {
-            ldocValue=null;
+            ldocValue = null;
         }
-        JsonNode rvalueNode=ctx.getNode(rfieldRelativePath);
+        JsonNode rvalueNode = ctx.getNode(rfieldRelativePath);
         Object rdocValue;
-        if(rvalueNode!=null) {
-            rdocValue=rfieldMd.getType().fromJson(rvalueNode);
+        if (rvalueNode != null) {
+            rdocValue = rfieldMd.getType().fromJson(rvalueNode);
         } else {
-            rdocValue=null;
+            rdocValue = null;
         }
-        logger.debug(" lvalue={} rvalue={}",lvalueNode,rvalueNode);
-        int result=fieldMd.getType().compare(ldocValue,rdocValue);
-        logger.debug(" result={}",result);
+        logger.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
+        int result = fieldMd.getType().compare(ldocValue, rdocValue);
+        logger.debug(" result={}", result);
         ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }

@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,9 +48,9 @@ public class FindRequest extends Request {
      * The query
      */
     public void setQuery(QueryExpression q) {
-        query=q;
-    } 
-    
+        query = q;
+    }
+
     /**
      * Specifies what fields of the documents to return
      */
@@ -62,7 +62,7 @@ public class FindRequest extends Request {
      * Specifies what fields of the documents to return
      */
     public void setProjection(Projection x) {
-        projection=x;
+        projection = x;
     }
 
     /**
@@ -76,87 +76,86 @@ public class FindRequest extends Request {
      * Specifies the order in which the documents will be returned
      */
     public void setSort(Sort s) {
-        sort=s;
+        sort = s;
     }
 
     /**
-     * Specifies the index in the result set to start returning
-     * documents. Meaningful only if sort is given. Starts from 0.
+     * Specifies the index in the result set to start returning documents. Meaningful only if sort is given. Starts from
+     * 0.
      */
     public Long getFrom() {
         return from;
     }
 
     /**
-     * Specifies the index in the result set to start returning
-     * documents. Meaningful only if sort is given. Starts from 0.
+     * Specifies the index in the result set to start returning documents. Meaningful only if sort is given. Starts from
+     * 0.
      */
     public void setFrom(Long l) {
-        from=l;
+        from = l;
     }
 
     /**
-     * Specifies the last index of the document in the result set to
-     * be returned. Meaningful only if sort is given. Starts from 0.
+     * Specifies the last index of the document in the result set to be returned. Meaningful only if sort is given.
+     * Starts from 0.
      */
     public Long getTo() {
         return to;
     }
 
     /**
-     * Specifies the last index of the document in the result set to
-     * be returned. Meaningful only if sort is given. Starts from 0.
+     * Specifies the last index of the document in the result set to be returned. Meaningful only if sort is given.
+     * Starts from 0.
      */
     public void setTo(Long l) {
-        to=l;
+        to = l;
     }
 
     /**
      * Returns JSON representation of this
      */
     public JsonNode toJson() {
-        ObjectNode node=(ObjectNode)super.toJson();
-        if(query!=null) {
-            node.set("query",query.toJson());
+        ObjectNode node = (ObjectNode) super.toJson();
+        if (query != null) {
+            node.set("query", query.toJson());
         }
-        if(projection!=null) {
-            node.set("returning",projection.toJson());
+        if (projection != null) {
+            node.set("returning", projection.toJson());
         }
-        if(sort!=null) {
-            node.set("sort",sort.toJson());
+        if (sort != null) {
+            node.set("sort", sort.toJson());
         }
-        if(from!=null&&to!=null) {
-            ArrayNode arr=getFactory().arrayNode();
+        if (from != null && to != null) {
+            ArrayNode arr = getFactory().arrayNode();
             arr.add(from);
             arr.add(to);
-            node.set("range",arr);
+            node.set("range", arr);
         }
         return node;
     }
 
     /**
-     * Parses a find request from a json object. Unrecognized elements
-     * are ignored.
+     * Parses a find request from a json object. Unrecognized elements are ignored.
      */
     public static FindRequest fromJson(ObjectNode node) {
-        FindRequest req=new FindRequest();
+        FindRequest req = new FindRequest();
         req.parse(node);
-        JsonNode x=node.get("query");
-        if(x!=null) {
-            req.query=QueryExpression.fromJson(x);
+        JsonNode x = node.get("query");
+        if (x != null) {
+            req.query = QueryExpression.fromJson(x);
         }
-        x=node.get("returning");
-        if(x!=null) {
-            req.projection=Projection.fromJson(x);
+        x = node.get("returning");
+        if (x != null) {
+            req.projection = Projection.fromJson(x);
         }
-        x=node.get("sort");
-        if(x!=null) {
-            req.sort=Sort.fromJson(x);
+        x = node.get("sort");
+        if (x != null) {
+            req.sort = Sort.fromJson(x);
         }
-        x=node.get("range");
-        if(x instanceof ArrayNode&&((ArrayNode)x).size()==2) {
-            req.from=((ArrayNode)x).get(0).asLong();
-            req.to=((ArrayNode)x).get(1).asLong();
+        x = node.get("range");
+        if (x instanceof ArrayNode && ((ArrayNode) x).size() == 2) {
+            req.from = ((ArrayNode) x).get(0).asLong();
+            req.to = ((ArrayNode) x).get(1).asLong();
         }
         return req;
     }

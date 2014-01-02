@@ -72,7 +72,6 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 //    public void fullObjectEverything() throws IOException, ParseException, JSONException {
 //        testResource("JSONMetadataParserTest-object-everything.json");
 //    }
-
     @Test
     public void getStringProperty() {
         String name = "name";

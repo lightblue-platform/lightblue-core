@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.eval;
 
 import java.util.regex.Pattern;
@@ -33,7 +33,7 @@ import com.redhat.lightblue.util.Path;
 
 public class RegexEvaluator extends QueryEvaluator {
 
-    private static final Logger logger=LoggerFactory.getLogger(RegexEvaluator.class);
+    private static final Logger logger = LoggerFactory.getLogger(RegexEvaluator.class);
 
     private final FieldTreeNode fieldMd;
     private final Pattern regex;
@@ -47,42 +47,42 @@ public class RegexEvaluator extends QueryEvaluator {
      * @param context The path relative to which the expression will be evaluated
      */
     public RegexEvaluator(RegexMatchExpression expr,
-                          FieldTreeNode context) {
-        this.relativePath=expr.getField();
-        fieldMd=context.resolve(relativePath);
-        if(fieldMd==null) {
-            throw new EvaluationError(expr,"No field " +relativePath);
+            FieldTreeNode context) {
+        this.relativePath = expr.getField();
+        fieldMd = context.resolve(relativePath);
+        if (fieldMd == null) {
+            throw new EvaluationError(expr, "No field " + relativePath);
         }
-        int flags=0;
-        if(expr.isCaseInsensitive()) {
-            flags|=Pattern.CASE_INSENSITIVE;
+        int flags = 0;
+        if (expr.isCaseInsensitive()) {
+            flags |= Pattern.CASE_INSENSITIVE;
         }
-        if(expr.isMultiline()) {
-            flags|=Pattern.MULTILINE;
+        if (expr.isMultiline()) {
+            flags |= Pattern.MULTILINE;
         }
-        if(expr.isExtended()) {
-            flags|=Pattern.COMMENTS;
+        if (expr.isExtended()) {
+            flags |= Pattern.COMMENTS;
         }
-        if(expr.isDotAll()) {
-            flags|=Pattern.DOTALL;
+        if (expr.isDotAll()) {
+            flags |= Pattern.DOTALL;
         }
-        regex=Pattern.compile(expr.getRegex(),flags);
-        logger.debug("ctor {} {}",relativePath,regex);
+        regex = Pattern.compile(expr.getRegex(), flags);
+        logger.debug("ctor {} {}", relativePath, regex);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {} {}",relativePath,regex);
-        JsonNode valueNode=ctx.getNode(relativePath);
+        logger.debug("evaluate {} {}", relativePath, regex);
+        JsonNode valueNode = ctx.getNode(relativePath);
         Object docValue;
-        if(valueNode!=null) {
-            docValue=fieldMd.getType().fromJson(valueNode);
+        if (valueNode != null) {
+            docValue = fieldMd.getType().fromJson(valueNode);
         } else {
-            docValue=null;
+            docValue = null;
         }
-        logger.debug(" value={}",valueNode);
+        logger.debug(" value={}", valueNode);
         ctx.setResult(false);
-        if(docValue!=null) {
+        if (docValue != null) {
             ctx.setResult(regex.matcher(docValue.toString()).matches());
         }
         return ctx.getResult();

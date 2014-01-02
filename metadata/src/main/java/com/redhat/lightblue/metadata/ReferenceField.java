@@ -1,22 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.metadata;
 
 import java.util.Iterator;
@@ -39,7 +38,7 @@ public class ReferenceField extends Field {
     private Sort sort;
 
     public ReferenceField(String name) {
-        super(name,ReferenceType.TYPE);
+        super(name, ReferenceType.TYPE);
     }
 
     public String getEntityName() {
@@ -47,7 +46,7 @@ public class ReferenceField extends Field {
     }
 
     public void setEntityName(String name) {
-        this.entityName=name;
+        this.entityName = name;
     }
 
     public String getVersionValue() {
@@ -55,7 +54,7 @@ public class ReferenceField extends Field {
     }
 
     public void setVersionValue(String v) {
-        version=v;
+        version = v;
     }
 
     public Projection getProjection() {
@@ -63,7 +62,7 @@ public class ReferenceField extends Field {
     }
 
     public void setProjection(Projection p) {
-        this.projection=p;
+        this.projection = p;
     }
 
     public QueryExpression getQuery() {
@@ -71,7 +70,7 @@ public class ReferenceField extends Field {
     }
 
     public void setQuery(QueryExpression q) {
-        query=q;
+        query = q;
     }
 
     public Sort getSort() {
@@ -79,7 +78,7 @@ public class ReferenceField extends Field {
     }
 
     public void setSort(Sort s) {
-        sort=s;
+        sort = s;
     }
 
     @Override
@@ -93,11 +92,12 @@ public class ReferenceField extends Field {
     }
 
     @Override
-    protected FieldTreeNode resolve(Path p,int level) {
-        if(p.numSegments()==level)
+    protected FieldTreeNode resolve(Path p, int level) {
+        if (p.numSegments() == level) {
             return this;
-        else
+        } else {
             throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+        }
     }
 
 }

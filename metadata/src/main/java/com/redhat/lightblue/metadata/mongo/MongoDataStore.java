@@ -1,22 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.metadata.mongo;
 
 import java.io.Serializable;
@@ -25,26 +24,27 @@ import com.redhat.lightblue.metadata.DataStore;
 
 public class MongoDataStore implements DataStore, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private String clientJndiName;
     private String databaseName;
     private String collectionName;
 
-    public MongoDataStore() {}
+    public MongoDataStore() {
+    }
 
     public MongoDataStore(String clientJndiName,
-                          String databaseName,
-                          String collectionName) {
-        this.clientJndiName=clientJndiName;
-        this.databaseName=databaseName;
-        this.collectionName=collectionName;
+            String databaseName,
+            String collectionName) {
+        this.clientJndiName = clientJndiName;
+        this.databaseName = databaseName;
+        this.collectionName = collectionName;
     }
 
     public String getType() {
         return "mongo";
     }
-    
+
     /**
      * Gets the value of clientJndiName
      *
@@ -101,38 +101,41 @@ public class MongoDataStore implements DataStore, Serializable {
 
     @Override
     public String toString() {
-        StringBuilder bld=new StringBuilder(64);
-        if(databaseName!=null)
+        StringBuilder bld = new StringBuilder(64);
+        if (databaseName != null) {
             bld.append(databaseName).append(':');
+        }
         bld.append(collectionName);
-        if(clientJndiName!=null)
+        if (clientJndiName != null) {
             bld.append('@').append(clientJndiName);
+        }
         return bld.toString();
     }
-    
+
     @Override
     public boolean equals(Object x) {
         try {
-            if(x!=null) {
-                MongoDataStore mds = (MongoDataStore)x;
+            if (x != null) {
+                MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return ((mds.clientJndiName==null&&clientJndiName==null)||
-                            (mds.clientJndiName!=null&&clientJndiName!=null&&mds.clientJndiName.equals(clientJndiName))) &&
-                        ( (mds.databaseName==null&&databaseName==null)||
-                          (mds.databaseName!=null&&databaseName!=null&&mds.databaseName.equals(databaseName)) ) &&
-                        ( (mds.collectionName==null&&collectionName==null) ||
-                          (mds.collectionName!=null&&collectionName!=null&&mds.collectionName.equals(collectionName)) );
-                } catch (ClassCastException e) {}
+                    return ((mds.clientJndiName == null && clientJndiName == null)
+                            || (mds.clientJndiName != null && clientJndiName != null && mds.clientJndiName.equals(clientJndiName)))
+                            && ((mds.databaseName == null && databaseName == null)
+                            || (mds.databaseName != null && databaseName != null && mds.databaseName.equals(databaseName)))
+                            && ((mds.collectionName == null && collectionName == null)
+                            || (mds.collectionName != null && collectionName != null && mds.collectionName.equals(collectionName)));
+                } catch (ClassCastException e) {
+                }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return (clientJndiName==null?1:clientJndiName.hashCode())*
-            (databaseName==null?1:databaseName.hashCode())*
-            (collectionName==null?1:collectionName.hashCode());
+        return (clientJndiName == null ? 1 : clientJndiName.hashCode())
+                * (databaseName == null ? 1 : databaseName.hashCode())
+                * (collectionName == null ? 1 : collectionName.hashCode());
     }
 }
-

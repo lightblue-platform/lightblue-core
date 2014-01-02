@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,7 +43,7 @@ public abstract class Request extends JsonObject {
      * Entity name and version
      */
     public void setEntity(EntityVersion e) {
-        entity=e;
+        entity = e;
     }
 
     /**
@@ -57,7 +57,7 @@ public abstract class Request extends JsonObject {
      * Information that uniquely identifies the caller
      */
     public void setClientId(ClientIdentification c) {
-        client=c;
+        client = c;
     }
 
     /**
@@ -71,43 +71,42 @@ public abstract class Request extends JsonObject {
      * Information about requested execution options
      */
     public void setExecution(ExecutionOptions e) {
-        execution=e;
+        execution = e;
     }
 
     /**
      * Returns a JSON representation of this
      */
     public JsonNode toJson() {
-        ObjectNode node=getFactory().objectNode();
-        node.put("entity",entity.getEntity());
-        node.put("entityVersion",entity.getVersion());
-        if(client!=null) {
-            node.set("client",client.toJson());
+        ObjectNode node = getFactory().objectNode();
+        node.put("entity", entity.getEntity());
+        node.put("entityVersion", entity.getVersion());
+        if (client != null) {
+            node.set("client", client.toJson());
         }
-        if(execution!=null) {
-            node.set("execution",execution.toJson());
+        if (execution != null) {
+            node.set("execution", execution.toJson());
         }
         return node;
     }
 
     /**
-     * Parses the entity, client identification and execution options
-     * from the given json object
+     * Parses the entity, client identification and execution options from the given json object
      */
     protected void parse(ObjectNode node) {
-        entity=new EntityVersion();
-        JsonNode x=node.get("entity");
-        if(x!=null) {
+        entity = new EntityVersion();
+        JsonNode x = node.get("entity");
+        if (x != null) {
             entity.setEntity(x.asText());
         }
-        x=node.get("entityVersion");
-        if(x!=null) {
+        x = node.get("entityVersion");
+        if (x != null) {
             entity.setVersion(x.asText());
         }
         // TODO: clientIdentification
-        x=node.get("execution");
-        if(x!=null) {
-            execution=ExecutionOptions.fromJson((ObjectNode)x);
+        x = node.get("execution");
+        if (x != null) {
+            execution = ExecutionOptions.fromJson((ObjectNode) x);
         }
     }
 }

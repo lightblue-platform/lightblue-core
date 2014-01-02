@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,41 +33,37 @@ public class SaveRequest extends Request {
     private boolean upsert;
 
     /**
-     * Entity data to be saved. this may be an object node containing
-     * a single entity, or an array node containing multiple
-     * entities. All entities must be of the same type. Each document
-     * must contain the _id of the document it is replacing.
+     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
+     * multiple entities. All entities must be of the same type. Each document must contain the _id of the document it
+     * is replacing.
      */
     public JsonNode getEntityData() {
         return entityData;
     }
 
     /**
-     * Entity data to be saved. this may be an object node containing
-     * a single entity, or an array node containing multiple
-     * entities. All entities must be of the same type. Each document
-     * must contain the _id of the document it is replacing.
+     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
+     * multiple entities. All entities must be of the same type. Each document must contain the _id of the document it
+     * is replacing.
      */
     public void setEntityData(JsonNode data) {
-        this.entityData=data;
+        this.entityData = data;
     }
 
     /**
-     * Specifies the fields of the inserted entities to return. This
-     * can be used to retrieve the _id fields of the inserted
-     * entities.
+     * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
+     * inserted entities.
      */
     public Projection getReturnFields() {
         return returnFields;
     }
 
     /**
-     * Specifies the fields of the inserted entities to return. This
-     * can be used to retrieve the _id fields of the inserted
-     * entities.
+     * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
+     * inserted entities.
      */
     public void setReturnFields(Projection p) {
-        returnFields=p;
+        returnFields = p;
     }
 
     /**
@@ -81,21 +77,21 @@ public class SaveRequest extends Request {
      * If true, documents that don't exist will be inserted
      */
     public void setUpsert(boolean b) {
-        upsert=b;
+        upsert = b;
     }
 
     /**
      * Returns json representation of this
      */
     public JsonNode toJson() {
-        ObjectNode node=(ObjectNode)super.toJson();
-        if(entityData!=null) {
-            node.set("data",entityData);
+        ObjectNode node = (ObjectNode) super.toJson();
+        if (entityData != null) {
+            node.set("data", entityData);
         }
-        if(returnFields!=null) {
-            node.set("returning",returnFields.toJson());
+        if (returnFields != null) {
+            node.set("returning", returnFields.toJson());
         }
-        node.put("upsert",upsert);
+        node.put("upsert", upsert);
         return node;
     }
 
@@ -103,16 +99,16 @@ public class SaveRequest extends Request {
      * Parses a save request from a JSON object
      */
     public static SaveRequest fromJson(ObjectNode node) {
-        SaveRequest req=new SaveRequest();
+        SaveRequest req = new SaveRequest();
         req.parse(node);
-        req.entityData=node.get("data");
-        JsonNode x=node.get("returning");
-        if(x!=null) {
-            req.returnFields=Projection.fromJson(x);
+        req.entityData = node.get("data");
+        JsonNode x = node.get("returning");
+        if (x != null) {
+            req.returnFields = Projection.fromJson(x);
         }
-        x=node.get("upsert");
-        if(x!=null) {
-            req.upsert=x.asBoolean();
+        x = node.get("upsert");
+        if (x != null) {
+            req.upsert = x.asBoolean();
         }
         return req;
     }

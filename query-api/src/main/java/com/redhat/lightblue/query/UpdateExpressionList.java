@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.query;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class UpdateExpressionList extends UpdateExpression {
     }
 
     public UpdateExpressionList(List<UpdateExpression> items) {
-        this.list=items;
+        this.list = items;
     }
 
     public UpdateExpressionList(UpdateExpression... i) {
@@ -47,22 +47,23 @@ public class UpdateExpressionList extends UpdateExpression {
     }
 
     public void setList(List<UpdateExpression> l) {
-        list=l;
+        list = l;
     }
 
     public JsonNode toJson() {
-        ArrayNode arr=getFactory().arrayNode();
-        for(UpdateExpression x:list)
+        ArrayNode arr = getFactory().arrayNode();
+        for (UpdateExpression x : list) {
             arr.add(x.toJson());
+        }
         return arr;
     }
 
     public static UpdateExpressionList fromJson(ArrayNode node) {
-        ArrayList<UpdateExpression> list=
-            new ArrayList<UpdateExpression>(node.size());
-        for(Iterator<JsonNode> itr=node.elements();
-            itr.hasNext();) {
-            list.add(PartialUpdateExpression.fromJson((ObjectNode)itr.next()));
+        ArrayList<UpdateExpression> list
+                = new ArrayList<UpdateExpression>(node.size());
+        for (Iterator<JsonNode> itr = node.elements();
+                itr.hasNext();) {
+            list.add(PartialUpdateExpression.fromJson((ObjectNode) itr.next()));
         }
         return new UpdateExpressionList(list);
     }

@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.crud.mongo;
 
 import java.util.List;
@@ -65,7 +65,6 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.query.CompositeSortKey;
 
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
@@ -78,56 +77,53 @@ import com.redhat.lightblue.mediator.MetadataResolver;
  */
 public class Translator {
 
-    public static final String OBJECT_TYPE_STR="object_type";
-    public static final Path OBJECT_TYPE=new Path(OBJECT_TYPE_STR);
+    public static final String OBJECT_TYPE_STR = "object_type";
+    public static final Path OBJECT_TYPE = new Path(OBJECT_TYPE_STR);
 
-    public static final String ERR_NO_OBJECT_TYPE="NO_OBJECT_TYPE";
-    public static final String ERR_INVALID_OBJECTTYPE="INVALID_OBJECTTYPE";
-    public static final String ERR_INVALID_FIELD="INVALID_FIELD";
-    public static final String ERR_INVALID_COMPARISON="INVALID_COMPARISON";
+    public static final String ERR_NO_OBJECT_TYPE = "NO_OBJECT_TYPE";
+    public static final String ERR_INVALID_OBJECTTYPE = "INVALID_OBJECTTYPE";
+    public static final String ERR_INVALID_FIELD = "INVALID_FIELD";
+    public static final String ERR_INVALID_COMPARISON = "INVALID_COMPARISON";
 
-    private static final Logger logger=LoggerFactory.getLogger(Translator.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(Translator.class);
 
     private final MetadataResolver mdResolver;
     private final JsonNodeFactory factory;
 
-
-    private static final Map<BinaryComparisonOperator,String> BINARY_COMPARISON_OPERATOR_JS_MAP;
-    private static final Map<BinaryComparisonOperator,String> BINARY_COMPARISON_OPERATOR_MAP;
-    private static final Map<NaryLogicalOperator,String> NARY_LOGICAL_OPERATOR_MAP;
-    private static final Map<UnaryLogicalOperator,String> UNARY_LOGICAL_OPERATOR_MAP;
-    private static final Map<NaryRelationalOperator,String> NARY_RELATIONAL_OPERATOR_MAP;
-
+    private static final Map<BinaryComparisonOperator, String> BINARY_COMPARISON_OPERATOR_JS_MAP;
+    private static final Map<BinaryComparisonOperator, String> BINARY_COMPARISON_OPERATOR_MAP;
+    private static final Map<NaryLogicalOperator, String> NARY_LOGICAL_OPERATOR_MAP;
+    private static final Map<UnaryLogicalOperator, String> UNARY_LOGICAL_OPERATOR_MAP;
+    private static final Map<NaryRelationalOperator, String> NARY_RELATIONAL_OPERATOR_MAP;
 
     static {
-        BINARY_COMPARISON_OPERATOR_JS_MAP=new HashMap<BinaryComparisonOperator,String>();
-        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._eq,"==");
-        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._neq,"!=");
-        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lt,"<");
-        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gt,">");
-        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lte,"<=");
-        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gte,">=");
+        BINARY_COMPARISON_OPERATOR_JS_MAP = new HashMap<BinaryComparisonOperator, String>();
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._eq, "==");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._neq, "!=");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lt, "<");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gt, ">");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lte, "<=");
+        BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gte, ">=");
 
-        BINARY_COMPARISON_OPERATOR_MAP=new HashMap<BinaryComparisonOperator,String>();
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._eq,"$eq");
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._neq,"$neq");
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lt,"$lt");
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gt,"$gt");
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lte,"$lte");
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gte,"$gte");
+        BINARY_COMPARISON_OPERATOR_MAP = new HashMap<BinaryComparisonOperator, String>();
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._eq, "$eq");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._neq, "$neq");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lt, "$lt");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gt, "$gt");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lte, "$lte");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gte, "$gte");
 
-        NARY_LOGICAL_OPERATOR_MAP=new HashMap<NaryLogicalOperator,String>();
-        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and,"$and");
-        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and,"$or");
-        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and,"$nor");
+        NARY_LOGICAL_OPERATOR_MAP = new HashMap<NaryLogicalOperator, String>();
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$and");
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$or");
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$nor");
 
-        UNARY_LOGICAL_OPERATOR_MAP=new HashMap<UnaryLogicalOperator,String>();
-        UNARY_LOGICAL_OPERATOR_MAP.put(UnaryLogicalOperator._not,"$not");
+        UNARY_LOGICAL_OPERATOR_MAP = new HashMap<UnaryLogicalOperator, String>();
+        UNARY_LOGICAL_OPERATOR_MAP.put(UnaryLogicalOperator._not, "$not");
 
-        NARY_RELATIONAL_OPERATOR_MAP=new HashMap<NaryRelationalOperator,String>();
-        NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._in,"$in");
-        NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._not_in,"$nin");
+        NARY_RELATIONAL_OPERATOR_MAP = new HashMap<NaryRelationalOperator, String>();
+        NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._in, "$in");
+        NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._not_in, "$nin");
 
     }
 
@@ -135,19 +131,19 @@ public class Translator {
      * Constructs a translator using the given metadata resolver and factory
      */
     public Translator(MetadataResolver mdResolver,
-                      JsonNodeFactory factory) {
-        this.mdResolver=mdResolver;
-        this.factory=factory;
+            JsonNodeFactory factory) {
+        this.mdResolver = mdResolver;
+        this.factory = factory;
     }
-    
+
     /**
      * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
      */
     public DBObject[] toBson(List<JsonDoc> docs) {
-        DBObject[] ret=new DBObject[docs.size()];
-        int i=0;
-        for(JsonDoc doc:docs) {
-            ret[i++]=toBson(doc);
+        DBObject[] ret = new DBObject[docs.size()];
+        int i = 0;
+        for (JsonDoc doc : docs) {
+            ret[i++] = toBson(doc);
         }
         return ret;
     }
@@ -157,15 +153,15 @@ public class Translator {
      */
     public DBObject toBson(JsonDoc doc) {
         logger.debug("toBson() enter");
-        JsonNode node=doc.get(OBJECT_TYPE);
-        if(node==null) {
+        JsonNode node = doc.get(OBJECT_TYPE);
+        if (node == null) {
             throw Error.get(ERR_NO_OBJECT_TYPE);
         }
-        EntityMetadata md=mdResolver.getEntityMetadata(node.asText());
-        if(md==null) {
-            throw Error.get(ERR_INVALID_OBJECTTYPE,node.asText());
+        EntityMetadata md = mdResolver.getEntityMetadata(node.asText());
+        if (md == null) {
+            throw Error.get(ERR_INVALID_OBJECTTYPE, node.asText());
         }
-        DBObject ret=toBson(doc,md);
+        DBObject ret = toBson(doc, md);
         logger.debug("toBson() return");
         return ret;
     }
@@ -175,15 +171,15 @@ public class Translator {
      */
     public JsonDoc toJson(DBObject object) {
         logger.debug("toJson() enter");
-        Object type=object.get(OBJECT_TYPE_STR);
-        if(type==null) {
+        Object type = object.get(OBJECT_TYPE_STR);
+        if (type == null) {
             throw Error.get(ERR_NO_OBJECT_TYPE);
         }
-        EntityMetadata md=mdResolver.getEntityMetadata(type.toString());
-        if(md==null) {
-            throw Error.get(ERR_INVALID_OBJECTTYPE,type.toString());
+        EntityMetadata md = mdResolver.getEntityMetadata(type.toString());
+        if (md == null) {
+            throw Error.get(ERR_INVALID_OBJECTTYPE, type.toString());
         }
-        JsonDoc doc=toJson(object,md);
+        JsonDoc doc = toJson(object, md);
         logger.debug("toJson() return");
         return doc;
     }
@@ -192,8 +188,8 @@ public class Translator {
      * Translates DBObjects into Json documents
      */
     public List<JsonDoc> toJson(List<DBObject> objects) {
-        List<JsonDoc> list=new ArrayList<JsonDoc>(objects.size());
-        for(DBObject object:objects) {
+        List<JsonDoc> list = new ArrayList<JsonDoc>(objects.size());
+        for (DBObject object : objects) {
             list.add(toJson(object));
         }
         return list;
@@ -203,80 +199,80 @@ public class Translator {
      * Translates a sort expression to Mongo sort expression
      */
     public DBObject translate(Sort sort) {
-        logger.debug("translate {}",sort);
+        logger.debug("translate {}", sort);
         Error.push("translateSort");
         DBObject ret;
         try {
-            if(sort instanceof CompositeSortKey) {
-                ret=translateCompositeSortKey((CompositeSortKey)sort);
-            } else  {
-                ret=translateSortKey((SortKey)sort);
+            if (sort instanceof CompositeSortKey) {
+                ret = translateCompositeSortKey((CompositeSortKey) sort);
+            } else {
+                ret = translateSortKey((SortKey) sort);
             }
         } finally {
             Error.pop();
         }
-        return new BasicDBObject("$sort",ret);
+        return new BasicDBObject("$sort", ret);
     }
 
     /**
      * Translates a query to Mongo query
-     * 
+     *
      * @param md Entity metadata
      * @param query The query expression
      */
-    public DBObject translate(EntityMetadata md,QueryExpression query) {
-        logger.debug("translate {}",query);
+    public DBObject translate(EntityMetadata md, QueryExpression query) {
+        logger.debug("translate {}", query);
         Error.push("translateQuery");
-        FieldTreeNode mdRoot=md.getFieldTreeRoot();
+        FieldTreeNode mdRoot = md.getFieldTreeRoot();
         try {
-            return translate(mdRoot,query);
+            return translate(mdRoot, query);
         } finally {
             Error.pop();
         }
     }
 
     private DBObject translateSortKey(SortKey sort) {
-        return new BasicDBObject(sort.getField().toString(),sort.isDesc()?-1:1);
+        return new BasicDBObject(sort.getField().toString(), sort.isDesc() ? -1 : 1);
     }
 
     private DBObject translateCompositeSortKey(CompositeSortKey sort) {
-        DBObject ret=null;
-        for(SortKey key:sort.getKeys()) {
-            if(ret==null) {
-                ret=translateSortKey(key);
+        DBObject ret = null;
+        for (SortKey key : sort.getKeys()) {
+            if (ret == null) {
+                ret = translateSortKey(key);
             } else {
-                ret.put(key.getField().toString(),key.isDesc()?-1:1);
+                ret.put(key.getField().toString(), key.isDesc() ? -1 : 1);
             }
         }
         return ret;
     }
 
-    private DBObject translate(FieldTreeNode context,QueryExpression query) {
+    private DBObject translate(FieldTreeNode context, QueryExpression query) {
         DBObject ret;
-        if(query instanceof ArrayContainsExpression) {
-            ret=translateArrayContains(context,(ArrayContainsExpression)query);
-        } else if(query instanceof ArrayMatchExpression) {
-            ret=translateArrayElemMatch(context,(ArrayMatchExpression)query);
-        } else if(query instanceof FieldComparisonExpression) {
-            ret=translateFieldComparison((FieldComparisonExpression)query);
-        } else if(query instanceof NaryLogicalExpression) {
-            ret=translateNaryLogicalExpression(context,(NaryLogicalExpression)query);
-        } else if(query instanceof NaryRelationalExpression) {
-            ret=translateNaryRelationalExpression(context,(NaryRelationalExpression)query);
-        } else if(query instanceof RegexMatchExpression) {
-            ret=translateRegexMatchExpression((RegexMatchExpression)query);
-        } else if(query instanceof UnaryLogicalExpression) {
-            ret=translateUnaryLogicalExpression(context,(UnaryLogicalExpression)query);
+        if (query instanceof ArrayContainsExpression) {
+            ret = translateArrayContains(context, (ArrayContainsExpression) query);
+        } else if (query instanceof ArrayMatchExpression) {
+            ret = translateArrayElemMatch(context, (ArrayMatchExpression) query);
+        } else if (query instanceof FieldComparisonExpression) {
+            ret = translateFieldComparison((FieldComparisonExpression) query);
+        } else if (query instanceof NaryLogicalExpression) {
+            ret = translateNaryLogicalExpression(context, (NaryLogicalExpression) query);
+        } else if (query instanceof NaryRelationalExpression) {
+            ret = translateNaryRelationalExpression(context, (NaryRelationalExpression) query);
+        } else if (query instanceof RegexMatchExpression) {
+            ret = translateRegexMatchExpression((RegexMatchExpression) query);
+        } else if (query instanceof UnaryLogicalExpression) {
+            ret = translateUnaryLogicalExpression(context, (UnaryLogicalExpression) query);
         } else {
-            ret=translateValueComparisonExpression(context,(ValueComparisonExpression)query);
+            ret = translateValueComparisonExpression(context, (ValueComparisonExpression) query);
         }
         return ret;
     }
 
-    private FieldTreeNode resolve(FieldTreeNode context,Path field) {
-        FieldTreeNode node=context.resolve(field);
-        if(node==null) {
-            throw Error.get(ERR_INVALID_FIELD,field.toString());
+    private FieldTreeNode resolve(FieldTreeNode context, Path field) {
+        FieldTreeNode node = context.resolve(field);
+        if (node == null) {
+            throw Error.get(ERR_INVALID_FIELD, field.toString());
         }
         return node;
     }
@@ -284,123 +280,130 @@ public class Translator {
     /**
      * Converts a value list to a list of values with the proper type
      */
-    private List<Object> translateValueList(Type t,List<Value> values) {
-        if(values==null||values.isEmpty()) {
+    private List<Object> translateValueList(Type t, List<Value> values) {
+        if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException("Empty value list");
         }
-        List<Object> ret=new ArrayList<Object>(values.size());
-        for(Value v:values) {
-            Object value=v==null?null:v.getValue();
-            if(value!=null)  {
-                value=t.cast(value);
+        List<Object> ret = new ArrayList<Object>(values.size());
+        for (Value v : values) {
+            Object value = v == null ? null : v.getValue();
+            if (value != null) {
+                value = t.cast(value);
             }
             ret.add(value);
         }
         return ret;
     }
 
-    private DBObject translateValueComparisonExpression(FieldTreeNode context,ValueComparisonExpression expr) {
-        Type t=resolve(context,expr.getField()).getType();
-        if(expr.getOp()==BinaryComparisonOperator._eq||
-           expr.getOp()==BinaryComparisonOperator._neq) {
-            if(!t.supportsEq()) {
-                throw Error.get(ERR_INVALID_COMPARISON,expr.toString());
+    private DBObject translateValueComparisonExpression(FieldTreeNode context, ValueComparisonExpression expr) {
+        Type t = resolve(context, expr.getField()).getType();
+        if (expr.getOp() == BinaryComparisonOperator._eq
+                || expr.getOp() == BinaryComparisonOperator._neq) {
+            if (!t.supportsEq()) {
+                throw Error.get(ERR_INVALID_COMPARISON, expr.toString());
             }
         } else {
-            if(!t.supportsOrdering()) {
-                throw Error.get(ERR_INVALID_COMPARISON,expr.toString());
+            if (!t.supportsOrdering()) {
+                throw Error.get(ERR_INVALID_COMPARISON, expr.toString());
             }
         }
-        if(expr.getOp()==BinaryComparisonOperator._eq) {
+        if (expr.getOp() == BinaryComparisonOperator._eq) {
             return new BasicDBObject(expr.getField().toString(),
-                                     t.cast(expr.getRvalue()));
+                    t.cast(expr.getRvalue()));
         } else {
             return new BasicDBObject(expr.getField().toString(),
-                                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
-                                                       t.cast(expr.getRvalue())));
+                    new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
+                            t.cast(expr.getRvalue())));
         }
     }
 
     private DBObject translateRegexMatchExpression(RegexMatchExpression expr) {
-        StringBuilder options=new StringBuilder();
-        BasicDBObject regex=new BasicDBObject("$regex",expr.getRegex());
-        if(expr.isCaseInsensitive()) {
+        StringBuilder options = new StringBuilder();
+        BasicDBObject regex = new BasicDBObject("$regex", expr.getRegex());
+        if (expr.isCaseInsensitive()) {
             options.append('i');
         }
-        if(expr.isMultiline()) {
+        if (expr.isMultiline()) {
             options.append('m');
         }
-        if(expr.isExtended()) {
+        if (expr.isExtended()) {
             options.append('x');
         }
-        if(expr.isDotAll()) {
+        if (expr.isDotAll()) {
             options.append('s');
         }
-        String opStr=options.toString();
-        if(opStr.length()>0) {
-            regex.append("$options",opStr);
+        String opStr = options.toString();
+        if (opStr.length() > 0) {
+            regex.append("$options", opStr);
         }
-        return new BasicDBObject(expr.getField().toString(),regex);
-   }
+        return new BasicDBObject(expr.getField().toString(), regex);
+    }
 
-    private DBObject translateNaryRelationalExpression(FieldTreeNode context,NaryRelationalExpression expr) {
-        Type t=resolve(context,expr.getField()).getType();
-        if(t.supportsEq()) {
-            List<Object> values=translateValueList(t,expr.getValues());
+    private DBObject translateNaryRelationalExpression(FieldTreeNode context, NaryRelationalExpression expr) {
+        Type t = resolve(context, expr.getField()).getType();
+        if (t.supportsEq()) {
+            List<Object> values = translateValueList(t, expr.getValues());
             return new BasicDBObject(expr.getField().toString(),
-                                     new BasicDBObject(NARY_RELATIONAL_OPERATOR_MAP.get(expr.getOp()),
-                                                       values));
-        } else
-            throw Error.get(ERR_INVALID_FIELD,expr.toString());
-    }
-
-    private DBObject translateUnaryLogicalExpression(FieldTreeNode context,UnaryLogicalExpression expr) {
-        return new BasicDBObject(UNARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()),translate(context,expr.getQuery()));
-    }
-
-    private DBObject translateNaryLogicalExpression(FieldTreeNode context,NaryLogicalExpression expr) {
-        List<QueryExpression> queries=expr.getQueries();
-        List<DBObject> list=new ArrayList<DBObject>(queries.size());
-        for(QueryExpression query:queries) {
-            list.add(translate(context,query));
+                    new BasicDBObject(NARY_RELATIONAL_OPERATOR_MAP.get(expr.getOp()),
+                            values));
+        } else {
+            throw Error.get(ERR_INVALID_FIELD, expr.toString());
         }
-        return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()),list);
+    }
+
+    private DBObject translateUnaryLogicalExpression(FieldTreeNode context, UnaryLogicalExpression expr) {
+        return new BasicDBObject(UNARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()), translate(context, expr.getQuery()));
+    }
+
+    private DBObject translateNaryLogicalExpression(FieldTreeNode context, NaryLogicalExpression expr) {
+        List<QueryExpression> queries = expr.getQueries();
+        List<DBObject> list = new ArrayList<DBObject>(queries.size());
+        for (QueryExpression query : queries) {
+            list.add(translate(context, query));
+        }
+        return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()), list);
     }
 
     private DBObject translateFieldComparison(FieldComparisonExpression expr) {
-        StringBuilder str=new StringBuilder(64);
+        StringBuilder str = new StringBuilder(64);
         str.append("this.").
-            append(expr.getField().toString()).
-            append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
-            append("this.").
-            append(expr.getRfield().toString());
-        return new BasicDBObject("$where",str.toString());
+                append(expr.getField().toString()).
+                append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+                append("this.").
+                append(expr.getRfield().toString());
+        return new BasicDBObject("$where", str.toString());
     }
 
-    private DBObject translateArrayElemMatch(FieldTreeNode context,ArrayMatchExpression expr) {
-        FieldTreeNode arrayNode=resolve(context,expr.getArray());
-        if(arrayNode instanceof ArrayField) {
-            ArrayElement el=((ArrayField)arrayNode).getElement();
-            if(el instanceof ObjectArrayElement) {
+    private DBObject translateArrayElemMatch(FieldTreeNode context, ArrayMatchExpression expr) {
+        FieldTreeNode arrayNode = resolve(context, expr.getArray());
+        if (arrayNode instanceof ArrayField) {
+            ArrayElement el = ((ArrayField) arrayNode).getElement();
+            if (el instanceof ObjectArrayElement) {
                 return new BasicDBObject(expr.getArray().toString(),
-                                         translate(el,expr.getElemMatch()));
+                        translate(el, expr.getElemMatch()));
             }
         }
-        throw Error.get(ERR_INVALID_FIELD,expr.toString());
+        throw Error.get(ERR_INVALID_FIELD, expr.toString());
     }
 
-    private DBObject translateArrayContains(FieldTreeNode context,ArrayContainsExpression expr) {
-        DBObject ret=null;
-        FieldTreeNode arrayNode=resolve(context,expr.getArray());
-        if(arrayNode instanceof ArrayField) {
-            Type t=((ArrayField)arrayNode).getElement().getType();
-            switch(expr.getOp()) {
-            case _all: ret=translateArrayContainsAll(t,expr.getArray(),expr.getValues());break;
-            case _any: ret=translateArrayContainsAny(t,expr.getArray(),expr.getValues());break;
-            case _none: ret=translateArrayContainsNone(t,expr.getArray(),expr.getValues());break;
+    private DBObject translateArrayContains(FieldTreeNode context, ArrayContainsExpression expr) {
+        DBObject ret = null;
+        FieldTreeNode arrayNode = resolve(context, expr.getArray());
+        if (arrayNode instanceof ArrayField) {
+            Type t = ((ArrayField) arrayNode).getElement().getType();
+            switch (expr.getOp()) {
+                case _all:
+                    ret = translateArrayContainsAll(t, expr.getArray(), expr.getValues());
+                    break;
+                case _any:
+                    ret = translateArrayContainsAny(t, expr.getArray(), expr.getValues());
+                    break;
+                case _none:
+                    ret = translateArrayContainsNone(t, expr.getArray(), expr.getValues());
+                    break;
             }
         } else {
-            throw Error.get(ERR_INVALID_FIELD,expr.toString());
+            throw Error.get(ERR_INVALID_FIELD, expr.toString());
         }
         return ret;
     }
@@ -410,10 +413,10 @@ public class Translator {
      *   { field : { $all:[values] } }
      * </pre>
      */
-    private DBObject translateArrayContainsAll(Type t,Path array,List<Value> values) {
+    private DBObject translateArrayContainsAll(Type t, Path array, List<Value> values) {
         return new BasicDBObject(array.toString(),
-                                 new BasicDBObject("$all",
-                                                   translateValueList(t,values)));
+                new BasicDBObject("$all",
+                        translateValueList(t, values)));
     }
 
     /**
@@ -421,119 +424,121 @@ public class Translator {
      *     { $or : [ {field:value1},{field:value2},...] }
      * </pre>
      */
-    private DBObject translateArrayContainsAny(Type t,Path array,List<Value> values) {
-        List<BasicDBObject> l=new ArrayList<BasicDBObject>(values.size());
-        for(Value x:values) {
-            l.add(new BasicDBObject(array.toString(),x==null?null:
-                                    x.getValue()==null?null:t.cast(x.getValue())));
+    private DBObject translateArrayContainsAny(Type t, Path array, List<Value> values) {
+        List<BasicDBObject> l = new ArrayList<BasicDBObject>(values.size());
+        for (Value x : values) {
+            l.add(new BasicDBObject(array.toString(), x == null ? null
+                    : x.getValue() == null ? null : t.cast(x.getValue())));
         }
-        return new BasicDBObject("$or",l);
-    } 
+        return new BasicDBObject("$or", l);
+    }
 
     /**
      * <pre>
      * { $not : { $or : [ {field:value1},{field:value2},...]}}
      * </pre>
      */
-    private DBObject translateArrayContainsNone(Type t,Path array,List<Value> values) {
-        return new BasicDBObject("$not",translateArrayContainsAny(t,array,values));
+    private DBObject translateArrayContainsNone(Type t, Path array, List<Value> values) {
+        return new BasicDBObject("$not", translateArrayContainsAny(t, array, values));
     }
 
-    private JsonDoc toJson(DBObject object,EntityMetadata md) {
+    private JsonDoc toJson(DBObject object, EntityMetadata md) {
         // Translation is metadata driven. We don't know how to
         // translate something that's not defined in metadata.
-        FieldCursor cursor=md.getFieldCursor();
-        if(cursor.firstChild()) {
-            return new JsonDoc(objectToJson(object,md,cursor));
+        FieldCursor cursor = md.getFieldCursor();
+        if (cursor.firstChild()) {
+            return new JsonDoc(objectToJson(object, md, cursor));
         } else {
             return null;
         }
     }
-        
+
     /**
      * Called after firstChild is called on cursor
      */
-    private ObjectNode objectToJson(DBObject object,EntityMetadata md,FieldCursor mdCursor) {
-        ObjectNode node=factory.objectNode();
+    private ObjectNode objectToJson(DBObject object, EntityMetadata md, FieldCursor mdCursor) {
+        ObjectNode node = factory.objectNode();
         do {
-            Path p=mdCursor.getCurrentPath();
-            FieldTreeNode field=mdCursor.getCurrentNode();
-            String fieldName=field.getName();
-            logger.debug("{}",p);
+            Path p = mdCursor.getCurrentPath();
+            FieldTreeNode field = mdCursor.getCurrentNode();
+            String fieldName = field.getName();
+            logger.debug("{}", p);
             // Retrieve field value
-            Object value=object.get(fieldName);
-            if(value!=null) {
-                if(field instanceof SimpleField) {
-                    JsonNode valueNode=((SimpleField)field).getType().toJson(factory,value);
-                    if(valueNode!=null) {
-                        node.set(fieldName,valueNode);
+            Object value = object.get(fieldName);
+            if (value != null) {
+                if (field instanceof SimpleField) {
+                    JsonNode valueNode = ((SimpleField) field).getType().toJson(factory, value);
+                    if (valueNode != null) {
+                        node.set(fieldName, valueNode);
                     }
-                } else if(field instanceof ObjectField) {
-                    if(value instanceof DBObject) {
-                        if(mdCursor.firstChild()) {
-                            JsonNode valueNode=objectToJson((DBObject)value,md,mdCursor);
-                            if(valueNode!=null) {
-                                node.set(fieldName,valueNode);
+                } else if (field instanceof ObjectField) {
+                    if (value instanceof DBObject) {
+                        if (mdCursor.firstChild()) {
+                            JsonNode valueNode = objectToJson((DBObject) value, md, mdCursor);
+                            if (valueNode != null) {
+                                node.set(fieldName, valueNode);
                             }
                             mdCursor.parent();
                         }
-                    } else
-                        logger.error("Expected DBObject, found {} for {}",value.getClass(),p);
-                } else if(field instanceof ArrayField&&
-                          value instanceof List&&
-                          mdCursor.firstChild()) {
-                    ArrayNode  valueNode=factory.arrayNode();
+                    } else {
+                        logger.error("Expected DBObject, found {} for {}", value.getClass(), p);
+                    }
+                } else if (field instanceof ArrayField
+                        && value instanceof List
+                        && mdCursor.firstChild()) {
+                    ArrayNode valueNode = factory.arrayNode();
                     // We must have an array element here
-                    FieldTreeNode x=mdCursor.getCurrentNode();
-                    if(x instanceof ArrayElement) {
-                        for(Object item:(List)value) {
-                            valueNode.add(arrayElementToJson(item,(ArrayElement)x,md,mdCursor));
+                    FieldTreeNode x = mdCursor.getCurrentNode();
+                    if (x instanceof ArrayElement) {
+                        for (Object item : (List) value) {
+                            valueNode.add(arrayElementToJson(item, (ArrayElement) x, md, mdCursor));
                         }
                     }
                     mdCursor.parent();
-                } else if(field instanceof ReferenceField) {
+                } else if (field instanceof ReferenceField) {
                     // TODO
                 }
             }
-        } while(mdCursor.nextSibling());
+        } while (mdCursor.nextSibling());
         return node;
     }
 
     private JsonNode arrayElementToJson(Object value,
-                                        ArrayElement el,
-                                        EntityMetadata md,
-                                        FieldCursor mdCursor) {
-        JsonNode ret=null;
-        if(el instanceof SimpleArrayElement) {
-            if(value!=null) {
-                ret=((SimpleArrayElement)el).getType().toJson(factory,value);
+            ArrayElement el,
+            EntityMetadata md,
+            FieldCursor mdCursor) {
+        JsonNode ret = null;
+        if (el instanceof SimpleArrayElement) {
+            if (value != null) {
+                ret = ((SimpleArrayElement) el).getType().toJson(factory, value);
             }
         } else {
-            if(value!=null) {
-                if(value instanceof DBObject) {
-                    if(mdCursor.firstChild()) {
-                        ret=objectToJson((DBObject)value,md,mdCursor);
+            if (value != null) {
+                if (value instanceof DBObject) {
+                    if (mdCursor.firstChild()) {
+                        ret = objectToJson((DBObject) value, md, mdCursor);
                         mdCursor.parent();
                     }
-                } else
-                    logger.error("Expected DBObject, got {}",value.getClass().getName());
+                } else {
+                    logger.error("Expected DBObject, got {}", value.getClass().getName());
+                }
             }
         }
         return ret;
     }
 
-    private BasicDBObject toBson(JsonDoc doc,EntityMetadata md) {
-        logger.debug("Entity: {}",md.getName());
-        BasicDBObject ret=null;
-        JsonNodeCursor cursor=doc.cursor();
-        if(cursor.firstChild()) {
-            ret=objectToBson(cursor,md);
+    private BasicDBObject toBson(JsonDoc doc, EntityMetadata md) {
+        logger.debug("Entity: {}", md.getName());
+        BasicDBObject ret = null;
+        JsonNodeCursor cursor = doc.cursor();
+        if (cursor.firstChild()) {
+            ret = objectToBson(cursor, md);
         }
         return ret;
     }
 
-    private Object toValue(Type t,JsonNode node) {
-        if(node==null||node instanceof NullNode) {
+    private Object toValue(Type t, JsonNode node) {
+        if (node == null || node instanceof NullNode) {
             return null;
         } else {
             return t.fromJson(node);
@@ -541,89 +546,89 @@ public class Translator {
     }
 
     private void toBson(BasicDBObject dest,
-                        SimpleField fieldMd,
-                        Path path,
-                        JsonNode node) {
-        Object value=toValue(fieldMd.getType(),node);
+            SimpleField fieldMd,
+            Path path,
+            JsonNode node) {
+        Object value = toValue(fieldMd.getType(), node);
         // Should we add fields with null values to the bson doc? 
-        if(value!=null) {
-            logger.debug("{} = {}",path,value);
-            dest.append(path.tail(0),value);
+        if (value != null) {
+            logger.debug("{} = {}", path, value);
+            dest.append(path.tail(0), value);
         }
     }
 
     /**
      * @param cursor The cursor, pointing to the first element of the object
      */
-    private BasicDBObject objectToBson(JsonNodeCursor cursor,EntityMetadata md) {
-        BasicDBObject ret=new BasicDBObject();
+    private BasicDBObject objectToBson(JsonNodeCursor cursor, EntityMetadata md) {
+        BasicDBObject ret = new BasicDBObject();
         do {
-            Path path=cursor.getCurrentPath();
-            JsonNode node=cursor.getCurrentNode();
-            logger.debug("field: {}",path);
-            FieldTreeNode fieldMdNode=md.resolve(path);
-            if(fieldMdNode==null) {
-                throw Error.get(ERR_INVALID_FIELD,path.toString());
+            Path path = cursor.getCurrentPath();
+            JsonNode node = cursor.getCurrentNode();
+            logger.debug("field: {}", path);
+            FieldTreeNode fieldMdNode = md.resolve(path);
+            if (fieldMdNode == null) {
+                throw Error.get(ERR_INVALID_FIELD, path.toString());
             }
-            
-            if(fieldMdNode instanceof SimpleField) {
-                toBson(ret,(SimpleField)fieldMdNode,path,node);
-            } else if(fieldMdNode instanceof ObjectField) {
-                if(node!=null) {
-                    if(node instanceof ObjectNode) {
-                        if(cursor.firstChild()) {
-                            ret.append(path.tail(0),objectToBson(cursor,md));
+
+            if (fieldMdNode instanceof SimpleField) {
+                toBson(ret, (SimpleField) fieldMdNode, path, node);
+            } else if (fieldMdNode instanceof ObjectField) {
+                if (node != null) {
+                    if (node instanceof ObjectNode) {
+                        if (cursor.firstChild()) {
+                            ret.append(path.tail(0), objectToBson(cursor, md));
                             cursor.parent();
-                        } 
+                        }
                     } else {
-                        throw Error.get(ERR_INVALID_FIELD,path.toString());
+                        throw Error.get(ERR_INVALID_FIELD, path.toString());
                     }
                 }
-            } else if(fieldMdNode instanceof ArrayField) {
-                if(node!=null) {
-                    if(node instanceof ArrayNode) {
-                        if(cursor.firstChild()) {
-                            ret.append(path.tail(0),arrayToBson(cursor,((ArrayField)fieldMdNode).getElement(),md));
+            } else if (fieldMdNode instanceof ArrayField) {
+                if (node != null) {
+                    if (node instanceof ArrayNode) {
+                        if (cursor.firstChild()) {
+                            ret.append(path.tail(0), arrayToBson(cursor, ((ArrayField) fieldMdNode).getElement(), md));
                             cursor.parent();
-                        } 
+                        }
                     } else {
-                        throw Error.get(ERR_INVALID_FIELD,path.toString());
+                        throw Error.get(ERR_INVALID_FIELD, path.toString());
                     }
                 }
-            } else if(fieldMdNode instanceof ReferenceField) {
+            } else if (fieldMdNode instanceof ReferenceField) {
                 //toBson(ret,(ReferenceNode)fieldMdNode,path,node);
-            }            
-        } while(cursor.nextSibling());
+            }
+        } while (cursor.nextSibling());
         return ret;
     }
 
     /**
      * @param cursor The cursor, pointing to the first element of the array
      */
-    private List arrayToBson(JsonNodeCursor cursor,ArrayElement el,EntityMetadata md) {
-        List l=new ArrayList();
-        if(el instanceof SimpleArrayElement) {
-            Type t=el.getType();
+    private List arrayToBson(JsonNodeCursor cursor, ArrayElement el, EntityMetadata md) {
+        List l = new ArrayList();
+        if (el instanceof SimpleArrayElement) {
+            Type t = el.getType();
             do {
-                Object value=toValue(t,cursor.getCurrentNode());
+                Object value = toValue(t, cursor.getCurrentNode());
                 l.add(value);
-            } while(cursor.nextSibling());
+            } while (cursor.nextSibling());
         } else {
             do {
-                JsonNode node=cursor.getCurrentNode();
-                if(node==null||node instanceof NullNode) {
+                JsonNode node = cursor.getCurrentNode();
+                if (node == null || node instanceof NullNode) {
                     l.add(null);
                 } else {
-                    if(cursor.firstChild())  {
-                        l.add(objectToBson(cursor,md));
+                    if (cursor.firstChild()) {
+                        l.add(objectToBson(cursor, md));
                         cursor.parent();
                     } else {
                         l.add(null);
                     }
                 }
-            } while(cursor.nextSibling());
+            } while (cursor.nextSibling());
         }
         return l;
     }
-        
+
 }

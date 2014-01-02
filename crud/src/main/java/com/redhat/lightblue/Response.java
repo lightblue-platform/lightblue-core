@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue;
 
 import java.util.List;
@@ -40,8 +40,8 @@ public class Response extends JsonObject {
     private String taskHandle;
     private SessionInfo session;
     private JsonNode entityData;
-    private final List<DataError> dataErrors=new ArrayList<DataError>();
-    private final List<Error> errors=new ArrayList<Error>();
+    private final List<DataError> dataErrors = new ArrayList<DataError>();
+    private final List<Error> errors = new ArrayList<Error>();
 
     /**
      * Status of the completed operation
@@ -54,7 +54,7 @@ public class Response extends JsonObject {
      * Status of the completed operation
      */
     public void setStatus(OperationStatus s) {
-        status=s;
+        status = s;
     }
 
     /**
@@ -68,7 +68,7 @@ public class Response extends JsonObject {
      * Number of documents inserted/updated/deleted
      */
     public void setModifiedCount(long l) {
-        modifiedCount=l;
+        modifiedCount = l;
     }
 
     /**
@@ -82,41 +82,37 @@ public class Response extends JsonObject {
      * Number of documents that matched the search criteria
      */
     public void setMatchCount(long l) {
-        matchCount=l;
+        matchCount = l;
     }
 
     /**
-     * If the operation continues asynchronously, the task handle can
-     * be used to retrieve status information, and the result of the
-     * call once the operation is complete
+     * If the operation continues asynchronously, the task handle can be used to retrieve status information, and the
+     * result of the call once the operation is complete
      */
     public String getTaskHandle() {
         return taskHandle;
     }
 
     /**
-     * If the operation continues asynchronously, the task handle can
-     * be used to retrieve status information, and the result of the
-     * call once the operation is complete
+     * If the operation continues asynchronously, the task handle can be used to retrieve status information, and the
+     * result of the call once the operation is complete
      */
     public void setTaskHandle(String t) {
-        taskHandle=t;
+        taskHandle = t;
     }
 
     /**
-     * If the operation starts a session or uses an existing session,
-     * the session information
+     * If the operation starts a session or uses an existing session, the session information
      */
     public SessionInfo getSessionInfo() {
         return session;
     }
 
     /**
-     * If the operation starts a session or uses an existing session,
-     * the session information
+     * If the operation starts a session or uses an existing session, the session information
      */
     public void setSessionInfo(SessionInfo s) {
-        session=s;
+        session = s;
     }
 
     /**
@@ -130,7 +126,7 @@ public class Response extends JsonObject {
      * Returns the entity data resulting from the call.
      */
     public void setEntityData(JsonNode node) {
-        entityData=node;
+        entityData = node;
     }
 
     /**
@@ -146,49 +142,49 @@ public class Response extends JsonObject {
     public List<Error> getErrors() {
         return errors;
     }
-    
+
     /**
      * Parses a response from a Json object
      */
     public static Response fromJson(ObjectNode node) {
-        Response ret=new Response();
-        JsonNode x=node.get("status");
-        if(x!=null) {
+        Response ret = new Response();
+        JsonNode x = node.get("status");
+        if (x != null) {
             try {
-                ret.status=OperationStatus.valueOf(x.asText().toUpperCase());
+                ret.status = OperationStatus.valueOf(x.asText().toUpperCase());
             } catch (IllegalArgumentException e) {
-                ret.status=OperationStatus.ERROR;
+                ret.status = OperationStatus.ERROR;
             }
         }
-        x=node.get("modifiedCount");
-        if(x!=null) {
-            ret.modifiedCount=x.asLong();
+        x = node.get("modifiedCount");
+        if (x != null) {
+            ret.modifiedCount = x.asLong();
         }
-        x=node.get("matchCount");
-        if(x!=null) {
-            ret.matchCount=x.asLong();
+        x = node.get("matchCount");
+        if (x != null) {
+            ret.matchCount = x.asLong();
         }
-        x=node.get("taskHandle");
-        if(x!=null) {
-            ret.taskHandle=x.asText();
+        x = node.get("taskHandle");
+        if (x != null) {
+            ret.taskHandle = x.asText();
         }
-        x=node.get("session");
+        x = node.get("session");
         // TODO
-        x=node.get("processed");
-        if(x!=null) {
-            ret.entityData=x;
+        x = node.get("processed");
+        if (x != null) {
+            ret.entityData = x;
         }
-        x=node.get("dataErrors");
-        if(x instanceof ArrayNode) {
-            for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                itr.hasNext();) {
-                ret.dataErrors.add(DataError.fromJson((ObjectNode)itr.next()));
+        x = node.get("dataErrors");
+        if (x instanceof ArrayNode) {
+            for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
+                    itr.hasNext();) {
+                ret.dataErrors.add(DataError.fromJson((ObjectNode) itr.next()));
             }
         }
-        x=node.get("errors");
-        if(x instanceof ArrayNode) {
-            for(Iterator<JsonNode> itr=((ArrayNode)x).elements();
-                itr.hasNext();) {
+        x = node.get("errors");
+        if (x instanceof ArrayNode) {
+            for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
+                    itr.hasNext();) {
                 ret.errors.add(Error.fromJson(itr.next()));
             }
         }
@@ -199,32 +195,32 @@ public class Response extends JsonObject {
      * Returns JSON representation of this
      */
     public JsonNode toJson() {
-        ObjectNode node=getFactory().objectNode();
-        if(status!=null) {
-            node.put("status",status.name().toLowerCase());
+        ObjectNode node = getFactory().objectNode();
+        if (status != null) {
+            node.put("status", status.name().toLowerCase());
         }
-        node.put("modifiedCount",modifiedCount);
-        node.put("matchCount",matchCount);
-        if(taskHandle!=null) {
-            node.put("taskHandle",taskHandle);
+        node.put("modifiedCount", modifiedCount);
+        node.put("matchCount", matchCount);
+        if (taskHandle != null) {
+            node.put("taskHandle", taskHandle);
         }
-        if(session!=null) {
-            node.set("session",session.toJson());
+        if (session != null) {
+            node.set("session", session.toJson());
         }
-        if(entityData!=null) {
-            node.set("processed",entityData);
+        if (entityData != null) {
+            node.set("processed", entityData);
         }
-        if(!dataErrors.isEmpty()) {
-            ArrayNode arr=getFactory().arrayNode();
-            node.set("dataErrors",arr);
-            for(DataError err:dataErrors) {
+        if (!dataErrors.isEmpty()) {
+            ArrayNode arr = getFactory().arrayNode();
+            node.set("dataErrors", arr);
+            for (DataError err : dataErrors) {
                 arr.add(err.toJson());
             }
         }
-        if(!errors.isEmpty()) {
-            ArrayNode arr=getFactory().arrayNode();
-            node.set("errors",arr);
-            for(Error err:errors) {
+        if (!errors.isEmpty()) {
+            ArrayNode arr = getFactory().arrayNode();
+            node.set("errors", arr);
+            for (Error err : errors) {
                 arr.add(err.toJson());
             }
         }

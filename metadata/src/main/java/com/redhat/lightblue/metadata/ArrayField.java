@@ -1,22 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.metadata;
 
 import java.util.ArrayList;
@@ -32,12 +31,12 @@ public class ArrayField extends Field {
     private ArrayElement element;
 
     public ArrayField(String name) {
-        super(name,ArrayType.TYPE);
+        super(name, ArrayType.TYPE);
     }
 
-    public ArrayField(String name,ArrayElement el) {
-        super(name,ArrayType.TYPE);
-        element=el;
+    public ArrayField(String name, ArrayElement el) {
+        super(name, ArrayType.TYPE);
+        element = el;
     }
 
     public ArrayElement getElement() {
@@ -64,22 +63,23 @@ public class ArrayField extends Field {
     }
 
     @Override
-    protected FieldTreeNode resolve(Path p,int level) {
-        int l=p.numSegments()-level;
-        if(l==0)
+    protected FieldTreeNode resolve(Path p, int level) {
+        int l = p.numSegments() - level;
+        if (l == 0) {
             return this;
-        else {
+        } else {
             Error.push(p.head(level));
             try {
-                if(p.isIndex(level)||
-                   p.head(level).equals(Path.ANY))
-                    return element.resolve(p,level+1);
-                else
+                if (p.isIndex(level)
+                        || p.head(level).equals(Path.ANY)) {
+                    return element.resolve(p, level + 1);
+                } else {
                     throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+                }
             } finally {
                 Error.pop();
             }
-        } 
+        }
     }
 
 }

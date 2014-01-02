@@ -1,21 +1,21 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.query;
 
 import java.util.List;
@@ -32,10 +32,11 @@ import com.redhat.lightblue.util.Path;
 public class UnsetExpression extends FieldUpdateExpression {
     private List<Path> fields;
 
-    public UnsetExpression() {}
+    public UnsetExpression() {
+    }
 
     public UnsetExpression(List<Path> fields) {
-        this.fields=fields;
+        this.fields = fields;
     }
 
     public UnsetExpression(Path... i) {
@@ -51,30 +52,30 @@ public class UnsetExpression extends FieldUpdateExpression {
     }
 
     public void setFields(List<Path> l) {
-        fields=l;
+        fields = l;
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=getFactory().objectNode();
+        ObjectNode node = getFactory().objectNode();
         JsonNode child;
-        if(fields.size()==1) {
-            child=getFactory().textNode(fields.get(0).toString());
+        if (fields.size() == 1) {
+            child = getFactory().textNode(fields.get(0).toString());
         } else {
-            child=getFactory().arrayNode();
-            for(Path x:fields) {
-                ((ArrayNode)child).add(getFactory().textNode(x.toString()));
+            child = getFactory().arrayNode();
+            for (Path x : fields) {
+                ((ArrayNode) child).add(getFactory().textNode(x.toString()));
             }
         }
-        node.put(getOp().toString(),child);
+        node.put(getOp().toString(), child);
         return node;
     }
 
     public static UnsetExpression fromJson(JsonNode node) {
-        List<Path> list=new ArrayList<Path>();
-        if(node instanceof ArrayNode) {
-            for(Iterator<JsonNode> itr=((ArrayNode)node).elements();
-                itr.hasNext();) {
+        List<Path> list = new ArrayList<Path>();
+        if (node instanceof ArrayNode) {
+            for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
+                    itr.hasNext();) {
                 list.add(new Path(itr.next().asText()));
             }
         } else {

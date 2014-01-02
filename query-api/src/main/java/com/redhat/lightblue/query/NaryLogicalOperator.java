@@ -1,33 +1,33 @@
 /*
-    Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
-    This file is part of lightblue.
+ This file is part of lightblue.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.query;
 
 /**
  * N-ary logical operators, and, or, and nor
  */
-public enum NaryLogicalOperator { 
+public enum NaryLogicalOperator {
     _and("$and"), _or("$or"), _nor("$nor");
 
     private final String op;
 
     private NaryLogicalOperator(String op) {
-        this.op=op;
+        this.op = op;
     }
 
     public String toString() {
@@ -35,11 +35,11 @@ public enum NaryLogicalOperator {
     }
 
     public static NaryLogicalOperator fromString(String s) {
-        if(_and.op.equals(s)) {
+        if (_and.op.equals(s)) {
             return _and;
-        } else if(_or.op.equals(s)) {
+        } else if (_or.op.equals(s)) {
             return _or;
-        } else if(_nor.op.equals(s)) {
+        } else if (_nor.op.equals(s)) {
             return _nor;
         } else {
             return null;
