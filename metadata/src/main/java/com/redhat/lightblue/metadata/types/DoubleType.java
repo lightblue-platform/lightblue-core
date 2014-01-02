@@ -66,7 +66,7 @@ public final class DoubleType implements Type, Serializable {
             else if(obj instanceof String)
                 try {
                     value=Double.valueOf((String)obj);
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
                 }
             else 

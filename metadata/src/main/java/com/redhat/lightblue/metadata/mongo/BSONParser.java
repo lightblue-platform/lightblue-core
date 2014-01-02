@@ -49,7 +49,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if(x instanceof String) {
                 return (String)x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
             }
         } else {
             return null;
@@ -63,7 +63,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if(x instanceof BSONObject) {
                 return (BSONObject)x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
             }
         } else {
             return null;
@@ -80,7 +80,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
                x instanceof Boolean) {
                 return x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
             }
         } else {
             return null;
@@ -98,7 +98,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
                 }
                 return ret;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
             }
         } else {
             return null;
@@ -112,7 +112,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if(x instanceof List) {
                 return (List<BSONObject>)x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,name);
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,name);
             }
         } else {
             return null;

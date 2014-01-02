@@ -44,9 +44,9 @@ public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> 
             ref.setThisField(p.getStringProperty(item,"thisField"));
             ref.setEntityField(p.getStringProperty(item,"entityField"));
             if(ref.getEntityName()==null)
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,"references.entityName");
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,"references.entityName");
             if(ref.getVersionValue()==null)
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,"references.versionValue");
+                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,"references.versionValue");
             dest.add(ref);
         }
         ret.setReferences(dest);

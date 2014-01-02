@@ -40,6 +40,8 @@ import com.redhat.lightblue.metadata.types.DateType;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * Base class for converting metadata to/from json/bson and
@@ -52,7 +54,7 @@ public abstract class MetadataParser<T> {
     public static final String ERR_PARSE_MISSING_ELEMENT="PARSE_MISSING_ELEMENT";
     public static final String ERR_PARSE_INVALID_STATUS="PARSE_INVALID_STATUS";
     public static final String ERR_INVALID_ARRAY_ELEMENT_TYPE="INVALID_ARRAY_ELEMENT_TYPE";
-    public static final String ERR_ILL_FORMED_MD="ILL_FORMED_METADATA";
+    public static final String ERR_ILL_FORMED_METADATA="ILL_FORMED_METADATA";
     public static final String ERR_INVALID_DATASTORE="INVALID_DATASTORE";
     public static final String ERR_UNKNOWN_DATASTORE="UNKNOWN_DATASTORE";
     public static final String ERR_INVALID_CONSTRAINT="INVALID_CONSTRAINT";
@@ -167,8 +169,8 @@ public abstract class MetadataParser<T> {
                     String d=getRequiredStringProperty(log,"date");
                     try {
                         item.setDate(DateType.getDateFormat().parse(d));
-                    } catch (Exception e) {
-                        throw Error.get(ERR_ILL_FORMED_MD,d);
+                    } catch (ParseException e) {
+                        throw Error.get(ERR_ILL_FORMED_METADATA,d);
                     }
                     item.setStatus(statusFromString(getRequiredStringProperty(log,STR_VALUE)));
                     item.setComment(getRequiredStringProperty(log,"comment"));
@@ -389,8 +391,8 @@ public abstract class MetadataParser<T> {
             x=getStringProperty(object,"sort");
             if(x!=null)
                 field.setSort(Sort.fromJson(JsonUtils.json(x)));
-        } catch (Exception e) {
-            throw Error.get(ERR_ILL_FORMED_MD,e.toString());
+        } catch (IOException e) {
+            throw Error.get(ERR_ILL_FORMED_METADATA,e.toString());
         }
         return field;
     }

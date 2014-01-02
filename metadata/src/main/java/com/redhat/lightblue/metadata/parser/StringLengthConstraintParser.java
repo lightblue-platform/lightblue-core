@@ -41,7 +41,7 @@ public class StringLengthConstraintParser<T> implements FieldConstraintParser<T>
         if(value instanceof Number)
             ret.setValue(((Number)value).intValue());
         else
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_MD,ret.getType());
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA,ret.getType());
         return ret;
         }
 

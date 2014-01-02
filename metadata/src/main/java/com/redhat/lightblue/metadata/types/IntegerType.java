@@ -74,7 +74,7 @@ public final class IntegerType implements Type, Serializable {
             else if(obj instanceof String)
                 try {
                     value=Long.valueOf((String)obj);
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
                     throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
                 }
             else 

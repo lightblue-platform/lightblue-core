@@ -65,9 +65,9 @@ public class Path implements Comparable<Path>, Serializable  {
     public static final Path ANYPATH=new Path(ANY);
 
     static class PathRep {        
-        List<String> segments;
-        transient String stringValue=null;
-        transient int hashValue=0;
+        private List<String> segments;
+        private transient String stringValue=null;
+        private transient int hashValue=0;
 
         public PathRep() {
             segments=new ArrayList<String>();
@@ -114,6 +114,10 @@ public class Path implements Comparable<Path>, Serializable  {
             } 
             return false;
         }
+        
+        public List<String> getSegments() {
+            return segments;
+        }
 
         public void shiftLeft(int from) {
             if(from>0) {
@@ -149,6 +153,7 @@ public class Path implements Comparable<Path>, Serializable  {
             return tn-xn;
         }
         
+        @Override
         public String toString() {
             if(stringValue==null) {
                 StringBuilder buf=new StringBuilder(segments.size()*8);
@@ -167,15 +172,15 @@ public class Path implements Comparable<Path>, Serializable  {
         }
     }
 
-    protected PathRep data;
+    private PathRep data;
 
     public Path() {
-        data=new PathRep();
+        setData(new PathRep());
     }
 
     public Path(Path x) {
         this();
-        data.segments.addAll(x.data.segments);
+        getData().segments.addAll(x.getData().segments);
     }
 
     /**
@@ -183,8 +188,8 @@ public class Path implements Comparable<Path>, Serializable  {
      */
     public Path(Path x,Path y) {
         this();
-        data.segments.addAll(x.data.segments);
-        data.segments.addAll(y.data.segments);
+        getData().segments.addAll(x.getData().segments);
+        getData().segments.addAll(y.getData().segments);
     }
 
     /**
@@ -201,7 +206,15 @@ public class Path implements Comparable<Path>, Serializable  {
 
     public Path(String x) {
         this();
-        parse(x,data.segments);
+        parse(x,getData().segments);
+    }
+    
+    protected void setData(PathRep data) {
+        this.data = data;
+    }
+    
+    protected PathRep getData() {
+        return this.data;
     }
 
     /**
@@ -243,14 +256,14 @@ public class Path implements Comparable<Path>, Serializable  {
      * @return
      */
     public int numSegments() {
-        return data.segments.size();
+        return getData().segments.size();
     }
 
     /**
      * Check if path is empty
      */
     public boolean isEmpty() {
-        return data.segments.isEmpty();
+        return getData().segments.isEmpty();
     }
 
     /**
@@ -260,7 +273,7 @@ public class Path implements Comparable<Path>, Serializable  {
      * @return the path segment
      */
     public String head(int i) {
-        return data.segments.get(i);
+        return getData().segments.get(i);
     }
 
     /**
@@ -270,7 +283,7 @@ public class Path implements Comparable<Path>, Serializable  {
      * @return the segment data
      */
     public String tail(int i) {
-        return data.segments.get(data.segments.size()-1-i);
+        return getData().segments.get(getData().segments.size()-1-i);
     }
 
     /**
@@ -280,7 +293,7 @@ public class Path implements Comparable<Path>, Serializable  {
      * @return
      */
     public int getIndex(int i) {
-        return Integer.valueOf(data.segments.get(i));
+        return Integer.valueOf(getData().segments.get(i));
     }
 
     /**
@@ -290,7 +303,7 @@ public class Path implements Comparable<Path>, Serializable  {
      * @return
      */
     public boolean isIndex(int i) {
-        return Util.isNumber(data.segments.get(i));
+        return Util.isNumber(getData().segments.get(i));
     }
 
     /**
@@ -298,7 +311,7 @@ public class Path implements Comparable<Path>, Serializable  {
      */
     public int nAnys() {
         int n=0;
-        for(String x:data.segments) {
+        for(String x:getData().segments) {
             if(ANY.equals(x)) {
                 n++;
             }
@@ -307,7 +320,7 @@ public class Path implements Comparable<Path>, Serializable  {
     }
 
     public int hashCode() {
-        return data.hashCode();
+        return getData().hashCode();
     }
 
     /**
@@ -346,11 +359,11 @@ public class Path implements Comparable<Path>, Serializable  {
         } else {
             p=new Path(this);
         }
-        int n=p.data.segments.size();
+        int n=p.getData().segments.size();
         if(x>=0) {
-            p.data.shiftLeft(n-Math.min(n,x));
+            p.getData().shiftLeft(n-Math.min(n,x));
         } else {
-            p.data.shiftLeft(Math.min(n,Math.abs(x)));
+            p.getData().shiftLeft(Math.min(n,Math.abs(x)));
         }
             
         return p;
@@ -363,11 +376,11 @@ public class Path implements Comparable<Path>, Serializable  {
      * @return true if it matches, else false
      */
     public boolean matches(Path pattern) {
-        int n=data.segments.size();
-        if(n==pattern.data.segments.size()) {
+        int n=getData().segments.size();
+        if(n==pattern.getData().segments.size()) {
             for(int i=0;i<n;i++) {
-                String pat=pattern.data.segments.get(i);
-                String val=data.segments.get(i);
+                String pat=pattern.getData().segments.get(i);
+                String val=getData().segments.get(i);
                 if(!(val.equals(pat)||pat.equals(ANY))) {
                     return false;
                 }
@@ -417,7 +430,7 @@ public class Path implements Comparable<Path>, Serializable  {
     @Override
     public boolean equals(Object x) {
         if(x instanceof Path) {
-            return ((Path)x).data.equals(data);
+            return ((Path)x).getData().equals(getData());
         } else {
             return false;
         }
@@ -425,12 +438,12 @@ public class Path implements Comparable<Path>, Serializable  {
 
     @Override
     public int compareTo(Path x) {
-        return x==null?-1:data.compareTo(x.data);
+        return x==null?-1:getData().compareTo(x.getData());
     }
 
     @Override
     public String toString() {
-        return data.toString();
+        return getData().toString();
     }
     
     /**

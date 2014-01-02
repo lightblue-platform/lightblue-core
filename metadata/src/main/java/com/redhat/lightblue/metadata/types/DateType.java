@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.Type;
 
 import com.redhat.lightblue.util.Error;
+import java.text.ParseException;
 
 public final class DateType implements Type, Serializable {
 
@@ -82,7 +83,7 @@ public final class DateType implements Type, Serializable {
         if(node.isValueNode()) 
             try {
                 return getDateFormat().parse(node.asText());
-            } catch (Exception e) {
+            } catch (ParseException e) {
                 throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,node.toString());
             }
         else
@@ -99,7 +100,7 @@ public final class DateType implements Type, Serializable {
             else if(obj instanceof String) {
                 try {
                     value=fmt.parse((String)obj);
-                } catch (Exception e) {
+                } catch (ParseException e) {
                     throw Error.get(NAME,ERR_INCOMPATIBLE_VALUE,obj.toString());
                 }
             } else
