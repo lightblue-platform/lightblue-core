@@ -37,8 +37,8 @@ public class JsonDoc implements Serializable {
 
     private static final class Iteration {
         private Iterator<JsonNode> iterator;
-        public JsonNode currentNode;
-        public int index;
+        private JsonNode currentNode;
+        private int index;
 
         boolean next() {
             if(iterator.hasNext()) {
@@ -47,6 +47,20 @@ public class JsonDoc implements Serializable {
                 return true;
             } else
                 return false;
+        }
+
+        /**
+         * @return the currentNode
+         */
+        public JsonNode getCurrentNode() {
+            return currentNode;
+        }
+
+        /**
+         * @return the index
+         */
+        public int getIndex() {
+            return index;
         }
     }
 
@@ -58,6 +72,7 @@ public class JsonDoc implements Serializable {
         private Iteration[] iterators;
 
         protected JsonNode handleAny(Path p,JsonNode node,int level) {
+            JsonNode output = null;
             if(iterators==null) {
                 int n=p.numSegments();
                 iterators=new Iteration[n];
@@ -70,15 +85,10 @@ public class JsonDoc implements Serializable {
                 itr.index=-1;
                 itr.iterator=((ArrayNode)node).elements();
                 if(itr.next())  {
-                    node=itr.currentNode;
+                    output=itr.getCurrentNode();
                 }
-                else {
-                    node=null;
-                }
-            } else {
-                node=null;
             }
-            return node;
+            return output;
         }
     }
 
@@ -187,7 +197,7 @@ public class JsonDoc implements Serializable {
                     int i=0;
                     for(Iteration x:resolver.iterators) {
                         if(x!=null) {
-                            mpath.set(i,x.index);
+                            mpath.set(i, x.getIndex());
                         }
                         i++;
                     }
@@ -214,7 +224,7 @@ public class JsonDoc implements Serializable {
                 do {
                     Iteration itr=resolver.iterators[level];
                     if(itr!=null&&itr.next()) {
-                        node=resolver.resolve(path,itr.currentNode,level+1);
+                        node=resolver.resolve(path, itr.getCurrentNode(),level+1);
                         if(node!=null) {
                             nextFound=true;
                             done=true;

@@ -71,12 +71,12 @@ public class DataError extends JsonObject {
      * converts this object to json representation
      */
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode();
+        ObjectNode node=getFactory().objectNode();
         if(entityData!=null) {
             node.set("data",entityData);
         }
         if(errors!=null&&!errors.isEmpty()) {
-            ArrayNode arr=factory.arrayNode();
+            ArrayNode arr=getFactory().arrayNode();
             node.set("errors",arr);
             for(Error x:errors) {
                 arr.add(x.toJson());

@@ -47,7 +47,7 @@ public class ArrayPopExpression extends  ArrayUpdateExpression {
 
     @Override
     protected JsonNode jsonValue() {
-        return factory.textNode(first?"first":"last");
+        return getFactory().textNode(first?"first":"last");
     }
 
     public static ArrayPopExpression fromJson(Path field,JsonNode node) {

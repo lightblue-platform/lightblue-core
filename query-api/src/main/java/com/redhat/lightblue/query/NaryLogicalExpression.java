@@ -94,11 +94,11 @@ public class NaryLogicalExpression extends LogicalExpression {
      * Returns a json representation of this query
      */
     public JsonNode toJson() {
-        ArrayNode arr=factory.arrayNode();
+        ArrayNode arr=getFactory().arrayNode();
         for(QueryExpression x:queries) {
             arr.add(x.toJson());
         }
-        return factory.objectNode().set(op.toString(),arr);
+        return getFactory().objectNode().set(op.toString(),arr);
     }
 
     /**

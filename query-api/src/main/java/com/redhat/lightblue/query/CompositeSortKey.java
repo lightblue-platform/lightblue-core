@@ -71,7 +71,7 @@ public class CompositeSortKey extends Sort {
      * Returns a json representation of the sort expression
      */
     public JsonNode toJson() {
-        ArrayNode arr=factory.arrayNode();
+        ArrayNode arr=getFactory().arrayNode();
         for(SortKey x:keys) {
             arr.add(x.toJson());
         }

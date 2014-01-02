@@ -19,10 +19,12 @@
 
 package com.redhat.lightblue.metadata;
 
+import java.io.Serializable;
+
 /**
  * Metadata manager interface
  */
-public interface Metadata {
+public interface Metadata extends Serializable {
 
     /**
      * Returns a particular version of the entity metadata

@@ -24,13 +24,14 @@ import com.redhat.lightblue.util.Resolver;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.crud.CRUDController;
+import java.io.Serializable;
 
 /**
  * Factory class should be configured on initialization with all the
  * validators and hooks from all the subsystems, and used as a
  * shared singleton object by all threads. 
  */
-public class Factory {
+public class Factory implements Serializable {
 
     private final DefaultRegistry<String,FieldConstraintChecker> fieldConstraintValidatorRegistry=
         new DefaultRegistry<String,FieldConstraintChecker>();

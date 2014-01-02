@@ -126,7 +126,7 @@ public class FindRequest extends Request {
             node.set("sort",sort.toJson());
         }
         if(from!=null&&to!=null) {
-            ArrayNode arr=factory.arrayNode();
+            ArrayNode arr=getFactory().arrayNode();
             arr.add(from);
             arr.add(to);
             node.set("range",arr);

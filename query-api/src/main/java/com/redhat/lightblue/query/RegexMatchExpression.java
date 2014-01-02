@@ -166,7 +166,7 @@ public class RegexMatchExpression
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode().
+        ObjectNode node=getFactory().objectNode().
             put("field",field.toString()).
             put("regex",regex);
         if(caseInsensitive) {

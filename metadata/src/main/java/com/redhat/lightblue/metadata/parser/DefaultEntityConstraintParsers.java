@@ -30,11 +30,11 @@ import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
  * Convenience class to register all predefined constraint parsers to
  * MetadataParser
  */
-public class DefaultEntityConstraintParsers<NODE_TYPE> 
-    extends DefaultResolver<String,Parser<NODE_TYPE,EntityConstraint>> {
+public class DefaultEntityConstraintParsers<NODETYPE> 
+    extends DefaultResolver<String,Parser<NODETYPE,EntityConstraint>> {
     
     public DefaultEntityConstraintParsers() {
-        addValue(UniqueConstraint.UNIQUE,new UniqueConstraintParser<NODE_TYPE>());
-        addValue(ReferencesConstraint.REFERENCES,new ReferencesConstraintParser<NODE_TYPE>());
+        addValue(UniqueConstraint.UNIQUE,new UniqueConstraintParser<NODETYPE>());
+        addValue(ReferencesConstraint.REFERENCES,new ReferencesConstraintParser<NODETYPE>());
     }
 }

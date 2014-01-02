@@ -51,7 +51,7 @@ public class UpdateExpressionList extends UpdateExpression {
     }
 
     public JsonNode toJson() {
-        ArrayNode arr=factory.arrayNode();
+        ArrayNode arr=getFactory().arrayNode();
         for(UpdateExpression x:list)
             arr.add(x.toJson());
         return arr;

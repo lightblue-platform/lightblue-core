@@ -99,7 +99,7 @@ public class FieldComparisonExpression
      * Returns json representation of the query
      */
     public JsonNode toJson() {
-        return factory.objectNode().put("field",field.toString()).
+        return getFactory().objectNode().put("field",field.toString()).
             put("op",op.toString()).
             put("rfield",rfield.toString());
     }

@@ -69,22 +69,22 @@ public class Value extends JsonObject {
     public JsonNode toJson() {
         if(value instanceof Number) {
             if(value instanceof BigDecimal) {
-                return factory.numberNode((BigDecimal)value);
+                return getFactory().numberNode((BigDecimal)value);
             } else if(value instanceof BigInteger) {
-                return factory.numberNode((BigInteger)value);
+                return getFactory().numberNode((BigInteger)value);
             } else if(value instanceof Double) {
-                return factory.numberNode((Double)value);
+                return getFactory().numberNode((Double)value);
             } else if(value instanceof Float) {
-                return factory.numberNode((Float)value);
+                return getFactory().numberNode((Float)value);
             } else if(value instanceof Long) {
-                return factory.numberNode((Long)value);
+                return getFactory().numberNode((Long)value);
             } else  {
-                return factory.numberNode(((Number)value).intValue());
+                return getFactory().numberNode(((Number)value).intValue());
             }
         } else if(value instanceof Boolean) {
-            return factory.booleanNode((Boolean)value);
+            return getFactory().booleanNode((Boolean)value);
         } else {
-            return factory.textNode(value.toString());
+            return getFactory().textNode(value.toString());
         }
     }
 

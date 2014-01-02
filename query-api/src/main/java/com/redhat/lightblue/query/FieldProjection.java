@@ -65,7 +65,7 @@ public class FieldProjection extends BasicProjection {
     }
     
     public JsonNode toJson() {
-        return factory.objectNode().
+        return getFactory().objectNode().
             put("field",field.toString()).
             put("include",include).
             put("recursive",recursive);

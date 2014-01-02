@@ -70,7 +70,7 @@ public class ProjectionList extends Projection {
 
     @Override
     public JsonNode toJson() {
-        ArrayNode arr=factory.arrayNode();
+        ArrayNode arr=getFactory().arrayNode();
         for(Projection x:items) {
             arr.add(x.toJson());
         }

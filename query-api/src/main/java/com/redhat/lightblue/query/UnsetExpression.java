@@ -56,14 +56,14 @@ public class UnsetExpression extends FieldUpdateExpression {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode();
+        ObjectNode node=getFactory().objectNode();
         JsonNode child;
         if(fields.size()==1) {
-            child=factory.textNode(fields.get(0).toString());
+            child=getFactory().textNode(fields.get(0).toString());
         } else {
-            child=factory.arrayNode();
+            child=getFactory().arrayNode();
             for(Path x:fields) {
-                ((ArrayNode)child).add(factory.textNode(x.toString()));
+                ((ArrayNode)child).add(getFactory().textNode(x.toString()));
             }
         }
         node.put(getOp().toString(),child);

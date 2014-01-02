@@ -78,8 +78,8 @@ public class SetExpression extends FieldUpdateExpression {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode();
-        ObjectNode child=factory.objectNode();
+        ObjectNode node=getFactory().objectNode();
+        ObjectNode child=getFactory().objectNode();
         for(FieldValue x:values) {
             child.put(x.getField().toString(),x.getValue().toJson());
         }

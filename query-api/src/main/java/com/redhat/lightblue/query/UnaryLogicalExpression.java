@@ -75,7 +75,7 @@ public class UnaryLogicalExpression extends LogicalExpression {
      */
     @Override
     public JsonNode toJson() {
-        return factory.objectNode().set(op.toString(),query.toJson());
+        return getFactory().objectNode().set(op.toString(),query.toJson());
     }
 
     /**

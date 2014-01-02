@@ -74,7 +74,7 @@ public class SortKey extends Sort {
 
     @Override
     public JsonNode toJson() {
-        return factory.objectNode().put(field.toString(),desc?"$desc":"$asc");
+        return getFactory().objectNode().put(field.toString(),desc?"$desc":"$asc");
     }
 
     public static SortKey fromJson(ObjectNode node) {

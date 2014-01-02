@@ -115,11 +115,11 @@ public class NaryRelationalExpression extends RelationalExpression {
      * Returns a json representation of this query
      */
     public JsonNode toJson() {
-        ArrayNode arr=factory.arrayNode();
+        ArrayNode arr=getFactory().arrayNode();
         for(Value x:values) {
             arr.add(x.toJson());
         }
-        return factory.objectNode().put("field",field.toString()).
+        return getFactory().objectNode().put("field",field.toString()).
             put("op",op.toString()).
             set("values",arr);
     }

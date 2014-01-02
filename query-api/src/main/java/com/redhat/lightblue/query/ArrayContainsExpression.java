@@ -118,10 +118,10 @@ public class ArrayContainsExpression extends  ArrayComparisonExpression {
      * Returns a json representation of the query
      */
     public JsonNode toJson() {
-        ArrayNode arr=factory.arrayNode();
+        ArrayNode arr=getFactory().arrayNode();
         for(Value x:values)
             arr.add(x.toJson());
-        return factory.objectNode().
+        return getFactory().objectNode().
             put("array",array.toString()).
             put("contains",op.toString()).
             set("values",arr);

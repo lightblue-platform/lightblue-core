@@ -104,7 +104,7 @@ public class ValueComparisonExpression
      */
     @Override
     public JsonNode toJson() {
-        return factory.objectNode().put("field",field.toString()).
+        return getFactory().objectNode().put("field",field.toString()).
             put("op",op.toString()).
             set("rvalue",rvalue.toJson());
     }

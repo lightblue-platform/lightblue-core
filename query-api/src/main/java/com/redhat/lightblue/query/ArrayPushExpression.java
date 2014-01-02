@@ -58,7 +58,7 @@ public class ArrayPushExpression extends  ArrayUpdateExpression {
     
     @Override
     protected JsonNode jsonValue() {
-        ArrayNode node=factory.arrayNode();
+        ArrayNode node=getFactory().arrayNode();
         for(Value x:values)
             node.add(x.toJson());
         return node;

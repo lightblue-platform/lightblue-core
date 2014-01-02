@@ -64,7 +64,7 @@ public abstract class ArrayProjection extends BasicProjection {
     }
 
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode().
+        ObjectNode node=getFactory().objectNode().
             put("field",field.toString()).
             put("include",include);
         if(project!=null) {

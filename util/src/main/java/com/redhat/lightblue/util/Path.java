@@ -64,7 +64,7 @@ public class Path implements Comparable<Path>, Serializable  {
     public static final Path EMPTY=new Path();
     public static final Path ANYPATH=new Path(ANY);
 
-    static class PathRep {        
+    static class PathRep implements Serializable {        
         private List<String> segments;
         private transient String stringValue=null;
         private transient int hashValue=0;
@@ -119,16 +119,17 @@ public class Path implements Comparable<Path>, Serializable  {
             return segments;
         }
 
-        public void shiftLeft(int from) {
+        public void shiftLeft(final int from) {
             if(from>0) {
                 int n=segments.size();
                 if(from>=n) {
                     segments.clear();
                 } else {
-                    int k=n-from;
+                    int iFrom = from; // internal from
+                    int k=n-iFrom;
                     int to=0;
                     for(int i=0;i<k;i++) {
-                        segments.set(to++,segments.get(from++));
+                        segments.set(to++,segments.get(iFrom++));
                     }
                     k=n-k;
                     for(int i=0;i<k;i++) {

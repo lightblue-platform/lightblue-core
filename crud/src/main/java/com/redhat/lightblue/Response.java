@@ -199,7 +199,7 @@ public class Response extends JsonObject {
      * Returns JSON representation of this
      */
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode();
+        ObjectNode node=getFactory().objectNode();
         if(status!=null) {
             node.put("status",status.name().toLowerCase());
         }
@@ -215,14 +215,14 @@ public class Response extends JsonObject {
             node.set("processed",entityData);
         }
         if(!dataErrors.isEmpty()) {
-            ArrayNode arr=factory.arrayNode();
+            ArrayNode arr=getFactory().arrayNode();
             node.set("dataErrors",arr);
             for(DataError err:dataErrors) {
                 arr.add(err.toJson());
             }
         }
         if(!errors.isEmpty()) {
-            ArrayNode arr=factory.arrayNode();
+            ArrayNode arr=getFactory().arrayNode();
             node.set("errors",arr);
             for(Error err:errors) {
                 arr.add(err.toJson());

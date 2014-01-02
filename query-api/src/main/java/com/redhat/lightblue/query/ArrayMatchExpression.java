@@ -81,7 +81,7 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
      * Returns JSON representation of this query
      */
     public JsonNode toJson() {
-        return factory.objectNode().put("array",array.toString()).
+        return getFactory().objectNode().put("array",array.toString()).
             set("elemMatch",elemMatch.toJson());
     }
 

@@ -68,7 +68,7 @@ public class ExecutionOptions extends JsonObject {
      * Returns a json representation of this
      */
     public JsonNode toJson() {
-        ObjectNode node=factory.objectNode();
+        ObjectNode node=getFactory().objectNode();
         node.put("timeLimit",timeLimit);
         node.put("asynchronous",asynchronous);
         return node;
