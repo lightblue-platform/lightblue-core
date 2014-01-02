@@ -1,11 +1,11 @@
 {
-    "name":"test",
-    "version":{
-        "value":"1.0",
-        "changelog":"Initial version"
+    "name": "test",
+    "version": {
+        "value": "1.0",
+        "changelog": "Initial version"
     },
-    "status":{
-        "value":"active"
+    "status": {
+        "value": "active"
     },
     "access": {
         "insert": ["admin"],
@@ -18,17 +18,17 @@
             "unique": ["name"]
         }
     ],
-    "datastore":{
-        "mongo":{
-            "database":"some/identifier",
-            "collection":"test"
+    "datastore": {
+        "mongo": {
+            "database": "some/identifier",
+            "collection": "test"
         }
     },
-    "fields":{
-        "street":{
-            "type":"array",
-            "items":{
-                "enum":["one","two"]
+    "fields": {
+        "street": {
+            "type": "array",
+            "items": {
+                "enum": ["one", "two"]
             }
         }
     }

@@ -226,7 +226,7 @@ public abstract class AbstractPathTest<T extends Path> {
             Path less = p.mutableCopy().pop();
             Assert.assertTrue(p.getData().compareTo(less.getData()) > 0);
         }
-        
+
         // greater than
         Path more = new Path(p, new Path("new"));
         Assert.assertTrue(p.getData().compareTo(more.getData()) < 0);
@@ -257,7 +257,7 @@ public abstract class AbstractPathTest<T extends Path> {
             }
         }
     }
-    
+
     @Test
     public void suffix() {
         T p = createPath();
@@ -269,7 +269,7 @@ public abstract class AbstractPathTest<T extends Path> {
         if (expectedSize() > 0) {
             // grab last element in the path
             Path suffix = p.suffix(1);
-            
+
             if (p instanceof MutablePath) {
                 Assert.assertTrue(suffix instanceof MutablePath);
             }

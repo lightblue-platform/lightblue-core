@@ -1,21 +1,21 @@
 {
-    "$any":[
+    "$any": [
         {
-            "field":"age",
-            "op":"$gte",
-            "rfield":"18"
+            "field": "age",
+            "op": "$gte",
+            "rfield": "18"
         },
         {
-            "$all":[
+            "$all": [
                 {
-                    "field":"login",
-                    "op":"$eq",
-                    "rfield":"someuser"
+                    "field": "login",
+                    "op": "$eq",
+                    "rfield": "someuser"
                 },
                 {
-                    "field":"login",
-                    "op":"$eq",
-                    "rfield":"someuser"
+                    "field": "login",
+                    "op": "$eq",
+                    "rfield": "someuser"
                 }
             ]
         }

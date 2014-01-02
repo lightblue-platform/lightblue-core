@@ -1,5 +1,5 @@
 {
-    "field":"login",
-    "op":"$eq",
-    "rfield":"someuser"
+    "field": "login",
+    "op": "$eq",
+    "rfield": "someuser"
 }

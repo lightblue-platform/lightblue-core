@@ -1,18 +1,18 @@
 {
-    "field":"address.*",
-    "include":true,
-    "range":[
+    "field": "address.*",
+    "include": true,
+    "range": [
         0,
         4
     ],
-    "project":[
+    "project": [
         {
-            "field":"streetaddress",
-            "include":true
+            "field": "streetaddress",
+            "include": true
         },
         {
-            "field":"city",
-            "include":true
+            "field": "city",
+            "include": true
         }
     ]
 }

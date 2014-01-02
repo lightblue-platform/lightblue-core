@@ -1,37 +1,37 @@
 {
-    "status":"complete",
-    "modifiedCount":1,
-    "matchCount":1,
-    "taskHandle":"handle",
-    "session":{
-        "content":"TBD"
+    "status": "complete",
+    "modifiedCount": 1,
+    "matchCount": 1,
+    "taskHandle": "handle",
+    "session": {
+        "content": "TBD"
     },
-    "processed":[
+    "processed": [
         {
-            "foo":"bar"
+            "foo": "bar"
         }
     ],
-    "dataErrors":[
+    "dataErrors": [
         {
-            "data":{
-                "foo":"bar"
+            "data": {
+                "foo": "bar"
             },
-            "errors":[
+            "errors": [
                 {
-                    "object_type":"error",
-                    "context":"c1/c2/c3/...",
-                    "errorCode":"SomeErrorCode",
-                    "msg":"Error message"
+                    "object_type": "error",
+                    "context": "c1/c2/c3/...",
+                    "errorCode": "SomeErrorCode",
+                    "msg": "Error message"
                 }
             ]
         }
     ],
-    "otherErrors":[
+    "otherErrors": [
         {
-            "object_type":"error",
-            "context":"c1/c2/c3/...",
-            "errorCode":"SomeErrorCode",
-            "msg":"Error message"
+            "object_type": "error",
+            "context": "c1/c2/c3/...",
+            "errorCode": "SomeErrorCode",
+            "msg": "Error message"
         }
     ]
 }

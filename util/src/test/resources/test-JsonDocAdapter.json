@@ -1,107 +1,107 @@
 {
-    "name":"test",
-    "version":{
-        "value":"1.0",
-        "changelog":"Initial version"
+    "name": "test",
+    "version": {
+        "value": "1.0",
+        "changelog": "Initial version"
     },
-    "status":{
-        "value":"active"
+    "status": {
+        "value": "active"
     },
-    "access":{
-        "insert":[
+    "access": {
+        "insert": [
             "admin"
         ],
-        "find":[
+        "find": [
             "admin",
             "all"
         ],
-        "update":[
+        "update": [
             "admin"
         ],
-        "delete":[
+        "delete": [
             "admin"
         ]
     },
-    "constraints":{
-        "unique":[
+    "constraints": {
+        "unique": [
             "name"
         ]
     },
-    "datastore":{
-        "mongo":{
-            "database":"some/identifier",
-            "collection":"test"
+    "datastore": {
+        "mongo": {
+            "database": "some/identifier",
+            "collection": "test"
         }
     },
-    "fields":{
-        "name":{
-            "type":"string"
+    "fields": {
+        "name": {
+            "type": "string"
         },
-        "customerType":{
-            "enum":[
+        "customerType": {
+            "enum": [
                 "person",
                 "organization"
             ]
         },
-        "creationDate":{
-            "type":"date",
-            "required":true
+        "creationDate": {
+            "type": "date",
+            "required": true
         },
-        "lastUpdateDate":{
-            "type":"date"
+        "lastUpdateDate": {
+            "type": "date"
         },
-        "credentials":{
-            "type":"object",
-            "fields":{
-                "login":{
-                    "type":"string",
-                    "required":true
+        "credentials": {
+            "type": "object",
+            "fields": {
+                "login": {
+                    "type": "string",
+                    "required": true
                 },
-                "password":{
-                    "type":"string",
-                    "required":true
+                "password": {
+                    "type": "string",
+                    "required": true
                 }
             },
-            "required":true
+            "required": true
         },
-        "address":{
-            "type":"array",
-            "items":{
-                "street":{
-                    "type":"array",
-                    "items":{
-                        "type":"string"
+        "address": {
+            "type": "array",
+            "items": {
+                "street": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     },
-                    "access":{
-                        "read":[
+                    "access": {
+                        "read": [
                             "all"
                         ],
-                        "write":[
+                        "write": [
                             "admin"
                         ]
                     }
                 },
-                "city":{
-                    "type":"string",
-                    "access":{
-                        "read":[
+                "city": {
+                    "type": "string",
+                    "access": {
+                        "read": [
                             "all"
                         ],
-                        "write":[
+                        "write": [
                             "admin"
                         ]
                     }
                 },
-                "state":{
-                    "type":"string"
+                "state": {
+                    "type": "string"
                 },
-                "postalCode":{
-                    "type":"string"
+                "postalCode": {
+                    "type": "string"
                 }
             }
         }
     },
-    "someArray":[
+    "someArray": [
         "1",
         "2"
     ]

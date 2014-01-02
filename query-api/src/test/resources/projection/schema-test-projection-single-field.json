@@ -1,5 +1,5 @@
 {
-    "field":"firstname",
-    "include":true,
-    "recursive":true
+    "field": "firstname",
+    "include": true,
+    "recursive": true
 }

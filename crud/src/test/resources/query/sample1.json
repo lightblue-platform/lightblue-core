@@ -1,42 +1,42 @@
 {
-  "object_type" : "test",
-  "field1" : "value1",
-  "field2" : "value2",
-  "field3" : 3,
-  "field4" : 4.0,
-  "field5" : true,
-  "field6" : {
-      "nf1" : "nvalue1",
-      "nf2" : "nvalue2",
-      "nf3" : 4,
-      "nf4" : false,
-      "nf5" : [ 5,10,15,20],
-      "nf6" : [ "one", "two", "three", "four" ],
-      "nf7" : {
-          "nnf1" : "nnvalue1",
-          "nnf2" : 2
-       }  
-   },
-   "field7" : [
-      {
-         "elemf1" : "elvalue0_1",
-         "elemf2" : "elvalue0_2", 
-         "elemf3" : 3
-      },
-      {
-         "elemf1" : "elvalue1_1",
-         "elemf2" : "elvalue1_2", 
-         "elemf3" : 3
-      },
-      {
-         "elemf1" : "elvalue2_1",
-         "elemf2" : "elvalue2_2", 
-         "elemf3" : 3
-      },
-      {
-         "elemf1" : "elvalue3_1",
-         "elemf2" : "elvalue3_2", 
-         "elemf3" : 3
-      }
-   ]
+    "object_type": "test",
+    "field1": "value1",
+    "field2": "value2",
+    "field3": 3,
+    "field4": 4.0,
+    "field5": true,
+    "field6": {
+        "nf1": "nvalue1",
+        "nf2": "nvalue2",
+        "nf3": 4,
+        "nf4": false,
+        "nf5": [5, 10, 15, 20],
+        "nf6": ["one", "two", "three", "four"],
+        "nf7": {
+            "nnf1": "nnvalue1",
+            "nnf2": 2
+        }
+    },
+    "field7": [
+        {
+            "elemf1": "elvalue0_1",
+            "elemf2": "elvalue0_2",
+            "elemf3": 3
+        },
+        {
+            "elemf1": "elvalue1_1",
+            "elemf2": "elvalue1_2",
+            "elemf3": 3
+        },
+        {
+            "elemf1": "elvalue2_1",
+            "elemf2": "elvalue2_2",
+            "elemf3": 3
+        },
+        {
+            "elemf1": "elvalue3_1",
+            "elemf2": "elvalue3_2",
+            "elemf3": 3
+        }
+    ]
 }

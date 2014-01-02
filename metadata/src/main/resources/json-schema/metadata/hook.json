@@ -1,5 +1,5 @@
 {
-    "copyright":[
+    "copyright": [
         "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
         "This file is part of lightblue.",
         "This program is free software: you can redistribute it and/or modify",
@@ -13,39 +13,39 @@
         "You should have received a copy of the GNU General Public License",
         "along with this program.  If not, see <http://www.gnu.org/licenses/>."
     ],
-    "$schema":"http://json-schema.org/draft-04/schema#",
-    "type":"object",
-    "description":"Structure of document that is submitted to the endpoint defined in a hook.",
-    "properties":{
-        "date":{
-            "type":"string",
-            "description":"When was the request made, format=YYYYMMDD HHmmssSSSS in UTC"
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Structure of document that is submitted to the endpoint defined in a hook.",
+    "properties": {
+        "date": {
+            "type": "string",
+            "description": "When was the request made, format=YYYYMMDD HHmmssSSSS in UTC"
         },
-        "clientId":{
-            "type":"string",
-            "description":"Identifier (principal) for the client that made the request"
+        "clientId": {
+            "type": "string",
+            "description": "Identifier (principal) for the client that made the request"
         },
-        "request":{
-            "type":"object",
-            "description":"The request"
+        "request": {
+            "type": "object",
+            "description": "The request"
         },
-        "response":{
-            "type":"object",
-            "description":"The response"
+        "response": {
+            "type": "object",
+            "description": "The response"
         },
-        "before":{
-            "type":"object",
-            "description":"Data before the request is processed."
+        "before": {
+            "type": "object",
+            "description": "Data before the request is processed."
         },
-        "after":{
-            "type":"object",
-            "description":"Data after the request is processed."
+        "after": {
+            "type": "object",
+            "description": "Data after the request is processed."
         }
     },
-    "required":[
+    "required": [
         "date",
         "clientId"
     ],
-    "minProperties":3,
-    "additionalProperties":false
+    "minProperties": 3,
+    "additionalProperties": false
 }

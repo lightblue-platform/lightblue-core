@@ -1,8 +1,8 @@
 {
-    "projection":{
-        "field":"firstname",
-        "include":true,
-        "recursive":true,
-        "bob":"wuzhere"
+    "projection": {
+        "field": "firstname",
+        "include": true,
+        "recursive": true,
+        "bob": "wuzhere"
     }
 }

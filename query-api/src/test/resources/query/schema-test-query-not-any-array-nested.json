@@ -1,22 +1,22 @@
 {
-    "$not":{
-        "$all":[
+    "$not": {
+        "$all": [
             {
-                "field":"age",
-                "op":"$gte",
-                "rfield":"18"
+                "field": "age",
+                "op": "$gte",
+                "rfield": "18"
             },
             {
-                "$any":[
+                "$any": [
                     {
-                        "field":"login",
-                        "op":"$eq",
-                        "rfield":"someuser"
+                        "field": "login",
+                        "op": "$eq",
+                        "rfield": "someuser"
                     },
                     {
-                        "field":"login",
-                        "op":"$eq",
-                        "rfield":"someuser"
+                        "field": "login",
+                        "op": "$eq",
+                        "rfield": "someuser"
                     }
                 ]
             }

@@ -25,8 +25,7 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
 /**
- * Parser extensions where T is the node type of the underlying object
- * tree (for JSon, T is JsonNode).
+ * Parser extensions where T is the node type of the underlying object tree (for JSon, T is JsonNode).
  */
 public class Extensions<T> {
 
@@ -84,8 +83,7 @@ public class Extensions<T> {
      *
      * @param constraintName
      *
-     * @return The parser that parses the constraint, or null if a
-     * parser is not found
+     * @return The parser that parses the constraint, or null if a parser is not found
      */
     public EntityConstraintParser<T> getEntityConstraintParser(String constraintName) {
         return (EntityConstraintParser<T>) entityConstraintParsers.find(constraintName);
@@ -107,8 +105,7 @@ public class Extensions<T> {
      *
      * @param constraintName Name of the constraint
      *
-     * @return The parser that parses the constraint, or null if
-     * parser is not found
+     * @return The parser that parses the constraint, or null if parser is not found
      */
     public FieldConstraintParser<T> getFieldConstraintParser(String constraintName) {
         return (FieldConstraintParser<T>) fieldConstraintParsers.find(constraintName);

@@ -1,21 +1,21 @@
 {
-    "$or":[
+    "$or": [
         {
-            "field":"age",
-            "op":"$gte",
-            "rfield":"18"
+            "field": "age",
+            "op": "$gte",
+            "rfield": "18"
         },
         {
-            "$and":[
+            "$and": [
                 {
-                    "field":"login",
-                    "op":"$eq",
-                    "rfield":"someuser"
+                    "field": "login",
+                    "op": "$eq",
+                    "rfield": "someuser"
                 },
                 {
-                    "field":"login",
-                    "op":"$eq",
-                    "rfield":"someuser"
+                    "field": "login",
+                    "op": "$eq",
+                    "rfield": "someuser"
                 }
             ]
         }

@@ -1,7 +1,7 @@
 {
-    "$not":{
-        "field":"login",
-        "op":"$eq",
-        "rfield":"someuser"
+    "$not": {
+        "field": "login",
+        "op": "$eq",
+        "rfield": "someuser"
     }
 }

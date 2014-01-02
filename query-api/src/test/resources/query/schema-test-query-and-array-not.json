@@ -1,15 +1,15 @@
 {
-    "$and":[
+    "$and": [
         {
-            "field":"age",
-            "op":"$gte",
-            "rfield":"18"
+            "field": "age",
+            "op": "$gte",
+            "rfield": "18"
         },
         {
-            "$not":{
-                "field":"login",
-                "op":"$eq",
-                "rfield":"someuser"
+            "$not": {
+                "field": "login",
+                "op": "$eq",
+                "rfield": "someuser"
             }
         }
     ]

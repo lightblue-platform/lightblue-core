@@ -1,8 +1,8 @@
 {
-    "array":"email",
-    "elemMatch":{
-        "field":"secondaryEmail",
-        "op":"$neq",
-        "rfield":"email"
+    "array": "email",
+    "elemMatch": {
+        "field": "secondaryEmail",
+        "op": "$neq",
+        "rfield": "email"
     }
 }

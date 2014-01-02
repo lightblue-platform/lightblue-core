@@ -1,27 +1,27 @@
 {
-    "find":{
-        "object_type":"some_entity",
+    "find": {
+        "object_type": "some_entity",
         "client": {"id": "1"},
-        "execution":{
-            "timeLimit":5000,
-            "asynchronous":4500
+        "execution": {
+            "timeLimit": 5000,
+            "asynchronous": 4500
         },
-        "returning":{
-            "field":"firstname",
-            "include":true,
-            "recursive":true
+        "returning": {
+            "field": "firstname",
+            "include": true,
+            "recursive": true
         },
-        "query":{
-            "field":"login",
-            "op":"$eq",
-            "rfield":"someuser"
+        "query": {
+            "field": "login",
+            "op": "$eq",
+            "rfield": "someuser"
         },
-        "range":[
+        "range": [
             0,
             10
         ],
-        "sort":{
-            "login":"$asc"
+        "sort": {
+            "login": "$asc"
         }
     }
 }

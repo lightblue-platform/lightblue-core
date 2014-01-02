@@ -279,8 +279,8 @@
                         "fields": {
                             "$ref": "#/definitions/field_single"
                         },
-                        "constraints":{
-                            "$ref":"#/definitions/field_constraint"
+                        "constraints": {
+                            "$ref": "#/definitions/field_constraint"
                         },
                         "hooks": {
                             "type": "object",

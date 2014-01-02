@@ -1,11 +1,11 @@
 {
-    "name":"test",
-    "version":{
-        "value":"1.0",
-        "changelog":"Initial version"
+    "name": "test",
+    "version": {
+        "value": "1.0",
+        "changelog": "Initial version"
     },
-    "status":{
-        "value":"active"
+    "status": {
+        "value": "active"
     },
     "access": {
         "insert": ["admin"],
@@ -18,63 +18,63 @@
             "unique": ["name"]
         }
     ],
-    "datastore":{
-        "mongo":{
-            "database":"some/identifier",
-            "collection":"test"
+    "datastore": {
+        "mongo": {
+            "database": "some/identifier",
+            "collection": "test"
         }
     },
-    "fields":{
-        "name":{
-            "type":"string"
+    "fields": {
+        "name": {
+            "type": "string"
         },
-        "counter":{
-            "type":"integer"
+        "counter": {
+            "type": "integer"
         },
-        "credentials":{
-            "type":"object",
-            "fields":{
-                "login":{
-                    "type":"string"
+        "credentials": {
+            "type": "object",
+            "fields": {
+                "login": {
+                    "type": "string"
                 },
-                "password":{
-                    "type":"string"
+                "password": {
+                    "type": "string"
                 }
             }
         },
-        "address":{
-            "type":"array",
-            "items":{
-                "street":{
-                    "type":"array",
-                    "items":{
-                        "type":"string"
+        "address": {
+            "type": "array",
+            "items": {
+                "street": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     },
-                    "access":{
-                        "INVALID":[
+                    "access": {
+                        "INVALID": [
                             "all"
                         ],
-                        "update":[
+                        "update": [
                             "admin"
                         ]
                     }
                 },
-                "city":{
-                    "type":"string",
-                    "access":{
-                        "find":[
+                "city": {
+                    "type": "string",
+                    "access": {
+                        "find": [
                             "all"
                         ],
-                        "update":[
+                        "update": [
                             "admin"
                         ]
                     }
                 },
-                "state":{
-                    "type":"string"
+                "state": {
+                    "type": "string"
                 },
-                "postalCode":{
-                    "type":"string"
+                "postalCode": {
+                    "type": "string"
                 }
             }
         }

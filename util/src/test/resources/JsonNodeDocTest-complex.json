@@ -1,22 +1,22 @@
 {
-    "object1":{
-        "array1":[
+    "object1": {
+        "array1": [
             {
-                "simple1":"value1"
+                "simple1": "value1"
             },
             {
-                "simple2":"value2"
+                "simple2": "value2"
             }
         ]
     },
-    "object2":{
-        "simple3":"value3",
-        "array2":[
+    "object2": {
+        "simple3": "value3",
+        "array2": [
             {
-                "simple4":"value1"
+                "simple4": "value1"
             },
             {
-                "simple5":"value2"
+                "simple5": "value2"
             }
         ]
     }

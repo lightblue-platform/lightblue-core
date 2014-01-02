@@ -1,6 +1,6 @@
 {
-    "object_type":"error",
-    "context":"c1/c2/c3/...",
-    "errorCode":"SomeErrorCode",
-    "msg":"Error message"
+    "object_type": "error",
+    "context": "c1/c2/c3/...",
+    "errorCode": "SomeErrorCode",
+    "msg": "Error message"
 }
