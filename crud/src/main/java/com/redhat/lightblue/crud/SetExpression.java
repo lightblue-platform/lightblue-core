@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.query;
+package com.redhat.lightblue.crud;
 
 import java.util.List;
 import java.util.Arrays;
@@ -26,6 +26,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.query.FieldValue;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.Value;
 
 import com.redhat.lightblue.util.Path;
 

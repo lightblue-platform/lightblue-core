@@ -16,11 +16,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.query;
+package com.redhat.lightblue.crud;
 
+import com.redhat.lightblue.crud.PartialUpdateExpression;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.redhat.lightblue.query.UpdateOperator;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;

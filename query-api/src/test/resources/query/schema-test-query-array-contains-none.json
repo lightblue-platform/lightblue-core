@@ -1,0 +1,8 @@
+{
+    "array": "email",
+    "contains": "$none",
+    "values": [
+        "1",
+        "2"
+    ]
+}

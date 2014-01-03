@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.crud.UpdateExpression;
 
 /**
  * Request to update documents based on a query

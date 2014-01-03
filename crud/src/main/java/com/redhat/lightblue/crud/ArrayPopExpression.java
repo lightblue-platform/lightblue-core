@@ -16,42 +16,46 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.query;
+package com.redhat.lightblue.crud;
 
+import com.redhat.lightblue.crud.ArrayUpdateExpression;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.UpdateOperator;
 
 import com.redhat.lightblue.util.Path;
 
-public class ArrayRemoveByQueryExpression extends ArrayUpdateExpression {
-    private QueryExpression query;
+public class ArrayPopExpression extends ArrayUpdateExpression {
+    private boolean first;
 
-    public ArrayRemoveByQueryExpression() {
+    public ArrayPopExpression() {
     }
 
-    public ArrayRemoveByQueryExpression(Path field, QueryExpression q) {
+    public ArrayPopExpression(Path field, boolean first) {
         super(field);
-        this.query = q;
+        this.first = first;
     }
 
     @Override
     public UpdateOperator getOp() {
-        return UpdateOperator._remove;
+        return UpdateOperator._pop;
     }
 
-    public QueryExpression getQuery() {
-        return query;
+    public boolean isFirst() {
+        return first;
     }
 
-    public void setQuery(QueryExpression q) {
-        query = q;
+    public void setFirst(boolean b) {
+        first = b;
     }
 
     @Override
     protected JsonNode jsonValue() {
-        return query.toJson();
+        return getFactory().textNode(first ? "first" : "last");
     }
 
-    public static ArrayRemoveByQueryExpression fromJson(Path field, JsonNode value) {
-        return new ArrayRemoveByQueryExpression(field, QueryExpression.fromJson(value));
+    public static ArrayPopExpression fromJson(Path field, JsonNode node) {
+        return new ArrayPopExpression(field,
+                "first".equals(node.asText()));
     }
 }

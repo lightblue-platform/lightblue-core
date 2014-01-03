@@ -1,5 +1,5 @@
 /*
- 2013 Red Hat, Inc. and/or its affiliates.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
  This file is part of lightblue.
 
@@ -16,8 +16,9 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.query;
+package com.redhat.lightblue.crud;
 
+import com.redhat.lightblue.crud.ArrayUpdateExpression;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -25,28 +26,32 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.Value;
 
 import com.redhat.lightblue.util.Path;
 
-public class ArrayRemoveValuesExpression extends ArrayUpdateExpression {
+public class ArrayPushExpression extends ArrayUpdateExpression {
     private List<Value> values;
 
-    public ArrayRemoveValuesExpression() {
+    public ArrayPushExpression() {
     }
 
-    public ArrayRemoveValuesExpression(Path field, List<Value> values) {
+    public ArrayPushExpression(Path field, List<Value> values) {
         super(field);
         this.values = values;
     }
 
-    public ArrayRemoveValuesExpression(Path field,
+    public ArrayPushExpression(Path field,
             Value... l) {
         this(field, Arrays.asList(l));
     }
 
     @Override
     public UpdateOperator getOp() {
-        return UpdateOperator._remove;
+        return UpdateOperator._push;
     }
 
     public List<Value> getValues() {
@@ -66,12 +71,16 @@ public class ArrayRemoveValuesExpression extends ArrayUpdateExpression {
         return node;
     }
 
-    public static ArrayRemoveValuesExpression fromJson(Path field, ArrayNode node) {
-        ArrayList<Value> list = new ArrayList<>(node.size());
-        for (Iterator<JsonNode> itr = node.elements();
-                itr.hasNext();) {
-            list.add(Value.fromJson(itr.next()));
+    public static ArrayPushExpression fromJson(Path field, JsonNode node) {
+        ArrayList<Value> list = new ArrayList<>();
+        if (node instanceof ArrayNode) {
+            for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
+                    itr.hasNext();) {
+                list.add(Value.fromJson(itr.next()));
+            }
+        } else {
+            list.add(Value.fromJson(node));
         }
-        return new ArrayRemoveValuesExpression(field, list);
+        return new ArrayPushExpression(field, list);
     }
 }
