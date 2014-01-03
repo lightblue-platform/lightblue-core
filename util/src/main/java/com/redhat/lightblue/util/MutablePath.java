@@ -150,7 +150,7 @@ public class MutablePath extends Path {
         own();
         getData().getSegments().remove(getData().getSegments().size() - 1);
         List<String> s = parse(x);
-        return push(x);
+        return push(s);
     }
 
     /**
