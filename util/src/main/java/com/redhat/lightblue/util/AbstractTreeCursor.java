@@ -129,7 +129,7 @@ public abstract class AbstractTreeCursor<N> {
     protected abstract boolean hasChildren(N node);
 
     private LevelState<N> pushNode(N node) {
-        LevelState<N> ret = new LevelState<N>(node, getCursor(node));
+        LevelState<N> ret = new LevelState<>(node, getCursor(node));
         stack.addLast(ret);
         return ret;
     }

@@ -35,20 +35,24 @@ public class KeyValueCursorIteratorAdapter<K, V> implements KeyValueCursor<K, V>
         this.itr = itr;
     }
 
+    @Override
     public boolean hasNext() {
         return itr.hasNext();
     }
 
+    @Override
     public void next() {
         Map.Entry<K, V> v = itr.next();
         key = v.getKey();
         value = v.getValue();
     }
 
+    @Override
     public K getCurrentKey() {
         return key;
     }
 
+    @Override
     public V getCurrentValue() {
         return value;
     }

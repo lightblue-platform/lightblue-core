@@ -35,7 +35,7 @@ public abstract class AbstractJsonNodeTest {
      * @return the root json node
      * @throws IOException
      */
-    public final JsonNode loadJsonNode(String resourceName) throws IOException {
+    public static final JsonNode loadJsonNode(String resourceName) throws IOException {
         String jsonString = loadResource(resourceName);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -51,7 +51,7 @@ public abstract class AbstractJsonNodeTest {
      * @return the resource as a String
      * @throws IOException
      */
-    public final String loadResource(String resourceName) throws IOException {
+    public static final String loadResource(String resourceName) throws IOException {
         StringBuilder buff = new StringBuilder();
 
         try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);

@@ -35,19 +35,23 @@ public final class JsonNodeCursor extends AbstractTreeCursor<JsonNode> {
             this.itr = itr;
         }
 
+        @Override
         public boolean hasNext() {
             return itr.hasNext();
         }
 
+        @Override
         public void next() {
             node = itr.next();
             index++;
         }
 
+        @Override
         public String getCurrentKey() {
             return Integer.toString(index);
         }
 
+        @Override
         public JsonNode getCurrentValue() {
             return node;
         }
@@ -57,18 +61,19 @@ public final class JsonNodeCursor extends AbstractTreeCursor<JsonNode> {
         super(p, start);
     }
 
+    @Override
     protected KeyValueCursor<String, JsonNode> getCursor(JsonNode node) {
         if (node instanceof ArrayNode) {
             return new ArrayElementCursor(((ArrayNode) node).elements());
         } else if (node instanceof ObjectNode) {
-            return new KeyValueCursorIteratorAdapter<String, JsonNode>(((ObjectNode) node).fields());
+            return new KeyValueCursorIteratorAdapter<>(((ObjectNode) node).fields());
         } else {
             throw new IllegalArgumentException(node.getClass().getName());
         }
     }
 
+    @Override
     protected boolean hasChildren(JsonNode node) {
         return node.isContainerNode() && node.size() > 0;
     }
-
 }
