@@ -35,12 +35,6 @@ public class CompositeSortKey extends Sort {
     private List<SortKey> keys;
 
     /**
-     * Default ctor
-     */
-    public CompositeSortKey() {
-    }
-
-    /**
      * Ctor using the given values
      */
     public CompositeSortKey(List<SortKey> keys) {
@@ -48,24 +42,10 @@ public class CompositeSortKey extends Sort {
     }
 
     /**
-     * Ctor using the given values
-     */
-    public CompositeSortKey(SortKey... k) {
-        this(Arrays.asList(k));
-    }
-
-    /**
      * The list of sort keys
      */
     public List<SortKey> getKeys() {
         return keys;
-    }
-
-    /**
-     * The list of sort keys
-     */
-    public void setKeys(List<SortKey> keys) {
-        this.keys = keys;
     }
 
     /**

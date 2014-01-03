@@ -42,13 +42,6 @@ public class ProjectionList extends Projection {
     }
 
     /**
-     * Ctor with the given args
-     */
-    public ProjectionList(Projection... i) {
-        this(Arrays.asList(i));
-    }
-
-    /**
      * Returns the nested projections
      */
     public List<Projection> getItems() {

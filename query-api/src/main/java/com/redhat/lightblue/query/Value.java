@@ -31,15 +31,9 @@ import com.redhat.lightblue.util.JsonObject;
  * evaluation, metadata is used to interpret the actual value.
  */
 public class Value extends JsonObject {
-    private Object value;
+    private final Object value;
 
     public static final String INVALID_VALUE = "INVALID_VALUE";
-
-    /**
-     * Default ctor with value=null
-     */
-    public Value() {
-    }
 
     /**
      * Creates a Value with value=o
@@ -53,13 +47,6 @@ public class Value extends JsonObject {
      */
     public Object getValue() {
         return value;
-    }
-
-    /**
-     * Sets the value
-     */
-    public void setValue(Object o) {
-        this.value = o;
     }
 
     /**
@@ -97,23 +84,23 @@ public class Value extends JsonObject {
      */
     public static Value fromJson(JsonNode node) {
         if (node.isValueNode()) {
-            Value ret = new Value();
+            Object v = null;
             if (node.isNumber()) {
                 if (node.isBigDecimal() || node.isDouble() || node.isFloat()) {
-                    ret.value = node.decimalValue();
+                    v = node.decimalValue();
                 } else if (node.isBigInteger()) {
-                    ret.value = node.bigIntegerValue();
+                    v = node.bigIntegerValue();
                 } else if (node.isLong()) {
-                    ret.value = node.longValue();
+                    v = node.longValue();
                 } else {
-                    ret.value = node.intValue();
+                    v = node.intValue();
                 }
             } else if (node.isBoolean()) {
-                ret.value = node.booleanValue();
+                v = node.booleanValue();
             } else {
-                ret.value = node.textValue();
+                v = node.textValue();
             }
-            return ret;
+            return new Value(v);
         } else {
             throw Error.get(INVALID_VALUE, node.toString());
         }

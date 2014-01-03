@@ -13,14 +13,7 @@ import org.junit.Test;
  * @author nmalik
  */
 public class BinaryComparisonOperatorTest {
-    /*
-     _eq("$eq", "="),
-     _neq("$neq", "!="),
-     _lt("$lt", "<"),
-     _gt("$gt", ">"),
-     _lte("$lte", "<="),
-     _gte("$gte", ">=");
-     */
+
     @Test
     public void apply_eq() {
         BinaryComparisonOperator op = BinaryComparisonOperator._eq;

@@ -30,8 +30,7 @@ import com.redhat.lightblue.util.Path;
  *                                 rfield: <field> }
  * </pre>
  */
-public class FieldComparisonExpression
-        extends BinaryRelationalExpression {
+public class FieldComparisonExpression extends BinaryRelationalExpression {
 
     private final Path field;
     private final BinaryComparisonOperator op;

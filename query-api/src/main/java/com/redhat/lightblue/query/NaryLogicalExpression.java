@@ -50,14 +50,6 @@ public class NaryLogicalExpression extends LogicalExpression {
     }
 
     /**
-     * Contructs an n-ary logical expression with the given expressions
-     */
-    public NaryLogicalExpression(NaryLogicalOperator op, QueryExpression... q) {
-        this.op = op;
-        this.queries = Arrays.asList(q);
-    }
-
-    /**
      * The operator
      */
     public NaryLogicalOperator getOp() {

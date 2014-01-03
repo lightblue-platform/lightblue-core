@@ -27,8 +27,7 @@ import com.redhat.lightblue.util.Path;
 /**
  * Base class for all binary relational expression
  */
-public abstract class BinaryRelationalExpression
-        extends RelationalExpression {
+public abstract class BinaryRelationalExpression extends RelationalExpression {
 
     /**
      * Parses a field comparison or value comparison expression from the given json object

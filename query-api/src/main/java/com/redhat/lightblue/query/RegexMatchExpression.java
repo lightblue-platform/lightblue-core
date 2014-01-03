@@ -32,8 +32,7 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  *
  */
-public class RegexMatchExpression
-        extends RelationalExpression {
+public class RegexMatchExpression extends RelationalExpression {
 
     public static final String INVALID_REGEX_EXPRESSION = "INVALID_REGEX_EXPRESSION";
 

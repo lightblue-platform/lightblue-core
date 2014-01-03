@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.redhat.lightblue.util.JsonUtils;
@@ -29,16 +28,21 @@ public class QueryParseTest {
 
     final String regexQuery1 = "{\"field\":\"x.y\", \"regex\":\"*pat*\"}";
     final String regexQuery2 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"case_insensitive\":true}";
+    final String regexQuery3 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"multiline\":true}";
+    final String regexQuery4 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"extended\":true}";
+    final String regexQuery5 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"dotall\":true}";
 
     final String unaryQuery1 = "{ \"$not\": " + valueQuery1 + "}";
     final String unaryQuery2 = "{ \"$not\": " + regexQuery1 + "}";
 
-    final String naryLogQuery1 = "{ \"$and\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + unaryQuery1 + "]}";
+    final String naryLogQueryAnd1 = "{ \"$and\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + unaryQuery1 + "]}";
+    final String naryLogQueryOr1 = "{ \"$or\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + unaryQuery1 + "]}";
 
     final String arrContains1 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[1,2,3,4,5]}";
     final String arrContains2 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[\"x\", \"y\"]}";
     final String arrContains3 = "{\"array\":\"x.y\", \"contains\":\"$all\", \"values\":[\"x\", \"y\"]}";
     final String arrContains4 = "{\"array\":\"x.y\", \"contains\":\"$none\", \"values\":[\"x\", \"y\"]}";
+    final String arrContains5 = "{\"array\":\"x.y\", \"contains\":\"$invalid\", \"values\":[\"x\", \"y\"]}";
 
     final String arrMatch1 = "{\"array\":\"x.y\",\"elemMatch\":" + regexQuery1 + "}";
 
@@ -71,6 +75,9 @@ public class QueryParseTest {
     public void testRegexQueries() throws Exception {
         testRegexQuery(regexQuery1, "x.y", "*pat*", false, false, false, false);
         testRegexQuery(regexQuery2, "x.y", "*pat*", true, false, false, false);
+        testRegexQuery(regexQuery3, "x.y", "*pat*", false, true, false, false);
+        testRegexQuery(regexQuery4, "x.y", "*pat*", false, false, true, false);
+        testRegexQuery(regexQuery5, "x.y", "*pat*", false, false, false, true);
     }
 
     private static final NestedTest u1NestedTest = new NestedTest() {
@@ -92,29 +99,34 @@ public class QueryParseTest {
 
     @Test
     public void testNaries() throws Exception {
-        testNaryQuery(naryLogQuery1, new NestedTest() {
-            @Override
-            public void test(QueryExpression x) {
-                asserts((ValueComparisonExpression) x, "x.y.z", BinaryComparisonOperator._eq, "string");
-            }
-        },
-                new NestedTest() {
-                    @Override
-                    public void test(QueryExpression x) {
-                        asserts((FieldComparisonExpression) x, "x.-1.y", BinaryComparisonOperator._eq, "y.z.-1");
-                    }
-                },
-                new NestedTest() {
-                    @Override
-                    public void test(QueryExpression x) {
-                        asserts((NaryRelationalExpression) x, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
-                    }
-                },
-                new NestedTest() {
-                    public void test(QueryExpression x) {
-                        asserts((UnaryLogicalExpression) x, u1NestedTest);
-                    }
-                });
+        NestedTest[] tests = new NestedTest[]{
+            new NestedTest() {
+                @Override
+                public void test(QueryExpression x) {
+                    asserts((ValueComparisonExpression) x, "x.y.z", BinaryComparisonOperator._eq, "string");
+                }
+            },
+            new NestedTest() {
+                @Override
+                public void test(QueryExpression x) {
+                    asserts((FieldComparisonExpression) x, "x.-1.y", BinaryComparisonOperator._eq, "y.z.-1");
+                }
+            },
+            new NestedTest() {
+                @Override
+                public void test(QueryExpression x) {
+                    asserts((NaryRelationalExpression) x, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
+                }
+            },
+            new NestedTest() {
+                @Override
+                public void test(QueryExpression x) {
+                    asserts((UnaryLogicalExpression) x, u1NestedTest);
+                }
+            }};
+
+        testNaryQuery(naryLogQueryAnd1, tests);
+        testNaryQuery(naryLogQueryOr1, tests);
     }
 
     @Test
@@ -123,11 +135,18 @@ public class QueryParseTest {
         testArrContains(arrContains2, "x.y", ContainsOperator._any, "x", "y");
         testArrContains(arrContains3, "x.y", ContainsOperator._all, "x", "y");
         testArrContains(arrContains4, "x.y", ContainsOperator._none, "x", "y");
+        try {
+            testArrContains(arrContains5, "x.y", null);
+            Assert.fail("invalid contains operator should fail");
+        } catch (Throwable t) {
+            // valid
+        }
     }
 
     @Test
     public void testArrMatch() throws Exception {
         testArrMatch(arrMatch1, "x.y", new NestedTest() {
+            @Override
             public void test(QueryExpression x) {
                 asserts((RegexMatchExpression) x, "x.y", "*pat*", false, false, false, false);
             }

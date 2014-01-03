@@ -56,15 +56,6 @@ public class NaryRelationalExpression extends RelationalExpression {
     }
 
     /**
-     * Ctor with the given values
-     */
-    public NaryRelationalExpression(Path field,
-                                    NaryRelationalOperator op,
-                                    Value... v) {
-        this(field, op, Arrays.asList(v));
-    }
-
-    /**
      * The field. If this is a nested query, the field is relative to the context
      */
     public Path getField() {

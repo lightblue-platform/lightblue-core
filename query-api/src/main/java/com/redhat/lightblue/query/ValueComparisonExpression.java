@@ -34,8 +34,7 @@ import com.redhat.lightblue.util.Path;
  *
  * If this is part of a nested query, the field is a relative path.
  */
-public class ValueComparisonExpression
-        extends BinaryRelationalExpression {
+public class ValueComparisonExpression extends BinaryRelationalExpression {
 
     private final Path field;
     private final BinaryComparisonOperator op;

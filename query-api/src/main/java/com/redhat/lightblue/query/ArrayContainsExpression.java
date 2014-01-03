@@ -21,7 +21,6 @@ package com.redhat.lightblue.query;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -52,19 +51,6 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
         this.array = array;
         this.op = op;
         this.values = values;
-    }
-
-    /**
-     * Ctor with multiple values
-     *
-     * @param array the array field
-     * @param op Operator
-     * @param v Values
-     */
-    public ArrayContainsExpression(Path array,
-                                   ContainsOperator op,
-                                   Value... v) {
-        this(array, op, Arrays.asList(v));
     }
 
     /**

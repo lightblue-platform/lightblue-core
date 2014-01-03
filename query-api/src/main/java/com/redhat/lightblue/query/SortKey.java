@@ -31,11 +31,8 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class SortKey extends Sort {
-    private Path field;
-    private boolean desc;
-
-    public SortKey() {
-    }
+    private final Path field;
+    private final boolean desc;
 
     /**
      * Constructs a sort key with the values
@@ -53,24 +50,10 @@ public class SortKey extends Sort {
     }
 
     /**
-     * Sets the sort field
-     */
-    public void setField(Path argField) {
-        this.field = argField;
-    }
-
-    /**
      * Returns if the sort is descending
      */
     public boolean isDesc() {
         return this.desc;
-    }
-
-    /**
-     * Sets if the sort is descending
-     */
-    public void setDesc(boolean argDesc) {
-        this.desc = argDesc;
     }
 
     @Override
@@ -82,20 +65,20 @@ public class SortKey extends Sort {
         if (node.size() != 1) {
             throw Error.get(INVALID_SORT, node.toString());
         }
-        String field = node.fieldNames().next();
-        String dir = node.get(field).asText();
-        SortKey sk = new SortKey();
-        sk.setField(new Path(field));
+        String fieldString = node.fieldNames().next();
+        String dir = node.get(fieldString).asText();
+        Path field = new Path(fieldString);
+        boolean desc = false;
         switch (dir) {
             case "$asc":
-                sk.setDesc(false);
+                desc = false;
                 break;
             case "$desc":
-                sk.setDesc(true);
+                desc = true;
                 break;
             default:
                 throw Error.get(INVALID_SORT, node.toString());
         }
-        return sk;
+        return new SortKey(field, desc);
     }
 }
