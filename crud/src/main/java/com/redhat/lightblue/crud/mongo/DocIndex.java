@@ -77,6 +77,7 @@ public class DocIndex {
             group = new DocGroup(objectType, db, coll);
             storeToGroupIndex.put(store, group);
         }
+        group.docs.add(doc);
     }
 
     public Set<MongoDataStore> getDataStores() {
