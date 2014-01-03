@@ -28,9 +28,14 @@ import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 public class RequiredConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
-    public FieldConstraint parse(MetadataParser<T> p, T node) {
+    public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
+        if (!RequiredConstraint.REQUIRED.equals(name)) {
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+        }
+
         Object value = p.getValueProperty(node, RequiredConstraint.REQUIRED);
         RequiredConstraint ret = new RequiredConstraint();
+
         if (value instanceof Boolean) {
             ret.setValue((Boolean) value);
         } else {

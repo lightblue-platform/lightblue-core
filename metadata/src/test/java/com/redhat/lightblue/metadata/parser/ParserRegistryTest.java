@@ -10,17 +10,19 @@ public class ParserRegistryTest {
 
     class TestParser implements Parser<Object, Object> {
 
-        public Object parse(MetadataParser<Object> p, Object node) {
+        @Override
+        public Object parse(String name, MetadataParser<Object> p, Object node) {
             return null;
         }
 
+        @Override
         public void convert(MetadataParser<Object> p, Object emptyNode, Object object) {
         }
     }
 
     @Test
     public void get() {
-        ParserRegistry<Object, Object> reg = new ParserRegistry<Object, Object>();
+        ParserRegistry<Object, Object> reg = new ParserRegistry<>();
 
         TestParser parser = new TestParser();
 

@@ -29,7 +29,11 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
     public static final String COLLECTION_REQUIRED = "COLLECTION_REQUIRED";
 
     @Override
-    public DataStore parse(MetadataParser<T> p, T node) {
+    public DataStore parse(String name, MetadataParser<T> p, T node) {
+        if (!"mongo".equals(name)) {
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+        }
+        
         MongoDataStore ds = new MongoDataStore();
         ds.setClientJndiName(p.getStringProperty(node, "clientJndiName"));
         ds.setDatabaseName(p.getStringProperty(node, "database"));

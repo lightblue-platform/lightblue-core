@@ -32,10 +32,15 @@ import com.redhat.lightblue.metadata.constraints.Reference;
 public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> {
 
     @Override
-    public EntityConstraint parse(MetadataParser<T> p, T node) {
-        ReferencesConstraint ret = new ReferencesConstraint();
+    public EntityConstraint parse(String name, MetadataParser<T> p, T node) {
+        if (!ReferencesConstraint.REFERENCES.equals(name)) {
+            Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+        }
+        
         List<T> list = p.getObjectList(node, ReferencesConstraint.REFERENCES);
-        ArrayList<Reference> dest = new ArrayList<Reference>();
+        ReferencesConstraint ret = new ReferencesConstraint();
+        ArrayList<Reference> dest = new ArrayList<>();
+
         for (T item : list) {
             Reference ref = new Reference();
             ref.setEntityName(p.getStringProperty(item, "entityName"));

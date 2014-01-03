@@ -35,7 +35,7 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 
     @Before
     public void setup() {
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
@@ -171,7 +171,7 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 
     @Test
     public void getChildNames() {
-        List<String> childNames = new ArrayList<String>();
+        List<String> childNames = new ArrayList<>();
         childNames.add("bob");
         childNames.add("jerry");
         childNames.add("hammer");

@@ -28,15 +28,14 @@ import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
 public class ArraySizeConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
-    public FieldConstraint parse(MetadataParser<T> p, T node) {
-        ArraySizeConstraint ret;
-        Object value = p.getValueProperty(node, ArraySizeConstraint.MIN);
-        if (value == null) {
-            value = p.getValueProperty(node, ArraySizeConstraint.MAX);
-            ret = new ArraySizeConstraint(ArraySizeConstraint.MAX);
-        } else {
-            ret = new ArraySizeConstraint(ArraySizeConstraint.MIN);
+    public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
+        if (!ArraySizeConstraint.MIN.equals(name) && !ArraySizeConstraint.MAX.equals(name)) {
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
+
+        Object value = p.getValueProperty(node, name);
+        ArraySizeConstraint ret = new ArraySizeConstraint(name);
+
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());
         } else {

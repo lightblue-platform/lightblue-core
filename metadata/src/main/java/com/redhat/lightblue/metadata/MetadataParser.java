@@ -163,7 +163,7 @@ public abstract class MetadataParser<T> {
         try {
             md.setStatus(statusFromString(getRequiredStringProperty(object, STR_VALUE)));
             List<T> logList = getObjectList(object, "log");
-            List<StatusChange> list = new ArrayList<StatusChange>();
+            List<StatusChange> list = new ArrayList<>();
             if (logList != null) {
                 for (T log : logList) {
                     StatusChange item = new StatusChange();
@@ -214,7 +214,7 @@ public abstract class MetadataParser<T> {
     public void parseEntityConstraints(EntityMetadata md,
                                        List<T> constraintList) {
         if (constraintList != null) {
-            List<EntityConstraint> entityConstraintList = new ArrayList<EntityConstraint>();
+            List<EntityConstraint> entityConstraintList = new ArrayList<>();
             for (T x : constraintList) {
                 // The constraint object must contain a single field
                 String name = getSingleFieldName(x, ERR_INVALID_CONSTRAINT);
@@ -224,7 +224,7 @@ public abstract class MetadataParser<T> {
                     if (parser == null) {
                         throw Error.get(ERR_INVALID_CONSTRAINT, name);
                     }
-                    EntityConstraint constraint = parser.parse(this, x);
+                    EntityConstraint constraint = parser.parse(name, this, x);
                     entityConstraintList.add(constraint);
                 } finally {
                     Error.pop();
@@ -241,7 +241,7 @@ public abstract class MetadataParser<T> {
         if (fieldConstraints != null) {
             // The constraint object must contain a single field
             Set<String> childNames = getChildNames(fieldConstraints);
-            List<FieldConstraint> constraints = new ArrayList<FieldConstraint>();
+            List<FieldConstraint> constraints = new ArrayList<>();
             for (String name : childNames) {
                 Error.push(name);
                 try {
@@ -250,7 +250,7 @@ public abstract class MetadataParser<T> {
                         throw Error.get(ERR_INVALID_CONSTRAINT, name);
                     }
                     // for each FieldConstraint call parse on the parent object
-                    FieldConstraint constraint = parser.parse(this, fieldConstraints);
+                    FieldConstraint constraint = parser.parse(name, this, fieldConstraints);
                     constraints.add(constraint);
                 } finally {
                     Error.pop();
@@ -325,7 +325,7 @@ public abstract class MetadataParser<T> {
             if (p == null) {
                 throw Error.get(ERR_UNKNOWN_DATASTORE, name);
             }
-            return p.parse(this, getObjectProperty(object, name));
+            return p.parse(name, this, getObjectProperty(object, name));
         } else {
             return null;
         }
@@ -725,14 +725,15 @@ public abstract class MetadataParser<T> {
     }
 
     private MetadataStatus statusFromString(String status) {
-        if ("active".equals(status)) {
-            return MetadataStatus.ACTIVE;
-        } else if ("deprecated".equals(status)) {
-            return MetadataStatus.DEPRECATED;
-        } else if ("disabled".equals(status)) {
-            return MetadataStatus.DISABLED;
-        } else {
-            throw Error.get(ERR_PARSE_INVALID_STATUS, status);
+        switch (status) {
+            case "active":
+                return MetadataStatus.ACTIVE;
+            case "deprecated":
+                return MetadataStatus.DEPRECATED;
+            case "disabled":
+                return MetadataStatus.DISABLED;
+            default:
+                throw Error.get(ERR_PARSE_INVALID_STATUS, status);
         }
     }
 

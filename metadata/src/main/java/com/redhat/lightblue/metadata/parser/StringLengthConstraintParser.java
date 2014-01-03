@@ -28,15 +28,14 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 public class StringLengthConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
-    public FieldConstraint parse(MetadataParser<T> p, T node) {
-        StringLengthConstraint ret;
-        Object value = p.getValueProperty(node, StringLengthConstraint.MINLENGTH);
-        if (value == null) {
-            value = p.getValueProperty(node, StringLengthConstraint.MAXLENGTH);
-            ret = new StringLengthConstraint(StringLengthConstraint.MAXLENGTH);
-        } else {
-            ret = new StringLengthConstraint(StringLengthConstraint.MINLENGTH);
+    public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
+        if (!StringLengthConstraint.MINLENGTH.equals(name) && !StringLengthConstraint.MAXLENGTH.equals(name)) {
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
+        
+        Object value = p.getValueProperty(node, name);
+        StringLengthConstraint ret  = new StringLengthConstraint(name);;
+
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());
         } else {

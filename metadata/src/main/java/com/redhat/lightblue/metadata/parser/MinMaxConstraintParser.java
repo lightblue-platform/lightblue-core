@@ -28,20 +28,20 @@ import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 public class MinMaxConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
-    public FieldConstraint parse(MetadataParser<T> p, T node) {
-        MinMaxConstraint ret;
-        Object value = p.getValueProperty(node, MinMaxConstraint.MIN);
-        if (value == null) {
-            value = p.getStringProperty(node, MinMaxConstraint.MAX);
-            ret = new MinMaxConstraint(MinMaxConstraint.MAX);
-        } else {
-            ret = new MinMaxConstraint(MinMaxConstraint.MIN);
+    public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
+        if (!MinMaxConstraint.MIN.equals(name) && !MinMaxConstraint.MAX.equals(name)) {
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
+
+        Object value = p.getValueProperty(node, name);
+        MinMaxConstraint ret = new MinMaxConstraint(name);
+
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());
         } else {
             throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, ret.getType());
         }
+        
         return ret;
     }
 

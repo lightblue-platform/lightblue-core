@@ -23,7 +23,6 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 /**
  * Interface for field constraint parsers
  */
-public interface FieldConstraintParser<NodeType>
-        extends Parser<NodeType, FieldConstraint> {
+public interface FieldConstraintParser<N> extends Parser<N, FieldConstraint> {
 
 }

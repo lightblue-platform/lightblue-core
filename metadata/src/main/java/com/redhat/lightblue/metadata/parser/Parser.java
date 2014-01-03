@@ -26,15 +26,15 @@ import com.redhat.lightblue.metadata.MetadataParser;
  * The <code>NodeType</code> refers to the type of the tree node in the document object tree. The parameter
  * <code>T</code> is the object returned once a node of type <code>NodeType</code> is parsed.
  */
-public interface Parser<NodeType, T> {
+public interface Parser<N, T> {
 
     /**
      * Return an object representation of the node
      */
-    T parse(MetadataParser<NodeType> p, NodeType node);
+    T parse(String name, MetadataParser<N> p, N node);
 
     /**
      * Intialize the empt node <code>emptyNode</code> with the contents of <code>object</code>
      */
-    void convert(MetadataParser<NodeType> p, NodeType emptyNode, T object);
+    void convert(MetadataParser<N> p, N emptyNode, T object);
 }

@@ -21,6 +21,8 @@ package com.redhat.lightblue.metadata.parser;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.redhat.lightblue.util.Error;
+
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.MetadataParser;
 
@@ -37,13 +39,19 @@ public class UniqueConstraintParser<T> implements EntityConstraintParser<T> {
      * Parses a UniqueConstraint at the given node
      */
     @Override
-    public EntityConstraint parse(MetadataParser<T> p, T node) {
+    public EntityConstraint parse(String name, MetadataParser<T> p, T node) {
+        if (!UniqueConstraint.UNIQUE.equals(name)) {
+            Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+        }
+
         UniqueConstraint ret = new UniqueConstraint();
         List<String> values = p.getStringList(node, UniqueConstraint.UNIQUE);
-        ArrayList<Path> l = new ArrayList<Path>();
+        ArrayList<Path> l = new ArrayList<>();
+        
         for (String x : values) {
             l.add(new Path(x));
         }
+        
         ret.setFields(l);
         return ret;
     }
