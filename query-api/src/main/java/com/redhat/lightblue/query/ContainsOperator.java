@@ -27,6 +27,7 @@ public enum ContainsOperator {
         this.op = op;
     }
 
+    @Override
     public String toString() {
         return op;
     }

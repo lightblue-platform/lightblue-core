@@ -8,9 +8,6 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -40,6 +37,8 @@ public class QueryParseTest {
 
     final String arrContains1 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[1,2,3,4,5]}";
     final String arrContains2 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[\"x\", \"y\"]}";
+    final String arrContains3 = "{\"array\":\"x.y\", \"contains\":\"$all\", \"values\":[\"x\", \"y\"]}";
+    final String arrContains4 = "{\"array\":\"x.y\", \"contains\":\"$none\", \"values\":[\"x\", \"y\"]}";
 
     final String arrMatch1 = "{\"array\":\"x.y\",\"elemMatch\":" + regexQuery1 + "}";
 
@@ -74,7 +73,7 @@ public class QueryParseTest {
         testRegexQuery(regexQuery2, "x.y", "*pat*", true, false, false, false);
     }
 
-    private static NestedTest u1NestedTest = new NestedTest() {
+    private static final NestedTest u1NestedTest = new NestedTest() {
         public void test(QueryExpression x) {
             asserts((ValueComparisonExpression) x, "x.y.z", BinaryComparisonOperator._eq, "string");
         }
@@ -84,6 +83,7 @@ public class QueryParseTest {
     public void testUnaries() throws Exception {
         testUnaryQuery(unaryQuery1, u1NestedTest);
         testUnaryQuery(unaryQuery2, new NestedTest() {
+            @Override
             public void test(QueryExpression x) {
                 asserts((RegexMatchExpression) x, "x.y", "*pat*", false, false, false, false);
             }
@@ -93,16 +93,19 @@ public class QueryParseTest {
     @Test
     public void testNaries() throws Exception {
         testNaryQuery(naryLogQuery1, new NestedTest() {
+            @Override
             public void test(QueryExpression x) {
                 asserts((ValueComparisonExpression) x, "x.y.z", BinaryComparisonOperator._eq, "string");
             }
         },
                 new NestedTest() {
+                    @Override
                     public void test(QueryExpression x) {
                         asserts((FieldComparisonExpression) x, "x.-1.y", BinaryComparisonOperator._eq, "y.z.-1");
                     }
                 },
                 new NestedTest() {
+                    @Override
                     public void test(QueryExpression x) {
                         asserts((NaryRelationalExpression) x, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
                     }
@@ -118,6 +121,8 @@ public class QueryParseTest {
     public void testArrContains() throws Exception {
         testArrContains(arrContains1, "x.y", ContainsOperator._any, 1, 2, 3, 4, 5);
         testArrContains(arrContains2, "x.y", ContainsOperator._any, "x", "y");
+        testArrContains(arrContains3, "x.y", ContainsOperator._all, "x", "y");
+        testArrContains(arrContains4, "x.y", ContainsOperator._none, "x", "y");
     }
 
     @Test

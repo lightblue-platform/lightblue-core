@@ -34,7 +34,7 @@ public class StringLengthConstraintParser<T> implements FieldConstraintParser<T>
         }
         
         Object value = p.getValueProperty(node, name);
-        StringLengthConstraint ret  = new StringLengthConstraint(name);;
+        StringLengthConstraint ret  = new StringLengthConstraint(name);
 
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());

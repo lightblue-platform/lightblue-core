@@ -37,7 +37,7 @@ public enum BinaryComparisonOperator {
     private static final Map<String, BinaryComparisonOperator> map;
 
     static {
-        map = new HashMap<String, BinaryComparisonOperator>();
+        map = new HashMap<>();
         _eq.init(map);
         _neq.init(map);
         _lt.init(map);
@@ -79,6 +79,7 @@ public enum BinaryComparisonOperator {
         }
     }
 
+    @Override
     public String toString() {
         return ops[0];
     }
