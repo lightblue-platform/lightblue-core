@@ -21,7 +21,6 @@ package com.redhat.lightblue.crud;
 import com.redhat.lightblue.crud.SetExpression;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.query.UpdateOperator;
 
 import com.redhat.lightblue.util.Error;
 

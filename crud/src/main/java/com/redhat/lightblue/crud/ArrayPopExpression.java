@@ -20,8 +20,6 @@ package com.redhat.lightblue.crud;
 
 import com.redhat.lightblue.crud.ArrayUpdateExpression;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.query.UpdateOperator;
-import com.redhat.lightblue.query.UpdateOperator;
 
 import com.redhat.lightblue.util.Path;
 

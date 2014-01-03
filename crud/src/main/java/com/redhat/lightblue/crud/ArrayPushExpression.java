@@ -26,8 +26,6 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.redhat.lightblue.query.UpdateOperator;
-import com.redhat.lightblue.query.UpdateOperator;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.Value;
 

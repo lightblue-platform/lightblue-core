@@ -26,8 +26,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.query.FieldValue;
-import com.redhat.lightblue.query.UpdateOperator;
 import com.redhat.lightblue.query.Value;
 
 import com.redhat.lightblue.util.Path;
