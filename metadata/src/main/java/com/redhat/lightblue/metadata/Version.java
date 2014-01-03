@@ -98,4 +98,22 @@ public class Version implements Serializable {
         this.changelog = argChangelog;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder str=new StringBuilder();
+        str.append(value);
+        if(extendsVersions!=null&&extendsVersions.length>0) {
+            str.append(" [");
+            for(int i=0;i<extendsVersions.length;i++) {
+                if(i>0)
+                    str.append(", ");
+                str.append(extendsVersions[i]);
+            }
+            str.append("]");
+        }
+        if(changelog!=null) {
+            str.append(" (").append(changelog).append(")");
+        }
+        return str.toString();
+    }
 }
