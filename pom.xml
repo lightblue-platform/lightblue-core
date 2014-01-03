@@ -91,4 +91,7 @@
         <module>metadata</module>
         <module>util</module>
     </modules>
+    <properties>
+        <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
+    </properties>
 </project>
