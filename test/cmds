@@ -1,0 +1,1 @@
+./run.sh dbName=test dbHost=localhost cmd=insert req='{"entity":"user","entityVersion":"0.1","data":{"object_type":"user","login":"testlogin1","firstName":"fname","lastName":"lname"},"returning":{"field":"_id"}}'
