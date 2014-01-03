@@ -18,29 +18,35 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
- * N-ary logical operators, and, or, and nor
+ * N-ary logical operators: and, or
  */
 public enum NaryLogicalOperator {
-    _and("$and"), _or("$or"), _nor("$nor");
+    _and("$and", "$all"), _or("$or", "$any");
 
-    private final String op;
+    private final List<String> ops;
 
-    private NaryLogicalOperator(String op) {
-        this.op = op;
+    private NaryLogicalOperator(String... ops) {
+        if (ops != null && ops.length > 0) {
+            this.ops = Arrays.asList(ops);
+        } else {
+            throw new RuntimeException("Operator list cannot be null or empty.");
+        }
     }
 
+    @Override
     public String toString() {
-        return op;
+        return ops.get(0);
     }
 
     public static NaryLogicalOperator fromString(String s) {
-        if (_and.op.equals(s)) {
+        if (_and.ops.contains(s)) {
             return _and;
-        } else if (_or.op.equals(s)) {
+        } else if (_or.ops.contains(s)) {
             return _or;
-        } else if (_nor.op.equals(s)) {
-            return _nor;
         } else {
             return null;
         }

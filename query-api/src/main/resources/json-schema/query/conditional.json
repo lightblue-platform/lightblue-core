@@ -16,25 +16,27 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "$any": {
-            "type": "array",
-            "minItems": 2,
-            "items": {
-                "$ref": "choice.json#/definitions/query"
-            }
-        },
         "$or": {
-            "$ref": "#/properties/$any"
-        },
-        "$all": {
             "type": "array",
             "minItems": 2,
             "items": {
                 "$ref": "choice.json#/definitions/query"
-            }
+            },
+            "description": "Match any of the conditions provided as queries."
+        },
+        "$any": {
+            "$ref": "#/properties/$or"
         },
         "$and": {
-            "$ref": "#/properties/$all"
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "$ref": "choice.json#/definitions/query"
+            },
+            "description": "Match all of the conditions provided as queries."
+        },
+        "$all": {
+            "$ref": "#/properties/$and"
         },
         "$not": {
             "$ref": "choice.json#/definitions/query"

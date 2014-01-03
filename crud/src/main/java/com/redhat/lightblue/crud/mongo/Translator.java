@@ -115,8 +115,7 @@ public class Translator {
 
         NARY_LOGICAL_OPERATOR_MAP = new HashMap<NaryLogicalOperator, String>();
         NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$and");
-        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$or");
-        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$nor");
+        NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._or, "$or");
 
         UNARY_LOGICAL_OPERATOR_MAP = new HashMap<UnaryLogicalOperator, String>();
         UNARY_LOGICAL_OPERATOR_MAP.put(UnaryLogicalOperator._not, "$not");
