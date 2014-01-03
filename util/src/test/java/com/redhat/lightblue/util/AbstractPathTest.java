@@ -367,7 +367,7 @@ public abstract class AbstractPathTest<T extends Path> {
     }
 
     @Test
-    public void matchingDescendant_true_diffLength() {
+    public void matchingDescendant_true_smallerLength() {
         T p = createPath();
 
         if (segments != null) {
@@ -384,11 +384,21 @@ public abstract class AbstractPathTest<T extends Path> {
     }
 
     @Test
-    public void matchingDescendant_false_diffLength() {
+    public void matchingDescendant_false_smallerLength() {
         T p = createPath();
 
         if (segments != null) {
             Path compare = new Path(p.prefix(p.numSegments() / 2).toString() + ".nope");
+
+            Assert.assertFalse(p.matchingDescendant(compare));
+        }
+    }
+    @Test
+    public void matchingDescendant_false_longerLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path compare = p.add(new Path("nope"));
 
             Assert.assertFalse(p.matchingDescendant(compare));
         }
@@ -405,10 +415,8 @@ public abstract class AbstractPathTest<T extends Path> {
         }
     }
 
-    
-    
     @Test
-    public void matchingPrefix_true_diffLength() {
+    public void matchingPrefix_true_smallerLength() {
         T p = createPath();
 
         if (segments != null) {
@@ -425,11 +433,22 @@ public abstract class AbstractPathTest<T extends Path> {
     }
 
     @Test
-    public void matchingPrefix_false_diffLength() {
+    public void matchingPrefix_false_smallerLength() {
         T p = createPath();
 
         if (segments != null) {
             Path compare = new Path(p.prefix(p.numSegments() / 2).toString() + ".nope");
+
+            Assert.assertFalse(compare.matchingPrefix(p));
+        }
+    }
+
+    @Test
+    public void matchingPrefix_false_longerLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path compare = p.add(new Path("nope"));
 
             Assert.assertFalse(compare.matchingPrefix(p));
         }

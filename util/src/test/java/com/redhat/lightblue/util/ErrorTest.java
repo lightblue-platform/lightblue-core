@@ -8,10 +8,11 @@ package com.redhat.lightblue.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  *
@@ -188,5 +189,23 @@ public class ErrorTest {
         }
 
         Assert.assertEquals(buff.toString(), result.getContext());
+    }
+
+    @Test
+    public void toJson() throws JSONException {
+        Error e = Error.get("a", "b", "c");
+        JsonNode node = e.toJson();
+        JSONAssert.assertEquals("{object_type:error,context:a,errorCode:b,msg:c}", node.toString(), false);
+    }
+
+    @Test
+    public void fromJson() {
+        Error e = Error.get("a", "b", "c");
+        JsonNode node = e.toJson();
+        // toJson test passes, we can trust this to be valid JsonNode
+        Error fromJson = Error.fromJson(node);
+        Assert.assertEquals("a", fromJson.getContext());
+        Assert.assertEquals("b", fromJson.getErrorCode());
+        Assert.assertEquals("c", fromJson.getMsg());
     }
 }

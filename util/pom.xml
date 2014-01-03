@@ -58,6 +58,11 @@
             <!-- don't make scope test, is needed by abstract test(s) in src/main -->
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

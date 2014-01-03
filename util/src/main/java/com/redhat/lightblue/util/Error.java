@@ -45,9 +45,9 @@ public class Error extends RuntimeException {
 
     public static final char DELIMITER = '/';
 
-    private ArrayDeque<String> context = new ArrayDeque<>();
-    private String errorCode;
-    private String msg;
+    private final ArrayDeque<String> context;
+    private final String errorCode;
+    private final String msg;
 
     /**
      * Pushes the given context information to the current thread stack
@@ -98,12 +98,8 @@ public class Error extends RuntimeException {
         threadContext.remove();
     }
 
-    public Error() {
-        context = new ArrayDeque<>();
-    }
-
-    public Error(String errorCode, String msg) {
-        this();
+    private Error(String errorCode, String msg) {
+        this.context = new ArrayDeque<>();
         this.errorCode = errorCode;
         this.msg = msg;
     }
@@ -122,16 +118,8 @@ public class Error extends RuntimeException {
         this.context.removeLast();
     }
 
-    public void setErrorCode(String code) {
-        errorCode = code;
-    }
-
     public String getErrorCode() {
         return errorCode;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
     }
 
     public String getMsg() {
@@ -176,22 +164,30 @@ public class Error extends RuntimeException {
 
     public static Error fromJson(JsonNode node) {
         if (node instanceof ObjectNode) {
-            Error ret = new Error();
-            JsonNode x = ((ObjectNode) node).get("context");
+            String e = null;
+            String m = null;
+
+            JsonNode x;
+
+            x = ((ObjectNode) node).get("errorCode");
+            if (x != null) {
+                e = x.asText();
+            }
+            x = ((ObjectNode) node).get("msg");
+            if (x != null) {
+                m = x.asText();
+            }
+
+            Error ret = new Error(e, m);
+
+            x = ((ObjectNode) node).get("context");
             if (x != null) {
                 StringTokenizer tok = new StringTokenizer(x.asText(), "/");
                 while (tok.hasMoreTokens()) {
                     ret.pushContext(tok.nextToken());
                 }
             }
-            x = ((ObjectNode) node).get("errorCode");
-            if (x != null) {
-                ret.errorCode = x.asText();
-            }
-            x = ((ObjectNode) node).get("msg");
-            if (x != null) {
-                ret.msg = x.asText();
-            }
+
             return ret;
         }
         return null;

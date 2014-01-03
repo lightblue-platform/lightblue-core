@@ -360,10 +360,7 @@ public class MongoCRUDController implements CRUDController {
                                String context,
                                String errorCode,
                                String msg) {
-        Error error = new Error();
-        error.pushContext(context);
-        error.setErrorCode(errorCode);
-        error.setMsg(msg);
+        Error error = Error.get(context, errorCode, msg);
         addErrorToMap(map, obj, error);
     }
 
