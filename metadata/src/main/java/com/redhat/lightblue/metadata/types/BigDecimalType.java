@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-
 import com.redhat.lightblue.util.Error;
 
 public final class BigDecimalType implements Type, Serializable {

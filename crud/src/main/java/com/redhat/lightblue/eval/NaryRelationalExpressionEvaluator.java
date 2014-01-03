@@ -44,7 +44,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
     private final List<Object> values;
 
     public NaryRelationalExpressionEvaluator(NaryRelationalExpression expr,
-            FieldTreeNode context) {
+                                             FieldTreeNode context) {
         field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {

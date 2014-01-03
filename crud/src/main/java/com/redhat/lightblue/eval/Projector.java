@@ -105,8 +105,8 @@ public abstract class Projector {
      * Projects a document
      */
     public JsonDoc project(JsonDoc doc,
-            JsonNodeFactory factory,
-            QueryEvaluationContext ctx) {
+                           JsonNodeFactory factory,
+                           QueryEvaluationContext ctx) {
         JsonNodeCursor cursor = doc.cursor();
         cursor.firstChild();
         ObjectNode root = projectObject(this,
@@ -119,11 +119,11 @@ public abstract class Projector {
     }
 
     private ObjectNode projectObject(Projector projector,
-            JsonNodeFactory factory,
-            FieldTreeNode mdContext,
-            Path contextPath,
-            JsonNodeCursor cursor,
-            QueryEvaluationContext ctx) {
+                                     JsonNodeFactory factory,
+                                     FieldTreeNode mdContext,
+                                     Path contextPath,
+                                     JsonNodeCursor cursor,
+                                     QueryEvaluationContext ctx) {
         ObjectNode ret = factory.objectNode();
         do {
             Path fieldPath = cursor.getCurrentPath();
@@ -192,11 +192,11 @@ public abstract class Projector {
     }
 
     private JsonNode projectArrayElement(Projector projector,
-            JsonNodeFactory factory,
-            ArrayElement mdContext,
-            Path contextPath,
-            JsonNodeCursor cursor,
-            QueryEvaluationContext ctx) {
+                                         JsonNodeFactory factory,
+                                         ArrayElement mdContext,
+                                         Path contextPath,
+                                         JsonNodeCursor cursor,
+                                         QueryEvaluationContext ctx) {
         Path elemPath = cursor.getCurrentPath();
         logger.debug("Project array element {}  context {}", elemPath, contextPath);
         Boolean result = projector.project(elemPath, ctx);

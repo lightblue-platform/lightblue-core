@@ -39,8 +39,8 @@ public class CRUDSaveResponse implements Serializable {
     }
 
     public CRUDSaveResponse(List<JsonDoc> docs,
-            List<DataError> dataErrors,
-            List<Error> errors) {
+                            List<DataError> dataErrors,
+                            List<Error> errors) {
         this.documents = docs;
         this.dataErrors = dataErrors;
         this.errors = errors;

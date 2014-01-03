@@ -51,10 +51,10 @@ public class OperationContext implements MetadataResolver, Serializable {
     private Operation operation;
 
     public OperationContext(Request request,
-            Response response,
-            EntityMetadata metadata,
-            Metadata md,
-            Factory factory) {
+                            Response response,
+                            EntityMetadata metadata,
+                            Metadata md,
+                            Factory factory) {
         this.request = request;
         this.response = response;
         this.md = md;

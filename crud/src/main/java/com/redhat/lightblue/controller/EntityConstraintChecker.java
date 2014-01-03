@@ -38,6 +38,6 @@ public interface EntityConstraintChecker {
      * The function should add the errors to validator
      */
     void checkConstraint(ConstraintValidator validator,
-            EntityConstraint constraint,
-            JsonDoc doc);
+                         EntityConstraint constraint,
+                         JsonDoc doc);
 }

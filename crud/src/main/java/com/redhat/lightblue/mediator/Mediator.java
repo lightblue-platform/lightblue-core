@@ -69,7 +69,7 @@ public class Mediator {
     private final Factory factory;
 
     public Mediator(Metadata md,
-            Factory factory) {
+                    Factory factory) {
         this.metadata = md;
         this.factory = factory;
     }
@@ -271,9 +271,9 @@ public class Mediator {
     }
 
     private OperationContext getOperationContext(Request req,
-            Response resp,
-            JsonNode entityData,
-            Operation op) {
+                                                 Response resp,
+                                                 JsonNode entityData,
+                                                 Operation op) {
         logger.debug("getOperationContext start");
         OperationContext ctx
                 = new OperationContext(req, resp,

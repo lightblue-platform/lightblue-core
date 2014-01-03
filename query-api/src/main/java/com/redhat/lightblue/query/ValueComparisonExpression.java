@@ -45,8 +45,8 @@ public class ValueComparisonExpression
      * Initializes all fields
      */
     public ValueComparisonExpression(Path field,
-            BinaryComparisonOperator op,
-            Value rvalue) {
+                                     BinaryComparisonOperator op,
+                                     Value rvalue) {
         this.field = field;
         this.op = op;
         this.rvalue = rvalue;

@@ -136,10 +136,12 @@ public class QueryJsonSchemaTest extends AbstractJsonSchemaTest {
     public void validArrayContainsAny() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/query/array-contains.json", "query/schema-test-query-array-contains-any.json");
     }
+
     @Test
     public void validArrayContainsAll() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/query/array-contains.json", "query/schema-test-query-array-contains-all.json");
     }
+
     @Test
     public void validArrayContainsNone() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/query/array-contains.json", "query/schema-test-query-array-contains-none.json");

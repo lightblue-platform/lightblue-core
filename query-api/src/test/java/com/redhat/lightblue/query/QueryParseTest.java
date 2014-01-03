@@ -130,9 +130,9 @@ public class QueryParseTest {
     }
 
     private void testValueComparisonExpression(String q,
-            String field,
-            BinaryComparisonOperator op,
-            Object value)
+                                               String field,
+                                               BinaryComparisonOperator op,
+                                               Object value)
             throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof ValueComparisonExpression);
@@ -141,9 +141,9 @@ public class QueryParseTest {
     }
 
     private static void asserts(ValueComparisonExpression x,
-            String field,
-            BinaryComparisonOperator op,
-            Object value) {
+                                String field,
+                                BinaryComparisonOperator op,
+                                Object value) {
         Assert.assertEquals(field, x.getField().toString());
         Assert.assertEquals(op, x.getOp());
         Assert.assertTrue(value.getClass().equals(x.getRvalue().getValue().getClass()));
@@ -151,9 +151,9 @@ public class QueryParseTest {
     }
 
     private void testFieldComparisonExpression(String q,
-            String field,
-            BinaryComparisonOperator op,
-            String rfield)
+                                               String field,
+                                               BinaryComparisonOperator op,
+                                               String rfield)
             throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof FieldComparisonExpression);
@@ -168,9 +168,9 @@ public class QueryParseTest {
     }
 
     private void testNaryRelationalExpression(String q,
-            String field,
-            NaryRelationalOperator op,
-            Object... value)
+                                              String field,
+                                              NaryRelationalOperator op,
+                                              Object... value)
             throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof NaryRelationalExpression);
@@ -188,12 +188,12 @@ public class QueryParseTest {
     }
 
     private void testRegexQuery(String q,
-            String field,
-            String regex,
-            boolean c,
-            boolean m,
-            boolean x,
-            boolean d)
+                                String field,
+                                String regex,
+                                boolean c,
+                                boolean m,
+                                boolean x,
+                                boolean d)
             throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof RegexMatchExpression);
@@ -203,12 +203,12 @@ public class QueryParseTest {
     }
 
     private static void asserts(RegexMatchExpression x,
-            String field,
-            String regex,
-            boolean c,
-            boolean m,
-            boolean ox,
-            boolean d) {
+                                String field,
+                                String regex,
+                                boolean c,
+                                boolean m,
+                                boolean ox,
+                                boolean d) {
         Assert.assertEquals(field, x.getField().toString());
         Assert.assertEquals(regex, x.getRegex());
         Assert.assertEquals(c, x.isCaseInsensitive());

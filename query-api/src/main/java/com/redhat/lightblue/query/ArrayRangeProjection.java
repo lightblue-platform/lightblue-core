@@ -30,10 +30,10 @@ public class ArrayRangeProjection extends ArrayProjection {
     private final int to;
 
     public ArrayRangeProjection(Path field,
-            boolean include,
-            Projection project,
-            int from,
-            int to) {
+                                boolean include,
+                                Projection project,
+                                int from,
+                                int to) {
         super(field, include, project);
         this.from = from;
         this.to = to;

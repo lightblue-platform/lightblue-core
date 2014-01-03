@@ -44,7 +44,7 @@ public class NaryLogicalExpression extends LogicalExpression {
      * Ctor with the given values
      */
     public NaryLogicalExpression(NaryLogicalOperator op,
-            List<QueryExpression> queries) {
+                                 List<QueryExpression> queries) {
         this.op = op;
         this.queries = queries;
     }

@@ -26,7 +26,6 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 
-
 public interface CRUDController {
 
     /**
@@ -43,8 +42,8 @@ public interface CRUDController {
      * projected and returned, otherwise, no data is returned.
      */
     CRUDInsertionResponse insert(MetadataResolver resolver,
-            List<JsonDoc> documents,
-            Projection projection);
+                                 List<JsonDoc> documents,
+                                 Projection projection);
 
     /**
      * Performs update or insertion of documents to the back end
@@ -62,9 +61,9 @@ public interface CRUDController {
      * non-null, the data must be projected and returned, otherwise, no data is returned.
      */
     CRUDSaveResponse save(MetadataResolver resolver,
-            List<JsonDoc> documents,
-            boolean upsert,
-            Projection projection);
+                          List<JsonDoc> documents,
+                          boolean upsert,
+                          Projection projection);
 
     /**
      * Searches for documents
@@ -78,11 +77,11 @@ public interface CRUDController {
      * @param to end index in the result set. Starts from 0, and inclusive. Can be null.
      */
     CRUDFindResponse find(MetadataResolver resolver,
-            String entity,
-            QueryExpression query,
-            Projection projection,
-            Sort sort,
-            Long from,
-            Long to);
+                          String entity,
+                          QueryExpression query,
+                          Projection projection,
+                          Sort sort,
+                          Long from,
+                          Long to);
 
 }

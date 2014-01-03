@@ -39,8 +39,8 @@ public interface FieldConstraintDocChecker extends FieldConstraintChecker {
      * The function should add the errors to validator
      */
     void checkConstraint(ConstraintValidator validator,
-            FieldTreeNode fieldMetadata,
-            Path fieldMetadataPath,
-            FieldConstraint constraint,
-            JsonDoc doc);
+                         FieldTreeNode fieldMetadata,
+                         Path fieldMetadataPath,
+                         FieldConstraint constraint,
+                         JsonDoc doc);
 }

@@ -37,7 +37,7 @@ import com.redhat.lightblue.metadata.Extensions;
 public class BSONParser extends MetadataParser<BSONObject> {
 
     public BSONParser(Extensions<BSONObject> ex,
-            TypeResolver resolver) {
+                      TypeResolver resolver) {
         super(ex, resolver);
     }
 

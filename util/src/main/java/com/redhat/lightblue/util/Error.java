@@ -42,7 +42,7 @@ public class Error extends RuntimeException {
             return new ArrayDeque<>();
         }
     };
-    
+
     public static final char DELIMITER = '/';
 
     private ArrayDeque<String> context = new ArrayDeque<>();

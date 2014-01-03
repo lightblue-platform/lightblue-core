@@ -30,8 +30,8 @@ public abstract class ArrayProjection extends BasicProjection {
     private final Projection project;
 
     public ArrayProjection(Path field,
-            boolean include,
-            Projection project) {
+                           boolean include,
+                           Projection project) {
         this.field = field;
         this.include = include;
         this.project = project == null ? FieldProjection.ALL : project;

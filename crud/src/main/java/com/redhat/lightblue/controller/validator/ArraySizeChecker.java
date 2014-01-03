@@ -40,12 +40,12 @@ public class ArraySizeChecker implements FieldConstraintValueChecker {
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
-            FieldTreeNode fieldMetadata,
-            Path fieldMetadataPath,
-            FieldConstraint constraint,
-            Path valuePath,
-            JsonDoc doc,
-            JsonNode fieldValue) {
+                                FieldTreeNode fieldMetadata,
+                                Path fieldMetadataPath,
+                                FieldConstraint constraint,
+                                Path valuePath,
+                                JsonDoc doc,
+                                JsonNode fieldValue) {
         int value = ((ArraySizeConstraint) constraint).getValue();
         String type = ((ArraySizeConstraint) constraint).getType();
         if (ArraySizeConstraint.MIN.equals(type)) {

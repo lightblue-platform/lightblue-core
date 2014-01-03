@@ -23,8 +23,8 @@ import com.redhat.lightblue.util.Path;
 public class ArrayMatchingElementsProjection extends ArrayProjection {
 
     public ArrayMatchingElementsProjection(Path field,
-            boolean include,
-            Projection project) {
+                                           boolean include,
+                                           Projection project) {
         super(field, include, project);
     }
 }

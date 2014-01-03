@@ -48,7 +48,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
      * @param context The path relative to which the expression will be evaluated
      */
     public FieldComparisonEvaluator(FieldComparisonExpression expr,
-            FieldTreeNode context) {
+                                    FieldTreeNode context) {
         this.relativePath = expr.getField();
         this.rfieldRelativePath = expr.getRfield();
         fieldMd = context.resolve(relativePath);

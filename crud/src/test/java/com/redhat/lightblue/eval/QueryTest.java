@@ -106,8 +106,8 @@ public class QueryTest extends AbstractJsonNodeTest {
     }
 
     private QueryEvaluationContext runQuery(EntityMetadata md,
-            JsonDoc doc,
-            QueryExpression query) throws Exception {
+                                            JsonDoc doc,
+                                            QueryExpression query) throws Exception {
         QueryEvaluator eval = QueryEvaluator.getInstance(query, md);
         return eval.evaluate(doc);
     }

@@ -49,7 +49,7 @@ public interface Metadata extends Serializable {
      * Sets the status of a particular version of an entity
      */
     void setMetadataStatus(String entityName,
-            String version,
-            MetadataStatus newStatus,
-            String comment);
+                           String version,
+                           MetadataStatus newStatus,
+                           String comment);
 }

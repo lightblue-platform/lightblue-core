@@ -47,7 +47,7 @@ public class RegexEvaluator extends QueryEvaluator {
      * @param context The path relative to which the expression will be evaluated
      */
     public RegexEvaluator(RegexMatchExpression expr,
-            FieldTreeNode context) {
+                          FieldTreeNode context) {
         this.relativePath = expr.getField();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {

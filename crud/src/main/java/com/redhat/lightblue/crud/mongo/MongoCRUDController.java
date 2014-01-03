@@ -80,7 +80,7 @@ public class MongoCRUDController implements CRUDController {
     private final DBResolver dbResolver;
 
     public MongoCRUDController(JsonNodeFactory factory,
-            DBResolver dbResolver) {
+                               DBResolver dbResolver) {
         this.factory = factory;
         this.dbResolver = dbResolver;
     }
@@ -90,8 +90,8 @@ public class MongoCRUDController implements CRUDController {
      */
     @Override
     public CRUDInsertionResponse insert(MetadataResolver resolver,
-            List<JsonDoc> documents,
-            Projection projection) {
+                                        List<JsonDoc> documents,
+                                        Projection projection) {
         if (documents == null || documents.isEmpty()) {
             throw new IllegalArgumentException("Empty documents");
         }
@@ -171,9 +171,9 @@ public class MongoCRUDController implements CRUDController {
 
     @Override
     public CRUDSaveResponse save(MetadataResolver resolver,
-            List<JsonDoc> documents,
-            boolean upsert,
-            Projection projection) {
+                                 List<JsonDoc> documents,
+                                 boolean upsert,
+                                 Projection projection) {
         if (documents == null || documents.isEmpty()) {
             throw new IllegalArgumentException("Empty documents");
         }
@@ -262,12 +262,12 @@ public class MongoCRUDController implements CRUDController {
      */
     @Override
     public CRUDFindResponse find(MetadataResolver resolver,
-            String entity,
-            QueryExpression query,
-            Projection projection,
-            Sort sort,
-            Long from,
-            Long to) {
+                                 String entity,
+                                 QueryExpression query,
+                                 Projection projection,
+                                 Sort sort,
+                                 Long from,
+                                 Long to) {
         if (query == null) {
             throw new IllegalArgumentException("Null query");
         }
@@ -326,8 +326,8 @@ public class MongoCRUDController implements CRUDController {
     }
 
     private JsonDoc translateAndProject(DBObject doc,
-            Translator translator,
-            Map<String, Projector> projectorMap) {
+                                        Translator translator,
+                                        Map<String, Projector> projectorMap) {
         JsonDoc jsonDoc = translator.toJson(doc);
         logger.debug("Translated doc: {}", jsonDoc);
         String objectType = jsonDoc.get(Translator.OBJECT_TYPE).asText();
@@ -341,8 +341,8 @@ public class MongoCRUDController implements CRUDController {
      * Builds a map of objectType->DocProjector for all the object types given
      */
     private Map<String, Projector> buildProjectorMap(Projection projection,
-            Set<String> objectTypes,
-            MetadataResolver resolver) {
+                                                     Set<String> objectTypes,
+                                                     MetadataResolver resolver) {
         Map<String, Projector> projectorMap = new HashMap<String, Projector>();
         if (projection != null) {
             for (String objectType : objectTypes) {
@@ -356,10 +356,10 @@ public class MongoCRUDController implements CRUDController {
     }
 
     private void addErrorToMap(Map<DBObject, List<Error>> map,
-            DBObject obj,
-            String context,
-            String errorCode,
-            String msg) {
+                               DBObject obj,
+                               String context,
+                               String errorCode,
+                               String msg) {
         Error error = new Error();
         error.pushContext(context);
         error.setErrorCode(errorCode);

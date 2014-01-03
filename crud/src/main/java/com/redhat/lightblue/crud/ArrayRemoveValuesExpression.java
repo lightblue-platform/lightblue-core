@@ -45,7 +45,7 @@ public class ArrayRemoveValuesExpression extends ArrayUpdateExpression {
     }
 
     public ArrayRemoveValuesExpression(Path field,
-            Value... l) {
+                                       Value... l) {
         this(field, Arrays.asList(l));
     }
 

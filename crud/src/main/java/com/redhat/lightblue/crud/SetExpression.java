@@ -44,13 +44,13 @@ public class SetExpression extends FieldUpdateExpression {
     }
 
     public SetExpression(UpdateOperator op,
-            List<FieldValue> values) {
+                         List<FieldValue> values) {
         setOp(op);
         this.values = values;
     }
 
     public SetExpression(UpdateOperator op,
-            FieldValue... i) {
+                         FieldValue... i) {
         this(op, Arrays.asList(i));
     }
 

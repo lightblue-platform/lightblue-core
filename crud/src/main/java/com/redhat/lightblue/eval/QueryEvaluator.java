@@ -44,12 +44,12 @@ public abstract class QueryEvaluator {
     }
 
     public static QueryEvaluator getInstance(QueryExpression expr,
-            EntityMetadata md) {
+                                             EntityMetadata md) {
         return getInstance(expr, md.getFieldTreeRoot());
     }
 
     public static QueryEvaluator getInstance(QueryExpression expr,
-            FieldTreeNode context) {
+                                             FieldTreeNode context) {
         QueryEvaluator ret = null;
         if (expr instanceof ValueComparisonExpression) {
             return new ValueComparisonEvaluator((ValueComparisonExpression) expr, context);

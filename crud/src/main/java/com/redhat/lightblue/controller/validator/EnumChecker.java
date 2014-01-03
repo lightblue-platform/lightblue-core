@@ -40,12 +40,12 @@ public class EnumChecker implements FieldConstraintValueChecker {
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
-            FieldTreeNode fieldMetadata,
-            Path fieldMetadataPath,
-            FieldConstraint constraint,
-            Path valuePath,
-            JsonDoc doc,
-            JsonNode fieldValue) {
+                                FieldTreeNode fieldMetadata,
+                                Path fieldMetadataPath,
+                                FieldConstraint constraint,
+                                Path valuePath,
+                                JsonDoc doc,
+                                JsonNode fieldValue) {
         Set<String> values = ((EnumConstraint) constraint).getValues();
         if (!values.contains(fieldValue.asText())) {
             validator.addDocError(Error.get(ERR_INVALID_ENUM, fieldValue.asText()));

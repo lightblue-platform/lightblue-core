@@ -48,10 +48,10 @@ public class RegexMatchExpression
      * Constructs a regular expression match expression using the values
      */
     public RegexMatchExpression(Path field, String regex,
-            boolean caseInsensitive,
-            boolean multiline,
-            boolean extended,
-            boolean dotall) {
+                                boolean caseInsensitive,
+                                boolean multiline,
+                                boolean extended,
+                                boolean dotall) {
         this.field = field;
         this.regex = regex;
         this.caseInsensitive = caseInsensitive;

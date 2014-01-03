@@ -38,7 +38,7 @@ public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
     private final NaryLogicalOperator operator;
 
     public NaryLogicalExpressionEvaluator(NaryLogicalExpression expr,
-            FieldTreeNode context) {
+                                          FieldTreeNode context) {
         List<QueryExpression> queries = expr.getQueries();
         evaluators = new ArrayList<>(queries.size());
         for (QueryExpression q : queries) {

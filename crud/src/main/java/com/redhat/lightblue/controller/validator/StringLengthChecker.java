@@ -39,12 +39,12 @@ public class StringLengthChecker implements FieldConstraintValueChecker {
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
-            FieldTreeNode fieldMetadata,
-            Path fieldMetadataPath,
-            FieldConstraint constraint,
-            Path valuePath,
-            JsonDoc doc,
-            JsonNode fieldValue) {
+                                FieldTreeNode fieldMetadata,
+                                Path fieldMetadataPath,
+                                FieldConstraint constraint,
+                                Path valuePath,
+                                JsonDoc doc,
+                                JsonNode fieldValue) {
         int value = ((StringLengthConstraint) constraint).getValue();
         String type = ((StringLengthConstraint) constraint).getType();
         int len = fieldValue.asText().length();

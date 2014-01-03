@@ -48,8 +48,8 @@ public class DocIndex {
         private final List<DBObject> docs = new ArrayList<DBObject>();
 
         public DocGroup(String objectType,
-                DB db,
-                DBCollection collection) {
+                        DB db,
+                        DBCollection collection) {
             this.objectType = objectType;
             this.db = db;
             this.collection = collection;
@@ -57,7 +57,7 @@ public class DocIndex {
     }
 
     public DocIndex(MetadataResolver mdResolver,
-            DBResolver dbResolver) {
+                    DBResolver dbResolver) {
         this.mdResolver = mdResolver;
         this.dbResolver = dbResolver;
     }

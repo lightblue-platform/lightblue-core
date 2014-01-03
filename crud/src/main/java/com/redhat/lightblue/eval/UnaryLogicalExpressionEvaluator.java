@@ -34,7 +34,7 @@ public class UnaryLogicalExpressionEvaluator extends QueryEvaluator {
     private final UnaryLogicalOperator operator;
 
     public UnaryLogicalExpressionEvaluator(UnaryLogicalExpression expr,
-            FieldTreeNode context) {
+                                           FieldTreeNode context) {
         evaluator = QueryEvaluator.getInstance(expr.getQuery(), context);
         operator = expr.getOp();
     }

@@ -130,7 +130,7 @@ public class Translator {
      * Constructs a translator using the given metadata resolver and factory
      */
     public Translator(MetadataResolver mdResolver,
-            JsonNodeFactory factory) {
+                      JsonNodeFactory factory) {
         this.mdResolver = mdResolver;
         this.factory = factory;
     }
@@ -503,9 +503,9 @@ public class Translator {
     }
 
     private JsonNode arrayElementToJson(Object value,
-            ArrayElement el,
-            EntityMetadata md,
-            FieldCursor mdCursor) {
+                                        ArrayElement el,
+                                        EntityMetadata md,
+                                        FieldCursor mdCursor) {
         JsonNode ret = null;
         if (el instanceof SimpleArrayElement) {
             if (value != null) {
@@ -545,9 +545,9 @@ public class Translator {
     }
 
     private void toBson(BasicDBObject dest,
-            SimpleField fieldMd,
-            Path path,
-            JsonNode node) {
+                        SimpleField fieldMd,
+                        Path path,
+                        JsonNode node) {
         Object value = toValue(fieldMd.getType(), node);
         // Should we add fields with null values to the bson doc? 
         if (value != null) {

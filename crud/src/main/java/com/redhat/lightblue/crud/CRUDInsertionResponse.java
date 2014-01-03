@@ -39,8 +39,8 @@ public class CRUDInsertionResponse implements Serializable {
     }
 
     public CRUDInsertionResponse(List<JsonDoc> docs,
-            List<DataError> dataErrors,
-            List<Error> errors) {
+                                 List<DataError> dataErrors,
+                                 List<Error> errors) {
         this.documents = docs;
         this.dataErrors = dataErrors;
         this.errors = errors;

@@ -47,8 +47,8 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
      * Ctor with the given values
      */
     public ArrayContainsExpression(Path array,
-            ContainsOperator op,
-            List<Value> values) {
+                                   ContainsOperator op,
+                                   List<Value> values) {
         this.array = array;
         this.op = op;
         this.values = values;
@@ -62,8 +62,8 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
      * @param v Values
      */
     public ArrayContainsExpression(Path array,
-            ContainsOperator op,
-            Value... v) {
+                                   ContainsOperator op,
+                                   Value... v) {
         this(array, op, Arrays.asList(v));
     }
 

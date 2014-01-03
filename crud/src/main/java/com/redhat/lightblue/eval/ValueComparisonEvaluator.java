@@ -46,7 +46,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
      * @param md Entity metadata
      */
     public ValueComparisonEvaluator(ValueComparisonExpression expr,
-            FieldTreeNode context) {
+                                    FieldTreeNode context) {
         this.field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {

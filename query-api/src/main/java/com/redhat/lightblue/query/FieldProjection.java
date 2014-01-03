@@ -31,8 +31,8 @@ public class FieldProjection extends BasicProjection {
     private boolean recursive = false;
 
     public FieldProjection(Path field,
-            boolean include,
-            boolean recursive) {
+                           boolean include,
+                           boolean recursive) {
         this.field = field;
         this.include = include;
         this.recursive = recursive;

@@ -39,7 +39,7 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
      * Ctor with the given values
      */
     public ArrayMatchExpression(Path array,
-            QueryExpression elemMatch) {
+                                QueryExpression elemMatch) {
         this.array = array;
         this.elemMatch = elemMatch;
     }

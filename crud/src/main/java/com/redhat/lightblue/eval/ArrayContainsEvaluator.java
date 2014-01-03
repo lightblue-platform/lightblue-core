@@ -46,7 +46,7 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
     private final SimpleArrayElement elem;
 
     public ArrayContainsEvaluator(ArrayContainsExpression expr,
-            FieldTreeNode context) {
+                                  FieldTreeNode context) {
         this.expr = expr;
         FieldTreeNode node = context.resolve(expr.getArray());
         if (node == null) {

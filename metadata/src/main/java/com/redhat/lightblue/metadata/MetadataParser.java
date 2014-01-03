@@ -72,7 +72,7 @@ public abstract class MetadataParser<T> {
     private final TypeResolver typeResolver;
 
     public MetadataParser(Extensions<T> ex,
-            TypeResolver typeResolver) {
+                          TypeResolver typeResolver) {
         this.extensions = ex;
         this.typeResolver = typeResolver;
     }
@@ -191,7 +191,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the entity access element
      */
     public void parseEntityAccess(EntityAccess access,
-            T object) {
+                                  T object) {
         Error.push(STR_ACCESS);
         try {
             if (object != null) {
@@ -212,7 +212,7 @@ public abstract class MetadataParser<T> {
      * constraint data can be a simple value, an array, or an object.
      */
     public void parseEntityConstraints(EntityMetadata md,
-            List<T> constraintList) {
+                                       List<T> constraintList) {
         if (constraintList != null) {
             List<EntityConstraint> entityConstraintList = new ArrayList<EntityConstraint>();
             for (T x : constraintList) {
@@ -237,7 +237,7 @@ public abstract class MetadataParser<T> {
     }
 
     public void parseFieldConstraints(Field field,
-            T fieldConstraints) {
+                                      T fieldConstraints) {
         if (fieldConstraints != null) {
             // The constraint object must contain a single field
             Set<String> childNames = getChildNames(fieldConstraints);
@@ -270,7 +270,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the field access element
      */
     public void parseFieldAccess(FieldAccess access,
-            T object) {
+                                 T object) {
         Error.push(STR_ACCESS);
         try {
             if (object != null) {
@@ -295,7 +295,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the fields element
      */
     public void parseFields(Fields fields,
-            T object) {
+                            T object) {
         Error.push(STR_FIELDS);
         try {
             if (object != null) {
@@ -373,7 +373,7 @@ public abstract class MetadataParser<T> {
     }
 
     private Field parseSimpleField(String name,
-            String type) {
+                                   String type) {
         SimpleField field = new SimpleField(name);
         Type t = typeResolver.getType(type);
         if (t == null) {
@@ -384,7 +384,7 @@ public abstract class MetadataParser<T> {
     }
 
     private Field parseReferenceField(String name,
-            T object) {
+                                      T object) {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, "entity"));
         field.setVersionValue(getRequiredStringProperty(object, "versionValue"));
@@ -404,7 +404,7 @@ public abstract class MetadataParser<T> {
     }
 
     private Field parseObjectField(String name,
-            T object) {
+                                   T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
         parseFields(field.getFields(), fields);
@@ -412,7 +412,7 @@ public abstract class MetadataParser<T> {
     }
 
     private Field parseArrayField(String name,
-            T object) {
+                                  T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, "items");
         field.setElement(parseArrayItem(items));

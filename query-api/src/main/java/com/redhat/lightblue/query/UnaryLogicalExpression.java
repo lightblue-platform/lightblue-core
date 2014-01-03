@@ -34,7 +34,7 @@ public class UnaryLogicalExpression extends LogicalExpression {
     private final QueryExpression query;
 
     public UnaryLogicalExpression(UnaryLogicalOperator op,
-            QueryExpression query) {
+                                  QueryExpression query) {
         this.op = op;
         this.query = query;
     }

@@ -28,9 +28,9 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
     private final QueryExpression match;
 
     public ArrayQueryMatchProjection(Path field,
-            boolean include,
-            Projection project,
-            QueryExpression match) {
+                                     boolean include,
+                                     Projection project,
+                                     QueryExpression match) {
         super(field, include, project);
         this.match = match;
     }

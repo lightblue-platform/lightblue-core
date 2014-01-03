@@ -22,7 +22,7 @@ import com.redhat.lightblue.util.JsonObject;
 
 public class EvaluationError extends RuntimeException {
     public EvaluationError(JsonObject expr,
-            String msg) {
+                           String msg) {
         super(expr.toString() + ":" + msg);
     }
 

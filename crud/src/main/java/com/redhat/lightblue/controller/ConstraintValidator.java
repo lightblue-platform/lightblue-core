@@ -64,8 +64,8 @@ public class ConstraintValidator {
     private JsonNode currentValue;
 
     protected ConstraintValidator(Registry<String, FieldConstraintChecker> r,
-            Registry<String, EntityConstraintChecker> e,
-            EntityMetadata md) {
+                                  Registry<String, EntityConstraintChecker> e,
+                                  EntityMetadata md) {
         this.fRegistry = r;
         this.eRegistry = e;
         this.md = md;

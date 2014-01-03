@@ -41,8 +41,8 @@ public class FieldComparisonExpression
      * Ctor with the given values
      */
     public FieldComparisonExpression(Path field,
-            BinaryComparisonOperator op,
-            Path rfield) {
+                                     BinaryComparisonOperator op,
+                                     Path rfield) {
         this.field = field;
         this.op = op;
         this.rfield = rfield;

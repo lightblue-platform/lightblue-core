@@ -39,10 +39,10 @@ public class RequiredChecker implements FieldConstraintDocChecker {
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
-            FieldTreeNode fieldMetadata,
-            Path fieldMetadataPath,
-            FieldConstraint constraint,
-            JsonDoc doc) {
+                                FieldTreeNode fieldMetadata,
+                                Path fieldMetadataPath,
+                                FieldConstraint constraint,
+                                JsonDoc doc) {
         if (((RequiredConstraint) constraint).getValue()) {
             int nAnys = fieldMetadataPath.nAnys();
             if (nAnys == 0) {

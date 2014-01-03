@@ -48,8 +48,8 @@ public class NaryRelationalExpression extends RelationalExpression {
      * Ctor with the given values
      */
     public NaryRelationalExpression(Path field,
-            NaryRelationalOperator op,
-            List<Value> values) {
+                                    NaryRelationalOperator op,
+                                    List<Value> values) {
         this.field = field;
         this.op = op;
         this.values = values;
@@ -59,8 +59,8 @@ public class NaryRelationalExpression extends RelationalExpression {
      * Ctor with the given values
      */
     public NaryRelationalExpression(Path field,
-            NaryRelationalOperator op,
-            Value... v) {
+                                    NaryRelationalOperator op,
+                                    Value... v) {
         this(field, op, Arrays.asList(v));
     }
 

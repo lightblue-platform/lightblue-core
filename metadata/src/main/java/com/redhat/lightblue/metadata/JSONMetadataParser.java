@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-
 import com.redhat.lightblue.util.Error;
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {
@@ -40,8 +39,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     private final JsonNodeFactory factory;
 
     public JSONMetadataParser(Extensions<JsonNode> ex,
-            TypeResolver resolver,
-            JsonNodeFactory factory) {
+                              TypeResolver resolver,
+                              JsonNodeFactory factory) {
         super(ex, resolver);
         this.factory = factory;
     }

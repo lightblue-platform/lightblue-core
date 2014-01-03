@@ -57,22 +57,22 @@ public class MongoMetadata implements Metadata {
     private final BSONParser mdParser;
 
     public MongoMetadata(DB db,
-            String metadataCollection,
-            Extensions<BSONObject> parserExtensions,
-            TypeResolver typeResolver) {
+                         String metadataCollection,
+                         Extensions<BSONObject> parserExtensions,
+                         TypeResolver typeResolver) {
         this.collection = db.getCollection(metadataCollection);
         this.mdParser = new BSONParser(parserExtensions, typeResolver);
     }
 
     public MongoMetadata(DB db,
-            Extensions<BSONObject> parserExtensions,
-            TypeResolver typeResolver) {
+                         Extensions<BSONObject> parserExtensions,
+                         TypeResolver typeResolver) {
         this(db, DEFAULT_METADATA_COLLECTION, parserExtensions, typeResolver);
     }
 
     @Override
     public EntityMetadata getEntityMetadata(String entityName,
-            String version) {
+                                            String version) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException("entityName");
         }
@@ -176,9 +176,9 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public void setMetadataStatus(String entityName,
-            String version,
-            MetadataStatus newStatus,
-            String comment) {
+                                  String version,
+                                  MetadataStatus newStatus,
+                                  String comment) {
 
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException("entityName");

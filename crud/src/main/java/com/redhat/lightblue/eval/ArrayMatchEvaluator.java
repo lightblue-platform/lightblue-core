@@ -39,7 +39,7 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
     private final ObjectArrayElement elem;
 
     public ArrayMatchEvaluator(ArrayMatchExpression expr,
-            FieldTreeNode context) {
+                               FieldTreeNode context) {
         // field needs to be resolved relative to the current context
         field = expr.getArray();
         FieldTreeNode node = context.resolve(field);

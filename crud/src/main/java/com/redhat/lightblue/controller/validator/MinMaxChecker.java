@@ -42,12 +42,12 @@ public class MinMaxChecker implements FieldConstraintValueChecker {
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
-            FieldTreeNode fieldMetadata,
-            Path fieldMetadataPath,
-            FieldConstraint constraint,
-            Path valuePath,
-            JsonDoc doc,
-            JsonNode fieldValue) {
+                                FieldTreeNode fieldMetadata,
+                                Path fieldMetadataPath,
+                                FieldConstraint constraint,
+                                Path valuePath,
+                                JsonDoc doc,
+                                JsonNode fieldValue) {
         Number value = ((MinMaxConstraint) constraint).getValue();
         String type = ((MinMaxConstraint) constraint).getType();
         int cmp = cmp(fieldValue, value);
