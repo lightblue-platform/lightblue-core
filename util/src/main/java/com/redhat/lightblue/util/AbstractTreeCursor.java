@@ -26,7 +26,7 @@ import java.util.LinkedList;
  */
 public abstract class AbstractTreeCursor<N> {
 
-    private final LinkedList<LevelState<N>> stack = new LinkedList<LevelState<N>>();
+    private final LinkedList<LevelState<N>> stack = new LinkedList<>();
     private final MutablePath currentPath;
     private N currentNode;
 

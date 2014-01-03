@@ -19,7 +19,6 @@
 package com.redhat.lightblue.util;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import junit.framework.Assert;
 
@@ -36,17 +35,13 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
     protected JsonNode createJsonNode(String postfix) {
         try {
             return loadJsonNode("JsonNodeDocTest-" + postfix + ".json");
-        } catch (Throwable e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Test
-    public void getSimple() throws IOException {
+    public void getSimple() {
         JsonNode node = createJsonNode("simple");
         JsonDoc doc = new JsonDoc(node);
 

@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class AbstractJsonNodeTest {
-
     /**
      * Load resource as json document.
      *
@@ -53,33 +52,17 @@ public abstract class AbstractJsonNodeTest {
      * @throws IOException
      */
     public final String loadResource(String resourceName) throws IOException {
-        InputStream is = null;
-        InputStreamReader isr = null;
         StringBuilder buff = new StringBuilder();
 
-        try {
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-            isr = new InputStreamReader(is, Charset.defaultCharset());
-            BufferedReader reader = new BufferedReader(isr);
-
-            String line = null;
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
+                BufferedReader reader = new BufferedReader(isr)) {
+            String line;
             while ((line = reader.readLine()) != null) {
                 buff.append(line).append("\n");
-            }
-
-            reader.close();
-            isr.close();
-            is.close();
-        } finally {
-            if (isr != null) {
-                isr.close();
-            }
-            if (is != null) {
-                is.close();
             }
         }
 
         return buff.toString();
     }
-
 }
