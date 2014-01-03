@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.metadata.types.Type;
 import java.util.ArrayList;
 import java.util.List;
 

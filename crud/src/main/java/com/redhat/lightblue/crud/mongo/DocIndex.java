@@ -31,7 +31,7 @@ import com.mongodb.DBObject;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 
-import com.redhat.lightblue.mediator.MetadataResolver;
+import com.redhat.lightblue.crud.MetadataResolver;
 
 public class DocIndex {
 

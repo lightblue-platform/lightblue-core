@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.metadata.types.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +30,6 @@ import com.redhat.lightblue.query.QueryExpression;
 
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
-import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
 
 import com.redhat.lightblue.metadata.types.ArrayType;

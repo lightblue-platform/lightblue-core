@@ -1,5 +1,6 @@
 package com.redhat.lightblue.metadata.parser;
 
+import com.redhat.lightblue.metadata.Extensions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

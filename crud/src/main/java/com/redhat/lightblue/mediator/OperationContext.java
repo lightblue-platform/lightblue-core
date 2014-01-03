@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.mediator;
 
+import com.redhat.lightblue.crud.MetadataResolver;
 import java.io.Serializable;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class OperationContext implements MetadataResolver, Serializable {
     private final Response response;
     private final Factory factory;
     private final Metadata md;
-    private final Map<String, EntityMetadata> metadata = new HashMap<String, EntityMetadata>();
+    private final Map<String, EntityMetadata> metadata = new HashMap<>();
     private List<JsonDoc> docs;
     private Operation operation;
 

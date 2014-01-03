@@ -26,7 +26,6 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 
-import com.redhat.lightblue.mediator.MetadataResolver;
 
 public interface CRUDController {
 

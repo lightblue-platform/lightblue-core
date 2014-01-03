@@ -37,7 +37,7 @@ import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
 
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.Extensions;
 
 import com.redhat.lightblue.query.QueryExpression;
 

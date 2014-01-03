@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.constraints;
 
-import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.metadata.types.StringType;
 
 /**

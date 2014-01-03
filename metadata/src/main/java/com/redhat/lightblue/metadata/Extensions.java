@@ -16,27 +16,30 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.parser;
+package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.DefaultEntityConstraintParsers;
+import com.redhat.lightblue.metadata.parser.DefaultFieldConstraintParsers;
+import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
+import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
+import com.redhat.lightblue.metadata.parser.ParserRegistry;
 
 /**
  * Parser extensions where T is the node type of the underlying object tree (for JSon, T is JsonNode).
  */
 public class Extensions<T> {
 
-    private final ParserRegistry<T, DataStore> dataStoreParsers
-            = new ParserRegistry<T, DataStore>();
+    private final ParserRegistry<T, DataStore> dataStoreParsers = new ParserRegistry<>();
 
-    private final ParserRegistry<T, EntityConstraint> entityConstraintParsers
-            = new ParserRegistry<T, EntityConstraint>();
+    private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
 
-    private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers
-            = new ParserRegistry<T, FieldConstraint>();
+    private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
 
     /**
      * Initializes this to include the default extensions

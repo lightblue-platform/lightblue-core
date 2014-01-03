@@ -43,7 +43,7 @@ import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldCursor;
 
@@ -70,7 +70,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
 
-import com.redhat.lightblue.mediator.MetadataResolver;
+import com.redhat.lightblue.crud.MetadataResolver;
 
 /**
  * Translations between BSON and JSON. This class is thread-safe, and can be shared between threads

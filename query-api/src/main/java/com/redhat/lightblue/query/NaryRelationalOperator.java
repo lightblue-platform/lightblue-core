@@ -42,6 +42,7 @@ public enum NaryRelationalOperator {
         return this == _in ? valueExists : !valueExists;
     }
 
+    @Override
     public String toString() {
         return ops[0];
     }

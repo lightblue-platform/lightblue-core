@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata.types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.TypeResolver;
 
 public final class DefaultTypes implements TypeResolver {

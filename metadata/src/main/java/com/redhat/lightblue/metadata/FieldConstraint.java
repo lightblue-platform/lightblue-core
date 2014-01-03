@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.metadata.types.Type;
+
 /**
  * Interface for constraints that apply to a field
  */

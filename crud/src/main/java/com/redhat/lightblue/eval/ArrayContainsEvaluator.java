@@ -31,7 +31,7 @@ import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.Type;
 
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ContainsOperator;

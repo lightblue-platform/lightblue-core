@@ -50,7 +50,7 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-import com.redhat.lightblue.mediator.MetadataResolver;
+import com.redhat.lightblue.crud.MetadataResolver;
 
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluator;

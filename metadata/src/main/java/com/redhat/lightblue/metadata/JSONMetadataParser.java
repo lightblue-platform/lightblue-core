@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.metadata.parser.Extensions;
 
 import com.redhat.lightblue.util.Error;
 
