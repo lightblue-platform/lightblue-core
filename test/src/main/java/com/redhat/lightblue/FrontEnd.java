@@ -126,19 +126,19 @@ public class FrontEnd {
     private static void runCmd(FrontEnd fe,String cmd,String[] args) throws Exception {
         Metadata md=fe.getMetadata();
         Mediator mediator=fe.getMediator();
+        Extensions<JsonNode> extensions=new Extensions<JsonNode>();
+        extensions.addDefaultExtensions();
+        JSONMetadataParser parser=new JSONMetadataParser(extensions,
+                                                         new DefaultTypes(),
+                                                         nodeFactory);
         if("getEntityMetadata".equals(cmd)) {
-            System.out.println(md.getEntityMetadata(arg("entityName",args),
-                                                    arg("version",args)));
+            System.out.println(parser.convert(md.getEntityMetadata(arg("entityName",args),
+                                                                   arg("version",args))).toString());
         } else if("getEntityNames".equals(cmd)) {
             printArr(md.getEntityNames());
         } else if("getEntityVersions".equals(cmd)) {
             printArr(md.getEntityVersions(arg("entityName",args)));
         } else if("createNewMetadata".equals(cmd)) {
-            Extensions<JsonNode> extensions=new Extensions<JsonNode>();
-            extensions.addDefaultExtensions();
-            JSONMetadataParser parser=new JSONMetadataParser(extensions,
-                                                             new DefaultTypes(),
-                                                             nodeFactory);
             md.createNewMetadata(parser.parseEntityMetadata(fileOrJson("md",args)));
         } else if("setMetadataStatus".equals(cmd)) {
             md.setMetadataStatus(arg("entityName",args),

@@ -18,8 +18,8 @@
     "login": { 
        "type":"string",
        "constraints": {
-         "maxlength":64,
-         "minlength":1,
+         "maxLength":64,
+         "minLength":1,
          "required":true
        }
     },
