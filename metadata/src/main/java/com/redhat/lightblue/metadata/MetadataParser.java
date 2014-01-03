@@ -245,7 +245,6 @@ public abstract class MetadataParser<T> {
             for (String name : childNames) {
                 Error.push(name);
                 try {
-                    T x = getObjectProperty(fieldConstraints, name);
                     FieldConstraintParser<T> parser = getFieldConstraintParser(name);
                     if (parser == null) {
                         throw Error.get(ERR_INVALID_CONSTRAINT, name);
