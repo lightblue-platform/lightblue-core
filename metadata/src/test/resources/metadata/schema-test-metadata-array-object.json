@@ -27,9 +27,24 @@
     "fields": {
         "street": {
             "type": "array",
+            "constraints": {
+                "minItems": 1,
+                "maxItems": 2000
+            },
             "items": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "constraints": {
+                        "minLength": 10,
+                        "maxLength": 2000
+                    }
+                },
+                "someCounter": {
+                    "type": "integer",
+                    "constraints": {
+                        "minimum": 0,
+                        "maximum": 200
+                    }
                 }
             }
         }

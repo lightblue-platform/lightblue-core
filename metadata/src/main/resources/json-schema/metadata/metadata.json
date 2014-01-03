@@ -199,26 +199,32 @@
         "field_constraint": {
             "properties": {
                 "maximum": {
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maximum"
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maximum",
+                    "description": "Maximum numeric value for fields of numeric type."
                 },
                 "minimum": {
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minimum"
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minimum",
+                    "description": "Minimum numeric value for fields of numeric type."
                 },
                 "maxLength": {
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxLength"
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxLength",
+                    "description": "Maximum length of a string field."
                 },
                 "minLength": {
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minLength"
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minLength",
+                    "description": "Minimum length of a string field."
                 },
                 "enum": {
                     "description": "Should set type of 'string' when using enum.",
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
                 },
                 "maxItems": {
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxItems"
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/maxItems",
+                    "description": "Maximum number of items in an array field."
                 },
                 "minItems": {
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems"
+                    "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems",
+                    "description": "Minimum number of itmes in an array field."
                 },
                 "maxProperties": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/maxProperties"
