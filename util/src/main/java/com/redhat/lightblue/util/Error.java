@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  *
  * The error object also provides static APIs that keep the execution context for the current thread.
  */
-public class Error extends RuntimeException {
+public final class Error extends RuntimeException {
 
     private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
