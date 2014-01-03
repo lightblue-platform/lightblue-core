@@ -1,7 +1,7 @@
 {
   "name":"user",
   "version": {
-     "value": "0,1",
+     "value": "0.1",
      "changelog": "Test version"
   },
   "status": {

@@ -43,7 +43,7 @@ import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
-import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 import com.redhat.lightblue.crud.mongo.MongoCRUDController;
