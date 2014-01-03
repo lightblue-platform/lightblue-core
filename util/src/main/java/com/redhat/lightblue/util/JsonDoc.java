@@ -274,7 +274,7 @@ public class JsonDoc implements Serializable {
      * @returns The node, or null if the node cannot be found
      */
     public JsonNode get(Path p) {
-        return DEFAULT_RESOLVER.resolve(p, docRoot, 0);
+        return get(docRoot, p);
     }
 
     /**

@@ -233,7 +233,7 @@ public abstract class AbstractPathTest<T extends Path> {
     }
 
     @Test
-    public void match() {
+    public void matches_true() {
         T p = createPath();
 
         // better match self..
@@ -255,6 +255,36 @@ public abstract class AbstractPathTest<T extends Path> {
                 // verify ANY in match
                 Assert.assertTrue(p.matches(pattern));
             }
+        }
+    }
+
+    @Test
+    public void matches_false_sameLength() {
+        T p = createPath();
+
+        // better match self..
+        Path pattern = new Path(p);
+        Assert.assertTrue(p.matches(pattern));
+
+        if (expectedSize() > 0) {
+            // replace last node with something else and match should fail
+            Path other = new Path(p.toString() + "NEW");
+            Assert.assertFalse(p.matches(other));
+        }
+    }
+
+    @Test
+    public void matches_false_differentLength() {
+        T p = createPath();
+
+        // better match self..
+        Path pattern = new Path(p);
+        Assert.assertTrue(p.matches(pattern));
+
+        if (expectedSize() > 0) {
+            // replace last node with something else and match should fail
+            Path other = new Path(p.toString() + ".new");
+            Assert.assertFalse(p.matches(other));
         }
     }
 
@@ -314,4 +344,106 @@ public abstract class AbstractPathTest<T extends Path> {
 
         Assert.assertEquals(expectedSize(), p.numSegments());
     }
+
+    @Test
+    public void add() {
+        T p1 = createPath();
+
+        if (segments != null) {
+            T p2 = createPath();
+
+            Path concat1 = p1.add(p2);
+            Path concat2 = new Path(p1.toString() + "." + p2.toString());
+            Assert.assertEquals(concat1.toString(), concat2.toString());
+            Assert.assertTrue(concat1.equals(concat2));
+        } else {
+            // for an empty original path expect the added path to simply replace the original
+            Path p2 = new Path("not.empty");
+
+            Path concat = p1.add(p2);
+            Assert.assertEquals(p2.toString(), concat.toString());
+            Assert.assertTrue(p2.equals(concat));
+        }
+    }
+
+    @Test
+    public void matchingDescendant_true_diffLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path prefix = p.prefix(3);
+            Assert.assertTrue(p.matchingDescendant(prefix));
+        }
+    }
+
+    @Test
+    public void matchingDescendant_true_sameLength() {
+        T p = createPath();
+
+        Assert.assertTrue(p.matchingDescendant(new Path(p.toString())));
+    }
+
+    @Test
+    public void matchingDescendant_false_diffLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path compare = new Path(p.prefix(p.numSegments() / 2).toString() + ".nope");
+
+            Assert.assertFalse(p.matchingDescendant(compare));
+        }
+    }
+
+    @Test
+    public void matchingDescendant_false_sameLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path compare = p.mutableCopy().setLast("nope");
+
+            Assert.assertFalse(p.matchingDescendant(compare));
+        }
+    }
+
+    
+    
+    @Test
+    public void matchingPrefix_true_diffLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path prefix = p.prefix(3);
+            Assert.assertTrue(prefix.matchingPrefix(p));
+        }
+    }
+
+    @Test
+    public void matchingPrefix_true_sameLength() {
+        T p = createPath();
+
+        Assert.assertTrue(new Path(p.toString()).matchingPrefix(p));
+    }
+
+    @Test
+    public void matchingPrefix_false_diffLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path compare = new Path(p.prefix(p.numSegments() / 2).toString() + ".nope");
+
+            Assert.assertFalse(compare.matchingPrefix(p));
+        }
+    }
+
+    @Test
+    public void matchingPrefix_false_sameLength() {
+        T p = createPath();
+
+        if (segments != null) {
+            Path compare = p.mutableCopy().setLast("nope");
+
+            Assert.assertFalse(compare.matchingPrefix(p));
+        }
+    }
+
 }

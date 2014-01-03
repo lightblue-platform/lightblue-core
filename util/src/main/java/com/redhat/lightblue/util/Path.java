@@ -205,7 +205,8 @@ public class Path implements Comparable<Path>, Serializable {
 
     public Path(String x) {
         this();
-        parse(x, data.getSegments());
+        List<String> s = parse(x);
+        data.getSegments().addAll(s);
     }
 
     void setData(PathRep data) {
@@ -448,7 +449,8 @@ public class Path implements Comparable<Path>, Serializable {
      * @param x the new paths segments to parse
      * @param segments the segment list to append new segments onto
      */
-    protected static void parse(String x, List<String> segments) {
+    protected static List<String> parse(String x) {
+        List<String> segments = new ArrayList<>();
         StringBuilder buf = new StringBuilder(32);
         int state = 0;
         int n = x.length();
@@ -499,5 +501,6 @@ public class Path implements Comparable<Path>, Serializable {
         if (state == 1) {
             segments.add(buf.toString());
         }
+        return segments;
     }
 }

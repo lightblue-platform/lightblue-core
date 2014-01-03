@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.util;
 
+import java.util.List;
+
 /**
  * A Path that can be modified. Uses copy-on-write semantics to prevent unnecessary copies.
  */
@@ -87,18 +89,23 @@ public class MutablePath extends Path {
         if (x == null) {
             throw new IllegalArgumentException("null value passed to push");
         }
-        own();
-        parse(x, getData().getSegments());
-        getData().resetState();
-        return this;
+        List<String> s = parse(x);
+        return push(s);
     }
 
     public MutablePath push(Path x) {
         if (x == null) {
             throw new IllegalArgumentException("null value passed to push");
         }
+        return push(x.getData().getSegments());
+    }
+
+    private MutablePath push(List<String> segments) {
+        if (segments == null || segments.isEmpty()) {
+            throw new IllegalArgumentException("null or empty segments passed to push");
+        }
         own();
-        getData().getSegments().addAll(x.getData().getSegments());
+        getData().getSegments().addAll(segments);
         getData().resetState();
         return this;
     }
@@ -138,13 +145,12 @@ public class MutablePath extends Path {
     public Path setLast(String x) {
         if (getData().getSegments().isEmpty()) {
             throw new IllegalStateException("Attempted to set last segment on empty path.");
-        } else {
-            own();
-            getData().getSegments().remove(getData().getSegments().size() - 1);
-            parse(x, getData().getSegments());
-            getData().resetState();
         }
-        return this;
+        // push takes ownership, but need to own here before removing last segment
+        own();
+        getData().getSegments().remove(getData().getSegments().size() - 1);
+        List<String> s = parse(x);
+        return push(x);
     }
 
     /**

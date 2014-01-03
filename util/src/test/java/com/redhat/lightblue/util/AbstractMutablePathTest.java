@@ -57,6 +57,24 @@ public abstract class AbstractMutablePathTest extends AbstractPathTest<MutablePa
     }
 
     @Test
+    public void pushPath() {
+        MutablePath p = createPath();
+
+        String[] newSegments = null;
+        if (segments != null) {
+            newSegments = Arrays.copyOf(segments, segments.length + 1);
+        } else {
+            newSegments = new String[1];
+        }
+        String pushed = "q";
+        newSegments[newSegments.length - 1] = pushed;
+
+        p.push(new Path(pushed));
+
+        assertEqual(p, new Path(createPathString(newSegments)));
+    }
+
+    @Test
     public void pushInt() {
         MutablePath p = createPath();
 
@@ -109,6 +127,25 @@ public abstract class AbstractMutablePathTest extends AbstractPathTest<MutablePa
             }
         }
     }
+    
+    
+    @Test
+    public void cut() {
+        MutablePath p = createPath();
+        String[] newSegments = null;
+        int cutLength = 2;
+        
+        if (segments != null) {
+            newSegments = Arrays.copyOf(segments, cutLength);
+        } else {
+            newSegments = new String[0];
+        }
+        
+        // cutting when there are no segments does nothing
+        p.cut(cutLength);
+        assertEqual(p, new Path(createPathString(newSegments)));
+    }
+
 
     @Test
     public void setLastString() {
