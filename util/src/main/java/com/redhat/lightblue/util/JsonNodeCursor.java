@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+/**
+ * Note that parent() for JsonNode returns the grandparent of the current JsonNode if it is not an ArrayNode or ObjectNode
+ */
 public final class JsonNodeCursor extends AbstractTreeCursor<JsonNode> {
 
     private static final class ArrayElementCursor implements KeyValueCursor<String, JsonNode> {

@@ -28,6 +28,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class AbstractJsonNodeTest {
+    public static final JsonNode fromString(String jsonString) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jcontent = mapper.readTree(jsonString);
+
+        return jcontent;
+    }
+    
     /**
      * Load resource as json document.
      *
@@ -36,12 +43,7 @@ public abstract class AbstractJsonNodeTest {
      * @throws IOException
      */
     public static final JsonNode loadJsonNode(String resourceName) throws IOException {
-        String jsonString = loadResource(resourceName);
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jcontent = mapper.readTree(jsonString);
-
-        return jcontent;
+        return fromString( loadResource(resourceName));
     }
 
     /**
