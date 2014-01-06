@@ -21,6 +21,7 @@ package com.redhat.lightblue.mediator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ import com.redhat.lightblue.Response;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.DeleteRequest;
 import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.DataError;
 
 /**
  * The mediator looks at a request, performs basic validation, and passes the operation to one or more of the
@@ -88,23 +90,15 @@ public class Mediator {
         Response response = new Response();
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.INSERT);
-
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            logger.debug("Constraint validation");
-            ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
-            constraintValidator.validateDocs(ctx.getDocs());
-            if (!constraintValidator.hasErrors()) {
-                logger.debug("Constraint validation has no errors");
+            List<JsonDoc> docsWithoutErrors=runBulkConstraintValidation(md,ctx);
+            if(response.getErrors().isEmpty()&&!docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 logger.debug("CRUD controller={}", controller.getClass().getName());
-                CRUDInsertionResponse insertionResponse = controller.insert(ctx, ctx.getDocs(), req.getReturnFields());
+                CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
                 response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), nodeFactory));
-                if (insertionResponse.getDataErrors() != null) {
-                    response.getDataErrors().addAll(insertionResponse.getDataErrors());
-                }
-                if (insertionResponse.getErrors() != null) {
-                    response.getErrors().addAll(insertionResponse.getErrors());
-                }
+                mergeDataErrors(insertionResponse.getDataErrors(),response);
+                mergeErrors(insertionResponse.getErrors(),response);
                 response.setModifiedCount(insertionResponse.getDocuments().size());
                 if (insertionResponse.getDocuments().size() == ctx.getDocs().size()) {
                     response.setStatus(OperationStatus.COMPLETE);
@@ -113,7 +107,9 @@ public class Mediator {
                 } else {
                     response.setStatus(OperationStatus.ERROR);
                 }
-            } 
+            } else {
+                response.setStatus(OperationStatus.ERROR);
+            }
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -121,6 +117,7 @@ public class Mediator {
         } finally {
             Error.pop();
         }
+
         return response;
     }
 
@@ -130,22 +127,15 @@ public class Mediator {
         Response response = new Response();
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.SAVE);
-
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            ConstraintValidator constraintValidator = factory.getConstraintValidator(ctx.getEntityMetadata(req.getEntity().getEntity()));
-            constraintValidator.validateDocs(ctx.getDocs());
-            if (!constraintValidator.hasErrors()) {
-                logger.debug("Constraint validation has no errors");
+            List<JsonDoc> docsWithoutErrors=runBulkConstraintValidation(md,ctx);
+            if (response.getErrors().isEmpty()&&!docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 logger.debug("CRUD controller={}", controller.getClass().getName());
-                CRUDSaveResponse saveResponse = controller.save(ctx, ctx.getDocs(), req.isUpsert(), req.getReturnFields());
+                CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
                 response.setEntityData(toJsonDocList(saveResponse.getDocuments(), nodeFactory));
-                if (saveResponse.getDataErrors() != null) {
-                    response.getDataErrors().addAll(saveResponse.getDataErrors());
-                }
-                if (saveResponse.getErrors() != null) {
-                    response.getErrors().addAll(saveResponse.getErrors());
-                }
+                mergeDataErrors(saveResponse.getDataErrors(),response);
+                mergeErrors(saveResponse.getErrors(),response);
                 response.setModifiedCount(saveResponse.getDocuments().size());
                 if (saveResponse.getDocuments().size() == ctx.getDocs().size()) {
                     response.setStatus(OperationStatus.COMPLETE);
@@ -234,6 +224,66 @@ public class Mediator {
             Error.pop();
         }
         return response;
+    }
+
+    /**
+     * Runs constraint violation and returns the documents that has no constraint errors
+     */
+    private List<JsonDoc> runBulkConstraintValidation(EntityMetadata md,
+                                                      OperationContext ctx) {
+        logger.debug("Bulk constraint validation");
+        ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
+        constraintValidator.validateDocs(ctx.getDocs());
+        Map<JsonDoc,List<Error>> docErrors=constraintValidator.getDocErrors();
+        List<JsonDoc> docsWithoutError=new ArrayList<JsonDoc>(ctx.getDocs().size());
+        for(JsonDoc doc:ctx.getDocs()) {
+            List<Error> err=docErrors.get(doc);
+            if(err!=null&&!err.isEmpty()) {
+                addDataErrors(doc,err,ctx.getResponse().getDataErrors());
+            } else
+                docsWithoutError.add(doc);
+        }
+        List<Error> errors=constraintValidator.getErrors();
+        if(errors!=null&&!errors.isEmpty())  {
+            ctx.getResponse().getErrors().addAll(errors);
+        }
+        logger.debug("There are {} documents to process after constraint validation",docsWithoutError.size());
+        return docsWithoutError;
+    }
+
+    private void mergeErrors(List<Error> errors,
+                             Response resp) {
+        if(errors!=null)
+            resp.getErrors().addAll(errors);
+    }
+
+    private void mergeDataErrors(List<DataError> dataErrors,
+                                 Response resp) {
+        if(dataErrors!=null&&!dataErrors.isEmpty()) {
+            for(DataError x:dataErrors) {
+                DataError err=DataError.findErrorForDoc(resp.getDataErrors(),x.getEntityData());
+                if(err!=null)
+                    err.getErrors().addAll(x.getErrors());
+                else
+                    resp.getDataErrors().add(x);
+            }
+        }
+    }
+
+    private void addDataErrors(JsonDoc doc,
+                               List<Error> errors,
+                               List<DataError> dest) {
+        if(errors!=null&&!errors.isEmpty()) {
+            DataError err=DataError.findErrorForDoc(dest,doc.getRoot());
+            if(err==null) {
+                err=new DataError(doc.getRoot(),errors);
+            } else {
+                if(err.getErrors()==null) {
+                    err.setErrors(new ArrayList<Error>());
+                }
+                err.getErrors().addAll(errors);
+            }
+        }
     }
 
     private List<JsonDoc> fromJsonDocList(JsonNode data) {

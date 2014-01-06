@@ -38,6 +38,19 @@ public class DataError extends JsonObject {
     private List<Error> errors;
 
     /**
+     * Default ctor
+     */
+    public DataError() {}
+
+    /**
+     * Ctor with given values
+     */
+    public DataError(JsonNode entityData,List<Error> errors) {
+        this.entityData=entityData;
+        this.errors=errors;
+    }
+    
+    /**
      * The entity data for which these errors apply. Generated using the same projection as the API generated this
      * error.
      */
@@ -105,5 +118,15 @@ public class DataError extends JsonObject {
             }
         }
         return error;
+    }
+
+    /**
+     * Returns the data error for the given json doc in the list
+     */
+    public static DataError findErrorForDoc(List<DataError> list,JsonNode node) {
+        for(DataError x:list)
+            if(x.entityData==node)
+                return x;
+        return null;
     }
 }
