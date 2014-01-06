@@ -48,25 +48,10 @@ public class ObjectArrayElement extends ArrayElement {
     }
 
     protected FieldTreeNode resolve(Path p, int level) {
-        int l = p.numSegments() - level;
-        if (l == 0) {
+        if(p.numSegments()==level) {
             return this;
-        } else {
-            String name = p.head(level);
-            Error.push(name);
-            try {
-                if (p.isIndex(level)
-                        || name.equals(Path.ANY)) {
-                    throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-                }
-                Field f = fields.getField(name);
-                if (f == null) {
-                    throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-                }
-                return f.resolve(p, level + 1);
-            } finally {
-                Error.pop();
-            }
+        } else  {
+            return fields.resolve(p,level);
         }
     }
 }

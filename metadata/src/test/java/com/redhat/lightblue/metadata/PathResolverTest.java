@@ -90,8 +90,8 @@ public class PathResolverTest {
         invalid(md, "blah", Constants.ERR_INVALID_FIELD_REFERENCE);
         invalid(md, "simpleInteger.1", Constants.ERR_INVALID_FIELD_REFERENCE);
         invalid(md, "simpleInteger.*", Constants.ERR_INVALID_FIELD_REFERENCE);
-        invalid(md, "obj1.1", Constants.ERR_INVALID_FIELD_REFERENCE);
-        invalid(md, "obj1.*", Constants.ERR_INVALID_FIELD_REFERENCE);
+        invalid(md, "obj1.1", Constants.ERR_INVALID_ARRAY_REFERENCE);
+        invalid(md, "obj1.*", Constants.ERR_INVALID_ARRAY_REFERENCE);
         invalid(md, "obj1.blah", Constants.ERR_INVALID_FIELD_REFERENCE);
     }
 
