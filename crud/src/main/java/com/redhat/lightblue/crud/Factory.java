@@ -16,15 +16,15 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.controller;
+package com.redhat.lightblue.crud;
+
+import java.io.Serializable;
 
 import com.redhat.lightblue.util.DefaultRegistry;
 import com.redhat.lightblue.util.Resolver;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-import com.redhat.lightblue.crud.CRUDController;
-import java.io.Serializable;
 
 /**
  * Factory class should be configured on initialization with all the validators and hooks from all the subsystems, and

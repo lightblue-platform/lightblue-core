@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.controller.validator;
+package com.redhat.lightblue.crud.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -30,8 +30,8 @@ import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 
-import com.redhat.lightblue.controller.ConstraintValidator;
-import com.redhat.lightblue.controller.FieldConstraintDocChecker;
+import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.FieldConstraintDocChecker;
 
 public class RequiredChecker implements FieldConstraintDocChecker {
 

@@ -36,9 +36,8 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-import com.redhat.lightblue.controller.Factory;
-import com.redhat.lightblue.controller.ConstraintValidator;
-
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -114,7 +113,7 @@ public class Mediator {
                 } else {
                     response.setStatus(OperationStatus.ERROR);
                 }
-            }
+            } 
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {

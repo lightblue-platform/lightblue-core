@@ -16,8 +16,28 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.controller;
+package com.redhat.lightblue.crud;
 
-public interface FieldConstraintChecker {
+import com.redhat.lightblue.metadata.EntityConstraint;
 
+import com.redhat.lightblue.util.JsonDoc;
+
+/**
+ * Validates entity constraints
+ */
+public interface EntityConstraintChecker {
+
+    /**
+     * Entity constraint checker function
+     *
+     * @param validator The constraint validator instance from which the implementation can access the metadata and
+     * context information
+     * @param constraint field constraint
+     * @param doc The document
+     *
+     * The function should add the errors to validator
+     */
+    void checkConstraint(ConstraintValidator validator,
+                         EntityConstraint constraint,
+                         JsonDoc doc);
 }

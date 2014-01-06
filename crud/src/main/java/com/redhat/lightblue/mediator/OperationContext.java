@@ -33,7 +33,7 @@ import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ReferenceField;
 
-import com.redhat.lightblue.controller.Factory;
+import com.redhat.lightblue.crud.Factory;
 
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;

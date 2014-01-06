@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.controller.validator;
+package com.redhat.lightblue.crud.validator;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 
-import com.redhat.lightblue.controller.FieldConstraintChecker;
+import com.redhat.lightblue.crud.FieldConstraintChecker;
 
 /**
  * Convenience class that contains all defailt field constraint validators

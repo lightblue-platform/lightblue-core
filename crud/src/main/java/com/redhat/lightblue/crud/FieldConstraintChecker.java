@@ -18,6 +18,6 @@
  */
 package com.redhat.lightblue.crud;
 
-public abstract class FieldUpdateExpression extends PartialUpdateExpression {
+public interface FieldConstraintChecker {
 
 }
