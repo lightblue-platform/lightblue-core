@@ -36,7 +36,7 @@ public abstract class AbstractJsonNodeTest {
      * @throws IOException
      */
     public static final JsonNode loadJsonNode(String resourceName) throws IOException {
-        return JsonUtils.json(resourceName);
+        return JsonUtils.json(loadResource(resourceName));
     }
 
     /**
