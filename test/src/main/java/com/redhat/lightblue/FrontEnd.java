@@ -45,11 +45,10 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
+import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.mongo.MongoCRUDController;
 import com.redhat.lightblue.crud.mongo.DBResolver;
-
-import com.redhat.lightblue.controller.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.controller.Factory;
+import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 
 import com.redhat.lightblue.mediator.Mediator;
 
