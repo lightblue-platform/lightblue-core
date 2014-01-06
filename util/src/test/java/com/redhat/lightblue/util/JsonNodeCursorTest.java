@@ -7,6 +7,7 @@ package com.redhat.lightblue.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
@@ -142,5 +143,77 @@ public class JsonNodeCursorTest extends AbstractTreeCursorTest<JsonNode> {
         Assert.assertTrue(c.hasChildren(c.getCurrentNode()));
         Assert.assertTrue(c.parent());
         Assert.assertSame(node, c.getCurrentNode());
+    }
+    
+    @Test
+    public void next() throws IOException {
+        String jsonString = "{\"text\":\"value\",\"parent\":{\"array\":[1,2,3,4],\"object\":{\"foo\":\"bar\"}}}";
+        MutablePath p = new MutablePath();
+        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
+        
+        // simply going to walk through the document with next() and verify after each call manually
+        
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals("text", c.getCurrentPath().toString());
+        Assert.assertEquals("value", c.getCurrentNode().asText());
+        
+        p.push("parent");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof ObjectNode);
+        
+        p.push("array");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof ArrayNode);
+        
+        p.push("0");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof NumericNode);
+        Assert.assertEquals(1, c.getCurrentNode().asInt());
+        
+        p.setLast("1");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof NumericNode);
+        Assert.assertEquals(2, c.getCurrentNode().asInt());
+        
+        p.setLast("2");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof NumericNode);
+        Assert.assertEquals(3, c.getCurrentNode().asInt());
+        
+        p.setLast("3");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof NumericNode);
+        Assert.assertEquals(4, c.getCurrentNode().asInt());
+
+        p.pop();
+        p.pop();
+        p.push("object");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof ObjectNode);
+
+        p.push("foo");
+        Assert.assertTrue(c.next());
+        Assert.assertNotNull(c.getCurrentNode());
+        Assert.assertEquals(p.toString(), c.getCurrentPath().toString());
+        Assert.assertTrue(c.getCurrentNode() instanceof TextNode);
+        Assert.assertEquals("bar", c.getCurrentNode().asText());
+        
+        Assert.assertFalse(c.next());
     }
 }

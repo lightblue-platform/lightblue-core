@@ -124,7 +124,7 @@ public abstract class AbstractTreeCursorTest<T> {
     }
 
     @Test
-    public void next() {
+    public void _next() {
         Assert.assertTrue(cursor.next());
         Assert.assertNotNull(cursor.getCurrentNode());
         while (cursor.hasChildren(cursor.getCurrentNode()) && cursor.next()) {
