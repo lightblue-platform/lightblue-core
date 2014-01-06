@@ -32,6 +32,21 @@ public class JsonNodeCursorTest {
     }
 
     @Test
+    public void illegalRoot() throws IOException {
+        String jsonString = "{\"text\":\"value\"}";
+        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        Iterator<JsonNode> itr = node.elements();
+        try {
+            JsonNode textNode = itr.next();
+            Assert.assertTrue(textNode instanceof TextNode);
+            JsonNodeCursor c = new JsonNodeCursor(new Path(""), itr.next());
+            Assert.fail("Expected IllegalArgumentException with TextNode as root element");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    @Test
     public void getCurrentPath() throws IOException {
         String jsonString = "{\"text\":\"value\"}";
         JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
