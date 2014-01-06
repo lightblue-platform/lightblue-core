@@ -27,13 +27,15 @@ import java.util.ArrayList;
  * Default implementation of the registry interface
  */
 public class DefaultRegistry<K, V> implements Registry<K, V> {
-    private final List<Resolver<K, V>> resolvers = new ArrayList<Resolver<K, V>>();
-    private final Map<K, V> items = new HashMap<K, V>();
+    private final List<Resolver<K, V>> resolvers = new ArrayList<>();
+    private final Map<K, V> items = new HashMap<>();
 
+    @Override
     public void add(K key, V value) {
         items.put(key, value);
     }
 
+    @Override
     public void add(Resolver<K, V> resolver) {
         resolvers.add(resolver);
     }

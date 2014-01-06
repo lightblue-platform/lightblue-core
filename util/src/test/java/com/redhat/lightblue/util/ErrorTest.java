@@ -66,6 +66,28 @@ public class ErrorTest {
         Error e = Error.get(errorCode);
         Assert.assertEquals(contexts[0], e.getContext());
         Assert.assertEquals(errorCode, e.getErrorCode());
+
+        // verify pop to empty works
+        Error.pop();
+
+        e = Error.get(errorCode);
+        Assert.assertEquals("", e.getContext());
+        Assert.assertEquals(errorCode, e.getErrorCode());
+
+        // verify empty pop works
+        Error.pop();
+
+        e = Error.get(errorCode);
+        Assert.assertEquals("", e.getContext());
+        Assert.assertEquals(errorCode, e.getErrorCode());
+
+        // verify reset pop works
+        Error.reset();
+        Error.pop();
+
+        e = Error.get(errorCode);
+        Assert.assertEquals("", e.getContext());
+        Assert.assertEquals(errorCode, e.getErrorCode());
     }
 
     /**
@@ -192,10 +214,25 @@ public class ErrorTest {
     }
 
     @Test
-    public void toJson() throws JSONException {
+    public void toJson_full() throws JSONException {
         Error e = Error.get("a", "b", "c");
         JsonNode node = e.toJson();
         JSONAssert.assertEquals("{object_type:error,context:a,errorCode:b,msg:c}", node.toString(), false);
+    }
+
+        @Test
+    public void testToString() throws JSONException {
+        // alias for toJson, so not going to test all cases
+        Error e = Error.get("a", "b", "c");
+        String s = e.toString();
+        JSONAssert.assertEquals("{object_type:error,context:a,errorCode:b,msg:c}", s, false);
+    }
+
+    @Test
+    public void toJson_empty() throws JSONException {
+        Error e = Error.get(null);
+        JsonNode node = e.toJson();
+        JSONAssert.assertEquals("{}", node.toString(), false);
     }
 
     @Test
