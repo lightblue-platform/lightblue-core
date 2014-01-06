@@ -25,16 +25,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
-    public static final JsonNode fromString(String jsonString) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jcontent = mapper.readTree(jsonString);
-
-        return jcontent;
-    }
-    
     /**
      * Load resource as json document.
      *
@@ -43,7 +36,7 @@ public abstract class AbstractJsonNodeTest {
      * @throws IOException
      */
     public static final JsonNode loadJsonNode(String resourceName) throws IOException {
-        return fromString( loadResource(resourceName));
+        return JsonUtils.json(resourceName);
     }
 
     /**

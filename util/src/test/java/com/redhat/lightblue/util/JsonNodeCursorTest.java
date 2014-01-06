@@ -45,7 +45,7 @@ public class JsonNodeCursorTest {
     @Test
     public void getCurrentPath() throws IOException {
         String jsonString = "{\"text\":\"value\"}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Path p = c.getCurrentPath();
         Assert.assertNotNull(p);
@@ -55,7 +55,7 @@ public class JsonNodeCursorTest {
     @Test
     public void firstChild_TextNode() throws IOException {
         String jsonString = "{\"text\":\"value\"}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertNotNull(c.getCurrentNode());
@@ -66,7 +66,7 @@ public class JsonNodeCursorTest {
     @Test
     public void firstChild_ObjectNode() throws IOException {
         String jsonString = "{\"x\":{\"text\":\"value\",\"foo\":\"bar\"}}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertNotNull(c.getCurrentNode());
@@ -77,7 +77,7 @@ public class JsonNodeCursorTest {
     @Test
     public void firstChild_ArrayNode() throws IOException {
         String jsonString = "{\"x\":[1,2,3,4]}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertNotNull(c.getCurrentNode());
@@ -88,7 +88,7 @@ public class JsonNodeCursorTest {
     @Test
     public void nextSibling_TextNode() throws IOException {
         String jsonString = "{\"text\":\"value\"}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertFalse(c.firstChild());
@@ -98,7 +98,7 @@ public class JsonNodeCursorTest {
     @Test
     public void nextSibling_ObjectNode() throws IOException {
         String jsonString = "{\"x\":{\"text\":\"value\",\"foo\":\"bar\"}}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertTrue(c.firstChild());
@@ -116,7 +116,7 @@ public class JsonNodeCursorTest {
     @Test
     public void nextSibling_ArrayNode() throws IOException {
         String jsonString = "{\"x\":[1,2,3,4]}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertTrue(c.firstChild());
@@ -129,7 +129,7 @@ public class JsonNodeCursorTest {
     @Test
     public void hasChildren_TextNode() throws IOException {
         String jsonString = "{\"text\":\"value\"}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertNotNull(c.getCurrentNode());
@@ -141,7 +141,7 @@ public class JsonNodeCursorTest {
     @Test
     public void hasChildren_ObjectNode() throws IOException {
         String jsonString = "{\"x\":{\"text\":\"value\"}}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertNotNull(c.getCurrentNode());
@@ -153,7 +153,7 @@ public class JsonNodeCursorTest {
     @Test
     public void hasChildren_ArrayNode() throws IOException {
         String jsonString = "{\"x\":[1,2,3,4]}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertNotNull(c.getCurrentNode());
@@ -165,7 +165,7 @@ public class JsonNodeCursorTest {
     @Test
     public void parent_TextNode() throws IOException {
         String jsonString = "{\"parent\":{\"text\":\"value\"}}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertTrue(c.firstChild());
@@ -180,7 +180,7 @@ public class JsonNodeCursorTest {
     @Test
     public void parent_ObjectNode() throws IOException {
         String jsonString = "{\"parent\":{\"x\":{\"text\":\"value\"}}}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertTrue(c.firstChild());
@@ -195,7 +195,7 @@ public class JsonNodeCursorTest {
     @Test
     public void parent_ArrayNode() throws IOException {
         String jsonString = "{\"parent\":{\"x\":[1,2,3,4]}}";
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
         Assert.assertTrue(c.firstChild());
         Assert.assertTrue(c.firstChild());
@@ -211,7 +211,7 @@ public class JsonNodeCursorTest {
     public void next() throws IOException {
         String jsonString = "{\"text\":\"value\",\"parent\":{\"array\":[1,2,3,4],\"object\":{\"foo\":\"bar\"}}}";
         MutablePath p = new MutablePath();
-        JsonNode node = AbstractJsonNodeTest.fromString(jsonString);
+        JsonNode node = JsonUtils.json(jsonString);
         JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
 
         // simply going to walk through the document with next() and verify after each call manually
