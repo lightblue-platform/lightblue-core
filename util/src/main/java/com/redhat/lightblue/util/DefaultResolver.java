@@ -23,12 +23,13 @@ import java.util.HashMap;
 
 public class DefaultResolver<K, V> implements Resolver<K, V> {
 
-    private final Map<K, V> map = new HashMap<K, V>();
+    private final Map<K, V> map = new HashMap<>();
 
     public void addValue(K name, V value) {
         map.put(name, value);
     }
 
+    @Override
     public V find(K name) {
         return map.get(name);
     }

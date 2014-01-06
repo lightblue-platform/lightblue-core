@@ -32,8 +32,7 @@ public abstract class JsonObject implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private static JsonNodeFactory factory
-            = JsonNodeFactory.withExactBigDecimals(true);
+    private static JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
     /**
      * @return the factory

@@ -84,23 +84,17 @@ public abstract class AbstractDefaultRegistryTest<K, V> {
     public void addResolver_multiple() {
         final Map<K, V> kvMap = new HashMap<>();
         DefaultRegistry<K, V> registery = createRegistery();
+        DefaultResolver<K, V> resolver = new DefaultResolver<>();
         for (int i = 0; i < 1000; i++) {
             K key = createKey();
             V value = createValue();
             if (!kvMap.containsKey(key)) {
                 kvMap.put(key, value);
+                resolver.addValue(key, value);
             }
         }
 
         Assert.assertTrue(kvMap.size() > 500);
-
-        Resolver<K, V> resolver = new Resolver<K, V>() {
-
-            @Override
-            public V find(K name) {
-                return kvMap.get(name);
-            }
-        };
 
         registery.add(resolver);
 
@@ -129,6 +123,7 @@ public abstract class AbstractDefaultRegistryTest<K, V> {
         Assert.assertTrue(kvMap.size() > 500);
 
         final Map<K, V> resolverMap = new HashMap<>();
+        DefaultResolver<K, V> resolver = new DefaultResolver<>();
 
         for (int i = 0; i < 1000; i++) {
             K key = createKey();
@@ -136,18 +131,11 @@ public abstract class AbstractDefaultRegistryTest<K, V> {
             // don't add if it exists in either kv or resolver maps. this ensures hits on resolver don't fail if duplicated in kv map
             if (!kvMap.containsKey(key) && !resolverMap.containsKey(key)) {
                 resolverMap.put(key, value);
+                resolver.addValue(key, value);
             }
         }
 
         Assert.assertTrue(resolverMap.size() > 500);
-
-        Resolver<K, V> resolver = new Resolver<K, V>() {
-
-            @Override
-            public V find(K name) {
-                return resolverMap.get(name);
-            }
-        };
 
         registery.add(resolver);
 
