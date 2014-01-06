@@ -276,7 +276,7 @@ public class Mediator {
         if(errors!=null&&!errors.isEmpty()) {
             DataError err=DataError.findErrorForDoc(dest,doc.getRoot());
             if(err==null) {
-                err=new DataError(doc.getRoot(),errors);
+                dest.add(err=new DataError(doc.getRoot(),errors));
             } else {
                 if(err.getErrors()==null) {
                     err.setErrors(new ArrayList<Error>());
