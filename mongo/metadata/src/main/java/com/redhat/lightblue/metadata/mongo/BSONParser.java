@@ -33,9 +33,8 @@ import com.redhat.lightblue.metadata.MetadataParser;
 import com.redhat.lightblue.metadata.TypeResolver;
 
 import com.redhat.lightblue.metadata.Extensions;
-import java.io.Serializable;
 
-public class BSONParser extends MetadataParser<BSONObject> implements Serializable {
+public class BSONParser extends MetadataParser<BSONObject> {
 
     public BSONParser(Extensions<BSONObject> ex,
                       TypeResolver resolver) {

@@ -26,7 +26,6 @@ import com.mongodb.DB;
 import org.bson.BSONObject;
 
 import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.process.runtime.Network;
@@ -57,7 +56,6 @@ import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -220,7 +218,7 @@ public class FrontEnd {
         return arg(argName, args, false);
     }
 
-    private static JsonNode fileOrJson(String argName, String[] args) throws FileNotFoundException, IOException {
+    private static JsonNode fileOrJson(String argName, String[] args) throws IOException {
         String arg = arg(argName, args);
         if (arg.startsWith("@")) {
             arg = arg.substring(1);
