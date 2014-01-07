@@ -62,7 +62,13 @@ public final class StringType implements Type, Serializable {
     }
 
     public Object cast(Object obj) {
-        return obj == null ? null : obj.toString();
+        if(obj==null) {
+            return null;
+        } else if(obj instanceof JsonNode) {
+            return ((JsonNode)obj).asText();
+        } else {
+            return obj.toString();
+        }
     }
 
     @Override
