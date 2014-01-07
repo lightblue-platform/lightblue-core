@@ -16,10 +16,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.JSONMetadataParser;
+import com.redhat.lightblue.metadata.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import com.redhat.lightblue.util.Error;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -37,6 +41,29 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     public void setup() {
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("empty", new DataStoreParser<JsonNode>() {
+
+            @Override
+            public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+                if (!"empty".equals(name)) {
+                    throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                }
+
+                DataStore ds = new DataStore() {
+
+                    @Override
+                    public String getType() {
+                        return "empty";
+                    }
+                };
+                return ds;
+            }
+
+            @Override
+            public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore ds) {
+                // nothing to do
+            }
+        });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
 

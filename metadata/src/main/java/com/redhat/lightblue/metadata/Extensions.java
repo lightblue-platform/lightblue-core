@@ -18,11 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.DataStore;
-import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.FieldConstraint;
-
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.DefaultEntityConstraintParsers;
 import com.redhat.lightblue.metadata.parser.DefaultFieldConstraintParsers;
@@ -47,7 +42,6 @@ public class Extensions<T> {
     public void addDefaultExtensions() {
         fieldConstraintParsers.add(new DefaultFieldConstraintParsers<T>());
         entityConstraintParsers.add(new DefaultEntityConstraintParsers<T>());
-        dataStoreParsers.add("mongo", new MongoDataStoreParser<T>());
     }
 
     /**

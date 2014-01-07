@@ -132,9 +132,7 @@
         }
     ],
     "datastore": {
-        "mongo": {
-            "database": "some/identifier",
-            "collection": "test"
+        "empty": {
         }
     }
 }

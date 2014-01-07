@@ -48,6 +48,7 @@ public class MongoMetadataTest {
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
         Extensions<BSONObject> x = new Extensions<BSONObject>();
         x.addDefaultExtensions();
+        x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
         md = new MongoMetadata(db, x, new DefaultTypes());
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);

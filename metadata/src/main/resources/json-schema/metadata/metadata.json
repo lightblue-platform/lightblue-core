@@ -125,26 +125,8 @@
         },
         "datastore": {
             "type": "object",
-            "description": "Definition of the datastore in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.",
-            "oneOf": [
-                {
-                    "properties": {
-                        "mongo": {
-                            "type": "object",
-                            "properties": {
-                                "database": {
-                                    "type": "string",
-                                    "description": "Identifier for the database, maybe JNDI URI?"
-                                },
-                                "collection": {
-                                    "type": "string",
-                                    "description": "The name of the collection within the database"
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
+            "description": "Definition of the datastore in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.  This entity is wide open on purpose to allow individual datastore implementations to deal with parsing and validating this structure.",
+            "additionalProperties": true
         },
         "fields": {
             "$ref": "#/definitions/field_single"
