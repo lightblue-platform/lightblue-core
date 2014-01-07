@@ -66,6 +66,24 @@ public interface CRUDController {
                           Projection projection);
 
     /**
+     * Updates documents matching the search criteria
+     *
+     * @param resolver The metadata resolver
+     * @param entity The entity to work on
+     * @param query The query specifying the documents to update
+     * @param update The update expression specifying the operations
+     * to be performed on matching documents
+     * @param projection The fields to be returned from the updated documents
+     *
+     * If projection is non-null, the updated documents are projected and returned.
+     */
+    CRUDUpdateResponse update(MetadataResolver resolver,
+                              String entity,
+                              QueryExpression query,
+                              UpdateExpression update,
+                              Projection projection);
+
+    /**
      * Searches for documents
      *
      * @param resolver The metadata resolver

@@ -26,6 +26,10 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
+/**
+ * Field value constraint validator. Instances of this validator are
+ * only called if the field exists in the document.
+ */
 public interface FieldConstraintValueChecker extends FieldConstraintChecker {
 
     /**

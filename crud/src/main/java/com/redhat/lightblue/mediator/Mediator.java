@@ -43,6 +43,7 @@ import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
 
 import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.SaveRequest;
@@ -80,9 +81,9 @@ public class Mediator {
      *
      * @param req Insertion request
      *
-     * First, the mediator performs constraint validation. All the constraints that can be validated at this level
-     * without the knowledge of the underlying backed are validated. Then the request is transferred to the CRUD
-     * controller for the entity.
+     * Mediator performs constraint validation, and passes documents
+     * that pass the validation to the CRUD implementation for that
+     * entity.
      */
     public Response insert(InsertionRequest req) {
         logger.debug("insert {}", req.getEntity());
@@ -121,6 +122,17 @@ public class Mediator {
         return response;
     }
 
+    /**
+     * Saves data. Documents in the DB that match the ID of the
+     * documents in the request are rewritten. If a document does not
+     * exist in the DB and upsert=true, the document is inserted.
+     * 
+     * @param req Save request
+     *
+     * Mediator performs constraint validation, and passes documents
+     * that pass the validation to the CRUD implementation for that
+     * entity.
+     */
     public Response save(SaveRequest req) {
         logger.debug("save {}", req.getEntity());
         Error.push("save(" + req.getEntity().toString() + ")");
@@ -155,13 +167,29 @@ public class Mediator {
         return response;
     }
 
+    /**
+     * Updates documents that match the given search criteria
+     *
+     * @param req Update request
+     *
+     * All documents matching the search criteria are updated using
+     * the update expression given in the request. Then, the updated
+     * document is projected and returneed in the response.
+     */
     public Response update(UpdateRequest req) {
         logger.debug("update {}", req.getEntity());
         Error.push("update(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.UPDATE);
-
+            EntityMetadata md=ctx.getEntityMetadata(req.getEntity().getEntity());
+            CRUDController controller=factory.getCRUDController(md);
+            logger.debug("CRUD controller={}", controller.getClass().getName());
+            CRUDUpdateResponse updateResponse=controller.update(ctx,
+                                                                req.getEntity().getEntity(),
+                                                                req.getQuery(),
+                                                                req.getUpdateExpression(),
+                                                                req.getReturnFields());
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {

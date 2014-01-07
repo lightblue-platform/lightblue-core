@@ -18,6 +18,25 @@
  */
 package com.redhat.lightblue.crud;
 
+/**
+ * Base interface for field constraint checkers. There are two flavors
+ * of constraint checkers: FieldConstraintDocChecker is called with
+ * the document to allow for constraints validation even if the field
+ * does not exist in the document. FieldConstraintValueChecker is
+ * called with the value of every field, so these are not called for
+ * nonexistant fields.
+ *
+ * Rationale: Constraint validator iterates through the values that
+ * match a certain path. If a value does not exist, the iterator
+ * doesn't go through it. So, those need to be caught using the
+ * FieldConstraintDocChecker. For simple fields, the logic to figure
+ * out that an expected field does not exist is trivial, but things
+ * get hairy for objects that are array members, and there are missing
+ * fields there.
+ *
+ * @see FieldConstraintDocChecker
+ * @see FieldConstraintValueChecker
+ */
 public interface FieldConstraintChecker {
 
 }
