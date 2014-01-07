@@ -16,16 +16,16 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.eval;
+package com.redhat.lightblue.mongo;
 
-import java.util.Map;
-import java.util.List;
 
 import org.junit.Test;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.eval.QueryEvaluationContext;
+import com.redhat.lightblue.eval.QueryEvaluator;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -38,8 +38,10 @@ import com.redhat.lightblue.metadata.JSONMetadataParser;
 
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.Extensions;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
 import com.redhat.lightblue.query.QueryExpression;
+import java.io.IOException;
 
 public class QueryTest extends AbstractJsonNodeTest {
 
@@ -82,15 +84,16 @@ public class QueryTest extends AbstractJsonNodeTest {
     private static JsonNode json(String q) {
         try {
             return JsonUtils.json(q.replace('\'', '\"'));
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private EntityMetadata getMd(String fname) throws Exception {
         JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
         return parser.parseEntityMetadata(node);

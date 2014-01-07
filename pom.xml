@@ -47,11 +47,6 @@
                 <version>2.1.7</version>
             </dependency>
             <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>2.11.2</version>
-            </dependency>
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.4</version>
@@ -61,12 +56,6 @@
                 <artifactId>jsonassert</artifactId>
                 <version>1.2.1</version>
             </dependency>       
-            <dependency>
-                <groupId>de.flapdoodle.embed</groupId>
-                <artifactId>de.flapdoodle.embed.mongo</artifactId>
-                <version>1.33</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -85,13 +74,34 @@
             </dependency>
          </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <modules>
         <module>query-api</module>
         <module>crud</module>
         <module>metadata</module>
+        <module>mongo</module>
         <module>util</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
     </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

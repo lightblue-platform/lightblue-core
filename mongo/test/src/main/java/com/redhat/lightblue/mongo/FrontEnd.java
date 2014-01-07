@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue;
+package com.redhat.lightblue.mongo;
 
 import java.io.FileReader;
 
@@ -34,6 +34,11 @@ import de.flapdoodle.embed.process.runtime.Network;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.DeleteRequest;
+import com.redhat.lightblue.FindRequest;
+import com.redhat.lightblue.InsertionRequest;
+import com.redhat.lightblue.SaveRequest;
+import com.redhat.lightblue.UpdateRequest;
 
 import com.redhat.lightblue.util.JsonUtils;
 
@@ -51,6 +56,7 @@ import com.redhat.lightblue.crud.mongo.DBResolver;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 
 import com.redhat.lightblue.mediator.Mediator;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
 /**
  * Simple test front-end for metadata and mediator that works with one DB
@@ -66,6 +72,7 @@ public class FrontEnd {
             = JsonNodeFactory.withExactBigDecimals(true);
 
     private final DBResolver simpleDBResolver = new DBResolver() {
+        @Override
         public DB get(MongoDataStore s) {
             return db;
         }
@@ -76,8 +83,9 @@ public class FrontEnd {
     }
 
     public Metadata getMetadata() {
-        Extensions<BSONObject> parserExtensions = new Extensions<BSONObject>();
+        Extensions<BSONObject> parserExtensions = new Extensions<>();
         parserExtensions.addDefaultExtensions();
+        parserExtensions.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
         DefaultTypes typeResolver = new DefaultTypes();
         return new MongoMetadata(db, parserExtensions, typeResolver);
     }
@@ -125,37 +133,49 @@ public class FrontEnd {
     private static void runCmd(FrontEnd fe, String cmd, String[] args) throws Exception {
         Metadata md = fe.getMetadata();
         Mediator mediator = fe.getMediator();
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions,
                 new DefaultTypes(),
                 nodeFactory);
-        if ("getEntityMetadata".equals(cmd)) {
-            System.out.println(parser.convert(md.getEntityMetadata(arg("entityName", args),
-                    arg("version", args))).toString());
-        } else if ("getEntityNames".equals(cmd)) {
-            printArr(md.getEntityNames());
-        } else if ("getEntityVersions".equals(cmd)) {
-            printArr(md.getEntityVersions(arg("entityName", args)));
-        } else if ("createNewMetadata".equals(cmd)) {
-            md.createNewMetadata(parser.parseEntityMetadata(fileOrJson("md", args)));
-        } else if ("setMetadataStatus".equals(cmd)) {
-            md.setMetadataStatus(arg("entityName", args),
-                    arg("version", args),
-                    MetadataStatus.valueOf(arg("newStatus", args)),
-                    arg("comment", args));
-        } else if ("insert".equals(cmd)) {
-            System.out.println(mediator.insert(InsertionRequest.fromJson((ObjectNode) fileOrJson("req", args))));
-        } else if ("save".equals(cmd)) {
-            System.out.println(mediator.save(SaveRequest.fromJson((ObjectNode) fileOrJson("req", args))));
-        } else if ("delete".equals(cmd)) {
-            System.out.println(mediator.delete(DeleteRequest.fromJson((ObjectNode) fileOrJson("req", args))));
-        } else if ("update".equals(cmd)) {
-            System.out.println(mediator.update(UpdateRequest.fromJson((ObjectNode) fileOrJson("req", args))));
-        } else if ("find".equals(cmd)) {
-            System.out.println(mediator.find(FindRequest.fromJson((ObjectNode) fileOrJson("req", args))));
-        } else {
-            throw new RuntimeException("Unknown cmd:" + cmd);
+        switch (cmd) {
+            case "getEntityMetadata":
+                System.out.println(parser.convert(md.getEntityMetadata(arg("entityName", args),
+                        arg("version", args))).toString());
+                break;
+            case "getEntityNames":
+                printArr(md.getEntityNames());
+                break;
+            case "getEntityVersions":
+                printArr(md.getEntityVersions(arg("entityName", args)));
+                break;
+            case "createNewMetadata":
+                md.createNewMetadata(parser.parseEntityMetadata(fileOrJson("md", args)));
+                break;
+            case "setMetadataStatus":
+                md.setMetadataStatus(arg("entityName", args),
+                        arg("version", args),
+                        MetadataStatus.valueOf(arg("newStatus", args)),
+                        arg("comment", args));
+                break;
+            case "insert":
+                System.out.println(mediator.insert(InsertionRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                break;
+            case "save":
+                System.out.println(mediator.save(SaveRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                break;
+            case "delete":
+                System.out.println(mediator.delete(DeleteRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                break;
+            case "update":
+                System.out.println(mediator.update(UpdateRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                break;
+            case "find":
+                System.out.println(mediator.find(FindRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                break;
+            default:
+                throw new RuntimeException("Unknown cmd:" + cmd);
         }
     }
 

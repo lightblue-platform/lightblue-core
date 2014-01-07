@@ -85,4 +85,9 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <modules>
+        <module>metadata</module>
+        <module>crud</module>
+        <module>test</module>
+    </modules>
 </project>
