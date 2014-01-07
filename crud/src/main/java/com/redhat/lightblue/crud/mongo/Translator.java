@@ -313,7 +313,7 @@ public class Translator {
         } else {
             return new BasicDBObject(expr.getField().toString(),
                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
-                            t.cast(expr.getRvalue())));
+                                      t.cast(expr.getRvalue().getValue())));
         }
     }
 
