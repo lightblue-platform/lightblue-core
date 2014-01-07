@@ -35,10 +35,10 @@ public class EntityMetadata implements Serializable {
     private final String name;
     private Version version;
     private MetadataStatus status;
-    private final ArrayList<StatusChange> statusChangeLog = new ArrayList<StatusChange>();
+    private final ArrayList<StatusChange> statusChangeLog = new ArrayList<>();
     //hooks
     private final EntityAccess access = new EntityAccess();
-    private final ArrayList<EntityConstraint> constraints = new ArrayList<EntityConstraint>();
+    private final ArrayList<EntityConstraint> constraints = new ArrayList<>();
     private DataStore dataStore;
     private final Fields fields = new Fields();
 
@@ -158,22 +158,27 @@ public class EntityMetadata implements Serializable {
     }
 
     class RootTreeNode implements FieldTreeNode {
+        @Override
         public String getName() {
             return "";
         }
 
+        @Override
         public Type getType() {
             return null;
         }
 
+        @Override
         public boolean hasChildren() {
             return true;
         }
 
+        @Override
         public Iterator<? extends FieldTreeNode> getChildren() {
             return fields.getFields();
         }
 
+        @Override
         public FieldTreeNode resolve(Path p) {
             return fields.resolve(p);
         }

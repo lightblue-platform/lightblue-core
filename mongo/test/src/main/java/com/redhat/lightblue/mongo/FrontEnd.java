@@ -57,6 +57,8 @@ import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Simple test front-end for metadata and mediator that works with one DB
@@ -99,7 +101,7 @@ public class FrontEnd {
         return new Mediator(getMetadata(), factory);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         try {
             String dbHost = arg("dbHost", args, true);
             String dbPort = arg("dbPort", args, true);
@@ -118,19 +120,19 @@ public class FrontEnd {
                 MongodStarter runtime = MongodStarter.getDefaultInstance();
                 MongodExecutable mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT,
                         Network.localhostIsIPv6()));
-                MongodProcess mongod = mongodExe.start();
+                mongodExe.start();
                 Mongo mongo = new Mongo(IN_MEM_CONNECTION_URL);
                 db = mongo.getDB(dbName);
             }
             FrontEnd fe = new FrontEnd(db);
             runCmd(fe, arg("cmd", args), args);
-        } catch (Exception e) {
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
             printHelp();
         }
     }
 
-    private static void runCmd(FrontEnd fe, String cmd, String[] args) throws Exception {
+    private static void runCmd(FrontEnd fe, String cmd, String[] args) throws IOException {
         Metadata md = fe.getMetadata();
         Mediator mediator = fe.getMediator();
         Extensions<JsonNode> extensions = new Extensions<>();
@@ -218,7 +220,7 @@ public class FrontEnd {
         return arg(argName, args, false);
     }
 
-    private static JsonNode fileOrJson(String argName, String[] args) throws Exception {
+    private static JsonNode fileOrJson(String argName, String[] args) throws FileNotFoundException, IOException {
         String arg = arg(argName, args);
         if (arg.startsWith("@")) {
             arg = arg.substring(1);

@@ -18,10 +18,12 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.io.Serializable;
+
 /**
  * Interface for datastore metadata implementations. The actual contents are defined by the implementation.
  */
-public interface DataStore {
+public interface DataStore extends Serializable {
 
     /**
      * Returns the type of the datastore
