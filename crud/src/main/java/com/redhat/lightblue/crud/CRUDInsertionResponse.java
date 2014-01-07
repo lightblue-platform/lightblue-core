@@ -18,8 +18,6 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.io.Serializable;
-
 import java.util.List;
 
 import com.redhat.lightblue.DataError;
@@ -27,64 +25,23 @@ import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
-public class CRUDInsertionResponse implements Serializable {
+/**
+ * CRUD layer insertion response
+ */
+public class CRUDInsertionResponse extends AbstractCRUDUpdateResponse {
 
-    private static final long serialVersionUID = 1l;
-
-    private List<JsonDoc> documents;
-    private List<DataError> dataErrors;
-    private List<Error> errors;
-
+    /**
+     * Default ctor
+     */
     public CRUDInsertionResponse() {
     }
 
+    /**
+     * Constructs a response object with the given values
+     */
     public CRUDInsertionResponse(List<JsonDoc> docs,
                                  List<DataError> dataErrors,
                                  List<Error> errors) {
-        this.documents = docs;
-        this.dataErrors = dataErrors;
-        this.errors = errors;
-    }
-
-    /**
-     * Returns the documents projected as requested. Returns null if no projections were given
-     */
-    public List<JsonDoc> getDocuments() {
-        return documents;
-    }
-
-    /**
-     * Sets the documents list
-     */
-    public void setDocuments(List<JsonDoc> docs) {
-        this.documents = docs;
-    }
-
-    /**
-     * Returns data errors for each doc
-     */
-    public List<DataError> getDataErrors() {
-        return dataErrors;
-    }
-
-    /**
-     * Sets the data errors list
-     */
-    public void setDataErrors(List<DataError> l) {
-        dataErrors = l;
-    }
-
-    /**
-     * Returns errors that are not related to data
-     */
-    public List<Error> getErrors() {
-        return errors;
-    }
-
-    /**
-     * Sets the errors list
-     */
-    public void setErrors(List<Error> l) {
-        errors = l;
+        super(docs,dataErrors,errors);
     }
 }

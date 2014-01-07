@@ -18,21 +18,18 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.io.Serializable;
-
 import java.util.List;
 
 import com.redhat.lightblue.util.JsonDoc;
 
-public class CRUDFindResponse implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+/**
+ * CRUD layer response to find() request. Contains the found
+ * documents, total resultset size, and errors.
+ */
+public class CRUDFindResponse extends AbstractCRUDResponse {
 
     private List<JsonDoc> results;
     private long size;
-
-    public CRUDFindResponse() {
-    }
 
     /**
      * Returns the result set
