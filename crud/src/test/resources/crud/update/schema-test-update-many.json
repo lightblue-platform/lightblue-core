@@ -32,11 +32,6 @@
                 }
             },
             {
-                "$setOnInsert": {
-                    "createdDate": "now"
-                }
-            },
-            {
                 "$push": {
                     "arrayFieldName": "first",
                     "otherArray": "last"

@@ -306,14 +306,6 @@
                 },
                 {
                     "properties": {
-                        "$setOnInsert": {
-                            "$ref": "#/definitions/update_field_setOnInsert"
-                        }
-                    },
-                    "additionalProperties": false
-                },
-                {
-                    "properties": {
                         "$pop": {
                             "$ref": "#/definitions/update_array_pop"
                         }
@@ -363,10 +355,6 @@
                 }
             },
             "additionalProperties": false
-        },
-        "update_field_setOnInsert": {
-            "description": "Value set on attribute only if operation is insert.",
-            "$ref": "#/definitions/update_field_set"
         },
         "update_array_pop": {
             "type": "object",
