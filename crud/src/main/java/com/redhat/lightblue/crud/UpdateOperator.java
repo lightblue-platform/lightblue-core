@@ -28,7 +28,6 @@ public enum UpdateOperator {
     _set("$set"),
     _unset("$unset"),
     _add("$add"),
-    _setOnInsert("$setOnInsert"),
     _pop("$pop"),
     _remove("$remove"),
     _push("$push");
@@ -42,7 +41,6 @@ public enum UpdateOperator {
         map.put(_set.op, _set);
         map.put(_unset.op, _unset);
         map.put(_add.op, _add);
-        map.put(_setOnInsert.op, _setOnInsert);
         map.put(_pop.op, _pop);
         map.put(_remove.op, _remove);
         map.put(_push.op, _push);

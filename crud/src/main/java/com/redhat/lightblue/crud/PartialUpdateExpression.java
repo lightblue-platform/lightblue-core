@@ -41,7 +41,6 @@ public abstract class PartialUpdateExpression extends UpdateExpression {
             switch (op) {
                 case _set:
                 case _add:
-                case _setOnInsert:
                     return SetExpression.fromJson(op, (ObjectNode) value);
                 case _unset:
                     return UnsetExpression.fromJson(value);
