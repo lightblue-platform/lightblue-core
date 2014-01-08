@@ -24,50 +24,37 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 
 import com.redhat.lightblue.query.ArrayRangeProjection;
 
-public class ArrayRangeProjector extends Projector {
+/**
+ * Projector that returns a range of elements from an array
+ */
+public class ArrayRangeProjector extends ArrayProjector {
 
-    private final Path arrayFieldPattern;
-    private final boolean include;
     private final int from;
     private final int to;
-    private final Projector nestedProjector;
-    private boolean lastMatch;
 
+    /**
+     * Ctor
+     *
+     * @param p The projection expression
+     * @param ctxPath The absolute path relative to which this is to be interpreted
+     * @param context The metadata node at which this is to be interpreted
+     */
     public ArrayRangeProjector(ArrayRangeProjection p, Path ctxPath, FieldTreeNode ctx) {
-        super(ctxPath, ctx);
-        arrayFieldPattern = new Path(ctxPath, p.getField());
-        include = p.isInclude();
+        super(p,ctxPath, ctx);
         from = p.getFrom();
         to = p.getTo();
-        nestedProjector = Projector.getInstance(p.getProject(), new Path(arrayFieldPattern, Path.ANYPATH), ctx);
     }
 
     @Override
-    public Projector getNestedProjector() {
-        return lastMatch ? nestedProjector : null;
-    }
-
-    @Override
-    public Boolean project(Path p, QueryEvaluationContext ctx) {
-        lastMatch = false;
-        if (p.matchingPrefix(arrayFieldPattern)) {
+    protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
+        // Is this array element in range?
+        int index = p.getIndex(p.numSegments() - 1);
+        if (index >= from && index <= to) {
+            // This array element is selected.
+            lastMatch=true;
             return include ? Boolean.TRUE : Boolean.FALSE;
+        } else {
+            return Boolean.FALSE;
         }
-        // Is this field pointing to an element of the array
-        // It is so if 'p' has one more element than 'arrayFieldPattern', and
-        // if it is a matching descendant
-        if (p.numSegments() == arrayFieldPattern.numSegments() + 1
-                && p.matchingDescendant(arrayFieldPattern)) {
-            lastMatch = true;
-            // Is this array element in range?
-            int index = p.getIndex(p.numSegments() - 1);
-            if (index >= from && index <= to) {
-                // This array element is selected.
-                return include ? Boolean.TRUE : Boolean.FALSE;
-            } else {
-                return Boolean.FALSE;
-            }
-        }
-        return null;
     }
 }

@@ -25,52 +25,34 @@ import com.redhat.lightblue.metadata.ArrayField;
 
 import com.redhat.lightblue.query.ArrayQueryMatchProjection;
 
-public class ArrayQueryProjector extends Projector {
+/**
+ * Projector to return array elements that match a query
+ */
+public class ArrayQueryProjector extends ArrayProjector {
 
-    private final Path arrayFieldPattern;
-    private final boolean include;
     private final QueryEvaluator query;
-    private final Projector nestedProjector;
-    private boolean lastMatch;
 
+    /**
+     * Ctor
+     *
+     * @param p The projection expression
+     * @param ctxPath The absolute path relative to which this is to be interpreted
+     * @param context The metadata node at which this is to be interpreted
+     */
     public ArrayQueryProjector(ArrayQueryMatchProjection p, Path ctxPath, FieldTreeNode context) {
-        super(ctxPath, context);
-        arrayFieldPattern = new Path(ctxPath, p.getField());
-        include = p.isInclude();
+        super(p,ctxPath, context);
         FieldTreeNode nestedCtx = context.resolve(p.getField());
-        if (nestedCtx instanceof ArrayField) {
-            query = QueryEvaluator.getInstance(p.getMatch(), ((ArrayField) nestedCtx).getElement());
-        } else {
-            throw new EvaluationError("Expecting array element for " + arrayFieldPattern);
-        }
-        nestedProjector = Projector.getInstance(p.getProject(),
-                new Path(arrayFieldPattern, Path.ANYPATH),
-                ((ArrayField) nestedCtx).getElement());
+        query = QueryEvaluator.getInstance(p.getMatch(), ((ArrayField) nestedCtx).getElement());
     }
 
     @Override
-    public Projector getNestedProjector() {
-        return lastMatch ? nestedProjector : null;
-    }
-
-    @Override
-    public Boolean project(Path p, QueryEvaluationContext ctx) {
-        lastMatch = false;
-        if (p.matchingPrefix(arrayFieldPattern)) {
+    protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
+        Path contextRoot = ctx.getPath();
+        QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
+                                                                    : p.suffix(-contextRoot.numSegments()));
+        if (query.evaluate(nestedContext)) {
+            lastMatch=true;
             return include ? Boolean.TRUE : Boolean.FALSE;
-        }
-        // Is this field pointing to an element of the array
-        // It is so if 'p' has one more element than 'arrayFieldPattern', and
-        // if it is a matching descendant
-        if (p.numSegments() == arrayFieldPattern.numSegments() + 1
-                && p.matchingDescendant(arrayFieldPattern)) {
-            lastMatch = true;
-            Path contextRoot = ctx.getPath();
-            QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
-                    : p.suffix(-contextRoot.numSegments()));
-            if (query.evaluate(nestedContext)) {
-                return include ? Boolean.TRUE : Boolean.FALSE;
-            }
         }
         return null;
     }

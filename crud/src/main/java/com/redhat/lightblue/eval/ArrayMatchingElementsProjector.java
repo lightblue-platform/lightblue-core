@@ -24,39 +24,25 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 
 import com.redhat.lightblue.query.ArrayMatchingElementsProjection;
 
-public class ArrayMatchingElementsProjector extends Projector {
+/**
+ * Projects the elements of an array that match the search query
+ */
+public class ArrayMatchingElementsProjector extends ArrayProjector {
 
-    private final Path arrayFieldPattern;
-    private final boolean include;
-    private final Projector nestedProjector;
-    private boolean lastMatch = false;
-
+    /**
+     * Ctor
+     *
+     * @param p The projection expression
+     * @param ctxPath The absolute path relative to which this is to be interpreted
+     * @param context The metadata node at which this is to be interpreted
+     */
     public ArrayMatchingElementsProjector(ArrayMatchingElementsProjection p, Path ctxPath, FieldTreeNode ctx) {
-        super(ctxPath, ctx);
-        arrayFieldPattern = new Path(ctxPath, p.getField());
-        include = p.isInclude();
-        nestedProjector = Projector.getInstance(p.getProject(),
-                new Path(arrayFieldPattern, Path.ANYPATH),
-                ctx);
+        super(p,ctxPath, ctx);
     }
 
     @Override
-    public Projector getNestedProjector() {
-        return lastMatch ? nestedProjector : null;
-    }
-
-    @Override
-    public Boolean project(Path p, QueryEvaluationContext ctx) {
-        lastMatch = false;
-        if (p.matchingPrefix(arrayFieldPattern)) {
-            return include ? Boolean.TRUE : Boolean.FALSE;
-        }
-        // Is this field pointing to an element of the array
-        // It is so if 'p' has one more element than 'arrayFieldPattern', and
-        // if it is a matching descendant
-        if (p.numSegments() == arrayFieldPattern.numSegments() + 1
-                && p.matchingDescendant(arrayFieldPattern)
-                && ctx.isMatchingElement(p)) {
+    protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
+        if (ctx.isMatchingElement(p)) {
             lastMatch = true;
             return include ? Boolean.TRUE : Boolean.FALSE;
         }
