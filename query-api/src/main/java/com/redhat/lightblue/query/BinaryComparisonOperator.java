@@ -34,16 +34,16 @@ public enum BinaryComparisonOperator {
 
     private final String[] ops;
 
-    private static final Map<String, BinaryComparisonOperator> map;
+    private static final Map<String, BinaryComparisonOperator> MAP;
 
     static {
-        map = new HashMap<>();
-        _eq.init(map);
-        _neq.init(map);
-        _lt.init(map);
-        _gt.init(map);
-        _lte.init(map);
-        _gte.init(map);
+        MAP = new HashMap<>();
+        _eq.init(MAP);
+        _neq.init(MAP);
+        _lt.init(MAP);
+        _gt.init(MAP);
+        _lte.init(MAP);
+        _gte.init(MAP);
     }
 
     private void init(Map<String, BinaryComparisonOperator> map) {
@@ -85,6 +85,6 @@ public enum BinaryComparisonOperator {
     }
 
     public static BinaryComparisonOperator fromString(String s) {
-        return map.get(s);
+        return MAP.get(s);
     }
 }

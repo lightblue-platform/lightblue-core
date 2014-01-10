@@ -34,9 +34,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  */
 public final class Error extends RuntimeException {
 
-    private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
+    private static final JsonNodeFactory FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
-    private static final ThreadLocal<ArrayDeque<String>> threadContext = new ThreadLocal< ArrayDeque<String>>() {
+    private static final ThreadLocal<ArrayDeque<String>> THREAD_CONTEXT = new ThreadLocal< ArrayDeque<String>>() {
         @Override
         protected ArrayDeque<String> initialValue() {
             return new ArrayDeque<>();
@@ -53,14 +53,14 @@ public final class Error extends RuntimeException {
      * Pushes the given context information to the current thread stack
      */
     public static void push(String context) {
-        threadContext.get().addLast(context);
+        THREAD_CONTEXT.get().addLast(context);
     }
 
     /**
      * Pops the context information from current thread stack
      */
     public static void pop() {
-        ArrayDeque<String> c = threadContext.get();
+        ArrayDeque<String> c = THREAD_CONTEXT.get();
         if (!c.isEmpty()) {
             c.removeLast();
         }
@@ -74,28 +74,28 @@ public final class Error extends RuntimeException {
      */
     public static Error get(String ctx, String errorCode, String msg) {
         push(ctx);
-        return new Error(threadContext.get(), errorCode, msg);
+        return new Error(THREAD_CONTEXT.get(), errorCode, msg);
     }
 
     /**
      * Constructs a new error object using the current context
      */
     public static Error get(String errorCode, String msg) {
-        return new Error(threadContext.get(), errorCode, msg);
+        return new Error(THREAD_CONTEXT.get(), errorCode, msg);
     }
 
     /**
      * Constructs a new error object using the current context
      */
     public static Error get(String errorCode) {
-        return new Error(threadContext.get(), errorCode, null);
+        return new Error(THREAD_CONTEXT.get(), errorCode, null);
     }
 
     /**
      * Resets the stack thread context
      */
     public static void reset() {
-        threadContext.remove();
+        THREAD_CONTEXT.remove();
     }
 
     private Error(String errorCode, String msg) {
@@ -143,16 +143,16 @@ public final class Error extends RuntimeException {
     }
 
     public JsonNode toJson() {
-        ObjectNode node = (ObjectNode) factory.objectNode();
-        node.put("object_type", factory.textNode("error"));
+        ObjectNode node = (ObjectNode) FACTORY.objectNode();
+        node.put("object_type", FACTORY.textNode("error"));
         if (!context.isEmpty()) {
-            node.put("context", factory.textNode(getContext()));
+            node.put("context", FACTORY.textNode(getContext()));
         }
         if (errorCode != null) {
-            node.put("errorCode", factory.textNode(errorCode));
+            node.put("errorCode", FACTORY.textNode(errorCode));
         }
         if (msg != null) {
-            node.put("msg", factory.textNode(msg));
+            node.put("msg", FACTORY.textNode(msg));
         }
         return node;
     }

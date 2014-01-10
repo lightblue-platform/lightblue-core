@@ -46,7 +46,7 @@ import com.redhat.lightblue.crud.ArrayPushExpression;
  */
 public class ArrayPusher extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArrayPusher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayPusher.class);
 
     private final Path field;
     private final List<Object> values;
@@ -56,7 +56,7 @@ public class ArrayPusher extends Updater {
     public ArrayPusher(JsonNodeFactory factory, EntityMetadata md, ArrayPushExpression expr) {
         this.field = expr.getField();
         List<Value> valueList = expr.getValues();
-        this.values = new ArrayList<Object>(valueList.size());
+        this.values = new ArrayList<>(valueList.size());
         this.factory = factory;
         FieldTreeNode node = md.resolve(field);
         if (node instanceof ArrayField) {
@@ -75,7 +75,7 @@ public class ArrayPusher extends Updater {
     @Override
     public boolean update(JsonDoc doc) {
         boolean ret = false;
-        logger.debug("Push to {} ", field);
+        LOGGER.debug("Push to {} ", field);
         KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
         while (cursor.hasNext()) {
             JsonNode node = cursor.getCurrentValue();
@@ -84,7 +84,7 @@ public class ArrayPusher extends Updater {
                     ((ArrayNode) node).add(type.toJson(factory, x));
                 }
             } else {
-                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+                LOGGER.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
             }
         }
         return ret;

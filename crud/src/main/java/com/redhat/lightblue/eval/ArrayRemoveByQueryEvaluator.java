@@ -44,7 +44,7 @@ import com.redhat.lightblue.util.MutablePath;
  */
 public class ArrayRemoveByQueryEvaluator extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArrayRemoveByQueryEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayRemoveByQueryEvaluator.class);
 
     private final Path field;
     private final QueryEvaluator query;
@@ -65,7 +65,7 @@ public class ArrayRemoveByQueryEvaluator extends Updater {
     @Override
     public boolean update(JsonDoc doc) {
         boolean ret = false;
-        logger.debug("Remove elements from {} ", field);
+        LOGGER.debug("Remove elements from {} ", field);
         KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
         while (cursor.hasNext()) {
             JsonNode node = cursor.getCurrentValue();
@@ -83,12 +83,12 @@ public class ArrayRemoveByQueryEvaluator extends Updater {
                     index++;
                     path.setLast(index);
                 }
-                logger.debug("Removing {} from {}", deleteList, field);
+                LOGGER.debug("Removing {} from {}", deleteList, field);
                 for (int i = deleteList.size() - 1; i >= 0; i--) {
                     ((ArrayNode) node).remove(deleteList.get(i));
                 }
             } else {
-                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+                LOGGER.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
             }
         }
         return ret;

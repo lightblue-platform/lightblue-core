@@ -32,7 +32,7 @@ import com.redhat.lightblue.util.Path;
 
 public class FieldComparisonEvaluator extends QueryEvaluator {
 
-    private static final Logger logger = LoggerFactory.getLogger(FieldComparisonEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FieldComparisonEvaluator.class);
 
     private final FieldTreeNode fieldMd;
     private final FieldTreeNode rfieldMd;
@@ -60,12 +60,12 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
             throw new EvaluationError(expr, "No field " + rfieldRelativePath);
         }
         operator = expr.getOp();
-        logger.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);
+        LOGGER.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
+        LOGGER.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
         JsonNode lvalueNode = ctx.getNode(relativePath);
         Object ldocValue;
         if (lvalueNode != null) {
@@ -80,9 +80,9 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         } else {
             rdocValue = null;
         }
-        logger.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
+        LOGGER.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
         int result = fieldMd.getType().compare(ldocValue, rdocValue);
-        logger.debug(" result={}", result);
+        LOGGER.debug(" result={}", result);
         ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }

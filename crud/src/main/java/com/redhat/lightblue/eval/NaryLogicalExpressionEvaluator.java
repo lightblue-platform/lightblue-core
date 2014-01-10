@@ -32,7 +32,7 @@ import com.redhat.lightblue.query.QueryExpression;
 
 public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
 
-    private static final Logger logger = LoggerFactory.getLogger(NaryLogicalExpressionEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NaryLogicalExpressionEvaluator.class);
 
     private final List<QueryEvaluator> evaluators;
     private final NaryLogicalOperator operator;
@@ -50,7 +50,7 @@ public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         boolean ret = false;
-        logger.debug("evaluate {}", operator);
+        LOGGER.debug("evaluate {}", operator);
         switch (operator) {
             case _and:
                 for (QueryEvaluator q : evaluators) {

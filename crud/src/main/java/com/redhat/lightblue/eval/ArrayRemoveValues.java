@@ -48,7 +48,7 @@ import com.redhat.lightblue.util.KeyValueCursor;
  */
 public class ArrayRemoveValues extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArrayRemoveValues.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayRemoveValues.class);
 
     private final Path field;
     private final Set<Object> values;
@@ -80,7 +80,7 @@ public class ArrayRemoveValues extends Updater {
     @Override
     public boolean update(JsonDoc doc) {
         boolean ret = false;
-        logger.debug("Remove values {} from {} ", values, field);
+        LOGGER.debug("Remove values {} from {} ", values, field);
         KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
         while (cursor.hasNext()) {
             JsonNode node = cursor.getCurrentValue();
@@ -91,20 +91,18 @@ public class ArrayRemoveValues extends Updater {
                     JsonNode element = itr.next();
                     if (element != null) {
                         Object obj = type.fromJson(element);
-                        if (obj != null) {
-                            if (values.contains(obj)) {
-                                deleteList.add(index);
-                            }
+                        if (obj != null && values.contains(obj)) {
+                            deleteList.add(index);
                         }
                     }
                     index++;
                 }
-                logger.debug("Removing {} from {}", deleteList, field);
+                LOGGER.debug("Removing {} from {}", deleteList, field);
                 for (int i = deleteList.size() - 1; i >= 0; i--) {
                     ((ArrayNode) node).remove(deleteList.get(i));
                 }
             } else {
-                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+                LOGGER.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
             }
         }
         return ret;

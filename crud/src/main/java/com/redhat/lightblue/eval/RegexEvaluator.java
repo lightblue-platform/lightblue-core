@@ -33,7 +33,7 @@ import com.redhat.lightblue.util.Path;
 
 public class RegexEvaluator extends QueryEvaluator {
 
-    private static final Logger logger = LoggerFactory.getLogger(RegexEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegexEvaluator.class);
 
     private final FieldTreeNode fieldMd;
     private final Pattern regex;
@@ -67,12 +67,12 @@ public class RegexEvaluator extends QueryEvaluator {
             flags |= Pattern.DOTALL;
         }
         regex = Pattern.compile(expr.getRegex(), flags);
-        logger.debug("ctor {} {}", relativePath, regex);
+        LOGGER.debug("ctor {} {}", relativePath, regex);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {} {}", relativePath, regex);
+        LOGGER.debug("evaluate {} {}", relativePath, regex);
         JsonNode valueNode = ctx.getNode(relativePath);
         Object docValue;
         if (valueNode != null) {
@@ -80,7 +80,7 @@ public class RegexEvaluator extends QueryEvaluator {
         } else {
             docValue = null;
         }
-        logger.debug(" value={}", valueNode);
+        LOGGER.debug(" value={}", valueNode);
         ctx.setResult(false);
         if (docValue != null) {
             ctx.setResult(regex.matcher(docValue.toString()).matches());

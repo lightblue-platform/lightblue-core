@@ -26,15 +26,15 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 public class Types implements TypeResolver {
 
-    private static final List<TypeResolver> typeResolvers = new ArrayList<TypeResolver>();
+    private static final List<TypeResolver> TYPE_RESOLVERS = new ArrayList<>();
 
     /**
      * Adds a new type resolver. If the new type resolver redefined any of the already defined types, the type is
      * overriden by the new copy
      */
     public void addTypeResolver(TypeResolver r) {
-        if (!typeResolvers.contains(r)) {
-            typeResolvers.add(0, r);
+        if (!TYPE_RESOLVERS.contains(r)) {
+            TYPE_RESOLVERS.add(0, r);
         }
     }
 
@@ -47,7 +47,7 @@ public class Types implements TypeResolver {
 
     @Override
     public Type getType(String name) {
-        for (TypeResolver x : typeResolvers) {
+        for (TypeResolver x : TYPE_RESOLVERS) {
             Type t = x.getType(name);
             if (t != null) {
                 return t;

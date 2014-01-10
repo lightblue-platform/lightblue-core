@@ -78,7 +78,7 @@ public class MongoCRUDController implements CRUDController {
     private static final String OP_FIND = "find";
     private static final String OP_UPDATE = "update";
 
-    private static final Logger logger = LoggerFactory.getLogger(MongoCRUDController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoCRUDController.class);
 
     private final JsonNodeFactory factory;
     private final DBResolver dbResolver;
@@ -96,7 +96,7 @@ public class MongoCRUDController implements CRUDController {
     public CRUDInsertionResponse insert(MetadataResolver resolver,
                                         List<JsonDoc> documents,
                                         Projection projection) {
-        logger.debug("insert() start");
+        LOGGER.debug("insert() start");
         CRUDInsertionResponse response = new CRUDInsertionResponse();
         saveOrInsert(resolver, documents, false, projection, response, OP_INSERT);
         return response;
@@ -107,7 +107,7 @@ public class MongoCRUDController implements CRUDController {
                                  List<JsonDoc> documents,
                                  boolean upsert,
                                  Projection projection) {
-        logger.debug("save() start");
+        LOGGER.debug("save() start");
         CRUDSaveResponse response = new CRUDSaveResponse();
         saveOrInsert(resolver, documents, upsert, projection, response, OP_SAVE);
         return response;
@@ -122,15 +122,15 @@ public class MongoCRUDController implements CRUDController {
         if (documents == null || documents.isEmpty()) {
             throw new IllegalArgumentException("Empty documents");
         }
-        logger.debug("saveOrInsert() start");
+        LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
         Translator translator = new Translator(resolver, factory);
         try {
-            logger.debug("saveOrInsert: Translating docs");
+            LOGGER.debug("saveOrInsert: Translating docs");
             DBObject[] dbObjects = translator.toBson(documents);
             if (dbObjects != null) {
-                logger.debug("saveOrInsert: {} docs translated to bson", dbObjects.length);
-                logger.debug("saveOrInsert: saving docs");
+                LOGGER.debug("saveOrInsert: {} docs translated to bson", dbObjects.length);
+                LOGGER.debug("saveOrInsert: saving docs");
                 Map<DBObject, List<Error>> errorMap = new HashMap<DBObject, List<Error>>();
                 // Group docs by collection
                 DocIndex index = new DocIndex(resolver, dbResolver);
@@ -141,7 +141,7 @@ public class MongoCRUDController implements CRUDController {
                 List<DBObject> successfulUpdates = new ArrayList<DBObject>(documents.size());
                 for (MongoDataStore store : stores) {
                     List<DBObject> docs = index.getDocs(store);
-                    logger.debug("saving {} docs into collection {}", docs.size(), store);
+                    LOGGER.debug("saving {} docs into collection {}", docs.size(), store);
                     DBCollection collection = index.getDBCollection(store);
                     for (DBObject doc : docs) {
                         try {
@@ -169,7 +169,7 @@ public class MongoCRUDController implements CRUDController {
                         }
                     }
                 }
-                logger.debug("saveOrInsert comlete, {} sucessful updates", successfulUpdates.size());
+                LOGGER.debug("saveOrInsert comlete, {} sucessful updates", successfulUpdates.size());
                 // Build projectors and translate docs
                 Map<String, Projector> projectorMap = buildProjectorMap(projection,
                         index.getObjectTypes(),
@@ -201,7 +201,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        logger.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments().size());
+        LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments().size());
     }
 
     public CRUDUpdateResponse update(MetadataResolver resolver,
@@ -212,19 +212,19 @@ public class MongoCRUDController implements CRUDController {
         if (query == null) {
             throw new IllegalArgumentException("Null query");
         }
-        logger.debug("update start: q:{} u:{} p:{}", query, update, projection);
+        LOGGER.debug("update start: q:{} u:{} p:{}", query, update, projection);
         Error.push(OP_UPDATE);
         CRUDUpdateResponse response = new CRUDUpdateResponse();
         Translator translator = new Translator(resolver, factory);
         try {
             EntityMetadata md = resolver.getEntityMetadata(entity);
-            logger.debug("Translating query {}", query);
+            LOGGER.debug("Translating query {}", query);
             DBObject mongoQuery = translator.translate(md, query);
-            logger.debug("Translated query {}", mongoQuery);
+            LOGGER.debug("Translated query {}", mongoQuery);
         } finally {
             Error.pop();
         }
-        logger.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
+        LOGGER.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
         return response;
     }
 
@@ -245,29 +245,29 @@ public class MongoCRUDController implements CRUDController {
         if (projection == null) {
             throw new IllegalArgumentException("Null projection");
         }
-        logger.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
+        LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
         Translator translator = new Translator(resolver, factory);
         try {
             EntityMetadata md = resolver.getEntityMetadata(entity);
-            logger.debug("Translating query {}", query);
+            LOGGER.debug("Translating query {}", query);
             DBObject mongoQuery = translator.translate(md, query);
-            logger.debug("Translated query {}", mongoQuery);
+            LOGGER.debug("Translated query {}", mongoQuery);
             DB db = dbResolver.get((MongoDataStore) md.getDataStore());
             DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-            logger.debug("Retrieve db collection:" + coll);
-            logger.debug("Submitting query");
+            LOGGER.debug("Retrieve db collection:" + coll);
+            LOGGER.debug("Submitting query");
             DBCursor cursor = coll.find(mongoQuery);
-            logger.debug("Query evaluated");
+            LOGGER.debug("Query evaluated");
             if (sort != null) {
-                logger.debug("Translating sort {}", sort);
+                LOGGER.debug("Translating sort {}", sort);
                 DBObject mongoSort = translator.translate(sort);
-                logger.debug("Translated sort {}", mongoSort);
+                LOGGER.debug("Translated sort {}", mongoSort);
                 cursor = cursor.sort(mongoSort);
-                logger.debug("Result set sorted");
+                LOGGER.debug("Result set sorted");
             }
-            logger.debug("Applying limits: {} - {}", from, to);
+            LOGGER.debug("Applying limits: {} - {}", from, to);
             response.setSize(cursor.size());
             if (from != null) {
                 cursor.skip(from.intValue());
@@ -275,11 +275,11 @@ public class MongoCRUDController implements CRUDController {
             if (to != null) {
                 cursor.limit(to.intValue() - (from == null ? 0 : from.intValue()) + 1);
             }
-            logger.debug("Retrieving results");
+            LOGGER.debug("Retrieving results");
             List<DBObject> mongoResults = cursor.toArray();
-            logger.debug("Retrieved {} results", mongoResults.size());
+            LOGGER.debug("Retrieved {} results", mongoResults.size());
             List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
-            logger.debug("Translated DBObjects to json");
+            LOGGER.debug("Translated DBObjects to json");
             // Project results
             Projector projector = Projector.getInstance(projection, md);
             QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
@@ -292,7 +292,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        logger.debug("find end: query: {} results: {}", response.getResults().size());
+        LOGGER.debug("find end: query: {} results: {}", response.getResults().size());
         return response;
     }
 
@@ -300,11 +300,11 @@ public class MongoCRUDController implements CRUDController {
                                         Translator translator,
                                         Map<String, Projector> projectorMap) {
         JsonDoc jsonDoc = translator.toJson(doc);
-        logger.debug("Translated doc: {}", jsonDoc);
+        LOGGER.debug("Translated doc: {}", jsonDoc);
         String objectType = jsonDoc.get(Translator.OBJECT_TYPE).asText();
         Projector projector = projectorMap.get(objectType);
         JsonDoc result = projector.project(jsonDoc, factory, null);
-        logger.debug("projected doc: {}", result);
+        LOGGER.debug("projected doc: {}", result);
         return result;
     }
 
@@ -319,7 +319,7 @@ public class MongoCRUDController implements CRUDController {
             for (String objectType : objectTypes) {
                 EntityMetadata md = resolver.getEntityMetadata(objectType);
                 Projector projector = Projector.getInstance(projection, md);
-                logger.debug("projector {} for {}", projector, objectType);
+                LOGGER.debug("projector {} for {}", projector, objectType);
                 projectorMap.put(objectType, projector);
             }
         }

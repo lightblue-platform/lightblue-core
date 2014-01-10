@@ -42,7 +42,7 @@ import com.redhat.lightblue.crud.FieldValue;
  */
 public class FieldSetter extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(FieldSetter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FieldSetter.class);
 
     private final Map<Path, JsonNode> map = new HashMap<Path, JsonNode>();
 
@@ -73,7 +73,7 @@ public class FieldSetter extends Updater {
         for (Map.Entry<Path, JsonNode> x : map.entrySet()) {
             Path p = x.getKey();
             JsonNode value = x.getValue();
-            logger.debug("Set {} = {}", p, value);
+            LOGGER.debug("Set {} = {}", p, value);
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(p);
             while (cursor.hasNext()) {
                 JsonNode oldValue = doc.modify(cursor.getCurrentKey(), value, false);

@@ -36,7 +36,7 @@ import com.redhat.lightblue.util.Path;
 
 public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
 
-    private static final Logger logger = LoggerFactory.getLogger(NaryRelationalExpressionEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NaryRelationalExpressionEvaluator.class);
 
     private final Path field;
     private final FieldTreeNode fieldMd;
@@ -58,12 +58,12 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
                 values.add(x.getValue());
             }
         }
-        logger.debug("ctor {} {} {}", expr.getField(), operator, values);
+        LOGGER.debug("ctor {} {} {}", expr.getField(), operator, values);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {} {} {}", field, operator, values);
+        LOGGER.debug("evaluate {} {} {}", field, operator, values);
         JsonNode valueNode = ctx.getNode(field);
         Object docValue;
         if (valueNode != null) {
@@ -71,7 +71,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
         } else {
             docValue = null;
         }
-        logger.debug(" value={}", valueNode);
+        LOGGER.debug(" value={}", valueNode);
         boolean in = false;
         for (Object x : values) {
             if (docValue == null) {
@@ -85,7 +85,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
                 break;
             }
         }
-        logger.debug(" result={}", in);
+        LOGGER.debug(" result={}", in);
         ctx.setResult(operator.apply(in));
         return ctx.getResult();
     }

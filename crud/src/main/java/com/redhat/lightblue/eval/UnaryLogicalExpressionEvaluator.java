@@ -28,7 +28,7 @@ import com.redhat.lightblue.query.UnaryLogicalOperator;
 
 public class UnaryLogicalExpressionEvaluator extends QueryEvaluator {
 
-    private static final Logger logger = LoggerFactory.getLogger(UnaryLogicalExpressionEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnaryLogicalExpressionEvaluator.class);
 
     private final QueryEvaluator evaluator;
     private final UnaryLogicalOperator operator;
@@ -41,7 +41,7 @@ public class UnaryLogicalExpressionEvaluator extends QueryEvaluator {
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {}", operator);
+        LOGGER.debug("evaluate {}", operator);
         ctx.setResult(operator.apply(evaluator.evaluate(ctx)));
         return ctx.getResult();
     }

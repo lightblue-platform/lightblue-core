@@ -34,7 +34,7 @@ import com.redhat.lightblue.util.KeyValueCursor;
  */
 public class FieldUnsetter extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(FieldUnsetter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FieldUnsetter.class);
 
     private final List<Path> fields;
 
@@ -55,7 +55,7 @@ public class FieldUnsetter extends Updater {
     public boolean update(JsonDoc doc) {
         boolean ret = false;
         for (Path p : fields) {
-            logger.debug("Remove {}", p);
+            LOGGER.debug("Remove {}", p);
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(p);
             while (cursor.hasNext()) {
                 JsonNode oldValue = doc.modify(cursor.getCurrentKey(), null, false);

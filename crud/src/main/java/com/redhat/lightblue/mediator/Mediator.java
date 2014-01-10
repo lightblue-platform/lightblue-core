@@ -63,9 +63,9 @@ public class Mediator {
 
     public static final String ERR_CRUD = "CRUD";
 
-    private static final Logger logger = LoggerFactory.getLogger(Mediator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
 
-    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+    private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Metadata metadata;
     private final Factory factory;
@@ -85,7 +85,7 @@ public class Mediator {
      * for that entity.
      */
     public Response insert(InsertionRequest req) {
-        logger.debug("insert {}", req.getEntity());
+        LOGGER.debug("insert {}", req.getEntity());
         Error.push("insert(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
@@ -94,9 +94,9 @@ public class Mediator {
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
-                logger.debug("CRUD controller={}", controller.getClass().getName());
+                LOGGER.debug("CRUD controller={}", controller.getClass().getName());
                 CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
-                response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), nodeFactory));
+                response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(insertionResponse.getDataErrors(), response);
                 mergeErrors(insertionResponse.getErrors(), response);
                 response.setModifiedCount(insertionResponse.getDocuments().size());
@@ -131,7 +131,7 @@ public class Mediator {
      * for that entity.
      */
     public Response save(SaveRequest req) {
-        logger.debug("save {}", req.getEntity());
+        LOGGER.debug("save {}", req.getEntity());
         Error.push("save(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
@@ -140,9 +140,9 @@ public class Mediator {
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
-                logger.debug("CRUD controller={}", controller.getClass().getName());
+                LOGGER.debug("CRUD controller={}", controller.getClass().getName());
                 CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
-                response.setEntityData(toJsonDocList(saveResponse.getDocuments(), nodeFactory));
+                response.setEntityData(toJsonDocList(saveResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(saveResponse.getDataErrors(), response);
                 mergeErrors(saveResponse.getErrors(), response);
                 response.setModifiedCount(saveResponse.getDocuments().size());
@@ -173,14 +173,14 @@ public class Mediator {
      * the updated document is projected and returneed in the response.
      */
     public Response update(UpdateRequest req) {
-        logger.debug("update {}", req.getEntity());
+        LOGGER.debug("update {}", req.getEntity());
         Error.push("update(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.UPDATE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
             CRUDController controller = factory.getCRUDController(md);
-            logger.debug("CRUD controller={}", controller.getClass().getName());
+            LOGGER.debug("CRUD controller={}", controller.getClass().getName());
             CRUDUpdateResponse updateResponse = controller.update(ctx,
                     req.getEntity().getEntity(),
                     req.getQuery(),
@@ -197,7 +197,7 @@ public class Mediator {
     }
 
     public Response delete(DeleteRequest req) {
-        logger.debug("delete {}", req.getEntity());
+        LOGGER.debug("delete {}", req.getEntity());
         Error.push("delete(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
@@ -221,7 +221,7 @@ public class Mediator {
      * The implementation passes the request to the back-end.
      */
     public Response find(FindRequest req) {
-        logger.debug("find {}", req.getEntity());
+        LOGGER.debug("find {}", req.getEntity());
         Error.push("find(" + req.getEntity().toString() + ")");
         Response response = new Response();
         response.setStatus(OperationStatus.ERROR);
@@ -229,7 +229,7 @@ public class Mediator {
             OperationContext ctx = getOperationContext(req, response, null, Operation.FIND);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
             CRUDController controller = factory.getCRUDController(md);
-            logger.debug("CRUD controller={}", controller.getClass().getName());
+            LOGGER.debug("CRUD controller={}", controller.getClass().getName());
             CRUDFindResponse result = controller.find(ctx,
                     req.getEntity().getEntity(),
                     req.getQuery(),
@@ -239,7 +239,7 @@ public class Mediator {
                     req.getTo());
             response.setStatus(OperationStatus.COMPLETE);
             response.setMatchCount(result.getSize());
-            response.setEntityData(toJsonDocList(result.getResults(), nodeFactory));
+            response.setEntityData(toJsonDocList(result.getResults(), NODE_FACTORY));
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -255,7 +255,7 @@ public class Mediator {
      */
     private List<JsonDoc> runBulkConstraintValidation(EntityMetadata md,
                                                       OperationContext ctx) {
-        logger.debug("Bulk constraint validation");
+        LOGGER.debug("Bulk constraint validation");
         ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
         constraintValidator.validateDocs(ctx.getDocs());
         Map<JsonDoc, List<Error>> docErrors = constraintValidator.getDocErrors();
@@ -272,7 +272,7 @@ public class Mediator {
         if (errors != null && !errors.isEmpty()) {
             ctx.getResponse().getErrors().addAll(errors);
         }
-        logger.debug("There are {} documents to process after constraint validation", docsWithoutError.size());
+        LOGGER.debug("There are {} documents to process after constraint validation", docsWithoutError.size());
         return docsWithoutError;
     }
 
@@ -351,7 +351,7 @@ public class Mediator {
                                                  Response resp,
                                                  JsonNode entityData,
                                                  Operation op) {
-        logger.debug("getOperationContext start");
+        LOGGER.debug("getOperationContext start");
         OperationContext ctx
                 = new OperationContext(req, resp,
                         metadata.
@@ -360,12 +360,12 @@ public class Mediator {
                         metadata,
                         factory);
         ctx.setOperation(op);
-        logger.debug("metadata retrieved for {}", req.getEntity());
+        LOGGER.debug("metadata retrieved for {}", req.getEntity());
         ctx.setDocs(fromJsonDocList(entityData));
         if (ctx.getDocs() != null) {
-            logger.debug("There are {} docs in request", ctx.getDocs().size());
+            LOGGER.debug("There are {} docs in request", ctx.getDocs().size());
         }
-        logger.debug("getOperationContext return");
+        LOGGER.debug("getOperationContext return");
         return ctx;
     }
 }

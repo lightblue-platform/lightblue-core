@@ -64,7 +64,7 @@ public class Path implements Comparable<Path>, Serializable {
     static class PathRep implements Serializable {
         private static final long serialVersionUID = 1l;
 
-        private List<String> segments;
+        private final List<String> segments;
         private transient String stringValue = null;
         private transient int hashValue = 0;
 
@@ -124,7 +124,8 @@ public class Path implements Comparable<Path>, Serializable {
                 if (from >= n) {
                     segments.clear();
                 } else {
-                    int iFrom = from; // internal from
+                    // copy from argument to internal copy that can be manipulated
+                    int iFrom = from;
                     int k = n - iFrom;
                     int to = 0;
                     for (int i = 0; i < k; i++) {

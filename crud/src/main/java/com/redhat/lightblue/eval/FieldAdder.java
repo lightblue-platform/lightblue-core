@@ -46,7 +46,7 @@ import com.redhat.lightblue.crud.FieldValue;
  */
 public class FieldAdder extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(FieldAdder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FieldAdder.class);
 
     /**
      * Keeps the field type and correctly casted value to be added to the field
@@ -96,7 +96,7 @@ public class FieldAdder extends Updater {
         for (Map.Entry<Path, TypeAndValue> x : map.entrySet()) {
             Path p = x.getKey();
             TypeAndValue tvalue = x.getValue();
-            logger.debug("Add  {} to {}", tvalue.getValue(), p);
+            LOGGER.debug("Add  {} to {}", tvalue.getValue(), p);
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(p);
             while (cursor.hasNext()) {
                 JsonNode oldNode = cursor.getCurrentValue();

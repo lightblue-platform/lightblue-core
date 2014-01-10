@@ -68,8 +68,7 @@ public class FrontEnd {
     private static final int MONGO_PORT = 27777;
     private static final String IN_MEM_CONNECTION_URL = MONGO_HOST + ":" + MONGO_PORT;
 
-    private static final JsonNodeFactory nodeFactory
-            = JsonNodeFactory.withExactBigDecimals(true);
+    private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final DBResolver simpleDBResolver = new DBResolver() {
         @Override
@@ -94,7 +93,7 @@ public class FrontEnd {
         Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         MongoCRUDController mongoCRUDController
-                = new MongoCRUDController(nodeFactory, simpleDBResolver);
+                = new MongoCRUDController(NODE_FACTORY, simpleDBResolver);
         factory.addCRUDController("mongo", mongoCRUDController);
         return new Mediator(getMetadata(), factory);
     }
@@ -138,7 +137,7 @@ public class FrontEnd {
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions,
                 new DefaultTypes(),
-                nodeFactory);
+                NODE_FACTORY);
         switch (cmd) {
             case "getEntityMetadata":
                 System.out.println(parser.convert(md.getEntityMetadata(arg("entityName", args),

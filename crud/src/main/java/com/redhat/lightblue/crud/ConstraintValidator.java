@@ -45,14 +45,14 @@ public class ConstraintValidator {
 
     public static final String ERR_NO_CONSTRAINT = "NO_CONSTRAINT";
 
-    private static final Logger logger = LoggerFactory.getLogger(ConstraintValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConstraintValidator.class);
 
     private final Registry<String, FieldConstraintChecker> fRegistry;
     private final Registry<String, EntityConstraintChecker> eRegistry;
     private final EntityMetadata md;
 
-    private final Map<JsonDoc, List<Error>> docErrors = new HashMap<JsonDoc, List<Error>>();
-    private final List<Error> errors = new ArrayList<Error>();
+    private final Map<JsonDoc, List<Error>> docErrors = new HashMap<>();
+    private final List<Error> errors = new ArrayList<>();
 
     private List<JsonDoc> currentDocList;
     private JsonDoc currentDoc;
@@ -60,8 +60,6 @@ public class ConstraintValidator {
     private Path currentFieldPath;
     private FieldConstraint currentFieldConstraint;
     private EntityConstraint currentEntityConstraint;
-    private Path currentValuePath;
-    private JsonNode currentValue;
 
     protected ConstraintValidator(Registry<String, FieldConstraintChecker> r,
                                   Registry<String, EntityConstraintChecker> e,
@@ -136,7 +134,7 @@ public class ConstraintValidator {
         currentDocList = docList;
         currentDoc = null;
 
-        logger.debug("validateDocs() enter with {} docs", docList.size());
+        LOGGER.debug("validateDocs() enter with {} docs", docList.size());
         Error.push("validateDocs");
         try {
             for (JsonDoc doc : docList) {
@@ -145,24 +143,24 @@ public class ConstraintValidator {
         } finally {
             Error.pop();
         }
-        logger.debug("validateDocs() complete");
+        LOGGER.debug("validateDocs() complete");
     }
 
     public void validateDoc(JsonDoc doc) {
         currentDoc = doc;
         Error.push("validateDoc");
-        logger.debug("validateDoc() enter with entity {}", md.getName());
+        LOGGER.debug("validateDoc() enter with entity {}", md.getName());
         try {
             currentFieldConstraint = null;
             currentFieldNode = null;
             currentFieldPath = null;
-            currentValuePath = null;
-            currentValue = null;
-            logger.debug("checking entity constraints");
+            Path currentValuePath;
+            JsonNode currentValue;
+            LOGGER.debug("checking entity constraints");
             for (EntityConstraint x : md.getConstraints()) {
                 currentEntityConstraint = x;
                 String constraintType = currentEntityConstraint.getType();
-                logger.debug("checking entity constraint " + constraintType);
+                LOGGER.debug("checking entity constraint " + constraintType);
                 Error.push(constraintType);
                 try {
                     EntityConstraintChecker checker = eRegistry.find(constraintType);
@@ -178,12 +176,12 @@ public class ConstraintValidator {
                 }
             }
             currentEntityConstraint = null;
-            logger.debug("checking field constraints");
+            LOGGER.debug("checking field constraints");
             FieldCursor cursor = md.getFieldCursor();
             while (cursor.next()) {
                 currentFieldNode = cursor.getCurrentNode();
                 currentFieldPath = cursor.getCurrentPath();
-                logger.debug("checking field {}", currentFieldPath);
+                LOGGER.debug("checking field {}", currentFieldPath);
                 Error.push(currentFieldPath.toString());
                 try {
                     List<FieldConstraint> constraints = null;
@@ -194,15 +192,13 @@ public class ConstraintValidator {
                         for (FieldConstraint x : constraints) {
                             currentFieldConstraint = x;
                             String constraintType = currentFieldConstraint.getType();
-                            logger.debug("checking constraint " + constraintType);
+                            LOGGER.debug("checking constraint " + constraintType);
                             Error.push(constraintType);
                             try {
                                 FieldConstraintChecker checker = fRegistry.find(constraintType);
                                 if (checker == null) {
                                     throw Error.get(ERR_NO_CONSTRAINT);
                                 }
-                                currentValuePath = null;
-                                currentValue = null;
                                 if (checker instanceof FieldConstraintDocChecker) {
                                     // Constraint needs to be checked once for the doc
                                     ((FieldConstraintDocChecker) checker).checkConstraint(this,
@@ -247,9 +243,7 @@ public class ConstraintValidator {
         currentFieldConstraint = null;
         currentFieldNode = null;
         currentFieldPath = null;
-        currentValuePath = null;
-        currentValue = null;
-        logger.debug("validateDoc() complete");
+        LOGGER.debug("validateDoc() complete");
     }
 
 }

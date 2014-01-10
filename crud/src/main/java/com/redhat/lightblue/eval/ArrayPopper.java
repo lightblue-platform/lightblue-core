@@ -35,7 +35,7 @@ import com.redhat.lightblue.crud.ArrayPopExpression;
  */
 public class ArrayPopper extends Updater {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArrayPopper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayPopper.class);
 
     private final Path field;
     private final boolean first;
@@ -51,7 +51,7 @@ public class ArrayPopper extends Updater {
     @Override
     public boolean update(JsonDoc doc) {
         boolean ret = false;
-        logger.debug("Pop {} first={}", field, first);
+        LOGGER.debug("Pop {} first={}", field, first);
         KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
         while (cursor.hasNext()) {
             JsonNode node = cursor.getCurrentValue();
@@ -63,7 +63,7 @@ public class ArrayPopper extends Updater {
                     ret = true;
                 }
             } else {
-                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+                LOGGER.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
             }
         }
         return ret;

@@ -32,7 +32,7 @@ import com.redhat.lightblue.util.Path;
 
 public class ValueComparisonEvaluator extends QueryEvaluator {
 
-    private static final Logger logger = LoggerFactory.getLogger(ValueComparisonEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValueComparisonEvaluator.class);
 
     private final FieldTreeNode fieldMd;
     private final Path field;
@@ -54,12 +54,12 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
         }
         operator = expr.getOp();
         value = expr.getRvalue().getValue();
-        logger.debug("ctor {} {} {}", field, operator, value);
+        LOGGER.debug("ctor {} {} {}", field, operator, value);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
-        logger.debug("evaluate {} {} {}", field, operator, value);
+        LOGGER.debug("evaluate {} {} {}", field, operator, value);
         JsonNode valueNode = ctx.getNode(field);
         Object docValue;
         if (valueNode != null) {
@@ -67,9 +67,9 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
         } else {
             docValue = null;
         }
-        logger.debug(" value={}", valueNode);
+        LOGGER.debug(" value={}", valueNode);
         int result = fieldMd.getType().compare(docValue, value);
-        logger.debug(" result={}", result);
+        LOGGER.debug(" result={}", result);
         ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }

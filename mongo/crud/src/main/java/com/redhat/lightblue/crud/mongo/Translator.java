@@ -85,7 +85,7 @@ public class Translator {
     public static final String ERR_INVALID_FIELD = "INVALID_FIELD";
     public static final String ERR_INVALID_COMPARISON = "INVALID_COMPARISON";
 
-    private static final Logger logger = LoggerFactory.getLogger(Translator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
 
     private final MetadataResolver mdResolver;
     private final JsonNodeFactory factory;
@@ -151,7 +151,7 @@ public class Translator {
      * Translates a JSON document to DBObject. Translation is metadata driven.
      */
     public DBObject toBson(JsonDoc doc) {
-        logger.debug("toBson() enter");
+        LOGGER.debug("toBson() enter");
         JsonNode node = doc.get(OBJECT_TYPE);
         if (node == null) {
             throw Error.get(ERR_NO_OBJECT_TYPE);
@@ -161,7 +161,7 @@ public class Translator {
             throw Error.get(ERR_INVALID_OBJECTTYPE, node.asText());
         }
         DBObject ret = toBson(doc, md);
-        logger.debug("toBson() return");
+        LOGGER.debug("toBson() return");
         return ret;
     }
 
@@ -169,7 +169,7 @@ public class Translator {
      * Traslates a DBObject document to Json document
      */
     public JsonDoc toJson(DBObject object) {
-        logger.debug("toJson() enter");
+        LOGGER.debug("toJson() enter");
         Object type = object.get(OBJECT_TYPE_STR);
         if (type == null) {
             throw Error.get(ERR_NO_OBJECT_TYPE);
@@ -179,7 +179,7 @@ public class Translator {
             throw Error.get(ERR_INVALID_OBJECTTYPE, type.toString());
         }
         JsonDoc doc = toJson(object, md);
-        logger.debug("toJson() return");
+        LOGGER.debug("toJson() return");
         return doc;
     }
 
@@ -198,7 +198,7 @@ public class Translator {
      * Translates a sort expression to Mongo sort expression
      */
     public DBObject translate(Sort sort) {
-        logger.debug("translate {}", sort);
+        LOGGER.debug("translate {}", sort);
         Error.push("translateSort");
         DBObject ret;
         try {
@@ -220,7 +220,7 @@ public class Translator {
      * @param query The query expression
      */
     public DBObject translate(EntityMetadata md, QueryExpression query) {
-        logger.debug("translate {}", query);
+        LOGGER.debug("translate {}", query);
         Error.push("translateQuery");
         FieldTreeNode mdRoot = md.getFieldTreeRoot();
         try {
@@ -462,7 +462,7 @@ public class Translator {
             Path p = mdCursor.getCurrentPath();
             FieldTreeNode field = mdCursor.getCurrentNode();
             String fieldName = field.getName();
-            logger.debug("{}", p);
+            LOGGER.debug("{}", p);
             // Retrieve field value
             Object value = object.get(fieldName);
             if (value != null) {
@@ -481,7 +481,7 @@ public class Translator {
                             mdCursor.parent();
                         }
                     } else {
-                        logger.error("Expected DBObject, found {} for {}", value.getClass(), p);
+                        LOGGER.error("Expected DBObject, found {} for {}", value.getClass(), p);
                     }
                 } else if (field instanceof ArrayField
                         && value instanceof List
@@ -520,7 +520,7 @@ public class Translator {
                         mdCursor.parent();
                     }
                 } else {
-                    logger.error("Expected DBObject, got {}", value.getClass().getName());
+                    LOGGER.error("Expected DBObject, got {}", value.getClass().getName());
                 }
             }
         }
@@ -528,7 +528,7 @@ public class Translator {
     }
 
     private BasicDBObject toBson(JsonDoc doc, EntityMetadata md) {
-        logger.debug("Entity: {}", md.getName());
+        LOGGER.debug("Entity: {}", md.getName());
         BasicDBObject ret = null;
         JsonNodeCursor cursor = doc.cursor();
         if (cursor.firstChild()) {
@@ -552,7 +552,7 @@ public class Translator {
         Object value = toValue(fieldMd.getType(), node);
         // Should we add fields with null values to the bson doc? 
         if (value != null) {
-            logger.debug("{} = {}", path, value);
+            LOGGER.debug("{} = {}", path, value);
             dest.append(path.tail(0), value);
         }
     }
@@ -565,7 +565,7 @@ public class Translator {
         do {
             Path path = cursor.getCurrentPath();
             JsonNode node = cursor.getCurrentNode();
-            logger.debug("field: {}", path);
+            LOGGER.debug("field: {}", path);
             FieldTreeNode fieldMdNode = md.resolve(path);
             if (fieldMdNode == null) {
                 throw Error.get(ERR_INVALID_FIELD, path.toString());

@@ -362,11 +362,9 @@ public class JsonDoc implements Serializable {
         Path parent = p.prefix(-1);
         // Parent must be a container node
         JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
-        if (parentNode == null) {
-            if (createPath) {
-                CREATING_RESOLVER.resolve(p, docRoot, 0);
-                parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
-            }
+        if (parentNode == null && createPath) {
+            CREATING_RESOLVER.resolve(p, docRoot, 0);
+            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
         }
         if (parentNode != null) {
             if (!parentNode.isContainerNode()) {

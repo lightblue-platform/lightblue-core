@@ -52,7 +52,7 @@ import com.redhat.lightblue.query.ArrayQueryMatchProjection;
  */
 public abstract class Projector {
 
-    private static final Logger logger = LoggerFactory.getLogger(Projector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Projector.class);
 
     private final FieldTreeNode rootMdNode;
     private final Path rootMdPath;
@@ -130,14 +130,14 @@ public abstract class Projector {
             // The context path *is* a prefix of the field path 
             Path contextRelativePath = contextPath.isEmpty() ? fieldPath : fieldPath.suffix(-contextPath.numSegments());
             JsonNode fieldNode = cursor.getCurrentNode();
-            logger.debug("projectObject context={} fieldPath={} contextRelativePath={}", contextPath, fieldPath, contextRelativePath);
+            LOGGER.debug("projectObject context={} fieldPath={} contextRelativePath={}", contextPath, fieldPath, contextRelativePath);
             FieldTreeNode fieldMd = mdContext.resolve(contextRelativePath);
             if (fieldMd != null) {
-                logger.debug("Projecting {} in context {}", contextRelativePath, contextPath);
+                LOGGER.debug("Projecting {} in context {}", contextRelativePath, contextPath);
                 Boolean result = projector.project(fieldPath, ctx);
                 if (result != null) {
                     if (result) {
-                        logger.debug("Projection includes {}", fieldPath);
+                        LOGGER.debug("Projection includes {}", fieldPath);
                         if (fieldMd instanceof ObjectField) {
                             if (fieldNode instanceof ObjectNode) {
                                 if (cursor.firstChild()) {
@@ -148,13 +148,13 @@ public abstract class Projector {
                                     ret.set(fieldPath.tail(0), factory.objectNode());
                                 }
                             } else {
-                                logger.warn("Expecting object node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
+                                LOGGER.warn("Expecting object node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
                             }
                         } else if (fieldMd instanceof SimpleField) {
                             if (fieldNode.isValueNode()) {
                                 ret.set(fieldPath.tail(0), fieldNode);
                             } else {
-                                logger.warn("Expecting value node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
+                                LOGGER.warn("Expecting value node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
                             }
                         } else if (fieldMd instanceof ArrayField) {
                             if (fieldNode instanceof ArrayNode) {
@@ -175,17 +175,17 @@ public abstract class Projector {
                                     cursor.parent();
                                 }
                             } else {
-                                logger.warn("Expecting array node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
+                                LOGGER.warn("Expecting array node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
                             }
                         }
                     } else {
-                        logger.debug("Projection excludes {}", fieldPath);
+                        LOGGER.debug("Projection excludes {}", fieldPath);
                     }
                 } else {
-                    logger.debug("No projection match for {}", fieldPath);
+                    LOGGER.debug("No projection match for {}", fieldPath);
                 }
             } else {
-                logger.warn("Unknown field {}", fieldPath);
+                LOGGER.warn("Unknown field {}", fieldPath);
             }
         } while (cursor.nextSibling());
         return ret;
@@ -198,7 +198,7 @@ public abstract class Projector {
                                          JsonNodeCursor cursor,
                                          QueryEvaluationContext ctx) {
         Path elemPath = cursor.getCurrentPath();
-        logger.debug("Project array element {}  context {}", elemPath, contextPath);
+        LOGGER.debug("Project array element {}  context {}", elemPath, contextPath);
         Boolean result = projector.project(elemPath, ctx);
         if (result != null) {
             if (result) {
@@ -206,7 +206,7 @@ public abstract class Projector {
                 if (nestedProjector == null) {
                     nestedProjector = projector;
                 }
-                logger.debug("Projection includes {}", elemPath);
+                LOGGER.debug("Projection includes {}", elemPath);
                 if (mdContext instanceof SimpleArrayElement) {
                     return cursor.getCurrentNode();
                 } else {
@@ -220,10 +220,10 @@ public abstract class Projector {
                     }
                 }
             } else {
-                logger.debug("Projection excludes {}", elemPath);
+                LOGGER.debug("Projection excludes {}", elemPath);
             }
         } else {
-            logger.debug("No projection match for {}", elemPath);
+            LOGGER.debug("No projection match for {}", elemPath);
         }
         return null;
     }

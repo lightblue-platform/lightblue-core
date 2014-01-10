@@ -34,27 +34,28 @@ public enum UpdateOperator {
 
     private final String op;
 
-    private static final Map<String, UpdateOperator> map;
+    private static final Map<String, UpdateOperator> MAP;
 
     static {
-        map = new HashMap<String, UpdateOperator>();
-        map.put(_set.op, _set);
-        map.put(_unset.op, _unset);
-        map.put(_add.op, _add);
-        map.put(_pop.op, _pop);
-        map.put(_remove.op, _remove);
-        map.put(_push.op, _push);
+        MAP = new HashMap<>();
+        MAP.put(_set.op, _set);
+        MAP.put(_unset.op, _unset);
+        MAP.put(_add.op, _add);
+        MAP.put(_pop.op, _pop);
+        MAP.put(_remove.op, _remove);
+        MAP.put(_push.op, _push);
     }
 
     private UpdateOperator(String op) {
         this.op = op;
     }
 
+    @Override
     public String toString() {
         return op;
     }
 
     public static UpdateOperator fromString(String s) {
-        return map.get(s);
+        return MAP.get(s);
     }
 }
