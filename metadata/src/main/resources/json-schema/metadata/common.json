@@ -64,7 +64,6 @@
             },
             "required": [
                 "entityName",
-                "versionValue",
                 "projection",
                 "query",
                 "sort"
