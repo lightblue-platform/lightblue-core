@@ -26,26 +26,54 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Base class for array update expressions
+ * <pre>
+ * array_update_expression := $pop: { field: "first" | "last" } |  
+ *                            $remove: { field: [ value1, value2, ] } |  
+ *                            $remove: { field: query_expression }  
+ *                            $push: { field: value } |  
+ *                            $push: { field: [ value1, value2, ...] }  
+ * </pre>
+ */
 public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
     private Path field;
 
+    /**
+     * Default ctor
+     */
     public ArrayUpdateExpression() {
     }
 
+    /**
+     * Constructs an array update expression for the given array field
+     */
     public ArrayUpdateExpression(Path field) {
         this.field = field;
     }
 
+    /**
+     * Returns the update operator
+     */
     public abstract UpdateOperator getOp();
 
+    /**
+     * Returns the array field
+     */
     public Path getField() {
         return field;
     }
 
-    public void setPath(Path p) {
+    /**
+     * Sets the array field
+     */
+    public void setField(Path p) {
         field = p;
     }
 
+    /**
+     * Returns JSON representation of this array update expression
+     */
     @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
@@ -55,8 +83,18 @@ public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
         return node;
     }
 
+    /**
+     * The implementation should return the JSON object representing the operand value. That is:
+     * <pre>
+     *   $pop: { field: "first" | "last" } |  
+     * </pre>
+     * The implementation should return "first" or "last"
+     */
     protected abstract JsonNode jsonValue();
 
+    /**
+     * Parses an array update expression from a Json object, using the given update operator
+     */
     public static ArrayUpdateExpression fromJson(UpdateOperator op, ObjectNode node) {
         if (node.size() == 1) {
             String fld = node.fieldNames().next();

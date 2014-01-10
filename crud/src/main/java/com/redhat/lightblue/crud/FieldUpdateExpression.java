@@ -18,6 +18,15 @@
  */
 package com.redhat.lightblue.crud;
 
+/**
+ * Base class for field update expressions
+ * <pre>
+ * field_update_expression := $set : { field: value, ... } |  
+ *                            $unset : field |  
+ *                            $unset : [ field,... ] |  
+ *                            $add : { field: value, ... }  
+ * </pre>
+ */
 public abstract class FieldUpdateExpression extends PartialUpdateExpression {
 
 }

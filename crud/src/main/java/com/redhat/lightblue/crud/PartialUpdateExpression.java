@@ -24,11 +24,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Represents an update expression that updates part of a document
+ * <pre>
+ * partial_update_expression := field_update_expression | array_update_expression  
+ * </pre>
+ */
 public abstract class PartialUpdateExpression extends UpdateExpression {
 
     public static final String ERR_INVALID_UPDATE_EXPRESSION = "INVALID_UPDATE_EXPRESSION";
     public static final String ERR_INVALID_OPERATOR = "INVALID_OPERATOR";
 
+    /**
+     * Parses a Json object node and creates an update expression.
+     */
     public static PartialUpdateExpression fromJson(ObjectNode node) {
         // Expect one property with update operator as the property name
         if (node.size() == 1) {

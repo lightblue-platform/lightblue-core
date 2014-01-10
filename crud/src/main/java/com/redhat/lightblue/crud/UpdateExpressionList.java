@@ -28,40 +28,64 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Represents a list of partial update expressions
+ */
 public class UpdateExpressionList extends UpdateExpression {
 
-    private List<UpdateExpression> list;
+    private List<PartialUpdateExpression> list;
 
+    /**
+     * Default ctor. Creates an empty expression list
+     */
     public UpdateExpressionList() {
     }
 
-    public UpdateExpressionList(List<UpdateExpression> items) {
+    /**
+     * Creates an expression list using the given list
+     */
+    public UpdateExpressionList(List<PartialUpdateExpression> items) {
         this.list = items;
     }
-
-    public UpdateExpressionList(UpdateExpression... i) {
+    
+    /**
+     * Creates an expression list using the given expressions
+     */
+    public UpdateExpressionList(PartialUpdateExpression... i) {
         this(Arrays.asList(i));
     }
 
-    public List<UpdateExpression> getList() {
+    /**
+     * Returns the update expressions
+     */
+    public List<PartialUpdateExpression> getList() {
         return list;
     }
 
-    public void setList(List<UpdateExpression> l) {
+    /**
+     * Sets the update expressions
+     */
+    public void setList(List<PartialUpdateExpression> l) {
         list = l;
     }
 
+    /**
+     * Returns JSON representation of this object
+     */
     @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();
-        for (UpdateExpression x : list) {
+        for (PartialUpdateExpression x : list) {
             arr.add(x.toJson());
         }
         return arr;
     }
 
+    /**
+     * Parses an array JSON node and constructs an update expression list
+     */
     public static UpdateExpressionList fromJson(ArrayNode node) {
-        ArrayList<UpdateExpression> list = new ArrayList<>(node.size());
+        ArrayList<PartialUpdateExpression> list = new ArrayList<PartialUpdateExpression>(node.size());
         for (Iterator<JsonNode> itr = node.elements();
                 itr.hasNext();) {
             list.add(PartialUpdateExpression.fromJson((ObjectNode) itr.next()));
