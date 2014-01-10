@@ -23,6 +23,9 @@ import java.io.Serializable;
 
 import com.redhat.lightblue.util.Path;
 
+/**
+ * A field and value pair, used in update expressions
+ */
 public class FieldValue implements Serializable {
 
     private static final long serialVersionUID = 1l;
@@ -30,28 +33,51 @@ public class FieldValue implements Serializable {
     private Path field;
     private Value value;
 
+    /**
+     * Default ctor
+     */
     public FieldValue() {
     }
 
+    /**
+     * Constructs a field and value pair with the given values
+     */
     public FieldValue(Path field, Value value) {
         this.field = field;
         this.value = value;
     }
 
+    /**
+     * The field
+     */
     public Path getField() {
         return field;
     }
 
+    /**
+     * The field
+     */
     public void setPath(Path p) {
         this.field = p;
     }
 
+    /**
+     * The value
+     */
     public Value getValue() {
         return value;
     }
 
+    /**
+     * The value
+     */
     public void setValue(Value v) {
         value = v;
+    }
+
+    @Override
+    public String toString() {
+        return field+":"+value;
     }
 
 }

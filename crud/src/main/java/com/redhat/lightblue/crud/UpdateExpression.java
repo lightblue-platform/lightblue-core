@@ -25,8 +25,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.JsonObject;
 
+/**
+ * Base class for update expressions.
+ * <pre>
+ * update_expression := partial_update_expression | [ partial_update_expression, partial_update_expression ... ]  
+ * </pre>
+ */
 public abstract class UpdateExpression extends JsonObject {
 
+    /**
+     * Parses a JSON document and creates an update expression
+     */
     public static UpdateExpression fromJson(JsonNode node) {
         if (node instanceof ArrayNode) {
             return UpdateExpressionList.fromJson((ArrayNode) node);
