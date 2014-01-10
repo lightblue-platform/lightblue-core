@@ -1,5 +1,5 @@
 /*
- Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ 2013 Red Hat, Inc. and/or its affiliates.
 
  This file is part of lightblue.
 
@@ -33,6 +33,7 @@ public class JsonDoc implements Serializable {
     private final JsonNode docRoot;
 
     private static final Resolver DEFAULT_RESOLVER = new Resolver();
+    private static final Resolver CREATING_RESOLVER = new CreatingResolver();
 
     private static final class Iteration {
         private Iterator<JsonNode> iterator;
@@ -101,16 +102,21 @@ public class JsonDoc implements Serializable {
             int n = p.numSegments();
             for (int l = level; l < n; l++) {
                 String name = p.head(l);
+                JsonNode newOutput;
                 if (name.equals(Path.ANY)) {
-                    output = handleAny(p, output, l);
+                    newOutput = handleAny(p, output, l);
                 } else if (output instanceof ArrayNode) {
                     int index = Integer.valueOf(name);
-                    output = ((ArrayNode) output).get(index);
+                    newOutput = ((ArrayNode) output).get(index);
                 } else if (output instanceof ObjectNode) {
-                    output = output.get(name);
+                    newOutput = output.get(name);
                 } else {
-                    output = null;
+                    newOutput = null;
                 }
+                if (newOutput == null) {
+                    newOutput=handleNullChild(output,p,l);
+                }
+                output=newOutput;
                 if (output == null) {
                     break;
                 }
@@ -118,8 +124,60 @@ public class JsonDoc implements Serializable {
             return output;
         }
 
+        protected JsonNode handleNullChild(JsonNode parent,
+                                           Path p,
+                                           int level) {
+            return null;
+        }
+
         protected JsonNode handleAny(Path p, JsonNode node, int level) {
             throw new IllegalArgumentException(p.toString());
+        }
+    }
+
+    /**
+     * Given a path p=x_1.x_2...x_n, it creates all the intermetiate
+     * nodes x_1...x_(n-1), but not the node x_n. However, the node
+     * x_(n-1) is created correctly depending on the x_n: if x_n is an
+     * index, x_(n-1) is an ArrayNode, otherwise x_(n-1) is an object
+     * node.
+     */
+    private static class CreatingResolver extends Resolver {
+        @Override
+        protected JsonNode handleNullChild(JsonNode parent,
+                                           Path p,
+                                           int level) {
+            // This function is called because 'parent' does not have
+            // a child with name p[level]. So, we will add that
+            // child. If p[level+1] is an index, then p[level] must be
+            // an array, otherwise, p[level] must be an object node. 
+
+            // First check if p is long enough. There must be one more
+            // after level
+            if(p.numSegments()<=level+1)
+                return null;
+            // Now determine the child type
+            boolean childIsArray=p.isIndex(level+1);
+            if(parent instanceof ArrayNode) {
+                ArrayNode arr=(ArrayNode)parent;
+                int index=p.getIndex(level);
+                // Extend the array to include this index
+                int size=arr.size();
+                while(size<index) {
+                    arr.addNull();
+                    size++;
+                }
+                // Now add the new node. 
+                if(childIsArray)
+                    return arr.addArray();
+                else
+                    return arr.addObject();
+            } else {
+                if(childIsArray)
+                    return ((ObjectNode)parent).putArray(p.head(level));
+                else
+                    return ((ObjectNode)parent).putObject(p.head(level));
+            }
         }
     }
 
@@ -282,5 +340,68 @@ public class JsonDoc implements Serializable {
      */
     public static JsonNode get(JsonNode root, Path p) {
         return DEFAULT_RESOLVER.resolve(p, root, 0);
+    }
+
+    /**
+     * Modifies an existing node value
+     *
+     * @param p Path to modify
+     * @param newValue new value to set. If null, path is removed from the doc.
+     * @param createPath If true, creates all intermediate nodes if they don't exist
+     *
+     * @return Old value
+     */
+    public JsonNode modify(Path p,JsonNode newValue,boolean createPath) {
+        int n=p.numSegments();
+        if(n==0)
+            throw new IllegalArgumentException("Cannot set empty path value");
+        Path parent=p.prefix(-1);
+        // Parent must be a container node
+        JsonNode parentNode=DEFAULT_RESOLVER.resolve(parent,docRoot,0);
+        if(parentNode==null) {
+            if(createPath) {
+                CREATING_RESOLVER.resolve(p,docRoot,0);
+                parentNode=DEFAULT_RESOLVER.resolve(parent,docRoot,0);
+            }
+        }
+        if(parentNode!=null) {
+            if(!parentNode.isContainerNode()) {
+                throw new IllegalArgumentException(parent.toString()+" is not a container, while setting "+p);
+            }
+        } else {
+            throw new IllegalArgumentException("Parent of "+p+" does not exist");
+        }
+        JsonNode oldValue;
+        String last=p.getLast();
+        if(parentNode instanceof ObjectNode) {
+            ObjectNode obj=(ObjectNode)parentNode;
+            if(newValue==null) {
+                oldValue=obj.get(last);
+                obj.remove(last);
+            } else {
+                oldValue=obj.replace(last,newValue);
+            }
+        } else {
+            ArrayNode arr=(ArrayNode)parentNode;
+            int index=Integer.valueOf(last);
+            int size=arr.size();
+            while(size<index) {
+                arr.addNull();
+                size++;
+            }
+            if(index<size) {
+                oldValue=arr.get(index);
+                arr.set(index,newValue);
+            } else {
+                oldValue=null;
+                arr.add(newValue);
+            }
+        }
+        return oldValue;
+    }
+
+    @Override
+    public String toString() {
+        return docRoot.toString();
     }
 }
