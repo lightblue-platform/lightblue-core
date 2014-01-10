@@ -10,20 +10,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public class ContainerTypeTest {
-
-//	Type type = new NewContainerType() extends ContainerType {
-//		
-//	};
-	
-//    protected ContainerType mConnection = new NewContainerType() extends ContainerType {
-//
-//    };
 	
 	Type type;
 	
     class NewContainerType extends ContainerType
     {
-        public static final String NAME = "NewContainerType";
+        public static final String NAME = ObjectType.NAME;
 
         public NewContainerType(String name) {
             super(name);
@@ -85,58 +77,58 @@ public class ContainerTypeTest {
 	}
 
 	@Test
-	public void hashCodeTest() {
+	public void testHashCode() {
 		assertEquals(type.hashCode(), NewContainerType.NAME.hashCode());
 	}
 
 	
 	@Test
-	public void getNameTest() {
+	public void testGetName() {
 		assertTrue(type.getName().equals(NewContainerType.NAME));
 	}
 
 	@Test
-	public void supportsEqTest() {
+	public void testSupportsEq() {
 		assertFalse(type.supportsEq());
 	}
 
 	@Test
-	public void supportsOrderingTest() {
+	public void tettSupportsOrdering() {
 		assertFalse(type.supportsOrdering());
 	}
 
 	@Test(expected=UnsupportedOperationException.class)
-	public void compareTest() {
+	public void testCompare() {
 		type.compare(new Object(), new Object());
 	}
 
 	@Test(expected=UnsupportedOperationException.class)
-	public void castTest() {
+	public void testCast() {
 		type.cast(new Object());
 	}
 
 	@Test(expected=UnsupportedOperationException.class)
-	public void toJsonTest() {
-		type.toJson(JsonNodeFactory.instance.withExactBigDecimals(true), new Object());
+	public void testToJson() {
+		type.toJson(JsonNodeFactory.withExactBigDecimals(true), new Object());
 	}
 
 	@Test(expected=UnsupportedOperationException.class)
-	public void fromJsonTest() {
-		type.fromJson(JsonNodeFactory.withExactBigDecimals(false).textNode("test"));
+	public void testFromJson() {
+		type.fromJson(JsonNodeFactory.withExactBigDecimals(false).arrayNode());
 	}
 
 	@Test
-	public void equalsObjectTest() {
+	public void testEqualsObject() {
 		assertFalse(type.equals(new Object()));
 	}
 	
 	@Test
-	public void equalsNullTest() {
+	public void testEqualsNull() {
 		assertFalse(type.equals(null));
 	}
 
 	@Test
-	public void equalsFalseTest() {
+	public void testEqualsFalse() {
 		assertTrue(type.equals(type));
 	}
 }

@@ -35,123 +35,123 @@ public class BigIntegerTypeTest {
 	
     
     @Test
-    public void getNameTest() {
+    public void testGetName() {
     	assertEquals(bigIntegerType.getName(), BigIntegerType.NAME);
     }
 
     @Test
-    public void supportsEqTest() {
+    public void testSupportsEq() {
     	assertTrue(bigIntegerType.supportsEq());
     }
     
     @Test
-    public void supportsOrderingTest() {
+    public void testSupportsOrdering() {
     	assertFalse(bigIntegerType.supportsOrdering());
     }
 
     @Test
-    public void toJsonTest() {
+    public void testToJson() {
     	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
     	JsonNode jsonNode = bigIntegerType.toJson(jsonNodeFactory, BigInteger.ZERO);
     	assertTrue(new BigInteger(jsonNode.asText()).equals(BigInteger.ZERO));    	
     }
 
     @Test
-    public void fromJsonTest() {
+    public void testFromJson() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).numberNode(BigInteger.TEN);
     	Object fromJson = bigIntegerType.fromJson(jsonNode);
     	assertTrue(fromJson instanceof BigInteger);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithIncompatibleValue() {
+    public void testFromJsonWithIncompatibleValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
     	bigIntegerType.fromJson(jsonNode);
     }
 
     @Test
-    public void castNull() {
+    public void testCastNull() {
     	assertNull(bigIntegerType.cast(null));
     }
     
     @Test
-    public void castBigIntegerTest() {
+    public void testCastBigInteger() {
     	assertTrue(bigIntegerType.cast(BigInteger.ONE) instanceof BigInteger);
     }
 
     @Test
-    public void castLongTest() {
+    public void testCastLong() {
     	assertTrue(bigIntegerType.cast(Long.MAX_VALUE) instanceof BigInteger);
     }
     
     @Test
-    public void castBooleanTrueTest() {
+    public void testCastBooleanTrue() {
     	assertTrue(bigIntegerType.cast(Boolean.TRUE) instanceof BigInteger);
     }
     
     @Test
-    public void castBooleanFalseTest() {
+    public void testCastBooleanFalse() {
     	assertTrue(bigIntegerType.cast(Boolean.FALSE) instanceof BigInteger);
     }
     
     @Test
-    public void castGoodStringTest() {
-    	assertTrue(bigIntegerType.cast("8675309") instanceof BigInteger);
+    public void testCastGoodString() {
+    	assertTrue(bigIntegerType.cast(String.valueOf(BigInteger.TEN)) instanceof BigInteger);
     }
     
     @Test(expected=Error.class)
-    public void castBadStringTest() {
+    public void testCastBadString() {
     	bigIntegerType.cast("string");
     }
     
     @Test(expected=Error.class)
-    public void castOtherTest() {
+    public void testCastOther() {
     	Object object = new Object();
     	bigIntegerType.cast(object);
     }
     
     @Test
-    public void compareBothNullTest() {
+    public void testCompareBothNull() {
     	assertEquals(bigIntegerType.compare(null, null), 0);
     }
     
     @Test
-    public void compareV1NullTest() {
+    public void testCompareV1Null() {
     	assertEquals(bigIntegerType.compare(null, new Object()), -1);
     }
     
     @Test
-    public void compareV2NullTest() {
+    public void testCompareV2Null() {
     	assertEquals(bigIntegerType.compare(new Object(), null), 1);
     }
 
     @Test
-    public void compareEqualTest() {
+    public void testCompareEqual() {
     	assertEquals(bigIntegerType.compare((Object)BigInteger.ONE, (Object)BigInteger.ONE), 0);
     }
     
     @Test
-    public void compareNotEqualTest() {
+    public void testCompareNotEqual() {
     	assertEquals(bigIntegerType.compare((Object)BigInteger.ZERO, (Object)BigInteger.ONE), -1);
     }
     
     @Test
-    public void equalsTrueTest() {
+    public void testEqualsTrue() {
     	assertTrue(bigIntegerType.equals(BigIntegerType.TYPE));
     }
     
     @Test
-    public void equalsFalseTest() {
+    public void testEqualsFalse() {
     	assertFalse(bigIntegerType.equals(Double.MAX_VALUE));
     }
     
     @Test
-    public void hashCodeTest() {
+    public void testHashCode() {
     	assertEquals(bigIntegerType.hashCode(), 5);
     }
 
     @Test
-    public void toStringTest() {
+    public void testToString() {
     	assertEquals(bigIntegerType.toString(), BigIntegerType.NAME);
     }
 

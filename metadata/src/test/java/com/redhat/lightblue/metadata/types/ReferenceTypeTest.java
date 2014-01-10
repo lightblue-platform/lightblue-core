@@ -1,6 +1,6 @@
 package com.redhat.lightblue.metadata.types;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,7 +17,7 @@ public class ReferenceTypeTest {
 	}
 
 	@Test
-	public void typeTest() {
+	public void testType() {
 		ReferenceType referenceType = ReferenceType.TYPE;
 		assertNotNull(referenceType);
 	}

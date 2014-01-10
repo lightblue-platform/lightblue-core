@@ -36,139 +36,139 @@ public class BigDecimalTypeTest {
 	
     
     @Test
-    public void getNameTest() {
+    public void testGetName() {
     	assertEquals(bigDecimalType.getName(), BigDecimalType.NAME);
     }
 
     @Test
-    public void supportsEqTest() {
+    public void testSupportsEq() {
     	assertTrue(bigDecimalType.supportsEq());
     }
     
     @Test
-    public void supportsOrderingTest() {
+    public void testSupportsOrdering() {
     	assertFalse(bigDecimalType.supportsOrdering());
     }
 
     @Test
-    public void toJsonTest() {
+    public void testToJson() {
     	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
     	JsonNode jsonNode = bigDecimalType.toJson(jsonNodeFactory, Double.MAX_VALUE);
     	assertTrue(new Double(jsonNode.asDouble()).equals(Double.MAX_VALUE));
     }
 
     @Test
-    public void toJsonNullTest() {
+    public void testToJsonNull() {
     	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
     	JsonNode jsonNode = bigDecimalType.toJson(jsonNodeFactory, null);
     	assertNotNull(jsonNode);
     }
     
     @Test
-    public void fromJsonTest() {
+    public void testFromJson() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(true).numberNode(BigDecimal.TEN);
     	Object fromJson = bigDecimalType.fromJson(jsonNode);
     	assertTrue(fromJson instanceof BigDecimal);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithIncompatibleValue() {
+    public void testFromJsonWithIncompatibleValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
     	bigDecimalType.fromJson(jsonNode);
     }
 
     @Test
-    public void castNull() {
+    public void testCastNull() {
     	assertNull(bigDecimalType.cast(null));
     }
     
     @Test
-    public void castBigDecimalTest() {
+    public void testCastBigDecimal() {
     	assertTrue(bigDecimalType.cast(BigDecimal.TEN) instanceof BigDecimal);
     }
     
     @Test
-    public void castDoubleTest() {
+    public void testCastDouble() {
     	assertTrue(bigDecimalType.cast(Double.MAX_VALUE) instanceof BigDecimal);
     }
     
     @Test
-    public void castFloatTest() {
+    public void testCastFloat() {
     	assertTrue(bigDecimalType.cast(Float.MAX_VALUE) instanceof BigDecimal);
     }
 
     @Test
-    public void castLongTest() {
+    public void testCastLong() {
     	assertTrue(bigDecimalType.cast(Long.MAX_VALUE) instanceof BigDecimal);
     }
     
     @Test
-    public void castBooleanTrueTest() {
+    public void testCastBooleanTrue() {
     	assertTrue(bigDecimalType.cast(Boolean.TRUE) instanceof BigDecimal);
     }
     
     @Test
-    public void castBooleanFalseTest() {
+    public void testCastBooleanFalse() {
     	assertTrue(bigDecimalType.cast(Boolean.FALSE) instanceof BigDecimal);
     }
     
     @Test
-    public void castGoodStringTest() {
-    	assertTrue(bigDecimalType.cast("8675309") instanceof BigDecimal);
+    public void testCastGoodString() {
+    	assertTrue(bigDecimalType.cast(String.valueOf(BigDecimal.TEN)) instanceof BigDecimal);
     }
     
     @Test(expected=Error.class)
-    public void castBadStringTest() {
+    public void testCastBadString() {
     	bigDecimalType.cast("string");
     }
     
     @Test(expected=Error.class)
-    public void castOtherTest() {
+    public void testCastOtherTest() {
     	bigDecimalType.cast(new Object());
     }
     
     @Test
-    public void compareBothNullTest() {
+    public void testCompareBothNull() {
     	assertEquals(bigDecimalType.compare(null, null), 0);
     }
     
     @Test
-    public void compareV1NullTest() {
+    public void testCompareV1Null() {
     	assertEquals(bigDecimalType.compare(null, new Object()), -1);
     }
     
     @Test
-    public void compareV2NullTest() {
+    public void testCompareV2Null() {
     	assertEquals(bigDecimalType.compare(new Object(), null), 1);
     }
 
     @Test
-    public void compareEqualTest() {
+    public void testCompareEqual() {
     	assertEquals(bigDecimalType.compare((Object)BigDecimal.ONE, (Object)BigDecimal.ONE), 0);
     }
     
     @Test
-    public void compareNotEqualTest() {
+    public void testCompareNotEqual() {
     	assertEquals(bigDecimalType.compare((Object)BigDecimal.ZERO, (Object)BigDecimal.ONE), -1);
     }
     
     @Test
-    public void equalsTrueTest() {
+    public void testEqualsTrue() {
     	assertTrue(bigDecimalType.equals(BigDecimalType.TYPE));
     }
     
     @Test
-    public void equalsFalseTest() {
+    public void testEqualsFalse() {
     	assertFalse(bigDecimalType.equals(Double.MAX_VALUE));
     }
     
     @Test
-    public void hashCodeTest() {
+    public void testHashCode() {
     	assertEquals(bigDecimalType.hashCode(), 6);
     }
 
     @Test
-    public void toStringTest() {
+    public void testToString() {
     	assertEquals(bigDecimalType.toString(), BigDecimalType.NAME);
     }
 

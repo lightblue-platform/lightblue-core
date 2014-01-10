@@ -35,124 +35,124 @@ public class BooleanTypeTest {
 	
     
     @Test
-    public void getNameTest() {
+    public void testGetName() {
     	assertEquals(booleanType.getName(), BooleanType.NAME);
     }
 
     @Test
-    public void supportsEqTest() {
+    public void testSupportsEq() {
     	assertTrue(booleanType.supportsEq());
     }
     
     @Test
-    public void supportsOrderingTest() {
+    public void testSupportsOrdering() {
     	assertTrue(booleanType.supportsOrdering());
     }
 
     @Test
-    public void toJsonTest() {
+    public void testToJson() {
     	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
     	JsonNode jsonNode = booleanType.toJson(jsonNodeFactory, Boolean.TRUE);
     	assertTrue(new Boolean(jsonNode.asBoolean()).equals(Boolean.TRUE));    	
     }
 
     @Test
-    public void fromJsonTest() {
+    public void testFromJson() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).numberNode(BigInteger.TEN);
     	Object fromJson = booleanType.fromJson(jsonNode);
     	assertTrue(fromJson instanceof Boolean);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithIncompatibleValue() {
+    public void testFromJsonWithIncompatibleValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
     	booleanType.fromJson(jsonNode);
     }
 
     @Test
-    public void castNull() {
+    public void testCastNull() {
     	assertNull(booleanType.cast(null));
     }
     
     @Test
-    public void castBigIntegerTest() {
+    public void testCastBigInteger() {
     	assertTrue(booleanType.cast(BigInteger.ONE) instanceof Boolean);
     }
 
     @Test
-    public void castLongTest() {
+    public void testCastLong() {
     	Long laung = Long.MAX_VALUE;
     	assertTrue(booleanType.cast(laung) instanceof Boolean);
     }
     
     @Test
-    public void castBooleanTrueTest() {
+    public void testCastBooleanTrue() {
     	assertTrue(booleanType.cast(Boolean.TRUE) instanceof Boolean);
     }
     
     @Test
-    public void castBooleanFalseTest() {
+    public void testCastBooleanFalse() {
     	assertTrue(booleanType.cast(Boolean.FALSE) instanceof Boolean);
     }
         
     @Test
-    public void castTrueStringTest() {
-    	assertEquals(booleanType.cast("true"), Boolean.TRUE);
+    public void testCastTrueString() {
+    	assertEquals(booleanType.cast(Boolean.TRUE.toString()), Boolean.TRUE);
     }
     
     @Test
-    public void castFalseStringTest() {
-    	assertEquals(booleanType.cast("false"), Boolean.FALSE);
+    public void testCastFalseString() {
+    	assertEquals(booleanType.cast(Boolean.FALSE.toString()), Boolean.FALSE);
     }
     
     @Test(expected=Error.class)
-    public void castOtherTest() {
+    public void testCastOther() {
     	Object object = new Object();
     	booleanType.cast(object);
     }
     
     @Test
-    public void compareBothNullTest() {
+    public void testCompareBothNull() {
     	assertEquals(booleanType.compare(null, null), 0);
     }
     
     @Test
-    public void compareV1NullTest() {
+    public void testCompareV1Null() {
     	assertEquals(booleanType.compare(null, new Object()), -1);
     }
     
     @Test
-    public void compareV2NullTest() {
+    public void testCompareV2Null() {
     	assertEquals(booleanType.compare(new Object(), null), 1);
     }
 
     @Test
-    public void compareEqualTest() {
+    public void testCompareEqual() {
     	assertEquals(booleanType.compare((Object)BigInteger.ONE, (Object)BigInteger.ONE), 0);
     }
     
     @Test
-    public void compareNotEqualTest() {
+    public void testCompareNotEqual() {
     	assertEquals(booleanType.compare((Object)BigInteger.ZERO, (Object)BigInteger.ONE), -1);
     }
     
     @Test
-    public void equalsTrueTest() {
+    public void testEqualsTrue() {
     	assertTrue(booleanType.equals(BooleanType.TYPE));
     }
     
     @Test
-    public void equalsFalseTest() {
+    public void testEqualsFalse() {
     	assertFalse(booleanType.equals(Double.MAX_VALUE));
     }
     
     @Test
-    public void hashCodeTest() {
+    public void testHashCode() {
     	assertEquals(booleanType.hashCode(), 1);
     }
 
     @Test
-    public void toStringTest() {
+    public void testToString() {
     	assertEquals(booleanType.toString(), BooleanType.NAME);
     }
 

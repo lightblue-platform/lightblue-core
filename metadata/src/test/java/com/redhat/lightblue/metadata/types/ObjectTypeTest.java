@@ -17,7 +17,7 @@ public class ObjectTypeTest {
 	}
 
 	@Test
-	public void typeTest() {
+	public void testType() {
 		ObjectType objectType = ObjectType.TYPE;
 		assertNotNull(objectType);
 	}

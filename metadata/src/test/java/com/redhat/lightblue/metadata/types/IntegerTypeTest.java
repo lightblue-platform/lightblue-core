@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigInteger;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,123 +33,123 @@ public class IntegerTypeTest {
 	
     
     @Test
-    public void getNameTest() {
+    public void testGetName() {
     	assertEquals(integerType.getName(), IntegerType.NAME);
     }
 
     @Test
-    public void supportsEqTest() {
+    public void testSupportsEq() {
     	assertTrue(integerType.supportsEq());
     }
     
     @Test
-    public void supportsOrderingTest() {
+    public void testSupportsOrdering() {
     	assertTrue(integerType.supportsOrdering());
     }
 
     @Test
-    public void toJsonTest() {
+    public void testToJson() {
     	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
     	JsonNode jsonNode = integerType.toJson(jsonNodeFactory, Integer.MAX_VALUE);
     	assertTrue(new Integer(jsonNode.asText()).equals(Integer.MAX_VALUE));    	
     }
 
     @Test
-    public void fromJsonTest() {
+    public void testFromJson() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).numberNode(Integer.MAX_VALUE);
     	Object fromJson = integerType.fromJson(jsonNode);
     	assertTrue(fromJson instanceof Long);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithIncompatibleValue() {
+    public void testFromJsonWithIncompatibleValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
     	integerType.fromJson(jsonNode);
     }
 
     @Test
-    public void castNull() {
+    public void testCastNull() {
     	assertNull(integerType.cast(null));
     }
     
     @Test
-    public void castBigIntegerTest() {
+    public void testCastBigInteger() {
     	assertTrue(integerType.cast(Integer.MAX_VALUE) instanceof Long);
     }
 
     @Test
-    public void castLongTest() {
+    public void testCastLong() {
     	assertTrue(integerType.cast(Long.MAX_VALUE) instanceof Long);
     }
     
     @Test
-    public void castBooleanTrueTest() {
+    public void testCastBooleanTrue() {
     	assertTrue(integerType.cast(Boolean.TRUE) instanceof Long);
     }
     
     @Test
-    public void castBooleanFalseTest() {
+    public void testCastBooleanFalse() {
     	assertTrue(integerType.cast(Boolean.FALSE) instanceof Long);
     }
     
     @Test
-    public void castGoodStringTest() {
-    	assertTrue(integerType.cast("8675309") instanceof Long);
+    public void testCastGoodString() {
+    	assertTrue(integerType.cast(String.valueOf(Long.MAX_VALUE)) instanceof Long);
     }
     
     @Test(expected=Error.class)
-    public void castBadStringTest() {
-    	integerType.cast("string");
+    public void testCastBadString() {
+    	integerType.cast("badstring");
     }
     
     @Test(expected=Error.class)
-    public void castOtherTest() {
+    public void testCastOther() {
     	Object object = new Object();
     	integerType.cast(object);
     }
     
     @Test
-    public void compareBothNullTest() {
+    public void testCompareBothNull() {
     	assertEquals(integerType.compare(null, null), 0);
     }
     
     @Test
-    public void compareV1NullTest() {
+    public void testCompareV1Null() {
     	assertEquals(integerType.compare(null, new Object()), -1);
     }
     
     @Test
-    public void compareV2NullTest() {
+    public void testCompareV2Null() {
     	assertEquals(integerType.compare(new Object(), null), 1);
     }
 
     @Test
-    public void compareEqualTest() {
+    public void testCompareEqual() {
     	assertEquals(integerType.compare((Object)Integer.MAX_VALUE, (Object)Integer.MAX_VALUE), 0);
     }
     
     @Test
-    public void compareNotEqualTest() {
+    public void testCompareNotEqual() {
     	assertEquals(integerType.compare((Object)Integer.MAX_VALUE, (Object)Integer.MIN_VALUE), 1);
     }
     
     @Test
-    public void equalsTrueTest() {
+    public void testEqualsTrue() {
     	assertTrue(integerType.equals(IntegerType.TYPE));
     }
     
     @Test
-    public void equalsFalseTest() {
+    public void testEqualsFalse() {
     	assertFalse(integerType.equals(Double.MAX_VALUE));
     }
     
     @Test
-    public void hashCodeTest() {
+    public void testHashCode() {
     	assertEquals(integerType.hashCode(), 2);
     }
 
     @Test
-    public void toStringTest() {
+    public void testToString() {
     	assertEquals(integerType.toString(), IntegerType.NAME);
     }
 

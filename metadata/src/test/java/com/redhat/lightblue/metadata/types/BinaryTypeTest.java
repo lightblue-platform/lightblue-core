@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import org.junit.After;
@@ -37,22 +36,22 @@ public class BinaryTypeTest {
 	
     
     @Test
-    public void getNameTest() {
+    public void testGetName() {
     	assertEquals(binaryType.getName(), BinaryType.NAME);
     }
 
     @Test
-    public void supportsEqTest() {
+    public void testSupportsEq() {
     	assertFalse(binaryType.supportsEq());
     }
     
     @Test
-    public void supportsOrderingTest() {
+    public void testSupportsOrdering() {
     	assertFalse(binaryType.supportsOrdering());
     }
 
     @Test
-    public void toJsonTest() throws IOException {
+    public void testToJson() throws IOException {
     	byte[] bite = new byte[1];
     	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
     	JsonNode jsonNode = binaryType.toJson(jsonNodeFactory, bite);
@@ -60,55 +59,55 @@ public class BinaryTypeTest {
     }
 
     @Test
-    public void fromJsonTest() {
+    public void testFromJson() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).binaryNode(new byte[0]);
     	Object fromJson = binaryType.fromJson(jsonNode);
     	assertTrue(fromJson instanceof byte[]);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithIncompatibleValue() {
+    public void testFromJsonWithIncompatibleValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
     	binaryType.fromJson(jsonNode);
     }
 
     @Test
-    public void castNull() {
+    public void testCast() {
     	assertNull(binaryType.cast(null));
     }
            
     @Test(expected=Error.class)
-    public void castIncompatibleTest() {
+    public void testCastIncompatible() {
     	binaryType.cast(new Object());
     }
     
     @Test(expected=Error.class)
-    public void castNonByteTest() {
+    public void testCastNonByte() {
     	binaryType.cast(new String[1]);
     }
     
     @Test(expected=UnsupportedOperationException.class)
-    public void compareBothNullTest() {
+    public void testCompareBothNull() {
     	binaryType.compare(null, null);
     }
        
     @Test
-    public void equalsTrueTest() {
+    public void testEqualsTrue() {
     	assertTrue(binaryType.equals(BinaryType.TYPE));
     }
     
     @Test
-    public void equalsFalseTest() {
+    public void testEqualsFalse() {
     	assertFalse(binaryType.equals(Double.MAX_VALUE));
     }
     
     @Test
-    public void hashCodeTest() {
+    public void testHashCode() {
     	assertEquals(binaryType.hashCode(), 8);
     }
 
     @Test
-    public void toStringTest() {
+    public void testToString() {
     	assertEquals(binaryType.toString(), BinaryType.NAME);
     }
 

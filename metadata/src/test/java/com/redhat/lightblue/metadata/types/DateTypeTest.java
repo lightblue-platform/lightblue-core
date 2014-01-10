@@ -37,22 +37,22 @@ public class DateTypeTest {
 	}
 	
 	@Test
-    public void getNameTest() {
+    public void testGetName() {
     	assertEquals(dateType.getName(), DateType.NAME);
     }
 
     @Test
-    public void supportsEqTest() {
+    public void testSupportsEq() {
     	assertTrue(dateType.supportsEq());
     }
     
     @Test
-    public void supportsOrderingTest() {
+    public void testSupportsOrdering() {
     	assertTrue(dateType.supportsOrdering());
     }
 
     @Test
-    public void toJsonTest() {
+    public void testToJson() {
     	DateFormat dateFormat = new SimpleDateFormat(DateType.DATE_FORMAT_STR);
     	dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     	
@@ -63,93 +63,93 @@ public class DateTypeTest {
     }
 
     @Test
-    public void fromJsonTest() {
+    public void testFromJson() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).textNode(new SimpleDateFormat(DateType.DATE_FORMAT_STR).format(new Date()));
     	Object fromJson = dateType.fromJson(jsonNode);
     	assertTrue(fromJson instanceof Date);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithBadValue() {
+    public void testFromJsonWithBadValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).textNode("badstring");
     	dateType.fromJson(jsonNode);
     }
     
     @Test(expected=Error.class)
-    public void fromJsonTestWithIncompatibleValue() {
+    public void testFromJsonWithIncompatibleValue() {
     	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
     	dateType.fromJson(jsonNode);
     }
 
     @Test
-    public void castNull() {
+    public void testCastNull() {
     	assertNull(dateType.cast(null));
     }
     
     @Test
-    public void castDateTest() {
+    public void testCastDate() {
     	assertTrue(dateType.cast(new Date()) instanceof Date);
     }
 
     @Test
-    public void castStringTest() {
+    public void testCastString() {
     	assertTrue(dateType.cast(new SimpleDateFormat(DateType.DATE_FORMAT_STR).format(new Date())) instanceof Date);
     }
     
     @Test(expected=Error.class)
-    public void castBadStringTest() {
+    public void testCastBadString() {
     	assertTrue(dateType.cast("badstring") instanceof Date);
     }
         
     @Test(expected=Error.class)
-    public void castOtherTest() {
+    public void testCastOther() {
     	Object object = new Object();
     	dateType.cast(object);
     }
     
     @Test
-    public void compareBothNullTest() {
+    public void testCompareBothNull() {
     	assertEquals(dateType.compare(null, null), 0);
     }
     
     @Test
-    public void compareV1NullTest() {
+    public void testCompareV1Null() {
     	assertEquals(dateType.compare(null, new Object()), -1);
     }
     
     @Test
-    public void compareV2NullTest() {
+    public void testCompareV2Null() {
     	assertEquals(dateType.compare(new Object(), null), 1);
     }
 
     @Test
-    public void compareEqualTest() {
+    public void testCompareEqual() {
     	Date date = new Date();
     	assertEquals(dateType.compare(date, date), 0);
     }
     
     @Test
-    public void compareNotEqualTest() {
+    public void testCcompareNotEqual() {
     	assertEquals(dateType.compare(new Date(), new Date()), 0);
     }
     
     @Test
-    public void equalsTrueTest() {
+    public void testEqualsTrue() {
     	assertTrue(dateType.equals(DateType.TYPE));
     }
     
     @Test
-    public void equalsFalseTest() {
+    public void testEqualsFalse() {
     	assertFalse(dateType.equals(Double.MAX_VALUE));
     }
     
     @Test
-    public void hashCodeTest() {
+    public void testHashCode() {
     	assertEquals(dateType.hashCode(), 7);
     }
 
     @Test
-    public void toStringTest() {
+    public void testToString() {
     	assertEquals(dateType.toString(), DateType.NAME);
     }
 

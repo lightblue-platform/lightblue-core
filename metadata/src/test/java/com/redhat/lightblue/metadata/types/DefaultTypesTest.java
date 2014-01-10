@@ -20,14 +20,13 @@ public class DefaultTypesTest {
 	}
 
 	@Test
-	public void getTypeTest() {
+	public void testGetType() {
 		Type type = defaultTypes.getType(BooleanType.NAME);
 		assertTrue(type instanceof BooleanType);
 	}
 
 	@Test
-	public void defaultTypesTest() {
-		
+	public void testDefaultTypes() {
 		assertNotNull(defaultTypes);
 	}
 
