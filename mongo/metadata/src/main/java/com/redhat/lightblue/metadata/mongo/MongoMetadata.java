@@ -52,6 +52,9 @@ public class MongoMetadata implements Metadata {
 
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
 
+    private static final String LITERAL_VERSION = "version";
+    private static final String LITERAL_NAME = "name";
+    
     private final DBCollection collection;
 
     private final BSONParser mdParser;
@@ -77,11 +80,11 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException("entityName");
         }
         if (version == null || version.length() == 0) {
-            throw new IllegalArgumentException("version");
+            throw new IllegalArgumentException(LITERAL_VERSION);
         }
         Error.push("getEntityMetadata(" + entityName + ":" + version + ")");
         try {
-            BasicDBObject query = new BasicDBObject("name", entityName).
+            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName).
                     append("version.value", version);
             DBObject md = collection.findOne(query);
             if (md != null) {
@@ -98,7 +101,7 @@ public class MongoMetadata implements Metadata {
     public String[] getEntityNames() {
         Error.push("getEntityNames");
         try {
-            List l = collection.distinct("name");
+            List l = collection.distinct(LITERAL_NAME);
             String[] arr = new String[l.size()];
             int i = 0;
             for (Object x : l) {
@@ -117,8 +120,8 @@ public class MongoMetadata implements Metadata {
         }
         Error.push("getEntityVersions(" + entityName + ")");
         try {
-            BasicDBObject query = new BasicDBObject("name", entityName);
-            BasicDBObject project = new BasicDBObject("version", 1);
+            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName);
+            BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
             project.append("_id", 0);
             DBCursor cursor = collection.find(query, project);
             int n = cursor.count();
@@ -126,7 +129,7 @@ public class MongoMetadata implements Metadata {
             int i = 0;
             while (cursor.hasNext()) {
                 DBObject object = cursor.next();
-                ret[i++] = mdParser.parseVersion((BSONObject) object.get("version"));
+                ret[i++] = mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
             }
             return ret;
         } finally {
@@ -184,12 +187,12 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException("entityName");
         }
         if (version == null || version.length() == 0) {
-            throw new IllegalArgumentException("version");
+            throw new IllegalArgumentException(LITERAL_VERSION);
         }
         if (newStatus == null) {
             throw new IllegalArgumentException("status");
         }
-        BasicDBObject query = new BasicDBObject("name", entityName).
+        BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName).
                 append("version.value", version);
         Error.push("setMetadataStatus(" + entityName + ":" + version + ")");
         try {
