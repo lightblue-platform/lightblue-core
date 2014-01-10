@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata;
 import java.util.Iterator;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.metadata.types.ObjectType;
 
@@ -42,10 +41,12 @@ public class ObjectField extends Field {
         return true;
     }
 
+    @Override
     public Iterator<? extends FieldTreeNode> getChildren() {
         return fields.getFields();
     }
 
+    @Override
     protected FieldTreeNode resolve(Path p, int level) {
         if(p.numSegments()==level) {
             return this;

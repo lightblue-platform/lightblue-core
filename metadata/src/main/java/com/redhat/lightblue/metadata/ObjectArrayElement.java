@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata;
 import java.util.Iterator;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.metadata.types.ObjectType;
 
@@ -47,6 +46,7 @@ public class ObjectArrayElement extends ArrayElement {
         return fields.getFields();
     }
 
+    @Override
     protected FieldTreeNode resolve(Path p, int level) {
         if(p.numSegments()==level) {
             return this;

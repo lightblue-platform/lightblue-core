@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  */
 public interface Type {
 
-    static final String ERR_INCOMPATIBLE_VALUE = "INCOMPATIBLE_VALUE";
+    String ERR_INCOMPATIBLE_VALUE = "INCOMPATIBLE_VALUE";
 
     /**
      * Returns the type name

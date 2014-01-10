@@ -29,8 +29,6 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.KeyValueCursor;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
-
 /**
  * Unsets (removes) some fields
  */
@@ -47,22 +45,23 @@ public class FieldUnsetter extends Updater {
      * @param fields List of fields to unset
      */
     public FieldUnsetter(List<Path> fields) {
-        this.fields=fields;
+        this.fields = fields;
     }
 
-   /**
+    /**
      * Removes fields from the document
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        for(Path p:fields) {
-            logger.debug("Remove {}",p);
-            KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(p);
-            while(cursor.hasNext()) {
-                JsonNode oldValue=doc.modify(cursor.getCurrentKey(),null,false);
-                if(oldValue!=null)
-                    ret=true;
+        boolean ret = false;
+        for (Path p : fields) {
+            logger.debug("Remove {}", p);
+            KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(p);
+            while (cursor.hasNext()) {
+                JsonNode oldValue = doc.modify(cursor.getCurrentKey(), null, false);
+                if (oldValue != null) {
+                    ret = true;
+                }
             }
         }
         return ret;

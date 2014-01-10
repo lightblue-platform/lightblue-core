@@ -26,7 +26,6 @@ import java.util.List;
 import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.Constants;
 
 public class UniqueConstraint implements EntityConstraint, Serializable {
 

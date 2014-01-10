@@ -42,7 +42,6 @@ import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.KeyValueCursor;
-import com.redhat.lightblue.util.MutablePath;
 
 /**
  * Removes values from an array
@@ -84,7 +83,7 @@ public class ArrayRemoveValues extends Updater {
         while(cursor.hasNext()) {
             JsonNode node=cursor.getCurrentValue();
             if(node instanceof ArrayNode) {
-                List<Integer> deleteList=new ArrayList<Integer>();
+                List<Integer> deleteList=new ArrayList<>();
                 int index=0;
                 for(Iterator<JsonNode> itr=((ArrayNode)node).elements();itr.hasNext();) {
                     JsonNode element=itr.next();

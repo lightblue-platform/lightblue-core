@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -44,21 +43,24 @@ public class ListUpdater extends Updater {
      * @param md Entity metadata
      * @param exprs List of update expressions
      */
-    public ListUpdater(JsonNodeFactory factory,EntityMetadata md,List<PartialUpdateExpression> exprs) {
-        updaters=new ArrayList<Updater>(exprs.size());
-        for(PartialUpdateExpression x:exprs)
-            updaters.add(Updater.getInstance(factory,md,x));
+    public ListUpdater(JsonNodeFactory factory, EntityMetadata md, List<PartialUpdateExpression> exprs) {
+        updaters = new ArrayList<>(exprs.size());
+        for (PartialUpdateExpression x : exprs) {
+            updaters.add(Updater.getInstance(factory, md, x));
+        }
     }
 
-   /**
+    /**
      * Updates the document
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        for(Updater x:updaters)
-            if(x.update(doc))
-                ret=true;
+        boolean ret = false;
+        for (Updater x : updaters) {
+            if (x.update(doc)) {
+                ret = true;
+            }
+        }
         return ret;
     }
 }
