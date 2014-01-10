@@ -29,44 +29,44 @@ public class MinMaxConstraintTest {
 	}
 
 	@Test
-	public void getTypeTest() {
+	public void testGetType() {
 		assertTrue(constraint.getType().equals(IntegerType.TYPE.toString()));
 	}
 
 	@Test
-	public void isValidForFieldTypeIntegerTest() {
+	public void testIsValidForFieldTypeInteger() {
 		assertTrue(constraint.isValidForFieldType(IntegerType.TYPE));
 	}
 	
 	@Test
-	public void isValidForFieldTypeDoubleTest() {
+	public void testIsValidForFieldTypeDouble() {
 		assertTrue(constraint.isValidForFieldType(DoubleType.TYPE));
 	}
 	
 	@Test
-	public void isValidForFieldTypeBigDecimalTest() {
+	public void testIsValidForFieldTypeBigDecimal() {
 		assertTrue(constraint.isValidForFieldType(BigDecimalType.TYPE));
 	}
 	
 	@Test
-	public void isValidForFieldTypeBigIntegerTest() {
+	public void testIisValidForFieldTypeBigInteger() {
 		assertTrue(constraint.isValidForFieldType(BigIntegerType.TYPE));
 	}
 	
 	@Test
-	public void isNotValidForFieldTypeTest() {
+	public void testIsNotValidForFieldType() {
 		assertFalse(constraint.isValidForFieldType(StringType.TYPE));
 		
 	}
 
 	@Test
-	public void getValueTest() {
+	public void testGetValue() {
 		constraint.setValue(1);
 		assertEquals(constraint.getValue(), 1);
 	}
 
 	@Test
-	public void setValueTest() {
+	public void testSetValue() {
 		constraint.setValue(0);
 		assertEquals(constraint.getValue(), 0);
 	}

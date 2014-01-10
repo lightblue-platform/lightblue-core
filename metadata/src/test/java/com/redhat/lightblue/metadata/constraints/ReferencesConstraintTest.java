@@ -1,6 +1,5 @@
 package com.redhat.lightblue.metadata.constraints;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -32,12 +31,12 @@ public class ReferencesConstraintTest {
 	}
 
 	@Test
-	public void getTypeTest() {
+	public void testGetType() {
 		assertTrue(constraint.getType().equals(ReferencesConstraint.REFERENCES));
 	}
 
 	@Test
-	public void testGetReferencesTest() {
+	public void testGetReferences() {
 		assertTrue(constraint.getReferences().equals(references));
 	}
 

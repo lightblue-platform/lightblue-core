@@ -22,7 +22,7 @@ public class ArraySizeConstraintTest {
 	}
 
 	@Test
-	public void isValidForFieldTypeTest() {
+	public void testIsValidForFieldType() {
 		assertTrue(constraint.isValidForFieldType(ArrayType.TYPE));
 	}
 

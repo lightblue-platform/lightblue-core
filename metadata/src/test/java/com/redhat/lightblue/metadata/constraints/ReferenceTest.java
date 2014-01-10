@@ -1,6 +1,6 @@
 package com.redhat.lightblue.metadata.constraints;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,45 +29,45 @@ public class ReferenceTest {
 	}
 
 	@Test
-	public void getEntityNameTest() {
+	public void testGetEntityName() {
 		assertTrue(reference.getEntityName().equals(ENTITY_NAME_VALUE));
 	}
 
 	@Test
-	public void setEntityNameTest() {
+	public void testSetEntityName() {
 		reference.setEntityName(ENTITY_NAME_VALUE+1);
 		assertTrue(reference.getEntityName().equals(ENTITY_NAME_VALUE+1));
 	}
 
 	@Test
-	public void getVersionValueTest() {
+	public void testGetVersionValue() {
 		assertTrue(reference.getVersionValue().equals(VERSION_VALUE));
 	}
 
 	@Test
-	public void setVersionValueTest() {
+	public void testSetVersionValue() {
 		reference.setVersionValue(VERSION_VALUE+1);
 		assertTrue(reference.getVersionValue().equals(VERSION_VALUE+1));
 	}
 
 	@Test
-	public void getThisFieldTest() {
+	public void testGetThisField() {
 		assertTrue(reference.getThisField().equals(THIS_FIELD_VALUE));
 	}
 
 	@Test
-	public void setThisFieldTest() {
+	public void testSetThisField() {
 		reference.setThisField(THIS_FIELD_VALUE+1);
 		assertTrue(reference.getThisField().equals(THIS_FIELD_VALUE+1));
 	}
 
 	@Test
-	public void getEntityFieldTest() {
+	public void testGetEntityField() {
 		assertTrue(reference.getEntityField().equals(ENTITY_FIELD_VALUE));
 	}
 
 	@Test
-	public void setEntityFieldTest() {
+	public void testSetEntityField() {
 		reference.setEntityField(ENTITY_FIELD_VALUE+1);
 		assertTrue(reference.getEntityField().equals(ENTITY_FIELD_VALUE+1));
 	}

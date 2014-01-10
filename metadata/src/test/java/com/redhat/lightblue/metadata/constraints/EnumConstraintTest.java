@@ -26,22 +26,22 @@ public class EnumConstraintTest {
 	}
 
 	@Test
-	public void getTypeTest() {
+	public void testGetType() {
 		assertTrue(constraint.getType().equals(EnumConstraint.TYPE));
 	}
 
 	@Test
-	public void isValidForFieldTypeTest() {
+	public void testIsValidForFieldType() {
 		assertTrue(constraint.isValidForFieldType(StringType.TYPE));
 	}
 	
 	@Test
-	public void getValuesTest() {
+	public void testGetValues() {
 		assertNotNull(constraint.getValues());
 	}
 
 	@Test
-	public void setValuesTest() {
+	public void testSetValues() {
 		Collection<String> values = new HashSet<String>();
 		values.add("1");
 		values.add("2");
@@ -51,7 +51,7 @@ public class EnumConstraintTest {
 	}
 
 	@Test
-	public void setValuesNullTest() {
+	public void testSetValuesNull() {
 		Collection<String> values = new HashSet<String>();
 		constraint.setValues(null);
 		assertTrue(constraint.getValues().equals(values));
