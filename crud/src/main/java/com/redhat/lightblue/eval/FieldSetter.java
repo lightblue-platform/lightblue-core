@@ -44,7 +44,7 @@ public class FieldSetter extends Updater {
 
     private static final Logger logger = LoggerFactory.getLogger(FieldSetter.class);
 
-    private final Map<Path,JsonNode> map=new HashMap<Path,JsonNode>();
+    private final Map<Path, JsonNode> map = new HashMap<Path, JsonNode>();
 
     /**
      * Ctor
@@ -54,37 +54,38 @@ public class FieldSetter extends Updater {
      *
      * This constructor interprets the values based on the type information in metadata
      */
-    public FieldSetter(JsonNodeFactory factory,EntityMetadata md,List<FieldValue> values) {
-        for(FieldValue x:values) {
-            FieldTreeNode node=md.resolve(x.getField());
-            if(node==null)
-                throw new EvaluationError("Unknown field:"+x.getField());
-            map.put(x.getField(),node.getType().toJson(factory,x.getValue().getValue()));
+    public FieldSetter(JsonNodeFactory factory, EntityMetadata md, List<FieldValue> values) {
+        for (FieldValue x : values) {
+            FieldTreeNode node = md.resolve(x.getField());
+            if (node == null) {
+                throw new EvaluationError("Unknown field:" + x.getField());
+            }
+            map.put(x.getField(), node.getType().toJson(factory, x.getValue().getValue()));
         }
     }
 
-   /**
+    /**
      * Updates the fields in the document with the new values.
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        for(Map.Entry<Path,JsonNode> x:map.entrySet()) {
-            Path p=x.getKey();
-            JsonNode value=x.getValue();
-            logger.debug("Set {} = {}",p,value);
-            KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(p);
-            while(cursor.hasNext()) {
-                JsonNode oldValue=doc.modify(cursor.getCurrentKey(),value,false);
-                if(!ret) {
-                    if(value!=null) {
-                        if(!oldValue.equals(value)) {
-                            ret=true;
+        boolean ret = false;
+        for (Map.Entry<Path, JsonNode> x : map.entrySet()) {
+            Path p = x.getKey();
+            JsonNode value = x.getValue();
+            logger.debug("Set {} = {}", p, value);
+            KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(p);
+            while (cursor.hasNext()) {
+                JsonNode oldValue = doc.modify(cursor.getCurrentKey(), value, false);
+                if (!ret) {
+                    if (value != null) {
+                        if (!oldValue.equals(value)) {
+                            ret = true;
                         } else {
-                            ret=false;
+                            ret = false;
                         }
                     } else {
-                        ret=true;
+                        ret = true;
                     }
                 }
             }

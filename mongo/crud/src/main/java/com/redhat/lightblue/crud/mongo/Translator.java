@@ -307,13 +307,13 @@ public class Translator {
             }
         }
         if (expr.getOp() == BinaryComparisonOperator._eq) {
-            BasicDBObject obj=new BasicDBObject(expr.getField().toString(),
-                                                t.cast(expr.getRvalue().getValue()));
+            BasicDBObject obj = new BasicDBObject(expr.getField().toString(),
+                    t.cast(expr.getRvalue().getValue()));
             return obj;
         } else {
             return new BasicDBObject(expr.getField().toString(),
                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
-                                      t.cast(expr.getRvalue().getValue())));
+                            t.cast(expr.getRvalue().getValue())));
         }
     }
 

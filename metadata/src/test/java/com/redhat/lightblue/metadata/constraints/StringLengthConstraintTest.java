@@ -10,20 +10,20 @@ import com.redhat.lightblue.metadata.types.StringType;
 
 public class StringLengthConstraintTest {
 
-	StringLengthConstraint constraint;
-	
-	@Before
-	public void setUp() throws Exception {
-		constraint = new StringLengthConstraint(StringLengthConstraint.MAXLENGTH);
-	}
+    StringLengthConstraint constraint;
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+        constraint = new StringLengthConstraint(StringLengthConstraint.MAXLENGTH);
+    }
 
-	@Test
-	public void testIsValidForFieldType() {
-		assertTrue(constraint.isValidForFieldType(StringType.TYPE));
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testIsValidForFieldType() {
+        assertTrue(constraint.isValidForFieldType(StringType.TYPE));
+    }
 
 }

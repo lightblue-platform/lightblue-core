@@ -21,21 +21,18 @@ package com.redhat.lightblue.util;
 import java.util.LinkedList;
 
 /**
- * An abstract cursor for traversing a tree of name-value pairs. The
- * class parameter N denotes the node type of the underlying tree. For
- * instance, a Json document could be traversed using a concrete
- * implementation extending AbstractTreeCursor<JsonNode>.
+ * An abstract cursor for traversing a tree of name-value pairs. The class parameter N denotes the node type of the
+ * underlying tree. For instance, a Json document could be traversed using a concrete implementation extending
+ * AbstractTreeCursor<JsonNode>.
  *
- * Every node in the tree is identified by two components: the path to
- * the node, and the actual node object itself. The cursor provides
- * methods to seek to the first child and the next sibling of the
- * current node, as well as the parent node of the current node. The
- * cursor cannot move to the next sibling or to the parent of the root
- * node with which it is initialized.
+ * Every node in the tree is identified by two components: the path to the node, and the actual node object itself. The
+ * cursor provides methods to seek to the first child and the next sibling of the current node, as well as the parent
+ * node of the current node. The cursor cannot move to the next sibling or to the parent of the root node with which it
+ * is initialized.
  *
  * For example:
  * <pre>
- *  
+ *
  *  |
  *  +-A
  *  |
@@ -47,38 +44,33 @@ import java.util.LinkedList;
  *  |   |
  *  |   +-E
  *  +-F
- * </pre>
- * Assuming the cursor is initialized with the root node of the above tree:
+ * </pre> Assuming the cursor is initialized with the root node of the above tree:
  * <pre>
  *    cursor.getCurrentNode() => Docroot
  *    cursor.getCurrentPath() => ""
- * </pre>
- * After <code>cursor.getFirstChild()</code>:
+ * </pre> After <code>cursor.getFirstChild()</code>:
  * <pre>
  *    cursor.getCurrentNode() => A
  *    cursor.getCurrentPath() => "A"
- * </pre>
- * At this point, <code>cursor.getFirstChild()</code> will return null. 
- * <code>cursor.getNextSibling()</code> will seek to node B.
- * After calling <code>cursor.getFirstChild()</code>:
+ * </pre> At this point, <code>cursor.getFirstChild()</code> will return null. <code>cursor.getNextSibling()</code> will
+ * seek to node B. After calling <code>cursor.getFirstChild()</code>:
  * <pre>
  *     cursor.getCurrentNode() => C
  *     cursor.getCurrentPath() => "B.C"
  * </pre>
  *
- * The concrete implementation must provide two methods to provide access to the 
- * underlying tree structure:
+ * The concrete implementation must provide two methods to provide access to the underlying tree structure:
  * <ul>
  * <li>hasChildren: Return if the node has children</li>
- * <li>getCursor: If the node has children, return a KeyValueCursor to iterate 
- *     the elements of the node. In the above example, a <code>getCursor</code> call
- *     with node B as the argument should return a cursor that will return C and D.</li>
+ * <li>getCursor: If the node has children, return a KeyValueCursor to iterate the elements of the node. In the above
+ * example, a <code>getCursor</code> call with node B as the argument should return a cursor that will return C and
+ * D.</li>
  * </ul>
  */
 public abstract class AbstractTreeCursor<N> {
 
     /**
-     * Iteration state for every level is kept in a stack. 
+     * Iteration state for every level is kept in a stack.
      */
     private final LinkedList<LevelState<N>> stack = new LinkedList<>();
 
@@ -123,8 +115,7 @@ public abstract class AbstractTreeCursor<N> {
     /**
      * Construct a cursor at a given location in a tree
      *
-     * @param p Path to the root node for the cursor. If docroot,
-     * empty path.
+     * @param p Path to the root node for the cursor. If docroot, empty path.
      * @param start The root node
      */
     public AbstractTreeCursor(Path p, N start) {
@@ -151,10 +142,9 @@ public abstract class AbstractTreeCursor<N> {
     /**
      * Attempt to seek the cursor to the first child of the current node
      *
-     * @return If the current node does not have any children, returns
-     * false, and cursor still points to the node it was pointing to
-     * before the call. If the current node has children, cursor
-     * points to the first child of the node, and true is returned.
+     * @return If the current node does not have any children, returns false, and cursor still points to the node it was
+     * pointing to before the call. If the current node has children, cursor points to the first child of the node, and
+     * true is returned.
      */
     public boolean firstChild() {
         // If currentNode==null, get the first child of TOS
@@ -178,10 +168,8 @@ public abstract class AbstractTreeCursor<N> {
     /**
      * Attempt to seek the cursor to the next sibling of the current node
      *
-     * @return If the current node is the last node of its parent,
-     * returns false, and the cursor still points to the same
-     * node. Otherwise, cursor points to the next sibling and true is
-     * returned.
+     * @return If the current node is the last node of its parent, returns false, and the cursor still points to the
+     * same node. Otherwise, cursor points to the next sibling and true is returned.
      */
     public boolean nextSibling() {
         // Getting the next sibling is done using the iterator of
@@ -200,10 +188,8 @@ public abstract class AbstractTreeCursor<N> {
     /**
      * Attempt to seek the cursor to the parent of the current node
      *
-     * @return If the node has a parent that is a descendent of the
-     * root node with which the cursor is initialized, seeks to the
-     * parent and returns true. Otherwise, returns false and cursor
-     * still points to the same node.
+     * @return If the node has a parent that is a descendent of the root node with which the cursor is initialized,
+     * seeks to the parent and returns true. Otherwise, returns false and cursor still points to the same node.
      */
     public boolean parent() {
         if (stack.size() > 1) {
@@ -218,27 +204,27 @@ public abstract class AbstractTreeCursor<N> {
     /**
      * Attempts to seek to the next node in a depth-first manner
      *
-     * @return If there is a next node in a depth-first manner,
-     * returns true and seeks to that node. Otherwise, returns false
-     * and the cursor continues to point to the same node.
+     * @return If there is a next node in a depth-first manner, returns true and seeks to that node. Otherwise, returns
+     * false and the cursor continues to point to the same node.
      */
     public boolean next() {
         boolean done = false;
-        boolean backing=false;
+        boolean backing = false;
         do {
-            if(backing) {
-                if(nextSibling()) {
+            if (backing) {
+                if (nextSibling()) {
                     return true;
-                } else if(!parent()) {
-                    done=true;
+                } else if (!parent()) {
+                    done = true;
                 }
             } else {
                 if (firstChild() || nextSibling()) {
                     return true;
                 } else if (!parent()) {
                     done = true;
-                } else
-                    backing=true;
+                } else {
+                    backing = true;
+                }
             }
         } while (!done);
         return false;

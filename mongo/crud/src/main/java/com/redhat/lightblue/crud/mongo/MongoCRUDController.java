@@ -98,7 +98,7 @@ public class MongoCRUDController implements CRUDController {
                                         Projection projection) {
         logger.debug("insert() start");
         CRUDInsertionResponse response = new CRUDInsertionResponse();
-        saveOrInsert(resolver,documents,false,projection,response,OP_INSERT);
+        saveOrInsert(resolver, documents, false, projection, response, OP_INSERT);
         return response;
     }
 
@@ -108,8 +108,8 @@ public class MongoCRUDController implements CRUDController {
                                  boolean upsert,
                                  Projection projection) {
         logger.debug("save() start");
-        CRUDSaveResponse response=new CRUDSaveResponse();
-        saveOrInsert(resolver,documents,upsert,projection,response,OP_SAVE);
+        CRUDSaveResponse response = new CRUDSaveResponse();
+        saveOrInsert(resolver, documents, upsert, projection, response, OP_SAVE);
         return response;
     }
 
@@ -146,7 +146,7 @@ public class MongoCRUDController implements CRUDController {
                     for (DBObject doc : docs) {
                         try {
                             WriteResult result;
-                            if(operation.equals(OP_INSERT)) {
+                            if (operation.equals(OP_INSERT)) {
                                 result = collection.insert(doc, WriteConcern.SAFE);
                             } else {
                                 Object x = doc.get(ID_STR);
@@ -212,10 +212,10 @@ public class MongoCRUDController implements CRUDController {
         if (query == null) {
             throw new IllegalArgumentException("Null query");
         }
-        logger.debug("update start: q:{} u:{} p:{}",query,update,projection);
+        logger.debug("update start: q:{} u:{} p:{}", query, update, projection);
         Error.push(OP_UPDATE);
-        CRUDUpdateResponse response=new CRUDUpdateResponse();
-        Translator translator=new Translator(resolver,factory);
+        CRUDUpdateResponse response = new CRUDUpdateResponse();
+        Translator translator = new Translator(resolver, factory);
         try {
             EntityMetadata md = resolver.getEntityMetadata(entity);
             logger.debug("Translating query {}", query);
@@ -224,10 +224,10 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        logger.debug("update end: updated: {}, failed: {}", response.getNumUpdated(),response.getNumFailed());
+        logger.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
         return response;
     }
-    
+
     /**
      * Search implementation for mongo
      */

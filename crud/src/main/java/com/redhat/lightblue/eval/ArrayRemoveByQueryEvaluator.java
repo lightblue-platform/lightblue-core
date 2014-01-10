@@ -49,43 +49,47 @@ public class ArrayRemoveByQueryEvaluator extends Updater {
     private final Path field;
     private final QueryEvaluator query;
 
-    public ArrayRemoveByQueryEvaluator(EntityMetadata md,ArrayRemoveByQueryExpression expr) {
-        this.field=expr.getField();
-        FieldTreeNode node=md.resolve(field);
-        if(node instanceof ArrayField) {
-            this.query=QueryEvaluator.getInstance(expr.getQuery(),((ArrayField)node).getElement());
-        } else
-            throw new EvaluationError("Expected array field:"+field);
+    public ArrayRemoveByQueryEvaluator(EntityMetadata md, ArrayRemoveByQueryExpression expr) {
+        this.field = expr.getField();
+        FieldTreeNode node = md.resolve(field);
+        if (node instanceof ArrayField) {
+            this.query = QueryEvaluator.getInstance(expr.getQuery(), ((ArrayField) node).getElement());
+        } else {
+            throw new EvaluationError("Expected array field:" + field);
+        }
     }
 
-   /**
+    /**
      * Removes the elements that match the query
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        logger.debug("Remove elements from {} ",field);
-        KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(field);
-        while(cursor.hasNext()) {
-            JsonNode node=cursor.getCurrentValue();
-            if(node instanceof ArrayNode) {
-                MutablePath path=new MutablePath(cursor.getCurrentKey());
-                int index=0;
+        boolean ret = false;
+        logger.debug("Remove elements from {} ", field);
+        KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
+        while (cursor.hasNext()) {
+            JsonNode node = cursor.getCurrentValue();
+            if (node instanceof ArrayNode) {
+                MutablePath path = new MutablePath(cursor.getCurrentKey());
+                int index = 0;
                 path.push(index);
-                List<Integer> deleteList=new ArrayList<Integer>();
-                for(Iterator<JsonNode> itr=((ArrayNode)node).elements();itr.hasNext();) {
-                    JsonNode element=itr.next();
-                    QueryEvaluationContext ctx=new QueryEvaluationContext(element,path.immutableCopy());
-                    if(query.evaluate(ctx)) 
+                List<Integer> deleteList = new ArrayList<Integer>();
+                for (Iterator<JsonNode> itr = ((ArrayNode) node).elements(); itr.hasNext();) {
+                    JsonNode element = itr.next();
+                    QueryEvaluationContext ctx = new QueryEvaluationContext(element, path.immutableCopy());
+                    if (query.evaluate(ctx)) {
                         deleteList.add(index);
+                    }
                     index++;
                     path.setLast(index);
                 }
-                logger.debug("Removing {} from {}",deleteList,field);
-                for(int i=deleteList.size()-1;i>=0;i--)
-                    ((ArrayNode)node).remove(deleteList.get(i));
-            } else
-                logger.warn("Expected array node for {}, got {}",cursor.getCurrentKey(),node.getClass().getName());
+                logger.debug("Removing {} from {}", deleteList, field);
+                for (int i = deleteList.size() - 1; i >= 0; i--) {
+                    ((ArrayNode) node).remove(deleteList.get(i));
+                }
+            } else {
+                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+            }
         }
         return ret;
     }

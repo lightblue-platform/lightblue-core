@@ -26,26 +26,26 @@ import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.query.ArrayProjection;
 
 /**
- * Base class for array projectors. 
+ * Base class for array projectors.
  */
 public abstract class ArrayProjector extends Projector {
     protected final Path arrayFieldPattern;
     protected final boolean include;
     protected final Projector nestedProjector;
     protected boolean lastMatch;
-    
+
     /**
-     * Sets up the projector context 
+     * Sets up the projector context
      */
-    public ArrayProjector(ArrayProjection p,Path ctxPath,FieldTreeNode context) {
-        super(ctxPath,context);
+    public ArrayProjector(ArrayProjection p, Path ctxPath, FieldTreeNode context) {
+        super(ctxPath, context);
         arrayFieldPattern = new Path(ctxPath, p.getField());
         include = p.isInclude();
         FieldTreeNode nestedCtx = context.resolve(p.getField());
         if (nestedCtx instanceof ArrayField) {
             nestedProjector = Projector.getInstance(p.getProject(),
-                                                    new Path(arrayFieldPattern, Path.ANYPATH),
-                                                    ((ArrayField) nestedCtx).getElement());
+                    new Path(arrayFieldPattern, Path.ANYPATH),
+                    ((ArrayField) nestedCtx).getElement());
         } else {
             throw new EvaluationError("Expecting array element for " + arrayFieldPattern);
         }
@@ -70,16 +70,14 @@ public abstract class ArrayProjector extends Projector {
         // if it is a matching descendant
         if (p.numSegments() == arrayFieldPattern.numSegments() + 1
                 && p.matchingDescendant(arrayFieldPattern)) {
-            return projectArray(p,ctx);
+            return projectArray(p, ctx);
         }
         return null;
     }
 
     /**
-     * Check if the array element matches. This is called after
-     * determining that the path points to a field that can be
+     * Check if the array element matches. This is called after determining that the path points to a field that can be
      * interpreted by this projector.
      */
-    protected abstract Boolean projectArray(Path p,QueryEvaluationContext ctx);
+    protected abstract Boolean projectArray(Path p, QueryEvaluationContext ctx);
 }
-

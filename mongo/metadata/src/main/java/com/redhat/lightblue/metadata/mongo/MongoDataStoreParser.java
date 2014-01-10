@@ -33,7 +33,7 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         if (!"mongo".equals(name)) {
             throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
-        
+
         MongoDataStore ds = new MongoDataStore();
         ds.setClientJndiName(p.getStringProperty(node, "clientJndiName"));
         ds.setDatabaseName(p.getStringProperty(node, "database"));

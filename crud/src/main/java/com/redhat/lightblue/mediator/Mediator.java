@@ -81,9 +81,8 @@ public class Mediator {
      *
      * @param req Insertion request
      *
-     * Mediator performs constraint validation, and passes documents
-     * that pass the validation to the CRUD implementation for that
-     * entity.
+     * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
+     * for that entity.
      */
     public Response insert(InsertionRequest req) {
         logger.debug("insert {}", req.getEntity());
@@ -92,14 +91,14 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.INSERT);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            List<JsonDoc> docsWithoutErrors=runBulkConstraintValidation(md,ctx);
-            if(response.getErrors().isEmpty()&&!docsWithoutErrors.isEmpty()) {
+            List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
+            if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 logger.debug("CRUD controller={}", controller.getClass().getName());
                 CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
                 response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), nodeFactory));
-                mergeDataErrors(insertionResponse.getDataErrors(),response);
-                mergeErrors(insertionResponse.getErrors(),response);
+                mergeDataErrors(insertionResponse.getDataErrors(), response);
+                mergeErrors(insertionResponse.getErrors(), response);
                 response.setModifiedCount(insertionResponse.getDocuments().size());
                 if (insertionResponse.getDocuments().size() == ctx.getDocs().size()) {
                     response.setStatus(OperationStatus.COMPLETE);
@@ -123,15 +122,13 @@ public class Mediator {
     }
 
     /**
-     * Saves data. Documents in the DB that match the ID of the
-     * documents in the request are rewritten. If a document does not
-     * exist in the DB and upsert=true, the document is inserted.
-     * 
+     * Saves data. Documents in the DB that match the ID of the documents in the request are rewritten. If a document
+     * does not exist in the DB and upsert=true, the document is inserted.
+     *
      * @param req Save request
      *
-     * Mediator performs constraint validation, and passes documents
-     * that pass the validation to the CRUD implementation for that
-     * entity.
+     * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
+     * for that entity.
      */
     public Response save(SaveRequest req) {
         logger.debug("save {}", req.getEntity());
@@ -140,14 +137,14 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.SAVE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            List<JsonDoc> docsWithoutErrors=runBulkConstraintValidation(md,ctx);
-            if (response.getErrors().isEmpty()&&!docsWithoutErrors.isEmpty()) {
+            List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
+            if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 logger.debug("CRUD controller={}", controller.getClass().getName());
                 CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
                 response.setEntityData(toJsonDocList(saveResponse.getDocuments(), nodeFactory));
-                mergeDataErrors(saveResponse.getDataErrors(),response);
-                mergeErrors(saveResponse.getErrors(),response);
+                mergeDataErrors(saveResponse.getDataErrors(), response);
+                mergeErrors(saveResponse.getErrors(), response);
                 response.setModifiedCount(saveResponse.getDocuments().size());
                 if (saveResponse.getDocuments().size() == ctx.getDocs().size()) {
                     response.setStatus(OperationStatus.COMPLETE);
@@ -172,9 +169,8 @@ public class Mediator {
      *
      * @param req Update request
      *
-     * All documents matching the search criteria are updated using
-     * the update expression given in the request. Then, the updated
-     * document is projected and returneed in the response.
+     * All documents matching the search criteria are updated using the update expression given in the request. Then,
+     * the updated document is projected and returneed in the response.
      */
     public Response update(UpdateRequest req) {
         logger.debug("update {}", req.getEntity());
@@ -182,14 +178,14 @@ public class Mediator {
         Response response = new Response();
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.UPDATE);
-            EntityMetadata md=ctx.getEntityMetadata(req.getEntity().getEntity());
-            CRUDController controller=factory.getCRUDController(md);
+            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            CRUDController controller = factory.getCRUDController(md);
             logger.debug("CRUD controller={}", controller.getClass().getName());
-            CRUDUpdateResponse updateResponse=controller.update(ctx,
-                                                                req.getEntity().getEntity(),
-                                                                req.getQuery(),
-                                                                req.getUpdateExpression(),
-                                                                req.getReturnFields());
+            CRUDUpdateResponse updateResponse = controller.update(ctx,
+                    req.getEntity().getEntity(),
+                    req.getQuery(),
+                    req.getUpdateExpression(),
+                    req.getReturnFields());
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -262,38 +258,41 @@ public class Mediator {
         logger.debug("Bulk constraint validation");
         ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
         constraintValidator.validateDocs(ctx.getDocs());
-        Map<JsonDoc,List<Error>> docErrors=constraintValidator.getDocErrors();
-        List<JsonDoc> docsWithoutError=new ArrayList<JsonDoc>(ctx.getDocs().size());
-        for(JsonDoc doc:ctx.getDocs()) {
-            List<Error> err=docErrors.get(doc);
-            if(err!=null&&!err.isEmpty()) {
-                addDataErrors(doc,err,ctx.getResponse().getDataErrors());
-            } else
+        Map<JsonDoc, List<Error>> docErrors = constraintValidator.getDocErrors();
+        List<JsonDoc> docsWithoutError = new ArrayList<JsonDoc>(ctx.getDocs().size());
+        for (JsonDoc doc : ctx.getDocs()) {
+            List<Error> err = docErrors.get(doc);
+            if (err != null && !err.isEmpty()) {
+                addDataErrors(doc, err, ctx.getResponse().getDataErrors());
+            } else {
                 docsWithoutError.add(doc);
+            }
         }
-        List<Error> errors=constraintValidator.getErrors();
-        if(errors!=null&&!errors.isEmpty())  {
+        List<Error> errors = constraintValidator.getErrors();
+        if (errors != null && !errors.isEmpty()) {
             ctx.getResponse().getErrors().addAll(errors);
         }
-        logger.debug("There are {} documents to process after constraint validation",docsWithoutError.size());
+        logger.debug("There are {} documents to process after constraint validation", docsWithoutError.size());
         return docsWithoutError;
     }
 
     private void mergeErrors(List<Error> errors,
                              Response resp) {
-        if(errors!=null)
+        if (errors != null) {
             resp.getErrors().addAll(errors);
+        }
     }
 
     private void mergeDataErrors(List<DataError> dataErrors,
                                  Response resp) {
-        if(dataErrors!=null&&!dataErrors.isEmpty()) {
-            for(DataError x:dataErrors) {
-                DataError err=DataError.findErrorForDoc(resp.getDataErrors(),x.getEntityData());
-                if(err!=null)
+        if (dataErrors != null && !dataErrors.isEmpty()) {
+            for (DataError x : dataErrors) {
+                DataError err = DataError.findErrorForDoc(resp.getDataErrors(), x.getEntityData());
+                if (err != null) {
                     err.getErrors().addAll(x.getErrors());
-                else
+                } else {
                     resp.getDataErrors().add(x);
+                }
             }
         }
     }
@@ -301,12 +300,12 @@ public class Mediator {
     private void addDataErrors(JsonDoc doc,
                                List<Error> errors,
                                List<DataError> dest) {
-        if(errors!=null&&!errors.isEmpty()) {
-            DataError err=DataError.findErrorForDoc(dest,doc.getRoot());
-            if(err==null) {
-                dest.add(err=new DataError(doc.getRoot(),errors));
+        if (errors != null && !errors.isEmpty()) {
+            DataError err = DataError.findErrorForDoc(dest, doc.getRoot());
+            if (err == null) {
+                dest.add(err = new DataError(doc.getRoot(), errors));
             } else {
-                if(err.getErrors()==null) {
+                if (err.getErrors() == null) {
                     err.setErrors(new ArrayList<Error>());
                 }
                 err.getErrors().addAll(errors);

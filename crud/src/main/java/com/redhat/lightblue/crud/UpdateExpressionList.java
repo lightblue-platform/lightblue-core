@@ -47,7 +47,7 @@ public class UpdateExpressionList extends UpdateExpression {
     public UpdateExpressionList(List<PartialUpdateExpression> items) {
         this.list = items;
     }
-    
+
     /**
      * Creates an expression list using the given expressions
      */

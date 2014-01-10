@@ -35,9 +35,9 @@ public class EnumConstraintParser<T> implements FieldConstraintParser<T> {
         if (!EnumConstraint.TYPE.equals(name)) {
             throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
-        
+
         List<String> values = p.getStringList(node, EnumConstraint.TYPE);
-        
+
         if (values != null) {
             EnumConstraint ret = new EnumConstraint();
             ret.setValues(values);

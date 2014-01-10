@@ -18,159 +18,158 @@ import com.redhat.lightblue.util.Error;
 
 public class DoubleTypeTest {
 
-	Type doubleType;
-	
-	@Before
-	public void setUp() throws Exception {
-		doubleType = DoubleType.TYPE;
-	}
+    Type doubleType;
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+        doubleType = DoubleType.TYPE;
+    }
 
-	@Test
-	public void testIsAContainerType() {
-		assertTrue(ContainerType.class.isAssignableFrom(ArrayType.class));
-	}
-	
-    
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testIsAContainerType() {
+        assertTrue(ContainerType.class.isAssignableFrom(ArrayType.class));
+    }
+
     @Test
     public void testGetName() {
-    	assertEquals(doubleType.getName(), DoubleType.NAME);
+        assertEquals(doubleType.getName(), DoubleType.NAME);
     }
 
     @Test
     public void testSupportsEq() {
-    	assertTrue(doubleType.supportsEq());
+        assertTrue(doubleType.supportsEq());
     }
-    
+
     @Test
     public void testSupportsOrdering() {
-    	assertTrue(doubleType.supportsOrdering());
+        assertTrue(doubleType.supportsOrdering());
     }
 
     @Test
     public void testToJson() {
-    	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
-    	JsonNode jsonNode = doubleType.toJson(jsonNodeFactory, Double.MAX_VALUE);
-    	assertTrue(new Double(jsonNode.asDouble()).equals(Double.MAX_VALUE));
+        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+        JsonNode jsonNode = doubleType.toJson(jsonNodeFactory, Double.MAX_VALUE);
+        assertTrue(new Double(jsonNode.asDouble()).equals(Double.MAX_VALUE));
     }
 
     @Test
     public void testToJsonNull() {
-    	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
-    	JsonNode jsonNode = doubleType.toJson(jsonNodeFactory, null);
-    	assertNotNull(jsonNode);
+        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+        JsonNode jsonNode = doubleType.toJson(jsonNodeFactory, null);
+        assertNotNull(jsonNode);
     }
-    
+
     @Test
     public void testFromJson() {
-    	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(true).numberNode(Double.MAX_VALUE);
-    	Object fromJson = doubleType.fromJson(jsonNode);
-    	assertTrue(fromJson instanceof Double);
+        JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(true).numberNode(Double.MAX_VALUE);
+        Object fromJson = doubleType.fromJson(jsonNode);
+        assertTrue(fromJson instanceof Double);
     }
-    
-    @Test(expected=Error.class)
+
+    @Test(expected = Error.class)
     public void testFromJsonWithIncompatibleValue() {
-    	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
-    	doubleType.fromJson(jsonNode);
+        JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
+        doubleType.fromJson(jsonNode);
     }
 
     @Test
     public void testCastNull() {
-    	assertNull(doubleType.cast(null));
+        assertNull(doubleType.cast(null));
     }
-    
+
     @Test
     public void testCastBigDecimal() {
-    	assertTrue(doubleType.cast(Double.MAX_VALUE) instanceof Double);
+        assertTrue(doubleType.cast(Double.MAX_VALUE) instanceof Double);
     }
-    
+
     @Test
     public void testCastDouble() {
-    	assertTrue(doubleType.cast(Double.MAX_VALUE) instanceof Double);
+        assertTrue(doubleType.cast(Double.MAX_VALUE) instanceof Double);
     }
-    
+
     @Test
     public void testCastFloat() {
-    	assertTrue(doubleType.cast(Float.MAX_VALUE) instanceof Double);
+        assertTrue(doubleType.cast(Float.MAX_VALUE) instanceof Double);
     }
 
     @Test
     public void testCastLong() {
-    	Long laung = Long.MAX_VALUE;
-    	assertTrue(doubleType.cast(laung) instanceof Double);
+        Long laung = Long.MAX_VALUE;
+        assertTrue(doubleType.cast(laung) instanceof Double);
     }
-    
+
     @Test
     public void testCastBooleanTrue() {
-    	assertTrue(doubleType.cast(Boolean.TRUE) instanceof Double);
+        assertTrue(doubleType.cast(Boolean.TRUE) instanceof Double);
     }
-    
+
     @Test
     public void testCastBooleanFalse() {
-    	assertTrue(doubleType.cast(Boolean.FALSE) instanceof Double);
+        assertTrue(doubleType.cast(Boolean.FALSE) instanceof Double);
     }
-    
+
     @Test
     public void testCastGoodString() {
-    	assertTrue(doubleType.cast("8675309") instanceof Double);
+        assertTrue(doubleType.cast("8675309") instanceof Double);
     }
-    
-    @Test(expected=Error.class)
+
+    @Test(expected = Error.class)
     public void testCastBadString() {
-    	doubleType.cast("string");
+        doubleType.cast("string");
     }
-    
-    @Test(expected=Error.class)
+
+    @Test(expected = Error.class)
     public void testCcastOther() {
-    	doubleType.cast(new Object());
+        doubleType.cast(new Object());
     }
-    
+
     @Test
     public void testCompareBothNull() {
-    	assertEquals(doubleType.compare(null, null), 0);
+        assertEquals(doubleType.compare(null, null), 0);
     }
-    
+
     @Test
     public void testCompareV1Null() {
-    	assertEquals(doubleType.compare(null, new Object()), -1);
+        assertEquals(doubleType.compare(null, new Object()), -1);
     }
-    
+
     @Test
     public void testCompareV2Null() {
-    	assertEquals(doubleType.compare(new Object(), null), 1);
+        assertEquals(doubleType.compare(new Object(), null), 1);
     }
 
     @Test
     public void testCompareEqual() {
-    	assertEquals(doubleType.compare((Object)Double.MAX_VALUE, (Object)Double.MAX_VALUE), 0);
+        assertEquals(doubleType.compare((Object) Double.MAX_VALUE, (Object) Double.MAX_VALUE), 0);
     }
-    
+
     @Test
     public void testCompareNotEqual() {
-    	assertEquals(doubleType.compare((Object)BigDecimal.ZERO, (Object)Double.MAX_VALUE), -1);
+        assertEquals(doubleType.compare((Object) BigDecimal.ZERO, (Object) Double.MAX_VALUE), -1);
     }
-    
+
     @Test
     public void testEequalsTrue() {
-    	assertTrue(doubleType.equals(DoubleType.TYPE));
+        assertTrue(doubleType.equals(DoubleType.TYPE));
     }
-    
+
     @Test
     public void testEqualsFalse() {
-    	assertFalse(doubleType.equals(Double.MAX_VALUE));
+        assertFalse(doubleType.equals(Double.MAX_VALUE));
     }
-    
+
     @Test
     public void testHashCode() {
-    	assertEquals(doubleType.hashCode(), 3);
+        assertEquals(doubleType.hashCode(), 3);
     }
 
     @Test
     public void testToString() {
-    	assertEquals(doubleType.toString(), DoubleType.NAME);
+        assertEquals(doubleType.toString(), DoubleType.NAME);
     }
 
 }

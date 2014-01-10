@@ -48,10 +48,10 @@ public class ObjectArrayElement extends ArrayElement {
 
     @Override
     protected FieldTreeNode resolve(Path p, int level) {
-        if(p.numSegments()==level) {
+        if (p.numSegments() == level) {
             return this;
-        } else  {
-            return fields.resolve(p,level);
+        } else {
+            return fields.resolve(p, level);
         }
     }
 }

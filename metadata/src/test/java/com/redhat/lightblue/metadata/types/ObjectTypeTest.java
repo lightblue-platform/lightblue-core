@@ -8,18 +8,18 @@ import org.junit.Test;
 
 public class ObjectTypeTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
 
-	@Test
-	public void testType() {
-		ObjectType objectType = ObjectType.TYPE;
-		assertNotNull(objectType);
-	}
+    @Test
+    public void testType() {
+        ObjectType objectType = ObjectType.TYPE;
+        assertNotNull(objectType);
+    }
 
 }

@@ -10,11 +10,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public class ContainerTypeTest {
-	
-	Type type;
-	
-    class NewContainerType extends ContainerType
-    {
+
+    Type type;
+
+    class NewContainerType extends ContainerType {
         public static final String NAME = ObjectType.NAME;
 
         public NewContainerType(String name) {
@@ -38,97 +37,96 @@ public class ContainerTypeTest {
 
         @Override
         public int compare(Object v1, Object v2) {
-        	return super.compare(v1, v2);
+            return super.compare(v1, v2);
         }
 
         @Override
         public Object cast(Object v) {
-        	return super.cast(v);
+            return super.cast(v);
         }
 
         @Override
         public JsonNode toJson(JsonNodeFactory factory, Object value) {
-        	return super.toJson(factory, value);
+            return super.toJson(factory, value);
         }
 
         @Override
         public Object fromJson(JsonNode value) {
-        	return super.fromJson(value);
+            return super.fromJson(value);
         }
 
         @Override
         public boolean equals(Object obj) {
-        	return super.equals(obj);
+            return super.equals(obj);
         }
 
         @Override
         public int hashCode() {
-        	return super.hashCode();
+            return super.hashCode();
         }
     }
-	
-	@Before
-	public void setUp() throws Exception {
-		type = new NewContainerType(NewContainerType.NAME);
-	}
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+        type = new NewContainerType(NewContainerType.NAME);
+    }
 
-	@Test
-	public void testHashCode() {
-		assertEquals(type.hashCode(), NewContainerType.NAME.hashCode());
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
 
-	
-	@Test
-	public void testGetName() {
-		assertTrue(type.getName().equals(NewContainerType.NAME));
-	}
+    @Test
+    public void testHashCode() {
+        assertEquals(type.hashCode(), NewContainerType.NAME.hashCode());
+    }
 
-	@Test
-	public void testSupportsEq() {
-		assertFalse(type.supportsEq());
-	}
+    @Test
+    public void testGetName() {
+        assertTrue(type.getName().equals(NewContainerType.NAME));
+    }
 
-	@Test
-	public void tettSupportsOrdering() {
-		assertFalse(type.supportsOrdering());
-	}
+    @Test
+    public void testSupportsEq() {
+        assertFalse(type.supportsEq());
+    }
 
-	@Test(expected=UnsupportedOperationException.class)
-	public void testCompare() {
-		type.compare(new Object(), new Object());
-	}
+    @Test
+    public void tettSupportsOrdering() {
+        assertFalse(type.supportsOrdering());
+    }
 
-	@Test(expected=UnsupportedOperationException.class)
-	public void testCast() {
-		type.cast(new Object());
-	}
+    @Test(expected = UnsupportedOperationException.class)
+    public void testCompare() {
+        type.compare(new Object(), new Object());
+    }
 
-	@Test(expected=UnsupportedOperationException.class)
-	public void testToJson() {
-		type.toJson(JsonNodeFactory.withExactBigDecimals(true), new Object());
-	}
+    @Test(expected = UnsupportedOperationException.class)
+    public void testCast() {
+        type.cast(new Object());
+    }
 
-	@Test(expected=UnsupportedOperationException.class)
-	public void testFromJson() {
-		type.fromJson(JsonNodeFactory.withExactBigDecimals(false).arrayNode());
-	}
+    @Test(expected = UnsupportedOperationException.class)
+    public void testToJson() {
+        type.toJson(JsonNodeFactory.withExactBigDecimals(true), new Object());
+    }
 
-	@Test
-	public void testEqualsObject() {
-		assertFalse(type.equals(new Object()));
-	}
-	
-	@Test
-	public void testEqualsNull() {
-		assertFalse(type.equals(null));
-	}
+    @Test(expected = UnsupportedOperationException.class)
+    public void testFromJson() {
+        type.fromJson(JsonNodeFactory.withExactBigDecimals(false).arrayNode());
+    }
 
-	@Test
-	public void testEqualsFalse() {
-		assertTrue(type.equals(type));
-	}
+    @Test
+    public void testEqualsObject() {
+        assertFalse(type.equals(new Object()));
+    }
+
+    @Test
+    public void testEqualsNull() {
+        assertFalse(type.equals(null));
+    }
+
+    @Test
+    public void testEqualsFalse() {
+        assertTrue(type.equals(type));
+    }
 }

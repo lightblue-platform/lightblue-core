@@ -41,29 +41,30 @@ public class ArrayPopper extends Updater {
     private final boolean first;
 
     public ArrayPopper(ArrayPopExpression expr) {
-        this.field=expr.getField();
-        this.first=expr.isFirst();
+        this.field = expr.getField();
+        this.first = expr.isFirst();
     }
 
-   /**
+    /**
      * Removes the first or the last element from an array
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        logger.debug("Pop {} first={}",field,first);
-        KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(field);
-        while(cursor.hasNext()) {
-            JsonNode node=cursor.getCurrentValue();
-            if(node instanceof ArrayNode) {
-                int size=((ArrayNode)node).size();
-                if(size>0) {
-                    int n=first?0:size-1;
-                    ((ArrayNode)node).remove(n);
-                    ret=true;
+        boolean ret = false;
+        logger.debug("Pop {} first={}", field, first);
+        KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
+        while (cursor.hasNext()) {
+            JsonNode node = cursor.getCurrentValue();
+            if (node instanceof ArrayNode) {
+                int size = ((ArrayNode) node).size();
+                if (size > 0) {
+                    int n = first ? 0 : size - 1;
+                    ((ArrayNode) node).remove(n);
+                    ret = true;
                 }
-            } else
-                logger.warn("Expected array node for {}, got {}",cursor.getCurrentKey(),node.getClass().getName());
+            } else {
+                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+            }
         }
         return ret;
     }

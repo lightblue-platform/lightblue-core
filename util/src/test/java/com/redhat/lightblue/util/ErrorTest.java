@@ -220,7 +220,7 @@ public class ErrorTest {
         JSONAssert.assertEquals("{object_type:error,context:a,errorCode:b,msg:c}", node.toString(), false);
     }
 
-        @Test
+    @Test
     public void testToString() throws JSONException {
         // alias for toJson, so not going to test all cases
         Error e = Error.get("a", "b", "c");

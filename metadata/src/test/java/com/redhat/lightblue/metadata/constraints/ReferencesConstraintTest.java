@@ -10,53 +10,53 @@ import org.junit.Test;
 
 public class ReferencesConstraintTest {
 
-	ReferencesConstraint constraint;
-	ArrayList<Reference> references;
-	
-	@Before
-	public void setUp() throws Exception {
-		constraint = new ReferencesConstraint();
-		Reference reference = new Reference();
-		reference.setEntityField(ReferenceTest.ENTITY_FIELD_VALUE);
-		reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE);
-		reference.setThisField(ReferenceTest.THIS_FIELD_VALUE);
-		reference.setVersionValue(ReferenceTest.VERSION_VALUE);
-		references = new ArrayList<Reference>();
-		references.add(reference);
-		constraint.setReferences(references);
-	}
+    ReferencesConstraint constraint;
+    ArrayList<Reference> references;
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+        constraint = new ReferencesConstraint();
+        Reference reference = new Reference();
+        reference.setEntityField(ReferenceTest.ENTITY_FIELD_VALUE);
+        reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE);
+        reference.setThisField(ReferenceTest.THIS_FIELD_VALUE);
+        reference.setVersionValue(ReferenceTest.VERSION_VALUE);
+        references = new ArrayList<Reference>();
+        references.add(reference);
+        constraint.setReferences(references);
+    }
 
-	@Test
-	public void testGetType() {
-		assertTrue(constraint.getType().equals(ReferencesConstraint.REFERENCES));
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
 
-	@Test
-	public void testGetReferences() {
-		assertTrue(constraint.getReferences().equals(references));
-	}
+    @Test
+    public void testGetType() {
+        assertTrue(constraint.getType().equals(ReferencesConstraint.REFERENCES));
+    }
 
-	@Test
-	public void testSetReferences() {
-		Reference reference = new Reference();
-		reference.setEntityField(ReferenceTest.ENTITY_FIELD_VALUE+1);
-		reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE+1);
-		reference.setThisField(ReferenceTest.THIS_FIELD_VALUE+1);
-		reference.setVersionValue(ReferenceTest.VERSION_VALUE+1);
-		references = new ArrayList<Reference>();
-		references.add(reference);
-		constraint.setReferences(references);
-		assertTrue(constraint.getReferences().equals(references));
-	}
+    @Test
+    public void testGetReferences() {
+        assertTrue(constraint.getReferences().equals(references));
+    }
 
-	@Test
-	public void testSetReferencesNull() {
-		constraint.setReferences(null);
-		references.clear();
-		assertTrue(constraint.getReferences().equals(references));
-	}
+    @Test
+    public void testSetReferences() {
+        Reference reference = new Reference();
+        reference.setEntityField(ReferenceTest.ENTITY_FIELD_VALUE + 1);
+        reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE + 1);
+        reference.setThisField(ReferenceTest.THIS_FIELD_VALUE + 1);
+        reference.setVersionValue(ReferenceTest.VERSION_VALUE + 1);
+        references = new ArrayList<Reference>();
+        references.add(reference);
+        constraint.setReferences(references);
+        assertTrue(constraint.getReferences().equals(references));
+    }
+
+    @Test
+    public void testSetReferencesNull() {
+        constraint.setReferences(null);
+        references.clear();
+        assertTrue(constraint.getReferences().equals(references));
+    }
 }

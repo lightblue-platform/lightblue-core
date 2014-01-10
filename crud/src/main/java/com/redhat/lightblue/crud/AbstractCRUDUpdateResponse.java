@@ -26,8 +26,7 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * Base class for update responses. Contains the projected documents,
- * document errors, and generic errors.
+ * Base class for update responses. Contains the projected documents, document errors, and generic errors.
  */
 public abstract class AbstractCRUDUpdateResponse extends AbstractCRUDResponse {
 

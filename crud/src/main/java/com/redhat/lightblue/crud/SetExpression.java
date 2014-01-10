@@ -33,8 +33,8 @@ import com.redhat.lightblue.util.Path;
 /**
  * Represents set and add operations
  * <pre>
- * field_update_expression := $set : { field: value, ... } |  
- *                            $add : { field: value, ... }  
+ * field_update_expression := $set : { field: value, ... } |
+ *                            $add : { field: value, ... }
  * </pre>
  */
 public class SetExpression extends FieldUpdateExpression {
@@ -79,8 +79,7 @@ public class SetExpression extends FieldUpdateExpression {
     }
 
     /**
-     * Sets the operator. If the operator is not set or add, throws an
-     * exception
+     * Sets the operator. If the operator is not set or add, throws an exception
      */
     public final void setOp(UpdateOperator op) {
         if (op != null) {
@@ -124,8 +123,7 @@ public class SetExpression extends FieldUpdateExpression {
     }
 
     /**
-     * Parses a set expression from a Json object node. The operator
-     * is know by the caller.
+     * Parses a set expression from a Json object node. The operator is know by the caller.
      */
     public static SetExpression fromJson(UpdateOperator op, ObjectNode node) {
         ArrayList<FieldValue> list = new ArrayList<>(node.size());

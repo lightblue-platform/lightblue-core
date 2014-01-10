@@ -44,29 +44,31 @@ public abstract class Updater {
      * @return true if document is updated, false if not
      */
     public abstract boolean update(JsonDoc doc);
-    
+
     /**
-     * Creates an updater object based on the given update expression 
+     * Creates an updater object based on the given update expression
      */
-    public static Updater getInstance(JsonNodeFactory factory,EntityMetadata md,UpdateExpression expr) {
+    public static Updater getInstance(JsonNodeFactory factory, EntityMetadata md, UpdateExpression expr) {
         Updater ret = null;
         if (expr instanceof SetExpression) {
-            switch(((SetExpression)expr).getOp()) {
-            case _set: return new FieldSetter(factory,md,((SetExpression)expr).getValues());
-            case _add: return new FieldAdder(factory,md,((SetExpression)expr).getValues());
+            switch (((SetExpression) expr).getOp()) {
+                case _set:
+                    return new FieldSetter(factory, md, ((SetExpression) expr).getValues());
+                case _add:
+                    return new FieldAdder(factory, md, ((SetExpression) expr).getValues());
             }
         } else if (expr instanceof UnsetExpression) {
-            return new FieldUnsetter(((UnsetExpression)expr).getFields());
+            return new FieldUnsetter(((UnsetExpression) expr).getFields());
         } else if (expr instanceof UpdateExpressionList) {
-            return new ListUpdater(factory,md,((UpdateExpressionList)expr).getList());
+            return new ListUpdater(factory, md, ((UpdateExpressionList) expr).getList());
         } else if (expr instanceof ArrayPopExpression) {
-            return new ArrayPopper((ArrayPopExpression)expr);
+            return new ArrayPopper((ArrayPopExpression) expr);
         } else if (expr instanceof ArrayPushExpression) {
-            return new ArrayPusher(factory,md,(ArrayPushExpression)expr);
+            return new ArrayPusher(factory, md, (ArrayPushExpression) expr);
         } else if (expr instanceof ArrayRemoveByQueryExpression) {
-            return new ArrayRemoveByQueryEvaluator(md,(ArrayRemoveByQueryExpression)expr);
+            return new ArrayRemoveByQueryEvaluator(md, (ArrayRemoveByQueryExpression) expr);
         } else if (expr instanceof ArrayRemoveValuesExpression) {
-            return new ArrayRemoveValues(md,(ArrayRemoveValuesExpression)expr);
+            return new ArrayRemoveValues(md, (ArrayRemoveValuesExpression) expr);
         }
         return ret;
     }

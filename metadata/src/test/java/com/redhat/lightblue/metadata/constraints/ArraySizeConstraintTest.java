@@ -10,20 +10,20 @@ import com.redhat.lightblue.metadata.types.ArrayType;
 
 public class ArraySizeConstraintTest {
 
-	ArraySizeConstraint constraint;
-	
-	@Before
-	public void setUp() throws Exception {
-		constraint = new ArraySizeConstraint("StringType");
-	}
+    ArraySizeConstraint constraint;
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+        constraint = new ArraySizeConstraint("StringType");
+    }
 
-	@Test
-	public void testIsValidForFieldType() {
-		assertTrue(constraint.isValidForFieldType(ArrayType.TYPE));
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testIsValidForFieldType() {
+        assertTrue(constraint.isValidForFieldType(ArrayType.TYPE));
+    }
 
 }

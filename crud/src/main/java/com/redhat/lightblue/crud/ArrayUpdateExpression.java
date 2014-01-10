@@ -29,11 +29,11 @@ import com.redhat.lightblue.util.Error;
 /**
  * Base class for array update expressions
  * <pre>
- * array_update_expression := $pop: { field: "first" | "last" } |  
- *                            $remove: { field: [ value1, value2, ] } |  
- *                            $remove: { field: query_expression }  
- *                            $push: { field: value } |  
- *                            $push: { field: [ value1, value2, ...] }  
+ * array_update_expression := $pop: { field: "first" | "last" } |
+ *                            $remove: { field: [ value1, value2, ] } |
+ *                            $remove: { field: query_expression }
+ *                            $push: { field: value } |
+ *                            $push: { field: [ value1, value2, ...] }
  * </pre>
  */
 public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
@@ -86,9 +86,8 @@ public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
     /**
      * The implementation should return the JSON object representing the operand value. That is:
      * <pre>
-     *   $pop: { field: "first" | "last" } |  
-     * </pre>
-     * The implementation should return "first" or "last"
+     *   $pop: { field: "first" | "last" } |
+     * </pre> The implementation should return "first" or "last"
      */
     protected abstract JsonNode jsonValue();
 

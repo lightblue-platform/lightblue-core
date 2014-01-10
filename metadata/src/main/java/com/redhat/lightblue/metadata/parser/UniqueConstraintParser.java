@@ -47,11 +47,11 @@ public class UniqueConstraintParser<T> implements EntityConstraintParser<T> {
         UniqueConstraint ret = new UniqueConstraint();
         List<String> values = p.getStringList(node, UniqueConstraint.UNIQUE);
         ArrayList<Path> l = new ArrayList<>();
-        
+
         for (String x : values) {
             l.add(new Path(x));
         }
-        
+
         ret.setFields(l);
         return ret;
     }

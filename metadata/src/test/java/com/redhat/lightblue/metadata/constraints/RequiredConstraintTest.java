@@ -11,37 +11,37 @@ import com.redhat.lightblue.metadata.types.Type;
 
 public class RequiredConstraintTest {
 
-	RequiredConstraint constraint;
-	
-	@Before
-	public void setUp() throws Exception {
-		constraint = new RequiredConstraint();
-		constraint.setValue(true);
-	}
+    RequiredConstraint constraint;
 
-	@After
-	public void tearDown() throws Exception {
-	}
-	
-	@Test
+    @Before
+    public void setUp() throws Exception {
+        constraint = new RequiredConstraint();
+        constraint.setValue(true);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
     public void testGetType() {
         assertTrue(constraint.getType().equals(RequiredConstraint.REQUIRED));
     }
 
-	@Test
+    @Test
     public void testIsValidForFieldType() {
         assertTrue(constraint.isValidForFieldType(StringType.TYPE));
     }
 
-	@Test
+    @Test
     public void testGetValue() {
         assertTrue(constraint.getValue());
     }
 
-	@Test
+    @Test
     public void testSetValue() {
         constraint.setValue(false);
         assertFalse(constraint.getValue());
     }
-	
+
 }

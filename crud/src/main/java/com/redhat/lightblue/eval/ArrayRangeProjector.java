@@ -40,7 +40,7 @@ public class ArrayRangeProjector extends ArrayProjector {
      * @param context The metadata node at which this is to be interpreted
      */
     public ArrayRangeProjector(ArrayRangeProjection p, Path ctxPath, FieldTreeNode ctx) {
-        super(p,ctxPath, ctx);
+        super(p, ctxPath, ctx);
         from = p.getFrom();
         to = p.getTo();
     }
@@ -51,7 +51,7 @@ public class ArrayRangeProjector extends ArrayProjector {
         int index = p.getIndex(p.numSegments() - 1);
         if (index >= from && index <= to) {
             // This array element is selected.
-            lastMatch=true;
+            lastMatch = true;
             return include ? Boolean.TRUE : Boolean.FALSE;
         } else {
             return Boolean.FALSE;

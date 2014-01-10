@@ -32,9 +32,9 @@ public class StringLengthConstraintParser<T> implements FieldConstraintParser<T>
         if (!StringLengthConstraint.MINLENGTH.equals(name) && !StringLengthConstraint.MAXLENGTH.equals(name)) {
             throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
-        
+
         Object value = p.getValueProperty(node, name);
-        StringLengthConstraint ret  = new StringLengthConstraint(name);
+        StringLengthConstraint ret = new StringLengthConstraint(name);
 
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());

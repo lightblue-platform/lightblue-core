@@ -393,6 +393,7 @@ public abstract class AbstractPathTest<T extends Path> {
             Assert.assertFalse(p.matchingDescendant(compare));
         }
     }
+
     @Test
     public void matchingDescendant_false_longerLength() {
         T p = createPath();

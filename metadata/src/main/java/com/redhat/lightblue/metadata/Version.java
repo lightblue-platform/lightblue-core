@@ -100,18 +100,19 @@ public class Version implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder str=new StringBuilder();
+        StringBuilder str = new StringBuilder();
         str.append(value);
-        if(extendsVersions!=null&&extendsVersions.length>0) {
+        if (extendsVersions != null && extendsVersions.length > 0) {
             str.append(" [");
-            for(int i=0;i<extendsVersions.length;i++) {
-                if(i>0)
+            for (int i = 0; i < extendsVersions.length; i++) {
+                if (i > 0) {
                     str.append(", ");
+                }
                 str.append(extendsVersions[i]);
             }
             str.append("]");
         }
-        if(changelog!=null) {
+        if (changelog != null) {
             str.append(" (").append(changelog).append(")");
         }
         return str.toString();

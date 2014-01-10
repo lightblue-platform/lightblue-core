@@ -14,46 +14,46 @@ import com.redhat.lightblue.util.Path;
 
 public class UniqueConstraintTest {
 
-	UniqueConstraint constraint;
-	
-	List<Path> paths;
-	
-	@Before
-	public void setUp() throws Exception {
-		constraint = new UniqueConstraint();
-		Path path = new Path();
-		path.add(Path.ANYPATH);
-		paths = new ArrayList<Path>();
-		constraint.setFields(paths);
-	}
+    UniqueConstraint constraint;
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    List<Path> paths;
 
-	@Test
-	public void testGetType() {
-		assertTrue(constraint.getType().equals(UniqueConstraint.UNIQUE));
-	}
+    @Before
+    public void setUp() throws Exception {
+        constraint = new UniqueConstraint();
+        Path path = new Path();
+        path.add(Path.ANYPATH);
+        paths = new ArrayList<Path>();
+        constraint.setFields(paths);
+    }
 
-	@Test
-	public void testGetFields() {
-		assertTrue(constraint.getFields().equals(paths));
-	}
+    @After
+    public void tearDown() throws Exception {
+    }
 
-	@Test
-	public void testSetFields() {
-		Path path = new Path();
-		path.add(Path.EMPTY);
-		paths = new ArrayList<Path>();
-		constraint.setFields(paths);
-		assertTrue(constraint.getFields().equals(paths));
-	}
+    @Test
+    public void testGetType() {
+        assertTrue(constraint.getType().equals(UniqueConstraint.UNIQUE));
+    }
 
-	@Test
-	public void testSetFieldsNull() {
-		constraint.setFields(null);
-		paths.clear();
-		assertTrue(constraint.getFields().equals(paths));
-	}
+    @Test
+    public void testGetFields() {
+        assertTrue(constraint.getFields().equals(paths));
+    }
+
+    @Test
+    public void testSetFields() {
+        Path path = new Path();
+        path.add(Path.EMPTY);
+        paths = new ArrayList<Path>();
+        constraint.setFields(paths);
+        assertTrue(constraint.getFields().equals(paths));
+    }
+
+    @Test
+    public void testSetFieldsNull() {
+        constraint.setFields(null);
+        paths.clear();
+        assertTrue(constraint.getFields().equals(paths));
+    }
 }

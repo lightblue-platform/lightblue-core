@@ -45,7 +45,7 @@ public class CRUDUpdateResponse extends AbstractCRUDUpdateResponse {
     public CRUDUpdateResponse(List<JsonDoc> docs,
                               List<DataError> dataErrors,
                               List<Error> errors) {
-        super(docs,dataErrors,errors);
+        super(docs, dataErrors, errors);
     }
 
     /**
@@ -59,7 +59,7 @@ public class CRUDUpdateResponse extends AbstractCRUDUpdateResponse {
      * Sets the number of updated docs
      */
     public void setNumUpdated(int n) {
-        numUpdated=n;
+        numUpdated = n;
     }
 
     /**
@@ -73,7 +73,7 @@ public class CRUDUpdateResponse extends AbstractCRUDUpdateResponse {
      * Sets the number of failed docs
      */
     public void setNumFailed(int n) {
-        numFailed=n;
+        numFailed = n;
     }
 
 }

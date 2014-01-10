@@ -27,7 +27,7 @@ import com.redhat.lightblue.util.Error;
 /**
  * Represents an update expression that updates part of a document
  * <pre>
- * partial_update_expression := field_update_expression | array_update_expression  
+ * partial_update_expression := field_update_expression | array_update_expression
  * </pre>
  */
 public abstract class PartialUpdateExpression extends UpdateExpression {

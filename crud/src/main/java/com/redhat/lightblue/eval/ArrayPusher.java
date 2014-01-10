@@ -53,35 +53,39 @@ public class ArrayPusher extends Updater {
     private final Type type;
     private final JsonNodeFactory factory;
 
-    public ArrayPusher(JsonNodeFactory factory,EntityMetadata md,ArrayPushExpression expr) {
-        this.field=expr.getField();
-        List<Value> valueList=expr.getValues();
-        this.values=new ArrayList<Object>(valueList.size());
-        this.factory=factory;
-        FieldTreeNode node=md.resolve(field);
-        if(node instanceof ArrayField) {
-            type=((ArrayField)node).getElement().getType();
-            for(Value x:valueList)
+    public ArrayPusher(JsonNodeFactory factory, EntityMetadata md, ArrayPushExpression expr) {
+        this.field = expr.getField();
+        List<Value> valueList = expr.getValues();
+        this.values = new ArrayList<Object>(valueList.size());
+        this.factory = factory;
+        FieldTreeNode node = md.resolve(field);
+        if (node instanceof ArrayField) {
+            type = ((ArrayField) node).getElement().getType();
+            for (Value x : valueList) {
                 values.add(type.cast(x.getValue()));
-        } else
-            throw new EvaluationError("Not an arrayfield:"+expr);
+            }
+        } else {
+            throw new EvaluationError("Not an arrayfield:" + expr);
+        }
     }
 
-   /**
+    /**
      * Removes the first or the last element from an array
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        logger.debug("Push to {} ",field);
-        KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(field);
-        while(cursor.hasNext()) {
-            JsonNode node=cursor.getCurrentValue();
-            if(node instanceof ArrayNode) {
-                for(Object x:values)
-                    ((ArrayNode)node).add(type.toJson(factory,x));
-            } else
-                logger.warn("Expected array node for {}, got {}",cursor.getCurrentKey(),node.getClass().getName());
+        boolean ret = false;
+        logger.debug("Push to {} ", field);
+        KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
+        while (cursor.hasNext()) {
+            JsonNode node = cursor.getCurrentValue();
+            if (node instanceof ArrayNode) {
+                for (Object x : values) {
+                    ((ArrayNode) node).add(type.toJson(factory, x));
+                }
+            } else {
+                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+            }
         }
         return ret;
     }

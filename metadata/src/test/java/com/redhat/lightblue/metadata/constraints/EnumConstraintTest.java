@@ -11,50 +11,51 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.redhat.lightblue.metadata.types.StringType;
+
 public class EnumConstraintTest {
 
-	EnumConstraint constraint;
-	
-	@Before
-	public void setUp() throws Exception {
-		constraint = new EnumConstraint();
-	}
+    EnumConstraint constraint;
 
-	@After
-	public void tearDown() throws Exception {
-		
-	}
+    @Before
+    public void setUp() throws Exception {
+        constraint = new EnumConstraint();
+    }
 
-	@Test
-	public void testGetType() {
-		assertTrue(constraint.getType().equals(EnumConstraint.TYPE));
-	}
+    @After
+    public void tearDown() throws Exception {
 
-	@Test
-	public void testIsValidForFieldType() {
-		assertTrue(constraint.isValidForFieldType(StringType.TYPE));
-	}
-	
-	@Test
-	public void testGetValues() {
-		assertNotNull(constraint.getValues());
-	}
+    }
 
-	@Test
-	public void testSetValues() {
-		Collection<String> values = new HashSet<String>();
-		values.add("1");
-		values.add("2");
-		values.add("3");
-		constraint.setValues(values);
-		assertTrue(constraint.getValues().equals(values));
-	}
+    @Test
+    public void testGetType() {
+        assertTrue(constraint.getType().equals(EnumConstraint.TYPE));
+    }
 
-	@Test
-	public void testSetValuesNull() {
-		Collection<String> values = new HashSet<String>();
-		constraint.setValues(null);
-		assertTrue(constraint.getValues().equals(values));
-	}
-	
+    @Test
+    public void testIsValidForFieldType() {
+        assertTrue(constraint.isValidForFieldType(StringType.TYPE));
+    }
+
+    @Test
+    public void testGetValues() {
+        assertNotNull(constraint.getValues());
+    }
+
+    @Test
+    public void testSetValues() {
+        Collection<String> values = new HashSet<String>();
+        values.add("1");
+        values.add("2");
+        values.add("3");
+        constraint.setValues(values);
+        assertTrue(constraint.getValues().equals(values));
+    }
+
+    @Test
+    public void testSetValuesNull() {
+        Collection<String> values = new HashSet<String>();
+        constraint.setValues(null);
+        assertTrue(constraint.getValues().equals(values));
+    }
+
 }

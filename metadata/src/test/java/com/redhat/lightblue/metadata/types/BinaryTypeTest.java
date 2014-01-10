@@ -18,97 +18,96 @@ import com.redhat.lightblue.util.Error;
 
 public class BinaryTypeTest {
 
-	Type binaryType;
-	
-	@Before
-	public void setUp() throws Exception {
-		binaryType = BinaryType.TYPE;
-	}
+    Type binaryType;
 
-	@After
-	public void tearDown() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+        binaryType = BinaryType.TYPE;
+    }
 
-	@Test
-	public void testIsAContainerType() {
-		assertTrue(ContainerType.class.isAssignableFrom(ArrayType.class));
-	}
-	
-    
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testIsAContainerType() {
+        assertTrue(ContainerType.class.isAssignableFrom(ArrayType.class));
+    }
+
     @Test
     public void testGetName() {
-    	assertEquals(binaryType.getName(), BinaryType.NAME);
+        assertEquals(binaryType.getName(), BinaryType.NAME);
     }
 
     @Test
     public void testSupportsEq() {
-    	assertFalse(binaryType.supportsEq());
+        assertFalse(binaryType.supportsEq());
     }
-    
+
     @Test
     public void testSupportsOrdering() {
-    	assertFalse(binaryType.supportsOrdering());
+        assertFalse(binaryType.supportsOrdering());
     }
 
     @Test
     public void testToJson() throws IOException {
-    	byte[] bite = new byte[1];
-    	JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true); 
-    	JsonNode jsonNode = binaryType.toJson(jsonNodeFactory, bite);
-    	assertTrue(Arrays.toString(jsonNode.binaryValue()).equals(Arrays.toString(bite)));    	
+        byte[] bite = new byte[1];
+        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+        JsonNode jsonNode = binaryType.toJson(jsonNodeFactory, bite);
+        assertTrue(Arrays.toString(jsonNode.binaryValue()).equals(Arrays.toString(bite)));
     }
 
     @Test
     public void testFromJson() {
-    	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).binaryNode(new byte[0]);
-    	Object fromJson = binaryType.fromJson(jsonNode);
-    	assertTrue(fromJson instanceof byte[]);
+        JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).binaryNode(new byte[0]);
+        Object fromJson = binaryType.fromJson(jsonNode);
+        assertTrue(fromJson instanceof byte[]);
     }
-    
-    @Test(expected=Error.class)
+
+    @Test(expected = Error.class)
     public void testFromJsonWithIncompatibleValue() {
-    	JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
-    	binaryType.fromJson(jsonNode);
+        JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).objectNode();
+        binaryType.fromJson(jsonNode);
     }
 
     @Test
     public void testCast() {
-    	assertNull(binaryType.cast(null));
+        assertNull(binaryType.cast(null));
     }
-           
-    @Test(expected=Error.class)
+
+    @Test(expected = Error.class)
     public void testCastIncompatible() {
-    	binaryType.cast(new Object());
+        binaryType.cast(new Object());
     }
-    
-    @Test(expected=Error.class)
+
+    @Test(expected = Error.class)
     public void testCastNonByte() {
-    	binaryType.cast(new String[1]);
+        binaryType.cast(new String[1]);
     }
-    
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void testCompareBothNull() {
-    	binaryType.compare(null, null);
+        binaryType.compare(null, null);
     }
-       
+
     @Test
     public void testEqualsTrue() {
-    	assertTrue(binaryType.equals(BinaryType.TYPE));
+        assertTrue(binaryType.equals(BinaryType.TYPE));
     }
-    
+
     @Test
     public void testEqualsFalse() {
-    	assertFalse(binaryType.equals(Double.MAX_VALUE));
+        assertFalse(binaryType.equals(Double.MAX_VALUE));
     }
-    
+
     @Test
     public void testHashCode() {
-    	assertEquals(binaryType.hashCode(), 8);
+        assertEquals(binaryType.hashCode(), 8);
     }
 
     @Test
     public void testToString() {
-    	assertEquals(binaryType.toString(), BinaryType.NAME);
+        assertEquals(binaryType.toString(), BinaryType.NAME);
     }
 
 }

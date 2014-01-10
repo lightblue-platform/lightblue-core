@@ -114,9 +114,9 @@ public class JsonDoc implements Serializable {
                     newOutput = null;
                 }
                 if (newOutput == null) {
-                    newOutput=handleNullChild(output,p,l);
+                    newOutput = handleNullChild(output, p, l);
                 }
-                output=newOutput;
+                output = newOutput;
                 if (output == null) {
                     break;
                 }
@@ -136,11 +136,9 @@ public class JsonDoc implements Serializable {
     }
 
     /**
-     * Given a path p=x_1.x_2...x_n, it creates all the intermetiate
-     * nodes x_1...x_(n-1), but not the node x_n. However, the node
-     * x_(n-1) is created correctly depending on the x_n: if x_n is an
-     * index, x_(n-1) is an ArrayNode, otherwise x_(n-1) is an object
-     * node.
+     * Given a path p=x_1.x_2...x_n, it creates all the intermetiate nodes x_1...x_(n-1), but not the node x_n. However,
+     * the node x_(n-1) is created correctly depending on the x_n: if x_n is an index, x_(n-1) is an ArrayNode,
+     * otherwise x_(n-1) is an object node.
      */
     private static class CreatingResolver extends Resolver {
         @Override
@@ -154,29 +152,32 @@ public class JsonDoc implements Serializable {
 
             // First check if p is long enough. There must be one more
             // after level
-            if(p.numSegments()<=level+1)
+            if (p.numSegments() <= level + 1) {
                 return null;
+            }
             // Now determine the child type
-            boolean childIsArray=p.isIndex(level+1);
-            if(parent instanceof ArrayNode) {
-                ArrayNode arr=(ArrayNode)parent;
-                int index=p.getIndex(level);
+            boolean childIsArray = p.isIndex(level + 1);
+            if (parent instanceof ArrayNode) {
+                ArrayNode arr = (ArrayNode) parent;
+                int index = p.getIndex(level);
                 // Extend the array to include this index
-                int size=arr.size();
-                while(size<index) {
+                int size = arr.size();
+                while (size < index) {
                     arr.addNull();
                     size++;
                 }
                 // Now add the new node. 
-                if(childIsArray)
+                if (childIsArray) {
                     return arr.addArray();
-                else
+                } else {
                     return arr.addObject();
+                }
             } else {
-                if(childIsArray)
-                    return ((ObjectNode)parent).putArray(p.head(level));
-                else
-                    return ((ObjectNode)parent).putObject(p.head(level));
+                if (childIsArray) {
+                    return ((ObjectNode) parent).putArray(p.head(level));
+                } else {
+                    return ((ObjectNode) parent).putObject(p.head(level));
+                }
             }
         }
     }
@@ -351,49 +352,50 @@ public class JsonDoc implements Serializable {
      *
      * @return Old value
      */
-    public JsonNode modify(Path p,JsonNode newValue,boolean createPath) {
-        int n=p.numSegments();
-        if(n==0)
+    public JsonNode modify(Path p, JsonNode newValue, boolean createPath) {
+        int n = p.numSegments();
+        if (n == 0) {
             throw new IllegalArgumentException("Cannot set empty path value");
-        Path parent=p.prefix(-1);
+        }
+        Path parent = p.prefix(-1);
         // Parent must be a container node
-        JsonNode parentNode=DEFAULT_RESOLVER.resolve(parent,docRoot,0);
-        if(parentNode==null) {
-            if(createPath) {
-                CREATING_RESOLVER.resolve(p,docRoot,0);
-                parentNode=DEFAULT_RESOLVER.resolve(parent,docRoot,0);
+        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
+        if (parentNode == null) {
+            if (createPath) {
+                CREATING_RESOLVER.resolve(p, docRoot, 0);
+                parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
             }
         }
-        if(parentNode!=null) {
-            if(!parentNode.isContainerNode()) {
-                throw new IllegalArgumentException(parent.toString()+" is not a container, while setting "+p);
+        if (parentNode != null) {
+            if (!parentNode.isContainerNode()) {
+                throw new IllegalArgumentException(parent.toString() + " is not a container, while setting " + p);
             }
         } else {
-            throw new IllegalArgumentException("Parent of "+p+" does not exist");
+            throw new IllegalArgumentException("Parent of " + p + " does not exist");
         }
         JsonNode oldValue;
-        String last=p.getLast();
-        if(parentNode instanceof ObjectNode) {
-            ObjectNode obj=(ObjectNode)parentNode;
-            if(newValue==null) {
-                oldValue=obj.get(last);
+        String last = p.getLast();
+        if (parentNode instanceof ObjectNode) {
+            ObjectNode obj = (ObjectNode) parentNode;
+            if (newValue == null) {
+                oldValue = obj.get(last);
                 obj.remove(last);
             } else {
-                oldValue=obj.replace(last,newValue);
+                oldValue = obj.replace(last, newValue);
             }
         } else {
-            ArrayNode arr=(ArrayNode)parentNode;
-            int index=Integer.valueOf(last);
-            int size=arr.size();
-            while(size<index) {
+            ArrayNode arr = (ArrayNode) parentNode;
+            int index = Integer.valueOf(last);
+            int size = arr.size();
+            while (size < index) {
                 arr.addNull();
                 size++;
             }
-            if(index<size) {
-                oldValue=arr.get(index);
-                arr.set(index,newValue);
+            if (index < size) {
+                oldValue = arr.get(index);
+                arr.set(index, newValue);
             } else {
-                oldValue=null;
+                oldValue = null;
                 arr.add(newValue);
             }
         }

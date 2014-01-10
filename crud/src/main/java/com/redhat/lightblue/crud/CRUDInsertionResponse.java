@@ -42,6 +42,6 @@ public class CRUDInsertionResponse extends AbstractCRUDUpdateResponse {
     public CRUDInsertionResponse(List<JsonDoc> docs,
                                  List<DataError> dataErrors,
                                  List<Error> errors) {
-        super(docs,dataErrors,errors);
+        super(docs, dataErrors, errors);
     }
 }

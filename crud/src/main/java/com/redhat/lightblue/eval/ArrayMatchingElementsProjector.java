@@ -37,7 +37,7 @@ public class ArrayMatchingElementsProjector extends ArrayProjector {
      * @param context The metadata node at which this is to be interpreted
      */
     public ArrayMatchingElementsProjector(ArrayMatchingElementsProjection p, Path ctxPath, FieldTreeNode ctx) {
-        super(p,ctxPath, ctx);
+        super(p, ctxPath, ctx);
     }
 
     @Override

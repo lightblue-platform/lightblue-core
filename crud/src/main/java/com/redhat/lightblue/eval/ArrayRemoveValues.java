@@ -59,47 +59,53 @@ public class ArrayRemoveValues extends Updater {
      *
      * Saves the values to be removed by type-casting them to the appropriate type
      */
-    public ArrayRemoveValues(EntityMetadata md,ArrayRemoveValuesExpression expr) {
-        this.field=expr.getField();
-        FieldTreeNode node=md.resolve(field);
-        if(node instanceof ArrayField) {
-            type=((ArrayField)node).getElement().getType();
-            List<Value> valueList=expr.getValues();
-            values=new HashSet(valueList.size());
-            for(Value x:valueList)
+    public ArrayRemoveValues(EntityMetadata md, ArrayRemoveValuesExpression expr) {
+        this.field = expr.getField();
+        FieldTreeNode node = md.resolve(field);
+        if (node instanceof ArrayField) {
+            type = ((ArrayField) node).getElement().getType();
+            List<Value> valueList = expr.getValues();
+            values = new HashSet(valueList.size());
+            for (Value x : valueList) {
                 values.add(type.cast(x.getValue()));
-        } else
-            throw new EvaluationError("Expected array field:"+field);
+            }
+        } else {
+            throw new EvaluationError("Expected array field:" + field);
+        }
     }
 
-   /**
+    /**
      * Removes the elements that match the values
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        logger.debug("Remove values {} from {} ",values,field);
-        KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(field);
-        while(cursor.hasNext()) {
-            JsonNode node=cursor.getCurrentValue();
-            if(node instanceof ArrayNode) {
-                List<Integer> deleteList=new ArrayList<>();
-                int index=0;
-                for(Iterator<JsonNode> itr=((ArrayNode)node).elements();itr.hasNext();) {
-                    JsonNode element=itr.next();
-                    if(element!=null) {
-                        Object obj=type.fromJson(element);
-                        if(obj!=null)
-                            if(values.contains(obj))
+        boolean ret = false;
+        logger.debug("Remove values {} from {} ", values, field);
+        KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(field);
+        while (cursor.hasNext()) {
+            JsonNode node = cursor.getCurrentValue();
+            if (node instanceof ArrayNode) {
+                List<Integer> deleteList = new ArrayList<>();
+                int index = 0;
+                for (Iterator<JsonNode> itr = ((ArrayNode) node).elements(); itr.hasNext();) {
+                    JsonNode element = itr.next();
+                    if (element != null) {
+                        Object obj = type.fromJson(element);
+                        if (obj != null) {
+                            if (values.contains(obj)) {
                                 deleteList.add(index);
+                            }
+                        }
                     }
                     index++;
                 }
-                logger.debug("Removing {} from {}",deleteList,field);
-                for(int i=deleteList.size()-1;i>=0;i--)
-                    ((ArrayNode)node).remove(deleteList.get(i));
-            } else
-                logger.warn("Expected array node for {}, got {}",cursor.getCurrentKey(),node.getClass().getName());
+                logger.debug("Removing {} from {}", deleteList, field);
+                for (int i = deleteList.size() - 1; i >= 0; i--) {
+                    ((ArrayNode) node).remove(deleteList.get(i));
+                }
+            } else {
+                logger.warn("Expected array node for {}, got {}", cursor.getCurrentKey(), node.getClass().getName());
+            }
         }
         return ret;
     }

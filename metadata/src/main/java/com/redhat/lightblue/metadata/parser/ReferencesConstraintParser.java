@@ -36,7 +36,7 @@ public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> 
         if (!ReferencesConstraint.REFERENCES.equals(name)) {
             Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
-        
+
         List<T> list = p.getObjectList(node, ReferencesConstraint.REFERENCES);
         ReferencesConstraint ret = new ReferencesConstraint();
         ArrayList<Reference> dest = new ArrayList<>();

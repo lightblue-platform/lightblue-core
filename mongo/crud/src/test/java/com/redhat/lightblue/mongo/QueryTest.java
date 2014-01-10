@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.mongo;
 
-
 import org.junit.Test;
 import org.junit.Assert;
 

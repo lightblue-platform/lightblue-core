@@ -23,8 +23,7 @@ import java.util.List;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * CRUD layer response to find() request. Contains the found
- * documents, total resultset size, and errors.
+ * CRUD layer response to find() request. Contains the found documents, total resultset size, and errors.
  */
 public class CRUDFindResponse extends AbstractCRUDResponse {
 

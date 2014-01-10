@@ -55,9 +55,9 @@ public class FieldAdder extends Updater {
         private final Type t;
         private final Object value;
 
-        public TypeAndValue(Type t,Object value) {
-            this.t=t;
-            this.value=t.cast(value);
+        public TypeAndValue(Type t, Object value) {
+            this.t = t;
+            this.value = t.cast(value);
         }
 
         public Type getType() {
@@ -69,52 +69,55 @@ public class FieldAdder extends Updater {
         }
     }
 
-    private final Map<Path,TypeAndValue> map=new HashMap<Path,TypeAndValue>();
+    private final Map<Path, TypeAndValue> map = new HashMap<Path, TypeAndValue>();
     private final JsonNodeFactory factory;
 
     /**
      * Ctor
      *
      */
-    public FieldAdder(JsonNodeFactory factory,EntityMetadata md,List<FieldValue> values) {
-        this.factory=factory;
-        for(FieldValue x:values) {
-            FieldTreeNode node=md.resolve(x.getField());
-            if(node==null)
-                throw new EvaluationError("Unknown field:"+x.getField());
-            map.put(x.getField(),new TypeAndValue(node.getType(),x.getValue().getValue()));
+    public FieldAdder(JsonNodeFactory factory, EntityMetadata md, List<FieldValue> values) {
+        this.factory = factory;
+        for (FieldValue x : values) {
+            FieldTreeNode node = md.resolve(x.getField());
+            if (node == null) {
+                throw new EvaluationError("Unknown field:" + x.getField());
+            }
+            map.put(x.getField(), new TypeAndValue(node.getType(), x.getValue().getValue()));
         }
     }
 
-   /**
+    /**
      * Adds values to the fields
      */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret=false;
-        for(Map.Entry<Path,TypeAndValue> x:map.entrySet()) {
-            Path p=x.getKey();
-            TypeAndValue tvalue=x.getValue();
-            logger.debug("Add  {} to {}",tvalue.getValue(), p);
-            KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(p);
-            while(cursor.hasNext()) {
-                JsonNode oldNode=cursor.getCurrentValue();
-                Object oldValue=tvalue.getType().fromJson(oldNode);
+        boolean ret = false;
+        for (Map.Entry<Path, TypeAndValue> x : map.entrySet()) {
+            Path p = x.getKey();
+            TypeAndValue tvalue = x.getValue();
+            logger.debug("Add  {} to {}", tvalue.getValue(), p);
+            KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(p);
+            while (cursor.hasNext()) {
+                JsonNode oldNode = cursor.getCurrentValue();
+                Object oldValue = tvalue.getType().fromJson(oldNode);
                 Object newValue;
-                if(oldValue instanceof BigDecimal) {
-                    newValue=((BigDecimal)oldValue).add((BigDecimal)tvalue.getValue());
-                } else if(oldValue instanceof BigInteger) {
-                    newValue=((BigInteger)oldValue).add((BigInteger)tvalue.getValue());
-                } else if(oldValue instanceof Double) {
-                    newValue=((Double)oldValue).doubleValue()+((Double)tvalue.getValue()).doubleValue();
-                } else if(oldValue instanceof Long) {
-                    newValue=((Long)oldValue).longValue()+((Long)tvalue.getValue()).longValue();
-                } else
-                    throw new EvaluationError("Unsupported value type:"+oldValue.getClass().getName());
-                JsonNode newNode=tvalue.getType().toJson(factory,newValue);
-                doc.modify(cursor.getCurrentKey(),newNode,false);
-                if(!ret)
-                    ret=!oldNode.equals(newNode);
+                if (oldValue instanceof BigDecimal) {
+                    newValue = ((BigDecimal) oldValue).add((BigDecimal) tvalue.getValue());
+                } else if (oldValue instanceof BigInteger) {
+                    newValue = ((BigInteger) oldValue).add((BigInteger) tvalue.getValue());
+                } else if (oldValue instanceof Double) {
+                    newValue = ((Double) oldValue).doubleValue() + ((Double) tvalue.getValue()).doubleValue();
+                } else if (oldValue instanceof Long) {
+                    newValue = ((Long) oldValue).longValue() + ((Long) tvalue.getValue()).longValue();
+                } else {
+                    throw new EvaluationError("Unsupported value type:" + oldValue.getClass().getName());
+                }
+                JsonNode newNode = tvalue.getType().toJson(factory, newValue);
+                doc.modify(cursor.getCurrentKey(), newNode, false);
+                if (!ret) {
+                    ret = !oldNode.equals(newNode);
+                }
             }
         }
         return ret;

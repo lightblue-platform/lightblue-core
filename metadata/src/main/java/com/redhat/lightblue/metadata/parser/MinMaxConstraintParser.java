@@ -41,7 +41,7 @@ public class MinMaxConstraintParser<T> implements FieldConstraintParser<T> {
         } else {
             throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, ret.getType());
         }
-        
+
         return ret;
     }
 

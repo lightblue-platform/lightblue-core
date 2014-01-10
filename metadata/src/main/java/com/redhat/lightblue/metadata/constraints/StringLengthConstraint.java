@@ -26,9 +26,9 @@ import com.redhat.lightblue.metadata.types.StringType;
  */
 public class StringLengthConstraint extends AbstractIntFieldConstraint {
 
-	private static final long serialVersionUID = 1l;
-	
-	public static final String MINLENGTH = "minLength";
+    private static final long serialVersionUID = 1l;
+
+    public static final String MINLENGTH = "minLength";
     public static final String MAXLENGTH = "maxLength";
 
     public StringLengthConstraint(String type) {

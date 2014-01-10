@@ -40,7 +40,7 @@ public class ArrayQueryProjector extends ArrayProjector {
      * @param context The metadata node at which this is to be interpreted
      */
     public ArrayQueryProjector(ArrayQueryMatchProjection p, Path ctxPath, FieldTreeNode context) {
-        super(p,ctxPath, context);
+        super(p, ctxPath, context);
         FieldTreeNode nestedCtx = context.resolve(p.getField());
         query = QueryEvaluator.getInstance(p.getMatch(), ((ArrayField) nestedCtx).getElement());
     }
@@ -49,9 +49,9 @@ public class ArrayQueryProjector extends ArrayProjector {
     protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
         Path contextRoot = ctx.getPath();
         QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
-                                                                    : p.suffix(-contextRoot.numSegments()));
+                : p.suffix(-contextRoot.numSegments()));
         if (query.evaluate(nestedContext)) {
-            lastMatch=true;
+            lastMatch = true;
             return include ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;

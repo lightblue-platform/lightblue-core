@@ -6,9 +6,9 @@ import org.junit.Test;
 
 public class ArrayTypeTest {
 
-	@Test
-	public void testIsAContainerType() {
-		assertTrue(ContainerType.class.isAssignableFrom(ArrayType.class));
-	}
+    @Test
+    public void testIsAContainerType() {
+        assertTrue(ContainerType.class.isAssignableFrom(ArrayType.class));
+    }
 
 }

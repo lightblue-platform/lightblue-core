@@ -77,7 +77,7 @@ public class FieldValue implements Serializable {
 
     @Override
     public String toString() {
-        return field+":"+value;
+        return field + ":" + value;
     }
 
 }
