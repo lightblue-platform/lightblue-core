@@ -45,7 +45,8 @@ public class DefaultRegistry<K, V> implements Registry<K, V> {
         V value = items.get(name);
         if (value == null) {
             for (Resolver<K, V> x : resolvers) {
-                if ((value = x.find(name)) != null) {
+                value = x.find(name);
+                if (value != null) {
                     break;
                 }
             }

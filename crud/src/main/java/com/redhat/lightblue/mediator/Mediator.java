@@ -259,7 +259,7 @@ public class Mediator {
         ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
         constraintValidator.validateDocs(ctx.getDocs());
         Map<JsonDoc, List<Error>> docErrors = constraintValidator.getDocErrors();
-        List<JsonDoc> docsWithoutError = new ArrayList<JsonDoc>(ctx.getDocs().size());
+        List<JsonDoc> docsWithoutError = new ArrayList<>(ctx.getDocs().size());
         for (JsonDoc doc : ctx.getDocs()) {
             List<Error> err = docErrors.get(doc);
             if (err != null && !err.isEmpty()) {
@@ -303,7 +303,8 @@ public class Mediator {
         if (errors != null && !errors.isEmpty()) {
             DataError err = DataError.findErrorForDoc(dest, doc.getRoot());
             if (err == null) {
-                dest.add(err = new DataError(doc.getRoot(), errors));
+                err = new DataError(doc.getRoot(), errors);
+                dest.add(err);
             } else {
                 if (err.getErrors() == null) {
                     err.setErrors(new ArrayList<Error>());
@@ -317,13 +318,13 @@ public class Mediator {
         ArrayList<JsonDoc> docs = null;
         if (data != null) {
             if (data instanceof ArrayNode) {
-                docs = new ArrayList<JsonDoc>(((ArrayNode) data).size());
+                docs = new ArrayList<>(((ArrayNode) data).size());
                 for (Iterator<JsonNode> itr = ((ArrayNode) data).elements();
                         itr.hasNext();) {
                     docs.add(new JsonDoc(itr.next()));
                 }
             } else if (data instanceof ObjectNode) {
-                docs = new ArrayList<JsonDoc>(1);
+                docs = new ArrayList<>(1);
                 docs.add(new JsonDoc(data));
             }
         }

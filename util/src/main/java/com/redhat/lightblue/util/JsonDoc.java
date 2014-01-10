@@ -80,7 +80,8 @@ public class JsonDoc implements Serializable {
             if (node instanceof ArrayNode) {
                 Iteration itr = iterators[level];
                 if (itr == null) {
-                    iterators[level] = itr = new Iteration();
+                    itr = new Iteration();
+                    iterators[level] = itr;
                 }
                 itr.index = -1;
                 itr.iterator = ((ArrayNode) node).elements();
@@ -287,7 +288,8 @@ public class JsonDoc implements Serializable {
                     } else {
                         level--;
                         if (level < 0) {
-                            done = ended = true;
+                            done = true;
+                            ended = true;
                         }
                     }
                 } while (!done);

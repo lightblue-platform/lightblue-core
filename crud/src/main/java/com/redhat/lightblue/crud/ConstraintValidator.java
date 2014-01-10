@@ -113,7 +113,8 @@ public class ConstraintValidator {
         }
         List<Error> list = docErrors.get(currentDoc);
         if (list == null) {
-            docErrors.put(currentDoc, list = new ArrayList<Error>());
+            list = new ArrayList<>();
+            docErrors.put(currentDoc, list);
         }
         return list;
     }
