@@ -18,14 +18,11 @@
  */
 package com.redhat.lightblue;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
@@ -34,7 +31,9 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public class Response extends JsonObject {
 
-    private OperationStatus status;
+	private static final long serialVersionUID = 1L;
+	
+	private OperationStatus status;
     private long modifiedCount;
     private long matchCount;
     private String taskHandle;
@@ -72,7 +71,7 @@ public class Response extends JsonObject {
     }
 
     /**
-     * Number of documents that matched the search criteria
+     * Number of documents that matched the search cResponseriteria
      */
     public long getMatchCount() {
         return matchCount;
@@ -133,62 +132,32 @@ public class Response extends JsonObject {
      * Errors related to each document
      */
     public List<DataError> getDataErrors() {
-        return dataErrors;
+        return dataErrors == null ? new ArrayList<DataError>() : dataErrors;
     }
 
     /**
      * Errors related to the operation
      */
     public List<Error> getErrors() {
-        return errors;
+    	return errors == null ? new ArrayList<Error>() : errors;
     }
 
     /**
      * Parses a response from a Json object
      */
     public static Response fromJson(ObjectNode node) {
-        Response ret = new Response();
-        JsonNode x = node.get("status");
-        if (x != null) {
-            try {
-                ret.status = OperationStatus.valueOf(x.asText().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                ret.status = OperationStatus.ERROR;
-            }
-        }
-        x = node.get("modifiedCount");
-        if (x != null) {
-            ret.modifiedCount = x.asLong();
-        }
-        x = node.get("matchCount");
-        if (x != null) {
-            ret.matchCount = x.asLong();
-        }
-        x = node.get("taskHandle");
-        if (x != null) {
-            ret.taskHandle = x.asText();
-        }
-        x = node.get("session");
-        // TODO
-        x = node.get("processed");
-        if (x != null) {
-            ret.entityData = x;
-        }
-        x = node.get("dataErrors");
-        if (x instanceof ArrayNode) {
-            for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
-                    itr.hasNext();) {
-                ret.dataErrors.add(DataError.fromJson((ObjectNode) itr.next()));
-            }
-        }
-        x = node.get("errors");
-        if (x instanceof ArrayNode) {
-            for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
-                    itr.hasNext();) {
-                ret.errors.add(Error.fromJson(itr.next()));
-            }
-        }
-        return ret;
+        ResponseBuilder builder = new ResponseBuilder();
+        
+        builder.withStatus(node.get("status"));
+        builder.withModifiedCount(node.get("modifiedCount"));
+        builder.withMatchCount(node.get("matchCount"));
+    	builder.withTaskHandle(node.get("taskHandle"));
+        builder.withSession(node.get("session"));
+        builder.withEntityData(node.get("processed"));
+        builder.withDataErrors(node.get("dataErrors"));
+        builder.withErrors(node.get("errors"));
+        
+        return builder.buildResponse();
     }
 
     /**
@@ -196,35 +165,7 @@ public class Response extends JsonObject {
      */
     @Override
     public JsonNode toJson() {
-        ObjectNode node = getFactory().objectNode();
-        if (status != null) {
-            node.put("status", status.name().toLowerCase());
-        }
-        node.put("modifiedCount", modifiedCount);
-        node.put("matchCount", matchCount);
-        if (taskHandle != null) {
-            node.put("taskHandle", taskHandle);
-        }
-        if (session != null) {
-            node.set("session", session.toJson());
-        }
-        if (entityData != null) {
-            node.set("processed", entityData);
-        }
-        if (!dataErrors.isEmpty()) {
-            ArrayNode arr = getFactory().arrayNode();
-            node.set("dataErrors", arr);
-            for (DataError err : dataErrors) {
-                arr.add(err.toJson());
-            }
-        }
-        if (!errors.isEmpty()) {
-            ArrayNode arr = getFactory().arrayNode();
-            node.set("errors", arr);
-            for (Error err : errors) {
-                arr.add(err.toJson());
-            }
-        }
-        return node;
+    	ResponseBuilder builder = new ResponseBuilder(this);
+    	return builder.buildJson();
     }
 }

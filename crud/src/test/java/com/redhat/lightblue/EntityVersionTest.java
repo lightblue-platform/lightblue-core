@@ -1,4 +1,4 @@
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue;
 
 import static org.junit.Assert.*;
 
