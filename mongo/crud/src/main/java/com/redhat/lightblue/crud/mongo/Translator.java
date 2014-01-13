@@ -230,6 +230,96 @@ public class Translator {
         }
     }
 
+    /**
+     * Translates an update expression to BSON update expression
+     *
+     * @param md Entity metadata
+     * @param update The update expression
+     */
+    public DBObject translate(EntityMetadata md, UpdateExpression update) {
+        logger.debug("translate {}",update);
+        Error.push("translateUpdate");
+        BasicDBObject ret;
+        try {
+        } finally {
+            Error.pop();
+        }
+        return ret;
+    }
+
+    private void translateUpdate(BasicDBObject parent,EntityMetadata md,UpdateExpression update) {
+        if(update instanceof SetExpression) {
+            parent.putAll(translateSetExpression(md,(SetExpression)update));
+        } else if(update instanceof UnsetExpression) {
+            parent.putAll(translateUnsetExpression(md,(UnsetExpression)update));
+        } else if(update instanceof UpdateExpressionList) {
+            for(PartialUpdateExpression x:((UpdateExpressionList)update).getList()) {
+                translateUpdate(parent,md,x);
+            }
+        } else if(update instanceof ArrayPopExpression) {
+            parent.putAll(translateArrayPopExpression(md,(ArrayPopExpression)update));
+        } else if(update instanceof ArrayPushExpression) {
+            parent.putAll(translateArrayPushExpression(md,(ArrayPushExpression)update));
+        } else if(update instanceof ArrayRemoveValuesExpression) {
+            parent.putAll(translateArrayRemoveValuesExpression(md,(ArrayRemoveValuesExpression)update));
+        } else {
+        } 
+    }
+
+    private BasisDBObject translateSetExpression(EntityMetadata md,
+                                                 SetExpression expr) {
+        BasicDBObject fields=new BasicDBObject();
+        for( FieldValue fv: expr.getValues() ) {
+            fields.append(fv.getField().toString(),
+                          md.resolve(fv.getField()).getType().cast(fv.getValue().getValue()));
+        }
+        return new BasicDBObject(expr.getOp()==UpdateOperator._set?"$set":"$inc",fields);
+    }
+
+    private BasicDBObject translateUnsetExpression(EntityMetadata md,
+                                                   UnsetExpression expr) {
+        BasicDBObject fields=new BasicDBObject();
+        for( Path p:expr.getFields() )
+            fields.append(p.toString(),"");
+        return new BasicDBObject("$unset",fields);
+    }
+
+    private BasicDBObject translateArrayPopExpression(EntityMetadata md,
+                                                      ArrayPopExpression expr) {
+        BasicDBObject f=new BasicDBObject(expr.getField().toString(),
+                                          expr.isFirst()?-1:1);
+        return new BasicDBObject("$pop",f);
+    }
+
+    private List<Object> getValueList(EntityMetadata md,
+                                      Path field,
+                                      List<Value> values) {
+        Type t=md.resolve(field).getType();
+        List<Object> valueList=new ArrayList<Object>(values.size());
+        for(Value x:values)
+            valueList.add(t.cast(x.getValue()));
+        return valueList;
+  }
+
+    private BasicDBObject translateArrayRemoveValuesExpression(EntityMetadata md,
+                                                               ArrayRemoveValuesExpression expr) {
+        List<Object> valueList=getValueList(md,expr.getField(),expr.getValues());
+        BasicDBObject valueExpr=new BasicDBObject(expr.getField().toString(),valueList);
+        return new BasicDBObject("$pullAll",valueExpr);
+    }
+
+    private BasicDBObject translateArrayPushExpression(EntityMetadata md,
+                                                       ArrayPushExpression expr) {
+        List<Object> valueList=getValueList(md,expr.getField(),expr.getValues());
+        BasicDBObject dbObject=null;
+        if(valueList.size()>1) {
+            dbObject=new BasicDBObject(expr.getField().toString(),new BasicDBObject("$each",valueList));
+        } else if(valueList.size()==1) {
+            dbObject=new BasicDBObject(expr.getField().toString(),valueList.get(0));
+        }
+        return new BasicDBObject("$push",dbObject);
+    }
+
     private DBObject translateSortKey(SortKey sort) {
         return new BasicDBObject(sort.getField().toString(), sort.isDesc() ? -1 : 1);
     }
