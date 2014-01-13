@@ -19,6 +19,7 @@
 package com.redhat.lightblue;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Represents entity:value, a particular version of the entity metadata
@@ -67,24 +68,15 @@ public final class EntityVersion implements Serializable {
     }
 
     public boolean equals(Object o) {
-        try {
-            return equalsVersion((EntityVersion) o);
-        } catch (Exception e) {
-        }
-        return false;
+    	return equalsVersion((EntityVersion) o);
     }
 
     public boolean equalsVersion(EntityVersion o) {
-        return o != null
-                && ((o.entity == null && entity == null)
-                || (entity != null && entity.equals(o.entity)))
-                && ((o.version == null && version == null)
-                || (version != null && version.equals(o.version)));
+    	return o == null ? false : Objects.equals(entity, o.getEntity()) && Objects.equals(version, o.getVersion());
     }
-
+    
     public int hashCode() {
-        return (entity == null ? 1 : entity.hashCode())
-                * (version == null ? 1 : version.hashCode());
+    	return (entity == null ? 1 : entity.hashCode()) * (version == null ? 1 : version.hashCode());
     }
 
     public String toString() {
