@@ -28,7 +28,8 @@ import com.redhat.lightblue.util.JsonObject;
  * Base class for all projection objects
  */
 public abstract class Projection extends JsonObject {
-
+	private static final long serialVersionUID = 1L;
+	
     public static Projection fromJson(JsonNode node) {
         if (node instanceof ArrayNode) {
             return ProjectionList.fromJson((ArrayNode) node);

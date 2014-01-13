@@ -1,13 +1,13 @@
 package com.redhat.lightblue.metadata.constraints;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.metadata.types.Type;
 
 public class RequiredConstraintTest {
 

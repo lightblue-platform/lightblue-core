@@ -26,6 +26,8 @@ import com.redhat.lightblue.util.Error;
 
 public class SimpleField extends Field {
 
+	private static final long serialVersionUID = 1L;
+	
     public SimpleField(String name) {
         super(name);
     }

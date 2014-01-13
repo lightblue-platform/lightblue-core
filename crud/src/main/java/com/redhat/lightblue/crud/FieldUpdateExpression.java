@@ -28,5 +28,6 @@ package com.redhat.lightblue.crud;
  * </pre>
  */
 public abstract class FieldUpdateExpression extends PartialUpdateExpression {
-
+	private static final long serialVersionUID = 1L;
+	
 }

@@ -38,7 +38,9 @@ import com.redhat.lightblue.util.Path;
  * </pre>
  */
 public class SetExpression extends FieldUpdateExpression {
-    private UpdateOperator op;
+	private static final long serialVersionUID = 1L;
+	
+	private UpdateOperator op;
     private List<FieldValue> values;
 
     /**

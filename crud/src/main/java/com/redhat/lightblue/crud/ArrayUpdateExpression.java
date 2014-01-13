@@ -37,7 +37,9 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
-    private Path field;
+	private static final long serialVersionUID = 1L;
+	
+	private Path field;
 
     /**
      * Default ctor

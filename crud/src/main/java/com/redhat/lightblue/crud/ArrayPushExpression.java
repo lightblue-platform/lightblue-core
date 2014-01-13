@@ -32,7 +32,10 @@ import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.util.Path;
 
 public class ArrayPushExpression extends ArrayUpdateExpression {
-    private List<Value> values;
+
+	private static final long serialVersionUID = 1L;
+	
+	private List<Value> values;
 
     public ArrayPushExpression() {
     }

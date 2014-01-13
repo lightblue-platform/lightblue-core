@@ -117,7 +117,8 @@ public class ResponseBuilder {
 	
     public JsonNode buildJson() {
     	ObjectNode node = JsonObject.getFactory().objectNode();
-        if (status != null) {
+        
+    	if (status != null) {
             node.put("status", status.name().toLowerCase());
         }
         node.put("modifiedCount", modifiedCount);

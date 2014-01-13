@@ -28,6 +28,8 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public class ExecutionOptions extends JsonObject {
 
+	private static final long serialVersionUID = 1L;
+	
     private long timeLimit;
     private long asynchronous;
 

@@ -31,6 +31,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
  */
 public class Factory implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
     private final DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
     private final DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
 

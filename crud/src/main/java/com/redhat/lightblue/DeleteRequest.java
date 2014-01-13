@@ -28,6 +28,8 @@ import com.redhat.lightblue.query.QueryExpression;
  */
 public class DeleteRequest extends Request {
 
+	private static final long serialVersionUID = 1L;
+	
     private QueryExpression query;
 
     /**

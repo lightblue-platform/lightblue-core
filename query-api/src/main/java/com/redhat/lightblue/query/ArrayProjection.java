@@ -25,6 +25,8 @@ import com.redhat.lightblue.util.Path;
 
 public abstract class ArrayProjection extends BasicProjection {
 
+	private static final long serialVersionUID = 1L;
+	
     private final Path field;
     private final boolean include;
     private final Projection project;

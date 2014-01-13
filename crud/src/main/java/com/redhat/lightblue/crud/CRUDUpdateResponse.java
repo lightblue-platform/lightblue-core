@@ -30,6 +30,8 @@ import com.redhat.lightblue.util.JsonDoc;
  */
 public class CRUDUpdateResponse extends AbstractCRUDUpdateResponse {
 
+	private static final long serialVersionUID = 1L;
+	
     private int numUpdated;
     private int numFailed;
 

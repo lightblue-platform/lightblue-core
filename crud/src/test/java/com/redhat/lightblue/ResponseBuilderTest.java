@@ -15,11 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.DataError;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
-import com.redhat.lightblue.ResponseBuilder;
-import com.redhat.lightblue.SessionInfo;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 

@@ -30,7 +30,9 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class UnaryLogicalExpression extends LogicalExpression {
-    private final UnaryLogicalOperator op;
+	private static final long serialVersionUID = 1L;
+	
+	private final UnaryLogicalOperator op;
     private final QueryExpression query;
 
     public UnaryLogicalExpression(UnaryLogicalOperator op,

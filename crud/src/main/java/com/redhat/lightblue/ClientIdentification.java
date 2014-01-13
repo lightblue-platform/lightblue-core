@@ -25,5 +25,6 @@ import com.redhat.lightblue.util.JsonObject;
  * data that identifies the caller of an API
  */
 public abstract class ClientIdentification extends JsonObject {
-
+	private static final long serialVersionUID = 1L;
+	
 }

@@ -38,7 +38,9 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class ArrayContainsExpression extends ArrayComparisonExpression {
-    private final Path array;
+
+	private static final long serialVersionUID = 1L;
+	private final Path array;
     private final ContainsOperator op;
     private final List<Value> values;
 

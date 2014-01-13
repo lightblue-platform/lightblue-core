@@ -32,6 +32,8 @@ import com.redhat.lightblue.util.Path;
  */
 public class FieldComparisonExpression extends BinaryRelationalExpression {
 
+	private static final long serialVersionUID = 1L;
+	
     private final Path field;
     private final BinaryComparisonOperator op;
     private final Path rfield;

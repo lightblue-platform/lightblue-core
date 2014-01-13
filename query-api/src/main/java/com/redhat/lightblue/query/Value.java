@@ -31,7 +31,10 @@ import com.redhat.lightblue.util.JsonObject;
  * evaluation, metadata is used to interpret the actual value.
  */
 public class Value extends JsonObject {
-    private final Object value;
+    
+	private static final long serialVersionUID = 1L;
+	
+	private final Object value;
 
     public static final String INVALID_VALUE = "INVALID_VALUE";
 

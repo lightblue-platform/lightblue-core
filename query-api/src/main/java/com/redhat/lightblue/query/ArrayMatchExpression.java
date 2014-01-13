@@ -32,7 +32,9 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class ArrayMatchExpression extends ArrayComparisonExpression {
-    private final Path array;
+	private static final long serialVersionUID = 1L;
+	
+	private final Path array;
     private final QueryExpression elemMatch;
 
     /**

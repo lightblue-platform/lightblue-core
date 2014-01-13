@@ -30,6 +30,8 @@ import com.redhat.lightblue.util.Error;
  */
 public abstract class BasicProjection extends Projection {
 
+	private static final long serialVersionUID = 1L;
+	
     public static final String INVALID_PROJECTION = "INVALID_PROJECTION";
     public static final String INVALID_ARRAY_RANGE_PROJECTION = "INVALID_ARRAY_RANGE_PROJECTION";
 

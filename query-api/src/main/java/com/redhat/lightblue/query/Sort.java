@@ -28,8 +28,9 @@ import com.redhat.lightblue.util.JsonObject;
  * Base class for Sort objects.
  */
 public abstract class Sort extends JsonObject {
+	private static final long serialVersionUID = 1L;
 
-    public static final String INVALID_SORT = "INVALID_SORT";
+	public static final String INVALID_SORT = "INVALID_SORT";
 
     /**
      * Parses a sort expression using the given json object

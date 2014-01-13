@@ -20,6 +20,8 @@ package com.redhat.lightblue.util;
 
 public class InvalidPathException extends RuntimeException {
 
+	private static final long serialVersionUID = 1L;
+	
     public InvalidPathException(String path) {
         super(path);
     }

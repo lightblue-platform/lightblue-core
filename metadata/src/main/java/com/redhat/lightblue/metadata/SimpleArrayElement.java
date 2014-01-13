@@ -26,6 +26,8 @@ import com.redhat.lightblue.util.Error;
 
 public class SimpleArrayElement extends ArrayElement {
 
+	private static final long serialVersionUID = 1L;
+	
     public SimpleArrayElement() {
     }
 

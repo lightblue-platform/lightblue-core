@@ -30,6 +30,8 @@ import com.redhat.lightblue.crud.UpdateExpression;
  */
 public class UpdateRequest extends Request {
 
+	private static final long serialVersionUID = 1L;
+	
     private QueryExpression query;
     private UpdateExpression updateExpression;
     private Projection returnFields;

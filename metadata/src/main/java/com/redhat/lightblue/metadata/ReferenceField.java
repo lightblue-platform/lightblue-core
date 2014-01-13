@@ -30,7 +30,9 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.metadata.types.ReferenceType;
 
 public class ReferenceField extends Field {
-
+	
+	private static final long serialVersionUID = 1L;
+	
     private String entityName;
     private String version;
     private Projection projection;

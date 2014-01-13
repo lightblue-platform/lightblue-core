@@ -31,7 +31,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.Path;
 
 public class UnsetExpression extends FieldUpdateExpression {
-    private List<Path> fields;
+    
+	private static final long serialVersionUID = 1L;
+	
+	private List<Path> fields;
 
     public UnsetExpression() {
     }

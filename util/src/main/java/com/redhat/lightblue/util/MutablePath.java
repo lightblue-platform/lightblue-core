@@ -25,6 +25,8 @@ import java.util.List;
  */
 public class MutablePath extends Path {
 
+	private static final long serialVersionUID = 1L;
+	
     /**
      * If true, this MutablePath is the only Path with a reference to the path data. If false, path data is referenced
      * by other Paths and a deep copy will only be made if data is modified.

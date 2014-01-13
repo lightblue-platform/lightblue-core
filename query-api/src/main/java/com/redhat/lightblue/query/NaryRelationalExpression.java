@@ -38,7 +38,8 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class NaryRelationalExpression extends RelationalExpression {
-
+	private static final long serialVersionUID = 1L;
+	
     private final Path field;
     private final NaryRelationalOperator op;
     private final List<Value> values;

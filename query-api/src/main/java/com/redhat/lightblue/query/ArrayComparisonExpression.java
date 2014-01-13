@@ -28,7 +28,8 @@ import com.redhat.lightblue.util.Error;
  */
 public abstract class ArrayComparisonExpression extends ComparisonExpression {
 
-    public static final String INVALID_ARRAY_COMPARISON_EXPRESSION = "INVALID_ARRAY_COMPARISON_EXPRESSION";
+	private static final long serialVersionUID = 1L;
+	public static final String INVALID_ARRAY_COMPARISON_EXPRESSION = "INVALID_ARRAY_COMPARISON_EXPRESSION";
 
     /**
      * Parses an array contains or array match expression from the given object node

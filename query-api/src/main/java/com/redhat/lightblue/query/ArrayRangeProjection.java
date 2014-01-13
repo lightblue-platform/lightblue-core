@@ -26,6 +26,8 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayRangeProjection extends ArrayProjection {
 
+	private static final long serialVersionUID = 1L;
+	
     private final int from;
     private final int to;
 

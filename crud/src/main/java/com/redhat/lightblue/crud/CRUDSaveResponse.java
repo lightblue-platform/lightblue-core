@@ -30,6 +30,8 @@ import com.redhat.lightblue.util.JsonDoc;
  */
 public class CRUDSaveResponse extends AbstractCRUDUpdateResponse {
 
+	private static final long serialVersionUID = 1L;
+	
     /**
      * Default ctor
      */

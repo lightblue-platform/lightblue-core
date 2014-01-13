@@ -21,6 +21,8 @@ package com.redhat.lightblue.eval;
 import com.redhat.lightblue.util.JsonObject;
 
 public class EvaluationError extends RuntimeException {
+	private static final long serialVersionUID = 1L;
+		
     public EvaluationError(JsonObject expr,
                            String msg) {
         super(expr.toString() + ":" + msg);

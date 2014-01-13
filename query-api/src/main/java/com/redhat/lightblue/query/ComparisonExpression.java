@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class ComparisonExpression extends QueryExpression {
 
+	private static final long serialVersionUID = 1L;
+	
     public static final String INVALID_COMPARISON_EXPRESSION = "INVALID_COMPARISON_EXPRESSION";
 
     /**

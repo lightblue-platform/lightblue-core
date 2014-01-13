@@ -24,7 +24,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.util.Path;
 
 public class ArrayPopExpression extends ArrayUpdateExpression {
-    private boolean first;
+
+	private static final long serialVersionUID = 1L;
+	
+	private boolean first;
 
     public ArrayPopExpression() {
     }

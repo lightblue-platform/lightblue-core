@@ -27,7 +27,8 @@ import com.redhat.lightblue.query.Projection;
  * Request to save documents
  */
 public class SaveRequest extends Request {
-
+	private static final long serialVersionUID = 1L;
+	
     private JsonNode entityData;
     private Projection returnFields;
     private boolean upsert;

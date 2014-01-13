@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Represents a list of projections
  */
 public class ProjectionList extends Projection {
-
+	private static final long serialVersionUID = 1L;
     private List<Projection> items;
 
     /**

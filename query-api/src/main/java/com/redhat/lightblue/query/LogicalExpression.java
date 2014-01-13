@@ -22,5 +22,7 @@ package com.redhat.lightblue.query;
  * Base class for unary and nary logical expressions
  */
 public abstract class LogicalExpression extends QueryExpression {
-    public static final String INVALID_LOGICAL_EXPRESSION = "INVALID_LOGICAL_EXPRESSION";
+	private static final long serialVersionUID = 1L;
+	
+	public static final String INVALID_LOGICAL_EXPRESSION = "INVALID_LOGICAL_EXPRESSION";
 }

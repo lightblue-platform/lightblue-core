@@ -28,7 +28,7 @@ import com.redhat.lightblue.util.JsonObject;
  * Base class for all query expressions
  */
 public abstract class QueryExpression extends JsonObject {
-
+	private static final long serialVersionUID = 1L;
     public static final String INVALID_QUERY = "INVALID_QUERY";
 
     /**

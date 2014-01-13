@@ -18,15 +18,15 @@
  */
 package com.redhat.lightblue.crud;
 
-import com.redhat.lightblue.crud.ArrayUpdateExpression;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.QueryExpression;
-
 import com.redhat.lightblue.util.Path;
 
 public class ArrayRemoveByQueryExpression extends ArrayUpdateExpression {
-    private QueryExpression query;
+
+	private static final long serialVersionUID = 1L;
+	
+	private QueryExpression query;
 
     public ArrayRemoveByQueryExpression() {
     }

@@ -31,7 +31,8 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public abstract class PartialUpdateExpression extends UpdateExpression {
-
+	private static final long serialVersionUID = 1L;
+	
     public static final String ERR_INVALID_UPDATE_EXPRESSION = "INVALID_UPDATE_EXPRESSION";
     public static final String ERR_INVALID_OPERATOR = "INVALID_OPERATOR";
 
