@@ -18,67 +18,65 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.SimpleField;
-import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.crud.ArrayPopExpression;
+import com.redhat.lightblue.crud.ArrayPushExpression;
+import com.redhat.lightblue.crud.ArrayRemoveValuesExpression;
+import com.redhat.lightblue.crud.FieldValue;
+import com.redhat.lightblue.crud.MetadataResolver;
+import com.redhat.lightblue.crud.PartialUpdateExpression;
+import com.redhat.lightblue.crud.SetExpression;
+import com.redhat.lightblue.crud.UnsetExpression;
+import com.redhat.lightblue.crud.UpdateExpression;
+import com.redhat.lightblue.crud.UpdateExpressionList;
+import com.redhat.lightblue.crud.UpdateOperator;
 import com.redhat.lightblue.metadata.ArrayElement;
-import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.FieldCursor;
+import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.types.Type;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.FieldCursor;
-
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.query.UnaryLogicalOperator;
-import com.redhat.lightblue.query.UnaryLogicalExpression;
-import com.redhat.lightblue.query.RegexMatchExpression;
-import com.redhat.lightblue.query.NaryRelationalOperator;
-import com.redhat.lightblue.query.NaryRelationalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.query.ArrayContainsExpression;
-import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.ArrayMatchExpression;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
+import com.redhat.lightblue.query.CompositeSortKey;
+import com.redhat.lightblue.query.FieldComparisonExpression;
+import com.redhat.lightblue.query.NaryLogicalExpression;
+import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryRelationalOperator;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.RegexMatchExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
-import com.redhat.lightblue.query.CompositeSortKey;
-
+import com.redhat.lightblue.query.UnaryLogicalExpression;
+import com.redhat.lightblue.query.UnaryLogicalOperator;
+import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.crud.MetadataResolver;
-
-import com.redhat.lightblue.crud.UpdateExpression;
-import com.redhat.lightblue.crud.SetExpression;
-import com.redhat.lightblue.crud.UnsetExpression;
-import com.redhat.lightblue.crud.ArrayPopExpression;
-import com.redhat.lightblue.crud.ArrayPushExpression;
-import com.redhat.lightblue.crud.ArrayRemoveByQueryExpression;
-import com.redhat.lightblue.crud.ArrayRemoveValuesExpression;
 
 /**
  * Translations between BSON and JSON. This class is thread-safe, and can be shared between threads
@@ -187,7 +185,7 @@ public class Translator {
             throw Error.get(ERR_INVALID_OBJECTTYPE, type.toString());
         }
         JsonDoc doc = toJson(object, md);
-        LOGGER.debug("toJson() return");
+        LOGGER.debug("toJson() loggerreturn");
         return doc;
     }
 
@@ -245,9 +243,9 @@ public class Translator {
      * @param update The update expression
      */
     public DBObject translate(EntityMetadata md, UpdateExpression update) {
-        logger.debug("translate {}",update);
+        LOGGER.debug("translate {}",update);
         Error.push("translateUpdate");
-        BasicDBObject ret;
+        BasicDBObject ret = null;
         try {
         } finally {
             Error.pop();
@@ -257,24 +255,24 @@ public class Translator {
 
     private void translateUpdate(BasicDBObject parent,EntityMetadata md,UpdateExpression update) {
         if(update instanceof SetExpression) {
-            parent.putAll(translateSetExpression(md,(SetExpression)update));
+            parent.putAll((BSONObject) translateSetExpression(md,(SetExpression)update));
         } else if(update instanceof UnsetExpression) {
-            parent.putAll(translateUnsetExpression(md,(UnsetExpression)update));
+            parent.putAll((BSONObject) translateUnsetExpression(md,(UnsetExpression)update));
         } else if(update instanceof UpdateExpressionList) {
             for(PartialUpdateExpression x:((UpdateExpressionList)update).getList()) {
                 translateUpdate(parent,md,x);
             }
         } else if(update instanceof ArrayPopExpression) {
-            parent.putAll(translateArrayPopExpression(md,(ArrayPopExpression)update));
+            parent.putAll((BSONObject) translateArrayPopExpression(md,(ArrayPopExpression)update));
         } else if(update instanceof ArrayPushExpression) {
-            parent.putAll(translateArrayPushExpression(md,(ArrayPushExpression)update));
+            parent.putAll((BSONObject) translateArrayPushExpression(md,(ArrayPushExpression)update));
         } else if(update instanceof ArrayRemoveValuesExpression) {
-            parent.putAll(translateArrayRemoveValuesExpression(md,(ArrayRemoveValuesExpression)update));
+            parent.putAll((BSONObject) translateArrayRemoveValuesExpression(md,(ArrayRemoveValuesExpression)update));
         } else {
         } 
     }
 
-    private BasisDBObject translateSetExpression(EntityMetadata md,
+    private BasicDBObject translateSetExpression(EntityMetadata md,
                                                  SetExpression expr) {
         BasicDBObject fields=new BasicDBObject();
         for( FieldValue fv: expr.getValues() ) {
