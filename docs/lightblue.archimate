@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="COS" id="235fba2d" version="2.6.0">
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="lightblue" id="235fba2d" version="2.6.0">
   <folder name="Business" id="3ff34621" type="business"/>
   <folder name="Application" id="29316bce" type="application">
     <element xsi:type="archimate:ApplicationComponent" id="61c6f34c" name="Data Service Mediator"/>
@@ -39,7 +39,7 @@
     <element xsi:type="archimate:Artifact" id="8d37cf59" name="Entity Collection"/>
     <element xsi:type="archimate:Artifact" id="cbc7f22b" name="Metadata Collection"/>
     <element xsi:type="archimate:Device" id="42f5e9f2" name="rdbms"/>
-    <element xsi:type="archimate:SystemSoftware" id="8ab0765d" name="Oracle RDBMS"/>
+    <element xsi:type="archimate:SystemSoftware" id="8ab0765d" name="Oracle DB"/>
     <element xsi:type="archimate:InfrastructureService" id="4108728f" name="RDBMS"/>
     <element xsi:type="archimate:Artifact" id="df8711a9" name="Entity Schema"/>
     <element xsi:type="archimate:InfrastructureService" id="865304fc" name="Messaging Service"/>
@@ -68,6 +68,8 @@
     <element xsi:type="archimate:Node" id="b9eed54c" name="Relational Database"/>
     <element xsi:type="archimate:Device" id="bed8afd3" name="nosql"/>
     <element xsi:type="archimate:Node" id="b5c5713b" name="NoSQL Database"/>
+    <element xsi:type="archimate:SystemSoftware" id="0f21c46b" name="RDBMS"/>
+    <element xsi:type="archimate:SystemSoftware" id="b28d7230" name="MySQL DB"/>
   </folder>
   <folder name="Motivation" id="06f05462" type="motivation"/>
   <folder name="Implementation &amp; Migration" id="70b27f39" type="implementation_migration">
@@ -113,7 +115,7 @@
     <element xsi:type="archimate:AggregationRelationship" id="27fd0ca9" source="61c6f34c" target="ac898cea"/>
     <element xsi:type="archimate:RealisationRelationship" id="bb03b69d" source="cbc7f22b" target="4938c971"/>
     <element xsi:type="archimate:RealisationRelationship" id="0e5ee644" source="c51ddbc2" target="127cee61"/>
-    <element xsi:type="archimate:RealisationRelationship" id="76ae494a" source="8ab0765d" target="4108728f"/>
+    <element xsi:type="archimate:RealisationRelationship" id="76ae494a" source="0f21c46b" target="4108728f"/>
     <element xsi:type="archimate:RealisationRelationship" id="019009a4" source="df8711a9" target="c5da42fe"/>
     <element xsi:type="archimate:AccessRelationship" id="947ae34d" source="55ee1292" target="c5da42fe" accessType="3"/>
     <element xsi:type="archimate:RealisationRelationship" id="ccf0cb6f" source="301f1245" target="1536b71b"/>
@@ -150,7 +152,6 @@
     <element xsi:type="archimate:CompositionRelationship" id="c8c49316" source="b9eed54c" target="42f5e9f2"/>
     <element xsi:type="archimate:AssignmentRelationship" id="7b4f7c89" source="b9eed54c" target="df8711a9"/>
     <element xsi:type="archimate:AssignmentRelationship" id="a85dac36" source="42f5e9f2" target="df8711a9"/>
-    <element xsi:type="archimate:AggregationRelationship" id="912f9578" source="b9eed54c" target="8ab0765d"/>
     <element xsi:type="archimate:AssignmentRelationship" id="bb4f4105" source="b5c5713b" target="cbc7f22b"/>
     <element xsi:type="archimate:AssignmentRelationship" id="832c99c6" source="b5c5713b" target="8d37cf59"/>
     <element xsi:type="archimate:CompositionRelationship" id="b35ae8ec" source="b5c5713b" target="bed8afd3"/>
@@ -169,6 +170,9 @@
     <element xsi:type="archimate:AssociationRelationship" id="e34ee222" source="6ae0da53" target="55ee1292"/>
     <element xsi:type="archimate:AssociationRelationship" id="1ac1147c" source="6ae0da53" target="b9eed54c"/>
     <element xsi:type="archimate:AssociationRelationship" id="9982c0ad" source="454a1401" target="301f1245"/>
+    <element xsi:type="archimate:SpecialisationRelationship" id="d0baca24" source="8ab0765d" target="0f21c46b"/>
+    <element xsi:type="archimate:AggregationRelationship" id="7a6910df" source="b9eed54c" target="0f21c46b"/>
+    <element xsi:type="archimate:SpecialisationRelationship" id="c0bb6d3c" source="b28d7230" target="0f21c46b"/>
   </folder>
   <folder name="Views" id="19b98b0d" type="diagrams">
     <element xsi:type="archimate:ArchimateDiagramModel" id="6924d47b" name="Master View">
@@ -391,15 +395,15 @@
         </child>
       </child>
       <child xsi:type="archimate:DiagramObject" id="d8db3042" textAlignment="2" targetConnections="210a8fab" archimateElement="4108728f">
-        <bounds x="1170" y="771"/>
+        <bounds x="1320" y="675"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="0c5ee3dd" textAlignment="2" targetConnections="4d08a2de" archimateElement="8ab0765d">
-        <bounds x="1170" y="675"/>
-        <sourceConnection xsi:type="archimate:Connection" id="210a8fab" source="0c5ee3dd" target="d8db3042" relationship="76ae494a"/>
+      <child xsi:type="archimate:DiagramObject" id="0c5ee3dd" textAlignment="2" archimateElement="8ab0765d">
+        <bounds x="1283" y="771"/>
+        <sourceConnection xsi:type="archimate:Connection" id="5a5c7a7b" source="0c5ee3dd" target="e8d77981" relationship="d0baca24"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="a2da23c4" textAlignment="2" targetConnections="a0bb4417" archimateElement="b9eed54c">
         <bounds x="1152" y="459" width="156" height="181"/>
-        <sourceConnection xsi:type="archimate:Connection" id="4d08a2de" source="a2da23c4" target="0c5ee3dd" relationship="912f9578"/>
+        <sourceConnection xsi:type="archimate:Connection" id="dde56568" source="a2da23c4" target="e8d77981" relationship="7a6910df"/>
         <child xsi:type="archimate:DiagramObject" id="5acb4a7b" textAlignment="2" archimateElement="42f5e9f2">
           <bounds x="12" y="120"/>
           <sourceConnection xsi:type="archimate:Connection" id="5bc8eff7" source="5acb4a7b" target="cbde2dab" relationship="a85dac36"/>
@@ -410,11 +414,11 @@
         </child>
       </child>
       <child xsi:type="archimate:DiagramObject" id="d9dd020c" textAlignment="2" targetConnections="31977277" archimateElement="95c3b89b">
-        <bounds x="1416" y="675"/>
+        <bounds x="1451" y="675"/>
         <sourceConnection xsi:type="archimate:Connection" id="ccbabe6b" source="d9dd020c" target="d2c5aa66" relationship="339405fa"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="d2c5aa66" textAlignment="2" targetConnections="ccbabe6b" archimateElement="a3a37559">
-        <bounds x="1416" y="771"/>
+        <bounds x="1451" y="771"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="b3f4935e" textAlignment="2" archimateElement="b5c5713b">
         <bounds x="1320" y="459" width="291" height="181"/>
@@ -435,8 +439,8 @@
       </child>
       <child xsi:type="archimate:Note" id="c611fdce" textAlignment="1">
         <bounds x="2" width="192" height="97"/>
-        <content>Name: COS Architecture
-File: cos-arch.archimate
+        <content>Name: lightblue Architecture
+File: lightblue.archimate
 Author: Naveen Malik
 IRC: nmalik
 Email: nmalik@redhat.com</content>
@@ -465,6 +469,14 @@ Email: nmalik@redhat.com</content>
           <bendpoint startX="-6" startY="-102" endX="78" endY="66"/>
         </sourceConnection>
         <sourceConnection xsi:type="archimate:Connection" id="a0bb4417" source="e05db4f0" target="a2da23c4" relationship="1ac1147c"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="e8d77981" textAlignment="2" targetConnections="5a5c7a7b dde56568 94d70ec1" archimateElement="0f21c46b">
+        <bounds x="1170" y="675"/>
+        <sourceConnection xsi:type="archimate:Connection" id="210a8fab" source="e8d77981" target="d8db3042" relationship="76ae494a"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="59ad661a" textAlignment="2" archimateElement="b28d7230">
+        <bounds x="1151" y="771"/>
+        <sourceConnection xsi:type="archimate:Connection" id="94d70ec1" source="59ad661a" target="e8d77981" relationship="c0bb6d3c"/>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" id="9d0fb6b1" name="Milestone 1">
@@ -593,8 +605,8 @@ Email: nmalik@redhat.com</content>
       </child>
       <child xsi:type="archimate:Note" id="a044ab14" textAlignment="1">
         <bounds width="192" height="97"/>
-        <content>Name: COS Architecture
-File: cos-arch.archimate
+        <content>Name: lightblue Architecture
+File: lightblue.archimate
 Author: Naveen Malik
 IRC: nmalik
 Email: nmalik@redhat.com</content>
@@ -765,8 +777,8 @@ Email: nmalik@redhat.com</content>
       </child>
       <child xsi:type="archimate:Note" id="32e06c41" textAlignment="1">
         <bounds width="192" height="97"/>
-        <content>Name: COS Architecture
-File: cos-arch.archimate
+        <content>Name: lightblue Architecture
+File: lightblue.archimate
 Author: Naveen Malik
 IRC: nmalik
 Email: nmalik@redhat.com</content>
@@ -951,8 +963,8 @@ Email: nmalik@redhat.com</content>
       </child>
       <child xsi:type="archimate:Note" id="820b80e8" textAlignment="1">
         <bounds width="192" height="97"/>
-        <content>Name: COS Architecture
-File: cos-arch.archimate
+        <content>Name: lightblue Architecture
+File: lightblue.archimate
 Author: Naveen Malik
 IRC: nmalik
 Email: nmalik@redhat.com</content>
@@ -1174,8 +1186,8 @@ Email: nmalik@redhat.com</content>
       </child>
       <child xsi:type="archimate:Note" id="fd9446e6" textAlignment="1">
         <bounds y="-12" width="192" height="97"/>
-        <content>Name: COS Architecture
-File: cos-arch.archimate
+        <content>Name: lightblue Architecture
+File: lightblue.archimate
 Author: Naveen Malik
 IRC: nmalik
 Email: nmalik@redhat.com</content>
@@ -1421,8 +1433,8 @@ Email: nmalik@redhat.com</content>
       </child>
       <child xsi:type="archimate:Note" id="e94ccb70" textAlignment="1">
         <bounds width="192" height="97"/>
-        <content>Name: COS Architecture
-File: cos-arch.archimate
+        <content>Name: lightblue Architecture
+File: lightblue.archimate
 Author: Naveen Malik
 IRC: nmalik
 Email: nmalik@redhat.com</content>

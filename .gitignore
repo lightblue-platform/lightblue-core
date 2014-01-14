@@ -26,3 +26,4 @@ mf.pom.xml
 .idea
 bin
 bin/*
+*.bak
