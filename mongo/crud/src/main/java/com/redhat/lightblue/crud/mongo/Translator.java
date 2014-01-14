@@ -285,8 +285,10 @@ public class Translator {
     private BasicDBObject translateUnsetExpression(EntityMetadata md,
                                                    UnsetExpression expr) {
         BasicDBObject fields=new BasicDBObject();
-        for( Path p:expr.getFields() )
-            fields.append(p.toString(),"");
+        for( Path p:expr.getFields() ) {
+        	fields.append(p.toString(),"");
+        }
+            
         return new BasicDBObject("$unset",fields);
     }
 
@@ -302,8 +304,9 @@ public class Translator {
                                       List<Value> values) {
         Type t=md.resolve(field).getType();
         List<Object> valueList=new ArrayList<Object>(values.size());
-        for(Value x:values)
-            valueList.add(t.cast(x.getValue()));
+        for(Value x:values) {
+        	valueList.add(t.cast(x.getValue()));
+        }
         return valueList;
   }
 

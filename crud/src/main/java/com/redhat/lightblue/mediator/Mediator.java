@@ -63,6 +63,8 @@ public class Mediator {
 
     public static final String ERR_CRUD = "CRUD";
 
+    public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
 
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
@@ -94,7 +96,7 @@ public class Mediator {
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
-                LOGGER.debug("CRUD controller={}", controller.getClass().getName());
+                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
                 response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(insertionResponse.getDataErrors(), response);
@@ -140,7 +142,7 @@ public class Mediator {
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
-                LOGGER.debug("CRUD controller={}", controller.getClass().getName());
+                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
                 response.setEntityData(toJsonDocList(saveResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(saveResponse.getDataErrors(), response);
@@ -180,12 +182,13 @@ public class Mediator {
             OperationContext ctx = getOperationContext(req, response, null, Operation.UPDATE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
             CRUDController controller = factory.getCRUDController(md);
-            LOGGER.debug("CRUD controller={}", controller.getClass().getName());
+            LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
             CRUDUpdateResponse updateResponse = controller.update(ctx,
                     req.getEntity().getEntity(),
                     req.getQuery(),
                     req.getUpdateExpression(),
                     req.getReturnFields());
+            LOGGER.debug("# Updated", updateResponse.getNumUpdated());
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -202,7 +205,9 @@ public class Mediator {
         Response response = new Response();
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.DELETE);
-
+            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            CRUDController controller = factory.getCRUDController(md);
+            LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -229,7 +234,7 @@ public class Mediator {
             OperationContext ctx = getOperationContext(req, response, null, Operation.FIND);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
             CRUDController controller = factory.getCRUDController(md);
-            LOGGER.debug("CRUD controller={}", controller.getClass().getName());
+            LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
             CRUDFindResponse result = controller.find(ctx,
                     req.getEntity().getEntity(),
                     req.getQuery(),
