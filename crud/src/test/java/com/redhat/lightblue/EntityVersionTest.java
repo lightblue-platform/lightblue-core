@@ -79,6 +79,11 @@ public class EntityVersionTest {
 	}
 
 	@Test
+	public void testEqualsIncompatibleObject() {
+		assertFalse(entityVersion.equals(new Object()));
+	}
+	
+	@Test
 	public void testEqualsEmptyObjects() {
 		entityVersion = new EntityVersion();
 		assertTrue(entityVersion.equals(new EntityVersion()));

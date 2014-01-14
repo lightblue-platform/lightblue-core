@@ -68,7 +68,11 @@ public final class EntityVersion implements Serializable {
     }
 
     public boolean equals(Object o) {
-    	return equalsVersion((EntityVersion) o);
+    	if(o instanceof EntityVersion) {
+    		return equalsVersion((EntityVersion) o);	
+    	} else {
+    		return false;
+    	}
     }
 
     public boolean equalsVersion(EntityVersion o) {
