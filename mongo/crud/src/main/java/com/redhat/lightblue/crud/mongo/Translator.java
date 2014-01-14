@@ -72,6 +72,14 @@ import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.crud.MetadataResolver;
 
+import com.redhat.lightblue.crud.UpdateExpression;
+import com.redhat.lightblue.crud.SetExpression;
+import com.redhat.lightblue.crud.UnsetExpression;
+import com.redhat.lightblue.crud.ArrayPopExpression;
+import com.redhat.lightblue.crud.ArrayPushExpression;
+import com.redhat.lightblue.crud.ArrayRemoveByQueryExpression;
+import com.redhat.lightblue.crud.ArrayRemoveValuesExpression;
+
 /**
  * Translations between BSON and JSON. This class is thread-safe, and can be shared between threads
  */
