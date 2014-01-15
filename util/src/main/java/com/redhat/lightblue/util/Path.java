@@ -52,16 +52,14 @@ import java.util.Iterator;
  * and does not occupy too much memory when a lot of paths are created
  * from a common prefix.
  *
- * A segment in a path can be empty. One empty segment denotes the
- * current location. Consecutive empty segments deenotes parent,
- * grandparent, etc.
+ * $parent and $this keywords can be used to create relative paths.
  * <pre>
- *    .address // 'address' field relative to this
- *   ..address // 'address' field relative to parent
- *  ...address // 'address' field relative to grandparent
- *  ..address..city // 'city' relative to parent of 'address' which is relative to parent
- *  ..address...login // 'login' field relative to grand parent of address, which is relative to parent of this
- *  address.city.. // points to 'address'
+ *   $this.address // 'address' field relative to this
+ *   $parent.address // 'address' field relative to parent
+ *   $parent.$parent.address // 'address' field relative to grandparent
+ *   $parent.address.$parent.city // 'city' relative to parent of 'address' which is relative to parent
+ *   $parent.address.$parent.$parent.login // 'login' field relative to grand parent of address, which is relative to parent of this
+ *   address.city.$this // points to 'address'
  * </pre>
  * 
  *
@@ -72,6 +70,9 @@ public class Path implements Comparable<Path>, Serializable {
     private static final long serialVersionUID = 1l;
 
     public static final String ANY = "*";
+
+    public static final String PARENT="$parent";
+    public static final String THIS="$this";
 
     public static final Path EMPTY = new Path();
     public static final Path ANYPATH = new Path(ANY);
