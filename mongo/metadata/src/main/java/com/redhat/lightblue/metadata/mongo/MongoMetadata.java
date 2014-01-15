@@ -26,6 +26,7 @@ import com.mongodb.DBObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.MongoException;
@@ -43,6 +44,8 @@ import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
 
 import com.redhat.lightblue.metadata.Extensions;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import java.net.UnknownHostException;
 
 public class MongoMetadata implements Metadata {
 
@@ -54,10 +57,21 @@ public class MongoMetadata implements Metadata {
 
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
-    
+
     private final DBCollection collection;
 
     private final BSONParser mdParser;
+
+    public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
+        MongoClient client = new MongoClient(configuration.getServerAddresses(), configuration.getMongoClientOptions());
+        DB db = client.getDB(configuration.getName());
+
+        Extensions<BSONObject> parserExtensions = new Extensions<>();
+        parserExtensions.addDefaultExtensions();
+        parserExtensions.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
+        DefaultTypes typeResolver = new DefaultTypes();
+        return new MongoMetadata(db, parserExtensions, typeResolver);
+    }
 
     public MongoMetadata(DB db,
                          String metadataCollection,
