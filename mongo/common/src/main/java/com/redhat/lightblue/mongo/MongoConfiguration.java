@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.redhat.lightblue.metadata.mongo;
+package com.redhat.lightblue.mongo;
 
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
@@ -13,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * TODO revisit having spun this out into a common module.  May only be needed by metadata.
  * @author nmalik
  */
 public class MongoConfiguration {
@@ -28,7 +30,7 @@ public class MongoConfiguration {
 
     private String name;
     private List<Server> servers;
-    private String collection = MongoMetadata.DEFAULT_METADATA_COLLECTION;
+    private String collection;
     private Integer connectionsPerHost;
 
     /**
@@ -112,5 +114,11 @@ public class MongoConfiguration {
         }
 
         return builder.build();
+    }
+
+    public DB getDB() throws UnknownHostException {
+        MongoClient client = new MongoClient(getServerAddresses(), getMongoClientOptions());
+        DB db = client.getDB(getName());
+        return db;
     }
 }

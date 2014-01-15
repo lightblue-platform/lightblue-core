@@ -1,0 +1,18 @@
+{
+    "mediatorClass": "",
+    "mediatorFactoryMethod": "",
+    "controllers": [
+        {
+            "datastoreType": "test",
+            "className": "com.redhat.lightblue.crud.test.TestCRUDController",
+            "factoryMethod": "create"
+        }
+    ],
+    "databaseConfigurationClass": "com.redhat.lightblue.crud.test.DatabaseConfiguration",
+    "database": {
+        "name": "test",
+        "host": "whatever",
+        "port": 1234,
+        "collection": "metadata"
+    }
+}

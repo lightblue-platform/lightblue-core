@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.redhat.lightblue.rest.metadata;
+package com.redhat.lightblue.metadata;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -12,7 +12,7 @@ import com.google.gson.internal.LinkedTreeMap;
  *
  * @author nmalik
  */
-public class Configuration {
+public class MetadataConfiguration {
     /**
      * The file on classpath that this configuration is loaded from.
      */

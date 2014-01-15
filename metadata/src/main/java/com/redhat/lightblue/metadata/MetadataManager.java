@@ -16,14 +16,11 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rest.metadata;
+package com.redhat.lightblue.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.gson.Gson;
-import com.redhat.lightblue.metadata.Extensions;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
-import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 import java.io.BufferedReader;
@@ -61,7 +58,7 @@ public class MetadataManager {
 
         StringBuilder buff = new StringBuilder();
 
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(Configuration.FILENAME);
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME);
                 InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
                 BufferedReader reader = new BufferedReader(isr)) {
             String line;
@@ -75,10 +72,10 @@ public class MetadataManager {
 
         // convert root to Configuration object
         Gson g = new Gson();
-        Configuration configuration = g.fromJson(buff.toString(), Configuration.class);
+        MetadataConfiguration configuration = g.fromJson(buff.toString(), MetadataConfiguration.class);
 
         if (null == configuration) {
-            throw new IllegalStateException("Configuration not found: " + Configuration.FILENAME);
+            throw new IllegalStateException("Configuration not found: " + MetadataConfiguration.FILENAME);
         }
 
         // instantiate the database specific configuration object
@@ -88,7 +85,7 @@ public class MetadataManager {
 
         // validate
         if (!configuration.isValid()) {
-            throw new IllegalStateException("Configuration not valid: " + Configuration.FILENAME);
+            throw new IllegalStateException("Configuration not valid: " + MetadataConfiguration.FILENAME);
         }
 
         Class metadataClass = Class.forName(configuration.getMetadataClass());

@@ -1,5 +1,6 @@
 package com.redhat.lightblue.rest.metadata;
 
+import com.redhat.lightblue.metadata.MetadataManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.EntityMetadata;

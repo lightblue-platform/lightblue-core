@@ -41,6 +41,7 @@ public class MongoDataStore implements DataStore, Serializable {
         this.collectionName = collectionName;
     }
 
+    @Override
     public String getType() {
         return "mongo";
     }
@@ -115,7 +116,7 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public boolean equals(Object x) {
         try {
-            if (x != null) {
+            if (x != null && x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
                     return ((mds.clientJndiName == null && clientJndiName == null)

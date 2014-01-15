@@ -5,8 +5,8 @@
         "metadataFactoryMethod - static method that takes instance of database configuration as argument and returns an instance of Metadata",
         "database - JSON object that is converted to database configuration pojo and used for Metadata creation"
     ],
-    "metadataClass": "com.redhat.lightblue.rest.metadata.test.DatabaseMetadata",
-    "databaseConfigurationClass": "com.redhat.lightblue.rest.metadata.test.DatabaseConfiguration",
+    "metadataClass": "com.redhat.lightblue.metadata.test.DatabaseMetadata",
+    "databaseConfigurationClass": "com.redhat.lightblue.metadata.test.DatabaseConfiguration",
     "metadataFactoryMethod": "create",
     "database": {
         "name": "mongo",

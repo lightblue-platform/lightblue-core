@@ -63,6 +63,9 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.AbstractCRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.UpdateExpression;
+import com.redhat.lightblue.mongo.MongoConfiguration;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
 
 public class MongoCRUDController implements CRUDController {
 
@@ -82,6 +85,27 @@ public class MongoCRUDController implements CRUDController {
 
     private final JsonNodeFactory factory;
     private final DBResolver dbResolver;
+
+    public static MongoCRUDController create(final MongoConfiguration config) {
+        DBResolver r = new DBResolver() {
+            @Override
+            public DB get(MongoDataStore store) {
+                try {
+                    // TODO this should really be something that comes from the metadata for the given entity
+                    // but we haven't thought about that enough.
+                    return config.getDB();
+                } catch (UnknownHostException ex) {
+                    throw Error.get("CONNECTION_ERROR", ex.getMessage());
+                }
+            }
+        };
+        
+        return new MongoCRUDController(r);
+    }
+
+    public MongoCRUDController(DBResolver dbResolver) {
+        this(JsonNodeFactory.withExactBigDecimals(true), dbResolver);
+    }
 
     public MongoCRUDController(JsonNodeFactory factory,
                                DBResolver dbResolver) {

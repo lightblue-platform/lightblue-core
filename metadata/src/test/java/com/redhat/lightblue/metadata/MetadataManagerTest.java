@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.redhat.lightblue.rest.metadata;
+package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.rest.metadata.test.DatabaseMetadata;
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import org.junit.Assert;
 import org.junit.Test;
 

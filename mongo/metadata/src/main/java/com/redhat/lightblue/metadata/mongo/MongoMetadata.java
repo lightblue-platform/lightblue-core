@@ -26,7 +26,6 @@ import com.mongodb.DBObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.MongoException;
@@ -34,6 +33,8 @@ import com.mongodb.MongoException;
 import org.bson.BSONObject;
 
 import com.redhat.lightblue.util.Error;
+
+import com.redhat.lightblue.mongo.MongoConfiguration;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -63,8 +64,7 @@ public class MongoMetadata implements Metadata {
     private final BSONParser mdParser;
 
     public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
-        MongoClient client = new MongoClient(configuration.getServerAddresses(), configuration.getMongoClientOptions());
-        DB db = client.getDB(configuration.getName());
+        DB db = configuration.getDB();
 
         Extensions<BSONObject> parserExtensions = new Extensions<>();
         parserExtensions.addDefaultExtensions();

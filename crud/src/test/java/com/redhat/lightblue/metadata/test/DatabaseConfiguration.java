@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.redhat.lightblue.rest.metadata.test;
+package com.redhat.lightblue.metadata.test;
 
 /**
  *
