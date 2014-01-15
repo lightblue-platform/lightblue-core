@@ -24,8 +24,8 @@ import java.util.List;
  * A Path that can be modified. Uses copy-on-write semantics to prevent unnecessary copies.
  */
 public class MutablePath extends Path {
-
-	private static final long serialVersionUID = 1L;
+    
+    private static final long serialVersionUID = 1L;
 	
     /**
      * If true, this MutablePath is the only Path with a reference to the path data. If false, path data is referenced
@@ -43,12 +43,12 @@ public class MutablePath extends Path {
      * @param x
      */
     public MutablePath(Path x) {
-        setData(x.getData());
+        super(x);
         pathOwned = false;
     }
 
     public MutablePath(MutablePath x) {
-        setData(new PathRep(x.getData()));
+        data=new PathRep(x.data);
         pathOwned = true;
     }
 
@@ -60,7 +60,7 @@ public class MutablePath extends Path {
      * prefix of x with last -pfix elements removed.
      */
     public MutablePath(Path x, int pfix) {
-        setData(new PathRep(x.getData(), pfix));
+        data=new PathRep(x.data, pfix);
         pathOwned = true;
     }
 
@@ -77,7 +77,7 @@ public class MutablePath extends Path {
     @Override
     public Path immutableCopy() {
         Path p = new Path();
-        p.setData(new PathRep(getData()));
+        p.data=new PathRep(data);
         return p;
     }
 
@@ -92,23 +92,22 @@ public class MutablePath extends Path {
             throw new IllegalArgumentException("null value passed to push");
         }
         List<String> s = parse(x);
-        return push(s);
+        if(s!=null&&!s.isEmpty()) {
+            own();
+            data.append(s);
+        }
+        return this;
     }
 
+    /**
+     * Appends x to the end of this
+     */
     public MutablePath push(Path x) {
         if (x == null) {
             throw new IllegalArgumentException("null value passed to push");
         }
-        return push(x.getData().getSegments());
-    }
-
-    private MutablePath push(List<String> segments) {
-        if (segments == null || segments.isEmpty()) {
-            throw new IllegalArgumentException("null or empty segments passed to push");
-        }
         own();
-        getData().getSegments().addAll(segments);
-        getData().resetState();
+        data.append(x.data);
         return this;
     }
 
@@ -128,12 +127,11 @@ public class MutablePath extends Path {
      * @return the updated path
      */
     public MutablePath pop() {
-        if (getData().getSegments().isEmpty()) {
-            throw new IllegalStateException("Attempted to pop empty path");
-        } else {
+        try {
             own();
-            getData().getSegments().remove(getData().getSegments().size() - 1);
-            getData().resetState();
+            data.remove(data.size()-1);
+        } catch (IndexOutOfBoundsException e) {
+            throw new IllegalStateException("Attempted to pop empty path");
         }
         return this;
     }
@@ -145,14 +143,14 @@ public class MutablePath extends Path {
      * @return the updated path
      */
     public Path setLast(String x) {
-        if (getData().getSegments().isEmpty()) {
+        try {
+            own();
+            data.remove(data.size()-1);
+            data.append(parse(x));
+            return this;
+        } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException("Attempted to set last segment on empty path.");
         }
-        // push takes ownership, but need to own here before removing last segment
-        own();
-        getData().getSegments().remove(getData().getSegments().size() - 1);
-        List<String> s = parse(x);
-        return push(s);
     }
 
     /**
@@ -167,8 +165,7 @@ public class MutablePath extends Path {
 
     public Path set(int i, String x) {
         own();
-        getData().getSegments().set(i, x);
-        getData().resetState();
+        data.set(i, x);
         return this;
     }
 
@@ -181,11 +178,10 @@ public class MutablePath extends Path {
      */
     public MutablePath cut(int length) {
         own();
-        int l = getData().getSegments().size();
+        int l = data.size();
         while (l > length) {
-            getData().getSegments().remove(--l);
+            data.remove(--l);
         }
-        getData().resetState();
         return this;
     }
 
@@ -194,7 +190,7 @@ public class MutablePath extends Path {
      */
     private void own() {
         if (!pathOwned) {
-            setData(new PathRep(getData()));
+            data=new PathRep(data);
             pathOwned = true;
         }
     }
