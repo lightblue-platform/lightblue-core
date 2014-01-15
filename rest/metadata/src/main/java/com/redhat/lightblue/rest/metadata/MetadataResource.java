@@ -5,8 +5,6 @@ import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Version;
-import com.redhat.lightblue.util.metrics.ServiceMetrics;
-import com.redhat.lightblue.util.metrics.ServoServiceMetrics;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 import java.util.Arrays;
@@ -25,9 +23,6 @@ import javax.ws.rs.PathParam;
  */
 @Path("/metadata")
 public class MetadataResource {
-
-    private static final ServiceMetrics metrics = ServoServiceMetrics.getInstance();
-
     public static final String ERR_REST_ERROR = "REST_ERROR";
 
     @GET

@@ -24,19 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue</name>
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -86,11 +73,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.netflix.servo</groupId>
-                <artifactId>servo-core</artifactId>
-                <version>0.4.44</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>2.2.4</version>
@@ -110,6 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>metadata</module>
         <module>mongo</module>
         <module>util</module>
+        <module>rest</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
