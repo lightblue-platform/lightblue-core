@@ -16,43 +16,46 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.query;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
- * Operators than can be used in an update expression
+ * Update operators
  */
 public enum UpdateOperator {
-    _set("$set"),
-    _unset("$unset"),
-    _add("$add"),
-    _pop("$pop"),
-    _remove("$remove"),
-    _push("$push");
+    _set("$set"), 
+    _unset("$unset"), 
+    _add("$add"), 
+    _append("$append"), 
+    _insert("$insert"), 
+    _foreach("$foreach");
 
-    private final String op;
+    private final String name;
 
     private static final Map<String, UpdateOperator> MAP;
 
     static {
-        MAP = new HashMap<>();
-        MAP.put(_set.op, _set);
-        MAP.put(_unset.op, _unset);
-        MAP.put(_add.op, _add);
-        MAP.put(_pop.op, _pop);
-        MAP.put(_remove.op, _remove);
-        MAP.put(_push.op, _push);
+        MAP = new HashMap<String,UpdateOperator>();
+        _set.init(MAP);
+        _unset.init(MAP);
+        _add.init(MAP);
+        _append.init(MAP);
+        _insert.init(MAP);
+        _foreach.init(MAP);
     }
 
-    private UpdateOperator(String op) {
-        this.op = op;
+    private UpdateOperator(String x) {
+        this.name=x;
     }
 
-    @Override
+    private void init(Map<String,UpdateOperator> map) {
+        map.put(name,this);
+    }
+
     public String toString() {
-        return op;
+        return name;
     }
 
     public static UpdateOperator fromString(String s) {

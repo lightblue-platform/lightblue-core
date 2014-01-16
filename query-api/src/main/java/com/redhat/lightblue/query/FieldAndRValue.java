@@ -16,35 +16,33 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.query;
 
-import com.redhat.lightblue.query.Value;
 import java.io.Serializable;
 
 import com.redhat.lightblue.util.Path;
 
 /**
- * A field and value pair, used in update expressions
+ * Represents a field and rvalue
  */
-public class FieldValue implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class FieldAndRValue implements Serializable {
+    
+    private static final long serialVersionUID=1l;
 
     private Path field;
-    private Value value;
+    private RValueExpression rvalue;
 
     /**
      * Default ctor
      */
-    public FieldValue() {
-    }
+    public FieldAndRValue() {}
 
     /**
-     * Constructs a field and value pair with the given values
+     * Constructs a field-value pair using the given values
      */
-    public FieldValue(Path field, Value value) {
-        this.field = field;
-        this.value = value;
+    public FieldAndRValue(Path field,RValueExpression rvalue) {
+        this.field=field;
+        this.rvalue=rvalue;
     }
 
     /**
@@ -57,27 +55,26 @@ public class FieldValue implements Serializable {
     /**
      * The field
      */
-    public void setPath(Path p) {
-        this.field = p;
+    public void setField(Path p) {
+        field=p;
     }
 
     /**
-     * The value
+     * The rvalue
      */
-    public Value getValue() {
-        return value;
+    public RValueExpression getRValue() {
+        return rvalue;
     }
 
     /**
-     * The value
+     * The rvalue
      */
-    public void setValue(Value v) {
-        value = v;
+    public void setRValue(RValueExpression e) {
+        rvalue=e;
     }
 
     @Override
     public String toString() {
-        return field + ":" + value;
+        return field+":"+rvalue;
     }
-
 }

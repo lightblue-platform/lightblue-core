@@ -16,34 +16,28 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud;
+package com.redhat.lightblue.query;
 
-import com.redhat.lightblue.crud.PartialUpdateExpression;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.redhat.lightblue.util.JsonObject;
-
 /**
- * Base class for update expressions.
+ * Base class for update expressions
  * <pre>
- * update_expression := partial_update_expression | [ partial_update_expression, partial_update_expression ... ]
+ * update_expression := partial_update_expression | [ partial_update_expression,...]  
  * </pre>
  */
-public abstract class UpdateExpression extends JsonObject {
-
-	private static final long serialVersionUID = 1L;
-	
+public abstract class PartialUpdateExpression extends UpdateExpression {
+    
     /**
-     * Parses a JSON document and creates an update expression
+     * Parses a partial update expression using the given json object
      */
-    public static UpdateExpression fromJson(JsonNode node) {
-        if (node instanceof ArrayNode) {
-            return UpdateExpressionList.fromJson((ArrayNode) node);
-        } else {
-            return PartialUpdateExpression.fromJson((ObjectNode) node);
+    public static PartialUpdateExpression fromJson(ObjectNode node) {
+        if(node.has(UpdateOperator._append.toString())||
+           node.has(UpdateOperator._insert.toString())||
+           node.has(UpdateOperator._foreach.toString())) {
+            return ArrayUpdateExpression.fromJson(node);
+        }  else {
+            return PrimitiveUpdateExpression.fromJson(node);
         }
     }
-
 }
