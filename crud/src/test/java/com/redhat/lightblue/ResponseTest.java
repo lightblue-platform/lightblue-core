@@ -15,17 +15,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.Response.ResponseBuilder;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
-public class ResponseBuilderTest {
+public class ResponseTest {
 
+	Response response;
+	
 	ResponseBuilder builder;
 	JsonNode node;
 		
 	@Before
 	public void setUp() throws Exception {
-		builder = new ResponseBuilder();
+		response = new Response();
+		builder = response.new ResponseBuilder();
 	}
 
 	@After
@@ -179,13 +183,13 @@ public class ResponseBuilderTest {
     	response.getDataErrors().addAll(new ArrayList<DataError>());
     	response.getErrors().addAll(new ArrayList<Error>());
     	
-    	ResponseBuilder responseBuilder = new ResponseBuilder(response);
+    	ResponseBuilder responseBuilder = new Response().new ResponseBuilder(response);
         
         assertTrue(response.getStatus().equals(responseBuilder.buildResponse().getStatus()));		
 	}
 
 	@Test
-	public void testBuildJson() {
+	public void testToJson() {
 		Response response = new Response();
     	response.setStatus(OperationStatus.COMPLETE);
     	response.setModifiedCount(Integer.MAX_VALUE);
@@ -195,9 +199,7 @@ public class ResponseBuilderTest {
     	response.setEntityData(JsonObject.getFactory().objectNode());
     	response.getDataErrors().addAll(getPopulatedDataErrors(3));
     	response.getErrors().addAll(getPopulatedErrors(3));
-    	
-    	builder = new ResponseBuilder(response);
-    	
+    	    	
     	ObjectNode expectedNode = JsonObject.getFactory().objectNode();
     	expectedNode.put("status", OperationStatus.COMPLETE.name().toLowerCase());
     	expectedNode.put("modifiedCount", Integer.MAX_VALUE);
@@ -217,7 +219,7 @@ public class ResponseBuilderTest {
             arr2.add(err.toJson());
         }
     	
-        assertFalse(builder.buildJson().equals(expectedNode));		
+        assertFalse(response.toJson().equals(expectedNode));		
 	}
 	
 	@Test
@@ -227,7 +229,7 @@ public class ResponseBuilderTest {
     	expectedNode.put("modifiedCount", 0L);
     	expectedNode.put("matchCount", 0L);
     	
-        assertTrue(builder.buildJson().equals(expectedNode));		
+        assertTrue(response.toJson().equals(expectedNode));		
 	}
 	
 	private List<DataError> getPopulatedDataErrors(int numberOfErrors) {

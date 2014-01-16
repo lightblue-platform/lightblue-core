@@ -19,9 +19,11 @@
 package com.redhat.lightblue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
@@ -32,6 +34,15 @@ import com.redhat.lightblue.util.JsonObject;
 public class Response extends JsonObject {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String PROPERTY_STATUS = "status";
+	private static final String PROPERTY_MOD_COUNT = "modifiedCount";
+	private static final String PROPERTY_MATCH_COUNT = "matchCount";
+	private static final String PROPERTY_TASK_HANDLE = "taskHandle";
+	private static final String PROPERTY_SESSION = "session";
+	private static final String PROPERTY_PROCESSED = "processed";
+	private static final String PROPERTY_DATA_ERRORS = "dataErrors";
+	private static final String PROPERTY_ERRORS = "errors";
 	
 	private OperationStatus status;
     private long modifiedCount;
@@ -59,7 +70,8 @@ public class Response extends JsonObject {
     /**
      * Number of documents inserted/updated/deleted
      */
-    public long getModifiedCount() {
+    public long getModifiedCount() {Response response = new Response();
+	
         return modifiedCount;
     }
 
@@ -103,7 +115,8 @@ public class Response extends JsonObject {
     /**
      * If the operation starts a session or uses an existing session, the session information
      */
-    public SessionInfo getSessionInfo() {
+    public SessionInfo getSessionInfo() {Response response = new Response();
+	
         return session;
     }
 
@@ -142,20 +155,21 @@ public class Response extends JsonObject {
     	return errors == null ? new ArrayList<Error>() : errors;
     }
 
+	
     /**
      * Parses a response from a Json object
      */
     public static Response fromJson(ObjectNode node) {
-        ResponseBuilder builder = new ResponseBuilder();
+        ResponseBuilder builder = new Response().new ResponseBuilder();
         
-        builder.withStatus(node.get("status"));
-        builder.withModifiedCount(node.get("modifiedCount"));
-        builder.withMatchCount(node.get("matchCount"));
-    	builder.withTaskHandle(node.get("taskHandle"));
-        builder.withSession(node.get("session"));
-        builder.withEntityData(node.get("processed"));
-        builder.withDataErrors(node.get("dataErrors"));
-        builder.withErrors(node.get("errors"));
+        builder.withStatus(node.get(PROPERTY_STATUS));
+        builder.withModifiedCount(node.get(PROPERTY_MOD_COUNT));
+        builder.withMatchCount(node.get(PROPERTY_MATCH_COUNT));
+    	builder.withTaskHandle(node.get(PROPERTY_TASK_HANDLE));
+        builder.withSession(node.get(PROPERTY_SESSION));
+        builder.withEntityData(node.get(PROPERTY_PROCESSED));
+        builder.withDataErrors(node.get(PROPERTY_DATA_ERRORS));
+        builder.withErrors(node.get(PROPERTY_ERRORS));
         
         return builder.buildResponse();
     }
@@ -165,7 +179,121 @@ public class Response extends JsonObject {
      */
     @Override
     public JsonNode toJson() {
-    	ResponseBuilder builder = new ResponseBuilder(this);
-    	return builder.buildJson();
+    	JsonNodeBuilder builder = new JsonNodeBuilder();
+    	builder.add(PROPERTY_STATUS, status);
+		builder.add(PROPERTY_MOD_COUNT, modifiedCount);
+		builder.add(PROPERTY_MATCH_COUNT, matchCount);
+		builder.add(PROPERTY_TASK_HANDLE, taskHandle);
+		builder.add(PROPERTY_SESSION, session);
+		builder.add(PROPERTY_PROCESSED, entityData);
+		builder.add(PROPERTY_DATA_ERRORS, dataErrors);
+		builder.add(PROPERTY_ERRORS, errors);
+    	return builder.build();
+    }
+    
+    public class ResponseBuilder {
+    	
+        private OperationStatus status;
+        private long modifiedCount;
+        private long matchCount;
+        private String taskHandle;
+        private SessionInfo session;
+        private JsonNode entityData;
+        private List<DataError> dataErrors = new ArrayList<>();
+        private List<Error> errors = new ArrayList<>();
+        
+        public ResponseBuilder() {
+        	
+        }
+        
+        public ResponseBuilder(Response response) {
+        	status = response.getStatus();
+        	modifiedCount = response.getModifiedCount();
+        	matchCount = response.getMatchCount();
+            taskHandle = response.getTaskHandle();
+            session = response.getSessionInfo();
+            entityData = response.getEntityData();
+            dataErrors = response.getDataErrors();
+            errors = response.getErrors();
+        }
+        
+        public ResponseBuilder withStatus(JsonNode node) {
+        	if (node != null) {
+                try {
+                    status = OperationStatus.valueOf(node.asText().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    status = OperationStatus.ERROR;
+                }
+            }
+        	return this;
+        }
+    	
+        public ResponseBuilder withModifiedCount(JsonNode node) {
+        	if (node != null) {
+                modifiedCount = node.asLong();
+            }
+        	return this;
+        }
+        
+        public ResponseBuilder withMatchCount(JsonNode node) {
+             if (node != null) {
+                 matchCount = node.asLong();
+             }
+        	return this;
+        }
+        
+        public ResponseBuilder withTaskHandle(JsonNode node) {
+        	if (node != null) {
+                taskHandle = node.asText();
+            }
+        	return this;
+        }
+        
+        public ResponseBuilder withSession(JsonNode node) {
+        	//TODO
+        	return this;
+        }
+        
+        public ResponseBuilder withEntityData(JsonNode node) {
+        	if (node != null) {
+                entityData = node;
+            }
+        	return this;
+        }
+        
+        public ResponseBuilder withDataErrors(JsonNode node) {
+            if (node instanceof ArrayNode) {
+                for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
+                        itr.hasNext();) {
+                    dataErrors.add(DataError.fromJson((ObjectNode) itr.next()));
+                }
+            }
+        	return this;
+        }
+        
+        public ResponseBuilder withErrors(JsonNode node) {
+        	if (node instanceof ArrayNode) {
+                for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
+                        itr.hasNext();) {
+                    errors.add(Error.fromJson(itr.next()));
+                }
+            }
+        	return this;
+        }
+        
+        public Response buildResponse() {
+        	Response response = new Response();
+        	
+        	response.setStatus(status);
+        	response.setModifiedCount(modifiedCount);
+        	response.setMatchCount(matchCount);
+        	response.setTaskHandle(taskHandle);
+        	response.setSessionInfo(session);
+        	response.setEntityData(entityData);
+        	response.getDataErrors().addAll(dataErrors);
+        	response.getErrors().addAll(errors);
+        	
+        	return response;
+        }        
     }
 }
