@@ -29,34 +29,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: REST</name>
-    <repositories>
-        <repository>
-            <id>eap</id>
-            <url>http://maven.repository.redhat.com/techpreview/all</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>3.0.0.Final-redhat-1</version>
-                <type>pom</type>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.jboss.spec</groupId>
             <artifactId>jboss-javaee-6.0</artifactId>
+            <version>3.0.2.Final</version>
             <type>pom</type>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xalan</artifactId>
+                    <groupId>xalan</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
