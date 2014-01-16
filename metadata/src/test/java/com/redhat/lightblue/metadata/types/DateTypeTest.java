@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -129,8 +130,10 @@ public class DateTypeTest {
     }
 
     @Test
-    public void testCcompareNotEqual() {
-        assertEquals(dateType.compare(new Date(), new Date()), 0);
+    public void testCompareNotEqual() {
+    	Date date1 = new Date(new GregorianCalendar(2014, 00, 14).getTimeInMillis());
+    	Date date2 = new Date(new GregorianCalendar(2014, 00, 15).getTimeInMillis());
+    	assertEquals(dateType.compare(date1, date2), -1);
     }
 
     @Test
