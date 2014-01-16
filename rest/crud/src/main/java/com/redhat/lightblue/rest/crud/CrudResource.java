@@ -31,7 +31,7 @@ public class CrudResource {
     @Path("/find")
     public String find(String data) {
         try {
-            Response r = CrudManager.getMediator().find(FindRequest.fromJson((ObjectNode) JsonUtils.json(data.toString())));
+            Response r = CrudManager.getMediator().find(FindRequest.fromJson((ObjectNode) JsonUtils.json(data)));
             return r.toJson().toString();
         } catch (Error e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
@@ -46,7 +46,7 @@ public class CrudResource {
     @Path("/insert")
     public String insert(String data) {
         try {
-            Response r = CrudManager.getMediator().insert(InsertionRequest.fromJson((ObjectNode) JsonUtils.json(data.toString())));
+            Response r = CrudManager.getMediator().insert(InsertionRequest.fromJson((ObjectNode) JsonUtils.json(data)));
             return r.toJson().toString();
         } catch (Error e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
@@ -61,7 +61,7 @@ public class CrudResource {
     @Path("/update")
     public String update(String data) {
         try {
-            Response r = CrudManager.getMediator().update(UpdateRequest.fromJson((ObjectNode) JsonUtils.json(data.toString())));
+            Response r = CrudManager.getMediator().update(UpdateRequest.fromJson((ObjectNode) JsonUtils.json(data)));
             return r.toJson().toString();
         } catch (Error e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
@@ -76,7 +76,7 @@ public class CrudResource {
     @Path("/save")
     public String save(String data) {
         try {
-            Response r = CrudManager.getMediator().save(SaveRequest.fromJson((ObjectNode) JsonUtils.json(data.toString())));
+            Response r = CrudManager.getMediator().save(SaveRequest.fromJson((ObjectNode) JsonUtils.json(data)));
             return r.toJson().toString();
         } catch (Error e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
@@ -91,7 +91,7 @@ public class CrudResource {
     @Path("/delete")
     public String delete(String data) {
         try {
-            Response r = CrudManager.getMediator().delete(DeleteRequest.fromJson((ObjectNode) JsonUtils.json(data.toString())));
+            Response r = CrudManager.getMediator().delete(DeleteRequest.fromJson((ObjectNode) JsonUtils.json(data)));
             return r.toJson().toString();
         } catch (Error e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
