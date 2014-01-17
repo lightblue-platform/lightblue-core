@@ -123,14 +123,14 @@ public class JsonNodeBuilder {
 	}
 	
 	private boolean include(Object object) {
-		return object != null || includeNulls == true ? true : false;
+		return object != null || includeNulls == true;
 	}
 
 	private <T> boolean includes(Collection<T> collection) {
 		if(includeNulls == true) {
 			return true;
 		} else {
-			return collection == null || collection.isEmpty() ? false : true;	
+			return collection != null && !collection.isEmpty();	
 		}
 	}
 	

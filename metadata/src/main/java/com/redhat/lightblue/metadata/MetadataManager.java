@@ -24,8 +24,10 @@ import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
@@ -40,7 +42,7 @@ public class MetadataManager {
     private static JSONMetadataParser parser = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
-    private synchronized static void initializeParser() {
+    private static synchronized void initializeParser() {
         if (parser != null) {
             return;
         }
@@ -50,7 +52,7 @@ public class MetadataManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    private synchronized static void initializeMetadata() throws Exception {
+    private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         if (metadata != null) {
             // already initalized
             return;
@@ -95,7 +97,7 @@ public class MetadataManager {
         metadata = (Metadata) m.invoke(null, configuration.getDatabaseConfiguration());
     }
 
-    public static Metadata getMetadata() throws Exception {
+    public static Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         if (metadata == null) {
             initializeMetadata();
         }
