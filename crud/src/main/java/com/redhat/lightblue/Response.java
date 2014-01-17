@@ -71,8 +71,6 @@ public class Response extends JsonObject {
      * Number of documents inserted/updated/deleted
      */
     public long getModifiedCount() {
-        Response response = new Response();
-
         return modifiedCount;
     }
 
@@ -117,8 +115,6 @@ public class Response extends JsonObject {
      * If the operation starts a session or uses an existing session, the session information
      */
     public SessionInfo getSessionInfo() {
-        Response response = new Response();
-
         return session;
     }
 
@@ -161,7 +157,7 @@ public class Response extends JsonObject {
      * Parses a response from a Json object
      */
     public static Response fromJson(ObjectNode node) {
-        ResponseBuilder builder = new Response().new ResponseBuilder();
+        ResponseBuilder builder = new Response.ResponseBuilder();
 
         builder.withStatus(node.get(PROPERTY_STATUS));
         builder.withModifiedCount(node.get(PROPERTY_MOD_COUNT));
@@ -192,7 +188,7 @@ public class Response extends JsonObject {
         return builder.build();
     }
 
-    public class ResponseBuilder {
+    public static class ResponseBuilder {
 
         private OperationStatus status;
         private long modifiedCount;
