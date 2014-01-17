@@ -29,7 +29,7 @@ public class ResponseTest {
 	@Before
 	public void setUp() throws Exception {
 		response = new Response();
-		builder = response.new ResponseBuilder();
+		builder = new Response.ResponseBuilder();
 	}
 
 	@After
@@ -183,7 +183,7 @@ public class ResponseTest {
     	response.getDataErrors().addAll(new ArrayList<DataError>());
     	response.getErrors().addAll(new ArrayList<Error>());
     	
-    	ResponseBuilder responseBuilder = new Response().new ResponseBuilder(response);
+    	ResponseBuilder responseBuilder = new Response.ResponseBuilder(response);
         
         assertTrue(response.getStatus().equals(responseBuilder.buildResponse().getStatus()));		
 	}
