@@ -1,3 +1,9 @@
+./run.sh dbName=test dbHost=localhost cmd=getEntityNames
+
+./run.sh dbName=test dbHost=localhost cmd=getEntityVersions entityName=user
+
+./run.sh dbName=test dbHost=localhost cmd=getEntityMetadata entityName=user version=0.1
+
 ./run.sh dbName=test dbHost=localhost cmd=insert req='{"entity":"user","entityVersion":"0.1","data":{"object_type":"user","login":"testlogin1","firstName":"fname","lastName":"lname"},"returning":{"field":"_id"}}'
 
 ./run.sh dbName=test dbHost=localhost cmd=find req='{"entity":"user","entityVersion":"0.1","query":{"field":"firstName","op":"=","rvalue":"fname"},"returning":{"field":"*","recursive":1}}'
