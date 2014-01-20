@@ -25,6 +25,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.UpdateExpression;
 
 public interface CRUDController {
 

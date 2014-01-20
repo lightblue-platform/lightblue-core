@@ -28,6 +28,8 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.UpdateExpressionList;
 import com.redhat.lightblue.query.PartialUpdateExpression;
 
+import com.redhat.lightblue.util.JsonDoc;
+
 /**
  * Evaluates a list of update expressions
  */
@@ -46,7 +48,7 @@ public class UpdateExpressionListEvaluator extends Updater {
 
     @Override
     public boolean update(JsonDoc doc) {
-        boolen ret=false;
+        boolean ret=false;
         for(Updater x:updaters)
             if(x.update(doc))
                 ret=true;

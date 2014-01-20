@@ -18,20 +18,32 @@
  */
 package com.redhat.lightblue.eval;
 
-import java.utilList;
+import java.util.List;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.types.Type;
-import com.redhat.lightblue.metadata.types.Math;
+import com.redhat.lightblue.metadata.types.Arith;
 
 import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.FieldAndRValue;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.RValueExpression;
+import com.redhat.lightblue.query.Value;
+
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  * Sets a field value
@@ -40,8 +52,9 @@ public class SetExpressionEvaluator extends Updater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SetExpressionEvaluator.class);
 
-    private final List<FieldData> setValues;
+    private final List<FieldData> setValues=new ArrayList<FieldData>();
     private final UpdateOperator op;
+    private final JsonNodeFactory factory;
 
     private static final class FieldData {
         private final Path field;
@@ -52,31 +65,34 @@ public class SetExpressionEvaluator extends Updater {
 
         public FieldData(Path field,
                          Type t,
+                         Path refPath,
+                         Type refType,
                          RValueExpression value) {
             this.field=field;
             this.fieldType=t;
-            this.rvalue=value;
+            this.refPath=refPath;
+            this.refType=refType;
+            this.value=value;
         }
     }
 
     public SetExpressionEvaluator(JsonNodeFactory factory,
                                   FieldTreeNode context,
                                   SetExpression expr) {
+        this.factory=factory;
         op=expr.getOp();
         for(FieldAndRValue fld:expr.getFields()) {
             Path field=fld.getField();
             RValueExpression rvalue=fld.getRValue();
             Path refPath=null;
             FieldTreeNode refMdNode=null;
-            Value value=null;
+            FieldData data=null;
             if(rvalue.getType()==RValueExpression.RValueType._dereference) {
                 refPath=rvalue.getPath();
                 refMdNode=context.resolve(refPath);
                 if(refMdNode==null)
                     throw new EvaluationError("Cannot access "+refPath);
-            } else if(rvalue.getType()==RValueExpression.RValueType._value) {
-                value=rvalue.getValue();
-            }
+            } 
             FieldTreeNode mdNode=context.resolve(field);
             if(mdNode==null)
                 throw new EvaluationError("Cannot access "+field);
@@ -89,26 +105,27 @@ public class SetExpressionEvaluator extends Updater {
                 } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject)
                     throw new EvaluationError("Incompatible assignment "+field +" <- {}");
                 
-                data=new FieldData(field,mdNode.getType(),refPath,refMdNode,value);
+                data=new FieldData(field,mdNode.getType(),refPath,refMdNode.getType(),rvalue);
             } else if(mdNode instanceof ObjectField||
                       mdNode instanceof ObjectArrayElement) {
                 // Only a dereference or empty object is acceptable here
                 if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    if(!refMdNode insanceof ObjectField)
+                    if(!(refMdNode instanceof ObjectField))
                         throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
                 } else if(rvalue.getType()==RValueExpression.RValueType._value)
                     throw new EvaluationError("Incompatible assignment "+field+" <- "+rvalue.getValue());
-                data=new FieldData(field,mdNode.getType(),refPath,refMdNode,value);
+                data=new FieldData(field,mdNode.getType(),refPath,refMdNode.getType(),rvalue);
             } else if(mdNode instanceof ArrayField) {
                 // Unacceptable
                 throw new EvaluationError("Assignment error for "+field);
             } 
+            setValues.add(data);
         }
     }
 
     @Override
     public boolean update(JsonDoc doc) {
-        boolen ret=false;
+        boolean ret=false;
         LOGGER.debug("Starting");
         for(FieldData df:setValues) {
             LOGGER.debug("Set field {}",df.field);
@@ -116,7 +133,7 @@ public class SetExpressionEvaluator extends Updater {
             JsonNode newValueNode=null;
             Object newValue=null;
             Type newValueType=null;
-            switch(df.value.type) {
+            switch(df.value.getType()) {
             case _emptyObject: 
                 newValueNode=factory.objectNode();                
                 break;
@@ -141,17 +158,17 @@ public class SetExpressionEvaluator extends Updater {
                     oldValueNode=doc.get(df.field);
                     if(oldValueNode!=null) {
                         newValueNode=df.fieldType.toJson(factory,
-                                                         Math.add(df.fieldType.fromJson(oldValueNode),
+                                                         Arith.add(df.fieldType.fromJson(oldValueNode),
                                                                   newValue,
-                                                                  Math.promote(df.fieldType,newValueType)));
+                                                                  Arith.promote(df.fieldType,newValueType)));
                         doc.modify(df.field,newValueNode,false);
                     }
                 }
             }
             if(!ret)
-                ret=(oldValue==null&&newValue!=null) ||
-                    (oldValue!=null&&newValue==null) ||
-                    (oldValue!=null&&newValue!=null&&!oldValue.equals(newValue));
+                ret=(oldValueNode==null&&newValueNode!=null) ||
+                    (oldValueNode!=null&&newValueNode==null) ||
+                    (oldValueNode!=null&&newValueNode!=null&&!oldValueNode.equals(newValueNode));
             
         }
         LOGGER.debug("Completed");
