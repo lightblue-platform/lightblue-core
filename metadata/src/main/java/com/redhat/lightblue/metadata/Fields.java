@@ -89,12 +89,12 @@ public class Fields implements Serializable {
     	return resolve(p, 0);	
     }
     
-    private int findNextNonRealtiveSegment(Path path, int currentPosition) {
+    private int findNextNonRelativeSegment(Path path, int currentPosition) {
         int indexOfSegment = -1;
         
         for(int i=currentPosition;i <= path.numSegments(); i++) {
             String segment = path.head(i);
-            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
+            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment) && !path.isIndex(i)) {
                 indexOfSegment = i;
                 break;
             }
@@ -108,7 +108,7 @@ public class Fields implements Serializable {
 
         for (int i = currentPosition; i < path.numSegments(); i++) {
             String segment = path.head(i);
-            if (Path.PARENT.equals(segment)) {
+            if (Path.PARENT.equals(segment) || path.isIndex(i)) {
                 numberOfParentReferences++;
             }
         }
@@ -117,18 +117,14 @@ public class Fields implements Serializable {
     }
     
     private boolean matchesField(FieldTreeNode fieldToSearch, String fieldName) {
-        if(fieldName.equals(fieldToSearch.getName())) {
-            return true;
-        } else {
-            return false;
-        }
+        return fieldName.equals(fieldToSearch.getName());
     }
     
     private FieldTreeNode findInNode(FieldTreeNode node, String fieldName) {
         FieldTreeNode found = null;
        
-        if(node instanceof SimpleField) {
-            if(matchesField((SimpleField) node, fieldName)) {
+        if(node instanceof SimpleField || node instanceof ArrayField) {
+            if(matchesField(node, fieldName)) {
                 found = node;   
             } else {
                 throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
@@ -156,6 +152,38 @@ public class Fields implements Serializable {
         return parent;
     }
     
+    private FieldTreeNode handleThis(Path p, int level) {
+        if(level == 0) {
+            throw Error.get(Constants.ERR_INVALID_THIS);
+        } else {
+            String nextFieldName = p.head(findNextNonRelativeSegment(p, level));
+            Field nextField = getField(nextFieldName);
+            if(nextField == null) {
+                throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+            } else {
+                return nextField;
+            }
+        }
+    }
+    
+    private FieldTreeNode handleParent(Path p, int level) {
+        if(level == 0) {
+            throw Error.get(Constants.ERR_INVALID_PARENT);
+        } else {
+            for(FieldTreeNode field : fields) {
+                String nextFieldName = p.head(findNextNonRelativeSegment(p, level));
+                FieldTreeNode actualParent = getActualParent(field, howManyParentsInPath(p, level));
+                if(actualParent != null) {
+                    FieldTreeNode theNode = findInNode(actualParent, nextFieldName);
+                    if(theNode != null) {
+                        return theNode;
+                    }                              
+                }                        
+            }
+            throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+        }
+    }
+    
     protected FieldTreeNode resolve(Path p, int level) {
         if (level >= p.numSegments()) {
             throw Error.get(Constants.ERR_INVALID_REDIRECTION, p.toString());
@@ -173,37 +201,12 @@ public class Fields implements Serializable {
             }
                         
             if(name.equals(Path.THIS)) {
-                if(level == 0) {
-                    throw Error.get(Constants.ERR_INVALID_THIS);
-                } else {
-                    String nextFieldName = p.head(findNextNonRealtiveSegment(p, level));
-                    Field nextField = getField(nextFieldName);
-                    if(nextField == null) {
-                        throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-                    } else if (nextField instanceof SimpleField) {
-                        return nextField;
-                    }
-                }
+                return handleThis(p, level);
             }
             
             if(name.equals(Path.PARENT)) {
-                if(level == 0) {
-                    throw Error.get(Constants.ERR_INVALID_PARENT);
-                } else {
-                    for(FieldTreeNode field : fields) {
-                        String nextFieldName = p.head(findNextNonRealtiveSegment(p, level));
-                        FieldTreeNode actualParent = getActualParent(field, howManyParentsInPath(p, level));
-                        if(actualParent != null) {
-                            FieldTreeNode theNode = findInNode(actualParent, nextFieldName);
-                            if(theNode != null) {
-                                return theNode;
-                            }                              
-                        }                        
-                    }
-                    throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-                }
+                return handleParent(p, level);
             }
-            
             
         	Field field = getField(name);
             if (field == null) {
