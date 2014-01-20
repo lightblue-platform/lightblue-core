@@ -48,6 +48,11 @@ public interface FieldTreeNode {
     boolean hasChildren();
 
     /**
+     * Returns an a FieldTreeNode that is the parent of this one
+     */
+    FieldTreeNode getParent();
+    
+    /**
      * Returns an iterator over the children of the field
      */
     Iterator<? extends FieldTreeNode> getChildren();

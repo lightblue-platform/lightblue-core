@@ -54,4 +54,9 @@ public class SimpleField extends Field {
             throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
         }
     }
+
+	@Override
+	public FieldTreeNode getParent() {
+		return super.parent;
+	}
 }

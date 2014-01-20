@@ -29,6 +29,8 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
 
     private Type type;
 
+    protected FieldTreeNode parent = null; 
+    
     public ArrayElement() {
     }
 
@@ -64,5 +66,9 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
         return resolve(p, 0);
     }
 
+    public void setParent(FieldTreeNode parent) {
+    	this.parent = parent;
+    }
+    
     protected abstract FieldTreeNode resolve(Path p, int level);
 }

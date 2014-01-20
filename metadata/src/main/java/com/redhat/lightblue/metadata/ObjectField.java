@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata;
 import java.util.Iterator;
 
 import com.redhat.lightblue.util.Path;
-
 import com.redhat.lightblue.metadata.types.ObjectType;
 
 public class ObjectField extends Field {
@@ -37,6 +36,11 @@ public class ObjectField extends Field {
         return fields;
     }
 
+    public void addNew(Field field) {
+    	field.setParent(this);
+    	fields.addNew(field);
+    }
+    
     @Override
     public boolean hasChildren() {
         return true;
@@ -55,4 +59,9 @@ public class ObjectField extends Field {
             return fields.resolve(p, level);
         }
     }
+
+	@Override
+	public FieldTreeNode getParent() {
+		return super.parent;
+	}
 }

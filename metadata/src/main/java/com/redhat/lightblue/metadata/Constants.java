@@ -29,6 +29,8 @@ public final class Constants {
     public static final String ERR_INVALID_ARRAY_REFERENCE = "INVALID_ARRAY_REFERENCE";
     public static final String ERR_INVALID_FIELD_REFERENCE = "INVALID_FIELD_REFERENCE";
     public static final String ERR_INVALID_REDIRECTION = "INVALID_REDIRECTION";
+    public static final String ERR_INVALID_THIS = "INVALID_$THIS";
+    public static final String ERR_INVALID_PARENT = "INVALID_$PARENT";
 
     private Constants() {
     }

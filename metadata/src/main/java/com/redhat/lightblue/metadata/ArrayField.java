@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.types.ArrayType;
 
 public class ArrayField extends Field {
@@ -49,6 +48,10 @@ public class ArrayField extends Field {
         element = el;
     }
 
+    public void addNew(Field field) {
+    	field.setParent(this);
+    }
+    
     @Override
     public boolean hasChildren() {
         return true;
@@ -83,5 +86,10 @@ public class ArrayField extends Field {
             }
         }
     }
+
+	@Override
+	public FieldTreeNode getParent() {
+		return super.parent;
+	}
 
 }

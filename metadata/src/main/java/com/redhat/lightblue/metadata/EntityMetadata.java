@@ -156,11 +156,16 @@ public class EntityMetadata implements Serializable {
     public Fields getFields() {
         return this.fields;
     }
+    
+    public void addNew(Field field) {
+    	field.setParent(getFieldTreeRoot());
+    	fields.addNew(field);
+    }
 
     class RootTreeNode implements FieldTreeNode {
         @Override
         public String getName() {
-            return "";
+            return "test";
         }
 
         @Override
@@ -182,6 +187,11 @@ public class EntityMetadata implements Serializable {
         public FieldTreeNode resolve(Path p) {
             return fields.resolve(p);
         }
+
+		@Override
+		public FieldTreeNode getParent() {
+			return this;
+		}
     }
 
     public FieldTreeNode getFieldTreeRoot() {

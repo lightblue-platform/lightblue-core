@@ -53,4 +53,9 @@ public class SimpleArrayElement extends ArrayElement {
             throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
         }
     }
+
+	@Override
+	public FieldTreeNode getParent() {
+		return super.parent;
+	}
 }

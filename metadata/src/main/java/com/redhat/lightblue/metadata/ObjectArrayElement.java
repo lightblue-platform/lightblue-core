@@ -56,4 +56,9 @@ public class ObjectArrayElement extends ArrayElement {
             return fields.resolve(p, level);
         }
     }
+
+	@Override
+	public FieldTreeNode getParent() {
+		return super.parent;
+	}
 }
