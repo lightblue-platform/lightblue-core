@@ -28,5 +28,5 @@
     <artifactId>common</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>lightblue: Mongo Common</name>
+    <name>lightblue: ${project.groupId}|${project.artifactId}</name>
 </project>

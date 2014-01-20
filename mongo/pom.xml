@@ -28,7 +28,7 @@
     <artifactId>pom</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>lightblue: Mongo</name>
+    <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <dependencyManagement>
         <dependencies>
             <dependency>

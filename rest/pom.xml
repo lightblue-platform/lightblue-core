@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <artifactId>pom</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>lightblue: REST</name>
+    <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
         <dependency>
             <groupId>org.jboss.spec</groupId>
