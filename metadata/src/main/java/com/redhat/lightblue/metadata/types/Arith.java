@@ -18,10 +18,13 @@
  */
 package com.redhat.lightblue.metadata.types;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
- * Mathematical operations using types
+ * Arithmetical operations using types
  */
-public final class Math {
+public final class Arith {
 
     /**
      * Adds two numbers, and returns the result in resultType
@@ -65,7 +68,7 @@ public final class Math {
         }
     }
 
-    private int arithType(Type operand) {
+    private static int arithType(Type operand) {
         if(operand instanceof IntegerType)
             return 0;
         else if(operand instanceof BigIntegerType)
@@ -78,7 +81,7 @@ public final class Math {
             throw new IllegalArgumentException(operand.getName()+" is not a number type");
     }
 
-    private Type arithType(int type) {
+    private static Type arithType(int type) {
         switch(type) {
         case 0: return IntegerType.TYPE;
         case 1: return BigIntegerType.TYPE;
@@ -87,5 +90,5 @@ public final class Math {
         return BigDecimalType.TYPE;
     }
 
-    private Math() {}
+    private Arith() {}
 }
