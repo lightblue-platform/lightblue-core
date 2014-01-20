@@ -23,44 +23,33 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.metadata.FieldTreeNode;
 
-import com.redhat.lightblue.metadata.EntityMetadata;
-
-import com.redhat.lightblue.crud.PartialUpdateExpression;
+import com.redhat.lightblue.query.UpdateExpressionList;
+import com.redhat.lightblue.query.PartialUpdateExpression;
 
 /**
- * Encapsulates multiple updaters
+ * Evaluates a list of update expressions
  */
-public class ListUpdater extends Updater {
-
+public class UpdateExpressionListEvaluator extends Updater {
+    
     private final List<Updater> updaters;
 
-    /**
-     * Ctor
-     *
-     * @param factory Node factory
-     * @param md Entity metadata
-     * @param exprs List of update expressions
-     */
-    public ListUpdater(JsonNodeFactory factory, EntityMetadata md, List<PartialUpdateExpression> exprs) {
-        updaters = new ArrayList<>(exprs.size());
-        for (PartialUpdateExpression x : exprs) {
-            updaters.add(Updater.getInstance(factory, md, x));
-        }
+    public UpdateExpressionListEvaluator(JsonNodeFactory factory,
+                                         FieldTreeNode context,
+                                         UpdateExpressionList expr) {
+        List<PartialUpdateExpression> list=expr.getList();
+        updaters=new ArrayList<Updater>(list.size());
+        for(PartialUpdateExpression x:list)
+            updaters.add(Updater.getInstance(factory,context,x));
     }
 
-    /**
-     * Updates the document
-     */
     @Override
     public boolean update(JsonDoc doc) {
-        boolean ret = false;
-        for (Updater x : updaters) {
-            if (x.update(doc)) {
-                ret = true;
-            }
-        }
+        boolen ret=false;
+        for(Updater x:updaters)
+            if(x.update(doc))
+                ret=true;
         return ret;
     }
-}
+ }

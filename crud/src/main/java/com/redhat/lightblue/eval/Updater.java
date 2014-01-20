@@ -22,16 +22,15 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.util.JsonDoc;
 
+import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-import com.redhat.lightblue.crud.UpdateExpression;
-import com.redhat.lightblue.crud.SetExpression;
-import com.redhat.lightblue.crud.UnsetExpression;
-import com.redhat.lightblue.crud.UpdateExpressionList;
-import com.redhat.lightblue.crud.ArrayPopExpression;
-import com.redhat.lightblue.crud.ArrayPushExpression;
-import com.redhat.lightblue.crud.ArrayRemoveByQueryExpression;
-import com.redhat.lightblue.crud.ArrayRemoveValuesExpression;
+import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.query.UpdateExpressionList;
+import com.redhat.lightblue.query.SetExpression;
+import com.redhat.lightblue.query.UnsetExpression;
+import com.redhat.lightblue.query.ForEachExpression;
+import com.redhat.lightblue.query.ArrayAddExpression;
 
 /**
  * Base class for update expression evaluators.
@@ -49,27 +48,22 @@ public abstract class Updater {
      * Creates an updater object based on the given update expression
      */
     public static Updater getInstance(JsonNodeFactory factory, EntityMetadata md, UpdateExpression expr) {
+        return getInstance(factory,md.getFieldTreeRoot(),expr);
+    }
+
+    /**
+     * Creates an updater object based on the given update expression
+     */
+    public static Updater getInstance(JsonNodeFactory factory, FieldTreeNode context, UpdateExpression expr) {
         Updater ret = null;
-        if (expr instanceof SetExpression) {
-            switch (((SetExpression) expr).getOp()) {
-                case _set:
-                    return new FieldSetter(factory, md, ((SetExpression) expr).getValues());
-                case _add:
-                    return new FieldAdder(factory, md, ((SetExpression) expr).getValues());
-            }
-        } else if (expr instanceof UnsetExpression) {
-            return new FieldUnsetter(((UnsetExpression) expr).getFields());
-        } else if (expr instanceof UpdateExpressionList) {
-            return new ListUpdater(factory, md, ((UpdateExpressionList) expr).getList());
-        } else if (expr instanceof ArrayPopExpression) {
-            return new ArrayPopper((ArrayPopExpression) expr);
-        } else if (expr instanceof ArrayPushExpression) {
-            return new ArrayPusher(factory, md, (ArrayPushExpression) expr);
-        } else if (expr instanceof ArrayRemoveByQueryExpression) {
-            return new ArrayRemoveByQueryEvaluator(md, (ArrayRemoveByQueryExpression) expr);
-        } else if (expr instanceof ArrayRemoveValuesExpression) {
-            return new ArrayRemoveValues(md, (ArrayRemoveValuesExpression) expr);
-        }
+        if(expr instanceof UpdateExpressionList) {
+            ret=new UpdateExpressionListEvaluator(factory,context,(UpdateExpressionList)expr);
+        } else if(expr instanceof SetExpression) {
+            
+        } else if(expr instanceof UnsetExpression) {
+        } else if(expr instanceof ForEachExpression) {
+        } else if(expr instanceof ArrayAddExpression) {
+        }         
         return ret;
     }
 }
