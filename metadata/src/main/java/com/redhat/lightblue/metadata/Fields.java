@@ -25,9 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.redhat.lightblue.metadata.EntityMetadata.RootTreeNode;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 public class Fields implements Serializable {
@@ -91,59 +89,71 @@ public class Fields implements Serializable {
     	return resolve(p, 0);	
     }
     
-    private int whereIsParent(Path path, int currentPosition) {
-        int indexOfParent = 0;
+    private int findNextNonRealtiveSegment(Path path, int currentPosition) {
+        int indexOfSegment = -1;
         
-       	for(int i=currentPosition;i >= 0; i--) {
-       	    String segment = path.head(i);
-       	    if(!Path.PARENT.equals(segment)) {
-       	        indexOfParent = i;
-       	        break;
-       	    }
-       	}
-    	
-    	return indexOfParent;
+        for(int i=currentPosition;i <= path.numSegments(); i++) {
+            String segment = path.head(i);
+            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
+                indexOfSegment = i;
+                break;
+            }
+        }
+        
+        return indexOfSegment;
     }
     
-    private int findNextNonThisSegment(Path path, int currentPosition) {
-        int indexOfSegment = -1;
-        
-        for(int i=currentPosition;i <= path.numSegments(); i++) {
-            String segment = path.head(i);
-            if(!Path.THIS.equals(segment)) {
-                indexOfSegment = i;
-                break;
-            }
-        }
-        
-        return indexOfSegment;
-    }
+    private int howManyParentsInPath(Path path, int currentPosition) {
+        int numberOfParentReferences = 0;
 
-    private int findNextNonParentSegment(Path path, int currentPosition) {
-        int indexOfSegment = -1;
-        
-        for(int i=currentPosition;i <= path.numSegments(); i++) {
+        for (int i = currentPosition; i < path.numSegments(); i++) {
             String segment = path.head(i);
-            if(!Path.PARENT.equals(segment)) {
-                indexOfSegment = i;
-                break;
+            if (Path.PARENT.equals(segment)) {
+                numberOfParentReferences++;
             }
         }
-        
-        return indexOfSegment;
+
+        return numberOfParentReferences;
+    }
+    
+    private boolean matchesField(FieldTreeNode fieldToSearch, String fieldName) {
+        if(fieldName.equals(fieldToSearch.getName())) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     private FieldTreeNode findInNode(FieldTreeNode node, String fieldName) {
         FieldTreeNode found = null;
        
-        if((Field)node instanceof SimpleField) {
-            SimpleField fieldToSearch = (SimpleField) node;
-            if(fieldName.equals(fieldToSearch.getName())) {
-                found = fieldToSearch;
+        if(node instanceof SimpleField) {
+            if(matchesField((SimpleField) node, fieldName)) {
+                found = node;   
+            } else {
+                throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
             }
-        }
-                
+        } else if (node instanceof ObjectField || node instanceof EntityMetadata.RootTreeNode) {
+            Iterator<? extends FieldTreeNode> itr = node.getChildren();
+            while(itr.hasNext()) {
+                FieldTreeNode childFieldTreeNode = itr.next();
+                if(matchesField(childFieldTreeNode, fieldName)) {
+                    return childFieldTreeNode;   
+                } else {
+                    return findInNode(childFieldTreeNode, fieldName);
+                }
+            }
+        } 
+                        
         return found;
+    }
+    
+    private FieldTreeNode getActualParent(FieldTreeNode node, int numberOfStepsBack) {
+        FieldTreeNode parent = node;
+        for(int i=0;i<=numberOfStepsBack;i++) {
+            parent = parent.getParent(); 
+        }  
+        return parent;
     }
     
     protected FieldTreeNode resolve(Path p, int level) {
@@ -166,7 +176,7 @@ public class Fields implements Serializable {
                 if(level == 0) {
                     throw Error.get(Constants.ERR_INVALID_THIS);
                 } else {
-                    String nextFieldName = p.head(findNextNonThisSegment(p, level));
+                    String nextFieldName = p.head(findNextNonRealtiveSegment(p, level));
                     Field nextField = getField(nextFieldName);
                     if(nextField == null) {
                         throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
@@ -178,32 +188,23 @@ public class Fields implements Serializable {
             
             if(name.equals(Path.PARENT)) {
                 if(level == 0) {
-                    throw Error.get(Constants.ERR_INVALID_THIS);
+                    throw Error.get(Constants.ERR_INVALID_PARENT);
                 } else {
-                    for(Field previousField : fields) {    
-                        FieldTreeNode parent = previousField.getParent();
-                        String nextFieldName = p.head(findNextNonParentSegment(p, level));
-                        if(parent instanceof ObjectField) {
-                            Iterator<? extends FieldTreeNode> itr = parent.getParent().getChildren();
-                            while(itr.hasNext()) {
-                                FieldTreeNode childFieldTreeNode = itr.next();
-                                if(childFieldTreeNode instanceof EntityMetadata.RootTreeNode) {
-                                    return childFieldTreeNode;
-                                } else if (childFieldTreeNode instanceof Field){
-                                    Field childField = (Field) childFieldTreeNode;
-                                    if(nextFieldName.equals(childField.getName())) {
-                                        return childField;
-                                    } else {
-                                        throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-                                    }
-                                }
-                            }
-                        }
+                    for(FieldTreeNode field : fields) {
+                        String nextFieldName = p.head(findNextNonRealtiveSegment(p, level));
+                        FieldTreeNode actualParent = getActualParent(field, howManyParentsInPath(p, level));
+                        if(actualParent != null) {
+                            FieldTreeNode theNode = findInNode(actualParent, nextFieldName);
+                            if(theNode != null) {
+                                return theNode;
+                            }                              
+                        }                        
                     }
+                    throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
                 }
             }
             
-            //absolute path
+            
         	Field field = getField(name);
             if (field == null) {
                 throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
