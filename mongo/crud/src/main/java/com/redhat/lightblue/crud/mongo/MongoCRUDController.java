@@ -46,6 +46,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.UpdateExpression;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -62,7 +63,6 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.AbstractCRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.UpdateExpression;
 import com.redhat.lightblue.mongo.MongoConfiguration;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
