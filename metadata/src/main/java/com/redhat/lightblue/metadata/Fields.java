@@ -91,7 +91,7 @@ public class Fields implements Serializable {
     	return resolve(p, 0);	
     }
     
-    private int findPrecedingParentIndex(Path path, int currentPosition) {
+    private int whereIsParent(Path path, int currentPosition) {
         int indexOfParent = 0;
         
        	for(int i=currentPosition;i >= 0; i--) {
@@ -141,8 +141,6 @@ public class Fields implements Serializable {
             if(fieldName.equals(fieldToSearch.getName())) {
                 found = fieldToSearch;
             }
-        } else if ((Field)node instanceof ObjectField) {
-            
         }
                 
         return found;
@@ -174,8 +172,6 @@ public class Fields implements Serializable {
                         throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
                     } else if (nextField instanceof SimpleField) {
                         return nextField;
-                    } else if (nextField instanceof ObjectField) {
-                        
                     }
                 }
             }
@@ -197,7 +193,9 @@ public class Fields implements Serializable {
                                     Field childField = (Field) childFieldTreeNode;
                                     if(nextFieldName.equals(childField.getName())) {
                                         return childField;
-                                    }    
+                                    } else {
+                                        throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+                                    }
                                 }
                             }
                         }

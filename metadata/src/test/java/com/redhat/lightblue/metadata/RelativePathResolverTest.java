@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.redhat.lightblue.metadata.EntityMetadata.RootTreeNode;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Path;
@@ -96,10 +95,22 @@ public class RelativePathResolverTest {
         Assert.assertEquals("simpleInteger", found.getName());
     }
     
+    @Test(expected=com.redhat.lightblue.util.Error.class)
+    public void testSimpleRelativePathParentNotFound() throws Exception {
+        EntityMetadata md = getMD1();
+        md.resolve(new Path("obj1.$parent.nonExistantField"));
+    }
+    
     @Test
     public void testNestedRelativePathParent() throws Exception {
         EntityMetadata md = getMD1();
         Field found = (Field) ((Field) md.resolve(new Path("obj1.nested.$parent.nestedSimpleInteger")));
         Assert.assertEquals("nestedSimpleInteger", found.getName());
+    }
+    
+    @Test(expected=com.redhat.lightblue.util.Error.class)
+    public void testNestedRelativePathParentNotFound() throws Exception {
+        EntityMetadata md = getMD1();
+        md.resolve(new Path("obj1.nested.$parent.nonExistantField"));
     }
 }
