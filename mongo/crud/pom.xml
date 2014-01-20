@@ -25,7 +25,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.mongo</groupId>
-    <artifactId>crud</artifactId>
+    <artifactId>mongo-crud</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: Mongo CRUD Management</name>
@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>metadata</artifactId>
+            <artifactId>mongo-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -140,8 +140,9 @@ public class FrontEnd {
                 NODE_FACTORY);
         switch (cmd) {
             case "getEntityMetadata":
-                System.out.println(parser.convert(md.getEntityMetadata(arg("entityName", args),
-                        arg("version", args))).toString());
+                System.out.println(JsonUtils.prettyPrint(parser.convert(md.
+                   getEntityMetadata(arg("entityName", args),
+                                     arg("version", args)))));
                 break;
             case "getEntityNames":
                 printArr(md.getEntityNames());
@@ -159,19 +160,19 @@ public class FrontEnd {
                         arg("comment", args));
                 break;
             case "insert":
-                System.out.println(mediator.insert(InsertionRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                System.out.println(JsonUtils.prettyPrint(mediator.insert(InsertionRequest.fromJson((ObjectNode) fileOrJson("req", args))).toJson()));
                 break;
             case "save":
-                System.out.println(mediator.save(SaveRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                System.out.println(JsonUtils.prettyPrint(mediator.save(SaveRequest.fromJson((ObjectNode) fileOrJson("req", args))).toJson()));
                 break;
             case "delete":
-                System.out.println(mediator.delete(DeleteRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                System.out.println(JsonUtils.prettyPrint(mediator.delete(DeleteRequest.fromJson((ObjectNode) fileOrJson("req", args))).toJson()));
                 break;
             case "update":
-                System.out.println(mediator.update(UpdateRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                System.out.println(JsonUtils.prettyPrint(mediator.update(UpdateRequest.fromJson((ObjectNode) fileOrJson("req", args))).toJson()));
                 break;
             case "find":
-                System.out.println(mediator.find(FindRequest.fromJson((ObjectNode) fileOrJson("req", args))));
+                System.out.println(JsonUtils.prettyPrint(mediator.find(FindRequest.fromJson((ObjectNode) fileOrJson("req", args))).toJson()));
                 break;
             default:
                 throw new RuntimeException("Unknown cmd:" + cmd);

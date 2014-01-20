@@ -25,7 +25,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.mongo</groupId>
-    <artifactId>metadata</artifactId>
+    <artifactId>mongo-metadata</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: Mongo Metadata Management</name>

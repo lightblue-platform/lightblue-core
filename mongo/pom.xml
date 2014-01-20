@@ -89,6 +89,6 @@
         <module>common</module>
         <module>crud</module>
         <module>metadata</module>
-        <module>test</module>
+        <!--module>test</module-->
     </modules>
 </project>

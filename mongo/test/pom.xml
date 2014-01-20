@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>crud</artifactId>
+            <artifactId>mongo-crud</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -80,7 +80,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.redhat.lightblue.FrontEnd</mainClass>
+                            <mainClass>com.redhat.lightblue.mongo.FrontEnd</mainClass>
                         </manifest>
                     </archive>
                     <descriptors>
