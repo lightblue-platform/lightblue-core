@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.rest</groupId>
-    <artifactId>pom</artifactId>
+    <artifactId>rest-pom</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>

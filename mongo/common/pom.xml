@@ -21,11 +21,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.redhat.lightblue.mongo</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>mongo-pom</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.mongo</groupId>
-    <artifactId>common</artifactId>
+    <artifactId>mongo-common</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>

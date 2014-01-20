@@ -21,11 +21,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.redhat.lightblue.rest</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>rest-pom</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.rest</groupId>
-    <artifactId>metadata</artifactId>
+    <artifactId>rest-metadata</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>

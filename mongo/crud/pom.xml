@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.redhat.lightblue.mongo</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>mongo-pom</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.mongo</groupId>
