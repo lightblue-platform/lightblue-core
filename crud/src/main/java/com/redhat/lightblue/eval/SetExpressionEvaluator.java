@@ -115,7 +115,7 @@ public class SetExpressionEvaluator extends Updater {
                 } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject)
                     throw new EvaluationError("Incompatible assignment "+field +" <- {}");
                 
-                data=new FieldData(field,mdNode.getType(),refPath,refMdNode.getType(),rvalue);
+                data=new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
             } else if(mdNode instanceof ObjectField||
                       mdNode instanceof ObjectArrayElement) {
                 // Only a dereference or empty object is acceptable here
@@ -124,7 +124,7 @@ public class SetExpressionEvaluator extends Updater {
                         throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
                 } else if(rvalue.getType()==RValueExpression.RValueType._value)
                     throw new EvaluationError("Incompatible assignment "+field+" <- "+rvalue.getValue());
-                data=new FieldData(field,mdNode.getType(),refPath,refMdNode.getType(),rvalue);
+                data=new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
             } else if(mdNode instanceof ArrayField) {
                 // Unacceptable
                 throw new EvaluationError("Assignment error for "+field);

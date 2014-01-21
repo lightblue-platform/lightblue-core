@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -56,6 +57,17 @@ public class SetExpression extends PrimitiveUpdateExpression {
             throw new IllegalArgumentException("Operator:"+op);
     }
     
+    /**
+     * Constructs a set expression using the given list
+     */
+    public SetExpression(UpdateOperator op,FieldAndRValue... l) {
+        this.fields=Arrays.asList(l);
+        if(op==UpdateOperator._set||op==UpdateOperator._add)
+            this.op=op;
+        else
+            throw new IllegalArgumentException("Operator:"+op);
+    }
+
     /**
      * Returns the fields to be updated, and their new values
      */

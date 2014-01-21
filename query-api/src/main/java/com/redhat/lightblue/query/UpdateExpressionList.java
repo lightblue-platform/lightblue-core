@@ -21,6 +21,7 @@ package com.redhat.lightblue.query;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,6 +42,13 @@ public class UpdateExpressionList extends UpdateExpression {
      */
     public UpdateExpressionList(List<PartialUpdateExpression> l) {
         list=l;
+    }
+
+    /**
+     * Constructs an update expression list using the given expression list
+     */
+    public UpdateExpressionList(PartialUpdateExpression...l) {
+        list=Arrays.asList(l);
     }
 
     /**
