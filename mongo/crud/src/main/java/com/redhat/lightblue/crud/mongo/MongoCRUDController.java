@@ -58,6 +58,7 @@ import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
+import com.redhat.lightblue.eval.Updater;
 
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
@@ -233,6 +234,7 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments().size());
     }
 
+    @Override
     public CRUDUpdateResponse update(MetadataResolver resolver,
                                      String entity,
                                      QueryExpression query,
@@ -250,12 +252,67 @@ public class MongoCRUDController implements CRUDController {
             LOGGER.debug("Translating query {}", query);
             DBObject mongoQuery = translator.translate(md, query);
             LOGGER.debug("Translated query {}", mongoQuery);
+            Projector projector;
+            if(projection!=null) {
+                projector = Projector.getInstance(projection, md);
+                response.setDocuments(new ArrayList<JsonDoc>());
+            } else
+                projector = null;
+            Updater updater=Updater.getInstance(factory,md,update);
+            DB db = dbResolver.get((MongoDataStore) md.getDataStore());
+            DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+            iterateUpdate(coll,translator,response,mongoQuery,updater,projector);
+            
         } finally {
             Error.pop();
         }
         LOGGER.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
         return response;
     }
+
+    private void iterateUpdate(DBCollection collection,
+                               Translator translator,
+                               CRUDUpdateResponse response,
+                               DBObject query,
+                               Updater updater,
+                               Projector projector) {
+        LOGGER.debug("iterateUpdate: start");
+        LOGGER.debug("Computing the result set for {}",query);
+        DBCursor cursor=null;
+        int docIndex=0;
+        int numFailed=0;
+        try {
+            cursor=collection.find(query);
+            LOGGER.debug("Found {} documents",cursor.count());
+            // read-update-write
+            while(cursor.hasNext()) {
+                DBObject document=cursor.next();
+                LOGGER.debug("Retrieved doc {}",docIndex);
+                JsonDoc jsonDocument=translator.toJson(document);
+                QueryEvaluationContext ctx=new QueryEvaluationContext(jsonDocument.getRoot());
+                if(updater.update(jsonDocument)) {
+                    LOGGER.debug("Document {} modified, updating",docIndex);
+                    DBObject updatedObject=translator.toBson(jsonDocument);
+                    WriteResult result=collection.save(updatedObject);                    
+                    
+                } else
+                    LOGGER.debug("Document {} was not modified",docIndex);
+                if(projector!=null) {
+                    LOGGER.debug("Projecting document {}",docIndex);
+                    jsonDocument=projector.project(jsonDocument,factory,ctx);
+                    response.getDocuments().add(jsonDocument);
+                }
+                docIndex++;
+                // TODO: errors and docErrors
+            }
+        } finally {
+            if(cursor!=null)
+                cursor.close();
+        }
+        response.setNumUpdated(docIndex);
+        response.setNumFailed(numFailed);
+    }
+
 
     /**
      * Search implementation for mongo

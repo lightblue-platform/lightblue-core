@@ -64,10 +64,6 @@ import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
 import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.UpdateExpression;
-import com.redhat.lightblue.query.UpdateOperator;
-import com.redhat.lightblue.query.SetExpression;
-import com.redhat.lightblue.query.UnsetExpression;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -233,41 +229,6 @@ public class Translator {
             Error.pop();
         }
     }
-
-    /**
-     * Translates an update expression to BSON update expression
-     *
-     * @param md Entity metadata
-     * @param update The update expression
-     *
-     * @throws UnsupportedOperationException If the update expression
-     * cannot be translated, and needs to be evaluated manually
-     */
-    public DBObject translate(EntityMetadata md, UpdateExpression update) {
-        LOGGER.debug("translate {}",update);
-        Error.push("translateUpdate");
-        DBObject ret = null;
-        try {
-            ret=translateUpdate(md.getFieldTreeRoot(),update);
-        } finally {
-            Error.pop();
-        }
-        return ret;
-    }
-
-    private DBObject translateUpdate(FieldTreeNode root,UpdateExpression update) {
-        if(update instanceof SetExpression) {
-            return translateSetExpression(root,(SetExpression)update);
-        } else if(update instanceof UnsetExpression) {
-        } else
-            throw new UnsupportedOperationException(update.getClass().getName());
-        return null;
-    }
-
-    private DBObject translateSetExpression(FieldTreeNode root,SetExpression expr) {
-        return null;
-    }
-
 
     private DBObject translateSortKey(SortKey sort) {
         return new BasicDBObject(sort.getField().toString(), sort.isDesc() ? -1 : 1);

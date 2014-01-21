@@ -30,8 +30,8 @@ import com.redhat.lightblue.util.JsonDoc;
  */
 public abstract class AbstractCRUDUpdateResponse extends AbstractCRUDResponse {
 
-	private static final long serialVersionUID = 1L;
-	private List<JsonDoc> documents;
+    private static final long serialVersionUID = 1L;
+    private List<JsonDoc> documents;
     private List<DataError> dataErrors;
 
     /**
