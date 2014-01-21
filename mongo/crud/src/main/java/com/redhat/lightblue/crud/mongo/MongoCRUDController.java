@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.bson.types.ObjectId;
+
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.DBCollection;
@@ -177,9 +179,12 @@ public class MongoCRUDController implements CRUDController {
                                 if (x == null) {
                                     result = collection.insert(doc, WriteConcern.SAFE);
                                 } else {
-                                    result = collection.update(new BasicDBObject(ID_STR, x), doc, upsert, false, WriteConcern.SAFE);
+                                    BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
+                                    LOGGER.debug("update query: {}",q);
+                                    result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
                                 }
                             }
+                            LOGGER.debug("Write result {}",result);
                             String error = result.getError();
                             if (error != null) {
                                 addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);

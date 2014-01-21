@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.BSONObject;
+import org.bson.types.ObjectId;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +37,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.redhat.lightblue.crud.MetadataResolver;
-import com.redhat.lightblue.query.UpdateExpression;
-import com.redhat.lightblue.query.UpdateOperator;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -64,6 +64,10 @@ import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
 import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.SetExpression;
+import com.redhat.lightblue.query.UnsetExpression;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -77,6 +81,8 @@ public class Translator {
 
     public static final String OBJECT_TYPE_STR = "object_type";
     public static final Path OBJECT_TYPE = new Path(OBJECT_TYPE_STR);
+
+    public static final Path ID_PATH = new Path("_id");
 
     public static final String ERR_NO_OBJECT_TYPE = "NO_OBJECT_TYPE";
     public static final String ERR_INVALID_OBJECTTYPE = "INVALID_OBJECTTYPE";
@@ -233,16 +239,33 @@ public class Translator {
      *
      * @param md Entity metadata
      * @param update The update expression
+     *
+     * @throws UnsupportedOperationException If the update expression
+     * cannot be translated, and needs to be evaluated manually
      */
     public DBObject translate(EntityMetadata md, UpdateExpression update) {
         LOGGER.debug("translate {}",update);
         Error.push("translateUpdate");
-        BasicDBObject ret = null;
+        DBObject ret = null;
         try {
+            ret=translateUpdate(md.getFieldTreeRoot(),update);
         } finally {
             Error.pop();
         }
         return ret;
+    }
+
+    private DBObject translateUpdate(FieldTreeNode root,UpdateExpression update) {
+        if(update instanceof SetExpression) {
+            return translateSetExpression(root,(SetExpression)update);
+        } else if(update instanceof UnsetExpression) {
+        } else
+            throw new UnsupportedOperationException(update.getClass().getName());
+        return null;
+    }
+
+    private DBObject translateSetExpression(FieldTreeNode root,SetExpression expr) {
+        return null;
     }
 
 
@@ -322,14 +345,15 @@ public class Translator {
                 throw Error.get(ERR_INVALID_COMPARISON, expr.toString());
             }
         }
+        Object valueObject=t.cast(expr.getRvalue().getValue());
+        if(expr.getField().equals(ID_PATH))
+            valueObject=new ObjectId(valueObject.toString());
         if (expr.getOp() == BinaryComparisonOperator._eq) {
-            BasicDBObject obj = new BasicDBObject(expr.getField().toString(),
-                    t.cast(expr.getRvalue().getValue()));
+            BasicDBObject obj = new BasicDBObject(expr.getField().toString(),valueObject);
             return obj;
         } else {
             return new BasicDBObject(expr.getField().toString(),
-                    new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),
-                            t.cast(expr.getRvalue().getValue())));
+                                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),valueObject));
         }
     }
 
@@ -569,6 +593,8 @@ public class Translator {
         // Should we add fields with null values to the bson doc? 
         if (value != null) {
             LOGGER.debug("{} = {}", path, value);
+            if(path.equals(ID_PATH))
+                value=new ObjectId(value.toString());
             dest.append(path.tail(0), value);
         }
     }

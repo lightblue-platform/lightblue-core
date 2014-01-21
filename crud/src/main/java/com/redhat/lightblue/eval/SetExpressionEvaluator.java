@@ -76,6 +76,16 @@ public class SetExpressionEvaluator extends Updater {
         }
     }
 
+    /**
+     * Creates a set expression evaluator
+     * 
+     * @param factory Node factory
+     * @param context The context from which the expression will be evaluated
+     * @param expr The set expression
+     *
+     * This ctor resolves the field references in expr and stores them
+     * to be applied later.
+     */
     public SetExpressionEvaluator(JsonNodeFactory factory,
                                   FieldTreeNode context,
                                   SetExpression expr) {

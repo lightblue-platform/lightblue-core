@@ -59,7 +59,7 @@ public abstract class Updater {
         if(expr instanceof UpdateExpressionList) {
             ret=new UpdateExpressionListEvaluator(factory,context,(UpdateExpressionList)expr);
         } else if(expr instanceof SetExpression) {
-            
+            ret=new SetExpressionEvaluator(factory,context,(SetExpression)expr);
         } else if(expr instanceof UnsetExpression) {
         } else if(expr instanceof ForEachExpression) {
         } else if(expr instanceof ArrayAddExpression) {
