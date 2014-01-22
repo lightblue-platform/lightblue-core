@@ -18,15 +18,15 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.types.Type;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
-import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 
 public class EntityMetadata implements Serializable {
 
@@ -156,13 +156,11 @@ public class EntityMetadata implements Serializable {
     public Fields getFields() {
         return this.fields;
     }
-    
-    public void addNew(Field field) {
-    	field.setParent(getFieldTreeRoot());
-    	fields.addNew(field);
-    }
 
     class RootTreeNode implements FieldTreeNode {
+    
+        FieldTreeNode parent = null;
+        
         @Override
         public String getName() {
             return "test";
@@ -192,6 +190,11 @@ public class EntityMetadata implements Serializable {
 		public FieldTreeNode getParent() {
 			return this;
 		}
+		
+		@Override
+        public void setParent(FieldTreeNode parent) {
+            this.parent = parent;
+        }
     }
 
     public FieldTreeNode getFieldTreeRoot() {
@@ -214,9 +217,28 @@ public class EntityMetadata implements Serializable {
             }
         }
     }
+    
+    private void setParentOfField(FieldTreeNode child, FieldTreeNode parent) {
+        child.setParent(parent);
+        System.out.println("setParentOfField child: " + child.getName() + " with parent: " + parent.getName());
+    }
+    
+    private void setParentsOnNodes(FieldTreeNode node) {
+        Iterator<? extends FieldTreeNode> itr = node.getChildren();
+        while(itr.hasNext()) {
+            FieldTreeNode childFieldTreeNode = itr.next();
+            if(childFieldTreeNode.hasChildren()) {
+                setParentOfField(childFieldTreeNode, node);
+                setParentsOnNodes(childFieldTreeNode);
+            } else {
+                setParentOfField(childFieldTreeNode, node);
+            }
+        }
+    }
 
     public FieldTreeNode resolve(Path p) {
         Error.push(name);
+        setParentsOnNodes(getFieldTreeRoot());
         try {
             return fields.resolve(p);
         } finally {

@@ -19,6 +19,7 @@
 package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.metadata.types.Type;
+
 import java.io.Serializable;
 
 import com.redhat.lightblue.util.Path;
@@ -29,7 +30,7 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
 
     private Type type;
 
-    protected FieldTreeNode parent = null; 
+    private FieldTreeNode parent = null; 
     
     public ArrayElement() {
     }
@@ -65,10 +66,17 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     public FieldTreeNode resolve(Path p) {
         return resolve(p, 0);
     }
-
-    public void setParent(FieldTreeNode parent) {
-    	this.parent = parent;
-    }
     
     protected abstract FieldTreeNode resolve(Path p, int level);
+    
+
+    @Override
+    public FieldTreeNode getParent() {
+        return parent;
+    }
+    
+    @Override
+    public void setParent(FieldTreeNode node) {
+        parent = node;
+    }
 }

@@ -102,9 +102,4 @@ public class ReferenceField extends Field {
         }
     }
 
-	@Override
-	public FieldTreeNode getParent() {
-		return super.parent;
-	}
-
 }

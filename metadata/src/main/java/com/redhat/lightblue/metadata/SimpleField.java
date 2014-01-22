@@ -55,8 +55,4 @@ public class SimpleField extends Field {
         }
     }
 
-	@Override
-	public FieldTreeNode getParent() {
-		return super.parent;
-	}
 }

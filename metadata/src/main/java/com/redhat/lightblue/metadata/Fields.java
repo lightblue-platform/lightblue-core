@@ -94,7 +94,7 @@ public class Fields implements Serializable {
         
         for(int i=currentPosition;i <= path.numSegments(); i++) {
             String segment = path.head(i);
-            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment) && !path.isIndex(i)) {
+            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
                 indexOfSegment = i;
                 break;
             }
@@ -108,7 +108,7 @@ public class Fields implements Serializable {
 
         for (int i = currentPosition; i < path.numSegments(); i++) {
             String segment = path.head(i);
-            if (Path.PARENT.equals(segment) || path.isIndex(i)) {
+            if (Path.PARENT.equals(segment)) {
                 numberOfParentReferences++;
             }
         }
@@ -123,13 +123,13 @@ public class Fields implements Serializable {
     private FieldTreeNode findInNode(FieldTreeNode node, String fieldName) {
         FieldTreeNode found = null;
        
-        if(node instanceof SimpleField || node instanceof ArrayField) {
+        if(!node.hasChildren()) {
             if(matchesField(node, fieldName)) {
                 found = node;   
             } else {
                 throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
             }
-        } else if (node instanceof ObjectField || node instanceof EntityMetadata.RootTreeNode) {
+        } else if (node.hasChildren()) {            
             Iterator<? extends FieldTreeNode> itr = node.getChildren();
             while(itr.hasNext()) {
                 FieldTreeNode childFieldTreeNode = itr.next();
@@ -147,12 +147,12 @@ public class Fields implements Serializable {
     private FieldTreeNode getActualParent(FieldTreeNode node, int numberOfStepsBack) {
         FieldTreeNode parent = node;
         for(int i=0;i<=numberOfStepsBack;i++) {
-            parent = parent.getParent(); 
+            parent = parent.getParent();    
         }  
         return parent;
     }
     
-    private FieldTreeNode handleThis(Path p, int level) {
+    private FieldTreeNode resolveThis(Path p, int level) {
         if(level == 0) {
             throw Error.get(Constants.ERR_INVALID_THIS);
         } else {
@@ -166,13 +166,13 @@ public class Fields implements Serializable {
         }
     }
     
-    private FieldTreeNode handleParent(Path p, int level) {
+    private FieldTreeNode resolveParent(Path p, int level, int offset) {
         if(level == 0) {
             throw Error.get(Constants.ERR_INVALID_PARENT);
         } else {
             for(FieldTreeNode field : fields) {
-                String nextFieldName = p.head(findNextNonRelativeSegment(p, level));
-                FieldTreeNode actualParent = getActualParent(field, howManyParentsInPath(p, level));
+                String nextFieldName = p.head(findNextNonRelativeSegment(p, level + offset));
+                FieldTreeNode actualParent = getActualParent(field, howManyParentsInPath(p, level) - offset);
                 if(actualParent != null) {
                     FieldTreeNode theNode = findInNode(actualParent, nextFieldName);
                     if(theNode != null) {
@@ -201,17 +201,23 @@ public class Fields implements Serializable {
             }
                         
             if(name.equals(Path.THIS)) {
-                return handleThis(p, level);
+                return resolveThis(p, level);
             }
             
             if(name.equals(Path.PARENT)) {
-                return handleParent(p, level);
+                return resolveParent(p, level, 0);                   
             }
             
         	Field field = getField(name);
             if (field == null) {
                 throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
             }
+            
+            if(field instanceof ArrayField && p.numSegments() > level && p.toString().contains(Path.PARENT)) {
+                if(Path.PARENT.equals(p.head(level+1))) {
+                    return resolveParent(p, level, 1);
+                }
+            }           
             return field.resolve(p, level + 1);
             
         } finally {

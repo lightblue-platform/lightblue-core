@@ -53,6 +53,11 @@ public interface FieldTreeNode {
     FieldTreeNode getParent();
     
     /**
+     * Returns an a FieldTreeNode that is the parent of this one
+     */
+    void setParent(FieldTreeNode node);
+    
+    /**
      * Returns an iterator over the children of the field
      */
     Iterator<? extends FieldTreeNode> getChildren();

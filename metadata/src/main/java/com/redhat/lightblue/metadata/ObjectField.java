@@ -35,11 +35,6 @@ public class ObjectField extends Field {
     public Fields getFields() {
         return fields;
     }
-
-    public void addNew(Field field) {
-    	field.setParent(this);
-    	fields.addNew(field);
-    }
     
     @Override
     public boolean hasChildren() {
@@ -59,9 +54,4 @@ public class ObjectField extends Field {
             return fields.resolve(p, level);
         }
     }
-
-	@Override
-	public FieldTreeNode getParent() {
-		return super.parent;
-	}
 }

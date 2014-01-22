@@ -36,7 +36,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
     private final FieldAccess access = new FieldAccess();
     private final List<FieldConstraint> constraints = new ArrayList<FieldConstraint>();
 
-    protected FieldTreeNode parent;
+    private FieldTreeNode parent;
     
     public Field(String name) {
         this.name = name;
@@ -63,6 +63,10 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return this.access;
     }
 
+    public FieldTreeNode getParent() {
+        return parent;
+    }
+    
     public void setParent(FieldTreeNode field) {
     	this.parent = field;
     }

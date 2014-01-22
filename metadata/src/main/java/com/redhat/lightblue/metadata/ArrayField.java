@@ -47,10 +47,6 @@ public class ArrayField extends Field {
     public void setElement(ArrayElement el) {
         element = el;
     }
-
-    public void addNew(Field field) {
-    	field.setParent(this);
-    }
     
     @Override
     public boolean hasChildren() {
@@ -75,8 +71,7 @@ public class ArrayField extends Field {
         } else {
             Error.push(p.head(level));
             try {
-                if (p.isIndex(level)
-                        || p.head(level).equals(Path.ANY)) {
+                if (p.isIndex(level) || p.head(level).equals(Path.ANY)) {
                     return element.resolve(p, level + 1);
                 } else {
                     throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
@@ -86,10 +81,5 @@ public class ArrayField extends Field {
             }
         }
     }
-
-	@Override
-	public FieldTreeNode getParent() {
-		return super.parent;
-	}
 
 }

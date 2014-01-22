@@ -49,13 +49,13 @@ public class SimpleArrayElement extends ArrayElement {
     protected FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
+        } else if (p.head(level).equals(Path.THIS)) { 
+            return this;
+        } else if (p.head(level).equals(Path.PARENT)) {
+            return this;
         } else {
             throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
         }
     }
 
-	@Override
-	public FieldTreeNode getParent() {
-		return super.parent;
-	}
 }

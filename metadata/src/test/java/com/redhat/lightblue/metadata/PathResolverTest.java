@@ -30,22 +30,22 @@ public class PathResolverTest {
 
     private EntityMetadata getMD1() {
         EntityMetadata md = new EntityMetadata("test");
-        md.addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
-        md.addNew(new SimpleField("simpleString", StringType.TYPE));
+        md.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
+        md.getFields().addNew(new SimpleField("simpleString", StringType.TYPE));
         ObjectField x = new ObjectField("obj1");
         md.getFields().addNew(x);
-        x.addNew(new SimpleField("nestedSimpleInteger", IntegerType.TYPE));
-        x.addNew(new SimpleField("nestedSimpleString", StringType.TYPE));
+        x.getFields().addNew(new SimpleField("nestedSimpleInteger", IntegerType.TYPE));
+        x.getFields().addNew(new SimpleField("nestedSimpleString", StringType.TYPE));
         ObjectField y = new ObjectField("nested");
-        x.addNew(y);
-        y.addNew(new SimpleField("doubleNestedString", StringType.TYPE));
+        x.getFields().addNew(y);
+        y.getFields().addNew(new SimpleField("doubleNestedString", StringType.TYPE));
         ArrayField arr = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE));
-        y.addNew(arr);
+        y.getFields().addNew(arr);
 
         ObjectArrayElement oarr = new ObjectArrayElement();
         arr = new ArrayField("objArr", oarr);
-        y.addNew(arr);
-        oarr.addNew(new SimpleField("nestedArrObjString", StringType.TYPE));
+        y.getFields().addNew(arr);
+        oarr.getFields().addNew(new SimpleField("nestedArrObjString", StringType.TYPE));
 
         return md;
     }
