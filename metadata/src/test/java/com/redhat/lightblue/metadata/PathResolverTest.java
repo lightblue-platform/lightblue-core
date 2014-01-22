@@ -39,11 +39,11 @@ public class PathResolverTest {
         ObjectField y = new ObjectField("nested");
         x.getFields().addNew(y, x);
         y.getFields().addNew(new SimpleField("doubleNestedString", StringType.TYPE), y);
-        ArrayField arr = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE));
+        ArrayField arr = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE), y);
         y.getFields().addNew(arr, y);
 
         ObjectArrayElement oarr = new ObjectArrayElement();
-        arr = new ArrayField("objArr", oarr);
+        arr = new ArrayField("objArr", oarr, y);
         y.getFields().addNew(arr, y);
         oarr.getFields().addNew(new SimpleField("nestedArrObjString", StringType.TYPE), oarr);
 

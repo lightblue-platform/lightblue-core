@@ -35,17 +35,19 @@ public class ArrayField extends Field {
         super(name, ArrayType.TYPE);
     }
 
-    public ArrayField(String name, ArrayElement el) {
+    public ArrayField(String name, ArrayElement el, FieldTreeNode parent) {
         super(name, ArrayType.TYPE);
         element = el;
+        element.setParent(parent);        
     }
 
     public ArrayElement getElement() {
         return element;
     }
 
-    public void setElement(ArrayElement el) {
+    public void setElement(ArrayElement el, FieldTreeNode parent) {
         element = el;
+        element.setParent(parent);
     }
     
     @Override

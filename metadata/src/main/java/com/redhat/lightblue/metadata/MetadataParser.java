@@ -413,7 +413,7 @@ public abstract class MetadataParser<T> {
                                   T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, "items");
-        field.setElement(parseArrayItem(items));
+        field.setElement(parseArrayItem(items), (FieldTreeNode) object);
         return field;
     }
 

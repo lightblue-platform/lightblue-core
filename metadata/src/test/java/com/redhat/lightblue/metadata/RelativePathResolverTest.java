@@ -39,14 +39,14 @@ public class RelativePathResolverTest {
         ObjectField objectField2 = new ObjectField("nested");
         objectField1.getFields().addNew(objectField2, objectField1);
         objectField2.getFields().addNew(new SimpleField("doubleNestedString", StringType.TYPE), objectField2);
-        ArrayField arrayField1 = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE));
+        ArrayField arrayField1 = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE), objectField2);
         //arrayField1.addNew(new SimpleField("nestedSimpleString", StringType.TYPE));
         objectField2.getFields().addNew(arrayField1, objectField2);
 
         ObjectArrayElement objectArrayElement = new ObjectArrayElement();
         objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString1", StringType.TYPE), objectArrayElement);
         objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString2", StringType.TYPE), objectArrayElement);
-        ArrayField arrayField2 = new ArrayField("objArr", objectArrayElement);
+        ArrayField arrayField2 = new ArrayField("objArr", objectArrayElement, objectField2);
         objectField2.getFields().addNew(arrayField2, objectField2);
 
         return entityMetadata;
