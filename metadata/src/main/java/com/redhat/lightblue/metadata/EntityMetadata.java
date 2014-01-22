@@ -158,9 +158,7 @@ public class EntityMetadata implements Serializable {
     }
 
     class RootTreeNode implements FieldTreeNode {
-    
-        FieldTreeNode parent = null;
-        
+
         @Override
         public String getName() {
             return "test";
