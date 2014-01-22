@@ -405,7 +405,7 @@ public abstract class MetadataParser<T> {
                                    T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
-        parseFields(field.getFields(), fields, field);
+        parseFields(field.getFields(), fields, field.getParent());
         return field;
     }
 
@@ -413,7 +413,7 @@ public abstract class MetadataParser<T> {
                                   T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, "items");
-        field.setElement(parseArrayItem(items), field);
+        field.setElement(parseArrayItem(items), field.getParent());
         return field;
     }
 
@@ -424,7 +424,7 @@ public abstract class MetadataParser<T> {
             T fields = getRequiredObjectProperty(items, STR_FIELDS);
             ObjectArrayElement ret = new ObjectArrayElement();
             ret.setType(ObjectType.TYPE);
-            parseFields(ret.getFields(), fields, ret);
+            parseFields(ret.getFields(), fields, ret.getParent());
             return ret;
         } else if (type.equals(ArrayType.TYPE.getName())
                 || type.equals(ReferenceType.TYPE.getName())) {
