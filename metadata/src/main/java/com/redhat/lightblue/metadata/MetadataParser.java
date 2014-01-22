@@ -113,7 +113,7 @@ public abstract class MetadataParser<T> {
             }
 
             T fields = getRequiredObjectProperty(object, STR_FIELDS);
-            parseFields(md.getFields(), fields);
+            parseFields(md.getFields(), fields, md.getFieldTreeRoot());
 
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
             parseEntityConstraints(md, constraints);
@@ -293,8 +293,7 @@ public abstract class MetadataParser<T> {
      * @param fields The destination object to be initialized
      * @param object The object corresponding to the fields element
      */
-    public void parseFields(Fields fields,
-                            T object) {
+    public void parseFields(Fields fields, T object, FieldTreeNode parent) {
         Error.push(STR_FIELDS);
         try {
             if (object != null) {
@@ -302,7 +301,7 @@ public abstract class MetadataParser<T> {
                 for (String name : names) {
                     T fieldObject = getObjectProperty(object, name);
                     Field field = parseField(name, fieldObject);
-                    fields.addNew(field);
+                    fields.addNew(field, parent);
                 }
             }
         } finally {
@@ -406,7 +405,7 @@ public abstract class MetadataParser<T> {
                                    T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
-        parseFields(field.getFields(), fields);
+        parseFields(field.getFields(), fields, field);
         return field;
     }
 
@@ -425,7 +424,7 @@ public abstract class MetadataParser<T> {
             T fields = getRequiredObjectProperty(items, STR_FIELDS);
             ObjectArrayElement ret = new ObjectArrayElement();
             ret.setType(ObjectType.TYPE);
-            parseFields(ret.getFields(), fields);
+            parseFields(ret.getFields(), fields, ret);
             return ret;
         } else if (type.equals(ArrayType.TYPE.getName())
                 || type.equals(ReferenceType.TYPE.getName())) {

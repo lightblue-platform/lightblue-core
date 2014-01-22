@@ -217,28 +217,9 @@ public class EntityMetadata implements Serializable {
             }
         }
     }
-    
-    private void setParentOfField(FieldTreeNode child, FieldTreeNode parent) {
-        child.setParent(parent);
-        System.out.println("setParentOfField child: " + child.getName() + " with parent: " + parent.getName());
-    }
-    
-    private void setParentsOnNodes(FieldTreeNode node) {
-        Iterator<? extends FieldTreeNode> itr = node.getChildren();
-        while(itr.hasNext()) {
-            FieldTreeNode childFieldTreeNode = itr.next();
-            if(childFieldTreeNode.hasChildren()) {
-                setParentOfField(childFieldTreeNode, node);
-                setParentsOnNodes(childFieldTreeNode);
-            } else {
-                setParentOfField(childFieldTreeNode, node);
-            }
-        }
-    }
 
     public FieldTreeNode resolve(Path p) {
         Error.push(name);
-        setParentsOnNodes(getFieldTreeRoot());
         try {
             return fields.resolve(p);
         } finally {

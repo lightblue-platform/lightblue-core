@@ -59,11 +59,12 @@ public class Fields implements Serializable {
         return fieldMap.containsKey(name);
     }
 
-    public void addNew(Field f) {
+    public void addNew(Field f, FieldTreeNode parent) {
         String name = f.getName();
         if (has(name)) {
             throw Error.get(Constants.ERR_DUPLICATE_FIELD, name);
         }
+        f.setParent(parent);
         fieldMap.put(name, f);
         fields.add(f);
     }
@@ -152,20 +153,6 @@ public class Fields implements Serializable {
         return parent;
     }
     
-    private FieldTreeNode resolveThis(Path p, int level) {
-        if(level == 0) {
-            throw Error.get(Constants.ERR_INVALID_THIS);
-        } else {
-            String nextFieldName = p.head(findNextNonRelativeSegment(p, level));
-            Field nextField = getField(nextFieldName);
-            if(nextField == null) {
-                throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-            } else {
-                return nextField;
-            }
-        }
-    }
-    
     private FieldTreeNode resolveParent(Path p, int level, int offset) {
         if(level == 0) {
             throw Error.get(Constants.ERR_INVALID_PARENT);
@@ -201,11 +188,14 @@ public class Fields implements Serializable {
             }
                         
             if(name.equals(Path.THIS)) {
-                return resolveThis(p, level);
+                if(level == 0) {
+                    throw Error.get(Constants.ERR_INVALID_PARENT);
+                }
+                return this.resolve(p, level+1);
             }
             
             if(name.equals(Path.PARENT)) {
-                return resolveParent(p, level, 0);                   
+                return resolveParent(p, level, 0);
             }
             
         	Field field = getField(name);
