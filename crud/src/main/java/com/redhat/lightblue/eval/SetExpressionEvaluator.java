@@ -93,6 +93,7 @@ public class SetExpressionEvaluator extends Updater {
         op=expr.getOp();
         for(FieldAndRValue fld:expr.getFields()) {
             Path field=fld.getField();
+            LOGGER.debug("Parsing setter for {}",field);
             RValueExpression rvalue=fld.getRValue();
             Path refPath=null;
             FieldTreeNode refMdNode=null;
@@ -102,6 +103,7 @@ public class SetExpressionEvaluator extends Updater {
                 refMdNode=context.resolve(refPath);
                 if(refMdNode==null)
                     throw new EvaluationError("Cannot access "+refPath);
+                LOGGER.debug("Refpath {}",refPath);
             } 
             FieldTreeNode mdNode=context.resolve(field);
             if(mdNode==null)

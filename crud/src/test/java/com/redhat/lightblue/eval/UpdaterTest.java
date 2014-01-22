@@ -26,9 +26,11 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
 import com.redhat.lightblue.query.*;
@@ -61,24 +63,53 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         return parser.parseEntityMetadata(node);
     }
 
+    private UpdateExpression json(String s) throws Exception {
+        return UpdateExpression.fromJson(JsonUtils.json(s.replace('\'','\"')));
+    }
 
     @Test
-    public void simpleFieldTest() throws Exception {
+    public void setSimpleFieldTest() throws Exception {
         JsonDoc doc=getDoc("./sample1.json");
         EntityMetadata md=getMd("./testMetadata.json");
 
-        UpdateExpression expr=new UpdateExpressionList(
-            new SetExpression(UpdateOperator._set, new FieldAndRValue(new Path("field1"),
-                                                                      new RValueExpression(new Value("set1")))),
-            new SetExpression(UpdateOperator._set, new FieldAndRValue(new Path("field2"),
-                                                                      new RValueExpression(new Value("set2")))),
-            new SetExpression(UpdateOperator._add, new FieldAndRValue(new Path("field3"),
-                                                                      new RValueExpression(new Value(new Integer(1))))));
+        UpdateExpression expr=json("[ {'$set' : { 'field1' : 'set1', 'field2':'set2', 'field5': 0, 'field6.nf1':'set6' } }, {'$add' : { 'field3':1 } } ] ");
         
         Updater updater=Updater.getInstance(factory,md,expr);
         Assert.assertTrue(updater.update(doc));
         Assert.assertEquals("set1",doc.get(new Path("field1")).asText());
         Assert.assertEquals("set2",doc.get(new Path("field2")).asText());
         Assert.assertEquals(4,doc.get(new Path("field3")).asInt());
+        Assert.assertFalse(doc.get(new Path("field5")).asBoolean());
+        Assert.assertEquals("set6",doc.get(new Path("field6.nf1")).asText());
+    }
+
+    @Test
+    public void setArrayFieldTest() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        UpdateExpression expr=json("{'$set' : { 'field6.nf5.0':'50', 'field6.nf6.1':'blah', 'field7.0.elemf1':'test'}} ");
+        
+        Updater updater=Updater.getInstance(factory,md,expr);
+        Assert.assertTrue(updater.update(doc));
+        Assert.assertEquals(50,doc.get(new Path("field6.nf5.0")).intValue());
+        Assert.assertEquals("blah",doc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals("test",doc.get(new Path("field7.0.elemf1")).asText());
+    }
+
+    @Test
+    public void refSet() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        UpdateExpression expr=json("{'$set' : { 'field6.nf5.0': { '$valueof' : 'field3' }, 'field7.0' : {}}}");
+        
+        Updater updater=Updater.getInstance(factory,md,expr);
+        Assert.assertTrue(updater.update(doc));
+        Assert.assertEquals(doc.get(new Path("field3")).intValue(),doc.get(new Path("field6.nf5.0")).intValue());
+        JsonNode node=doc.get(new Path("field7.0"));
+        Assert.assertNotNull(node);
+        Assert.assertEquals(0,node.size());
+        Assert.assertTrue(node instanceof ObjectNode);
     }
 }
