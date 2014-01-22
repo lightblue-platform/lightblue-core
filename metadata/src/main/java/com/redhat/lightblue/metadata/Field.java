@@ -89,5 +89,5 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return resolve(p, 0);
     }
 
-    protected abstract FieldTreeNode resolve(Path p, int level);
+    public abstract FieldTreeNode resolve(Path p, int level);
 }

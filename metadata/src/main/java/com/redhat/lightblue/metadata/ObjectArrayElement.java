@@ -49,9 +49,11 @@ public class ObjectArrayElement extends ArrayElement {
     }
 
     @Override
-    protected FieldTreeNode resolve(Path p, int level) {
+    public FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
+        } else if (Path.PARENT.equals(p.head(level))){
+            return this.getParent().resolve(p, level + 1);
         } else {
             return fields.resolve(p, level);
         }

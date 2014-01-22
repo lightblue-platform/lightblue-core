@@ -67,7 +67,7 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
         return resolve(p, 0);
     }
     
-    protected abstract FieldTreeNode resolve(Path p, int level);
+    public abstract FieldTreeNode resolve(Path p, int level);
     
 
     @Override
@@ -75,10 +75,8 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
         return parent;
     }
     
-    @Override
-    public void setParent(FieldTreeNode node) {
+    protected void setParent(FieldTreeNode node) {
         parent = node;
     }
-    
     
 }

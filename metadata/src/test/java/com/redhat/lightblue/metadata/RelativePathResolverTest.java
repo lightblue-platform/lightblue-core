@@ -132,7 +132,7 @@ public class RelativePathResolverTest {
     
     @Test
     public void testNestedRelativePathTripleParent() throws Exception {
-        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.$parent.$parent.simpleInteger"));
+        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.$parent.simpleInteger"));
         Assert.assertEquals("simpleInteger", found.getName());
     }
     

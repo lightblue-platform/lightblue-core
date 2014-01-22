@@ -51,12 +51,7 @@ public interface FieldTreeNode {
      * Returns an a FieldTreeNode that is the parent of this one
      */
     FieldTreeNode getParent();
-    
-    /**
-     * Returns an a FieldTreeNode that is the parent of this one
-     */
-    void setParent(FieldTreeNode node);
-    
+        
     /**
      * Returns an iterator over the children of the field
      */
@@ -66,4 +61,10 @@ public interface FieldTreeNode {
      * Returns the field tree node for the given Path relative to this
      */
     FieldTreeNode resolve(Path p);
+    
+    /**
+     * Returns the field tree node for the given Path relative to this,
+     * starting at a specific level
+     */
+    FieldTreeNode resolve(Path p, int level);
 }

@@ -185,16 +185,17 @@ public class EntityMetadata implements Serializable {
         public FieldTreeNode resolve(Path p) {
             return fields.resolve(p);
         }
+        
+        @Override
+        public FieldTreeNode resolve(Path p, int level) {
+            return fields.resolve(p, level);
+        }
 
 		@Override
 		public FieldTreeNode getParent() {
-			return this;
+			return null;
 		}
 		
-		@Override
-        public void setParent(FieldTreeNode parent) {
-            this.parent = parent;
-        }
     }
 
     public FieldTreeNode getFieldTreeRoot() {

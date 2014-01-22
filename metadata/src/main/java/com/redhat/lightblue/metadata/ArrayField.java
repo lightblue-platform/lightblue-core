@@ -64,7 +64,7 @@ public class ArrayField extends Field {
     }
 
     @Override
-    protected FieldTreeNode resolve(Path p, int level) {
+    public FieldTreeNode resolve(Path p, int level) {
         int l = p.numSegments() - level;
         if (l == 0) {
             return this;
@@ -73,6 +73,8 @@ public class ArrayField extends Field {
             try {
                 if (p.isIndex(level) || p.head(level).equals(Path.ANY)) {
                     return element.resolve(p, level + 1);
+                } else if (Path.PARENT.equals(p.head(level))){
+                    return this.getParent().resolve(p, level + 1);
                 } else {
                     throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
                 }

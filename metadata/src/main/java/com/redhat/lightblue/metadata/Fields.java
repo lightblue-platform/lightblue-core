@@ -89,88 +89,7 @@ public class Fields implements Serializable {
     public FieldTreeNode resolve(Path p) {   	
     	return resolve(p, 0);	
     }
-    
-    private int findNextNonRelativeSegment(Path path, int currentPosition) {
-        int indexOfSegment = -1;
-        
-        for(int i=currentPosition;i <= path.numSegments(); i++) {
-            String segment = path.head(i);
-            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
-                indexOfSegment = i;
-                break;
-            }
-        }
-        
-        return indexOfSegment;
-    }
-    
-    private int howManyParentsInPath(Path path, int currentPosition) {
-        int numberOfParentReferences = 0;
-
-        for (int i = currentPosition; i < path.numSegments(); i++) {
-            String segment = path.head(i);
-            if (Path.PARENT.equals(segment)) {
-                numberOfParentReferences++;
-            }
-        }
-
-        return numberOfParentReferences;
-    }
-    
-    private boolean matchesField(FieldTreeNode fieldToSearch, String fieldName) {
-        return fieldName.equals(fieldToSearch.getName());
-    }
-    
-    private FieldTreeNode findInNode(FieldTreeNode node, String fieldName) {
-        FieldTreeNode found = null;
-       
-        if(!node.hasChildren()) {
-            if(matchesField(node, fieldName)) {
-                found = node;   
-            } else {
-                throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-            }
-        } else if (node.hasChildren()) {            
-            Iterator<? extends FieldTreeNode> itr = node.getChildren();
-            while(itr.hasNext()) {
-                FieldTreeNode childFieldTreeNode = itr.next();
-                if(matchesField(childFieldTreeNode, fieldName)) {
-                    return childFieldTreeNode;   
-                } else {
-                    return findInNode(childFieldTreeNode, fieldName);
-                }
-            }
-        } 
-                        
-        return found;
-    }
-    
-    private FieldTreeNode getActualParent(FieldTreeNode node, int numberOfStepsBack) {
-        FieldTreeNode parent = node;
-        for(int i=0;i<=numberOfStepsBack;i++) {
-            parent = parent.getParent();    
-        }  
-        return parent;
-    }
-    
-    private FieldTreeNode resolveParent(Path p, int level, int offset) {
-        if(level == 0) {
-            throw Error.get(Constants.ERR_INVALID_PARENT);
-        } else {
-            for(FieldTreeNode field : fields) {
-                String nextFieldName = p.head(findNextNonRelativeSegment(p, level + offset));
-                FieldTreeNode actualParent = getActualParent(field, howManyParentsInPath(p, level) - offset);
-                if(actualParent != null) {
-                    FieldTreeNode theNode = findInNode(actualParent, nextFieldName);
-                    if(theNode != null) {
-                        return theNode;
-                    }                              
-                }                        
-            }
-            throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
-        }
-    }
-    
+            
     protected FieldTreeNode resolve(Path p, int level) {
         if (level >= p.numSegments()) {
             throw Error.get(Constants.ERR_INVALID_REDIRECTION, p.toString());
@@ -185,29 +104,15 @@ public class Fields implements Serializable {
             }
             if (name.equals(Path.ANY)) {
                 throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
-            }
-                        
+            }             
             if(name.equals(Path.THIS)) {
-                if(level == 0) {
-                    throw Error.get(Constants.ERR_INVALID_PARENT);
-                }
                 return this.resolve(p, level+1);
             }
-            
-            if(name.equals(Path.PARENT)) {
-                return resolveParent(p, level, 0);
-            }
-            
-        	Field field = getField(name);
+
+            Field field = getField(name);
             if (field == null) {
                 throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
             }
-            
-            if(field instanceof ArrayField && p.numSegments() > level && p.toString().contains(Path.PARENT)) {
-                if(Path.PARENT.equals(p.head(level+1))) {
-                    return resolveParent(p, level, 1);
-                }
-            }           
             return field.resolve(p, level + 1);
             
         } finally {

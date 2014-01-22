@@ -46,13 +46,11 @@ public class SimpleArrayElement extends ArrayElement {
     }
 
     @Override
-    protected FieldTreeNode resolve(Path p, int level) {
+    public FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
-        } else if (p.head(level).equals(Path.THIS)) { 
-            return this;
-        } else if (p.head(level).equals(Path.PARENT)) {
-            return this;
+        } else if (p.head(level).equals(Path.PARENT)) { 
+            return this.getParent().resolve(p, level + 1);
         } else {
             throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
         }
