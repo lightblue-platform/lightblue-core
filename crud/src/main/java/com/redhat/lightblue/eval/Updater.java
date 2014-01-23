@@ -73,7 +73,7 @@ public abstract class Updater {
         } else if(expr instanceof ForEachExpression) {
             ret=new ForEachExpressionEvaluator(factory,context,(ForEachExpression)expr);
         } else if(expr instanceof ArrayAddExpression) {
-
+            ret=new ArrayAddExpressionEvaluator(factory,context,(ArrayAddExpression)expr);
         }         
         return ret;
     }
