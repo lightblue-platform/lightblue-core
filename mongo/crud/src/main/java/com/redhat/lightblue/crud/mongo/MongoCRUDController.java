@@ -44,6 +44,7 @@ import com.redhat.lightblue.DataError;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
@@ -263,7 +264,7 @@ public class MongoCRUDController implements CRUDController {
             Updater updater=Updater.getInstance(factory,md,update);
             DB db = dbResolver.get((MongoDataStore) md.getDataStore());
             DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-            iterateUpdate(coll,translator,response,mongoQuery,updater,projector);
+            iterateUpdate(coll,translator,md,response,mongoQuery,updater,projector);
             
         } finally {
             Error.pop();
@@ -274,6 +275,7 @@ public class MongoCRUDController implements CRUDController {
 
     private void iterateUpdate(DBCollection collection,
                                Translator translator,
+                               EntityMetadata md,
                                CRUDUpdateResponse response,
                                DBObject query,
                                Updater updater,
@@ -292,7 +294,7 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Retrieved doc {}",docIndex);
                 JsonDoc jsonDocument=translator.toJson(document);
                 QueryEvaluationContext ctx=new QueryEvaluationContext(jsonDocument.getRoot());
-                if(updater.update(jsonDocument)) {
+                if(updater.update(jsonDocument,md.getFieldTreeRoot(),Path.EMPTY)) {
                     LOGGER.debug("Document {} modified, updating",docIndex);
                     DBObject updatedObject=translator.toBson(jsonDocument);
                     WriteResult result=collection.save(updatedObject);                    
@@ -344,7 +346,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        LOGGER.debug("delete end: deleted: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
+        LOGGER.debug("delete end: deleted: {}}", response.getNumDeleted());
         return response;
     }
 
