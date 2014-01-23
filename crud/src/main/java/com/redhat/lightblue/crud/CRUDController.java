@@ -83,7 +83,19 @@ public interface CRUDController {
                               UpdateExpression update,
                               Projection projection);
 
+
     /**
+     * Deletes documents matching the search criteria
+     *
+     * @param resolver The metadata resolver
+     * @param entity The entity to work on
+     * @param query The query specifying the documents to delete
+     *
+     */
+    CRUDDeleteResponse delete(MetadataResolver resolver,
+                              String entity,
+                              QueryExpression query);
+   /**
      * Searches for documents
      *
      * @param resolver The metadata resolver

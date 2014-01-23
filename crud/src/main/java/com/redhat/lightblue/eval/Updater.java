@@ -21,6 +21,7 @@ package com.redhat.lightblue.eval;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -40,9 +41,12 @@ public abstract class Updater {
     /**
      * The implementation should update the document
      *
+     * @param contextMd The metadata for the current context
+     * @param contextPath Absolute path to current context
+     *
      * @return true if document is updated, false if not
      */
-    public abstract boolean update(JsonDoc doc);
+    public abstract boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath);
 
     /**
      * Creates an updater object based on the given update expression
@@ -53,6 +57,10 @@ public abstract class Updater {
 
     /**
      * Creates an updater object based on the given update expression
+     *
+     * @param factory Node factory
+     * @param context Metadata for the context node
+     * @param expr The update expression.
      */
     public static Updater getInstance(JsonNodeFactory factory, FieldTreeNode context, UpdateExpression expr) {
         Updater ret = null;
@@ -61,9 +69,11 @@ public abstract class Updater {
         } else if(expr instanceof SetExpression) {
             ret=new SetExpressionEvaluator(factory,context,(SetExpression)expr);
         } else if(expr instanceof UnsetExpression) {
-            
+            ret=new UnsetExpressionEvaluator(factory,context,(UnsetExpression)expr);
         } else if(expr instanceof ForEachExpression) {
+            ret=new ForEachExpressionEvaluator(factory,context,(ForEachExpression)expr);
         } else if(expr instanceof ArrayAddExpression) {
+            ret=new ArrayAddExpressionEvaluator(factory,context,(ArrayAddExpression)expr);
         }         
         return ret;
     }

@@ -136,11 +136,11 @@ public class SetExpressionEvaluator extends Updater {
     }
 
     @Override
-    public boolean update(JsonDoc doc) {
+    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
         boolean ret=false;
         LOGGER.debug("Starting");
         for(FieldData df:setValues) {
-            LOGGER.debug("Set field {}",df.field);
+            LOGGER.debug("Set field {} in ctx: {}",df.field,contextPath);
             JsonNode oldValueNode=null;
             JsonNode newValueNode=null;
             Object newValue=null;
@@ -150,7 +150,7 @@ public class SetExpressionEvaluator extends Updater {
                 newValueNode=factory.objectNode();                
                 break;
             case _dereference:
-                JsonNode refNode=doc.get(df.refPath);
+                JsonNode refNode=doc.get(new Path(contextPath,df.refPath));
                 if(refNode!=null) {
                     newValueNode=refNode.deepCopy();
                     newValue=df.refType.fromJson(newValueNode);
@@ -163,17 +163,19 @@ public class SetExpressionEvaluator extends Updater {
                 newValueType=df.fieldType;
                 break;
             }
+            
+            Path fieldPath=new Path(contextPath,df.field);
             if(op==UpdateOperator._set) {
-                oldValueNode=doc.modify(df.field,newValueNode,true);
+                oldValueNode=doc.modify(fieldPath,newValueNode,true);
             } else if(op==UpdateOperator._add) {
                 if(newValueNode!=null) {
-                    oldValueNode=doc.get(df.field);
+                    oldValueNode=doc.get(fieldPath);
                     if(oldValueNode!=null) {
                         newValueNode=df.fieldType.toJson(factory,
                                                          Arith.add(df.fieldType.fromJson(oldValueNode),
                                                                   newValue,
                                                                   Arith.promote(df.fieldType,newValueType)));
-                        doc.modify(df.field,newValueNode,false);
+                        doc.modify(fieldPath,newValueNode,false);
                     }
                 }
             }

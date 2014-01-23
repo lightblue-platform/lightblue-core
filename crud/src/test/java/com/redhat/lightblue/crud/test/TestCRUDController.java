@@ -10,6 +10,7 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Projection;
@@ -44,6 +45,11 @@ public class TestCRUDController implements CRUDController {
 
     @Override
     public CRUDUpdateResponse update(MetadataResolver resolver, String entity, QueryExpression query, UpdateExpression update, Projection projection) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public CRUDDeleteResponse delete(MetadataResolver resolver, String entity, QueryExpression query) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

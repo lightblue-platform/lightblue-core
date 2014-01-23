@@ -75,7 +75,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         UpdateExpression expr=json("[ {'$set' : { 'field1' : 'set1', 'field2':'set2', 'field5': 0, 'field6.nf1':'set6' } }, {'$add' : { 'field3':1 } } ] ");
         
         Updater updater=Updater.getInstance(factory,md,expr);
-        Assert.assertTrue(updater.update(doc));
+        Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
         Assert.assertEquals("set1",doc.get(new Path("field1")).asText());
         Assert.assertEquals("set2",doc.get(new Path("field2")).asText());
         Assert.assertEquals(4,doc.get(new Path("field3")).asInt());
@@ -91,7 +91,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         UpdateExpression expr=json("{'$set' : { 'field6.nf5.0':'50', 'field6.nf6.1':'blah', 'field7.0.elemf1':'test'}} ");
         
         Updater updater=Updater.getInstance(factory,md,expr);
-        Assert.assertTrue(updater.update(doc));
+        Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
         Assert.assertEquals(50,doc.get(new Path("field6.nf5.0")).intValue());
         Assert.assertEquals("blah",doc.get(new Path("field6.nf6.1")).asText());
         Assert.assertEquals("test",doc.get(new Path("field7.0.elemf1")).asText());
@@ -105,7 +105,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         UpdateExpression expr=json("{'$set' : { 'field6.nf5.0': { '$valueof' : 'field3' }, 'field7.0' : {}}}");
         
         Updater updater=Updater.getInstance(factory,md,expr);
-        Assert.assertTrue(updater.update(doc));
+        Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
         Assert.assertEquals(doc.get(new Path("field3")).intValue(),doc.get(new Path("field6.nf5.0")).intValue());
         JsonNode node=doc.get(new Path("field7.0"));
         Assert.assertNotNull(node);
