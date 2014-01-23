@@ -44,6 +44,7 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 
 import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.SaveRequest;
@@ -208,11 +209,23 @@ public class Mediator {
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
             CRUDController controller = factory.getCRUDController(md);
             LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
+            CRUDDeleteResponse result = controller.delete(ctx,
+                                                          req.getEntity().getEntity(),
+                                                          req.getQuery());
+            response.setModifiedCount(result.getNumDeleted());
+            List<Error> errors=result.getErrors();
+            if(errors!=null&&!errors.isEmpty()) {
+                response.getErrors().addAll(result.getErrors());
+                response.setStatus(OperationStatus.ERROR);
+            } else
+                response.setStatus(OperationStatus.COMPLETE);
         } catch (Error e) {
             response.getErrors().add(e);
-        } catch (Exception e) {
+            response.setStatus(OperationStatus.ERROR);
+       } catch (Exception e) {
             response.getErrors().add(Error.get(ERR_CRUD, e.toString()));
-        } finally {
+            response.setStatus(OperationStatus.ERROR);
+       } finally {
             Error.pop();
         }
         return response;

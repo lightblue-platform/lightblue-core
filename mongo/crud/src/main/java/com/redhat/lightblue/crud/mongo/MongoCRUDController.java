@@ -64,6 +64,7 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.AbstractCRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.mongo.MongoConfiguration;
@@ -83,6 +84,7 @@ public class MongoCRUDController implements CRUDController {
     private static final String OP_SAVE = "save";
     private static final String OP_FIND = "find";
     private static final String OP_UPDATE = "update";
+    private static final String OP_DELETE = "delete";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoCRUDController.class);
 
@@ -313,6 +315,38 @@ public class MongoCRUDController implements CRUDController {
         response.setNumFailed(numFailed);
     }
 
+
+    @Override
+    public CRUDDeleteResponse delete(MetadataResolver resolver,
+                                     String entity,
+                                     QueryExpression query) {
+        if (query == null) {
+            throw new IllegalArgumentException("Null query");
+        }
+        LOGGER.debug("delete start: q:{}", query);
+        Error.push(OP_DELETE);
+        CRUDDeleteResponse response = new CRUDDeleteResponse();
+        response.setErrors(new ArrayList<Error>());
+        Translator translator = new Translator(resolver, factory);
+        try {
+            EntityMetadata md = resolver.getEntityMetadata(entity);
+            LOGGER.debug("Translating query {}", query);
+            DBObject mongoQuery = translator.translate(md, query);
+            LOGGER.debug("Translated query {}", mongoQuery);
+            DB db = dbResolver.get((MongoDataStore) md.getDataStore());
+            DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+            LOGGER.debug("Removing docs");
+            WriteResult result=coll.remove(mongoQuery);
+            LOGGER.debug("Removal complete, write result={}",result);
+            response.setNumDeleted(result.getN());
+        } catch (Exception e) {
+            response.getErrors().add(Error.get(e.toString()));
+        } finally {
+            Error.pop();
+        }
+        LOGGER.debug("delete end: deleted: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
+        return response;
+    }
 
     /**
      * Search implementation for mongo
