@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 public class EntityMetadata implements Serializable {
@@ -194,6 +195,15 @@ public class EntityMetadata implements Serializable {
 			return null;
 		}
 		
+		@Override
+        public Path getFullPath() {
+            return Path.EMPTY;
+        }
+		
+		@Override
+        public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
+            return Path.EMPTY.mutableCopy();
+        }
     }
 
     public FieldTreeNode getFieldTreeRoot() {

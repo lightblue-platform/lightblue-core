@@ -22,6 +22,7 @@ import com.redhat.lightblue.metadata.types.Type;
 
 import java.io.Serializable;
 
+import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 public abstract class ArrayElement implements FieldTreeNode, Serializable {
@@ -77,6 +78,21 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     
     protected void setParent(FieldTreeNode node) {
         parent = node;
+    }
+    
+
+    public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
+        FieldTreeNode parent = node.getParent();
+        if ((parent instanceof EntityMetadata.RootTreeNode)) {
+            return mp.push(Path.ANY);    
+        } else {
+            return parent.getFullPath(mp, parent).push(Path.ANY);
+        }
+    }
+
+    @Override
+    public Path getFullPath() {
+        return getFullPath(new MutablePath(), this).immutableCopy();
     }
     
 }

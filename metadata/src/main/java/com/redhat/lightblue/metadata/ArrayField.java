@@ -38,7 +38,8 @@ public class ArrayField extends Field {
     public ArrayField(String name, ArrayElement el, FieldTreeNode parent) {
         super(name, ArrayType.TYPE);
         element = el;
-        element.setParent(parent);        
+        element.setParent(this);
+        this.setParent(parent);
     }
 
     public ArrayElement getElement() {
@@ -47,7 +48,8 @@ public class ArrayField extends Field {
 
     public void setElement(ArrayElement el, FieldTreeNode parent) {
         element = el;
-        element.setParent(parent);
+        element.setParent(this);
+        this.setParent(parent);
     }
     
     @Override

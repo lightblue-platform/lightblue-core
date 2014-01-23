@@ -18,10 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.types.Type;
 import java.util.Iterator;
 
+import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.EmptyIterator;
+import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 /**
@@ -67,4 +68,14 @@ public interface FieldTreeNode {
      * starting at a specific level
      */
     FieldTreeNode resolve(Path p, int level);
+    
+    /**
+     * Returns the full non-relative path to this based on parent hierarchy  
+     */
+    Path getFullPath();
+    
+    /**
+     * Returns the full non-relative path to node based on parent hierarchy  
+     */
+    MutablePath getFullPath(MutablePath mp, FieldTreeNode node);
 }

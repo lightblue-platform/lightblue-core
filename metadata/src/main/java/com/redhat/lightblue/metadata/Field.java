@@ -18,13 +18,13 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.types.Type;
 import java.io.Serializable;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import com.redhat.lightblue.metadata.types.Type;
+import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 public abstract class Field implements FieldTreeNode, Serializable {
@@ -89,5 +89,19 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return resolve(p, 0);
     }
 
+    public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {       
+        FieldTreeNode parent = node.getParent();
+        
+        if (parent instanceof EntityMetadata.RootTreeNode) {
+            return mp.push(node.getName());    
+        } else {
+            return parent.getFullPath(mp, parent).push(node.getName());
+        }
+    }
+
+    public Path getFullPath() {
+        return getFullPath(new MutablePath(), this).immutableCopy();
+    }
+    
     public abstract FieldTreeNode resolve(Path p, int level);
 }
