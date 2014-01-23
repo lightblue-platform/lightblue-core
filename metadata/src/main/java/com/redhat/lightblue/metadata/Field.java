@@ -90,12 +90,11 @@ public abstract class Field implements FieldTreeNode, Serializable {
     }
 
     public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {       
-        FieldTreeNode parent = node.getParent();
-        
-        if (parent instanceof EntityMetadata.RootTreeNode) {
+        FieldTreeNode nodeParent = node.getParent();
+        if (nodeParent == null) {
             return mp.push(node.getName());    
         } else {
-            return parent.getFullPath(mp, parent).push(node.getName());
+            return nodeParent.getFullPath(mp, nodeParent).push(node.getName());
         }
     }
 

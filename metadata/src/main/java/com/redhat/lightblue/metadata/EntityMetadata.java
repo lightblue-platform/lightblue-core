@@ -162,7 +162,7 @@ public class EntityMetadata implements Serializable {
 
         @Override
         public String getName() {
-            return "test";
+            return "";
         }
 
         @Override

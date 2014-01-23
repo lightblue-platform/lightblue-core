@@ -18,10 +18,9 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.types.Type;
-
 import java.io.Serializable;
 
+import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
@@ -82,12 +81,8 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     
 
     public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
-        FieldTreeNode parent = node.getParent();
-        if ((parent instanceof EntityMetadata.RootTreeNode)) {
-            return mp.push(Path.ANY);    
-        } else {
-            return parent.getFullPath(mp, parent).push(Path.ANY);
-        }
+        FieldTreeNode nodeParent = node.getParent();
+        return nodeParent.getFullPath(mp, nodeParent).push(Path.ANY);
     }
 
     @Override
