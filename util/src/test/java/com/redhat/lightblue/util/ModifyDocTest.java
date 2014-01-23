@@ -21,12 +21,27 @@ package com.redhat.lightblue.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 public class ModifyDocTest {
+        
     private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
+    @Test(expected=IllegalArgumentException.class)
+    public void emptyPath() throws Exception {
+        JsonDoc doc = new JsonDoc(factory.objectNode());
+        doc.modify(new Path(""), factory.numberNode(1), true);
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void parentNotAContainer() throws Exception {
+        JsonDoc doc = new JsonDoc(factory.booleanNode(true));
+        doc.modify(new Path("1"), factory.objectNode(), true);
+    }
+    
     @Test
     public void basicRootLevelNodes() throws Exception {
         JsonDoc doc = new JsonDoc(factory.objectNode());
@@ -80,4 +95,48 @@ public class ModifyDocTest {
         doc.modify(new Path("x.y.z.5.a.b.c.2"), factory.numberNode(3), false);
         Assert.assertEquals(3, doc.get(new Path("x.y.z.5.a.b.c.2")).intValue());
     }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void parentNodeNull() throws Exception {
+        JsonDoc doc = new JsonDoc(factory.objectNode());
+        doc.modify(new Path("x.y.z.1.w"), null, false);
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void parentNotContainerNode() throws Exception {
+        JsonDoc doc = new JsonDoc(factory.objectNode());
+        doc.modify(new Path("x.y.z.1"), factory.booleanNode(true), false);
+    }
+    
+    
+    @Test
+    public void existingNodeRemove() throws Exception {
+        JsonDoc doc = new JsonDoc(factory.objectNode());
+
+        doc.modify(new Path("x.y.z.1.w"), factory.textNode("test"), true);
+        
+        JsonNode oldValue = doc.modify(new Path("x.y.z.1.w"), null, true);
+        Assert.assertEquals(oldValue, factory.textNode("test"));
+        Assert.assertNull(doc.get(new Path("x.y.z.1.w")));
+
+    }
+
+    @Test
+    public void existingArrayNodeRemove() throws Exception {
+        JsonDoc doc = new JsonDoc(factory.objectNode());
+        
+        doc.modify(new Path("x.y.z.0"), factory.textNode("ztext0"), true);
+        doc.modify(new Path("x.y.z.1"), factory.textNode("ztext1"), true);
+        doc.modify(new Path("x.y.z.2"), factory.textNode("ztext2"), true);
+        doc.modify(new Path("x.y.z.3.0"), factory.textNode("ztext0"), true);
+        
+        JsonNode oldValue = doc.modify(new Path("x.y.z.0"), null, false);
+        Assert.assertEquals(oldValue, factory.textNode("ztext0"));
+       
+        Assert.assertEquals(NullNode.class, doc.get(new Path("x.y.z.0")).getClass());
+        Assert.assertEquals(TextNode.class, doc.get(new Path("x.y.z.1")).getClass());
+        Assert.assertEquals(factory.textNode("ztext1"), doc.get(new Path("x.y.z.1")));
+        Assert.assertEquals(factory.textNode("ztext2"), doc.get(new Path("x.y.z.2")));
+    }   
+    
 }

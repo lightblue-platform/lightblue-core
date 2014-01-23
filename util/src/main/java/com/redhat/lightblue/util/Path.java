@@ -77,7 +77,7 @@ public class Path implements Comparable<Path>, Serializable {
     public static final Path EMPTY = new Path();
     public static final Path ANYPATH = new Path(ANY);
 
-    protected PathRep data;
+    private PathRep data;
 
     /**
      * Constructs empty path
@@ -118,6 +118,10 @@ public class Path implements Comparable<Path>, Serializable {
         data.append(s);
     }
 
+    protected void setData(PathRep pr) {
+        data = pr;
+    }
+    
     protected PathRep getData() {
         return data;
     }

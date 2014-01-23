@@ -48,7 +48,7 @@ public class MutablePath extends Path {
     }
 
     public MutablePath(MutablePath x) {
-        data=new PathRep(x.data);
+        setData(new PathRep(x.getData()));
         pathOwned = true;
     }
 
@@ -60,7 +60,7 @@ public class MutablePath extends Path {
      * prefix of x with last -pfix elements removed.
      */
     public MutablePath(Path x, int pfix) {
-        data=new PathRep(x.data, pfix);
+        setData(new PathRep(x.getData(), pfix));
         pathOwned = true;
     }
 
@@ -77,7 +77,7 @@ public class MutablePath extends Path {
     @Override
     public Path immutableCopy() {
         Path p = new Path();
-        p.data=new PathRep(data);
+        p.setData(new PathRep(getData()));
         return p;
     }
 
@@ -94,7 +94,7 @@ public class MutablePath extends Path {
         List<String> s = parse(x);
         if(s!=null&&!s.isEmpty()) {
             own();
-            data.append(s);
+            getData().append(s);
         }
         return this;
     }
@@ -107,7 +107,7 @@ public class MutablePath extends Path {
             throw new IllegalArgumentException("null value passed to push");
         }
         own();
-        data.append(x.data);
+        getData().append(x.getData());
         return this;
     }
 
@@ -129,7 +129,7 @@ public class MutablePath extends Path {
     public MutablePath pop() {
         try {
             own();
-            data.remove(data.size()-1);
+            getData().remove(getData().size()-1);
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException("Attempted to pop empty path");
         }
@@ -145,8 +145,8 @@ public class MutablePath extends Path {
     public Path setLast(String x) {
         try {
             own();
-            data.remove(data.size()-1);
-            data.append(parse(x));
+            getData().remove(getData().size()-1);
+            getData().append(parse(x));
             return this;
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException("Attempted to set last segment on empty path.");
@@ -165,7 +165,7 @@ public class MutablePath extends Path {
 
     public Path set(int i, String x) {
         own();
-        data.set(i, x);
+        getData().set(i, x);
         return this;
     }
 
@@ -178,9 +178,9 @@ public class MutablePath extends Path {
      */
     public MutablePath cut(int length) {
         own();
-        int l = data.size();
+        int l = getData().size();
         while (l > length) {
-            data.remove(--l);
+            getData().remove(--l);
         }
         return this;
     }
@@ -190,7 +190,7 @@ public class MutablePath extends Path {
      */
     private void own() {
         if (!pathOwned) {
-            data=new PathRep(data);
+            setData(new PathRep(getData()));
             pathOwned = true;
         }
     }
