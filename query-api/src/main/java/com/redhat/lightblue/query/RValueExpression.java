@@ -33,6 +33,7 @@ import com.redhat.lightblue.util.Path;
  */
 public class RValueExpression extends JsonObject {
 
+    private static final long serialVersionUID = 1L;
     public static final String ERR_INVALID_RVALUE_EXPRESSION="INVALID_RVALUE_EXPRESSION";
 
     public enum RValueType {
@@ -116,8 +117,9 @@ public class RValueExpression extends JsonObject {
                 if(path!=null&&path.isValueNode()) {
                     return new RValueExpression(new Path(path.asText()));
                 }
-            } else
+            } else {
                 return new RValueExpression();
+            }
         } else if(node.isValueNode()) {
             return new RValueExpression(Value.fromJson(node));
         } 

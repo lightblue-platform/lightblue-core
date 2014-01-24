@@ -43,12 +43,11 @@ public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
     public static ArrayUpdateExpression fromJson(ObjectNode node) {
         if(node.has(UpdateOperator._append.toString()) || node.has(UpdateOperator._insert.toString())) {
             return ArrayAddExpression.fromJson(node);
+        } else if(node.has(UpdateOperator._foreach.toString())) {
+            return ForEachExpression.fromJson(node);
+        } else {
+            throw Error.get(ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
         }
             
-        else if(node.has(UpdateOperator._foreach.toString())) {
-            return ForEachExpression.fromJson(node);
-        }
-        else
-            throw Error.get(ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
     }
 }

@@ -305,11 +305,11 @@ public class Translator {
             }
         }
         Object valueObject=t.cast(expr.getRvalue().getValue());
-        if(expr.getField().equals(ID_PATH))
+        if(expr.getField().equals(ID_PATH)) {
             valueObject=new ObjectId(valueObject.toString());
+        }
         if (expr.getOp() == BinaryComparisonOperator._eq) {
-            BasicDBObject obj = new BasicDBObject(expr.getField().toString(),valueObject);
-            return obj;
+            return new BasicDBObject(expr.getField().toString(),valueObject);
         } else {
             return new BasicDBObject(expr.getField().toString(),
                                      new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),valueObject));
@@ -552,8 +552,9 @@ public class Translator {
         // Should we add fields with null values to the bson doc? 
         if (value != null) {
             LOGGER.debug("{} = {}", path, value);
-            if(path.equals(ID_PATH))
+            if(path.equals(ID_PATH)) {
                 value=new ObjectId(value.toString());
+            }
             dest.append(path.tail(0), value);
         }
     }

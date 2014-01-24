@@ -25,23 +25,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.ArrayField;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.ArrayElement;
-
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.query.AllMatchExpression;
 import com.redhat.lightblue.query.ForEachExpression;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.UpdateExpression;
-import com.redhat.lightblue.query.AllMatchExpression;
-import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.RemoveElementExpression;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Evaluates a loop over the elements of an array
@@ -79,24 +75,26 @@ public class ForEachExpressionEvaluator extends Updater {
         // Resolve the field, make sure it is an array
         field=expr.getField();
         FieldTreeNode md=context.resolve(field);
-        if(md instanceof ArrayField)
+        if(md instanceof ArrayField) {
             fieldMd=(ArrayField)md;
-        else
+        } else {
             throw new EvaluationError("Field is not array:"+field);
-
+        }
         // Get a query evaluator
         QueryExpression query=expr.getQuery();
-        if(query instanceof AllMatchExpression)
+        if(query instanceof AllMatchExpression) {
             queryEvaluator=new AllEvaluator();
-        else
+        } else {
             queryEvaluator=QueryEvaluator.getInstance(query,context);
+        }
 
         // Get an updater to execute on each matching element
         UpdateExpression upd=expr.getUpdate();
-        if(upd instanceof RemoveElementExpression)
+        if(upd instanceof RemoveElementExpression) {
             updater=new RemoveEvaluator();
-        else
+        } else {
             updater=Updater.getInstance(factory,fieldMd.getElement(),expr);
+        }
     }
     
     @Override
@@ -113,16 +111,18 @@ public class ForEachExpressionEvaluator extends Updater {
             // Copy the nodes to a separate list, so we iterate on the
             // new copy, and modify the original
             ArrayList<JsonNode> nodes=new ArrayList<JsonNode>();
-            for(Iterator<JsonNode> itr=arrayNode.elements();itr.hasNext();)
+            for(Iterator<JsonNode> itr=arrayNode.elements();itr.hasNext();) {
                 nodes.add(itr.next());
+            }
             for(JsonNode elementNode:nodes) {
                 Path elementPath=itrPath.immutableCopy();
                 LOGGER.debug("itr:{}",elementPath);
                 QueryEvaluationContext ctx=new QueryEvaluationContext(elementNode,elementPath);
                 if(queryEvaluator.evaluate(ctx)) {
                     LOGGER.debug("query matches {}",elementPath);
-                    if(updater.update(doc,elementMd,elementPath))
+                    if(updater.update(doc,elementMd,elementPath)) {
                         ret=true;
+                    }
                 } else {
                     LOGGER.debug("query does not match {}",elementPath);
                 }

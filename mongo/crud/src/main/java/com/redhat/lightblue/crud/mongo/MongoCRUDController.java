@@ -249,8 +249,9 @@ public class MongoCRUDController implements CRUDController {
             if(projection!=null) {
                 projector = Projector.getInstance(projection, md);
                 response.setDocuments(new ArrayList<JsonDoc>());
-            } else
+            } else {
                 projector = null;
+            }
             Updater updater=Updater.getInstance(factory,md,update);
             DB db = dbResolver.get((MongoDataStore) md.getDataStore());
             DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
@@ -289,8 +290,9 @@ public class MongoCRUDController implements CRUDController {
                     DBObject updatedObject=translator.toBson(jsonDocument);
                     WriteResult result=collection.save(updatedObject);                    
                     
-                } else
+                } else {
                     LOGGER.debug("Document {} was not modified",docIndex);
+                }
                 if(projector!=null) {
                     LOGGER.debug("Projecting document {}",docIndex);
                     jsonDocument=projector.project(jsonDocument,factory,ctx);
@@ -300,8 +302,9 @@ public class MongoCRUDController implements CRUDController {
                 // TODO: errors and docErrors
             }
         } finally {
-            if(cursor!=null)
+            if(cursor!=null) {
                 cursor.close();
+            }
         }
         response.setNumUpdated(docIndex);
         response.setNumFailed(numFailed);

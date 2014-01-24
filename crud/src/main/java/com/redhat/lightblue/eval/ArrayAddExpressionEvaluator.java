@@ -148,12 +148,15 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 }
                 if(insertTo>=0) {
                     // If we're inserting, make sure we have that many elements
-                    while(arrayNode.size()<insertTo)
+                    while(arrayNode.size()<insertTo) {
                         arrayNode.addNull();
-                    if(arrayNode.size()>insertTo)
+                    }
+                        
+                    if(arrayNode.size()>insertTo) {
                         arrayNode.insert(insertTo,newValueNode);
-                    else
+                    } else {
                         arrayNode.add(newValueNode);
+                    }   
                     insertTo++;
                 } else {
                     arrayNode.add(newValueNode);

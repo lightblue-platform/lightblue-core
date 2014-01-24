@@ -217,8 +217,9 @@ public class Mediator {
             if(errors!=null&&!errors.isEmpty()) {
                 response.getErrors().addAll(result.getErrors());
                 response.setStatus(OperationStatus.ERROR);
-            } else
+            } else {
                 response.setStatus(OperationStatus.COMPLETE);
+            }
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);

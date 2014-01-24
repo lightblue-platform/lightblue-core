@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +53,7 @@ public class MetadataManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (metadata != null) {
             // already initalized
@@ -97,7 +99,7 @@ public class MetadataManager {
         metadata = (Metadata) m.invoke(null, configuration.getDatabaseConfiguration());
     }
 
-    public static Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public static Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (metadata == null) {
             initializeMetadata();
         }

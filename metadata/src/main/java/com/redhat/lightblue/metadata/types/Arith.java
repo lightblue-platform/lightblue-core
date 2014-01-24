@@ -59,9 +59,9 @@ public final class Arith {
         // the types and getting max determines the reslt type. For
         // BigInteger-double operations, result is BigDecimal.
         if((operand1 instanceof BigIntegerType && operand2 instanceof DoubleType)||
-           (operand1 instanceof DoubleType && operand2 instanceof BigIntegerType))
+           (operand1 instanceof DoubleType && operand2 instanceof BigIntegerType)) {
             return BigDecimalType.TYPE;
-        else {
+        } else {
             int o1=arithType(operand1);
             int o2=arithType(operand2);
             return arithType(Math.max(o1,o2));
