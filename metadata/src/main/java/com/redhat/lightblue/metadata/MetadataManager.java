@@ -52,7 +52,7 @@ public class MetadataManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (metadata != null) {
             // already initalized
             return;

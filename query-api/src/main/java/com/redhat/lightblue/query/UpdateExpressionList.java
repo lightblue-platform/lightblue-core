@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
  */
 public class UpdateExpressionList extends UpdateExpression {
 
+    private static final long serialVersionUID = 1L;
     private final List<PartialUpdateExpression> list;
 
     /**
@@ -61,8 +62,9 @@ public class UpdateExpressionList extends UpdateExpression {
     @Override
     public JsonNode toJson() {
         ArrayNode node=getFactory().arrayNode();
-        for(PartialUpdateExpression x:list)
+        for(PartialUpdateExpression x:list) {
             node.add(x.toJson());
+        }
         return node;
     }
     
@@ -71,8 +73,9 @@ public class UpdateExpressionList extends UpdateExpression {
      */
     public static UpdateExpressionList fromJson(ArrayNode node) {
         ArrayList<PartialUpdateExpression> list=new ArrayList<PartialUpdateExpression>(node.size());
-        for(Iterator<JsonNode> itr=node.elements();itr.hasNext();)
+        for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
             list.add(PartialUpdateExpression.fromJson((ObjectNode)itr.next()));
+        }
         return new UpdateExpressionList(list);
     }
 }

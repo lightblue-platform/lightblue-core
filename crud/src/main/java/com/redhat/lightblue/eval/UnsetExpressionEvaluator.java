@@ -53,8 +53,9 @@ public class UnsetExpressionEvaluator extends Updater {
         for(Path x:fields) {
             Path removePath=new Path(contextPath,x);
             LOGGER.debug("Removing {}",removePath);
-            if(doc.modify(removePath,null,false)!=null)
+            if(doc.modify(removePath,null,false)!=null) {
                 ret=true;
+            }
         }
         return ret;
     }

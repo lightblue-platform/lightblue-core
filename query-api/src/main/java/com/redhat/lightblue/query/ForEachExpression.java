@@ -36,6 +36,7 @@ import com.redhat.lightblue.util.Error;
  */
 public class ForEachExpression extends ArrayUpdateExpression {
     
+    private static final long serialVersionUID = 1L;
     private final Path field;
     private final QueryExpression query;
     private final UpdateExpression update;
@@ -94,16 +95,17 @@ public class ForEachExpression extends ArrayUpdateExpression {
                     Path field=null;
                     for(Iterator<Map.Entry<String,JsonNode>> itr=objArg.fields();itr.hasNext();) {
                         Map.Entry<String,JsonNode> entry=itr.next();
-                        if("$update".equals(entry.getKey()))
+                        if("$update".equals(entry.getKey())) {
                             updateNode=entry.getValue();
-                        else {
+                        } else {
                             field=new Path(entry.getKey());
                             queryNode=entry.getValue();
                         }
                     }
-                    if(queryNode!=null&&updateNode!=null&&field!=null)
+                    if(queryNode!=null&&updateNode!=null&&field!=null) {
                         return new ForEachExpression(field,UpdateQueryExpression.fromJson(queryNode),
-                                                     ForEachUpdateExpression.fromJson(updateNode));
+                                ForEachUpdateExpression.fromJson(updateNode));
+                    }
                 }
             }
         }

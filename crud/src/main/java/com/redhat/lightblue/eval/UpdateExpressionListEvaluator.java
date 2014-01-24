@@ -43,16 +43,19 @@ public class UpdateExpressionListEvaluator extends Updater {
                                          UpdateExpressionList expr) {
         List<PartialUpdateExpression> list=expr.getList();
         updaters=new ArrayList<Updater>(list.size());
-        for(PartialUpdateExpression x:list)
+        for(PartialUpdateExpression x:list) {
             updaters.add(Updater.getInstance(factory,context,x));
+        }
     }
 
     @Override
         public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
         boolean ret=false;
-        for(Updater x:updaters)
-            if(x.update(doc,contextMd,contextPath))
+        for(Updater x:updaters) {
+            if(x.update(doc,contextMd,contextPath)) {
                 ret=true;
+            }
+        }
         return ret;
     }
  }

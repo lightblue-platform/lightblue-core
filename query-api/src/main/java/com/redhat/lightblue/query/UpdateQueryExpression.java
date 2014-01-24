@@ -26,13 +26,16 @@ import com.fasterxml.jackson.databind.node.TextNode;
  */
 public abstract class UpdateQueryExpression extends QueryExpression {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Parses a query expression that can be used in for-each clauses
      */
     public static QueryExpression fromJson(JsonNode node) {
-        if(node instanceof TextNode && "$all".equals(node.asText()))
+        if(node instanceof TextNode && "$all".equals(node.asText())) {
             return new AllMatchExpression();
-        else
+        } else {
             return QueryExpression.fromJson(node);
+        }
     }
 }

@@ -194,4 +194,9 @@ public class MutablePath extends Path {
             pathOwned = true;
         }
     }
+    
+    @Override
+    public boolean equals(Object x) {
+        return super.equals(x);
+    }
 }

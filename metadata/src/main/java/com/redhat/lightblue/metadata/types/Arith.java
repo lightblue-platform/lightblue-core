@@ -69,16 +69,17 @@ public final class Arith {
     }
 
     private static int arithType(Type operand) {
-        if(operand instanceof IntegerType)
+        if (operand instanceof IntegerType) {
             return 0;
-        else if(operand instanceof BigIntegerType)
+        } else if (operand instanceof BigIntegerType) {
             return 1;
-        else if(operand instanceof DoubleType)
+        } else if (operand instanceof DoubleType) {
             return 2;
-        else if(operand instanceof BigDecimalType)
+        } else if (operand instanceof BigDecimalType) {
             return 3;
-        else
-            throw new IllegalArgumentException(operand.getName()+" is not a number type");
+        } else {
+            throw new IllegalArgumentException(operand.getName() + " is not a number type");
+        }  
     }
 
     private static Type arithType(int type) {
@@ -86,8 +87,8 @@ public final class Arith {
         case 0: return IntegerType.TYPE;
         case 1: return BigIntegerType.TYPE;
         case 2: return DoubleType.TYPE;
-        }
-        return BigDecimalType.TYPE;
+        default: return BigDecimalType.TYPE; 
+        }   
     }
 
     private Arith() {}

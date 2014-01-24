@@ -23,9 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.BSONObject;
 import org.bson.types.ObjectId;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -608,6 +606,7 @@ public class Translator {
     /**
      * @param cursor The cursor, pointing to the first element of the array
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private List arrayToBson(JsonNodeCursor cursor, ArrayElement el, EntityMetadata md) {
         List l = new ArrayList();
         if (el instanceof SimpleArrayElement) {

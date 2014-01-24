@@ -41,6 +41,7 @@ import com.redhat.lightblue.util.Path;
  */
 public class ArrayAddExpression extends ArrayUpdateExpression {
     
+    private static final long serialVersionUID = 1L;
     private final List<RValueExpression> values;
     private final UpdateOperator op;
     private final Path field;
@@ -79,12 +80,13 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
     public JsonNode toJson() {
         ObjectNode node=getFactory().objectNode();
         ObjectNode args=getFactory().objectNode();
-        if(values.size()==1)
+        if(values.size()==1) {
             args.set(field.toString(),values.get(0).toJson());
-        else {
+        } else {
             ArrayNode arr=getFactory().arrayNode();
-            for(RValueExpression v:values)
+            for(RValueExpression v:values){
                 arr.add(v.toJson());
+            }
             args.set(field.toString(),arr);
         }
         node.set(op.toString(),args);
@@ -110,8 +112,9 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
                     JsonNode valueNode=item.getValue();
                     List<RValueExpression> rvalues=new ArrayList<RValueExpression>();
                     if(valueNode instanceof ArrayNode) {
-                        for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();)
+                        for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
                             rvalues.add(RValueExpression.fromJson(itr.next()));
+                        }
                     } else {
                         rvalues.add(RValueExpression.fromJson(valueNode));
                     }

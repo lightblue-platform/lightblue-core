@@ -73,10 +73,11 @@ public final class JsonUtils {
         boolean first=true;
         for(Iterator<JsonNode> itr=node.elements();
             itr.hasNext();) {
-            if(first)
+            if(first) {
                 first=false;
-            else
+            } else {
                 bld.append(',');
+            }
             newLine=toString(bld,itr.next(),depth+1,newLine);
         }
         if(newLine) {
@@ -101,9 +102,9 @@ public final class JsonUtils {
         boolean first=true;
         for(Iterator<Map.Entry<String,JsonNode>> itr=node.fields();
             itr.hasNext();) {
-            if(first)
+            if(first) {
                 first=false;
-            else {
+            } else {
                 if(newLine) {
                     indent(bld,depth);
                     newLine=false;
@@ -150,8 +151,9 @@ public final class JsonUtils {
 
     private static void indent(StringBuilder bld,int depth) {
         int n=depth*2;
-        for(int i=0;i<n;i++)
+        for(int i=0;i<n;i++) {
             bld.append(' ');
+        }
     }
 
     private JsonUtils() {

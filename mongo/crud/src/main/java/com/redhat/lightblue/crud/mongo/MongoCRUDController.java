@@ -18,59 +18,49 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+import java.util.Set;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.bson.types.ObjectId;
-
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
-import com.mongodb.MongoException;
-import com.mongodb.BasicDBObject;
-
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.DataError;
-
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.UpdateExpression;
-
-import com.redhat.lightblue.metadata.mongo.MongoDataStore;
-import com.redhat.lightblue.metadata.EntityMetadata;
-
-import com.redhat.lightblue.crud.MetadataResolver;
-
-import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluator;
-import com.redhat.lightblue.eval.QueryEvaluationContext;
-import com.redhat.lightblue.eval.Updater;
-
+import com.redhat.lightblue.crud.AbstractCRUDUpdateResponse;
+import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.CRUDDeleteResponse;
-import com.redhat.lightblue.crud.AbstractCRUDUpdateResponse;
-import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.MetadataResolver;
+import com.redhat.lightblue.eval.Projector;
+import com.redhat.lightblue.eval.QueryEvaluationContext;
+import com.redhat.lightblue.eval.QueryEvaluator;
+import com.redhat.lightblue.eval.Updater;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.mongo.MongoConfiguration;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 public class MongoCRUDController implements CRUDController {
 

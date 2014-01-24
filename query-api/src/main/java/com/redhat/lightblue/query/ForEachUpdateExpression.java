@@ -25,14 +25,17 @@ import com.fasterxml.jackson.databind.node.TextNode;
  * Base class for update expressions that can be used in for-each clauses
  */
 public abstract class ForEachUpdateExpression extends UpdateExpression {
-    
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Parses a foreach update expression from the given json object
      */
     public static UpdateExpression fromJson(JsonNode node) {
-        if(node instanceof TextNode && "$remove".equals(node.asText()))
+        if(node instanceof TextNode && "$remove".equals(node.asText())) {
             return new RemoveElementExpression();
-        else
+        } else {
             return UpdateExpression.fromJson(node);
+        }       
     }
 }

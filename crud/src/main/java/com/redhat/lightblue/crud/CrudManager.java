@@ -18,23 +18,23 @@
  */
 package com.redhat.lightblue.crud;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.google.gson.Gson;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.metadata.Extensions;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
-import com.redhat.lightblue.metadata.MetadataConfiguration;
-import com.redhat.lightblue.metadata.MetadataManager;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.crud.CrudConfiguration.Controller;
-import com.redhat.lightblue.util.JsonUtils;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.google.gson.Gson;
+import com.redhat.lightblue.crud.CrudConfiguration.Controller;
+import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.mediator.Mediator;
+import com.redhat.lightblue.metadata.Extensions;
+import com.redhat.lightblue.metadata.JSONMetadataParser;
+import com.redhat.lightblue.metadata.MetadataManager;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
@@ -47,7 +47,7 @@ public class CrudManager {
     private static JSONMetadataParser parser = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
-    private synchronized static void initializeParser() {
+    private static synchronized void initializeParser() {
         if (parser != null) {
             return;
         }
@@ -57,7 +57,7 @@ public class CrudManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    private synchronized static void initializeMediator() throws Exception {
+    private static synchronized void initializeMediator() throws Exception {
         if (mediator != null) {
             // already initalized
             return;

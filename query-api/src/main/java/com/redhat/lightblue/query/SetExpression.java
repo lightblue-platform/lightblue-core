@@ -41,6 +41,8 @@ import com.redhat.lightblue.util.Path;
  */
 public class SetExpression extends PrimitiveUpdateExpression {
 
+    private static final long serialVersionUID = 1L;
+
     public static final String ERR_INVALID_SET_EXPRESSION="INVALID_SET_EXPRESSION";
 
     private final List<FieldAndRValue> fields;
@@ -51,10 +53,11 @@ public class SetExpression extends PrimitiveUpdateExpression {
      */
     public SetExpression(UpdateOperator op,List<FieldAndRValue> list) {
         this.fields=list;
-        if(op==UpdateOperator._set||op==UpdateOperator._add)
+        if(op==UpdateOperator._set||op==UpdateOperator._add) {
             this.op=op;
-        else
+        } else {
             throw new IllegalArgumentException("Operator:"+op);
+        }
     }
     
     /**
@@ -62,10 +65,11 @@ public class SetExpression extends PrimitiveUpdateExpression {
      */
     public SetExpression(UpdateOperator op,FieldAndRValue... l) {
         this.fields=Arrays.asList(l);
-        if(op==UpdateOperator._set||op==UpdateOperator._add)
+        if(op==UpdateOperator._set||op==UpdateOperator._add) {
             this.op=op;
-        else
+        } else {
             throw new IllegalArgumentException("Operator:"+op);
+        }
     }
 
     /**
@@ -100,10 +104,11 @@ public class SetExpression extends PrimitiveUpdateExpression {
     public static SetExpression fromJson(ObjectNode node) {
         if(node.size()==1) {
             UpdateOperator op=null;
-            if(node.has(UpdateOperator._add.toString()))
+            if(node.has(UpdateOperator._add.toString())) {
                 op=UpdateOperator._add;
-            else if(node.has(UpdateOperator._set.toString()))
+            } else if(node.has(UpdateOperator._set.toString())) {
                 op=UpdateOperator._set;
+            }
             if(op!=null) {
                 ObjectNode arg=(ObjectNode)node.get(op.toString());
                 List<FieldAndRValue> list=new ArrayList<FieldAndRValue>();

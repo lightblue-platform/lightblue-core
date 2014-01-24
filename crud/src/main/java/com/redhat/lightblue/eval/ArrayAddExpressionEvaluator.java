@@ -78,8 +78,9 @@ public class ArrayAddExpressionEvaluator extends Updater {
             if(expr.getField().isIndex(expr.getField().numSegments()-1)) {
                 arrayField=expr.getField().prefix(-1);
                 insertionIndex=expr.getField().getIndex(expr.getField().numSegments()-1);
-            } else
+            } else {
                 throw new EvaluationError("Index required in insertion:"+expr.getField());
+            }
         } else {
             arrayField=expr.getField();
             insertionIndex=-1;
@@ -93,25 +94,29 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 FieldTreeNode refMd=null;
                 if(rvalue.getType()==RValueExpression.RValueType._dereference) {
                     refMd=context.resolve(rvalue.getPath());
-                    if(refMd==null)
+                    if(refMd==null) {
                         throw new EvaluationError("Invalid dereference:"+rvalue.getPath());
+                    }
                 } 
                 ArrayElement element=fieldMd.getElement();
                 if(element instanceof ObjectArrayElement) {
-                    if(refMd!=null&&!refMd.getType().equals(element.getType()))
+                    if(refMd!=null&&!refMd.getType().equals(element.getType())) {
                         throw new EvaluationError("Invalid assignment "+arrayField+" <- "+refPath);
-                    else if(rvalue.getType()==RValueExpression.RValueType._value)
+                    } else if(rvalue.getType()==RValueExpression.RValueType._value) {
                         throw new EvaluationError("Object value expected for "+arrayField);
+                    }
                 } else {
-                    if(refMd!=null&&!refMd.getType().equals(element.getType()))
+                    if(refMd!=null&&!refMd.getType().equals(element.getType())) {
                         throw new EvaluationError("Invalid assignment "+arrayField+"<-"+refPath);
-                    else if(rvalue.getType()==RValueExpression.RValueType._emptyObject)
+                    } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
                         throw new EvaluationError("Value expected for "+arrayField);
+                    }
                 }
                 values.add(new RValueData(refPath,refMd.getType(),rvalue.getValue()));
             }
-        } else
+        } else {
             throw new EvaluationError("Array required:"+arrayField);
+        }
     }
     
     @Override
