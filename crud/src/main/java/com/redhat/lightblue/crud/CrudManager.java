@@ -47,6 +47,10 @@ public class CrudManager {
     private static JSONMetadataParser parser = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
+    private CrudManager() {
+        
+    }
+    
     private static synchronized void initializeParser() {
         if (parser != null) {
             return;

@@ -33,10 +33,10 @@ public class Factory implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-    private transient final DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
-    private transient final DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
+	transient private final DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
+    transient private final DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
 
-    private transient final DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
+    transient private final DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
 
     /**
      * Adds a field constraint validator

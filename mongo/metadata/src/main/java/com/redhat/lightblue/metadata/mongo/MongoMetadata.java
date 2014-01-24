@@ -50,6 +50,7 @@ import java.net.UnknownHostException;
 
 public class MongoMetadata implements Metadata {
 
+    private static final long serialVersionUID = 1L;
     public static final String ERR_DUPLICATE_METADATA = "DUPLICATE_METADATA";
     public static final String ERR_UNKNOWN_VERSION = "UNKNOWN_VERSION";
     public static final String ERR_DB_ERROR = "DB_ERROR";
@@ -61,7 +62,7 @@ public class MongoMetadata implements Metadata {
 
     private final DBCollection collection;
 
-    private final BSONParser mdParser;
+    transient private final BSONParser mdParser;
 
     public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
         DB db = configuration.getDB();

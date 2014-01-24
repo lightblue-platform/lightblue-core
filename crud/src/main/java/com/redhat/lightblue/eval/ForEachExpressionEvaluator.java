@@ -124,8 +124,9 @@ public class ForEachExpressionEvaluator extends Updater {
                     if(updater.update(doc,elementMd,elementPath)) {
                         ret=true;
                         // Removal shifts nodes down
-                        if(updater instanceof RemoveEvaluator)
+                        if(updater instanceof RemoveEvaluator) {
                             index--;
+                        }
                     }
                 } else {
                     LOGGER.debug("query does not match {}",elementPath);
