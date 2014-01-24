@@ -251,7 +251,7 @@ public class ModifyDocTest {
 
         doc.modify(new Path("x.arr.0"), null, false);
 
-        Assert.assertNull(doc.get(new Path("x.arr.1")));
+        Assert.assertEquals(0, doc.get(new Path("x.arr")).size());
     }
 
     @Test
@@ -261,7 +261,7 @@ public class ModifyDocTest {
 
         doc.modify(new Path("x.arr.0"), null, false);
 
-        Assert.assertEquals(NullNode.class, doc.get(new Path("x.arr.0")).getClass());
+        Assert.assertEquals(1, doc.get(new Path("x.arr")).size());
     }
 
 }

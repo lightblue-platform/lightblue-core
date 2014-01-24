@@ -391,9 +391,12 @@ public class JsonDoc implements Serializable {
                 arr.addNull();
                 size++;
             }
-            if (index < size) {
+            if (index < size && newValue != null) {
                 oldValue = arr.get(index);
                 arr.set(index, newValue);
+            } else if (newValue == null) {
+                oldValue = arr.get(index);
+                arr.remove(index);
             } else {
                 oldValue = null;
                 arr.add(newValue);
