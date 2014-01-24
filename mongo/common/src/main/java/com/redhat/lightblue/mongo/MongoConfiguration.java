@@ -19,7 +19,7 @@ import java.util.List;
  * @author nmalik
  */
 public class MongoConfiguration {
-    public class Server {
+    public static class Server {
         private String hostname = "localhost";
         private String port = "27017";
 
@@ -118,7 +118,6 @@ public class MongoConfiguration {
 
     public DB getDB() throws UnknownHostException {
         MongoClient client = new MongoClient(getServerAddresses(), getMongoClientOptions());
-        DB db = client.getDB(getName());
-        return db;
+        return client.getDB(getName());
     }
 }
