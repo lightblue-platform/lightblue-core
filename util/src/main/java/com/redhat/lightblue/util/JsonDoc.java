@@ -376,6 +376,8 @@ public class JsonDoc implements Serializable {
         JsonNode oldValue;
         String last = p.getLast();
         if (parentNode instanceof ObjectNode) {
+            if(Util.isNumber(last))
+                throw new IllegalArgumentException("Invalid indexed access:"+p);
             ObjectNode obj = (ObjectNode) parentNode;
             if (newValue == null) {
                 oldValue = obj.get(last);
@@ -385,7 +387,12 @@ public class JsonDoc implements Serializable {
             }
         } else {
             ArrayNode arr = (ArrayNode) parentNode;
-            int index = Integer.valueOf(last);
+            int index;
+            try {
+                index = Integer.valueOf(last);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Array index expected:"+p);
+            }
             int size = arr.size();
             while (size < index) {
                 arr.addNull();

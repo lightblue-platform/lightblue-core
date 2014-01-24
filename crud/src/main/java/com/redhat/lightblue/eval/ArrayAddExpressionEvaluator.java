@@ -93,9 +93,10 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 Path refPath=null;
                 FieldTreeNode refMd=null;
                 if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    refMd=context.resolve(rvalue.getPath());
+                    refPath=rvalue.getPath();
+                    refMd=context.resolve(refPath);
                     if(refMd==null) {
-                        throw new EvaluationError("Invalid dereference:"+rvalue.getPath());
+                        throw new EvaluationError("Invalid dereference:"+refPath);
                     }
                 } 
                 ArrayElement element=fieldMd.getElement();
@@ -112,7 +113,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
                         throw new EvaluationError("Value expected for "+arrayField);
                     }
                 }
-                values.add(new RValueData(refPath,refMd.getType(),rvalue.getValue()));
+                values.add(new RValueData(refPath,refMd==null?null:refMd.getType(),rvalue.getValue()));
             }
         } else {
             throw new EvaluationError("Array required:"+arrayField);

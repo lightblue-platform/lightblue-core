@@ -33,7 +33,9 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * Removes a field from a doc
+ * Removes a field from a doc.
+ *
+ * Removals take place one by one, results of a removal are visible to the subsequent operations
  */
 public class UnsetExpressionEvaluator extends Updater {
 

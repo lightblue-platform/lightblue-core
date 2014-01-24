@@ -112,4 +112,61 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals(0,node.size());
         Assert.assertTrue(node instanceof ObjectNode);
     }
+
+    @Test
+    public void unset() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+        
+        UpdateExpression expr=json("{'$unset' : [ 'field1', 'field6.nf2', 'field6.nf6.1','field7.1'] }");
+        
+        Updater updater=Updater.getInstance(factory,md,expr);
+        Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
+        Assert.assertNull(doc.get(new Path("field1")));
+        Assert.assertNull(doc.get(new Path("field6.nf2")));
+        Assert.assertEquals("three",doc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals("elvalue2_1",doc.get(new Path("field7.1.elemf1")).asText());
+    }
+    
+
+    @Test
+    public void array_append() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+        
+        UpdateExpression expr=json("{ '$append' : { 'field6.nf6' : [ 'five','six',{'$valueof':'field2' }] } }");
+        
+        Updater updater=Updater.getInstance(factory,md,expr);
+        Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
+        
+        Assert.assertEquals("one",doc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals("two",doc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals("three",doc.get(new Path("field6.nf6.2")).asText());
+        Assert.assertEquals("four",doc.get(new Path("field6.nf6.3")).asText());
+        Assert.assertEquals("five",doc.get(new Path("field6.nf6.4")).asText());
+        Assert.assertEquals("six",doc.get(new Path("field6.nf6.5")).asText());
+        Assert.assertEquals("value2",doc.get(new Path("field6.nf6.6")).asText());
+        Assert.assertNull(doc.get(new Path("field6.ng6.7")));
+    }
+    
+    @Test
+    public void array_insert() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+        
+        UpdateExpression expr=json("{ '$insert' : { 'field6.nf6.2' : [ 'five','six',{'$valueof':'field2' }] } }");
+        
+        Updater updater=Updater.getInstance(factory,md,expr);
+        Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
+        
+        Assert.assertEquals("one",doc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals("two",doc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals("five",doc.get(new Path("field6.nf6.2")).asText());
+        Assert.assertEquals("six",doc.get(new Path("field6.nf6.3")).asText());
+        Assert.assertEquals("value2",doc.get(new Path("field6.nf6.4")).asText());
+        Assert.assertEquals("three",doc.get(new Path("field6.nf6.5")).asText());
+        Assert.assertEquals("four",doc.get(new Path("field6.nf6.6")).asText());
+        Assert.assertNull(doc.get(new Path("field6.ng6.7")));
+    }
+    
 }
