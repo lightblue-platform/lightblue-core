@@ -85,7 +85,7 @@ public class ForEachExpressionEvaluator extends Updater {
         if(query instanceof AllMatchExpression) {
             queryEvaluator=new AllEvaluator();
         } else {
-            queryEvaluator=QueryEvaluator.getInstance(query,context);
+            queryEvaluator=QueryEvaluator.getInstance(query,fieldMd.getElement());
         }
 
         // Get an updater to execute on each matching element
@@ -93,7 +93,7 @@ public class ForEachExpressionEvaluator extends Updater {
         if(upd instanceof RemoveElementExpression) {
             updater=new RemoveEvaluator();
         } else {
-            updater=Updater.getInstance(factory,fieldMd.getElement(),expr);
+            updater=Updater.getInstance(factory,fieldMd.getElement(),upd);
         }
     }
     
@@ -115,6 +115,7 @@ public class ForEachExpressionEvaluator extends Updater {
                 nodes.add(itr.next());
             }
             for(JsonNode elementNode:nodes) {
+                itrPath.setLast(index);
                 Path elementPath=itrPath.immutableCopy();
                 LOGGER.debug("itr:{}",elementPath);
                 QueryEvaluationContext ctx=new QueryEvaluationContext(elementNode,elementPath);
@@ -122,10 +123,14 @@ public class ForEachExpressionEvaluator extends Updater {
                     LOGGER.debug("query matches {}",elementPath);
                     if(updater.update(doc,elementMd,elementPath)) {
                         ret=true;
+                        // Removal shifts nodes down
+                        if(updater instanceof RemoveEvaluator)
+                            index--;
                     }
                 } else {
                     LOGGER.debug("query does not match {}",elementPath);
                 }
+                index++;
             }
         } 
         return ret;
