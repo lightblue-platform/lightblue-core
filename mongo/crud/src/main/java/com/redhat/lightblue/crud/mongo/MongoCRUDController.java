@@ -289,7 +289,7 @@ public class MongoCRUDController implements CRUDController {
                     LOGGER.debug("Document {} modified, updating",docIndex);
                     DBObject updatedObject=translator.toBson(jsonDocument);
                     WriteResult result=collection.save(updatedObject);                    
-                    
+                    LOGGER.debug("Number of rows affected : ", result.getN());
                 } else {
                     LOGGER.debug("Document {} was not modified",docIndex);
                 }

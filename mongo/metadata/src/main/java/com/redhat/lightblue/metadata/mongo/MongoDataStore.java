@@ -116,7 +116,7 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public boolean equals(Object x) {
         try {
-            if (x != null && x instanceof MongoDataStore) {
+            if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
                     return ((mds.clientJndiName == null && clientJndiName == null)

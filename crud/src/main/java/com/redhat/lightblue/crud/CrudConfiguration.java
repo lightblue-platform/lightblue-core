@@ -22,16 +22,28 @@ public class CrudConfiguration {
      * @return the controllers
      */
     public Controller[] getControllers() {
-        return controllers;
+        return copyControllerArray(controllers);
     }
 
     /**
      * @param controllers the controllers to set
      */
     public void setControllers(Controller[] controllers) {
-        this.controllers = controllers;
+        this.controllers = copyControllerArray(controllers);
     }
 
+    private Controller[] copyControllerArray(Controller[] toCopy) {
+        Controller[] theCopy = new Controller[toCopy.length];
+        for(int i=0;i<toCopy.length;i++) {
+            Controller copy = new Controller();
+            copy.setClassName(new String(toCopy[i].getClassName()));
+            copy.setDatastoreType(new String(toCopy[i].getDatastoreType()));
+            copy.setFactoryMethod(new String(toCopy[i].getFactoryMethod()));
+            theCopy[i] = copy;
+        }
+        return theCopy;
+    }
+    
     /**
      * @return the databaseConfigurationClass
      */
@@ -74,7 +86,7 @@ public class CrudConfiguration {
         this.properties = properties;
     }
 
-    public class Controller {
+    public static class Controller {
         private String datastoreType;
         private String className;
         private String factoryMethod;

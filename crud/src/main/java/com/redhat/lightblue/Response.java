@@ -49,7 +49,7 @@ public class Response extends JsonObject {
     private long matchCount;
     private String taskHandle;
     private SessionInfo session;
-    private JsonNode entityData;
+    private transient JsonNode entityData;
     private final List<DataError> dataErrors = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
 

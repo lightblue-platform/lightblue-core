@@ -36,7 +36,7 @@ public class DataError extends JsonObject {
 
 	private static final long serialVersionUID = 1L;
 	
-    private JsonNode entityData;
+    private transient JsonNode entityData;
     private List<Error> errors;
 
     /**
