@@ -169,16 +169,14 @@ public class SetExpressionEvaluator extends Updater {
             if(op==UpdateOperator._set) {
                 oldValueNode=doc.modify(fieldPath,newValueNode,true);
             } else if(op==UpdateOperator._add) {
-                if(newValueNode!=null) {
-                    oldValueNode=doc.get(fieldPath);
-                    if(oldValueNode!=null) {
-                        newValueNode=df.fieldType.toJson(factory,
-                                                         Arith.add(df.fieldType.fromJson(oldValueNode),
-                                                                  newValue,
-                                                                  Arith.promote(df.fieldType,newValueType)));
-                        doc.modify(fieldPath,newValueNode,false);
-                    }
-                }
+                oldValueNode=doc.get(fieldPath);
+                if(newValueNode!=null && oldValueNode != null) {
+                    newValueNode=df.fieldType.toJson(factory,
+                                                     Arith.add(df.fieldType.fromJson(oldValueNode),
+                                                              newValue,
+                                                              Arith.promote(df.fieldType,newValueType)));
+                    doc.modify(fieldPath,newValueNode,false);
+                 }
             }
             if(!ret) {
                 ret=(oldValueNode==null&&newValueNode!=null) ||
