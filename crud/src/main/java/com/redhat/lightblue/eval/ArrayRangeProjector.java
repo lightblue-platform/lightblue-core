@@ -51,8 +51,8 @@ public class ArrayRangeProjector extends ArrayProjector {
         int index = p.getIndex(p.numSegments() - 1);
         if (index >= from && index <= to) {
             // This array element is selected.
-            lastMatch = true;
-            return include ? Boolean.TRUE : Boolean.FALSE;
+            setLastMatch(true);
+            return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
         } else {
             return Boolean.FALSE;
         }

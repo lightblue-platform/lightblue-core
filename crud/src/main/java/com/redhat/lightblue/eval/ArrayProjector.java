@@ -29,11 +29,23 @@ import com.redhat.lightblue.query.ArrayProjection;
  * Base class for array projectors.
  */
 public abstract class ArrayProjector extends Projector {
-    protected final Path arrayFieldPattern;
-    protected final boolean include;
-    protected final Projector nestedProjector;
-    protected boolean lastMatch;
+    private final Path arrayFieldPattern;
+    private final boolean include;
+    private final Projector nestedProjector;
+    private boolean lastMatch;
 
+    protected boolean isLastMatch() {
+        return lastMatch;
+    }
+    
+    protected void setLastMatch(boolean lastMatch) {
+        this.lastMatch = lastMatch;
+    }
+    
+    protected boolean isIncluded() {
+        return include;
+    }
+    
     /**
      * Sets up the projector context
      */

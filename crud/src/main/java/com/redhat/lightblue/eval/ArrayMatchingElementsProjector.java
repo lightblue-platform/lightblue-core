@@ -43,8 +43,8 @@ public class ArrayMatchingElementsProjector extends ArrayProjector {
     @Override
     protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
         if (ctx.isMatchingElement(p)) {
-            lastMatch = true;
-            return include ? Boolean.TRUE : Boolean.FALSE;
+            setLastMatch(true);
+            return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;
     }

@@ -51,8 +51,8 @@ public class ArrayQueryProjector extends ArrayProjector {
         QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
                 : p.suffix(-contextRoot.numSegments()));
         if (query.evaluate(nestedContext)) {
-            lastMatch = true;
-            return include ? Boolean.TRUE : Boolean.FALSE;
+            setLastMatch(true);
+            return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;
     }
