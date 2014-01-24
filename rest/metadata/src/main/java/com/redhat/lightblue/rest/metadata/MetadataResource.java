@@ -25,16 +25,24 @@ import javax.ws.rs.PathParam;
 @Path("/metadata")
 public class MetadataResource {
     public static final String ERR_REST_ERROR = "REST_ERROR";
+    public static final String ERR_NO_ENTITY_NAME = "Entity name not provided";
+    public static final String ERR_NO_ENTITY_VERSION = "Version not provided";
+    public static final String ERR_NO_ENTITY_STATUS = "Entity status not provided";
+    public static final String ERR_NO_NAME_MATCH = "Entity name in query does not match metadata";
+    public static final String ERR_NO_VERSION_MATCH = "Entity version in query does not match metadata";
 
+    public static final String PATH_PARAM_ENTITY = "entity";
+    public static final String PATH_PARAM_VERSION = "version";
+        
     @GET
     @Path("/{entity}/{version}")
-    public String getMetadata(@PathParam("entity") String entityName, @PathParam("version") String entityVersion) {
+    public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity name not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
             }
             if (entityVersion == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity version not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_VERSION);
             }
 
             // get the data
@@ -71,10 +79,10 @@ public class MetadataResource {
 
     @GET
     @Path("/{entity}/versions")
-    public String getMetadataVersions(@PathParam("entity") String entityName) {
+    public String getMetadataVersions(@PathParam(PATH_PARAM_ENTITY) String entityName) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity name not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
             }
 
             // get the data
@@ -112,13 +120,13 @@ public class MetadataResource {
      */
     @PUT
     @Path("/{entity}/{version}")
-    public String createMetadata(@PathParam("entity") String entityName, @PathParam("version") String entityVersion, String metadata) {
+    public String createMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, String metadata) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity name not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
             }
             if (entityVersion == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity version not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_VERSION);
             }
 
             // convert to object
@@ -126,10 +134,10 @@ public class MetadataResource {
 
             // verify entity name and version
             if (!entityName.equals(em.getName())) {
-                throw Error.get(ERR_REST_ERROR, "Entity name in query does not match metadata");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_NAME_MATCH);
             }
             if (!entityVersion.equals(em.getVersion().getValue())) {
-                throw Error.get(ERR_REST_ERROR, "Entity version in query does not match metadata");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_VERSION_MATCH);
             }
 
             // execute creation
@@ -157,16 +165,16 @@ public class MetadataResource {
      */
     @PUT
     @Path("/{entity}/{version}/{status}")
-    public String updateMetadataStatus(@PathParam("entity") String entityName, @PathParam("version") String entityVersion, @PathParam("status") String status, String comment) {
+    public String updateMetadataStatus(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, @PathParam("status") String status, String comment) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity name not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
             }
             if (entityVersion == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity version not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_VERSION);
             }
             if (status == null) {
-                throw Error.get(ERR_REST_ERROR, "Entity status not provided");
+                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_STATUS);
             }
 
             MetadataStatus ms = MetadataStatus.valueOf(status);
