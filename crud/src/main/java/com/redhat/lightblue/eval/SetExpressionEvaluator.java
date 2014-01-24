@@ -97,35 +97,31 @@ public class SetExpressionEvaluator extends Updater {
             if(rvalue.getType()==RValueExpression.RValueType._dereference) {
                 refPath=rvalue.getPath();
                 refMdNode=context.resolve(refPath);
-                if(refMdNode==null) {
+                if(refMdNode==null)
                     throw new EvaluationError("Cannot access "+refPath);
-                }
                 LOGGER.debug("Refpath {}",refPath);
             } 
             FieldTreeNode mdNode=context.resolve(field);
-            if(mdNode==null) {
+            if(mdNode==null)
                 throw new EvaluationError("Cannot access "+field);
-            }
+
             if(mdNode instanceof SimpleField||
                mdNode instanceof SimpleArrayElement) {
                 if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    if(!mdNode.getType().equals(refMdNode.getType())){
+                    if(!mdNode.getType().equals(refMdNode.getType()))
                         throw new EvaluationError("Incompatible dereference "+field+" <- "+refPath);
-                    }
-                } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
+                } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject)
                     throw new EvaluationError("Incompatible assignment "+field +" <- {}");
-                }
+                
                 data=new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
             } else if(mdNode instanceof ObjectField||
                       mdNode instanceof ObjectArrayElement) {
                 // Only a dereference or empty object is acceptable here
                 if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    if(!(refMdNode instanceof ObjectField)) {
+                    if(!(refMdNode instanceof ObjectField))
                         throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
-                    }
-                } else if(rvalue.getType()==RValueExpression.RValueType._value) {
+                } else if(rvalue.getType()==RValueExpression.RValueType._value)
                     throw new EvaluationError("Incompatible assignment "+field+" <- "+rvalue.getValue());
-                }
                 data=new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
             } else if(mdNode instanceof ArrayField) {
                 // Unacceptable
@@ -168,19 +164,22 @@ public class SetExpressionEvaluator extends Updater {
             if(op==UpdateOperator._set) {
                 oldValueNode=doc.modify(fieldPath,newValueNode,true);
             } else if(op==UpdateOperator._add) {
-                if(newValueNode!=null && doc.get(fieldPath)!=null) {
-                    newValueNode=df.fieldType.toJson(factory,
-                                                     Arith.add(df.fieldType.fromJson(oldValueNode),
-                                                              newValue,
-                                                              Arith.promote(df.fieldType,newValueType)));
-                    doc.modify(fieldPath,newValueNode,false);
+                if(newValueNode!=null) {
+                    oldValueNode=doc.get(fieldPath);
+                    if(oldValueNode!=null) {
+                        newValueNode=df.fieldType.toJson(factory,
+                                                         Arith.add(df.fieldType.fromJson(oldValueNode),
+                                                                  newValue,
+                                                                  Arith.promote(df.fieldType,newValueType)));
+                        doc.modify(fieldPath,newValueNode,false);
+                    }
                 }
             }
-            if(!ret) {
+            if(!ret)
                 ret=(oldValueNode==null&&newValueNode!=null) ||
-                        (oldValueNode!=null&&newValueNode==null) ||
-                        (oldValueNode!=null&&newValueNode!=null&&!oldValueNode.equals(newValueNode));
-            }
+                    (oldValueNode!=null&&newValueNode==null) ||
+                    (oldValueNode!=null&&newValueNode!=null&&!oldValueNode.equals(newValueNode));
+            
         }
         LOGGER.debug("Completed");
         return ret;
