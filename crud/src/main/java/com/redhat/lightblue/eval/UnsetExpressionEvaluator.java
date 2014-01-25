@@ -47,6 +47,7 @@ public class UnsetExpressionEvaluator extends Updater {
                                     FieldTreeNode context,
                                     UnsetExpression expr) {
         fields=expr.getFields();
+        LOGGER.debug("factory: " + factory + "context: " + context);
     }
     
     @Override

@@ -147,6 +147,8 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 } else {
                     newValueNode=factory.objectNode();                
                 }
+                LOGGER.debug("newValueType: " + newValueType);
+                
                 if(insertTo>=0) {
                     // If we're inserting, make sure we have that many elements
                     while(arrayNode.size()<insertTo) {
