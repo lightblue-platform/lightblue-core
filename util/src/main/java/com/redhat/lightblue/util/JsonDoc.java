@@ -30,7 +30,7 @@ public class JsonDoc implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private transient final JsonNode docRoot;
+    private final transient JsonNode docRoot;
 
     private static final Resolver DEFAULT_RESOLVER = new Resolver();
     private static final Resolver CREATING_RESOLVER = new CreatingResolver();

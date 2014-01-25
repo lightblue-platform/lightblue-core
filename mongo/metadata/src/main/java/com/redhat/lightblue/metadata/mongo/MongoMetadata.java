@@ -60,7 +60,7 @@ public class MongoMetadata implements Metadata {
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
-    private transient final DBCollection collection;
+    private final transient DBCollection collection;
 
     transient private final BSONParser mdParser;
 
