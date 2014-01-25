@@ -19,7 +19,6 @@
 package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class Version implements Serializable {
 
@@ -35,11 +34,19 @@ public class Version implements Serializable {
     public Version(String value, String[] extendsVersions, String changeLog) {
         this.value = value;
         if (extendsVersions != null) {
-            this.extendsVersions = Arrays.copyOf(extendsVersions, extendsVersions.length);
+            this.extendsVersions = copyExtendsVersionArray(extendsVersions);
         } else {
             this.extendsVersions = new String[0];
         }
         this.changelog = changeLog;
+    }
+    
+    private String[] copyExtendsVersionArray(String[] toCopy) {
+        String[] theCopy = new String[toCopy.length];
+        for(int i=0;i<toCopy.length;i++) {
+            theCopy[i] = toCopy[i];
+        }
+        return theCopy;
     }
 
     /**

@@ -36,9 +36,9 @@ public class CrudConfiguration {
         Controller[] theCopy = new Controller[toCopy.length];
         for(int i=0;i<toCopy.length;i++) {
             Controller copy = new Controller();
-            copy.setClassName(new String(toCopy[i].getClassName()));
-            copy.setDatastoreType(new String(toCopy[i].getDatastoreType()));
-            copy.setFactoryMethod(new String(toCopy[i].getFactoryMethod()));
+            copy.setClassName(toCopy[i].getClassName());
+            copy.setDatastoreType(toCopy[i].getDatastoreType());
+            copy.setFactoryMethod(toCopy[i].getFactoryMethod());
             theCopy[i] = copy;
         }
         return theCopy;

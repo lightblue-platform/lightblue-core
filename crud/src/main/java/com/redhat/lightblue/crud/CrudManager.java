@@ -42,7 +42,7 @@ import com.redhat.lightblue.util.JsonUtils;
  *
  * @author nmalik
  */
-public class CrudManager {
+public final class CrudManager {
     private static Mediator mediator = null;
     private static JSONMetadataParser parser = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
