@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class AllMatchExpression extends UpdateQueryExpression {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public JsonNode toJson() {
         return getFactory().textNode("$all");

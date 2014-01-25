@@ -29,24 +29,17 @@ public class Version implements Serializable {
     private String changelog;
 
     public Version() {
+    
     }
 
     public Version(String value, String[] extendsVersions, String changeLog) {
         this.value = value;
-        if (extendsVersions != null) {
-            this.extendsVersions = copyExtendsVersionArray(extendsVersions);
-        } else {
+        if (extendsVersions == null) {
             this.extendsVersions = new String[0];
+        } else {
+            this.extendsVersions = extendsVersions.clone();
         }
         this.changelog = changeLog;
-    }
-    
-    private String[] copyExtendsVersionArray(String[] toCopy) {
-        String[] theCopy = new String[toCopy.length];
-        for(int i=0;i<toCopy.length;i++) {
-            theCopy[i] = toCopy[i];
-        }
-        return theCopy;
     }
 
     /**

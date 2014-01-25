@@ -19,8 +19,10 @@
 package com.redhat.lightblue.crud;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
@@ -61,7 +63,7 @@ public final class CrudManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    private static synchronized void initializeMediator() throws Exception {
+    private static synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException {
         if (mediator != null) {
             // already initalized
             return;
@@ -110,7 +112,7 @@ public final class CrudManager {
         mediator = new Mediator(MetadataManager.getMetadata(), factory);
     }
 
-    public static Mediator getMediator() throws Exception {
+    public static Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException {
         if (mediator == null) {
             initializeMediator();
         }
