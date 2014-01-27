@@ -1,0 +1,191 @@
+/*
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.redhat.lightblue.eval;
+
+import org.junit.Assert;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+
+import com.redhat.lightblue.query.*;
+
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.JSONMetadataParser;
+
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.metadata.Extensions;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+
+
+public class ProjectorTest extends AbstractJsonNodeTest {
+
+    private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
+    
+    private JsonDoc getDoc(String fname) throws Exception {
+        JsonNode node = loadJsonNode(fname);
+        return new JsonDoc(node);
+    }
+
+    private EntityMetadata getMd(String fname) throws Exception {
+        JsonNode node = loadJsonNode(fname);
+        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        TypeResolver resolver = new DefaultTypes();
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
+        return parser.parseEntityMetadata(node);
+    }
+
+    private Projection json(String s) throws Exception {
+        return Projection.fromJson(JsonUtils.json(s.replace('\'','\"')));
+    }
+
+    @Test
+    public void fieldProjectorTest_nonrecursive() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        Projection p=json("[{'field':'field2'},{'field':'field6.*'}]");
+        Projector projector=Projector.getInstance(p,md);
+        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Assert.assertNull(pdoc.get(new Path("field1")));
+        Assert.assertEquals("value2",pdoc.get(new Path("field2")).asText());
+        Assert.assertNull(pdoc.get(new Path("field3")));
+        Assert.assertNull(pdoc.get(new Path("field4")));
+        Assert.assertNull(pdoc.get(new Path("field5")));
+        Assert.assertNull(pdoc.get(new Path("field7")));
+        Assert.assertEquals(7,pdoc.get(new Path("field6")).size());
+        Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
+        Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf1")));
+        Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf2")));
+    }
+
+    @Test
+    public void fieldProjectorTest_recursive() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        Projection p=json("[{'field':'field2'},{'field':'field6.*','recursive':true}]");
+        Projector projector=Projector.getInstance(p,md);
+        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Assert.assertNull(pdoc.get(new Path("field1")));
+        Assert.assertEquals("value2",pdoc.get(new Path("field2")).asText());
+        Assert.assertNull(pdoc.get(new Path("field3")));
+        Assert.assertNull(pdoc.get(new Path("field4")));
+        Assert.assertNull(pdoc.get(new Path("field5")));
+        Assert.assertNull(pdoc.get(new Path("field7")));
+        Assert.assertEquals(7,pdoc.get(new Path("field6")).size());
+        Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
+        Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf1")));
+        Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf2")));
+    }
+
+    @Test
+    public void fieldProjectorTest_arr_range() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        Projection p=json("{'field':'field7','range':[1,2],'project':{'field':'elemf3'}}");
+        Projector projector=Projector.getInstance(p,md);
+        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Assert.assertNull(pdoc.get(new Path("field1")));
+        Assert.assertNull(pdoc.get(new Path("field2")));
+        Assert.assertNull(pdoc.get(new Path("field3")));
+        Assert.assertNull(pdoc.get(new Path("field4")));
+        Assert.assertNull(pdoc.get(new Path("field5")));
+        Assert.assertNull(pdoc.get(new Path("field6")));
+        Assert.assertEquals(2,pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(4,pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(5,pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertNull(pdoc.get(new Path("field7.0.elemf1")));
+        Assert.assertNull(pdoc.get(new Path("field7.0.elemf2")));
+        Assert.assertNull(pdoc.get(new Path("field7.1.elemf1")));
+        Assert.assertNull(pdoc.get(new Path("field7.1.elemf2")));
+      
+    }
+
+    @Test
+    public void fieldProjectorTest_arr_query() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        Projection p=json("{'field':'field7','match':{'field':'elemf3','op':'>','rvalue':4},'project':{'field':'*'}}");
+        Projector projector=Projector.getInstance(p,md);
+        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Assert.assertNull(pdoc.get(new Path("field1")));
+        Assert.assertNull(pdoc.get(new Path("field2")));
+        Assert.assertNull(pdoc.get(new Path("field3")));
+        Assert.assertNull(pdoc.get(new Path("field4")));
+        Assert.assertNull(pdoc.get(new Path("field5")));
+        Assert.assertNull(pdoc.get(new Path("field6")));
+        Assert.assertEquals(2,pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(5,pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(6,pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals("elvalue2_1",pdoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals("elvalue2_2",pdoc.get(new Path("field7.0.elemf2")).asText());
+        Assert.assertEquals("elvalue3_1",pdoc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals("elvalue3_2",pdoc.get(new Path("field7.1.elemf2")).asText());
+      
+    }
+
+    @Test
+    public void fieldProjectorTest_arr_me() throws Exception {
+        JsonDoc doc=getDoc("./sample1.json");
+        EntityMetadata md=getMd("./testMetadata.json");
+
+        Projection p=json("{'field':'field7','project':{'field':'*'}}");
+        Projector projector=Projector.getInstance(p,md);
+        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
+        ctx.addExcludedArrayElement(new Path("field7"),1);
+
+        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Assert.assertNull(pdoc.get(new Path("field1")));
+        Assert.assertNull(pdoc.get(new Path("field2")));
+        Assert.assertNull(pdoc.get(new Path("field3")));
+        Assert.assertNull(pdoc.get(new Path("field4")));
+        Assert.assertNull(pdoc.get(new Path("field5")));
+        Assert.assertNull(pdoc.get(new Path("field6")));
+        Assert.assertEquals(3,pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(3,pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(5,pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals(6,pdoc.get(new Path("field7.2.elemf3")).asInt());
+        Assert.assertEquals("elvalue0_1",pdoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals("elvalue0_2",pdoc.get(new Path("field7.0.elemf2")).asText());
+        Assert.assertEquals("elvalue2_1",pdoc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals("elvalue2_2",pdoc.get(new Path("field7.1.elemf2")).asText());
+        Assert.assertEquals("elvalue3_1",pdoc.get(new Path("field7.2.elemf1")).asText());
+        Assert.assertEquals("elvalue3_2",pdoc.get(new Path("field7.2.elemf2")).asText());
+      
+    }
+}
