@@ -150,76 +150,14 @@ public class MongoCRUDController implements CRUDController {
             DBObject[] dbObjects = translator.toBson(documents);
             if (dbObjects != null) {
                 LOGGER.debug("saveOrInsert: {} docs translated to bson", dbObjects.length);
-                LOGGER.debug("saveOrInsert: saving docs");
                 Map<DBObject, List<Error>> errorMap = new HashMap<DBObject, List<Error>>();
-                // Group docs by collection
-                DocIndex index = new DocIndex(resolver, dbResolver);
-                for (DBObject obj : dbObjects) {
-                    index.addDoc(obj);
-                }
-                Set<MongoDataStore> stores = index.getDataStores();
                 List<DBObject> successfulUpdates = new ArrayList<DBObject>(documents.size());
-                for (MongoDataStore store : stores) {
-                    List<DBObject> docs = index.getDocs(store);
-                    LOGGER.debug("saving {} docs into collection {}", docs.size(), store);
-                    DBCollection collection = index.getDBCollection(store);
-                    for (DBObject doc : docs) {
-                        try {
-                            WriteResult result;
-                            if (operation.equals(OP_INSERT)) {
-                                result = collection.insert(doc, WriteConcern.SAFE);
-                            } else {
-                                Object x = doc.get(ID_STR);
-                                if (x == null) {
-                                    result = collection.insert(doc, WriteConcern.SAFE);
-                                } else {
-                                    BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
-                                    LOGGER.debug("update query: {}",q);
-                                    result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
-                                }
-                            }
-                            LOGGER.debug("Write result {}",result);
-                            String error = result.getError();
-                            if (error != null) {
-                                addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
-                            } else {
-                                successfulUpdates.add(doc);
-                            }
-                        } catch (MongoException.DuplicateKey dke) {
-                            addErrorToMap(errorMap, doc, operation, ERR_DUPLICATE, dke.toString());
-                        } catch (Exception e) {
-                            addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, e.toString());
-                        }
-                    }
-                }
-                LOGGER.debug("saveOrInsert comlete, {} sucessful updates", successfulUpdates.size());
+                DocIndex index = new DocIndex(resolver, dbResolver);
+                saveDocs(resolver, dbObjects, documents, operation, upsert, index, errorMap, successfulUpdates);
                 // Build projectors and translate docs
-                Map<String, Projector> projectorMap = buildProjectorMap(projection,
-                        index.getObjectTypes(),
-                        resolver);
-                if (!successfulUpdates.isEmpty()) {
-                    ArrayList<JsonDoc> resultDocs = new ArrayList<JsonDoc>(successfulUpdates.size());
-                    for (DBObject doc : successfulUpdates) {
-                        resultDocs.add(translateAndProject(doc, translator, projectorMap));
-                    }
-                    response.setDocuments(resultDocs);
-                }
+                Map<String, Projector> projectorMap = buildProjectorsAndTranslateDocs(resolver, projection, index, translator, response, successfulUpdates);
                 // Reorganize errors
-                List<DataError> dataErrors = new ArrayList<DataError>();
-                for (Map.Entry<DBObject, List<Error>> entry : errorMap.entrySet()) {
-                    JsonDoc errorDoc;
-                    if (projection != null) {
-                        errorDoc = translateAndProject(entry.getKey(), translator, projectorMap);
-                    } else {
-                        errorDoc = null;
-                    }
-                    DataError error = new DataError();
-                    if (errorDoc != null) {
-                        error.setEntityData(errorDoc.getRoot());
-                    }
-                    error.setErrors(entry.getValue());
-                }
-                response.setDataErrors(dataErrors);
+                reorganizeErrors(errorMap, projection, translator, projectorMap, response);
             }
         } finally {
             Error.pop();
@@ -227,6 +165,83 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments().size());
     }
 
+    private void saveDocs(MetadataResolver resolver, DBObject[] dbObjects, List<JsonDoc> documents, String operation, boolean upsert, DocIndex index, Map<DBObject, List<Error>> errorMap, List<DBObject> successfulUpdates) {
+        LOGGER.debug("saveOrInsert: saving docs");
+        
+        // Group docs by collection
+        
+        for (DBObject obj : dbObjects) {
+            index.addDoc(obj);
+        }
+        Set<MongoDataStore> stores = index.getDataStores();
+        
+        for (MongoDataStore store : stores) {
+            List<DBObject> docs = index.getDocs(store);
+            LOGGER.debug("saving {} docs into collection {}", docs.size(), store);
+            DBCollection collection = index.getDBCollection(store);
+            for (DBObject doc : docs) {
+                try {
+                    WriteResult result;
+                    if (operation.equals(OP_INSERT)) {
+                        result = collection.insert(doc, WriteConcern.SAFE);
+                    } else {
+                        Object x = doc.get(ID_STR);
+                        if (x == null) {
+                            result = collection.insert(doc, WriteConcern.SAFE);
+                        } else {
+                            BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
+                            LOGGER.debug("update query: {}",q);
+                            result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
+                        }
+                    }
+                    LOGGER.debug("Write result {}",result);
+                    String error = result.getError();
+                    if (error != null) {
+                        addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
+                    } else {
+                        successfulUpdates.add(doc);
+                    }
+                } catch (MongoException.DuplicateKey dke) {
+                    addErrorToMap(errorMap, doc, operation, ERR_DUPLICATE, dke.toString());
+                } catch (Exception e) {
+                    addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, e.toString());
+                }
+            }
+        }
+        LOGGER.debug("saveOrInsert complete, {} sucessful updates", successfulUpdates.size());
+    }
+    
+    
+    private Map<String, Projector> buildProjectorsAndTranslateDocs(MetadataResolver resolver, Projection projection, DocIndex index, Translator translator, AbstractCRUDUpdateResponse response, List<DBObject> successfulUpdates) {
+        Map<String, Projector> projectorMap = buildProjectorMap(projection, index.getObjectTypes(), resolver);
+        if (!successfulUpdates.isEmpty()) {
+            ArrayList<JsonDoc> resultDocs = new ArrayList<JsonDoc>(successfulUpdates.size());
+            for (DBObject doc : successfulUpdates) {
+                resultDocs.add(translateAndProject(doc, translator, projectorMap));
+            }
+            response.setDocuments(resultDocs);
+        }
+        return projectorMap;
+    }
+    
+    private void reorganizeErrors(Map<DBObject, List<Error>> errorMap, Projection projection, Translator translator, Map<String, Projector> projectorMap, AbstractCRUDUpdateResponse response) {
+        List<DataError> dataErrors = new ArrayList<DataError>();
+        for (Map.Entry<DBObject, List<Error>> entry : errorMap.entrySet()) {
+            JsonDoc errorDoc;
+            if (projection != null) {
+                errorDoc = translateAndProject(entry.getKey(), translator, projectorMap);
+            } else {
+                errorDoc = null;
+            }
+            DataError error = new DataError();
+            if (errorDoc != null) {
+                error.setEntityData(errorDoc.getRoot());
+            }
+            error.setErrors(entry.getValue());
+        }
+        response.setDataErrors(dataErrors);
+    }
+    
     @Override
     public CRUDUpdateResponse update(MetadataResolver resolver,
                                      String entity,
