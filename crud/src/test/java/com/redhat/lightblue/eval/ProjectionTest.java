@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo;
+package com.redhat.lightblue.eval;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -76,8 +76,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
 
     @Test
     public void basicProjectionTest() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         String pr = "{'field':'*','include':1}";
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
@@ -102,8 +102,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
 
     @Test
     public void basicProjectionTest_recursive() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         String pr = "{'field':'*','include':1,'recursive':1}";
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
@@ -138,8 +138,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
 
     @Test
     public void basicProjectionTest_exclusion() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         String pr = "[{'field':'*','include':1,'recursive':1},{'field':'field7','include':0}]";
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
@@ -170,8 +170,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
 
     @Test
     public void projectionListTest() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         String pr = "[{'field':'field6.*','include':1},{'field':'field5'}]";
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
@@ -195,8 +195,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
 
     @Test
     public void arrayRangeTest() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         String pr = "{'field':'field6.nf6','range':[1,2],'project':{'field':'*'}}";
         Projector projector = projector(pr, md);
         System.out.println(projector.toString());
@@ -223,8 +223,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
 
     @Test
     public void arrayNestedQTest() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         String pr = "{'field':'field7','match':{'field':'elemf1','op':'$eq','rvalue':'elvalue0_1'}}";
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
