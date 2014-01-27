@@ -466,42 +466,60 @@ public class Translator {
             Object value = object.get(fieldName);
             if (value != null) {
                 if (field instanceof SimpleField) {
-                    JsonNode valueNode = ((SimpleField) field).getType().toJson(factory, value);
-                    if (valueNode != null) {
-                        node.set(fieldName, valueNode);
-                    }
+                    convertSimpleFieldToJson(node, field, value, fieldName);
                 } else if (field instanceof ObjectField) {
-                    if (value instanceof DBObject) {
-                        if (mdCursor.firstChild()) {
-                            JsonNode valueNode = objectToJson((DBObject) value, md, mdCursor);
-                            if (valueNode != null) {
-                                node.set(fieldName, valueNode);
-                            }
-                            mdCursor.parent();
-                        }
-                    } else {
-                        LOGGER.error("Expected DBObject, found {} for {}", value.getClass(), p);
-                    }
-                } else if (field instanceof ArrayField
-                        && value instanceof List
-                        && mdCursor.firstChild()) {
-                    ArrayNode valueNode = factory.arrayNode();
-                    // We must have an array element here
-                    FieldTreeNode x = mdCursor.getCurrentNode();
-                    if (x instanceof ArrayElement) {
-                        for (Object item : (List) value) {
-                            valueNode.add(arrayElementToJson(item, (ArrayElement) x, md, mdCursor));
-                        }
-                    }
-                    mdCursor.parent();
+                    convertObjectFieldToJson(node, fieldName, md, mdCursor, value, p);
+                } else if (field instanceof ArrayField && value instanceof List && mdCursor.firstChild()) {
+                    convertArrayFieldToJson(md, mdCursor, value);
                 } else if (field instanceof ReferenceField) {
-                    // TODO
+                    convertReferenceFieldToJson();
                 }
             }
         } while (mdCursor.nextSibling());
         return node;
     }
+    
+    
+    private void convertSimpleFieldToJson(ObjectNode node, FieldTreeNode field, Object value, String fieldName) {
+        JsonNode valueNode = ((SimpleField) field).getType().toJson(factory, value);
+        if (valueNode != null) {
+            node.set(fieldName, valueNode);
+        }
+    }
 
+    private void convertObjectFieldToJson(ObjectNode node, String fieldName, EntityMetadata md, FieldCursor mdCursor, Object value, Path p) {
+        if (value instanceof DBObject) {
+            if (mdCursor.firstChild()) {
+                JsonNode valueNode = objectToJson((DBObject) value, md, mdCursor);
+                if (valueNode != null) {
+                    node.set(fieldName, valueNode);
+                }
+                mdCursor.parent();
+            }
+        } else {
+            LOGGER.error("Expected DBObject, found {} for {}", value.getClass(), p);
+        }
+    }
+
+    private void convertArrayFieldToJson(EntityMetadata md, FieldCursor mdCursor, Object value) {
+        ArrayNode valueNode = factory.arrayNode();
+        // We must have an array element here
+        FieldTreeNode x = mdCursor.getCurrentNode();
+        if (x instanceof ArrayElement) {
+            for (Object item : (List) value) {
+                valueNode.add(arrayElementToJson(item, (ArrayElement) x, md, mdCursor));
+            }
+        }
+        mdCursor.parent();
+    }
+    
+    private void convertReferenceFieldToJson() {
+        //TODO
+        LOGGER.debug("Converting reference field: ");
+    }
+    
+    
+    
     private JsonNode arrayElementToJson(Object value,
                                         ArrayElement el,
                                         EntityMetadata md,
@@ -576,34 +594,46 @@ public class Translator {
             if (fieldMdNode instanceof SimpleField) {
                 toBson(ret, (SimpleField) fieldMdNode, path, node);
             } else if (fieldMdNode instanceof ObjectField) {
-                if (node != null) {
-                    if (node instanceof ObjectNode) {
-                        if (cursor.firstChild()) {
-                            ret.append(path.tail(0), objectToBson(cursor, md));
-                            cursor.parent();
-                        }
-                    } else {
-                        throw Error.get(ERR_INVALID_FIELD, path.toString());
-                    }
-                }
+                convertObjectFieldToBson(node, cursor, ret, path, md);
             } else if (fieldMdNode instanceof ArrayField) {
-                if (node != null) {
-                    if (node instanceof ArrayNode) {
-                        if (cursor.firstChild()) {
-                            ret.append(path.tail(0), arrayToBson(cursor, ((ArrayField) fieldMdNode).getElement(), md));
-                            cursor.parent();
-                        }
-                    } else {
-                        throw Error.get(ERR_INVALID_FIELD, path.toString());
-                    }
-                }
+                convertArrayFieldToBson(node, cursor, ret, fieldMdNode, path, md);
             } else if (fieldMdNode instanceof ReferenceField) {
-                //toBson(ret,(ReferenceNode)fieldMdNode,path,node);
+                convertReferenceFieldToBson();
             }
         } while (cursor.nextSibling());
         return ret;
     }
 
+    private void convertObjectFieldToBson(JsonNode node, JsonNodeCursor cursor, BasicDBObject ret, Path path, EntityMetadata md) {
+        if (node != null) {
+            if (node instanceof ObjectNode) {
+                if (cursor.firstChild()) {
+                    ret.append(path.tail(0), objectToBson(cursor, md));
+                    cursor.parent();
+                }
+            } else {
+                throw Error.get(ERR_INVALID_FIELD, path.toString());
+            }
+        }
+    }
+    
+    private void convertArrayFieldToBson(JsonNode node, JsonNodeCursor cursor, BasicDBObject ret, FieldTreeNode fieldMdNode, Path path, EntityMetadata md) {
+        if (node != null) {
+            if (node instanceof ArrayNode) {
+                if (cursor.firstChild()) {
+                    ret.append(path.tail(0), arrayToBson(cursor, ((ArrayField) fieldMdNode).getElement(), md));
+                    cursor.parent();
+                }
+            } else {
+                throw Error.get(ERR_INVALID_FIELD, path.toString());
+            }
+        }
+    }
+    
+    private void convertReferenceFieldToBson() {
+        //TODO  toBson(ret,(ReferenceNode)fieldMdNode,path,node);
+    }
+    
     /**
      * @param cursor The cursor, pointing to the first element of the array
      */
