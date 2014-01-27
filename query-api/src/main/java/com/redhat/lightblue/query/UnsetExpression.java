@@ -40,6 +40,8 @@ import com.redhat.lightblue.util.Path;
  */
 public class UnsetExpression extends PrimitiveUpdateExpression {
 
+    private static final long serialVersionUID = 1L;
+    
     public static final String ERR_INVALID_UNSET_EXPRESSION="INVALID_UNSET_EXPRESSION";
 
     private final List<Path> fields;

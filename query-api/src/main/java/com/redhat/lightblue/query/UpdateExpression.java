@@ -31,7 +31,9 @@ import com.redhat.lightblue.util.JsonObject;
  * </pre>
  */
 public abstract class UpdateExpression extends JsonObject {
-    
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Parses an update expression using the given json object
      */

@@ -361,56 +361,79 @@ public class Path implements Comparable<Path>, Serializable {
     protected static List<String> parse(String x) {
         List<String> segments = new ArrayList<>();
         StringBuilder buf = new StringBuilder(32);
-        int state = 0;
-        int n = x.length();
-        for (int i = 0; i < n; i++) {
-            char c = x.charAt(i);
-            switch (state) {
-                case 0:
-                    // Beginning of path, or after .
-                    if (!Character.isWhitespace(c)) {
-                        if (c == '.') {
-                            throw new InvalidPathException("Unexpected '.' at " + i, x);
-                        } else {
-                            buf.append(c);
-                            state = 1;
-                        }
-                    }
-                    break;
-
-                case 1:
-                    // Parsing word
-                    if (Character.isWhitespace(c)) {
-                        segments.add(buf.toString());
-                        buf = new StringBuilder(32);
-                        state = 2;
-                    } else if (c == '.') {
-                        segments.add(buf.toString());
-                        buf = new StringBuilder(32);
-                        state = 0;
-                    } else {
-                        buf.append(c);
-                    }
-                    break;
-
-                case 2:
-                    // Parsing end of word
-                    if (!Character.isWhitespace(c)) {
-                        if (c == '.') {
-                            state = 0;
-                        } else {
-                            throw new InvalidPathException("Expected whitespace or '.' at " + i, x);
-                        }
-                    } else {
-                        throw new InvalidPathException("Unexpected character at " + i, x);
-                    }
-                    break;
-            }
-        }
+        int state = parsePath(buf, x, segments);
         if (state == 1) {
             segments.add(buf.toString());
         }
         return segments;
+    }
+    
+    private static int parsePath(StringBuilder buf, String x, List<String> segments) {
+        int state = 0;
+        for (int i = 0; i < x.length(); i++) {
+            char c = x.charAt(i);
+            state = parsePathElements(state, c, buf, i, x, segments);            
+        }
+        return state;
+    }
+    
+    private static int parsePathElements(int state, char c, StringBuilder buf, int i, String x, List<String> segments) {
+        switch (state) {
+            case 0:
+                // Beginning of path, or after .
+                state = parsePathBeginningOrAfter(c, buf, i, x, state);
+                break;
+            case 1:
+                // Parsing word
+                state = parseWord(c, buf, segments, state);
+                break;
+            case 2:
+                // Parsing end of word
+                state = parseEndOfWord(c, buf, i, x, state);
+                break;
+        }
+        return state;
+    }
+    
+    private static int parsePathBeginningOrAfter(char c, StringBuilder buf, int i, String x, int currentState) {
+        if (!Character.isWhitespace(c)) {
+            if (c == '.') {
+                throw new InvalidPathException("Unexpected '.' at " + i, x);
+            } else {
+                buf.append(c);
+                return 1;
+            }
+        }
+        return currentState;
+    }
+    
+    private static int parseWord(char c, StringBuilder buf, List<String> segments, int currentState) {
+        if (Character.isWhitespace(c)) {
+            segments.add(buf.toString());
+            buf.setLength(0);
+            buf.trimToSize();
+            return 2;
+        } else if (c == '.') {
+            segments.add(buf.toString());
+            buf.setLength(0);
+            buf.trimToSize();
+            return 0;
+        } else {
+            buf.append(c);
+        }
+        return currentState;
+    }
+    
+    private static int parseEndOfWord(char c, StringBuilder buf, int i, String x, int currentState) {
+        if (!Character.isWhitespace(c)) {
+            if (c == '.') {
+                return 0;
+            } else {
+                throw new InvalidPathException("Expected whitespace or '.' at " + i, x);
+            }
+        } else {
+            throw new InvalidPathException("Unexpected character at " + i, x);
+        }
     }
 
 }

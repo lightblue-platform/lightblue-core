@@ -14,4 +14,18 @@ public class DatabaseConfiguration {
     private String hostname = "localhost";
     private String port = "27017";
     private String collection = "metadata";
+    
+    public String getName() {
+        return name;
+    }
+    public String getHostname() {
+        return hostname;
+    }
+    public String getPort() {
+        return port;
+    }
+    public String getCollection() {
+        return collection;
+    }
+    
 }
