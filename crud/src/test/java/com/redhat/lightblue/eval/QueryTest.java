@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo;
+package com.redhat.lightblue.eval;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -123,7 +123,7 @@ public class QueryTest extends AbstractJsonNodeTest {
         new QTestCase("{'field':'field5','op':'$eq','rvalue':1}", true),
         new QTestCase("{'$and': [ {'field':'field3','op':'$gt','rvalue':2},{'field':'field7.0.elemf1','op':'$eq','rvalue':'elvalue0_1'}]}",
         true),
-        new QTestCase("{'field':'field7.0.elemf3','op':'$eq','rfield':'field7.1.elemf3'}", true),
+        new QTestCase("{'field':'field7.0.elemf3','op':'<','rfield':'field7.1.elemf3'}", true),
         new QTestCase("{'field':'field6.nf3','op':'$in','values':[1,2,3,4]}", true),
         new QTestCase("{'field':'field6.nf3','op':'$nin','values':[1,2,3,4]}", false),
         new QTestCase("{'field':'field6.nf1','op':'$in','values':['blah','yada','nvalue1']}", true),
@@ -134,8 +134,8 @@ public class QueryTest extends AbstractJsonNodeTest {
 
     @Test
     public void simpleFieldTests() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         for (QTestCase t : fieldTests) {
             System.out.println(t.query);
             Assert.assertEquals(t.query.toString(), t.match, runQuery(md, doc, t.query).getResult());
@@ -153,8 +153,8 @@ public class QueryTest extends AbstractJsonNodeTest {
 
     @Test
     public void arrayFieldTests() throws Exception {
-        EntityMetadata md = getMd("query/testMetadata.json");
-        JsonDoc doc = getDoc("query/sample1.json");
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
         for (QTestCase t : arrayTests) {
             System.out.println(t.query);
             QueryEvaluationContext ctx = runQuery(md, doc, t.query);
