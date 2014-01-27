@@ -153,7 +153,7 @@ public class MongoCRUDController implements CRUDController {
                 Map<DBObject, List<Error>> errorMap = new HashMap<DBObject, List<Error>>();
                 List<DBObject> successfulUpdates = new ArrayList<DBObject>(documents.size());
                 DocIndex index = new DocIndex(resolver, dbResolver);
-                saveDocs(resolver, dbObjects, documents, operation, upsert, index, errorMap, successfulUpdates);
+                saveDocs(dbObjects, operation, upsert, index, errorMap, successfulUpdates);
                 // Build projectors and translate docs
                 Map<String, Projector> projectorMap = buildProjectorsAndTranslateDocs(resolver, projection, index, translator, response, successfulUpdates);
                 // Reorganize errors
@@ -165,7 +165,7 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments().size());
     }
 
-    private void saveDocs(MetadataResolver resolver, DBObject[] dbObjects, List<JsonDoc> documents, String operation, boolean upsert, DocIndex index, Map<DBObject, List<Error>> errorMap, List<DBObject> successfulUpdates) {
+    private void saveDocs(DBObject[] dbObjects, String operation, boolean upsert, DocIndex index, Map<DBObject, List<Error>> errorMap, List<DBObject> successfulUpdates) {
         LOGGER.debug("saveOrInsert: saving docs");
         
         // Group docs by collection
