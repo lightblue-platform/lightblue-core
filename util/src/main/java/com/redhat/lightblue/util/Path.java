@@ -389,8 +389,10 @@ public class Path implements Comparable<Path>, Serializable {
                 break;
             case 2:
                 // Parsing end of word
-                state = parseEndOfWord(c, buf, i, x, state);
+                state = parseEndOfWord(c, i, x);
                 break;
+            default:
+                state = 0;
         }
         return state;
     }
@@ -424,7 +426,7 @@ public class Path implements Comparable<Path>, Serializable {
         return currentState;
     }
     
-    private static int parseEndOfWord(char c, StringBuilder buf, int i, String x, int currentState) {
+    private static int parseEndOfWord(char c, int i, String x) {
         if (!Character.isWhitespace(c)) {
             if (c == '.') {
                 return 0;
