@@ -154,88 +154,11 @@ public class ConstraintValidator {
             currentFieldConstraint = null;
             currentFieldNode = null;
             currentFieldPath = null;
-            Path currentValuePath;
-            JsonNode currentValue;
-            LOGGER.debug("checking entity constraints");
-            for (EntityConstraint x : md.getConstraints()) {
-                currentEntityConstraint = x;
-                String constraintType = currentEntityConstraint.getType();
-                LOGGER.debug("checking entity constraint " + constraintType);
-                Error.push(constraintType);
-                try {
-                    EntityConstraintChecker checker = eRegistry.find(constraintType);
-                    if (checker == null) {
-                        throw Error.get(ERR_NO_CONSTRAINT);
-                    }
-                    checker.checkConstraint(this,
-                            currentEntityConstraint,
-                            doc);
-
-                } finally {
-                    Error.pop();
-                }
-            }
+            Path currentValuePath = null;
+            JsonNode currentValue = null;
+            checkEntityConstraints(doc);
             currentEntityConstraint = null;
-            LOGGER.debug("checking field constraints");
-            FieldCursor cursor = md.getFieldCursor();
-            while (cursor.next()) {
-                currentFieldNode = cursor.getCurrentNode();
-                currentFieldPath = cursor.getCurrentPath();
-                LOGGER.debug("checking field {}", currentFieldPath);
-                Error.push(currentFieldPath.toString());
-                try {
-                    List<FieldConstraint> constraints = null;
-                    if (currentFieldNode instanceof Field) {
-                        constraints = ((Field) currentFieldNode).getConstraints();
-                    }
-                    if (constraints != null && !constraints.isEmpty()) {
-                        for (FieldConstraint x : constraints) {
-                            currentFieldConstraint = x;
-                            String constraintType = currentFieldConstraint.getType();
-                            LOGGER.debug("checking constraint " + constraintType);
-                            Error.push(constraintType);
-                            try {
-                                FieldConstraintChecker checker = fRegistry.find(constraintType);
-                                if (checker == null) {
-                                    throw Error.get(ERR_NO_CONSTRAINT);
-                                }
-                                if (checker instanceof FieldConstraintDocChecker) {
-                                    // Constraint needs to be checked once for the doc
-                                    ((FieldConstraintDocChecker) checker).checkConstraint(this,
-                                            currentFieldNode,
-                                            currentFieldPath,
-                                            currentFieldConstraint,
-                                            doc);
-                                } else if (checker instanceof FieldConstraintValueChecker) {
-                                    // Constraint needs to be checked for all the values in the doc
-                                    KeyValueCursor<Path, JsonNode> fieldValues = doc.getAllNodes(currentFieldPath);
-                                    while (fieldValues.hasNext()) {
-                                        fieldValues.next();
-                                        currentValuePath = fieldValues.getCurrentKey();
-                                        currentValue = fieldValues.getCurrentValue();
-                                        Error.push(currentValuePath.toString());
-                                        try {
-                                            ((FieldConstraintValueChecker) checker).checkConstraint(this,
-                                                    currentFieldNode,
-                                                    currentFieldPath,
-                                                    currentFieldConstraint,
-                                                    currentValuePath,
-                                                    doc,
-                                                    currentValue);
-                                        } finally {
-                                            Error.pop();
-                                        }
-                                    }
-                                }
-                            } finally {
-                                Error.pop();
-                            }
-                        }
-                    }
-                } finally {
-                    Error.pop();
-                }
-            }
+            checkConstraints(doc, currentValuePath, currentValue);
         } finally {
             Error.pop();
         }
@@ -246,4 +169,100 @@ public class ConstraintValidator {
         LOGGER.debug("validateDoc() complete");
     }
 
+    private void checkEntityConstraints(JsonDoc doc) {
+        LOGGER.debug("checking entity constraints");
+        for (EntityConstraint x : md.getConstraints()) {
+            currentEntityConstraint = x;
+            String constraintType = currentEntityConstraint.getType();
+            LOGGER.debug("checking entity constraint " + constraintType);
+            Error.push(constraintType);
+            try {
+                EntityConstraintChecker checker = eRegistry.find(constraintType);
+                if (checker == null) {
+                    throw Error.get(ERR_NO_CONSTRAINT);
+                }
+                checker.checkConstraint(this, currentEntityConstraint, doc);
+
+            } finally {
+                Error.pop();
+            }
+        }
+    }
+    
+    private void checkConstraints(JsonDoc doc, Path currentValuePath, JsonNode currentValue) {
+        LOGGER.debug("checking field constraints");
+        FieldCursor cursor = md.getFieldCursor();
+        while (cursor.next()) {
+            currentFieldNode = cursor.getCurrentNode();
+            currentFieldPath = cursor.getCurrentPath();
+            LOGGER.debug("checking field {}", currentFieldPath);
+            Error.push(currentFieldPath.toString());
+            try {
+                List<FieldConstraint> constraints = null;
+                if (currentFieldNode instanceof Field) {
+                    constraints = ((Field) currentFieldNode).getConstraints();
+                }
+                if (constraints != null && !constraints.isEmpty()) {
+                    checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
+                }
+            } finally {
+                Error.pop();
+            }
+        }
+    }
+    
+    private void checkFieldConstraints(JsonDoc doc, List<FieldConstraint> constraints, Path currentValuePath, JsonNode currentValue) {
+        
+        for (FieldConstraint x : constraints) {
+            currentFieldConstraint = x;
+            String constraintType = currentFieldConstraint.getType();
+            LOGGER.debug("checking constraint " + constraintType);
+            Error.push(constraintType);
+            try {
+                FieldConstraintChecker checker = fRegistry.find(constraintType);
+                if (checker == null) {
+                    throw Error.get(ERR_NO_CONSTRAINT);
+                }
+                if (checker instanceof FieldConstraintDocChecker) {
+                    // Constraint needs to be checked once for the doc
+                    checkFieldContraints(doc, (FieldConstraintDocChecker) checker);
+                } else if (checker instanceof FieldConstraintValueChecker) {
+                    // Constraint needs to be checked for all the values in the doc
+                    checkValueContraints(doc, (FieldConstraintDocChecker) checker, currentValuePath, currentValue);
+                }
+            } finally {
+                Error.pop();
+            }
+        }
+    }
+    
+    private void checkFieldContraints(JsonDoc doc, FieldConstraintDocChecker checker) {
+        ((FieldConstraintDocChecker) checker).checkConstraint(this,
+                currentFieldNode,
+                currentFieldPath,
+                currentFieldConstraint,
+                doc);
+    }
+    
+    private void checkValueContraints(JsonDoc doc, FieldConstraintDocChecker checker, Path currentValuePath, JsonNode currentValue) {
+        KeyValueCursor<Path, JsonNode> fieldValues = doc.getAllNodes(currentFieldPath);
+        while (fieldValues.hasNext()) {
+            fieldValues.next();
+            currentValuePath = fieldValues.getCurrentKey();
+            currentValue = fieldValues.getCurrentValue();
+            Error.push(currentValuePath.toString());
+            try {
+                ((FieldConstraintValueChecker) checker).checkConstraint(this,
+                        currentFieldNode,
+                        currentFieldPath,
+                        currentFieldConstraint,
+                        currentValuePath,
+                        doc,
+                        currentValue);
+            } finally {
+                Error.pop();
+            }
+        }
+    }
+    
 }
