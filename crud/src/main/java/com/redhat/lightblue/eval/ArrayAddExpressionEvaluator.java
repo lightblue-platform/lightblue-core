@@ -89,13 +89,13 @@ public class ArrayAddExpressionEvaluator extends Updater {
         if(ftn instanceof ArrayField) {
             fieldMd=(ArrayField)ftn;
             values=new ArrayList<RValueData>(expr.getValues().size());
-            initializeArrayField(ftn, context, expr);
+            initializeArrayField(context, expr);
         } else {
             throw new EvaluationError("Array required:"+arrayField);
         }
     }
     
-    private void initializeArrayField(FieldTreeNode ftn, FieldTreeNode context, ArrayAddExpression expr) {
+    private void initializeArrayField(FieldTreeNode context, ArrayAddExpression expr) {
         for(RValueExpression rvalue:expr.getValues()) {
             Path refPath=null;
             FieldTreeNode refMd=null;
