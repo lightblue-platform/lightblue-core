@@ -101,7 +101,7 @@ public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
 
         ProcessingReport report = schema.validate(instance);
         Iterator<ProcessingMessage> i = report.iterator();
-        StringBuilder buff = new StringBuilder("Expected validation to succeed! Messages:\n");
+        StringBuilder buff = new StringBuilder("Expected validation to succeed!\nResource: ").append(documentResourceName).append("\nMessages:\n");
         while (i != null && i.hasNext()) {
             ProcessingMessage pm = i.next();
 
