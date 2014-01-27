@@ -119,12 +119,7 @@ public class MongoDataStore implements DataStore, Serializable {
             if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return ((mds.clientJndiName == null && clientJndiName == null)
-                            || (mds.clientJndiName != null && clientJndiName != null && mds.clientJndiName.equals(clientJndiName)))
-                            && ((mds.databaseName == null && databaseName == null)
-                            || (mds.databaseName != null && databaseName != null && mds.databaseName.equals(databaseName)))
-                            && ((mds.collectionName == null && collectionName == null)
-                            || (mds.collectionName != null && collectionName != null && mds.collectionName.equals(collectionName)));
+                    return clientJndiNameEqual(mds.getClientJndiName()) && clientDatabaseNameEqual(mds.getDatabaseName()) && clientCollectionNameEqual(mds.getCollectionName());
                 } catch (ClassCastException e) {
                 }
             }
@@ -132,6 +127,43 @@ public class MongoDataStore implements DataStore, Serializable {
         }
         return false;
     }
+    
+    private boolean clientJndiNameEqual(String clientJndiName) {
+        if(this.clientJndiName == null && clientJndiName == null) {
+            return true;
+        } else {
+            if(this.clientJndiName != null && clientJndiName != null) {
+                return this.clientJndiName.equals(clientJndiName);
+            } else {
+                return false;    
+            } 
+        }
+    }
+    
+    private boolean clientDatabaseNameEqual(String databaseName) {
+        if(this.databaseName == null && databaseName == null) {
+            return true;
+        } else {
+            if(this.databaseName != null && databaseName != null) {
+                return this.databaseName.equals(databaseName);
+            } else {
+                return false;    
+            } 
+        }
+    }
+    
+    private boolean clientCollectionNameEqual(String collectionName) {
+        if(this.collectionName == null && collectionName == null) {
+            return true;
+        } else {
+            if(this.collectionName != null && collectionName != null) {
+                return this.collectionName.equals(collectionName);
+            } else {
+                return false;    
+            } 
+        }
+    }
+    
 
     @Override
     public int hashCode() {

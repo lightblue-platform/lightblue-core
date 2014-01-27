@@ -62,7 +62,7 @@ public class MongoMetadata implements Metadata {
 
     private final transient DBCollection collection;
 
-    transient private final BSONParser mdParser;
+    private final transient BSONParser mdParser;
 
     public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
         DB db = configuration.getDB();
