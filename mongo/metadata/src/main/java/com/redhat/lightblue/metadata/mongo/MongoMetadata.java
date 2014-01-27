@@ -154,27 +154,12 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public void createNewMetadata(EntityMetadata md) {
-        if (md.getName() == null
-                || md.getName().length() == 0) {
-            throw new IllegalArgumentException("Empty metadata name");
-        }
-        if (md.getName().indexOf(' ') != -1) {
-            throw new IllegalArgumentException("Invalid metadata name");
-        }
-        if (md.getFields().getNumChildren() <= 0) {
-            throw new IllegalArgumentException("Metadata without any fields");
-        }
-        DataStore store = md.getDataStore();
-        if (!(store instanceof MongoDataStore)) {
-            throw new IllegalArgumentException("Invalid datastore");
-        }
-        Version ver = md.getVersion();
-        if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
-            throw new IllegalArgumentException("Invalid version");
-        }
-        if (ver.getValue().indexOf(' ') != -1) {
-            throw new IllegalArgumentException("Invalid version number");
-        }
+
+        checkMetadataHasName(md);
+        checkMetadataHasFields(md);
+        checkDataStoreIsValid(md);
+        Version ver = checkVersionIsValid(md);
+                
         Error.push("createNewMetadata(" + md.getName() + ")");
         try {
             DBObject obj = (DBObject) mdParser.convert(md);
@@ -189,6 +174,36 @@ public class MongoMetadata implements Metadata {
             }
         } finally {
             Error.pop();
+        }
+    }
+    
+    private Version checkVersionIsValid(EntityMetadata md) {
+        Version ver = md.getVersion();
+        if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
+            throw new IllegalArgumentException("Invalid version");
+        }
+        if (ver.getValue().indexOf(' ') != -1) {
+            throw new IllegalArgumentException("Invalid version number");
+        }
+        return ver;
+    }
+
+    private void checkDataStoreIsValid(EntityMetadata md) {
+        DataStore store = md.getDataStore();
+        if (!(store instanceof MongoDataStore)) {
+            throw new IllegalArgumentException("Invalid datastore");
+        }
+    }
+
+    private void checkMetadataHasName(EntityMetadata md) {
+        if (md.getName() == null || md.getName().length() == 0) {
+            throw new IllegalArgumentException("Empty metadata name");
+        }
+    }
+    
+    private void checkMetadataHasFields(EntityMetadata md) {
+        if (md.getFields().getNumChildren() <= 0) {
+            throw new IllegalArgumentException("Metadata without any fields");
         }
     }
 
