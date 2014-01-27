@@ -79,19 +79,11 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
                 boolean match = false;
                 JsonNode valueNode = itr.next();
                 for (Value value : values) {
-                    Object v = value.getValue();
-                    if (valueNode == null || valueNode instanceof NullNode) {
-                        if (v == null) {
-                            numElementsContained++;
-                            match = true;
-                            break;
-                        }
-                    } else {
-                        if (v != null && elem.getType().compare(v, t.fromJson(valueNode)) == 0) {
-                            numElementsContained++;
-                            match = true;
-                            break;
-                        }
+                    Object v = value.getValue();                    
+                    if(isValueInNode(valueNode, v, t)) {
+                        match = true;
+                        numElementsContained++;
+                        break;
                     }
                 }
                 if (!match) {
@@ -106,6 +98,19 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
         }
         ctx.setResult(ret);
         return ret;
+    }
+    
+    private boolean isValueInNode(JsonNode valueNode, Object v, Type t) {
+        if (valueNode == null || valueNode instanceof NullNode) {
+            if (v == null) {
+                return true;
+            }
+        } else {
+            if (v != null && elem.getType().compare(v, t.fromJson(valueNode)) == 0) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private boolean evaluateContainsOperator(ContainsOperator op, int numElementsContained, List<Value> values){
