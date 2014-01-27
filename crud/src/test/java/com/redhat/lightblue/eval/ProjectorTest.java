@@ -188,4 +188,5 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals("elvalue3_2",pdoc.get(new Path("field7.2.elemf2")).asText());
       
     }
+
 }
