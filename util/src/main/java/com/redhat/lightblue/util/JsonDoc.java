@@ -361,6 +361,18 @@ public class JsonDoc implements Serializable {
         }
         Path parent = p.prefix(-1);
         // Parent must be a container node
+        JsonNode parentNode = getParentNode(parent, createPath, p);
+        JsonNode oldValue = null;
+        String last = p.getLast();
+        if (parentNode instanceof ObjectNode) {
+            oldValue = modifyObjectNode(parentNode, newValue, last, parent);
+        } else {
+            oldValue = modifyArrayNode((ArrayNode) parentNode, newValue, last, p);
+        }
+        return oldValue;
+    }
+
+    private JsonNode getParentNode(Path parent, boolean createPath, Path p) {
         JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
         if (parentNode == null && createPath) {
             CREATING_RESOLVER.resolve(p, docRoot, 0);
@@ -373,42 +385,47 @@ public class JsonDoc implements Serializable {
         } else {
             throw new IllegalArgumentException("Parent of " + p + " does not exist");
         }
-        JsonNode oldValue;
-        String last = p.getLast();
-        if (parentNode instanceof ObjectNode) {
-            if(Util.isNumber(last)) {
-                throw new IllegalArgumentException("Invalid indexed access:"+p);
-            }
-            ObjectNode obj = (ObjectNode) parentNode;
-            if (newValue == null) {
-                oldValue = obj.get(last);
-                obj.remove(last);
-            } else {
-                oldValue = obj.replace(last, newValue);
-            }
+        return parentNode;
+    }
+    
+    private JsonNode modifyObjectNode(JsonNode parentNode, JsonNode newValue, String last, Path p) {
+        JsonNode oldValue = null;
+        if(Util.isNumber(last)) {
+            throw new IllegalArgumentException("Invalid indexed access:"+p);
+        }
+        ObjectNode obj = (ObjectNode) parentNode;
+        if (newValue == null) {
+            oldValue = obj.get(last);
+            obj.remove(last);
         } else {
-            ArrayNode arr = (ArrayNode) parentNode;
-            int index;
-            try {
-                index = Integer.valueOf(last);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Array index expected:"+p);
-            }
-            int size = arr.size();
-            while (size < index) {
-                arr.addNull();
-                size++;
-            }
-            if (index < size && newValue != null) {
-                oldValue = arr.get(index);
-                arr.set(index, newValue);
-            } else if (newValue == null) {
-                oldValue = arr.get(index);
-                arr.remove(index);
-            } else {
-                oldValue = null;
-                arr.add(newValue);
-            }
+            oldValue = obj.replace(last, newValue);
+        }
+        return oldValue;
+    }
+    
+    private JsonNode modifyArrayNode(ArrayNode parentNode, JsonNode newValue, String last, Path p) {
+        JsonNode oldValue = null;
+        ArrayNode arr = (ArrayNode) parentNode;
+        int index;
+        try {
+            index = Integer.valueOf(last);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Array index expected:"+p);
+        }
+        int size = arr.size();
+        while (size < index) {
+            arr.addNull();
+            size++;
+        }
+        if (index < size && newValue != null) {
+            oldValue = arr.get(index);
+            arr.set(index, newValue);
+        } else if (newValue == null) {
+            oldValue = arr.get(index);
+            arr.remove(index);
+        } else {
+            oldValue = null;
+            arr.add(newValue);
         }
         return oldValue;
     }
