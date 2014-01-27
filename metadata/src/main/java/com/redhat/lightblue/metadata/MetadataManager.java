@@ -38,11 +38,15 @@ import java.nio.charset.Charset;
  *
  * @author nmalik
  */
-public class MetadataManager {
+public final class MetadataManager {
     private static Metadata metadata = null;
     private static JSONMetadataParser parser = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
+    private MetadataManager() {
+        
+    }
+    
     private static synchronized void initializeParser() {
         if (parser != null) {
             return;
