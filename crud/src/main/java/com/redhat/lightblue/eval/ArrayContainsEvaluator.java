@@ -99,22 +99,28 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
                 }
                 index++;
             }
-            switch (op) {
-                case _any:
-                    ret = numElementsContained > 0;
-                    break;
-                case _all:
-                    ret = numElementsContained == values.size();
-                    break;
-                case _none:
-                    ret = numElementsContained == 0;
-                    break;
-            }
+            ret = evaluateContainsOperator(op, numElementsContained, values);
             if (ret) {
                 ctx.addExcludedArrayElements(expr.getArray(), nonmatchingIndexes);
             }
         }
         ctx.setResult(ret);
         return ret;
+    }
+    
+    private boolean evaluateContainsOperator(ContainsOperator op, int numElementsContained, List<Value> values){
+        boolean returnValue = false;        
+        switch (op) {
+        case _any:
+            returnValue = numElementsContained > 0;
+            break;
+        case _all:
+            returnValue = numElementsContained == values.size();
+            break;
+        case _none:
+            returnValue = numElementsContained == 0;
+            break;
+        }
+        return returnValue;
     }
 }
