@@ -89,34 +89,42 @@ public class ArrayAddExpressionEvaluator extends Updater {
         if(ftn instanceof ArrayField) {
             fieldMd=(ArrayField)ftn;
             values=new ArrayList<RValueData>(expr.getValues().size());
-            for(RValueExpression rvalue:expr.getValues()) {
-                Path refPath=null;
-                FieldTreeNode refMd=null;
-                if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    refPath=rvalue.getPath();
-                    refMd=context.resolve(refPath);
-                    if(refMd==null) {
-                        throw new EvaluationError("Invalid dereference:"+refPath);
-                    }
-                } 
-                ArrayElement element=fieldMd.getElement();
-                if(element instanceof ObjectArrayElement) {
-                    if(refMd!=null&&!refMd.getType().equals(element.getType())) {
-                        throw new EvaluationError("Invalid assignment "+arrayField+" <- "+refPath);
-                    } else if(rvalue.getType()==RValueExpression.RValueType._value) {
-                        throw new EvaluationError("Object value expected for "+arrayField);
-                    }
-                } else {
-                    if(refMd!=null&&!refMd.getType().equals(element.getType())) {
-                        throw new EvaluationError("Invalid assignment "+arrayField+"<-"+refPath);
-                    } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
-                        throw new EvaluationError("Value expected for "+arrayField);
-                    }
-                }
-                values.add(new RValueData(refPath,refMd==null?null:refMd.getType(),rvalue.getValue()));
-            }
+            initializeArrayField(ftn, context, expr);
         } else {
             throw new EvaluationError("Array required:"+arrayField);
+        }
+    }
+    
+    private void initializeArrayField(FieldTreeNode ftn, FieldTreeNode context, ArrayAddExpression expr) {
+        for(RValueExpression rvalue:expr.getValues()) {
+            Path refPath=null;
+            FieldTreeNode refMd=null;
+            if(rvalue.getType()==RValueExpression.RValueType._dereference) {
+                refPath=rvalue.getPath();
+                refMd=context.resolve(refPath);
+                if(refMd==null) {
+                    throw new EvaluationError("Invalid dereference:"+refPath);
+                }
+            } 
+            ArrayElement element=fieldMd.getElement();
+            validateArrayElement(element, refMd, rvalue, refPath);
+            values.add(new RValueData(refPath,refMd==null?null:refMd.getType(),rvalue.getValue()));
+        }
+    }
+    
+    private void validateArrayElement(ArrayElement element, FieldTreeNode refMd, RValueExpression rvalue, Path refPath) {
+        if(element instanceof ObjectArrayElement) {
+            if(refMd!=null&&!refMd.getType().equals(element.getType())) {
+                throw new EvaluationError("Invalid assignment "+arrayField+" <- "+refPath);
+            } else if(rvalue.getType()==RValueExpression.RValueType._value) {
+                throw new EvaluationError("Object value expected for "+arrayField);
+            }
+        } else {
+            if(refMd!=null&&!refMd.getType().equals(element.getType())) {
+                throw new EvaluationError("Invalid assignment "+arrayField+"<-"+refPath);
+            } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
+                throw new EvaluationError("Value expected for "+arrayField);
+            }
         }
     }
     
