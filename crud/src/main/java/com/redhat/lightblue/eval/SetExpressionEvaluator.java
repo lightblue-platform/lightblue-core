@@ -108,10 +108,10 @@ public class SetExpressionEvaluator extends Updater {
             }
             
             if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
-                data=initializeSimple(rvalue, refMdNode, mdNode, data, field, refPath);
+                data=initializeSimple(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ObjectField || mdNode instanceof ObjectArrayElement) {
                 // Only a dereference or empty object is acceptable here
-                data=initializeObject(rvalue, refMdNode, mdNode, data, field, refPath);
+                data=initializeObject(rvalue, refMdNode, mdNode, field, refPath);
             } else if(mdNode instanceof ArrayField) {
                 // Unacceptable
                 throw new EvaluationError("Assignment error for "+field);
@@ -120,7 +120,7 @@ public class SetExpressionEvaluator extends Updater {
         }
     }
 
-    private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, FieldData data, Path field, Path refPath) {
+    private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if(rvalue.getType()==RValueExpression.RValueType._dereference) {
             if(!mdNode.getType().equals(refMdNode.getType())) {
                 throw new EvaluationError("Incompatible dereference "+field+" <- "+refPath);
@@ -131,7 +131,7 @@ public class SetExpressionEvaluator extends Updater {
         return new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
     }
     
-    private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, FieldData data, Path field, Path refPath) {
+    private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if(rvalue.getType()==RValueExpression.RValueType._dereference) {
             if(!(refMdNode instanceof ObjectField)) {
                 throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
@@ -171,7 +171,7 @@ public class SetExpressionEvaluator extends Updater {
                     break;
             }
             
-            setOrAdd(doc, contextMd, contextPath, df, oldValueNode, newValueNode, newValue, newValueType);
+            setOrAdd(doc, contextPath, df, oldValueNode, newValueNode, newValue, newValueType);
             
             if(!ret) {
                 ret=oldAndNewAreDifferent(oldValueNode, newValueNode);
@@ -181,7 +181,7 @@ public class SetExpressionEvaluator extends Updater {
         return ret;
     }
     
-    private void setOrAdd(JsonDoc doc, FieldTreeNode contextMd, Path contextPath, FieldData df, JsonNode oldValueNode, JsonNode newValueNode, Object newValue, Type newValueType) {
+    private void setOrAdd(JsonDoc doc, Path contextPath, FieldData df, JsonNode oldValueNode, JsonNode newValueNode, Object newValue, Type newValueType) {
         Path fieldPath=new Path(contextPath,df.field);
         if(op==UpdateOperator._set) {
             oldValueNode=doc.modify(fieldPath,newValueNode,true);
@@ -199,8 +199,8 @@ public class SetExpressionEvaluator extends Updater {
             return true;
         } else if (oldValueNode != null && newValueNode == null) {
             return true;
-        } else if (oldValueNode != null && newValueNode != null && !oldValueNode.equals(newValueNode)) {
-            return true;
+        } else if (oldValueNode != null && newValueNode != null) {
+            return !oldValueNode.equals(newValueNode);
         } else {
             return false;
         }        
