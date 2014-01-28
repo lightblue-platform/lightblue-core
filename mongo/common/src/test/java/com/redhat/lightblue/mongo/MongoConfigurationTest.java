@@ -1,8 +1,8 @@
 package com.redhat.lightblue.mongo;
 
-import static org.junit.Assert.fail;
-
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -11,6 +11,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.redhat.lightblue.mongo.MongoConfiguration.Server;
 
 public class MongoConfigurationTest {
@@ -74,7 +76,42 @@ public class MongoConfigurationTest {
 
     @Test
     public void testGetMongoClientOptions() {
-        Assert.assertEquals("name", config.getName());
+        MongoClientOptions.Builder builder = MongoClientOptions.builder();
+        builder.connectionsPerHost(10);
+        
+        Assert.assertEquals(builder.build(), config.getMongoClientOptions());
+    }
+    
+    @Test
+    public void testGetMongoClientOptionsConnectionsPerHostNull() {
+        config.setConnectionsPerHost(null);
+        MongoClientOptions.Builder builder = MongoClientOptions.builder();
+        
+        Assert.assertEquals(builder.build(), config.getMongoClientOptions());
     }
 
+    @Test
+    public void testGetServers() {
+        Iterator<MongoConfiguration.Server> serversFromConfig = config.getServers();
+        int i=0;
+        while(serversFromConfig.hasNext()) {
+            Assert.assertEquals(serversFromConfig.next(), servers.get(i));
+            i++;
+        }
+    }
+    
+    @Test
+    public void testGetServersNull() throws UnknownHostException {
+        config.setServers(null);
+        
+        Assert.assertEquals(new ArrayList<Server>(), config.getServerAddresses());
+    }
+    
+    @Test
+    public void testGetDb() throws UnknownHostException {
+        MongoClient client = new MongoClient(config.getServerAddresses(), config.getMongoClientOptions());
+        
+        Assert.assertEquals(config.getDB().toString(), client.getDB("name").toString());
+    }
+    
 }
