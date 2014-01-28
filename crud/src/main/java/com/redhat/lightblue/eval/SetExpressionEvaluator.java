@@ -170,9 +170,8 @@ public class SetExpressionEvaluator extends Updater {
                     newValueType=df.fieldType;
                     break;
             }
-            
-            setOrAdd(doc, contextPath, df, oldValueNode, newValueNode, newValue, newValueType);
-            
+            oldValueNode = setOrAdd(doc, contextPath, df, newValueNode, newValue, newValueType);
+            LOGGER.debug("oldValueNode set to: " + oldValueNode.toString());
             if(!ret) {
                 ret=oldAndNewAreDifferent(oldValueNode, newValueNode);
             }
@@ -181,10 +180,12 @@ public class SetExpressionEvaluator extends Updater {
         return ret;
     }
     
-    private void setOrAdd(JsonDoc doc, Path contextPath, FieldData df, JsonNode oldValueNode, JsonNode newValueNode, Object newValue, Type newValueType) {
+    private JsonNode setOrAdd(JsonDoc doc, Path contextPath, FieldData df, JsonNode newValueNode, Object newValue, Type newValueType) {
+        JsonNode oldValueNode = null;
         Path fieldPath=new Path(contextPath,df.field);
         if(op==UpdateOperator._set) {
             oldValueNode=doc.modify(fieldPath,newValueNode,true);
+            LOGGER.debug("oldValueNode set to: " + oldValueNode.toString());
         } else if(op==UpdateOperator._add) {
             oldValueNode=doc.get(fieldPath);
             if(newValueNode!=null && oldValueNode != null) {
@@ -192,6 +193,7 @@ public class SetExpressionEvaluator extends Updater {
                 doc.modify(fieldPath,newValueNode,false);
              }
         }
+        return oldValueNode;
     }
     
     private boolean oldAndNewAreDifferent(JsonNode oldValueNode, JsonNode newValueNode) {
