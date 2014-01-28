@@ -32,9 +32,9 @@ import com.google.gson.Gson;
 import com.redhat.lightblue.crud.CrudConfiguration.Controller;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.metadata.Extensions;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
 import com.redhat.lightblue.metadata.MetadataManager;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 

@@ -19,10 +19,7 @@
 package com.redhat.lightblue.metadata.parser;
 
 import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.MetadataParser;
-
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 
 public class MinMaxConstraintParser<T> implements FieldConstraintParser<T> {

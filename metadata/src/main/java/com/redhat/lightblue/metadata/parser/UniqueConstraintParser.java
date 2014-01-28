@@ -22,12 +22,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.MetadataParser;
-
 import com.redhat.lightblue.util.Path;
-
 import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
 
 /**

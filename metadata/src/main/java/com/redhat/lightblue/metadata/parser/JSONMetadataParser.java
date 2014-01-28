@@ -16,11 +16,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.metadata.parser;
 
 import java.math.BigInteger;
 import java.math.BigDecimal;
-
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
+import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.util.Error;
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {

@@ -4,8 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.redhat.lightblue.metadata.MetadataParser;
-
 public class ParserRegistryTest {
 
     class TestParser implements Parser<Object, Object> {

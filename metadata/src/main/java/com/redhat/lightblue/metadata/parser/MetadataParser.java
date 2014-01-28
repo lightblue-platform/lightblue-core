@@ -16,9 +16,31 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.metadata.parser;
 
+import com.redhat.lightblue.metadata.Access;
+import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityAccess;
+import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldAccess;
+import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.StatusChange;
+import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.Type;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,18 +49,13 @@ import java.util.Set;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.QueryExpression;
-
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
-import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
-
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.ObjectType;
 import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.metadata.types.DateType;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+
 import java.io.IOException;
 import java.text.ParseException;
 

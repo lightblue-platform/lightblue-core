@@ -25,21 +25,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
-
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
-
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.metadata.Extensions;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.query.QueryExpression;
+
 import java.io.IOException;
 
 public class QueryTest extends AbstractJsonNodeTest {

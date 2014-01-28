@@ -19,10 +19,9 @@
 package com.redhat.lightblue.metadata.mongo;
 
 import com.redhat.lightblue.util.Error;
-
-import com.redhat.lightblue.metadata.MetadataParser;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 
 public class MongoDataStoreParser<T> implements DataStoreParser<T> {
 

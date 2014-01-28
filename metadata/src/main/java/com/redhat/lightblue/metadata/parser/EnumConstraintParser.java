@@ -22,10 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.MetadataParser;
-
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 
 public class EnumConstraintParser<T> implements FieldConstraintParser<T> {

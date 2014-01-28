@@ -1,6 +1,5 @@
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.Extensions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,8 +17,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
-import com.redhat.lightblue.metadata.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.Error;
@@ -28,6 +25,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
+
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONAssert;
 

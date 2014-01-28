@@ -16,14 +16,11 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-import com.redhat.lightblue.metadata.parser.DefaultEntityConstraintParsers;
-import com.redhat.lightblue.metadata.parser.DefaultFieldConstraintParsers;
-import com.redhat.lightblue.metadata.parser.EntityConstraintParser;
-import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
-import com.redhat.lightblue.metadata.parser.ParserRegistry;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.FieldConstraint;
 
 /**
  * Parser extensions where T is the node type of the underlying object tree (for JSon, T is JsonNode).

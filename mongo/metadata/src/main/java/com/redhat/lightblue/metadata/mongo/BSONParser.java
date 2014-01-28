@@ -28,9 +28,9 @@ import com.mongodb.BasicDBObject;
 import org.bson.BSONObject;
 
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.metadata.MetadataParser;
 import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.Extensions;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class BSONParser extends MetadataParser<BSONObject> {

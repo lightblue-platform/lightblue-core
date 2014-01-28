@@ -18,9 +18,8 @@ import com.mongodb.BasicDBObject;
 import org.bson.BSONObject;
 
 import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.metadata.Extensions;
 import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.*;
 
 public class MongoMetadataTest {

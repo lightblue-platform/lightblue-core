@@ -41,7 +41,7 @@ import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.Extensions;
+import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 import java.net.UnknownHostException;
