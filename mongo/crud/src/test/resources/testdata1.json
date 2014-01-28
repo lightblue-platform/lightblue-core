@@ -1,0 +1,27 @@
+{
+  "object_type":"test",
+  "field1":"f1",
+  "field2":"f2",
+  "field3":1,
+  "field4":123.45,
+  "field5":true,
+  "field6":{
+      "nf1":"v1",
+      "nf2":"v2",
+      "nf3":2,
+      "nf4":false,
+      "nf5":[1,2,3,4,5],
+      "nf6":["one","two"],
+      "nf7": {
+  "nnf1":"value1",
+  "nnf2": 3
+      }
+  },
+  "field7": [
+  { "elemf1":"value0_1",
+    "elemf2":"value0_2",
+     "elemf3":0 },
+  { "elemf1":"value1_1",
+    "elemf2":"value1_2",
+    "elemf3":1 } ]
+ }

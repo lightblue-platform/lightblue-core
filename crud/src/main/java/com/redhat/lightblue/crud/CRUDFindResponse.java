@@ -27,8 +27,6 @@ import com.redhat.lightblue.util.JsonDoc;
  */
 public class CRUDFindResponse extends AbstractCRUDResponse {
 
-	private static final long serialVersionUID = 1L;
-	
     private List<JsonDoc> results;
     private long size;
 

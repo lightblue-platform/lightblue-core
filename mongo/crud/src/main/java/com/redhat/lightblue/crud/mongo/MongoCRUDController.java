@@ -162,7 +162,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments().size());
+        LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments()!=null?response.getDocuments().size():0);
     }
 
     private void saveDocs(DBObject[] dbObjects, String operation, boolean upsert, DocIndex index, Map<DBObject, List<Error>> errorMap, List<DBObject> successfulUpdates) {

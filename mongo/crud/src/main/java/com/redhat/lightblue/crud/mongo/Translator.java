@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,7 +180,7 @@ public class Translator {
             throw Error.get(ERR_INVALID_OBJECTTYPE, type.toString());
         }
         JsonDoc doc = toJson(object, md);
-        LOGGER.debug("toJson() loggerreturn");
+        LOGGER.debug("toJson() return");
         return doc;
     }
 
@@ -470,7 +473,7 @@ public class Translator {
                 } else if (field instanceof ObjectField) {
                     convertObjectFieldToJson(node, fieldName, md, mdCursor, value, p);
                 } else if (field instanceof ArrayField && value instanceof List && mdCursor.firstChild()) {
-                    convertArrayFieldToJson(md, mdCursor, value);
+                    convertArrayFieldToJson(node, fieldName, md, mdCursor, value);
                 } else if (field instanceof ReferenceField) {
                     convertReferenceFieldToJson();
                 }
@@ -502,8 +505,9 @@ public class Translator {
     }
 
     @SuppressWarnings("rawtypes")
-    private void convertArrayFieldToJson(EntityMetadata md, FieldCursor mdCursor, Object value) {
+        private void convertArrayFieldToJson(ObjectNode node,String fieldName,EntityMetadata md, FieldCursor mdCursor, Object value) {
         ArrayNode valueNode = factory.arrayNode();
+        node.set(fieldName,valueNode);
         // We must have an array element here
         FieldTreeNode x = mdCursor.getCurrentNode();
         if (x instanceof ArrayElement) {
@@ -573,7 +577,11 @@ public class Translator {
             LOGGER.debug("{} = {}", path, value);
             if(path.equals(ID_PATH)) {
                 value=new ObjectId(value.toString());
-            }
+            } 
+            // Store big values as string. Mongo does not support big values
+            if(value instanceof BigDecimal||
+               value instanceof BigInteger)
+                value=value.toString();
             dest.append(path.tail(0), value);
         }
     }
