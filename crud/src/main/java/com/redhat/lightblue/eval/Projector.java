@@ -139,44 +139,11 @@ public abstract class Projector {
                     if (result) {
                         LOGGER.debug("Projection includes {}", fieldPath);
                         if (fieldMd instanceof ObjectField) {
-                            if (fieldNode instanceof ObjectNode) {
-                                if (cursor.firstChild()) {
-                                    ObjectNode newNode = projectObject(projector, factory, mdContext, contextPath, cursor, ctx);
-                                    ret.set(fieldPath.tail(0), newNode);
-                                    cursor.parent();
-                                } else {
-                                    ret.set(fieldPath.tail(0), factory.objectNode());
-                                }
-                            } else {
-                                LOGGER.warn("Expecting object node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
-                            }
+                            projectObjectField(fieldNode, ret, fieldPath, cursor, projector, mdContext, contextPath, factory, ctx);
                         } else if (fieldMd instanceof SimpleField) {
-                            if (fieldNode.isValueNode()) {
-                                ret.set(fieldPath.tail(0), fieldNode);
-                            } else {
-                                LOGGER.warn("Expecting value node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
-                            }
+                            projectSimpleField(fieldNode, ret, fieldPath);
                         } else if (fieldMd instanceof ArrayField) {
-                            if (fieldNode instanceof ArrayNode) {
-                                ArrayNode newNode = factory.arrayNode();
-                                ret.set(fieldPath.tail(0), newNode);
-                                if (cursor.firstChild()) {
-                                    do {
-                                        JsonNode node = projectArrayElement(projector,
-                                                factory,
-                                                ((ArrayField) fieldMd).getElement(),
-                                                fieldPath,
-                                                cursor,
-                                                ctx);
-                                        if (node != null) {
-                                            newNode.add(node);
-                                        }
-                                    } while (cursor.nextSibling());
-                                    cursor.parent();
-                                }
-                            } else {
-                                LOGGER.warn("Expecting array node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
-                            }
+                            projectArrayField(projector, factory, fieldMd, ret, fieldPath, fieldNode, cursor, ctx);
                         }
                     } else {
                         LOGGER.debug("Projection excludes {}", fieldPath);
@@ -191,6 +158,62 @@ public abstract class Projector {
         return ret;
     }
 
+    private JsonNode projectObjectField(JsonNode fieldNode, ObjectNode ret, Path fieldPath, JsonNodeCursor cursor, Projector projector, FieldTreeNode mdContext, Path contextPath, JsonNodeFactory factory, QueryEvaluationContext ctx) {
+        if (fieldNode instanceof ObjectNode) {
+            if (cursor.firstChild()) {
+                ObjectNode newNode = projectObject(projector, factory, mdContext, contextPath, cursor, ctx);
+                ret.set(fieldPath.tail(0), newNode);
+                cursor.parent();
+            } else {
+                ret.set(fieldPath.tail(0), factory.objectNode());
+            }
+        } else {
+            LOGGER.warn("Expecting object node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
+        }
+        return null;
+    }
+    
+    private JsonNode projectSimpleField(JsonNode fieldNode, ObjectNode ret, Path fieldPath) {
+        if (fieldNode.isValueNode()) {
+            ret.set(fieldPath.tail(0), fieldNode);
+        } else {
+            LOGGER.warn("Expecting value node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
+        }
+        return null;
+    }
+    
+    private JsonNode projectArrayField(Projector projector,
+            JsonNodeFactory factory,
+            FieldTreeNode fieldMd,
+            ObjectNode ret,
+            Path fieldPath,
+            JsonNode fieldNode,
+            JsonNodeCursor cursor,
+            QueryEvaluationContext ctx) {
+        
+        if (fieldNode instanceof ArrayNode) {
+            ArrayNode newNode = factory.arrayNode();
+            ret.set(fieldPath.tail(0), newNode);
+            if (cursor.firstChild()) {
+                do {
+                    JsonNode node = projectArrayElement(projector,
+                            factory,
+                            ((ArrayField) fieldMd).getElement(),
+                            fieldPath,
+                            cursor,
+                            ctx);
+                    if (node != null) {
+                        newNode.add(node);
+                    }
+                } while (cursor.nextSibling());
+                cursor.parent();
+            }
+        } else {
+            LOGGER.warn("Expecting array node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
+        }
+        return null;
+    }
+    
     private JsonNode projectArrayElement(Projector projector,
                                          JsonNodeFactory factory,
                                          ArrayElement mdContext,
