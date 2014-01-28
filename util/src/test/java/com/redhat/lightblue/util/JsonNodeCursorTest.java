@@ -5,16 +5,18 @@
  */
 package com.redhat.lightblue.util;
 
+import java.io.IOException;
+import java.util.Iterator;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-import java.io.IOException;
-import java.util.Iterator;
-import junit.framework.Assert;
-import org.junit.Test;
 
 /**
  *
@@ -35,7 +37,7 @@ public class JsonNodeCursorTest {
     public void illegalRoot() throws IOException {
         try {
             TextNode node = new TextNode("value");
-            JsonNodeCursor c = new JsonNodeCursor(new Path(""), node);
+            new JsonNodeCursor(new Path(""), node);
             Assert.fail("Expected IllegalArgumentException with TextNode as root element");
         } catch (IllegalArgumentException e) {
             // expected

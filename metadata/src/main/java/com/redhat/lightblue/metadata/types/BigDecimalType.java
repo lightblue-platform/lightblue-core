@@ -19,12 +19,10 @@
 package com.redhat.lightblue.metadata.types;
 
 import java.io.Serializable;
-
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.util.Error;
 
 public final class BigDecimalType implements Type, Serializable {
@@ -92,6 +90,7 @@ public final class BigDecimalType implements Type, Serializable {
         return value;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public int compare(Object v1, Object v2) {
         if (v1 == null) {

@@ -501,6 +501,7 @@ public class Translator {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private void convertArrayFieldToJson(EntityMetadata md, FieldCursor mdCursor, Object value) {
         ArrayNode valueNode = factory.arrayNode();
         // We must have an array element here

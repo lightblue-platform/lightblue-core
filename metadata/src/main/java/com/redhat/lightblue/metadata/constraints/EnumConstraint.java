@@ -19,13 +19,11 @@
 package com.redhat.lightblue.metadata.constraints;
 
 import java.io.Serializable;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
-
 import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.metadata.types.StringType;
 
@@ -53,6 +51,7 @@ public class EnumConstraint implements FieldConstraint, Serializable {
         return StringType.TYPE.equals(fieldType);
     }
 
+    @SuppressWarnings("unchecked")
     public Set<String> getValues() {
         return (Set<String>) values.clone();
     }

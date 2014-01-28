@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.util.Error;
 
 public final class DoubleType implements Type, Serializable {
@@ -73,6 +72,7 @@ public final class DoubleType implements Type, Serializable {
         return value;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public int compare(Object v1, Object v2) {
         if (v1 == null) {

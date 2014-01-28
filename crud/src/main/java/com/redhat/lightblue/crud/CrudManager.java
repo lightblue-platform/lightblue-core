@@ -63,6 +63,7 @@ public final class CrudManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException {
         if (mediator != null) {
             // already initalized

@@ -171,7 +171,6 @@ public class SetExpressionEvaluator extends Updater {
                     break;
             }
             oldValueNode = setOrAdd(doc, contextPath, df, newValueNode, newValue, newValueType);
-            LOGGER.debug("oldValueNode set to: " + oldValueNode.toString());
             if(!ret) {
                 ret=oldAndNewAreDifferent(oldValueNode, newValueNode);
             }
@@ -185,7 +184,6 @@ public class SetExpressionEvaluator extends Updater {
         Path fieldPath=new Path(contextPath,df.field);
         if(op==UpdateOperator._set) {
             oldValueNode=doc.modify(fieldPath,newValueNode,true);
-            LOGGER.debug("oldValueNode set to: " + oldValueNode.toString());
         } else if(op==UpdateOperator._add) {
             oldValueNode=doc.get(fieldPath);
             if(newValueNode!=null && oldValueNode != null) {

@@ -19,7 +19,6 @@
 package com.redhat.lightblue.metadata.constraints;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +36,7 @@ public class ReferencesConstraint implements EntityConstraint, Serializable {
         return REFERENCES;
     }
 
+    @SuppressWarnings("unchecked")
     public List<Reference> getReferences() {
         return (ArrayList<Reference>) references.clone();
     }

@@ -73,6 +73,7 @@ public class EntityMetadata implements Serializable {
     /**
      * Returns the status change log
      */
+    @SuppressWarnings("unchecked")
     public List<StatusChange> getStatusChangeLog() {
         return (List<StatusChange>) statusChangeLog.clone();
     }
@@ -117,6 +118,7 @@ public class EntityMetadata implements Serializable {
     /**
      * Returns a deep copy list of constraints
      */
+    @SuppressWarnings("unchecked")
     public List<EntityConstraint> getConstraints() {
         return (List<EntityConstraint>) constraints.clone();
     }

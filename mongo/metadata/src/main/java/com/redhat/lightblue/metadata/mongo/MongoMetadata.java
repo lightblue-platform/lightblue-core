@@ -33,9 +33,7 @@ import com.mongodb.MongoException;
 import org.bson.BSONObject;
 
 import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.mongo.MongoConfiguration;
-
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Version;
@@ -43,9 +41,9 @@ import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
-
 import com.redhat.lightblue.metadata.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+
 import java.net.UnknownHostException;
 
 public class MongoMetadata implements Metadata {
@@ -112,6 +110,7 @@ public class MongoMetadata implements Metadata {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public String[] getEntityNames() {
         Error.push("getEntityNames");

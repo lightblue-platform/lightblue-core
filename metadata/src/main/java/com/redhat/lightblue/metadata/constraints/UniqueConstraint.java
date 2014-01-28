@@ -19,12 +19,10 @@
 package com.redhat.lightblue.metadata.constraints;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import com.redhat.lightblue.util.Path;
-
 import com.redhat.lightblue.metadata.EntityConstraint;
 
 public class UniqueConstraint implements EntityConstraint, Serializable {
@@ -39,6 +37,7 @@ public class UniqueConstraint implements EntityConstraint, Serializable {
         return UNIQUE;
     }
 
+    @SuppressWarnings("unchecked")
     public List<Path> getFields() {
         return (ArrayList<Path>) fields.clone();
     }

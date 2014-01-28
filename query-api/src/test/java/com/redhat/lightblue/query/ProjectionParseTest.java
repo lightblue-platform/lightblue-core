@@ -2,10 +2,6 @@ package com.redhat.lightblue.query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.redhat.lightblue.util.JsonUtils;

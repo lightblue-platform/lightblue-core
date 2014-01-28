@@ -27,6 +27,8 @@ import com.redhat.lightblue.util.Error;
  */
 public class CRUDDeleteResponse extends AbstractCRUDResponse {
 
+    private static final long serialVersionUID = 1L;
+    
     private int numDeleted;
 
     /**

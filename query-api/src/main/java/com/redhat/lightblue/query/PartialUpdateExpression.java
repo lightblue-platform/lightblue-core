@@ -27,7 +27,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * </pre>
  */
 public abstract class PartialUpdateExpression extends UpdateExpression {
-    
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Parses a partial update expression using the given json object
      */

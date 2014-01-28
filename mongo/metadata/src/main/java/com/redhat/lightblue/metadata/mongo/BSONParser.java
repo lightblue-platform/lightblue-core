@@ -28,10 +28,8 @@ import com.mongodb.BasicDBObject;
 import org.bson.BSONObject;
 
 import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.MetadataParser;
 import com.redhat.lightblue.metadata.TypeResolver;
-
 import com.redhat.lightblue.metadata.Extensions;
 
 public class BSONParser extends MetadataParser<BSONObject> {
@@ -86,6 +84,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public List<String> getStringList(BSONObject object, String name) {
         Object x = object.get(name);
@@ -104,6 +103,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<BSONObject> getObjectList(BSONObject object, String name) {
         Object x = object.get(name);
@@ -143,6 +143,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
         object.put(name, value);
     }
 
+    @SuppressWarnings({ "rawtypes"})
     @Override
     public Object newArrayField(BSONObject object, String name) {
         Object ret = new ArrayList();
@@ -150,11 +151,13 @@ public class BSONParser extends MetadataParser<BSONObject> {
         return ret;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void addStringToArray(Object array, String value) {
         ((List) array).add(value);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void addObjectToArray(Object array, Object value) {
         ((List) array).add(value);

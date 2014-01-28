@@ -468,6 +468,7 @@ public class MongoCRUDController implements CRUDController {
     /**
      * Adds a new error for the document to the errormap
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void addErrorToMap(Map<DBObject, List<Error>> map, DBObject object, Error error) {
         List l = map.get(object);
         if (l == null) {

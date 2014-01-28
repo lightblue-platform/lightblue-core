@@ -1,12 +1,10 @@
 package com.redhat.lightblue.metadata.constraints;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,12 +31,12 @@ public class UniqueConstraintTest {
 
     @Test
     public void testGetType() {
-        assertTrue(constraint.getType().equals(UniqueConstraint.UNIQUE));
+        Assert.assertTrue(constraint.getType().equals(UniqueConstraint.UNIQUE));
     }
 
     @Test
     public void testGetFields() {
-        assertTrue(constraint.getFields().equals(paths));
+        Assert.assertTrue(constraint.getFields().equals(paths));
     }
 
     @Test
@@ -47,13 +45,13 @@ public class UniqueConstraintTest {
         path.add(Path.EMPTY);
         paths = new ArrayList<Path>();
         constraint.setFields(paths);
-        assertTrue(constraint.getFields().equals(paths));
+        Assert.assertTrue(constraint.getFields().equals(paths));
     }
 
     @Test
     public void testSetFieldsNull() {
         constraint.setFields(null);
         paths.clear();
-        assertTrue(constraint.getFields().equals(paths));
+        Assert.assertTrue(constraint.getFields().equals(paths));
     }
 }

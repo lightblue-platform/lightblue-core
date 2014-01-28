@@ -51,6 +51,11 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 
                 DataStore ds = new DataStore() {
 
+                    /**
+                     * 
+                     */
+                    private static final long serialVersionUID = 1L;
+
                     @Override
                     public String getType() {
                         return "empty";

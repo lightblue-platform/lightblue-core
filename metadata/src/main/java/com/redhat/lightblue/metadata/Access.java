@@ -51,6 +51,7 @@ public class Access implements Serializable {
     /**
      * Retrieves the roles. A copy of the internal storage is returned.
      */
+    @SuppressWarnings("unchecked")
     public Set<String> getRoles() {
         return (Set<String>) values.clone();
     }
