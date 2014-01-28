@@ -106,28 +106,12 @@ public class SetExpressionEvaluator extends Updater {
             if(mdNode==null) {
                 throw new EvaluationError("Cannot access "+field);
             }
-
-            if(mdNode instanceof SimpleField||
-               mdNode instanceof SimpleArrayElement) {
-                if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    if(!mdNode.getType().equals(refMdNode.getType())) {
-                        throw new EvaluationError("Incompatible dereference "+field+" <- "+refPath);
-                    }
-                } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
-                    throw new EvaluationError("Incompatible assignment "+field +" <- {}");
-                }
-                data=new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
-            } else if(mdNode instanceof ObjectField||
-                      mdNode instanceof ObjectArrayElement) {
+            
+            if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
+                data=initializeSimple(rvalue, refMdNode, mdNode, data, field, refPath);
+            } else if (mdNode instanceof ObjectField || mdNode instanceof ObjectArrayElement) {
                 // Only a dereference or empty object is acceptable here
-                if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                    if(!(refMdNode instanceof ObjectField)) {
-                        throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
-                    }                        
-                } else if(rvalue.getType()==RValueExpression.RValueType._value) {
-                    throw new EvaluationError("Incompatible assignment "+field+" <- "+rvalue.getValue());
-                }
-                data=new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
+                data=initializeObject(rvalue, refMdNode, mdNode, data, field, refPath);
             } else if(mdNode instanceof ArrayField) {
                 // Unacceptable
                 throw new EvaluationError("Assignment error for "+field);
@@ -136,6 +120,28 @@ public class SetExpressionEvaluator extends Updater {
         }
     }
 
+    private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, FieldData data, Path field, Path refPath) {
+        if(rvalue.getType()==RValueExpression.RValueType._dereference) {
+            if(!mdNode.getType().equals(refMdNode.getType())) {
+                throw new EvaluationError("Incompatible dereference "+field+" <- "+refPath);
+            }
+        } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
+            throw new EvaluationError("Incompatible assignment "+field +" <- {}");
+        }
+        return new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
+    }
+    
+    private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, FieldData data, Path field, Path refPath) {
+        if(rvalue.getType()==RValueExpression.RValueType._dereference) {
+            if(!(refMdNode instanceof ObjectField)) {
+                throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
+            }                        
+        } else if(rvalue.getType()==RValueExpression.RValueType._value) {
+            throw new EvaluationError("Incompatible assignment "+field+" <- "+rvalue.getValue());
+        }
+        return new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
+    }
+    
     @Override
     public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
         boolean ret=false;
@@ -147,44 +153,57 @@ public class SetExpressionEvaluator extends Updater {
             Object newValue=null;
             Type newValueType=null;
             switch(df.value.getType()) {
-            case _emptyObject: 
-                newValueNode=factory.objectNode();                
-                break;
-            case _dereference:
-                JsonNode refNode=doc.get(new Path(contextPath,df.refPath));
-                if(refNode!=null) {
-                    newValueNode=refNode.deepCopy();
-                    newValue=df.refType.fromJson(newValueNode);
-                    newValueType=df.refType;
-                }
-                break;
-            case _value:
-                newValue=df.value.getValue().getValue();
-                newValueNode=df.fieldType.toJson(factory,newValue);
-                newValueType=df.fieldType;
-                break;
+                case _emptyObject: 
+                    newValueNode=factory.objectNode();                
+                    break;
+                case _dereference:
+                    JsonNode refNode=doc.get(new Path(contextPath,df.refPath));
+                    if(refNode!=null) {
+                        newValueNode=refNode.deepCopy();
+                        newValue=df.refType.fromJson(newValueNode);
+                        newValueType=df.refType;
+                    }
+                    break;
+                case _value:
+                    newValue=df.value.getValue().getValue();
+                    newValueNode=df.fieldType.toJson(factory,newValue);
+                    newValueType=df.fieldType;
+                    break;
             }
             
-            Path fieldPath=new Path(contextPath,df.field);
-            if(op==UpdateOperator._set) {
-                oldValueNode=doc.modify(fieldPath,newValueNode,true);
-            } else if(op==UpdateOperator._add) {
-                oldValueNode=doc.get(fieldPath);
-                if(newValueNode!=null && oldValueNode != null) {
-                    newValueNode=df.fieldType.toJson(factory,
-                                                     Arith.add(df.fieldType.fromJson(oldValueNode),
-                                                              newValue,
-                                                              Arith.promote(df.fieldType,newValueType)));
-                    doc.modify(fieldPath,newValueNode,false);
-                 }
-            }
+            setOrAdd(doc, contextMd, contextPath, df, oldValueNode, newValueNode, newValue, newValueType);
+            
             if(!ret) {
-                ret=(oldValueNode==null&&newValueNode!=null) ||
-                        (oldValueNode!=null&&newValueNode==null) ||
-                        (oldValueNode!=null&&newValueNode!=null&&!oldValueNode.equals(newValueNode));
+                ret=oldAndNewAreDifferent(oldValueNode, newValueNode);
             }
         }
         LOGGER.debug("Completed");
         return ret;
     }
+    
+    private void setOrAdd(JsonDoc doc, FieldTreeNode contextMd, Path contextPath, FieldData df, JsonNode oldValueNode, JsonNode newValueNode, Object newValue, Type newValueType) {
+        Path fieldPath=new Path(contextPath,df.field);
+        if(op==UpdateOperator._set) {
+            oldValueNode=doc.modify(fieldPath,newValueNode,true);
+        } else if(op==UpdateOperator._add) {
+            oldValueNode=doc.get(fieldPath);
+            if(newValueNode!=null && oldValueNode != null) {
+                newValueNode=df.fieldType.toJson(factory, Arith.add(df.fieldType.fromJson(oldValueNode), newValue, Arith.promote(df.fieldType,newValueType)));
+                doc.modify(fieldPath,newValueNode,false);
+             }
+        }
+    }
+    
+    private boolean oldAndNewAreDifferent(JsonNode oldValueNode, JsonNode newValueNode) {
+        if (oldValueNode == null && newValueNode != null) {
+            return true;
+        } else if (oldValueNode != null && newValueNode == null) {
+            return true;
+        } else if (oldValueNode != null && newValueNode != null && !oldValueNode.equals(newValueNode)) {
+            return true;
+        } else {
+            return false;
+        }        
+    }
+    
  }
