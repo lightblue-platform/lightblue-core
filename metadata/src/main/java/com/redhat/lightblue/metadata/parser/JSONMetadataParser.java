@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.types.TypeResolver;
 import com.redhat.lightblue.util.Error;
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {

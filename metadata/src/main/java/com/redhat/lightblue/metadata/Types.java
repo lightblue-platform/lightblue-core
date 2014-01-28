@@ -19,6 +19,8 @@
 package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.metadata.types.Type;
+import com.redhat.lightblue.metadata.types.TypeResolver;
+
 import java.util.ArrayList;
 import java.util.List;
 

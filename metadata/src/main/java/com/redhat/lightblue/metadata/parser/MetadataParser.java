@@ -37,7 +37,6 @@ import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.StatusChange;
-import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.Type;
 
@@ -53,6 +52,7 @@ import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.ObjectType;
 import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.metadata.types.DateType;
+import com.redhat.lightblue.metadata.types.TypeResolver;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 
