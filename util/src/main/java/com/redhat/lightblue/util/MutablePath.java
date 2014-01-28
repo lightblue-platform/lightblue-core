@@ -195,4 +195,17 @@ public class MutablePath extends Path {
         }
     }
     
+    @Override
+    public boolean equals(Object x) {
+        if (x instanceof Path) {
+            return ((Path) x).getData().equals(getData());
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        return getData().hashCode();
+    }
 }

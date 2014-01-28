@@ -631,7 +631,8 @@ public class Translator {
     }
     
     private void convertReferenceFieldToBson() {
-        //TODO  toBson(ret,(ReferenceNode)fieldMdNode,path,node);
+        //TODO  
+        throw new java.lang.UnsupportedOperationException();
     }
     
     /**
