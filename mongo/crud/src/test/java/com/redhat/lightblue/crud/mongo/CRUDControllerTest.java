@@ -31,9 +31,9 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Extensions;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
-import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.types.TypeResolver;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
