@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.query.Sort;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -45,6 +46,7 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
+import com.redhat.lightblue.crud.CRUDFindResponse;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -117,6 +119,10 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
     
     private UpdateExpression update(String s) throws Exception {
         return UpdateExpression.fromJson(json(s));
+    }
+    
+    private Sort sort(String s) throws Exception {
+        return Sort.fromJson(json(s));
     }
     
     private JsonNode json(String s) throws Exception {
@@ -246,6 +252,50 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         Assert.assertEquals(10,upd.getNumUpdated());
         Assert.assertEquals(0,upd.getNumFailed());
         Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
+
+    }
+
+    @Test
+    public void sortAndPageTest() throws Exception {
+        DB db = mongo.getDB(DB_NAME);
+        DBCollection coll=db.getCollection(COLL_NAME);
+        EntityMetadata md=getMd("./testMetadata.json");
+        MDResolver mdr=new MDResolver();
+        mdr.add(md);
+        // Generate some docs
+        List<JsonDoc> docs=new ArrayList<JsonDoc>();
+        int numDocs=20;
+        for(int i=0;i<numDocs;i++) {
+            JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
+            doc.modify(new Path("field1"),factory.textNode("doc"+i),false);
+            doc.modify(new Path("field3"),factory.numberNode(i),false);
+            docs.add(doc);
+        }
+        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+
+        CRUDFindResponse response=controller.find(mdr,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
+                                                  projection("{'field':'*','recursive':1}"),
+                                                  sort("{'field3':'$desc'}"),null,null);
+        Assert.assertEquals(numDocs,response.getResults().size());
+        int lastValue=-1;
+        for(JsonDoc doc:response.getResults()) {
+            int value=doc.get(new Path("field3")).asInt();
+            if(value<lastValue)
+                Assert.fail("wrong order");
+        }
+
+        for(int k=0;k<15;k++) {
+            response=controller.find(mdr,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
+                                     projection("{'field':'*','recursive':1}"),
+                                     sort("{'field3':'$asc'}"),new Long(k),new Long(k+5));
+            
+            int i=0;
+            for(JsonDoc doc:response.getResults()) {
+                int value=doc.get(new Path("field3")).asInt();
+                Assert.assertEquals(i+k,value);
+                i++;
+            }
+        }
 
     }
 
