@@ -182,11 +182,12 @@ public class MongoCRUDController implements CRUDController {
             for (DBObject doc : docs) {
                 try {
                     WriteResult result;
+                    String error=null;
                     if (operation.equals(OP_INSERT)) {
                         result = collection.insert(doc, WriteConcern.SAFE);
                     } else {
                         Object x = doc.get(ID_STR);
-                        if (x == null) {
+                        if (x == null&&upsert) {
                             result = collection.insert(doc, WriteConcern.SAFE);
                         } else {
                             BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
@@ -195,7 +196,8 @@ public class MongoCRUDController implements CRUDController {
                         }
                     }
                     LOGGER.debug("Write result {}",result);
-                    String error = result.getError();
+                    if(error==null)
+                        error = result.getError();
                     if (error != null) {
                         addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
                     } else {

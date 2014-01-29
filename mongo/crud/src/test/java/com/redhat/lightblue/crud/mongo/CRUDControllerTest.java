@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.UpdateExpression;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -41,6 +42,9 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
 import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -111,6 +115,10 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         return QueryExpression.fromJson(json(s));
     }
     
+    private UpdateExpression update(String s) throws Exception {
+        return UpdateExpression.fromJson(json(s));
+    }
+    
     private JsonNode json(String s) throws Exception {
         return JsonUtils.json(s.replace('\'','\"'));
     }
@@ -174,5 +182,100 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
                                       projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
         Assert.assertEquals(readDoc.get(new Path("field1")).asText(),r2doc.get(new Path("field1")).asText());
         Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(),r2doc.get(new Path("field7.0.elemf1")).asText());
+    }
+
+    @Test
+    public void upsertTest() throws Exception {
+        DB db = mongo.getDB(DB_NAME);
+        DBCollection coll=db.getCollection(COLL_NAME);
+        EntityMetadata md=getMd("./testMetadata.json");
+        MDResolver mdr=new MDResolver();
+        mdr.add(md);
+        JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
+        List<JsonDoc> docs=new ArrayList<JsonDoc>();
+        docs.add(doc);
+        System.out.println("Write doc:"+doc);
+        CRUDInsertionResponse response=controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        String id=response.getDocuments().get(0).get(new Path("_id")).asText();
+        JsonDoc readDoc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
+                                        projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
+        // Remove id, to force re-insert
+        readDoc.modify(new Path("_id"),null,false);
+        docs.clear();
+        docs.add(readDoc);
+        // This should not insert anything
+        CRUDSaveResponse sr=controller.save(mdr,docs,false,projection("{'field':'_id'}"));
+        Assert.assertEquals(1,coll.find(null).count());
+        
+        sr=controller.save(mdr,docs,true,projection("{'field':'_id'}"));
+        Assert.assertEquals(2,coll.find(null).count());
+    }
+
+    @Test
+    public void updateTest() throws Exception {
+        DB db = mongo.getDB(DB_NAME);
+        DBCollection coll=db.getCollection(COLL_NAME);
+        EntityMetadata md=getMd("./testMetadata.json");
+        MDResolver mdr=new MDResolver();
+        mdr.add(md);
+        // Generate some docs
+        List<JsonDoc> docs=new ArrayList<JsonDoc>();
+        int numDocs=20;
+        for(int i=0;i<numDocs;i++) {
+            JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
+            doc.modify(new Path("field1"),factory.textNode("doc"+i),false);
+            doc.modify(new Path("field3"),factory.numberNode(i),false);
+            docs.add(doc);
+        }
+        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        Assert.assertEquals(numDocs,coll.find(null).count());
+
+        // Single doc update
+        CRUDUpdateResponse upd=controller.update(mdr,"test",query("{'field':'field3','op':'$eq','rvalue':10}"),
+                                                 update("{ '$set': { 'field3' : 1000 } }"),
+                                                 projection("{'field':'_id'}"));
+        Assert.assertEquals(1,upd.getNumUpdated());
+        Assert.assertEquals(0,upd.getNumFailed());
+        Assert.assertEquals(upd.getDocuments().get(0).get(new Path("_id")).asText(),coll.find(new BasicDBObject("field3",1000),new BasicDBObject("_id",1)).next().get("_id").toString());
+        Assert.assertEquals(1,coll.find(new BasicDBObject("field3",1000)).count());
+
+        // Bulk update
+        upd=controller.update(mdr,"test",query("{'field':'field3','op':'>','rvalue':10}"),
+                              update("{ '$set': { 'field3' : 1000 } }"),
+                              projection("{'field':'_id'}"));
+        Assert.assertEquals(10,upd.getNumUpdated());
+        Assert.assertEquals(0,upd.getNumFailed());
+        Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
+
+    }
+
+    @Test
+    public void deleteTest() throws Exception {
+        DB db = mongo.getDB(DB_NAME);
+        DBCollection coll=db.getCollection(COLL_NAME);
+        EntityMetadata md=getMd("./testMetadata.json");
+        MDResolver mdr=new MDResolver();
+        mdr.add(md);
+        // Generate some docs
+        List<JsonDoc> docs=new ArrayList<JsonDoc>();
+        int numDocs=20;
+        for(int i=0;i<numDocs;i++) {
+            JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
+            doc.modify(new Path("field1"),factory.textNode("doc"+i),false);
+            doc.modify(new Path("field3"),factory.numberNode(i),false);
+            docs.add(doc);
+        }
+        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        Assert.assertEquals(numDocs,coll.find(null).count());
+
+        // Single doc delete
+        CRUDDeleteResponse del=controller.delete(mdr,"test",query("{'field':'field3','op':'$eq','rvalue':10}"));
+        Assert.assertEquals(1,del.getNumDeleted());
+        Assert.assertEquals(numDocs-1,coll.find(null).count());
+
+        // Bulk delete
+        del=controller.delete(mdr,"test",query("{'field':'field3','op':'>','rvalue':10}"));
+        Assert.assertEquals(9,del.getNumDeleted());
+        Assert.assertEquals(10,coll.find(null).count());
     }
 }
