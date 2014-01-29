@@ -81,12 +81,14 @@ public class ModifyDocTest {
         Assert.assertEquals(1, doc.get(new Path("arr.0")).intValue());
     }
 
+    @Test
     public void create_array_with_non_zero_index_creates_correctly_sized_array() {
         doc.modify(new Path("arr.5"), factory.numberNode(5), true);
 
         Assert.assertEquals(6, doc.get(new Path("arr")).size());
     }
 
+    @Test
     public void create_array_with_one_index_value_initializes_remaining_indicies_to_null() {
         doc.modify(new Path("arr.2"), factory.numberNode(5), true);
 
@@ -124,12 +126,14 @@ public class ModifyDocTest {
         Assert.assertEquals("text", doc.get(new Path("x.y.z.1")).textValue());
     }
 
+    @Test
     public void create_nested_array_with_index_creates_array_of_correct_size() {
         doc.modify(new Path("test.arr.5"), factory.numberNode(5), true);
 
         Assert.assertEquals(6, doc.get(new Path("test.arr")).size());
     }
 
+    @Test
     public void create_nested_array_with_one_index_value_initializes_remaining_indicies_to_null() {
         doc.modify(new Path("test.arr.2"), factory.numberNode(5), true);
 
