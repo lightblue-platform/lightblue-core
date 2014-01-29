@@ -579,9 +579,10 @@ public class Translator {
                 value=new ObjectId(value.toString());
             } 
             // Store big values as string. Mongo does not support big values
-            if(value instanceof BigDecimal||
-               value instanceof BigInteger)
+            if(value instanceof BigDecimal || value instanceof BigInteger) {
                 value=value.toString();
+            }
+                
             dest.append(path.tail(0), value);
         }
     }
