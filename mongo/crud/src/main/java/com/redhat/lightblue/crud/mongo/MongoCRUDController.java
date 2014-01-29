@@ -181,7 +181,7 @@ public class MongoCRUDController implements CRUDController {
             DBCollection collection = index.getDBCollection(store);
             for (DBObject doc : docs) {
                 try {
-                    WriteResult result;
+                    WriteResult result=null;
                     String error=null;
                     if (operation.equals(OP_INSERT)) {
                         result = collection.insert(doc, WriteConcern.SAFE);
@@ -189,19 +189,21 @@ public class MongoCRUDController implements CRUDController {
                         Object x = doc.get(ID_STR);
                         if (x == null&&upsert) {
                             result = collection.insert(doc, WriteConcern.SAFE);
-                        } else {
+                        } else if(x!=null) {
                             BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
                             LOGGER.debug("update query: {}",q);
                             result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
                         }
                     }
                     LOGGER.debug("Write result {}",result);
-                    if(error==null)
-                        error = result.getError();
-                    if (error != null) {
-                        addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
-                    } else {
-                        successfulUpdates.add(doc);
+                    if(result!=null) {
+                        if(error==null)
+                            error = result.getError();
+                        if (error != null) {
+                            addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
+                        } else {
+                            successfulUpdates.add(doc);
+                        }
                     }
                 } catch (MongoException.DuplicateKey dke) {
                     addErrorToMap(errorMap, doc, operation, ERR_DUPLICATE, dke.toString());
