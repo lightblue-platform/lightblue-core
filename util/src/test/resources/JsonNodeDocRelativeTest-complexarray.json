@@ -1,0 +1,45 @@
+{
+
+    "object": {
+        "simple": "value",
+        "nested1": {
+            "simplenested": "nestedvalue",
+            "doublenested1": {
+                "doublenestedsimple": "doublenestedvalue",
+                "triplenested1" : {
+                    "triplenestedsimple" : "triplenestedvalue"
+                }
+            }
+        }   
+    },
+
+    "field1": "value",
+    "array1": [
+        {
+            "nested1": [1, 2, 3, 4]
+        },
+        {
+            "nested1": [1, 2, 3, 4, 5]
+        },
+        {
+            "nested1": [1, 2]
+        },
+        "3",
+        {
+            "deep": [
+                {
+                    "deeper": [1, 2, 3, 4]
+                },
+                {
+                    "deepest": [
+                        1,
+                        {
+                            "z": "x",
+                            "k": [1, 2, 3]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

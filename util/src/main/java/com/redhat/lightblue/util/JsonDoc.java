@@ -100,12 +100,22 @@ public class JsonDoc implements Serializable {
     private static class Resolver {
         public JsonNode resolve(Path p, final JsonNode node, int level) {
             JsonNode output = node;
+            
+            
+            
             int n = p.numSegments();
             for (int l = level; l < n; l++) {
+                if(p.suffix(p.numSegments()-l).toString().contains(Path.PARENT)) {
+                    output = node.findParent(p.getLast());
+                    continue;
+                }
+                
                 String name = p.head(l);
                 JsonNode newOutput;
                 if (name.equals(Path.ANY)) {
                     newOutput = handleAny(p, output, l);
+                } else if (name.equals(Path.THIS)) {
+                    continue;
                 } else if (output instanceof ArrayNode) {
                     int index = Integer.valueOf(name);
                     newOutput = ((ArrayNode) output).get(index);
@@ -117,10 +127,13 @@ public class JsonDoc implements Serializable {
                 if (newOutput == null) {
                     newOutput = handleNullChild(output, p, l);
                 }
-                output = newOutput;
+                
+                output = newOutput;    
+                
                 if (output == null) {
                     break;
                 }
+                
             }
             return output;
         }
@@ -134,6 +147,7 @@ public class JsonDoc implements Serializable {
         protected JsonNode handleAny(Path p, JsonNode node, int level) {
             throw new IllegalArgumentException(p.toString());
         }
+
     }
 
     /**
