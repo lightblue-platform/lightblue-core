@@ -41,6 +41,7 @@ import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.StatusChange;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
@@ -161,6 +162,7 @@ public class MongoMetadata implements Metadata {
                 
         Error.push("createNewMetadata(" + md.getName() + ")");
         try {
+            PredefinedFields.ensurePredefinedFields(md);
             DBObject obj = (DBObject) mdParser.convert(md);
             try {
                 WriteResult result = collection.insert(obj, WriteConcern.SAFE);
