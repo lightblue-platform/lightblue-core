@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
@@ -87,14 +86,14 @@ public class JsonDocRelativePathTest extends AbstractJsonNodeTest {
     
     @Test
     public void relative_path_with_2_$parent_and_valid_field_resolves_correctly() {
-        JsonNode result = doc.get(new Path("object.nested1.doublenested1.doublenested.$parent.$parent.simplenested"));
+        JsonNode result = doc.get(new Path("object.nested1.doublenested1.doublenestedsimple.$parent.$parent.simplenested"));
         
         Assert.assertEquals("nestedvalue", ((TextNode) result).textValue());
     }
     
     @Test
     public void relative_path_with_3_$parent_and_valid_field_resolves_correctly() {
-        JsonNode result = doc.get(new Path("object.nested1.doublenested1.doublenested.triplenested1.$parent.$parent.$parent.simplenested"));
+        JsonNode result = doc.get(new Path("object.nested1.doublenested1.triplenested1.$parent.$parent.$parent.simplenested"));
         
         Assert.assertEquals("nestedvalue", ((TextNode) result).textValue());
     }
@@ -112,5 +111,26 @@ public class JsonDocRelativePathTest extends AbstractJsonNodeTest {
         
         Assert.assertNull(result);
     }
+    
+    @Test
+    public void relative_path_with_2_non_successive_$parent_resolves_correctly() {
+        JsonNode result = doc.get(new Path("object.nested1.doublenested1.$parent.doublenested2.triplenested2.$parent.doublenestedsimple2"));
+        
+        Assert.assertEquals("doublenestedvalue2", ((TextNode) result).textValue());
+    }
 
+    @Test
+    public void relative_path_with_2_non_successive_$this_resolves_correctly() {
+        JsonNode result = doc.get(new Path("object.nested1.$this.doublenested1.$this.doublenestedsimple"));
+        
+        Assert.assertEquals("doublenestedvalue", ((TextNode) result).asText());
+    }
+    
+    @Test
+    public void relative_path_with_parent_and_this_resolves_correctly() {
+        JsonNode result = doc.get(new Path("object.nested1.doublenested1.$parent.doublenested2.triplenested2.$this.triplenestedsimple2"));
+        
+        Assert.assertEquals("triplenestedvalue2", ((TextNode) result).textValue());
+    }
+    
 }
