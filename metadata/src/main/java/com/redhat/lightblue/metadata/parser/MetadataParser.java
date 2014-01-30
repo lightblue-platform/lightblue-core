@@ -130,7 +130,7 @@ public abstract class MetadataParser<T> {
             }
 
             T fields = getRequiredObjectProperty(object, STR_FIELDS);
-            parseFields(md.getFields(), fields, md.getFieldTreeRoot());
+            parseFields(md.getFields(), fields);
 
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
             parseEntityConstraints(md, constraints);
@@ -310,7 +310,7 @@ public abstract class MetadataParser<T> {
      * @param fields The destination object to be initialized
      * @param object The object corresponding to the fields element
      */
-    public void parseFields(Fields fields, T object, FieldTreeNode parent) {
+    public void parseFields(Fields fields, T object) {
         Error.push(STR_FIELDS);
         try {
             if (object != null) {
@@ -318,7 +318,7 @@ public abstract class MetadataParser<T> {
                 for (String name : names) {
                     T fieldObject = getObjectProperty(object, name);
                     Field field = parseField(name, fieldObject);
-                    fields.addNew(field, parent);
+                    fields.addNew(field);
                 }
             }
         } finally {
@@ -422,7 +422,7 @@ public abstract class MetadataParser<T> {
                                    T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
-        parseFields(field.getFields(), fields, field.getParent());
+        parseFields(field.getFields(), fields);
         return field;
     }
 
@@ -430,7 +430,7 @@ public abstract class MetadataParser<T> {
                                   T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, "items");
-        field.setElement(parseArrayItem(items), field.getParent());
+        field.setElement(parseArrayItem(items));
         return field;
     }
 
@@ -441,7 +441,7 @@ public abstract class MetadataParser<T> {
             T fields = getRequiredObjectProperty(items, STR_FIELDS);
             ObjectArrayElement ret = new ObjectArrayElement();
             ret.setType(ObjectType.TYPE);
-            parseFields(ret.getFields(), fields, ret.getParent());
+            parseFields(ret.getFields(), fields);
             return ret;
         } else if (type.equals(ArrayType.TYPE.getName())
                 || type.equals(ReferenceType.TYPE.getName())) {

@@ -30,24 +30,24 @@ public class RelativePathResolverTest {
     private EntityMetadata getMD1() {
         EntityMetadata entityMetadata = new EntityMetadata("test");
         
-        entityMetadata.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE), entityMetadata.getFieldTreeRoot());
-        entityMetadata.getFields().addNew(new SimpleField("simpleString", StringType.TYPE), entityMetadata.getFieldTreeRoot());
+        entityMetadata.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
+        entityMetadata.getFields().addNew(new SimpleField("simpleString", StringType.TYPE));
         ObjectField objectField1 = new ObjectField("obj1");
-        entityMetadata.getFields().addNew(objectField1, entityMetadata.getFieldTreeRoot());
-        objectField1.getFields().addNew(new SimpleField("nestedSimpleInteger", IntegerType.TYPE), objectField1);
-        objectField1.getFields().addNew(new SimpleField("nestedSimpleString", StringType.TYPE), objectField1);
+        entityMetadata.getFields().addNew(objectField1);
+        objectField1.getFields().addNew(new SimpleField("nestedSimpleInteger", IntegerType.TYPE));
+        objectField1.getFields().addNew(new SimpleField("nestedSimpleString", StringType.TYPE));
         ObjectField objectField2 = new ObjectField("nested");
-        objectField1.getFields().addNew(objectField2, objectField1);
-        objectField2.getFields().addNew(new SimpleField("doubleNestedString", StringType.TYPE), objectField2);
-        ArrayField arrayField1 = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE), objectField2);
+        objectField1.getFields().addNew(objectField2);
+        objectField2.getFields().addNew(new SimpleField("doubleNestedString", StringType.TYPE));
+        ArrayField arrayField1 = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE));
         //arrayField1.addNew(new SimpleField("nestedSimpleString", StringType.TYPE));
-        objectField2.getFields().addNew(arrayField1, objectField2);
+        objectField2.getFields().addNew(arrayField1);
 
         ObjectArrayElement objectArrayElement = new ObjectArrayElement();
-        objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString1", StringType.TYPE), objectArrayElement);
-        objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString2", StringType.TYPE), objectArrayElement);
-        ArrayField arrayField2 = new ArrayField("objArr", objectArrayElement, objectField2);
-        objectField2.getFields().addNew(arrayField2, objectField2);
+        objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString1", StringType.TYPE));
+        objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString2", StringType.TYPE));
+        ArrayField arrayField2 = new ArrayField("objArr", objectArrayElement);
+        objectField2.getFields().addNew(arrayField2);
 
         return entityMetadata;
     }

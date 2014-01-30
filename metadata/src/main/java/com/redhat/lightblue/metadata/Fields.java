@@ -34,6 +34,11 @@ public class Fields implements Serializable {
 
     private final Map<String, Field> fieldMap = new HashMap<String, Field>();
     private final List<Field> fields = new ArrayList<Field>();
+    private final FieldTreeNode parent;
+
+    public Fields(FieldTreeNode parent) {
+        this.parent=parent;
+    }
 
     public int getNumChildren() {
         return fields.size();
@@ -59,7 +64,7 @@ public class Fields implements Serializable {
         return fieldMap.containsKey(name);
     }
 
-    public void addNew(Field f, FieldTreeNode parent) {
+    public void addNew(Field f) {
         String name = f.getName();
         if (has(name)) {
             throw Error.get(Constants.ERR_DUPLICATE_FIELD, name);
@@ -82,6 +87,7 @@ public class Fields implements Serializable {
             }
         } else {
             fields.add(f);
+            f.setParent(parent);
         }
         fieldMap.put(name, f);
     }

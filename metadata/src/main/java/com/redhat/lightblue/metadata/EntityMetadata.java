@@ -41,10 +41,58 @@ public class EntityMetadata implements Serializable {
     private final EntityAccess access = new EntityAccess();
     private final ArrayList<EntityConstraint> constraints = new ArrayList<>();
     private DataStore dataStore;
-    private final Fields fields = new Fields();
+    private final Fields fields;
+    private final FieldTreeNode fieldRoot=new FieldTreeNode() {
+            @Override
+            public String getName() {
+                return "";
+            }
+
+            @Override
+            public Type getType() {
+                return null;
+            }
+
+            @Override
+            public boolean hasChildren() {
+                return true;
+            }
+
+            @Override
+            public Iterator<? extends FieldTreeNode> getChildren() {
+                return fields.getFields();
+            }
+
+            @Override
+            public FieldTreeNode resolve(Path p) {
+                return fields.resolve(p);
+            }
+        
+            @Override
+            public FieldTreeNode resolve(Path p, int level) {
+                return fields.resolve(p, level);
+            }
+        
+            @Override
+            public FieldTreeNode getParent() {
+                return null;
+            }
+		
+            @Override
+            public Path getFullPath() {
+                return Path.EMPTY;
+            }
+		
+            @Override
+            public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
+                return Path.EMPTY.mutableCopy();
+            }
+        };
+
 
     public EntityMetadata(String name) {
         this.name = name;
+        this.fields=new Fields(fieldRoot);
     }
 
     /**
@@ -160,56 +208,9 @@ public class EntityMetadata implements Serializable {
         return this.fields;
     }
 
-    class RootTreeNode implements FieldTreeNode {
-
-        @Override
-        public String getName() {
-            return "";
-        }
-
-        @Override
-        public Type getType() {
-            return null;
-        }
-
-        @Override
-        public boolean hasChildren() {
-            return true;
-        }
-
-        @Override
-        public Iterator<? extends FieldTreeNode> getChildren() {
-            return fields.getFields();
-        }
-
-        @Override
-        public FieldTreeNode resolve(Path p) {
-            return fields.resolve(p);
-        }
-        
-        @Override
-        public FieldTreeNode resolve(Path p, int level) {
-            return fields.resolve(p, level);
-        }
-
-		@Override
-		public FieldTreeNode getParent() {
-			return null;
-		}
-		
-		@Override
-        public Path getFullPath() {
-            return Path.EMPTY;
-        }
-		
-		@Override
-        public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
-            return Path.EMPTY.mutableCopy();
-        }
-    }
 
     public FieldTreeNode getFieldTreeRoot() {
-        return new RootTreeNode();
+        return fieldRoot;
     }
 
     public FieldCursor getFieldCursor() {

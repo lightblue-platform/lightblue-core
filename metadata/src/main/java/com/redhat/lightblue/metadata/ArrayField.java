@@ -26,8 +26,6 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.metadata.types.ArrayType;
 
 public class ArrayField extends Field {
-
-	private static final long serialVersionUID = 1L;
 	
     private ArrayElement element;
 
@@ -35,21 +33,19 @@ public class ArrayField extends Field {
         super(name, ArrayType.TYPE);
     }
 
-    public ArrayField(String name, ArrayElement el, FieldTreeNode parent) {
+    public ArrayField(String name, ArrayElement el) {
         super(name, ArrayType.TYPE);
         element = el;
         element.setParent(this);
-        this.setParent(parent);
     }
 
     public ArrayElement getElement() {
         return element;
     }
 
-    public void setElement(ArrayElement el, FieldTreeNode parent) {
+    public void setElement(ArrayElement el) {
         element = el;
         element.setParent(this);
-        this.setParent(parent);
     }
     
     @Override

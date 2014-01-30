@@ -26,12 +26,11 @@ import com.redhat.lightblue.metadata.types.ObjectType;
 
 public class ObjectArrayElement extends ArrayElement {
 
-	private static final long serialVersionUID = 1L;
-	
-    private final Fields fields = new Fields();
+    private final Fields fields;
 
     public ObjectArrayElement() {
         super(ObjectType.TYPE);
+        fields=new Fields(this);
     }
 
     public Fields getFields() {
