@@ -21,7 +21,7 @@ package com.redhat.lightblue.metadata;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.redhat.lightblue.metadata.types.Type;
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.BigIntegerType;
