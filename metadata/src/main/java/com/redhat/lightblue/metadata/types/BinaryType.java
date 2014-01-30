@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 
 public final class BinaryType implements Type, Serializable {

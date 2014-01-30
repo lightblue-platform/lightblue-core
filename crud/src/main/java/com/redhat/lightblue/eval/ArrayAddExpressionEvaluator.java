@@ -27,18 +27,15 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import com.redhat.lightblue.query.ArrayAddExpression;
 import com.redhat.lightblue.query.UpdateOperator;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.Value;
-
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
-import com.redhat.lightblue.metadata.types.Type;
-
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 

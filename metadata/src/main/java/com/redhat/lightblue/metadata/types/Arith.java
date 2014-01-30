@@ -21,6 +21,8 @@ package com.redhat.lightblue.metadata.types;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.redhat.lightblue.metadata.Type;
+
 /**
  * Arithmetical operations using types
  */

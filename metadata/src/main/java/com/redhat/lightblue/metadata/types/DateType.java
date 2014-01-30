@@ -26,6 +26,7 @@ import java.text.DateFormat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 
 import java.text.ParseException;

@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.redhat.lightblue.metadata.Type;
+
 public class DefaultTypesTest {
 
     DefaultTypes defaultTypes;

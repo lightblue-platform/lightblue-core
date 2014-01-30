@@ -26,28 +26,23 @@ import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Sort;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.TypeResolver;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-
 import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;

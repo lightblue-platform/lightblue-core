@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -48,7 +47,7 @@ import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
-import com.redhat.lightblue.metadata.types.Type;
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;

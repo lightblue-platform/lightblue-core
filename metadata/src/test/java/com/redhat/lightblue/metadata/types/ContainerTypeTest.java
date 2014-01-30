@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.Type;
 
 public class ContainerTypeTest {
 

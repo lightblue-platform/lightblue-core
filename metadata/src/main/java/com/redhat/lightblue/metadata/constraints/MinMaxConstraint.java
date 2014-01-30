@@ -21,8 +21,7 @@ package com.redhat.lightblue.metadata.constraints;
 import java.io.Serializable;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
-
-import com.redhat.lightblue.metadata.types.Type;
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.DoubleType;
 import com.redhat.lightblue.metadata.types.BigIntegerType;

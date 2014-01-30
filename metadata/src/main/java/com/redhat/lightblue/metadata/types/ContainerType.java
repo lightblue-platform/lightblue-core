@@ -20,6 +20,7 @@ package com.redhat.lightblue.metadata.types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.Type;
 
 abstract class ContainerType implements Type {
     private final String name;

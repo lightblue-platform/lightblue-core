@@ -25,13 +25,11 @@ import java.util.Iterator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.types.Type;
-
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ContainsOperator;
 import com.redhat.lightblue.query.Value;

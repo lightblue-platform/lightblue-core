@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;

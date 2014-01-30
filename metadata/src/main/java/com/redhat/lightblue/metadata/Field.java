@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 

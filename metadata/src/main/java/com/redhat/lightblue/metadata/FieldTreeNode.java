@@ -20,7 +20,6 @@ package com.redhat.lightblue.metadata;
 
 import java.util.Iterator;
 
-import com.redhat.lightblue.metadata.types.Type;
 import com.redhat.lightblue.util.EmptyIterator;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
