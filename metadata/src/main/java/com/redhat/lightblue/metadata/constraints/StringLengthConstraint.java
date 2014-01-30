@@ -31,8 +31,18 @@ public class StringLengthConstraint extends AbstractIntFieldConstraint {
     public static final String MINLENGTH = "minLength";
     public static final String MAXLENGTH = "maxLength";
 
+    /**
+     * Constructs a minlength or maxlength constraint
+     */
     public StringLengthConstraint(String type) {
         super(type);
+    }
+
+    /**
+     * Constructs a minlength or maxlength constraint with the given value
+     */
+    public StringLengthConstraint(String type,int value) {
+        super(type,value);
     }
 
     @Override

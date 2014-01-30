@@ -21,10 +21,14 @@ package com.redhat.lightblue.metadata.constraints;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.metadata.EntityConstraint;
 
+/**
+ * Specifies that the combined value of one or more fields must be unique
+ */
 public class UniqueConstraint implements EntityConstraint, Serializable {
 
     private static final long serialVersionUID = 1l;
@@ -33,15 +37,43 @@ public class UniqueConstraint implements EntityConstraint, Serializable {
 
     private final ArrayList<Path> fields = new ArrayList<Path>();
 
+    /**
+     * Default ctor
+     */
+    public UniqueConstraint() {}
+
+    /**
+     * Constructs a unique constraint using the given fields.
+     */
+    public UniqueConstraint(List<Path> fields) {
+        this.fields.addAll(fields);
+    }
+
+    /**
+     * Constructs a unique constraint using the given fields.
+     */
+    public UniqueConstraint(Path... fields) {
+        this(Arrays.asList(fields));
+    }
+
+    /**
+     * Returns UNIQUE
+     */
     public String getType() {
         return UNIQUE;
     }
 
+    /**
+     * The fields such that the ordered combination of their values must be unique
+     */
     @SuppressWarnings("unchecked")
     public List<Path> getFields() {
         return (ArrayList<Path>) fields.clone();
     }
 
+    /**
+     * The fields such that the ordered combination of their values must be unique
+     */
     public void setFields(List<Path> f) {
         fields.clear();
         if (f != null) {
