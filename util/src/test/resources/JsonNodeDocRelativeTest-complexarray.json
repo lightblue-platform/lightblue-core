@@ -9,6 +9,12 @@
                 "triplenested1" : {
                     "triplenestedsimple" : "triplenestedvalue"
                 }
+            },
+            "doublenested2": {
+                "doublenestedsimple2": "doublenestedvalue2",
+                "triplenested2" : {
+                    "triplenestedsimple2" : "triplenestedvalue2"
+                }
             }
         }   
     },
