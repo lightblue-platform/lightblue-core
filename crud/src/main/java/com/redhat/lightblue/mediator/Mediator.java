@@ -36,6 +36,7 @@ import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.PredefinedFields;
 
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.ConstraintValidator;
@@ -94,6 +95,7 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.INSERT);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            updatePredefinedFields(ctx.getDocs());
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
@@ -140,6 +142,7 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.SAVE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            updatePredefinedFields(ctx.getDocs());
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
@@ -293,6 +296,11 @@ public class Mediator {
         }
         LOGGER.debug("There are {} documents to process after constraint validation", docsWithoutError.size());
         return docsWithoutError;
+    }
+
+    private void updatePredefinedFields(List<JsonDoc> docs) {
+        for(JsonDoc doc:docs)
+            PredefinedFields.updateArraySizes(NODE_FACTORY,doc);
     }
 
     private void mergeErrors(List<Error> errors,
