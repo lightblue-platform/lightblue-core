@@ -28,7 +28,9 @@
         },
         "creationDate": {
             "type": "date",
-            "required": true
+            "constraints":{
+                "required": true
+            }
         },
         "lastUpdateDate": {
             "type": "date"

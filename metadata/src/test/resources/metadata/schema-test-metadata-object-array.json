@@ -28,14 +28,20 @@
             "fields": {
                 "login": {
                     "type": "string",
-                    "required": true
+                    "constraints":{
+                        "required": true
+                    }
                 },
                 "password": {
                     "type": "string",
-                    "required": true
+                    "constraints":{
+                        "required": true
+                    }
                 }
             },
-            "required": true
+            "constraints":{
+                "required": true
+            }
         },
         "address": {
             "type": "array",

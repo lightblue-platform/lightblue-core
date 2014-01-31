@@ -217,6 +217,10 @@
                 "uniqueItems": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/uniqueItems"
                 },
+                "required": {
+                    "type": "boolean",
+                    "description": "Indicates if the field is required.  Defaults to 'false'."
+                },
                 "reference": {
                     "$ref": "common.json#/definitions/reference"
                 }
@@ -283,9 +287,6 @@
                                     "$ref": "#/definitions/hook_value_array"
                                 }
                             }
-                        },
-                        "required": {
-                            "type": "boolean"
                         }
                     },
                     "required": [
