@@ -21,11 +21,22 @@ package com.redhat.lightblue.metadata;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.metadata.types.DateType;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+
 import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
+
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonDoc;
 
 public class PredefinedFieldsTest {
     
@@ -102,6 +113,10 @@ public class PredefinedFieldsTest {
         } catch (Exception e) {}
 
         PredefinedFields.ensurePredefinedFields(md);
+        Extensions<JsonNode> x=new Extensions<JsonNode>();
+        x.addDefaultExtensions();
+        JSONMetadataParser p=new JSONMetadataParser(x,new DefaultTypes(),JsonNodeFactory.withExactBigDecimals(false));
+        System.out.println(p.convert(md).toString());
 
         Field f=(SimpleField)md.resolve(new Path("_id"));
         Assert.assertEquals(StringType.TYPE,f.getType());
@@ -182,5 +197,27 @@ public class PredefinedFieldsTest {
             PredefinedFields.ensurePredefinedFields(md);
             Assert.fail();
         } catch (Exception e) {}
+    }
+
+    @Test
+    public void testDocModify() throws Exception {
+        JsonNodeFactory factory=JsonNodeFactory.withExactBigDecimals(false);
+        ObjectNode node=factory.objectNode();
+        JsonDoc doc=new JsonDoc(node);
+        node.
+            put("fld1","value").
+            put("arr#",1);
+        node.set("arr",factory.arrayNode().add(1).add(2));
+        node.set("arr2",factory.arrayNode().add(1).add(2).add(3));
+        ObjectNode obj=factory.objectNode();
+        obj.put("fld3","val");
+        obj.set("arr3",factory.arrayNode().add(1).add(2).add(3).add(4));
+        node.set("obj",obj);
+
+        PredefinedFields.updateArraySizes(factory,node);
+        
+        Assert.assertEquals(2,doc.get(new Path("arr#")).intValue());
+        Assert.assertEquals(3,doc.get(new Path("arr2#")).intValue());
+        Assert.assertEquals(4,doc.get(new Path("obj.arr3#")).intValue());
     }
  }

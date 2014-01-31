@@ -20,6 +20,14 @@ package com.redhat.lightblue.metadata;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.StringType;
@@ -32,6 +40,7 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  * Ensures that the predefined fields are included in the metadata.
@@ -73,6 +82,34 @@ public final class PredefinedFields {
             x.parent.addNew(x.newChild);
     }
 
+    /**
+     * Updates all array size values in the given document
+     */
+    public static void updateArraySizes(JsonNodeFactory factory,JsonDoc doc) {
+        updateArraySizes(factory,(ObjectNode)doc.getRoot());
+    }
+
+    /**
+     * Updates all array size values at the subtree rooted at the given object node
+     *
+     * @param factory Node factory
+     * @param node All array size fields under this subtree will be updated
+     */
+    public static void updateArraySizes(JsonNodeFactory factory,ObjectNode node) {
+        Map<String,JsonNode> sizes=new HashMap<String,JsonNode>();
+        for(Iterator<Map.Entry<String,JsonNode>> itr=node.fields();itr.hasNext();) {
+            Map.Entry<String,JsonNode> field=itr.next();
+            JsonNode value=field.getValue();
+            if(value instanceof ArrayNode) {
+                sizes.put(field.getKey()+"#",factory.numberNode(((ArrayNode)value).size()));
+            } else if(value instanceof ObjectNode) {
+                updateArraySizes( factory, (ObjectNode)value);
+            }
+        }
+        for(Map.Entry<String,JsonNode> entry:sizes.entrySet())
+            node.set(entry.getKey(),entry.getValue());
+    }
+   
 
     /**
      * Creates, or makes sure that there exists an ID field with:
@@ -91,8 +128,7 @@ public final class PredefinedFields {
             f.getType().equals(StringType.TYPE)||
             f.getType().equals(BigIntegerType.TYPE))) {
             // Need a unique constraint for ID
-            if(findConstraint(EntityConstraint.class,
-                              md.getConstraints(),
+            if(findConstraint(md.getConstraints(),
                               new ConstraintSearchCB<EntityConstraint>() {
                                   public boolean checkMatch(EntityConstraint c) {
                                       if(c instanceof UniqueConstraint) {
@@ -120,7 +156,7 @@ public final class PredefinedFields {
            // Object type must be string
            f.getType().equals(StringType.TYPE)) {
             // Required constraint
-            if(findConstraint(FieldConstraint.class,f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
+            if(findConstraint(f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
                         public boolean checkMatch(FieldConstraint c) {
                             return c instanceof RequiredConstraint;
                         }
@@ -128,7 +164,7 @@ public final class PredefinedFields {
                 f.setConstraints(addConstraint(f.getConstraints(),new RequiredConstraint()));
             }
             // Can't be empty
-            if(findConstraint(FieldConstraint.class,f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
+            if(findConstraint(f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
                         public boolean checkMatch(FieldConstraint c) {
                             if(c instanceof StringLengthConstraint) {
                                 if( ((StringLengthConstraint)c).getType().equals(StringLengthConstraint.MINLENGTH) )
@@ -158,7 +194,7 @@ public final class PredefinedFields {
         boolean checkMatch(T c);
     }
 
-    private static<T> T findConstraint(Class<T> clazz,List<T> list,ConstraintSearchCB<T> cb) {
+    private static<T> T findConstraint(List<T> list,ConstraintSearchCB<T> cb) {
         if(list!=null) {
             for(T x:list) {
                 if(cb.checkMatch(x))
