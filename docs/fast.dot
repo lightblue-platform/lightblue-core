@@ -1,0 +1,12 @@
+digraph {
+rankdir=LR;
+plan -> metadata;
+metadata -> DEV;
+plan -> change_request;
+DEV -> QA;
+change_request -> approved;
+QA -> STAGE;
+STAGE -> PROD;
+approved -> STAGE;
+approved -> PROD;
+}

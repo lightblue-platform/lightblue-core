@@ -1,0 +1,31 @@
+digraph {
+rankdir=LR;
+plan -> develop;
+develop -> dml;
+develop -> ddl;
+develop -> rpm;
+develop -> rrpm;
+develop -> puppet;
+dml -> DEV;
+ddl -> DEV;
+rpm -> DEV;
+rrpm -> DEV;
+puppet -> QA;
+DEV -> test;
+test -> develop;
+test -> QA;
+test -> change_request;
+QA -> STAGE;
+STAGE -> PROD;
+change_request -> peer;
+change_request -> manager;
+change_request -> itil;
+peer -> approved;
+manager -> approved;
+itil -> approved;
+approved -> STAGE;
+approved -> PROD;
+QA -> verify;
+STAGE -> verify;
+PROD -> verify;
+}
