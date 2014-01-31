@@ -23,11 +23,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
+    
     /**
      * Load resource as json document.
      *
@@ -59,5 +66,68 @@ public abstract class AbstractJsonNodeTest {
         }
 
         return buff.toString();
+    }
+    
+    public JsonNode stringArrayNode(String[] expectedValues) {
+        ArrayNode expectedNode = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
+        for(String value : expectedValues) {
+            expectedNode.add(value);
+        }
+        return expectedNode;
+    }
+    
+    public JsonNode intArrayNode(Integer[] expectedValues) {
+        ArrayNode expectedNode = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
+        for(Integer value : expectedValues) {
+            expectedNode.add(value);
+        }
+        return expectedNode;
+    }
+    
+    
+    public JsonNode doubleArrayNode(Double[] expectedValues) {
+        ArrayNode expectedNode = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
+        for(Double value : expectedValues) {
+            expectedNode.add(value);
+        }
+        return expectedNode;
+    }
+    
+    public boolean arrayNodesHaveSameValues(JsonNode expected, JsonNode actual) {
+        int i = 0;
+        for(Iterator<JsonNode> nodes = expected.elements(); nodes.hasNext();i++) {
+            
+            JsonNode node = nodes.next();
+            
+            if(node instanceof TextNode) {
+                return textNodesHaveSameValue(node, actual.get(i));
+            } else if(node instanceof IntNode) {
+                return intNodesHaveSameValue(node, actual.get(i));
+            } else if(node instanceof DoubleNode) {
+                return doubleNodesHaveSameValue(node, actual.get(i));
+            }
+        }
+        return true;
+    }
+    
+    public boolean textNodesHaveSameValue(JsonNode expected, JsonNode actual) {
+        if(!expected.asText().equals(actual.asText())) {
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean intNodesHaveSameValue(JsonNode expected, JsonNode actual) {
+        if(expected.asInt() != actual.asInt()) {
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean doubleNodesHaveSameValue(JsonNode expected, JsonNode actual) {
+        if(expected.asDouble() != actual.asDouble()) {
+            return false;
+        }
+        return true;
     }
 }
