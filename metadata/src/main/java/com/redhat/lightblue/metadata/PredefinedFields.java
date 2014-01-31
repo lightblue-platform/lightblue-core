@@ -56,13 +56,21 @@ public final class PredefinedFields {
         ensureID(md);
         ensureObjectType(md);
         // Recursively find all arrays, and add array size fields
+        List<ParentNewChild> l=new ArrayList<ParentNewChild>();
+        // We have to go through all the array fields, and queue up
+        // the new size fields to add, otherwise the following loop
+        // throws a concurrent modification exception
         FieldCursor cursor=md.getFieldCursor();
         while(cursor.next()) {
             FieldTreeNode f=cursor.getCurrentNode();
             if(f instanceof ArrayField) {
-                ensureArraySize(md,(ArrayField)f);
+                ParentNewChild x=ensureArraySize(md,(ArrayField)f);
+                if(x!=null)
+                    l.add(x);
             }
         }
+        for(ParentNewChild x:l)
+            x.parent.addNew(x.newChild);
     }
 
 
@@ -166,7 +174,17 @@ public final class PredefinedFields {
         return ret;
     }
 
-    private static void ensureArraySize(EntityMetadata md,ArrayField arr) {
+    private static final class ParentNewChild {
+        private final Fields parent;
+        private final Field newChild;
+
+        public ParentNewChild(Fields parent,Field newChild) {
+            this.parent=parent;
+            this.newChild=newChild;
+        }
+    }
+
+    private static ParentNewChild ensureArraySize(EntityMetadata md,ArrayField arr) {
         // Get the parent. The parent is either an object field, or the root
         FieldTreeNode parent=arr.getParent();
         Fields fields;
@@ -176,8 +194,11 @@ public final class PredefinedFields {
             fields=md.getFields();
         String fieldName=arr.getName()+"#";
         Field f=fields.getField(fieldName);
-        if(f==null)
-            fields.addNew(f=new SimpleField(fieldName,IntegerType.TYPE));
+        ParentNewChild ret;
+        if(f==null) {
+            ret=new ParentNewChild(fields,f=new SimpleField(fieldName,IntegerType.TYPE));
+        } else
+            ret=null;
         if(f instanceof SimpleField &&
            // Must be int
            f.getType().equals(IntegerType.TYPE)) {
@@ -186,6 +207,7 @@ public final class PredefinedFields {
         } else {
             throw Error.get(ERR_FIELD_WRONG_TYPE,fieldName+":"+f.getType().getName());
         }
+        return ret;
     }
 
     private PredefinedFields() {}
