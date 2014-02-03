@@ -85,7 +85,7 @@ public class EntityMetadata implements Serializable {
         }
 	
         @Override
-        public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
+        public MutablePath getFullPath(MutablePath mp) {
             return Path.EMPTY.mutableCopy();
         }
     };

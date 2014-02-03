@@ -79,14 +79,15 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     }
     
 
-    public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {
-        FieldTreeNode nodeParent = node.getParent();
-        return nodeParent.getFullPath(mp, nodeParent).push(Path.ANY);
+    public MutablePath getFullPath(MutablePath mp) {
+        parent.getFullPath(mp);
+        mp.push(Path.ANY);
+        return mp;
     }
 
     @Override
     public Path getFullPath() {
-        return getFullPath(new MutablePath(), this).immutableCopy();
+        return getFullPath(new MutablePath()).immutableCopy();
     }
     
 }

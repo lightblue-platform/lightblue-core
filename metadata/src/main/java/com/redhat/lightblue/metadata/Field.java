@@ -88,17 +88,16 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return resolve(p, 0);
     }
 
-    public MutablePath getFullPath(MutablePath mp, FieldTreeNode node) {       
-        FieldTreeNode nodeParent = node.getParent();
-        if (nodeParent == null) {
-            return mp.push(node.getName());    
-        } else {
-            return nodeParent.getFullPath(mp, nodeParent).push(node.getName());
+    public MutablePath getFullPath(MutablePath mp) {       
+        if (parent != null) {
+            parent.getFullPath(mp);
         }
+        mp.push(name);
+        return mp;
     }
 
     public Path getFullPath() {
-        return getFullPath(new MutablePath(), this).immutableCopy();
+        return getFullPath(new MutablePath()).immutableCopy();
     }
     
     public abstract FieldTreeNode resolve(Path p, int level);

@@ -74,7 +74,8 @@ public interface FieldTreeNode {
     Path getFullPath();
     
     /**
-     * Returns the full non-relative path to node based on parent hierarchy  
+     * Builds the full path by calling parent.getFullPath() first, and
+     * then adding the current segment. Returns mp.
      */
-    MutablePath getFullPath(MutablePath mp, FieldTreeNode node);
+    MutablePath getFullPath(MutablePath mp);
 }
