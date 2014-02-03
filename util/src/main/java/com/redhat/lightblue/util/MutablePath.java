@@ -208,4 +208,44 @@ public class MutablePath extends Path {
     public int hashCode() {
         return getData().hashCode();
     }
+
+    /**
+     * Rewrites the array indexes in the prefix of this path that is
+     * common with fullPath, based on the array indexes in that shared
+     * prefix
+     *
+     * @param fullPath A path 
+     *
+     * If 
+     * <pre>
+     *   fullPath= x.y.1.w.2.k
+     *   thisPath = x.y.*.w.*.k.*
+     * <pre>
+     * Then:
+     * <pre>
+     *    thisPath.rewriteIndexes(fullPath) -> x.y.1.w.2.k.*
+     * </pre>
+     *
+     * This is useful when interpreting an absolute path derived from
+     * metadata in the context of a definite absolute path with no ANYs
+     *
+     * @return this
+     */
+    public MutablePath rewriteIndexes(Path fullPath) {
+        PathRep thisData=getData();
+        PathRep fpData=fullPath.getData();
+        int thisSize=thisData.size();
+        int fpSize=fpData.size();
+        for(int index=0;index<thisSize&&index<fpSize;index++) {
+            String thisSeg=thisData.get(index);
+            String fpSeg=fpData.get(index);
+            if(Path.ANY.equals(thisSeg)) {
+                own();
+                thisData=getData();
+                thisData.set(index,fpSeg);
+            } else if(!thisSeg.equals(fpSeg))
+                break;
+        }
+        return this;
+    }
 }
