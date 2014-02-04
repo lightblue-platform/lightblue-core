@@ -52,6 +52,16 @@
                 "nf10": {
                     "type": "array",
                     "items": {"type": "bigdecimal"}
+                },
+                "nf11": {
+                    "type": "array",
+                    "items": {"type": "integer"}
+                },
+                "nf12": {
+                    "type": "object",
+                    "fields": {
+
+                    }
                 }
             }
         },
@@ -65,6 +75,32 @@
                     "elemf3": {"type": "integer"}
                 }
             }
+        },
+        "field8": {
+            "type": "object",
+            "fields": {
+                "nf1": {
+                    "type": "object",
+                    "fields": {
+                        "nnf1": {"type": "string"},
+                        "nnf2": {"type": "integer"},
+                        "nnf3": {"type": "array", "items": {"type": "integer"}}
+                        }
+                    }
+                },
+                "nf2": {
+                    "type": "object",
+                    "fields": {
+                        "nnf1": {"type": "string"},
+                        "nnf2": {"type": "integer"},
+                        "nnf3": {"type": "array", "items": {"type": "integer"}}
+                        }
+                }
+        },
+        "field9": {                 
+            "type": "array", "items": {"type": "integer"} 
+        }
+        }
         }
     }
 }

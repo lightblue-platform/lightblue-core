@@ -1,6 +1,6 @@
 {
     "object_type": "test",
-    "field1": "value1",
+    "field1": null,
     "field2": "value2",
     "field3": 3,
     "field4": 4.7,
@@ -18,7 +18,11 @@
         },
         "nf8": ["four", "three", "two", "one"],
         "nf9": [20, 15, 10, 5],
-        "nf10": [20.1, 15.2, 10.3, 5.4]
+        "nf10": [20.1, 15.2, 10.3, 5.4],
+        "nf11": null,
+        "nf12": {
+
+        }
     },
     "field7": [
         {
@@ -41,5 +45,19 @@
             "elemf2": "elvalue3_2",
             "elemf3": 6
         }
-    ]
+    ],
+    "field8": {
+        "nf1": {
+            "nnf1": "nnvalue1",
+            "nnf2": 1,
+            "nnf3": [1, 2, 3, 4]
+        },
+        "nf2": {
+            "nnf1": "nnvalue2",
+            "nnf2": 2,
+            "nnf3": [5, 6, 7, 8]
+        }
+    },
+    "field9": null,
+    "field10": null
 }

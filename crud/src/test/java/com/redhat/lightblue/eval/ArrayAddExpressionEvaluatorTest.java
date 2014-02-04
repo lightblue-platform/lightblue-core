@@ -1,6 +1,5 @@
 package com.redhat.lightblue.eval;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,8 +63,16 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
         Updater.getInstance(factory,md,expr);
     }
     
+    @Test(expected=com.redhat.lightblue.eval.EvaluationError.class)
+    public void assignment_of_invalid_type_results_in_evaluation_error() throws Exception {
+        UpdateExpression expr=json("{ '$insert' : { 'field6.nf7.nnf1.$parent.$parent.nf11.5' : [ 'five','six',{'$valueof':'field2' }] } }");
+        Updater updater=Updater.getInstance(factory,md,expr);        
+        
+        updater.update(doc,md.getFieldTreeRoot(),new Path());
+    }
+    
     @Test
-    public void string_array_append_with_relative_path_with_1_$parent() throws Exception {
+    public void string_array_append_with_1_$parent_relative_path() throws Exception {
         String[] expectedValues = {"four", "three", "two", "one", "five", "six", "value2"};
         JsonNode expectedNode = stringArrayNode(expectedValues);
         UpdateExpression expr=json("{ '$append' : { 'field6.nf6.$parent.nf8' : [ 'five','six',{'$valueof':'field2' }] } }");
@@ -77,7 +84,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
     
     @Test
-    public void string_array_append_with_relative_path_with_2_$parent() throws Exception {
+    public void string_array_append_with_2_$parent_relative_path() throws Exception {
         String[] expectedValues = {"four", "three", "two", "one", "five", "six", "value2"};
         UpdateExpression expr=json("{ '$append' : { 'field6.nf7.nnf1.$parent.$parent.nf8' : [ 'five','six',{'$valueof':'field2' }] } }");
         Updater updater=Updater.getInstance(factory,md,expr);
@@ -88,7 +95,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
         
     @Test
-    public void int_array_append_with_relative_path_with_1_$parent() throws Exception {
+    public void int_array_append_with_1_$parent_relative_path() throws Exception {
         Integer[] expectedValues = {5, 10, 15, 20, 1, 2, 3};
         UpdateExpression expr=json("{ '$append' : { 'field6.nf6.$parent.nf5' : [ 1,2,{'$valueof':'field3' }] } }");
         Updater updater=Updater.getInstance(factory,md,expr);
@@ -99,7 +106,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
     
     @Test
-    public void double_array_append_with_relative_path_with_1_$parent() throws Exception {
+    public void double_array_append_with_1_$parent_relative_path() throws Exception {
         Double[] expectedValues = {20.1, 15.2, 10.3, 5.4, 1.5, 2.6, 4.7};
         UpdateExpression expr=json("{ '$append' : { 'field6.nf6.$parent.nf10' : [ 1.5,2.6,{'$valueof':'field4' }] } }");
         Updater updater=Updater.getInstance(factory,md,expr);
@@ -110,7 +117,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void string_array_insert_with_relative_path_with_1_$parent() throws Exception {
+    public void string_array_insert_with_1_$parent_relative_path() throws Exception {
         String[] expectedValues = {"four", "three", "five", "six", "value2", "two", "one"};
         UpdateExpression expr=json("{ '$insert' : { 'field6.nf6.$parent.nf8.2' : [ 'five','six',{'$valueof':'field2' }] } }");
         Updater updater=Updater.getInstance(factory,md,expr);
@@ -121,9 +128,20 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
     
     @Test
-    public void string_array_insert_with_relative_path_with_2_$parent() throws Exception {
+    public void string_array_insert_with_2_$parent_relative_path() throws Exception {
         String[] expectedValues = {"four", "three", "five", "six", "value2", "two", "one"};
         UpdateExpression expr=json("{ '$insert' : { 'field6.nf7.nnf1.$parent.$parent.nf8.2' : [ 'five','six',{'$valueof':'field2' }] } }");
+        Updater updater=Updater.getInstance(factory,md,expr);
+        
+        updater.update(doc,md.getFieldTreeRoot(),new Path());
+        
+        Assert.assertEquals(stringArrayNode(expectedValues), doc.get(new Path("field6.nf8")));
+    }
+    
+    @Test
+    public void string_array_insert_with_2_$parent_relative_path_and_array_expansion() throws Exception {
+        String[] expectedValues = {"four", "three", "two", "one", null, "five", "six", "value2"};
+        UpdateExpression expr=json("{ '$insert' : { 'field6.nf7.nnf1.$parent.$parent.nf8.5' : [ 'five','six',{'$valueof':'field2' }] } }");
         Updater updater=Updater.getInstance(factory,md,expr);
         
         updater.update(doc,md.getFieldTreeRoot(),new Path());

@@ -35,15 +35,15 @@ import com.redhat.lightblue.query.ContainsOperator;
 import com.redhat.lightblue.query.Value;
 
 /**
- * Initialize the class with the corresponding expression and the context path. If this is a nested query, the context
- * path determines the field from which the query needs to be evaluated.
+ * Initialize the class with the corresponding expression and the context path.
+ * If this is a nested query, the context path determines the field from which
+ * the query needs to be evaluated.
  */
 public class ArrayContainsEvaluator extends QueryEvaluator {
     private final ArrayContainsExpression expr;
     private final SimpleArrayElement elem;
 
-    public ArrayContainsEvaluator(ArrayContainsExpression expr,
-                                  FieldTreeNode context) {
+    public ArrayContainsEvaluator(ArrayContainsExpression expr, FieldTreeNode context) {
         this.expr = expr;
         FieldTreeNode node = context.resolve(expr.getArray());
         if (node == null) {
@@ -77,8 +77,8 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
                 boolean match = false;
                 JsonNode valueNode = itr.next();
                 for (Value value : values) {
-                    Object v = value.getValue();                    
-                    if(isValueInNode(valueNode, v, t)) {
+                    Object v = value.getValue();
+                    if (isValueInNode(valueNode, v, t)) {
                         match = true;
                         numElementsContained++;
                         break;
@@ -97,22 +97,22 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
         ctx.setResult(ret);
         return ret;
     }
-    
-    private boolean isValueInNode(JsonNode valueNode, Object v, Type t) {
+
+    private boolean isValueInNode(JsonNode valueNode, Object value, Type type) {
         if (valueNode == null || valueNode instanceof NullNode) {
-            if (v == null) {
+            if (value == null) {
                 return true;
             }
         } else {
-            if (v != null && elem.getType().compare(v, t.fromJson(valueNode)) == 0) {
+            if (value != null && elem.getType().compare(value, type.fromJson(valueNode)) == 0) {
                 return true;
             }
         }
         return false;
     }
-    
-    private boolean evaluateContainsOperator(ContainsOperator op, int numElementsContained, List<Value> values){
-        boolean returnValue = false;        
+
+    private boolean evaluateContainsOperator(ContainsOperator op, int numElementsContained, List<Value> values) {
+        boolean returnValue = false;
         switch (op) {
         case _any:
             returnValue = numElementsContained > 0;
