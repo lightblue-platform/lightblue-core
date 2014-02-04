@@ -46,8 +46,8 @@ public class UnsetExpressionEvaluator extends Updater {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnsetExpressionEvaluator.class);
 
     private static final class AbsPath {
-        final Path field;
-        final Path absArrayField;
+        private final Path field;
+        private final Path absArrayField;
 
         public AbsPath(Path p,FieldTreeNode fieldNode) {
             field=p;

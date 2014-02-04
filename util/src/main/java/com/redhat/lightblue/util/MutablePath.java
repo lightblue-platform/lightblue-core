@@ -259,8 +259,9 @@ public class MutablePath extends Path {
                 own();
                 thisData=getData();
                 thisData.set(index,fpSeg);
-            } else if(!thisSeg.equals(fpSeg))
+            } else if(!thisSeg.equals(fpSeg)) {
                 break;
+            }
         }
         return this;
     }

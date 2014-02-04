@@ -198,8 +198,9 @@ public class MongoCRUDController implements CRUDController {
                     }
                     LOGGER.debug("Write result {}",result);
                     if(result!=null) {
-                        if(error==null)
+                        if(error==null) {
                             error = result.getError();
+                        }
                         if (error != null) {
                             addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
                         } else {

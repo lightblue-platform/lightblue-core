@@ -18,29 +18,25 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.BigIntegerType;
-
-import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
-
+import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
+import com.redhat.lightblue.metadata.types.BigIntegerType;
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Ensures that the predefined fields are included in the metadata.
@@ -173,10 +169,8 @@ public final class PredefinedFields {
             // Can't be empty
             if(findConstraint(f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
                         public boolean checkMatch(FieldConstraint c) {
-                            if(c instanceof StringLengthConstraint) {
-                                if( ((StringLengthConstraint)c).getType().equals(StringLengthConstraint.MINLENGTH) ) {
-                                    return true;
-                                }
+                            if(c instanceof StringLengthConstraint && ((StringLengthConstraint)c).getType().equals(StringLengthConstraint.MINLENGTH)) {
+                                return true;
                             }
                             return false;
                         }
