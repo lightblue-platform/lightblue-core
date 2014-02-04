@@ -37,6 +37,7 @@ import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
@@ -47,6 +48,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArrayAddExpressionEvaluator.class);
 
     private final Path arrayField;
+    private final Path arraySizeField;
     private final int insertionIndex;
     private final ArrayField fieldMd;
     private final List<RValueData> values;
@@ -82,9 +84,18 @@ public class ArrayAddExpressionEvaluator extends Updater {
             arrayField=expr.getField();
             insertionIndex=-1;
         }
+        if(arrayField.nAnys()>0)
+            throw new EvaluationError("Pattern not expected:"+arrayField);
         FieldTreeNode ftn=context.resolve(arrayField);
         if(ftn instanceof ArrayField) {
             fieldMd=(ArrayField)ftn;
+            // Array size field should be at the same level as the array field
+            MutablePath abs=new MutablePath();
+            fieldMd.getFullPath(abs);
+            abs.setLast(abs.getLast()+"#");
+            // At this point, arraySizeField is derived from metadata,
+            // so it has * as array indexes
+            arraySizeField=abs.immutableCopy();
             values=new ArrayList<RValueData>(expr.getValues().size());
             initializeArrayField(context, expr);
         } else {
@@ -170,6 +181,13 @@ public class ArrayAddExpressionEvaluator extends Updater {
                     arrayNode.add(newValueNode);
                 }
                 ret=true;
+            }
+            if(ret) {
+                // We have to rewrite the array indexes in arraySizeField using the context path
+                MutablePath p=new MutablePath(arraySizeField);
+                p.rewriteIndexes(contextPath);
+                LOGGER.debug("Setting {} = {}",p,arrayNode.size());
+                doc.modify(p,factory.numberNode(arrayNode.size()),false);
             }
         }
         return ret;

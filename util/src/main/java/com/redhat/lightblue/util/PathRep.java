@@ -73,6 +73,14 @@ class PathRep implements Serializable, Comparable<PathRep> {
     }
 
     /**
+     * Clears the path
+     */
+    public void clear() {
+        segments.clear();
+        resetState();
+    }
+
+    /**
      * Resets the cached values for string value and hashcode
      */
     public void resetState() {

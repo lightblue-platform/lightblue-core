@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -53,7 +54,9 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
-        return parser.parseEntityMetadata(node);
+        EntityMetadata md=parser.parseEntityMetadata(node);
+        PredefinedFields.ensurePredefinedFields(md);
+        return md;
     }
 
     private UpdateExpression json(String s) throws Exception {
@@ -118,7 +121,11 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertNull(doc.get(new Path("field1")));
         Assert.assertNull(doc.get(new Path("field6.nf2")));
         Assert.assertEquals("three",doc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals(3,doc.get(new Path("field6.nf6#")).asInt());
+        Assert.assertEquals(3,doc.get(new Path("field6.nf6")).size());
         Assert.assertEquals("elvalue2_1",doc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals(3,doc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(3,doc.get(new Path("field7")).size());
     }
     
 
@@ -140,6 +147,8 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals("six",doc.get(new Path("field6.nf6.5")).asText());
         Assert.assertEquals("value2",doc.get(new Path("field6.nf6.6")).asText());
         Assert.assertNull(doc.get(new Path("field6.ng6.7")));
+        Assert.assertEquals(7,doc.get(new Path("field6.nf6#")).asInt());
+        Assert.assertEquals(7,doc.get(new Path("field6.nf6")).size());
     }
     
     @Test
@@ -160,7 +169,9 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals("three",doc.get(new Path("field6.nf6.5")).asText());
         Assert.assertEquals("four",doc.get(new Path("field6.nf6.6")).asText());
         Assert.assertNull(doc.get(new Path("field6.ng6.7")));
-    }
+        Assert.assertEquals(7,doc.get(new Path("field6.nf6#")).asInt());
+        Assert.assertEquals(7,doc.get(new Path("field6.nf6")).size());
+     }
     
     @Test
     public void array_foreach_removeall() throws Exception {
@@ -173,6 +184,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertTrue(updater.update(doc,md.getFieldTreeRoot(),new Path()));
         
         Assert.assertEquals(0,doc.get(new Path("field7")).size());
+        Assert.assertEquals(0,doc.get(new Path("field7#")).asInt());
     }
 
     @Test
@@ -186,6 +198,8 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         
         Assert.assertEquals(3,doc.get(new Path("field7")).size());
         Assert.assertEquals("elvalue1_1",doc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(3,doc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(3,doc.get(new Path("field7")).size());
     }
 
     @Test

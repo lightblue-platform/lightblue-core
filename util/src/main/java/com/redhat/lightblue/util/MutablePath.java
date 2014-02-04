@@ -186,6 +186,22 @@ public class MutablePath extends Path {
     }
 
     /**
+     * Sets the path to empty path
+     */
+    public MutablePath clear() {
+        own();
+        getData().clear();
+        return this;
+    }
+
+    /**
+     * Sets this path to p
+     */
+    public MutablePath set(Path p) {
+        return clear().push(p);
+    }
+
+    /**
      * If the path is not owned by this instance does a deep copy and marks the path as owned.
      */
     private void own() {

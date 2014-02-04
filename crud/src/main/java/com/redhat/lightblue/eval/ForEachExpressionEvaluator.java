@@ -47,9 +47,11 @@ public class ForEachExpressionEvaluator extends Updater {
     private static final Logger LOGGER = LoggerFactory.getLogger(ForEachExpressionEvaluator.class);
 
     private final Path field;
+    private final Path absField;
     private final ArrayField fieldMd;
     private final QueryEvaluator queryEvaluator;
     private final Updater updater;
+    private final JsonNodeFactory factory;
 
     /**
      * Inner class for $all
@@ -72,6 +74,7 @@ public class ForEachExpressionEvaluator extends Updater {
     public ForEachExpressionEvaluator(JsonNodeFactory factory,
                                       FieldTreeNode context,
                                       ForEachExpression expr) {
+        this.factory=factory;
         // Resolve the field, make sure it is an array
         field=expr.getField();
         FieldTreeNode md=context.resolve(field);
@@ -80,6 +83,9 @@ public class ForEachExpressionEvaluator extends Updater {
         } else {
             throw new EvaluationError("Field is not array:"+field);
         }
+        if(field.nAnys()>0)
+            throw new EvaluationError("Pattern not expected:"+field);
+        absField=fieldMd.getFullPath();
         // Get a query evaluator
         QueryExpression query=expr.getQuery();
         if(query instanceof AllMatchExpression) {
@@ -107,6 +113,10 @@ public class ForEachExpressionEvaluator extends Updater {
             int index=0;
             MutablePath itrPath=new MutablePath(contextPath);
             itrPath.push(field);
+            MutablePath arrSizePath=itrPath.copy();
+            arrSizePath.setLast(arrSizePath.getLast()+"#");
+            arrSizePath.rewriteIndexes(contextPath);
+
             itrPath.push(index);
             // Copy the nodes to a separate list, so we iterate on the
             // new copy, and modify the original
@@ -132,6 +142,9 @@ public class ForEachExpressionEvaluator extends Updater {
                     LOGGER.debug("query does not match {}",elementPath);
                 }
                 index++;
+            }
+            if(ret) {
+                doc.modify(arrSizePath,factory.numberNode(arrayNode.size()),false);
             }
         } 
         return ret;
