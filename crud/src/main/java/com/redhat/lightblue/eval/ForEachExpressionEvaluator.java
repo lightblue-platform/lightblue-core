@@ -83,8 +83,9 @@ public class ForEachExpressionEvaluator extends Updater {
         } else {
             throw new EvaluationError("Field is not array:"+field);
         }
-        if(field.nAnys()>0)
+        if(field.nAnys()>0) {
             throw new EvaluationError("Pattern not expected:"+field);
+        }
         absField=fieldMd.getFullPath();
         // Get a query evaluator
         QueryExpression query=expr.getQuery();

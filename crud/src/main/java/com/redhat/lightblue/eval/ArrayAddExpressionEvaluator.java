@@ -84,8 +84,9 @@ public class ArrayAddExpressionEvaluator extends Updater {
             arrayField=expr.getField();
             insertionIndex=-1;
         }
-        if(arrayField.nAnys()>0)
+        if(arrayField.nAnys()>0) {
             throw new EvaluationError("Pattern not expected:"+arrayField);
+        }
         FieldTreeNode ftn=context.resolve(arrayField);
         if(ftn instanceof ArrayField) {
             fieldMd=(ArrayField)ftn;

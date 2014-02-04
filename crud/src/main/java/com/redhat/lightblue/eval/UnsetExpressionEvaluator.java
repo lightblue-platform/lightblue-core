@@ -55,15 +55,18 @@ public class UnsetExpressionEvaluator extends Updater {
                 MutablePath mp=new MutablePath();
                 fieldNode.getParent().getFullPath(mp);
                 absArrayField=mp.immutableCopy();
-            } else
+            } else {
                 absArrayField=null;
+            }
         }
 
         public String toString() {
             StringBuilder bld=new StringBuilder();
             bld.append(field.toString());
-            if(absArrayField!=null)
+            if(absArrayField!=null) {
                 bld.append("(arr:").append(absArrayField.toString()).append(")");
+            }
+                
             return bld.toString();
         }
     }
@@ -78,8 +81,9 @@ public class UnsetExpressionEvaluator extends Updater {
         this.factory=factory;
         for(Path p:expr.getFields()) {
             FieldTreeNode node=context.resolve(p);
-            if(node==null)
+            if(node==null) {
                 throw new EvaluationError("Invalid dereference:"+p);
+            }
             fields.add(new AbsPath(p,node));
         }
         LOGGER.debug("context {} fields {}",context,fields);

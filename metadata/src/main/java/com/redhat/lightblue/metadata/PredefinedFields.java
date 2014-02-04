@@ -74,12 +74,14 @@ public final class PredefinedFields {
             FieldTreeNode f=cursor.getCurrentNode();
             if(f instanceof ArrayField) {
                 ParentNewChild x=ensureArraySize(md,(ArrayField)f);
-                if(x!=null)
+                if(x!=null) {
                     l.add(x);
+                }
             }
         }
-        for(ParentNewChild x:l)
+        for(ParentNewChild x:l) {
             x.parent.addNew(x.newChild);
+        }
     }
 
     /**
@@ -106,8 +108,9 @@ public final class PredefinedFields {
                 updateArraySizes( factory, (ObjectNode)value);
             }
         }
-        for(Map.Entry<String,JsonNode> entry:sizes.entrySet())
+        for(Map.Entry<String,JsonNode> entry:sizes.entrySet()) {
             node.set(entry.getKey(),entry.getValue());
+        }
     }
    
 
@@ -120,8 +123,9 @@ public final class PredefinedFields {
      */
     private static void ensureID(EntityMetadata md) {
         Field f=md.getFields().getField(ID_FIELD);
-        if(f==null)
+        if(f==null) {
             md.getFields().addNew(f=new SimpleField(ID_FIELD,StringType.TYPE));
+        }
         if(f instanceof SimpleField &&
            // ID can be string, int, bigint
            (f.getType().equals(IntegerType.TYPE)||
@@ -133,8 +137,9 @@ public final class PredefinedFields {
                                   public boolean checkMatch(EntityConstraint c) {
                                       if(c instanceof UniqueConstraint) {
                                           List<Path> fields=((UniqueConstraint)c).getFields();
-                                          if(fields.size()==1&&fields.get(0).equals(ID_PATH))
+                                          if(fields.size()==1&&fields.get(0).equals(ID_PATH)) {
                                               return true;
+                                          }
                                       }
                                       return false;
                                   }
@@ -150,8 +155,10 @@ public final class PredefinedFields {
 
     private static void ensureObjectType(EntityMetadata md) {
         Field f=md.getFields().getField(OBJECTTYPE_FIELD);
-        if(f==null)
+        if(f==null) {
             md.getFields().addNew(f=new SimpleField(OBJECTTYPE_FIELD,StringType.TYPE));
+        }
+            
         if(f instanceof SimpleField&&
            // Object type must be string
            f.getType().equals(StringType.TYPE)) {
@@ -167,8 +174,9 @@ public final class PredefinedFields {
             if(findConstraint(f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
                         public boolean checkMatch(FieldConstraint c) {
                             if(c instanceof StringLengthConstraint) {
-                                if( ((StringLengthConstraint)c).getType().equals(StringLengthConstraint.MINLENGTH) )
+                                if( ((StringLengthConstraint)c).getType().equals(StringLengthConstraint.MINLENGTH) ) {
                                     return true;
+                                }
                             }
                             return false;
                         }
@@ -197,8 +205,9 @@ public final class PredefinedFields {
     private static<T> T findConstraint(List<T> list,ConstraintSearchCB<T> cb) {
         if(list!=null) {
             for(T x:list) {
-                if(cb.checkMatch(x))
+                if(cb.checkMatch(x)) {
                     return x;
+                }
             }
         }
         return null;
@@ -224,17 +233,21 @@ public final class PredefinedFields {
         // Get the parent. The parent is either an object field, or the root
         FieldTreeNode parent=arr.getParent();
         Fields fields;
-        if(parent instanceof ObjectField)
+        if(parent instanceof ObjectField) {
             fields=((ObjectField)parent).getFields();
-        else
+        }
+        else {
             fields=md.getFields();
+        }
         String fieldName=arr.getName()+"#";
         Field f=fields.getField(fieldName);
         ParentNewChild ret;
         if(f==null) {
             ret=new ParentNewChild(fields,f=new SimpleField(fieldName,IntegerType.TYPE));
-        } else
+        } else {
             ret=null;
+        }
+        
         if(f instanceof SimpleField &&
            // Must be int
            f.getType().equals(IntegerType.TYPE)) {

@@ -299,8 +299,9 @@ public class Mediator {
     }
 
     private void updatePredefinedFields(List<JsonDoc> docs) {
-        for(JsonDoc doc:docs)
+        for(JsonDoc doc:docs) {
             PredefinedFields.updateArraySizes(NODE_FACTORY,doc);
+        }
     }
 
     private void mergeErrors(List<Error> errors,
