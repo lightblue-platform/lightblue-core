@@ -32,6 +32,7 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -131,7 +132,9 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
-        return parser.parseEntityMetadata(node);
+        EntityMetadata md=parser.parseEntityMetadata(node);
+        PredefinedFields.ensurePredefinedFields(md);
+        return md;
     }
 
     @Test

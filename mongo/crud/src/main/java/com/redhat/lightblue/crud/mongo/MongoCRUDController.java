@@ -52,6 +52,7 @@ import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Updater;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.mongo.MongoConfiguration;
 import com.redhat.lightblue.query.Projection;
@@ -306,6 +307,7 @@ public class MongoCRUDController implements CRUDController {
                 QueryEvaluationContext ctx=new QueryEvaluationContext(jsonDocument.getRoot());
                 if(updater.update(jsonDocument,md.getFieldTreeRoot(),Path.EMPTY)) {
                     LOGGER.debug("Document {} modified, updating",docIndex);
+                    PredefinedFields.updateArraySizes(factory,jsonDocument);
                     DBObject updatedObject=translator.toBson(jsonDocument);
                     WriteResult result=collection.save(updatedObject);                    
                     LOGGER.debug("Number of rows affected : ", result.getN());
