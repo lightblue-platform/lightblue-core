@@ -83,6 +83,24 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            <!-- generate list of files in target directory, will be used by unit tests to know what to validate -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>junit-prep.sh</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>src/test/bin/junit-prep.sh</executable>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

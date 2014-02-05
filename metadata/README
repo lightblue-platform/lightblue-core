@@ -1,0 +1,5 @@
+For testing json schemas just add a new json document in the appropriate test resource directory.
+In src/test/resources directories named <schema>-json-schema-test-{invalid,valid} will have their
+contents tested against the given <schema>.json file.  If the directory ends in "invalid" the test
+will expect the json to be invalid against the schema.  If the directory ends in "valid" the test
+will fail if the json doesn't validate against the schema.

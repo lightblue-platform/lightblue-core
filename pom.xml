@@ -18,12 +18,44 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>pom</artifactId>
     <packaging>pom</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
+    <description>metadata driven enterprise data services</description>
+    <url>https://github.com/bserdar/lightblue</url>
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/bserdar/lightblue.git</connection>
+        <developerConnection>scm:git:git@github.com:bserdar/lightblue.git</developerConnection>
+        <url>https://github.com/bserdar/lightblue</url>
+    </scm>
+    <developers>
+        <developer>
+            <id>nmalik</id>
+            <name>Naveen Malik</name>
+            <email>nmalik@redhat.com</email>
+            <organization>Red Hat</organization>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -49,7 +81,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.4</version>
+                <version>4.11</version>
             </dependency>
             <dependency>
                 <groupId>org.skyscreamer</groupId>
