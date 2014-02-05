@@ -16,7 +16,6 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
 public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
