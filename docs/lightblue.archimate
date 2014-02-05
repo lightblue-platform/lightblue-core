@@ -94,7 +94,7 @@
     <element xsi:type="archimate:Requirement" id="50ff25cd" name="Track changes to data over time.  Who change it, what changed (before &amp; after data), when did it change."/>
     <element xsi:type="archimate:Stakeholder" id="500f0f64" name="BI"/>
     <element xsi:type="archimate:Requirement" id="6e87ac49" name="Write simple entities atomcially."/>
-    <element xsi:type="archimate:Requirement" id="d842e7f0" name="Write aggregate entities atomically."/>
+    <element xsi:type="archimate:Requirement" id="d842e7f0" name="Write aggregate entities atomically?"/>
     <element xsi:type="archimate:Requirement" id="61fa96d7" name="Why async"/>
     <element xsi:type="archimate:Requirement" id="e47cceeb" name="why RDBMS"/>
     <element xsi:type="archimate:Requirement" id="e8363f77" name="Functions in larger architecture"/>
@@ -212,6 +212,8 @@
     <element xsi:type="archimate:Requirement" id="e0060a50" name="Store things that don't impact clients outside of metadata: default version, indexes, hooks, datastore"/>
     <element xsi:type="archimate:Requirement" id="a5f30328" name="Application to provide metadata management capabilitiies."/>
     <element xsi:type="archimate:Requirement" id="1a87ce52" name="Application to provide data management capabilitiies"/>
+    <element xsi:type="archimate:Requirement" id="b0785d9e" name="Metadata supports enumerated data type."/>
+    <element xsi:type="archimate:Constraint" id="7635a0fb" name="Removing a value from enum must fail if that value is used in any data."/>
   </folder>
   <folder name="Implementation &amp; Migration" id="70b27f39" type="implementation_migration">
     <element xsi:type="archimate:Gap" id="5cf089bd" name="MS4: Async"/>
@@ -476,6 +478,8 @@
     <element xsi:type="archimate:AggregationRelationship" id="1d087189" source="49908517" target="e0060a50"/>
     <element xsi:type="archimate:InfluenceRelationship" id="a3c7a568" source="21b47af3" target="e0060a50"/>
     <element xsi:type="archimate:AggregationRelationship" id="42f1b23a" source="141f68eb" target="e0060a50"/>
+    <element xsi:type="archimate:AggregationRelationship" id="72108037" source="b0785d9e" target="e0060a50"/>
+    <element xsi:type="archimate:AggregationRelationship" id="e342efd3" source="b0785d9e" target="7635a0fb"/>
   </folder>
   <folder name="Views" id="19b98b0d" type="diagrams">
     <element xsi:type="archimate:ArchimateDiagramModel" id="6924d47b" name="Master View">
@@ -2916,7 +2920,7 @@ Email: nmalik@redhat.com</content>
         <bounds x="1164" y="685" width="165" height="64"/>
         <sourceConnection xsi:type="archimate:Connection" id="936ccf05" source="bcf42f18" target="a5103979" relationship="1d087189"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="a5103979" textAlignment="2" targetConnections="00802a25 936ccf05 d6c0e7ba 75602005" archimateElement="e0060a50">
+      <child xsi:type="archimate:DiagramObject" id="a5103979" textAlignment="2" targetConnections="00802a25 936ccf05 d6c0e7ba 75602005 9c56cafb" archimateElement="e0060a50">
         <bounds x="1188" y="783" width="193" height="73"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="a032df72" textAlignment="2" archimateElement="a5f30328">
@@ -2924,6 +2928,14 @@ Email: nmalik@redhat.com</content>
       </child>
       <child xsi:type="archimate:DiagramObject" id="1b53d8cc" textAlignment="2" archimateElement="1a87ce52">
         <bounds x="1888" y="577" width="183" height="83"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="4832020e" textAlignment="2" archimateElement="b0785d9e">
+        <bounds x="1164" y="992" width="144" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="9c56cafb" source="4832020e" target="a5103979" relationship="72108037"/>
+        <sourceConnection xsi:type="archimate:Connection" id="86f433f1" source="4832020e" target="0f3bf837" relationship="e342efd3"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="0f3bf837" textAlignment="2" targetConnections="86f433f1" archimateElement="7635a0fb">
+        <bounds x="945" y="1056" width="180" height="55"/>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" id="92f951cd" name="Simple: Data Service">
