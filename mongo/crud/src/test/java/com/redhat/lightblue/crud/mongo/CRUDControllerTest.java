@@ -44,6 +44,9 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -51,7 +54,7 @@ import com.redhat.lightblue.util.JsonUtils;
 
 public class CRUDControllerTest extends AbstractJsonNodeTest {
 
-    private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
+    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     // Copied from  https://github.com/tommysdk/showcase/blob/master/mongo-in-mem/src/test/java/tommysdk/showcase/mongo/TestInMemoryMongo.java
     private static final String MONGO_HOST = "localhost";
@@ -64,6 +67,8 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
     private MongodExecutable mongodExe;
     private MongodProcess mongod;
     private Mongo mongo;
+
+    private Factory factory;
 
     private MongoCRUDController controller;
 
@@ -89,11 +94,14 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
 
         db.createCollection(COLL_NAME, null);
 
-        controller=new MongoCRUDController(factory,new DBResolver() {
+        controller=new MongoCRUDController(nodeFactory,new DBResolver() {
                 public DB get(MongoDataStore store) {
                     return db;
                 }
             });
+        factory=new Factory();
+        factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
+        factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
     }
 
     @After
@@ -131,7 +139,7 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         extensions.addDefaultExtensions();
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
         EntityMetadata md=parser.parseEntityMetadata(node);
         PredefinedFields.ensurePredefinedFields(md);
         return md;
@@ -146,7 +154,7 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         Projection projection=projection("{'field':'_id'}");
         List<JsonDoc> docs=new ArrayList<JsonDoc>();
         docs.add(doc);
-        CRUDInsertionResponse response=controller.insert(mdr,docs,projection);
+        CRUDInsertionResponse response=controller.insert(mdr,factory,docs,projection);
         Assert.assertNotNull(response.getDocuments());
         Assert.assertEquals(1,response.getDocuments().size());
         Assert.assertTrue(response.getErrors()==null||response.getErrors().isEmpty());
@@ -167,22 +175,22 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         List<JsonDoc> docs=new ArrayList<JsonDoc>();
         docs.add(doc);
         System.out.println("Write doc:"+doc);
-        CRUDInsertionResponse response=controller.insert(mdr,docs,projection);
+        CRUDInsertionResponse response=controller.insert(mdr,factory,docs,projection);
         String id=response.getDocuments().get(0).get(new Path("_id")).asText();
-        JsonDoc readDoc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
+        JsonDoc readDoc=controller.find(mdr,factory,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
                                         projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
         // Change some fields
         System.out.println("Read doc:"+readDoc);
-        readDoc.modify(new Path("field1"),factory.textNode("updated"),false);
-        readDoc.modify(new Path("field7.0.elemf1"),factory.textNode("updated too"),false);
+        readDoc.modify(new Path("field1"),nodeFactory.textNode("updated"),false);
+        readDoc.modify(new Path("field7.0.elemf1"),nodeFactory.textNode("updated too"),false);
 
         // Save it back
         docs.clear();
         docs.add(readDoc);
-        controller.save(mdr,docs,false,projection);
+        controller.save(mdr,factory,docs,false,projection);
         
         // Read it back
-        JsonDoc r2doc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
+        JsonDoc r2doc=controller.find(mdr,factory,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
                                       projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
         Assert.assertEquals(readDoc.get(new Path("field1")).asText(),r2doc.get(new Path("field1")).asText());
         Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(),r2doc.get(new Path("field7.0.elemf1")).asText());
@@ -199,19 +207,19 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         List<JsonDoc> docs=new ArrayList<JsonDoc>();
         docs.add(doc);
         System.out.println("Write doc:"+doc);
-        CRUDInsertionResponse response=controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        CRUDInsertionResponse response=controller.insert(mdr,factory,docs,projection("{'field':'_id'}"));
         String id=response.getDocuments().get(0).get(new Path("_id")).asText();
-        JsonDoc readDoc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
+        JsonDoc readDoc=controller.find(mdr,factory,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
                                         projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
         // Remove id, to force re-insert
         readDoc.modify(new Path("_id"),null,false);
         docs.clear();
         docs.add(readDoc);
         // This should not insert anything
-        CRUDSaveResponse sr=controller.save(mdr,docs,false,projection("{'field':'_id'}"));
+        CRUDSaveResponse sr=controller.save(mdr,factory,docs,false,projection("{'field':'_id'}"));
         Assert.assertEquals(1,coll.find(null).count());
         
-        sr=controller.save(mdr,docs,true,projection("{'field':'_id'}"));
+        sr=controller.save(mdr,factory,docs,true,projection("{'field':'_id'}"));
         Assert.assertEquals(2,coll.find(null).count());
     }
 
@@ -227,15 +235,15 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         int numDocs=20;
         for(int i=0;i<numDocs;i++) {
             JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
-            doc.modify(new Path("field1"),factory.textNode("doc"+i),false);
-            doc.modify(new Path("field3"),factory.numberNode(i),false);
+            doc.modify(new Path("field1"),nodeFactory.textNode("doc"+i),false);
+            doc.modify(new Path("field3"),nodeFactory.numberNode(i),false);
             docs.add(doc);
         }
-        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        controller.insert(mdr,factory,docs,projection("{'field':'_id'}"));
         Assert.assertEquals(numDocs,coll.find(null).count());
 
         // Single doc update
-        CRUDUpdateResponse upd=controller.update(mdr,"test",query("{'field':'field3','op':'$eq','rvalue':10}"),
+        CRUDUpdateResponse upd=controller.update(mdr,factory,"test",query("{'field':'field3','op':'$eq','rvalue':10}"),
                                                  update("{ '$set': { 'field3' : 1000 } }"),
                                                  projection("{'field':'_id'}"));
         Assert.assertEquals(1,upd.getNumUpdated());
@@ -244,7 +252,7 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         Assert.assertEquals(1,coll.find(new BasicDBObject("field3",1000)).count());
 
         // Bulk update
-        upd=controller.update(mdr,"test",query("{'field':'field3','op':'>','rvalue':10}"),
+        upd=controller.update(mdr,factory,"test",query("{'field':'field3','op':'>','rvalue':10}"),
                               update("{ '$set': { 'field3' : 1000 } }"),
                               projection("{'field':'_id'}"));
         Assert.assertEquals(10,upd.getNumUpdated());
@@ -265,13 +273,13 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         int numDocs=20;
         for(int i=0;i<numDocs;i++) {
             JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
-            doc.modify(new Path("field1"),factory.textNode("doc"+i),false);
-            doc.modify(new Path("field3"),factory.numberNode(i),false);
+            doc.modify(new Path("field1"),nodeFactory.textNode("doc"+i),false);
+            doc.modify(new Path("field3"),nodeFactory.numberNode(i),false);
             docs.add(doc);
         }
-        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        controller.insert(mdr,factory,docs,projection("{'field':'_id'}"));
 
-        CRUDFindResponse response=controller.find(mdr,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
+        CRUDFindResponse response=controller.find(mdr,factory,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
                                                   projection("{'field':'*','recursive':1}"),
                                                   sort("{'field3':'$desc'}"),null,null);
         Assert.assertEquals(numDocs,response.getResults().size());
@@ -283,7 +291,7 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         }
 
         for(int k=0;k<15;k++) {
-            response=controller.find(mdr,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
+            response=controller.find(mdr,factory,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
                                      projection("{'field':'*','recursive':1}"),
                                      sort("{'field3':'$asc'}"),new Long(k),new Long(k+5));
             
@@ -309,20 +317,20 @@ public class CRUDControllerTest extends AbstractJsonNodeTest {
         int numDocs=20;
         for(int i=0;i<numDocs;i++) {
             JsonDoc doc=new JsonDoc(loadJsonNode("./testdata1.json"));
-            doc.modify(new Path("field1"),factory.textNode("doc"+i),false);
-            doc.modify(new Path("field3"),factory.numberNode(i),false);
+            doc.modify(new Path("field1"),nodeFactory.textNode("doc"+i),false);
+            doc.modify(new Path("field3"),nodeFactory.numberNode(i),false);
             docs.add(doc);
         }
-        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        controller.insert(mdr,factory,docs,projection("{'field':'_id'}"));
         Assert.assertEquals(numDocs,coll.find(null).count());
 
         // Single doc delete
-        CRUDDeleteResponse del=controller.delete(mdr,"test",query("{'field':'field3','op':'$eq','rvalue':10}"));
+        CRUDDeleteResponse del=controller.delete(mdr,factory,"test",query("{'field':'field3','op':'$eq','rvalue':10}"));
         Assert.assertEquals(1,del.getNumDeleted());
         Assert.assertEquals(numDocs-1,coll.find(null).count());
 
         // Bulk delete
-        del=controller.delete(mdr,"test",query("{'field':'field3','op':'>','rvalue':10}"));
+        del=controller.delete(mdr,factory,"test",query("{'field':'field3','op':'>','rvalue':10}"));
         Assert.assertEquals(9,del.getNumDeleted());
         Assert.assertEquals(10,coll.find(null).count());
     }

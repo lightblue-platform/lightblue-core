@@ -69,6 +69,11 @@ public class ConstraintValidator {
         this.md = md;
     }
 
+    public void clearErrors() {
+        docErrors.clear();
+        errors.clear();
+    }
+
     public List<JsonDoc> getCurrentDocList() {
         return currentDocList;
     }
@@ -228,7 +233,7 @@ public class ConstraintValidator {
                     checkFieldContraints(doc, (FieldConstraintDocChecker) checker);
                 } else if (checker instanceof FieldConstraintValueChecker) {
                     // Constraint needs to be checked for all the values in the doc
-                    checkValueContraints(doc, (FieldConstraintDocChecker) checker, currentValuePath, currentValue);
+                    checkValueContraints(doc, (FieldConstraintChecker) checker, currentValuePath, currentValue);
                 }
             } finally {
                 Error.pop();
@@ -244,7 +249,7 @@ public class ConstraintValidator {
                 doc);
     }
     
-    private void checkValueContraints(JsonDoc doc, FieldConstraintDocChecker checker, Path currentValuePath, JsonNode currentValue) {
+    private void checkValueContraints(JsonDoc doc, FieldConstraintChecker checker, Path currentValuePath, JsonNode currentValue) {
         KeyValueCursor<Path, JsonNode> fieldValues = doc.getAllNodes(currentFieldPath);
         while (fieldValues.hasNext()) {
             fieldValues.next();

@@ -86,7 +86,7 @@ public class Mediator {
      * @param req Insertion request
      *
      * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
-     * for that entity.
+     * for that entity. CRUD implementation can perform further validations.
      */
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntity());
@@ -100,7 +100,7 @@ public class Mediator {
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
+                CRUDInsertionResponse insertionResponse = controller.insert(ctx, factory, docsWithoutErrors, req.getReturnFields());
                 response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(insertionResponse.getDataErrors(), response);
                 mergeErrors(insertionResponse.getErrors(), response);
@@ -133,7 +133,7 @@ public class Mediator {
      * @param req Save request
      *
      * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
-     * for that entity.
+     * for that entity. CRUD implementation can perform further validations
      */
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntity());
@@ -147,7 +147,7 @@ public class Mediator {
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
+                CRUDSaveResponse saveResponse = controller.save(ctx, factory, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
                 response.setEntityData(toJsonDocList(saveResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(saveResponse.getDataErrors(), response);
                 mergeErrors(saveResponse.getErrors(), response);
@@ -176,7 +176,11 @@ public class Mediator {
      * @param req Update request
      *
      * All documents matching the search criteria are updated using the update expression given in the request. Then,
-     * the updated document is projected and returneed in the response.
+     * the updated document is projected and returned in the response.
+     *
+     * The mediator does not perform any constraint validation. The
+     * CRUD implementation must perform all constraint validations and
+     * process only the documents that pass those validations.
      */
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntity());
@@ -188,6 +192,7 @@ public class Mediator {
             CRUDController controller = factory.getCRUDController(md);
             LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
             CRUDUpdateResponse updateResponse = controller.update(ctx,
+                                                                  factory,
                     req.getEntity().getEntity(),
                     req.getQuery(),
                     req.getUpdateExpression(),
@@ -213,6 +218,7 @@ public class Mediator {
             CRUDController controller = factory.getCRUDController(md);
             LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
             CRUDDeleteResponse result = controller.delete(ctx,
+                                                          factory,
                                                           req.getEntity().getEntity(),
                                                           req.getQuery());
             response.setModifiedCount(result.getNumDeleted());
@@ -253,6 +259,7 @@ public class Mediator {
             CRUDController controller = factory.getCRUDController(md);
             LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
             CRUDFindResponse result = controller.find(ctx,
+                                                      factory,
                     req.getEntity().getEntity(),
                     req.getQuery(),
                     req.getProjection(),
