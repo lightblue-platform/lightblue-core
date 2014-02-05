@@ -51,23 +51,6 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         doc=getDoc("./sample2.json");
     }
 
-    
-    @Test
-    public void q_arr_match() throws Exception {
-        JsonDoc doc=getDoc("./sample1.json");
-        EntityMetadata md=getMd("./testMetadata.json");
-        QueryExpression q=json("{'array':'field7','elemMatch':{'field':'elemf3','op':'>','rvalue':3}}");
-        QueryEvaluator qe=QueryEvaluator.getInstance(q,md);
-        QueryEvaluationContext ctx=qe.evaluate(doc);
-        Assert.assertTrue(ctx.getResult());
-        Assert.assertTrue(!ctx.isMatchingElement(new Path("field7.0")));
-        Assert.assertTrue(ctx.isMatchingElement(new Path("field7.1")));
-        Assert.assertTrue(ctx.isMatchingElement(new Path("field7.2")));
-        Assert.assertTrue(ctx.isMatchingElement(new Path("field7.3")));
-    }
-    
-//    new QTestCase("{'array':'field7','elemMatch': { 'field':'elemf1','op':'$eq','rvalue':'elvalue1_1' }}", true, path("field7.1")),};
-    
     @Test(expected=com.redhat.lightblue.eval.EvaluationError.class)
     public void non_array_field_results_in_expression_error() throws Exception {
         QueryExpression expr = json("{'array':'field2','elemMatch':{'field':'elemf3','op':'>','rvalue':3}}");
