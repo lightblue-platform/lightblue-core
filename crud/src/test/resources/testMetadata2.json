@@ -84,7 +84,17 @@
                     "fields": {
                         "nnf1": {"type": "string"},
                         "nnf2": {"type": "integer"},
-                        "nnf3": {"type": "array", "items": {"type": "integer"}}
+                        "nnf3": {"type": "array", "items": {"type": "integer"}},
+                        "nnf4": {"type": "array",
+					            "items": {
+					                "type": "object",
+					                "fields": {
+					                    "elemf1": {"type": "string"},
+					                    "elemf2": {"type": "string"},
+					                    "elemf3": {"type": "integer"}
+					                }
+					            }           
+                        }
                         }
                     }
                 },
@@ -93,7 +103,17 @@
                     "fields": {
                         "nnf1": {"type": "string"},
                         "nnf2": {"type": "integer"},
-                        "nnf3": {"type": "array", "items": {"type": "integer"}}
+                        "nnf3": {"type": "array", "items": {"type": "integer"}},
+                        "nnf4": {"type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "fields": {
+                                        "elemf1": {"type": "string"},
+                                        "elemf2": {"type": "string"},
+                                        "elemf3": {"type": "integer"}
+                                    }
+                                }           
+                        }
                         }
                 }
         },

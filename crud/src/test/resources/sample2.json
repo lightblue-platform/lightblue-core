@@ -50,12 +50,56 @@
         "nf1": {
             "nnf1": "nnvalue1",
             "nnf2": 1,
-            "nnf3": [1, 2, 3, 4]
+            "nnf3": [1, 2, 3, 4],
+            "nnf4": [
+		        {
+		            "elemf1": "elvalue0_1",
+		            "elemf2": "elvalue0_2",
+		            "elemf3": 3
+		        },
+		        {
+		            "elemf1": "elvalue1_1",
+		            "elemf2": "elvalue1_2",
+		            "elemf3": 4
+		        },
+		        {
+		            "elemf1": "elvalue2_1",
+		            "elemf2": "elvalue2_2",
+		            "elemf3": 5
+		        },
+		        {
+		            "elemf1": "elvalue3_1",
+		            "elemf2": "elvalue3_2",
+		            "elemf3": 6
+		        }
+		    ]
         },
         "nf2": {
             "nnf1": "nnvalue2",
             "nnf2": 2,
-            "nnf3": [5, 6, 7, 8]
+            "nnf3": [5, 6, 7, 8],
+            "nnf4": [
+                {
+                    "elemf1": "elvalue0_1",
+                    "elemf2": "elvalue0_2",
+                    "elemf3": 3
+                },
+                {
+                    "elemf1": "elvalue1_1",
+                    "elemf2": "elvalue1_2",
+                    "elemf3": 4
+                },
+                {
+                    "elemf1": "elvalue2_1",
+                    "elemf2": "elvalue2_2",
+                    "elemf3": 5
+                },
+                {
+                    "elemf1": "elvalue3_1",
+                    "elemf2": "elvalue3_2",
+                    "elemf3": 6
+                }
+            ]
         }
     },
     "field9": null,

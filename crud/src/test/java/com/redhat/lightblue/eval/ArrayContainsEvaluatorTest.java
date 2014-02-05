@@ -18,7 +18,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
-public class ArrayContainsExpressionEvaluatorTest extends AbstractJsonNodeTest {
+public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     private EntityMetadata md;
     private JsonDoc doc;
