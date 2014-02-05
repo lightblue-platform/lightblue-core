@@ -87,6 +87,7 @@ public class ForEachExpressionEvaluator extends Updater {
             throw new EvaluationError("Pattern not expected:"+field);
         }
         absField=fieldMd.getFullPath();
+        LOGGER.debug("Full path to Field is: " + absField.toString());
         // Get a query evaluator
         QueryExpression query=expr.getQuery();
         if(query instanceof AllMatchExpression) {
