@@ -96,7 +96,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>src/test/bin/junit-prep.sh</executable>
+                            <executable>src/test/scripts/junit-prep.sh</executable>
                         </configuration>
                     </execution>
                 </executions>
