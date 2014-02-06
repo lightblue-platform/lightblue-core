@@ -15,11 +15,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,7 +31,7 @@ import java.text.ParseException;
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-public class JSONMetadataParserTest extends AbstractJsonNodeTest {
+public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
     JsonNodeFactory factory = new JsonNodeFactory(true);
 
@@ -49,9 +51,6 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
 
                 DataStore ds = new DataStore() {
 
-                    /**
-                     * 
-                     */
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -75,7 +74,10 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
         parser = null;
     }
 
-    private void testResource(String resource) throws IOException, JSONException {
+    private void testResource(String resource) throws IOException, JSONException, ProcessingException {
+        // verify json is schema compliant
+        runValidJsonTest("json-schema/metadata/metadata.json", resource);
+        
         JsonNode object = loadJsonNode(resource);
 
         // json to java
@@ -95,7 +97,7 @@ public class JSONMetadataParserTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void fullObjectEverythingNoHooks() throws IOException, ParseException, JSONException {
+    public void fullObjectEverythingNoHooks() throws IOException, ParseException, JSONException, ProcessingException {
         testResource("JSONMetadataParserTest-object-everything-no-hooks.json");
     }
 

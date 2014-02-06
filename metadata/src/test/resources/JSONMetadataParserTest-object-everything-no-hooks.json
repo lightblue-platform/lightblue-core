@@ -1,138 +1,129 @@
 {
-    "name": "test",
-    "version": {
-        "value": "1.0",
-        "changelog": "Initial version"
-    },
-    "status": {
-        "value": "active"
-    },
-    "access": {
-        "insert": [
-            "admin"
-        ],
-        "update": [
-            "admin"
-        ],
-        "find": [
-            "admin",
-            "all"
-        ],
-        "delete": [
-            "admin"
-        ]
-    },
-    "fields": {
-        "creationDate": {
-            "type": "date",
-            "constraints": {
-                "required": true
+    "entityInfo": {
+        "name": "test",
+        "datastore": {
+            "empty": {
             }
+        }
+    },
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "Initial version"
         },
-        "customerType": {
-            "type": "string",
-            "constraints": {
-                "enum": [
-                    "person",
-                    "organization"
-                ]
-            }
+        "status": {
+            "value": "active"
         },
-        "address": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "fields": {
-                    "postalCode": {
-                        "type": "string"
-                    },
-                    "street": {
-                        "type": "array",
-                        "constraints": {
-                            "minItems": 1,
-                            "maxItems": 2000
+        "access": {
+            "insert": ["admin"],
+            "update": ["admin"],
+            "find": ["admin", "all"],
+            "delete": ["admin"]
+        },
+        "fields": {
+            "creationDate": {
+                "type": "date",
+                "constraints": {
+                    "required": true
+                }
+            },
+            "customerType": {
+                "type": "string",
+                "constraints": {
+                    "enum": [
+                        "person",
+                        "organization"
+                    ]
+                }
+            },
+            "address": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "postalCode": {
+                            "type": "string"
                         },
-                        "items": {
-                            "type": "object",
-                            "fields": {
-                                "name": {
-                                    "type": "string",
-                                    "constraints": {
-                                        "minLength": 10,
-                                        "maxLength": 2000
-                                    }
-                                },
-                                "someCounter": {
-                                    "type": "integer",
-                                    "constraints": {
-                                        "minimum": 0,
-                                        "maximum": 200
+                        "street": {
+                            "type": "array",
+                            "constraints": {
+                                "minItems": 1,
+                                "maxItems": 2000
+                            },
+                            "items": {
+                                "type": "object",
+                                "fields": {
+                                    "name": {
+                                        "type": "string",
+                                        "constraints": {
+                                            "minLength": 10,
+                                            "maxLength": 2000
+                                        }
+                                    },
+                                    "someCounter": {
+                                        "type": "integer",
+                                        "constraints": {
+                                            "minimum": 0,
+                                            "maximum": 200
+                                        }
                                     }
                                 }
+                            },
+                            "access": {
+                                "find": ["all"],
+                                "update": ["admin"]
                             }
                         },
-                        "access": {
-                            "find": [
-                                "all"
-                            ],
-                            "update": [
-                                "admin"
-                            ]
+                        "state": {
+                            "type": "string"
+                        },
+                        "city": {
+                            "type": "string",
+                            "access": {
+                                "find": ["all"],
+                                "update": ["admin"]
+                            }
                         }
-                    },
-                    "state": {
-                        "type": "string"
-                    },
-                    "city": {
-                        "type": "string",
-                        "access": {
-                            "find": [
-                                "all"
-                            ],
-                            "update": [
-                                "admin"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "name": {
-            "type": "string"
-        },
-        "credentials": {
-            "type": "object",
-            "fields": {
-                "login": {
-                    "type": "string",
-                    "constraints": {
-                        "required": true
-                    }
-                },
-                "password": {
-                    "type": "string",
-                    "constraints": {
-                        "required": true
                     }
                 }
             },
-            "constraints": {
-                "required": true
+            "name": {
+                "type": "string",
+                "constraints": {
+                    "required": true
+                }
+            },
+            "credentials": {
+                "type": "object",
+                "fields": {
+                    "login": {
+                        "type": "string",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    "password": {
+                        "type": "string",
+                        "constraints": {
+                            "required": true
+                        }
+                    }
+                },
+                "constraints": {
+                    "required": true
+                }
+            },
+            "lastUpdateDate": {
+                "type": "date"
             }
         },
-        "lastUpdateDate": {
-            "type": "date"
-        }
-    },
-    "constraints": [
-        {
-            "unique": [
-                "name"
-            ]
-        }
-    ],
-    "datastore": {
-        "empty": {
-        }
+        "constraints": [
+            {
+                "unique": [
+                    "name"
+                ]
+            }
+        ]
     }
 }

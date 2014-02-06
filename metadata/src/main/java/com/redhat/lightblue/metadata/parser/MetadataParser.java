@@ -31,7 +31,9 @@ import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -111,30 +113,67 @@ public abstract class MetadataParser<T> {
     public EntityMetadata parseEntityMetadata(T object) {
         Error.push("parseEntityMetadata");
         try {
+            EntityInfo info = parseEntityInfo(getRequiredObjectProperty(object, "entityInfo"));
+            EntitySchema schema = parseEntitySchema(getRequiredObjectProperty(object, "schema"));
+
+            EntityMetadata md = new EntityMetadata(info, schema);
+
+            return md;
+        } finally {
+            Error.pop();
+        }
+    }
+
+    /**
+     * Entry point for entity info parser. Expects an Object corresponding to the EntityInfo object.
+     *
+     * @throws ParseException
+     */
+    public EntityInfo parseEntityInfo(T object) {
+        Error.push("parseEntityInfo");
+        try {
             String name = getRequiredStringProperty(object, "name");
 
-            EntityMetadata md = new EntityMetadata(name);
+            EntityInfo info = new EntityInfo(name);
+
+            T datastore = getRequiredObjectProperty(object, "datastore");
+            info.setDataStore(parseDataStore(datastore));
+            return info;
+        } finally {
+            Error.pop();
+        }
+    }
+
+    /**
+     * Entry point for entity schema parser. Expects an Object corresponding to the EntitySchema object.
+     *
+     * @throws ParseException
+     */
+    public EntitySchema parseEntitySchema(T object) {
+        Error.push("parseEntitySchema");
+        try {
+            String name = getRequiredStringProperty(object, "name");
+
+            EntitySchema schema = new EntitySchema(name);
             T version = getRequiredObjectProperty(object, STR_VERSION);
-            md.setVersion(parseVersion(version));
+            schema.setVersion(parseVersion(version));
 
             T status = getRequiredObjectProperty(object, STR_STATUS);
-            parseStatus(md, status);
+            parseStatus(schema, status);
 
             // TODO hooks
             T access = getObjectProperty(object, STR_ACCESS);
             if (access != null) {
-                parseEntityAccess(md.getAccess(), access);
+                parseEntityAccess(schema.getAccess(), access);
             }
 
             T fields = getRequiredObjectProperty(object, STR_FIELDS);
-            parseFields(md.getFields(), fields);
+            parseFields(schema.getFields(), fields);
 
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
-            parseEntityConstraints(md, constraints);
+            parseEntityConstraints(schema, constraints);
 
-            T datastore = getRequiredObjectProperty(object, "datastore");
-            md.setDataStore(parseDataStore(datastore));
-            return md;
+            return schema;
         } finally {
             Error.pop();
         }
@@ -172,10 +211,10 @@ public abstract class MetadataParser<T> {
      *
      * @throws ParseException
      */
-    public void parseStatus(EntityMetadata md, T object) {
+    public void parseStatus(EntitySchema schema, T object) {
         Error.push(STR_STATUS);
         try {
-            md.setStatus(statusFromString(getRequiredStringProperty(object, STR_VALUE)));
+            schema.setStatus(statusFromString(getRequiredStringProperty(object, STR_VALUE)));
             List<T> logList = getObjectList(object, "log");
             List<StatusChange> list = new ArrayList<>();
             if (logList != null) {
@@ -191,7 +230,7 @@ public abstract class MetadataParser<T> {
                     item.setComment(getRequiredStringProperty(log, "comment"));
                     list.add(item);
                 }
-                md.setStatusChangeLog(list);
+                schema.setStatusChangeLog(list);
             }
         } finally {
             Error.pop();
@@ -225,7 +264,7 @@ public abstract class MetadataParser<T> {
      * Entity constraints are an object array where each object contains only one field, the constraint name. The
      * constraint data can be a simple value, an array, or an object.
      */
-    public void parseEntityConstraints(EntityMetadata md,
+    public void parseEntityConstraints(EntitySchema schema,
                                        List<T> constraintList) {
         if (constraintList != null) {
             List<EntityConstraint> entityConstraintList = new ArrayList<>();
@@ -245,7 +284,7 @@ public abstract class MetadataParser<T> {
                 }
             }
             if (!entityConstraintList.isEmpty()) {
-                md.setConstraints(entityConstraintList);
+                schema.setConstraints(entityConstraintList);
             }
         }
     }
@@ -461,17 +500,28 @@ public abstract class MetadataParser<T> {
         Error.push("convert");
         try {
             T ret = newNode();
-            if (md.getName() != null) {
-                putString(ret, "name", md.getName());
+            putObject(ret, "entityInfo", convert(md.getEntityInfo()));
+            putObject(ret, "schema", convert(md.getEntitySchema()));
+            return ret;
+        } finally {
+            Error.pop();
+        }
+    }
+    
+
+    /**
+     * Converts the entity metadata to T
+     */
+    public T convert(EntityInfo info) {
+        Error.push("convert");
+        try {
+            T ret = newNode();
+            if (info.getName() != null) {
+                putString(ret, "name", info.getName());
             }
-            putObject(ret, STR_VERSION, convert(md.getVersion()));
-            putObject(ret, STR_STATUS, convert(md.getStatus(), md.getStatusChangeLog()));
-            putObject(ret, STR_ACCESS, convert(md.getAccess()));
-            putObject(ret, STR_FIELDS, convert(md.getFields()));
-            convertEntityConstraints(ret, md.getConstraints());
-            if (md.getDataStore() != null) {
+            if (info.getDataStore() != null) {
                 T dsNode = newNode();
-                convertDataStore(dsNode, md.getDataStore());
+                convertDataStore(dsNode, info.getDataStore());
                 putObject(ret, "datastore", dsNode);
             }
             return ret;
@@ -480,6 +530,28 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    
+    /**
+     * Converts the entity metadata to T
+     */
+    public T convert(EntitySchema schema) {
+        Error.push("convert");
+        try {
+            T ret = newNode();
+            if (schema.getName() != null) {
+                putString(ret, "name", schema.getName());
+            }
+            putObject(ret, STR_VERSION, convert(schema.getVersion()));
+            putObject(ret, STR_STATUS, convert(schema.getStatus(), schema.getStatusChangeLog()));
+            putObject(ret, STR_ACCESS, convert(schema.getAccess()));
+            putObject(ret, STR_FIELDS, convert(schema.getFields()));
+            convertEntityConstraints(ret, schema.getConstraints());
+            return ret;
+        } finally {
+            Error.pop();
+        }
+    }
+    
     /**
      * Converts metadata version to T
      */

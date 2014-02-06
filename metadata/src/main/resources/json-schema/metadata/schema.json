@@ -183,22 +183,30 @@
                                     "properties": {
                                         "type": {
                                             "$ref": "#/definitions/types_simple"
+                                        },
+                                        "constraints": {
+                                            "$ref": "#/definitions/field_constraint"
                                         }
                                     },
-                                    "additionalProperties": false
+                                    "additionalProperties": false,
+                                    "required":[
+                                        "type"
+                                    ]
                                 },
                                 {
-                                    "description": "Array items can be enums.",
                                     "properties": {
-                                        "enum": {
-                                            "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
+                                        "type": {
+                                            "enum": ["object"]
+                                        },
+                                        "fields": {
+                                            "$ref": "#/definitions/field_single"
                                         }
                                     },
-                                    "additionalProperties": false
-                                },
-                                {
-                                    "$ref": "#/definitions/field_single",
-                                    "description": "Support for a single type of 'fields' child."
+                                    "description": "Support for object items.",
+                                    "required":[
+                                        "type",
+                                        "fields"
+                                    ]
                                 }
                             ]
                         },
