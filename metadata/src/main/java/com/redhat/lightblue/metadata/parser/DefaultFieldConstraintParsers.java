@@ -37,12 +37,11 @@ public class DefaultFieldConstraintParsers<N>
     public DefaultFieldConstraintParsers() {
         addValue(ArraySizeConstraint.MIN, new ArraySizeConstraintParser<N>());
         addValue(ArraySizeConstraint.MAX, new ArraySizeConstraintParser<N>());
-        addValue(EnumConstraint.TYPE, new EnumConstraintParser<N>());
+        addValue(EnumConstraint.ENUM, new EnumConstraintParser<N>());
         addValue(MinMaxConstraint.MIN, new MinMaxConstraintParser<N>());
         addValue(MinMaxConstraint.MAX, new MinMaxConstraintParser<N>());
         addValue(RequiredConstraint.REQUIRED, new RequiredConstraintParser<N>());
         addValue(StringLengthConstraint.MINLENGTH, new StringLengthConstraintParser<N>());
         addValue(StringLengthConstraint.MAXLENGTH, new StringLengthConstraintParser<N>());
-        addValue(EnumConstraint.TYPE, new EnumConstraintParser<N>());
     }
 }

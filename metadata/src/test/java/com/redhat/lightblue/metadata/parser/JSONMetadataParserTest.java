@@ -19,7 +19,6 @@ import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
@@ -77,7 +76,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     private void testResource(String resource) throws IOException, JSONException, ProcessingException {
         // verify json is schema compliant
         runValidJsonTest("json-schema/metadata/metadata.json", resource);
-        
+
         JsonNode object = loadJsonNode(resource);
 
         // json to java

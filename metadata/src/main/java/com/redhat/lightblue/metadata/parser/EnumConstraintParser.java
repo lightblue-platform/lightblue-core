@@ -18,8 +18,6 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.util.List;
-import java.util.Set;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -29,15 +27,15 @@ public class EnumConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
     public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
-        if (!EnumConstraint.TYPE.equals(name)) {
+        if (!EnumConstraint.ENUM.equals(name)) {
             throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
         }
 
-        List<String> values = p.getStringList(node, EnumConstraint.TYPE);
+        String enumName = (String) p.getValueProperty(node, EnumConstraint.ENUM);
 
-        if (values != null) {
+        if (enumName != null) {
             EnumConstraint ret = new EnumConstraint();
-            ret.setValues(values);
+            ret.setName(enumName);
             return ret;
         } else {
             return null;
@@ -46,12 +44,6 @@ public class EnumConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
     public void convert(MetadataParser<T> p, T emptyNode, FieldConstraint object) {
-        Object t = p.newArrayField(emptyNode, EnumConstraint.TYPE);
-        Set<String> values = ((EnumConstraint) object).getValues();
-        if (values != null) {
-            for (String x : values) {
-                p.addStringToArray(t, x);
-            }
-        }
+        p.putString(emptyNode, EnumConstraint.ENUM.toString(), ((EnumConstraint) object).getName());
     }
 }

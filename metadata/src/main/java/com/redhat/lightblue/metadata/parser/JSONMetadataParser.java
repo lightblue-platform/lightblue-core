@@ -100,7 +100,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             JsonNode x = object.get(name);
             if (x != null) {
                 if (x instanceof ArrayNode) {
-                    ArrayList<String> ret = new ArrayList<String>();
+                    ArrayList<String> ret = new ArrayList<>();
                     for (Iterator<JsonNode> itr = ((ArrayNode) x).elements(); itr.hasNext();) {
                         ret.add(itr.next().asText());
                     }
@@ -123,7 +123,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             JsonNode x = object.get(name);
             if (x != null) {
                 if (x instanceof ArrayNode) {
-                    ArrayList<JsonNode> ret = new ArrayList<JsonNode>();
+                    ArrayList<JsonNode> ret = new ArrayList<>();
                     for (Iterator<JsonNode> itr = ((ArrayNode) x).elements(); itr.hasNext();) {
                         ret.add(itr.next());
                     }
@@ -140,6 +140,24 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
+    public List<JsonNode> getObjectList(JsonNode object) {
+        Error.push("getObjectList");
+        try {
+            if (object instanceof ArrayNode) {
+                ArrayList<JsonNode> ret = new ArrayList<>();
+                for (Iterator<JsonNode> itr = ((ArrayNode) object).elements(); itr.hasNext();) {
+                    ret.add(itr.next());
+                }
+                return ret;
+            } else {
+                return null;
+            }
+        } finally {
+            Error.pop();
+        }
+    }
+
+    @Override
     public JsonNode newNode() {
         return factory.objectNode();
     }
@@ -147,13 +165,13 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public Set<String> getChildNames(JsonNode object) {
         if (object instanceof ObjectNode) {
-            HashSet<String> names = new HashSet<String>();
+            HashSet<String> names = new HashSet<>();
             for (Iterator<String> itr = ((ObjectNode) object).fieldNames(); itr.hasNext();) {
                 names.add(itr.next());
             }
             return names;
         } else {
-            return new HashSet<String>();
+            return new HashSet<>();
         }
     }
 

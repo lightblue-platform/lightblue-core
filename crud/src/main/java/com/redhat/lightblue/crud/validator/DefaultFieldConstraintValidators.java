@@ -43,7 +43,7 @@ public class DefaultFieldConstraintValidators
     public DefaultFieldConstraintValidators() {
         checkers.put(ArraySizeConstraint.MIN, new ArraySizeChecker());
         checkers.put(ArraySizeConstraint.MAX, new ArraySizeChecker());
-        checkers.put(EnumConstraint.TYPE, new EnumChecker());
+        checkers.put(EnumConstraint.ENUM, new EnumChecker());
         checkers.put(MinMaxConstraint.MIN, new MinMaxChecker());
         checkers.put(MinMaxConstraint.MAX, new MinMaxChecker());
         checkers.put(RequiredConstraint.REQUIRED, new RequiredChecker());

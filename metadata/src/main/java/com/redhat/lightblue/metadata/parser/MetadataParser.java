@@ -34,10 +34,14 @@ import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
+import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.Indexes;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
@@ -57,6 +61,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other formats represented as a tree.
@@ -70,6 +75,8 @@ public abstract class MetadataParser<T> {
     public static final String ERR_INVALID_ARRAY_ELEMENT_TYPE = "INVALID_ARRAY_ELEMENT_TYPE";
     public static final String ERR_ILL_FORMED_METADATA = "ILL_FORMED_METADATA";
     public static final String ERR_INVALID_DATASTORE = "INVALID_DATASTORE";
+    public static final String ERR_INVALID_INDEX = "INVALID_INDEX";
+    public static final String ERR_INVALID_ENUM = "INVALID_ENUM";
     public static final String ERR_UNKNOWN_DATASTORE = "UNKNOWN_DATASTORE";
     public static final String ERR_INVALID_CONSTRAINT = "INVALID_CONSTRAINT";
     public static final String ERR_INVALID_TYPE = "INVALID_TYPE";
@@ -136,9 +143,125 @@ public abstract class MetadataParser<T> {
 
             EntityInfo info = new EntityInfo(name);
 
+            info.setIndexes(parseIndexes(getObjectProperty(object, "indexes")));
+            info.setEnums(parseEnums(getObjectProperty(object, "enums")));
+
             T datastore = getRequiredObjectProperty(object, "datastore");
             info.setDataStore(parseDataStore(datastore));
             return info;
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public Indexes parseIndexes(T object) {
+        Error.push("parseIndexes");
+        try {
+            if (object != null) {
+                List<T> children = getObjectList(object);
+
+                List<Index> idxs = new ArrayList<>();
+
+                for (T child : children) {
+                    idxs.add(parseIndex(child));
+                }
+
+                Indexes indexes = new Indexes();
+                indexes.setIndexes(idxs);
+
+                return indexes;
+            } else {
+                return null;
+            }
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public Index parseIndex(T object) {
+        Error.push("parseIndex");
+        try {
+            if (object != null) {
+                Index index = new Index();
+
+                String name = getStringProperty(object, "name");
+                Object unique = getValueProperty(object, "unique");
+                List<String> fields = getStringList(object, "fields");
+
+                if (null != name) {
+                    index.setName(name);
+                }
+
+                if (null != unique) {
+                    index.setUnique(Boolean.parseBoolean(unique.toString()));
+                }
+
+                if (null != fields && !fields.isEmpty()) {
+                    List<Path> f = new ArrayList<>();
+                    for (String s : fields) {
+                        f.add(new Path(s));
+                    }
+                    index.setFields(f);
+                } else {
+                    Error.get(ERR_PARSE_MISSING_ELEMENT, "fields");
+                }
+
+                return index;
+            } else {
+                return null;
+            }
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public Enums parseEnums(T object) {
+        Error.push("parseEnums");
+        try {
+            if (object != null) {
+                List<T> children = getObjectList(object);
+
+                List<Enum> e = new ArrayList<>();
+
+                for (T child : children) {
+                    e.add(parseEnum(child));
+                }
+
+                Enums enums = new Enums();
+                enums.setEnums(e);
+
+                return enums;
+            } else {
+                return null;
+            }
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public Enum parseEnum(T object) {
+        Error.push("parseEnum");
+        try {
+            if (object != null) {
+                Enum e = new Enum();
+
+                String name = getStringProperty(object, "name");
+                List<String> values = getStringList(object, "values");
+
+                if (null != name) {
+                    e.setName(name);
+                }
+
+                if (null != values && !values.isEmpty()) {
+                    e.setValues(values);
+                } else {
+                    Error.get(ERR_PARSE_MISSING_ELEMENT, "values");
+                }
+
+                return e;
+            } else {
+                return null;
+            }
         } finally {
             Error.pop();
         }
@@ -507,7 +630,6 @@ public abstract class MetadataParser<T> {
             Error.pop();
         }
     }
-    
 
     /**
      * Converts the entity metadata to T
@@ -518,6 +640,14 @@ public abstract class MetadataParser<T> {
             T ret = newNode();
             if (info.getName() != null) {
                 putString(ret, "name", info.getName());
+            }
+            if (info.getIndexes() != null && !info.getIndexes().isEmpty()) {
+                // indexes is an array directly on the entity info, so do not create a new node ere, let conversion handle it
+                convertIndexes(ret, info.getIndexes());
+            }
+            if (info.getEnums() != null && !info.getEnums().isEmpty()) {
+                // enumsis an array directly on the entity info, so do not create a new node ere, let conversion handle it
+                convertEnums(ret, info.getEnums());
             }
             if (info.getDataStore() != null) {
                 T dsNode = newNode();
@@ -530,7 +660,6 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    
     /**
      * Converts the entity metadata to T
      */
@@ -551,7 +680,7 @@ public abstract class MetadataParser<T> {
             Error.pop();
         }
     }
-    
+
     /**
      * Converts metadata version to T
      */
@@ -733,6 +862,60 @@ public abstract class MetadataParser<T> {
             } finally {
                 Error.pop();
             }
+        }
+    }
+
+    public void convertIndexes(T parent, Indexes indexes) {
+        Error.push("indexes");
+        try {
+            if (indexes != null && !indexes.isEmpty()) {
+                // create array node for indexes
+                Object array = newArrayField(parent, "indexes");
+
+                // for each index, add it to array
+                for (Index i : indexes.getIndexes()) {
+                    T node = newNode();
+                    addObjectToArray(array, node);
+                    putString(node, "name", i.getName());
+                    // assume that if is not unique we don't need to set the flag
+                    if (i.isUnique()) {
+                        putValue(node, "unique", Boolean.TRUE);
+                    }
+
+                    // for each field, add to a new fields array
+                    Object indexObj = newArrayField(node, "fields");
+                    for (Path p : i.getFields()) {
+                        addStringToArray(indexObj, p.toString());
+                    }
+                }
+            }
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public void convertEnums(T parent, Enums enums) {
+        Error.push("indexes");
+        try {
+            if (enums != null && !enums.isEmpty()) {
+                // create array node for enums
+                Object array = newArrayField(parent, "enums");
+
+                // for each enum, add it to array
+                for (Enum e : enums.getEnums()) {
+                    T node = newNode();
+                    addObjectToArray(array, node);
+                    putString(node, "name", e.getName());
+
+                    // for each value, add to a new values array
+                    Object indexObj = newArrayField(node, "values");
+                    for (String v : e.getValues()) {
+                        addStringToArray(indexObj, v);
+                    }
+                }
+            }
+        } finally {
+            Error.pop();
         }
     }
 
@@ -927,6 +1110,15 @@ public abstract class MetadataParser<T> {
      * @return Object list property, or null if property does not exist
      */
     public abstract List<T> getObjectList(T object, String name);
+
+    /**
+     * Returns an object list of all children
+     *
+     * @param object The parent object.
+     *
+     * @return Object list of all children, or null if there are no children
+     */
+    public abstract List<T> getObjectList(T object);
 
     /**
      * Returns the names of the child elements

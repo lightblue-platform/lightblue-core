@@ -16,43 +16,51 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.constraints;
+package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
-
-import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.types.StringType;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Enumerated field constraint
+ * Specifies a named enumeration with values in metadata (entity info).
  */
-public class EnumConstraint implements FieldConstraint, Serializable {
+public class Enum implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    public static final String ENUM = "enum";
-
     private String name;
+    private final HashSet<String> values = new HashSet<>();
 
-    public EnumConstraint() {
-    }
-
-    @Override
-    public String getType() {
-        return ENUM;
-    }
-
-    @Override
-    public boolean isValidForFieldType(Type fieldType) {
-        return StringType.TYPE.equals(fieldType);
-    }
-
-    public String getName() {
-        return name;
+    /**
+     * Default ctor
+     */
+    public Enum() {
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setValues(List<String> v) {
+        values.clear();
+        if (v != null) {
+            values.addAll(v);
+        }
+    }
+
+    /**
+     * The values allowed in this enumeration.
+     */
+    public Set<String> getValues() {
+        return (HashSet<String>) values.clone();
     }
 }

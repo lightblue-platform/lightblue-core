@@ -1,6 +1,16 @@
 {
     "entityInfo": {
         "name": "test",
+        "indexes": [
+            {
+                "unique": true,
+                "fields": ["name"]
+            },
+            {
+                "unique": true,
+                "fields": ["counter"]
+            }
+        ],
         "datastore": {
             "empty": {
             }
@@ -22,12 +32,6 @@
             "delete": ["admin"]
         },
         "constraints": [
-            {
-                "unique": ["name"]
-            },
-            {
-                "unique": ["counter"]
-            },
             {
                 "reference": {
                     "entityName": "other",

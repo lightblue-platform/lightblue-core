@@ -1,6 +1,12 @@
 {
     "entityInfo": {
         "name": "test",
+        "indexes": [
+            {
+                "unique": true,
+                "fields": ["name"]
+            }
+        ],
         "datastore": {
             "empty": {
             }
@@ -21,11 +27,6 @@
             "update": ["admin"],
             "delete": ["admin"]
         },
-        "constraints": [
-            {
-                "unique": ["name"]
-            }
-        ],
         "fields": {
             "name": {
                 "type": "string"

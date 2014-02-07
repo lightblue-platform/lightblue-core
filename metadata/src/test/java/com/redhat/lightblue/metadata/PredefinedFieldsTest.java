@@ -33,7 +33,6 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 
-import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
@@ -122,7 +121,7 @@ public class PredefinedFieldsTest {
         Assert.assertEquals(StringType.TYPE,f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(Constants.ROLE_ANYONE));
         Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(Constants.ROLE_NOONE));
-        Assert.assertTrue(md.getConstraints().get(0) instanceof UniqueConstraint);
+        Assert.assertTrue(md.getConstraints().get(0) instanceof Index);
 
         f=(SimpleField)md.resolve(new Path("object_type"));
         Assert.assertEquals(StringType.TYPE,f.getType());
@@ -150,7 +149,7 @@ public class PredefinedFieldsTest {
         Assert.assertEquals(IntegerType.TYPE,f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(Constants.ROLE_ANYONE));
         Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(Constants.ROLE_NOONE));
-        Assert.assertTrue(md.getConstraints().get(0) instanceof UniqueConstraint);
+        Assert.assertTrue(md.getConstraints().get(0) instanceof Index);
 
         f=(SimpleField)md.resolve(new Path("object_type"));
         Assert.assertEquals(StringType.TYPE,f.getType());

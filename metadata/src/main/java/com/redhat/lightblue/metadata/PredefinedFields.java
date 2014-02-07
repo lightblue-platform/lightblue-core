@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
-import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
 import com.redhat.lightblue.metadata.types.BigIntegerType;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
@@ -132,8 +131,8 @@ public final class PredefinedFields {
                               new ConstraintSearchCB<EntityConstraint>() {
                                   @Override
                                   public boolean checkMatch(EntityConstraint c) {
-                                      if(c instanceof UniqueConstraint) {
-                                          List<Path> fields=((UniqueConstraint)c).getFields();
+                                      if(c instanceof Index) {
+                                          List<Path> fields=((Index)c).getFields();
                                           if(fields.size()==1&&fields.get(0).equals(ID_PATH)) {
                                               return true;
                                           }
@@ -141,7 +140,8 @@ public final class PredefinedFields {
                                       return false;
                                   }
                               })==null) {
-                md.setConstraints(addConstraint(md.getConstraints(),new UniqueConstraint(ID_PATH)));
+                // TODO why is this here?  _id is unique and indexed always
+//                md.setConstraints(addConstraint(md.getConstraints(),new Index(ID_PATH)));
             }
             setRoleIfEmpty(f.getAccess().getFind(),Constants.ROLE_ANYONE);
             setRoleIfEmpty(f.getAccess().getUpdate(),Constants.ROLE_NOONE);

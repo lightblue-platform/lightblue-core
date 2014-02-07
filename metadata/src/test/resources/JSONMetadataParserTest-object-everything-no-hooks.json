@@ -1,6 +1,18 @@
 {
     "entityInfo": {
         "name": "test",
+        "enums": [
+            {
+                "name": "customerType",
+                "values": ["person", "organization"]
+            }
+        ],
+        "indexes": [
+            {
+                "unique": true,
+                "fields": ["name"]
+            }
+        ],
         "datastore": {
             "empty": {
             }
@@ -31,10 +43,7 @@
             "customerType": {
                 "type": "string",
                 "constraints": {
-                    "enum": [
-                        "person",
-                        "organization"
-                    ]
+                    "enum": "customerType"
                 }
             },
             "address": {
@@ -117,13 +126,6 @@
             "lastUpdateDate": {
                 "type": "date"
             }
-        },
-        "constraints": [
-            {
-                "unique": [
-                    "name"
-                ]
-            }
-        ]
+        }
     }
 }

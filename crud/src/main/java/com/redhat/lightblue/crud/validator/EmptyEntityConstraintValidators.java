@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 import com.redhat.lightblue.util.Resolver;
 
-import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
+import com.redhat.lightblue.metadata.Index;
 import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.metadata.EntityConstraint;
 
@@ -52,7 +52,7 @@ public class EmptyEntityConstraintValidators
 
 
     public EmptyEntityConstraintValidators() {
-        checkers.put(UniqueConstraint.UNIQUE, new EmptyChecker());
+        checkers.put(Index.TYPE, new EmptyChecker());
         checkers.put(ReferencesConstraint.REFERENCES, new EmptyChecker());
     }
 

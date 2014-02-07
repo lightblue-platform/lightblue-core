@@ -28,7 +28,7 @@ public class EnumConstraintTest {
 
     @Test
     public void testGetType() {
-        assertTrue(constraint.getType().equals(EnumConstraint.TYPE));
+        assertTrue(constraint.getType().equals(EnumConstraint.ENUM));
     }
 
     @Test
@@ -37,25 +37,20 @@ public class EnumConstraintTest {
     }
 
     @Test
-    public void testGetValues() {
-        assertNotNull(constraint.getValues());
+    public void testGetName() {
+        assertNotNull(constraint.getName());
     }
 
     @Test
-    public void testSetValues() {
-        Collection<String> values = new HashSet<String>();
-        values.add("1");
-        values.add("2");
-        values.add("3");
-        constraint.setValues(values);
-        assertTrue(constraint.getValues().equals(values));
+    public void testSetName() {
+        String name = "3";
+        constraint.setName(name);
+        assertTrue(name.equals(constraint.getName()));
     }
 
     @Test
     public void testSetValuesNull() {
-        Collection<String> values = new HashSet<String>();
-        constraint.setValues(null);
-        assertTrue(constraint.getValues().equals(values));
+        constraint.setName(null);
+        assertTrue(null == constraint.getName());
     }
-
 }

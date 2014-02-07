@@ -38,6 +38,12 @@
                 ]
             }
         ],
+        "indexes": [
+            {
+                "unique": true,
+                "fields": ["name"]
+            }
+        ],
         "datastore": {
             "empty": {
             }
@@ -58,11 +64,6 @@
             "update": ["admin"],
             "delete": ["admin"]
         },
-        "constraints": [
-            {
-                "unique": ["name"]
-            }
-        ],
         "fields": {
             "credentials": {
                 "type": "object",

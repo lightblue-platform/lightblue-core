@@ -16,57 +16,62 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.constraints;
+package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.metadata.EntityConstraint;
 
 /**
  * Specifies that the combined value of one or more fields must be unique
  */
-public class UniqueConstraint implements EntityConstraint, Serializable {
+public class Index implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    public static final String UNIQUE = "unique";
-
-    private final ArrayList<Path> fields = new ArrayList<Path>();
+    private String name;
+    private boolean unique = false;
+    private final ArrayList<Path> fields = new ArrayList<>();
 
     /**
      * Default ctor
      */
-    public UniqueConstraint() {}
-
-    /**
-     * Constructs a unique constraint using the given fields.
-     */
-    public UniqueConstraint(List<Path> fields) {
-        this.fields.addAll(fields);
+    public Index() {
     }
 
     /**
-     * Constructs a unique constraint using the given fields.
+     * @return the name
      */
-    public UniqueConstraint(Path... fields) {
-        this(Arrays.asList(fields));
+    public String getName() {
+        return name;
     }
 
     /**
-     * Returns UNIQUE
+     * @param name the name to set
      */
-    public String getType() {
-        return UNIQUE;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the unique
+     */
+    public boolean isUnique() {
+        return unique;
+    }
+
+    /**
+     * @param unique the unique to set
+     */
+    public void setUnique(boolean unique) {
+        this.unique = unique;
     }
 
     /**
      * The fields such that the ordered combination of their values must be unique
      */
-    @SuppressWarnings("unchecked")
     public List<Path> getFields() {
         return (ArrayList<Path>) fields.clone();
     }

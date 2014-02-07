@@ -53,14 +53,6 @@
             "description": "Entity constraints.",
             "items": {
                 "properties": {
-                    "unique": {
-                        "type": "array",
-                        "description": "Array of fields within the entity data.  The composite value of all fields is unique for this type of entity.",
-                        "minItems": 1,
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "reference": {
                         "$ref": "#/definitions/reference"
                     }
@@ -137,8 +129,8 @@
                     "description": "Minimum length of a string field."
                 },
                 "enum": {
-                    "description": "Should set type of 'string' when using enum.",
-                    "$ref": "http://json-schema.org/draft-04/schema#/properties/enum"
+                    "type": "string",
+                    "description": "Should set type of 'string' when using enum.  Value is a reference to an enum name in entityInfo."
                 },
                 "maxItems": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/maxItems",
@@ -189,7 +181,7 @@
                                         }
                                     },
                                     "additionalProperties": false,
-                                    "required":[
+                                    "required": [
                                         "type"
                                     ]
                                 },
@@ -203,7 +195,7 @@
                                         }
                                     },
                                     "description": "Support for object items.",
-                                    "required":[
+                                    "required": [
                                         "type",
                                         "fields"
                                     ]

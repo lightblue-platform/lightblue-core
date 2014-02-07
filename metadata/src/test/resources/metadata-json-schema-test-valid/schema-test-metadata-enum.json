@@ -1,6 +1,18 @@
 {
     "entityInfo": {
         "name": "test",
+        "indexes": [
+            {
+                "unique": true,
+                "fields": ["name"]
+            }
+        ],
+        "enums": [
+            {
+                "name": "cusotmerType",
+                "values": ["person", "organization"]
+            }
+        ],
         "datastore": {
             "empty": {
             }
@@ -21,21 +33,11 @@
             "update": ["admin"],
             "delete": ["admin"]
         },
-        "constraints": [
-            {
-                "unique": [
-                    "name"
-                ]
-            }
-        ],
         "fields": {
             "customerType": {
                 "type": "string",
                 "constraints": {
-                    "enum": [
-                        "person",
-                        "organization"
-                    ]
+                    "enum": "customerType"
                 }
             }
         }

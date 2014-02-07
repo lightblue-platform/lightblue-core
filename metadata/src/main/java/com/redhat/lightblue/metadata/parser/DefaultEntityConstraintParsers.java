@@ -22,7 +22,6 @@ import com.redhat.lightblue.util.DefaultResolver;
 
 import com.redhat.lightblue.metadata.EntityConstraint;
 
-import com.redhat.lightblue.metadata.constraints.UniqueConstraint;
 import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 
 /**
@@ -32,7 +31,6 @@ public class DefaultEntityConstraintParsers<N>
         extends DefaultResolver<String, Parser<N, EntityConstraint>> {
 
     public DefaultEntityConstraintParsers() {
-        addValue(UniqueConstraint.UNIQUE, new UniqueConstraintParser<N>());
         addValue(ReferencesConstraint.REFERENCES, new ReferencesConstraintParser<N>());
     }
 }

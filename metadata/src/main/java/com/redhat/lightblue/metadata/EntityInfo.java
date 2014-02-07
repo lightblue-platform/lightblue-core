@@ -31,7 +31,8 @@ public class EntityInfo implements Serializable {
 
     private final String name;
     //hooks
-    //indexes
+    private Indexes indexes;
+    private Enums enums;
     private DataStore dataStore;
 
     public EntityInfo(String name) {
@@ -45,6 +46,22 @@ public class EntityInfo implements Serializable {
      */
     public String getName() {
         return this.name;
+    }
+
+    public Indexes getIndexes() {
+        return indexes;
+    }
+
+    public void setIndexes(Indexes indexes) {
+        this.indexes = indexes;
+    }
+
+    public Enums getEnums() {
+        return this.enums;
+    }
+
+    public void setEnums(Enums enums) {
+        this.enums = enums;
     }
 
     /**
