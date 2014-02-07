@@ -30,7 +30,10 @@
             "street": {
                 "type": "array",
                 "items": {
-                    "enum": ["one", "two"]
+                    "type": "string",
+                    "constraints": {
+                        "enum": ["one", "two"]
+                    }
                 }
             }
         }

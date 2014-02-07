@@ -45,7 +45,7 @@ public class MongoMetadataTest {
         mongo = new Mongo(IN_MEM_CONNECTION_URL);
         DB db = mongo.getDB(DB_NAME);
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
-        Extensions<BSONObject> x = new Extensions<BSONObject>();
+        Extensions<BSONObject> x = new Extensions<>();
         x.addDefaultExtensions();
         x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
         md = new MongoMetadata(db, x, new DefaultTypes());
@@ -112,7 +112,7 @@ public class MongoMetadataTest {
         Assert.assertEquals(1, v.length);
         Assert.assertEquals("1.0", v[0].getValue());
         e.setVersion(new Version("2.0", null, "blahblahyadayada"));
-        md.createNewMetadata(e);
+        md.createNewSchema(e);
         v = md.getEntityVersions("testEntity");
         Assert.assertEquals(2, v.length);
         try {

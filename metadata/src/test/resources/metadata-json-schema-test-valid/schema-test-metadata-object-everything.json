@@ -108,28 +108,31 @@
             "address": {
                 "type": "array",
                 "items": {
-                    "street": {
-                        "type": "array",
-                        "items": {
+                    "type": "object",
+                    "fields": {
+                        "street": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "access": {
+                                "find": ["all"],
+                                "update": ["admin"]
+                            }
+                        },
+                        "city": {
+                            "type": "string",
+                            "access": {
+                                "find": ["all"],
+                                "update": ["admin"]
+                            }
+                        },
+                        "state": {
                             "type": "string"
                         },
-                        "access": {
-                            "find": ["all"],
-                            "update": ["admin"]
+                        "postalCode": {
+                            "type": "string"
                         }
-                    },
-                    "city": {
-                        "type": "string",
-                        "access": {
-                            "find": ["all"],
-                            "update": ["admin"]
-                        }
-                    },
-                    "state": {
-                        "type": "string"
-                    },
-                    "postalCode": {
-                        "type": "string"
                     }
                 }
             }

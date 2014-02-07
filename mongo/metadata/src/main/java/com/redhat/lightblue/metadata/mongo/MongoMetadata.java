@@ -40,6 +40,8 @@ import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -53,9 +55,11 @@ public class MongoMetadata implements Metadata {
     public static final String ERR_DUPLICATE_METADATA = "DUPLICATE_METADATA";
     public static final String ERR_UNKNOWN_VERSION = "UNKNOWN_VERSION";
     public static final String ERR_DB_ERROR = "DB_ERROR";
+    public static final String ERR_MISSING_ENTITY_INFO = "MISSING_ENTITY_INFO";
 
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
 
+    private static final String LITERAL_ID = "_id";
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
@@ -96,13 +100,37 @@ public class MongoMetadata implements Metadata {
         if (version == null || version.length() == 0) {
             throw new IllegalArgumentException(LITERAL_VERSION);
         }
+
         Error.push("getEntityMetadata(" + entityName + ":" + version + ")");
         try {
-            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName).
-                    append("version.value", version);
-            DBObject md = collection.findOne(query);
-            if (md != null) {
-                return mdParser.parseEntityMetadata(md);
+            EntityInfo info = getEntityInfo(entityName);
+            EntitySchema schema;
+
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
+            DBObject es = collection.findOne(query);
+            if (es != null) {
+                schema = mdParser.parseEntitySchema(es);
+            } else {
+                schema = null;
+            }
+
+            return new EntityMetadata(info, schema);
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public EntityInfo getEntityInfo(String entityName) {
+        if (entityName == null || entityName.length() == 0) {
+            throw new IllegalArgumentException("entityName");
+        }
+
+        Error.push("getEntityInfo(" + entityName + ")");
+        try {
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
+            DBObject ei = collection.findOne(query);
+            if (ei != null) {
+                return mdParser.parseEntityInfo(ei);
             } else {
                 return null;
             }
@@ -135,7 +163,9 @@ public class MongoMetadata implements Metadata {
         }
         Error.push("getEntityVersions(" + entityName + ")");
         try {
-            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName);
+            // query by name but only return documents that have a version
+            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName)
+                    .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
             BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
             project.append("_id", 0);
             DBCursor cursor = collection.find(query, project);
@@ -159,25 +189,84 @@ public class MongoMetadata implements Metadata {
         checkMetadataHasFields(md);
         checkDataStoreIsValid(md);
         Version ver = checkVersionIsValid(md);
-                
+
         Error.push("createNewMetadata(" + md.getName() + ")");
+
+        // write info and schema as separate docs!
         try {
             PredefinedFields.ensurePredefinedFields(md);
-            DBObject obj = (DBObject) mdParser.convert(md);
+            DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
+            DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
+
+            Error.push("writeEntityInfo");
             try {
-                WriteResult result = collection.insert(obj, WriteConcern.SAFE);
+                WriteResult result = collection.insert(infoObj, WriteConcern.SAFE);
                 String error = result.getError();
                 if (error != null) {
                     throw Error.get(ERR_DB_ERROR, error);
                 }
             } catch (MongoException.DuplicateKey dke) {
                 throw Error.get(ERR_DUPLICATE_METADATA, ver.getValue());
+            } finally {
+                Error.pop();
             }
+
+            Error.push("writeEntitySchema");
+            try {
+                WriteResult result = collection.insert(schemaObj, WriteConcern.SAFE);
+                String error = result.getError();
+                if (error != null) {
+                    throw Error.get(ERR_DB_ERROR, error);
+                }
+            } catch (MongoException.DuplicateKey dke) {
+                throw Error.get(ERR_DUPLICATE_METADATA, ver.getValue());
+            } finally {
+                Error.pop();
+            }
+
         } finally {
             Error.pop();
         }
     }
-    
+
+    /**
+     * Creates a new schema (versioned data) for an existing metadata.
+     *
+     * @param md
+     */
+    public void createNewSchema(EntityMetadata md) {
+
+        checkMetadataHasName(md);
+        checkMetadataHasFields(md);
+        checkDataStoreIsValid(md);
+        Version ver = checkVersionIsValid(md);
+
+        Error.push("createNewSchema(" + md.getName() + ")");
+
+        try {
+            // verify entity info exists
+            EntityInfo info = getEntityInfo(md.getName());
+
+            if (null == info) {
+                throw Error.get(ERR_MISSING_ENTITY_INFO, md.getName());
+            }
+
+            PredefinedFields.ensurePredefinedFields(md);
+            DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
+
+            WriteResult result = collection.insert(schemaObj, WriteConcern.SAFE);
+            String error = result.getError();
+            if (error != null) {
+                throw Error.get(ERR_DB_ERROR, error);
+            }
+
+        } catch (MongoException.DuplicateKey dke) {
+            throw Error.get(ERR_DUPLICATE_METADATA, ver.getValue());
+        } finally {
+            Error.pop();
+        }
+    }
+
     private Version checkVersionIsValid(EntityMetadata md) {
         Version ver = md.getVersion();
         if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
@@ -201,7 +290,7 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException("Empty metadata name");
         }
     }
-    
+
     private void checkMetadataHasFields(EntityMetadata md) {
         if (md.getFields().getNumChildren() <= 0) {
             throw new IllegalArgumentException("Metadata without any fields");
@@ -223,26 +312,25 @@ public class MongoMetadata implements Metadata {
         if (newStatus == null) {
             throw new IllegalArgumentException("status");
         }
-        BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName).
-                append("version.value", version);
+        BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
         Error.push("setMetadataStatus(" + entityName + ":" + version + ")");
         try {
             DBObject md = collection.findOne(query);
             if (md == null) {
                 throw Error.get(ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
-            EntityMetadata metadata = mdParser.parseEntityMetadata(md);
+            EntitySchema schema = mdParser.parseEntitySchema(md);
 
             StatusChange newLog = new StatusChange();
             newLog.setDate(new Date());
-            newLog.setStatus(metadata.getStatus());
+            newLog.setStatus(schema.getStatus());
             newLog.setComment(comment);
-            metadata.getStatusChangeLog().add(newLog);
-            metadata.setStatus(newStatus);
+            schema.getStatusChangeLog().add(newLog);
+            schema.setStatus(newStatus);
 
             query = new BasicDBObject("_id", md.get("_id"));
             WriteResult result = collection.
-                    update(query, (DBObject) mdParser.convert(metadata), false, false);
+                    update(query, (DBObject) mdParser.convert(schema), false, false);
             String error = result.getError();
             if (error != null) {
                 throw Error.get(ERR_DB_ERROR, error);

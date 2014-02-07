@@ -497,7 +497,7 @@ public abstract class MetadataParser<T> {
      * Converts the entity metadata to T
      */
     public T convert(EntityMetadata md) {
-        Error.push("convert");
+        Error.push("convert[metadata]");
         try {
             T ret = newNode();
             putObject(ret, "entityInfo", convert(md.getEntityInfo()));
@@ -513,7 +513,7 @@ public abstract class MetadataParser<T> {
      * Converts the entity metadata to T
      */
     public T convert(EntityInfo info) {
-        Error.push("convert");
+        Error.push("convert[info]");
         try {
             T ret = newNode();
             if (info.getName() != null) {
@@ -535,7 +535,7 @@ public abstract class MetadataParser<T> {
      * Converts the entity metadata to T
      */
     public T convert(EntitySchema schema) {
-        Error.push("convert");
+        Error.push("convert[schema]");
         try {
             T ret = newNode();
             if (schema.getName() != null) {

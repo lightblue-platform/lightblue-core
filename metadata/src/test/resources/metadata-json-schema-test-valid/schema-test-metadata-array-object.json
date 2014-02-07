@@ -34,18 +34,21 @@
                     "maxItems": 2000
                 },
                 "items": {
-                    "name": {
-                        "type": "string",
-                        "constraints": {
-                            "minLength": 10,
-                            "maxLength": 2000
-                        }
-                    },
-                    "someCounter": {
-                        "type": "integer",
-                        "constraints": {
-                            "minimum": 0,
-                            "maximum": 200
+                    "type": "object",
+                    "fields": {
+                        "name": {
+                            "type": "string",
+                            "constraints": {
+                                "minLength": 10,
+                                "maxLength": 2000
+                            }
+                        },
+                        "someCounter": {
+                            "type": "integer",
+                            "constraints": {
+                                "minimum": 0,
+                                "maximum": 200
+                            }
                         }
                     }
                 }

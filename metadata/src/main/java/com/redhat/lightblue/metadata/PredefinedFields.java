@@ -61,7 +61,7 @@ public final class PredefinedFields {
         ensureID(md);
         ensureObjectType(md);
         // Recursively find all arrays, and add array size fields
-        List<ParentNewChild> l=new ArrayList<ParentNewChild>();
+        List<ParentNewChild> l=new ArrayList<>();
         // We have to go through all the array fields, and queue up
         // the new size fields to add, otherwise the following loop
         // throws a concurrent modification exception
@@ -130,6 +130,7 @@ public final class PredefinedFields {
             // Need a unique constraint for ID
             if(findConstraint(md.getConstraints(),
                               new ConstraintSearchCB<EntityConstraint>() {
+                                  @Override
                                   public boolean checkMatch(EntityConstraint c) {
                                       if(c instanceof UniqueConstraint) {
                                           List<Path> fields=((UniqueConstraint)c).getFields();

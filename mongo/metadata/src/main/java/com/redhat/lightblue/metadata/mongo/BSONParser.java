@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.Date;
 
 import com.mongodb.BasicDBObject;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntitySchema;
 
 import org.bson.BSONObject;
 
@@ -32,8 +34,10 @@ import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class BSONParser extends MetadataParser<BSONObject> {
+
+    public static final String DELIMITER_ID = "|";
 
     public BSONParser(Extensions<BSONObject> ex,
                       TypeResolver resolver) {
@@ -90,7 +94,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
         Object x = object.get(name);
         if (x != null) {
             if (x instanceof List) {
-                ArrayList<String> ret = new ArrayList<String>();
+                ArrayList<String> ret = new ArrayList<>();
                 for (Object o : (List) x) {
                     ret.add(o.toString());
                 }
@@ -157,5 +161,41 @@ public class BSONParser extends MetadataParser<BSONObject> {
     @Override
     public void addObjectToArray(Object array, Object value) {
         ((List) array).add(value);
+    }
+
+    /**
+     * Override to set _id appropriately.
+     */
+    @Override
+    public BSONObject convert(EntityInfo info) {
+        Error.push("convert[info|bson]");
+        try {
+            BSONObject doc = super.convert(info);
+
+            // entityInfo._id = {entityInfo.name}|
+            putValue(doc, "_id", getStringProperty(doc, "name") + DELIMITER_ID);
+
+            return doc;
+        } finally {
+            Error.pop();
+        }
+    }
+
+    /**
+     * Override to set _id appropriately.
+     */
+    @Override
+    public BSONObject convert(EntitySchema schema) {
+        Error.push("convert[info|bson]");
+        try {
+            BSONObject doc = super.convert(schema);
+
+            // schema._id = {schema.name}|{schema.version.value}
+            putValue(doc, "_id", getStringProperty(doc, "name") + DELIMITER_ID + getStringProperty(getObjectProperty(doc, "version"), "value"));
+
+            return doc;
+        } finally {
+            Error.pop();
+        }
     }
 }
