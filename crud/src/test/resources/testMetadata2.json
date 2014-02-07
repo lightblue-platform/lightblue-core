@@ -1,110 +1,94 @@
 {
-    "name": "test",
-    "version": {
-        "value": "1.0",
-        "changelog": "blahblah"
-    },
-    "status": {
-        "value": "active"
-    },
-    "datastore": {
-        "mongo": {
-            "collection": "test"
+    "entityInfo": {
+        "name": "test",
+        "datastore": {
+            "mongo": {
+                "collection": "test"
+            }
         }
     },
-    "fields": {
-        "object_type": {"type": "string"},
-        "field1": {"type": "string"},
-        "field2": {"type": "string"},
-        "field3": {"type": "integer"},
-        "field4": {"type": "bigdecimal"},
-        "field5": {"type": "boolean"},
-        "field6": {
-            "type": "object",
-            "fields": {
-                "nf1": {"type": "string"},
-                "nf2": {"type": "string"},
-                "nf3": {"type": "integer"},
-                "nf4": {"type": "boolean"},
-                "nf5": {
-                    "type": "array",
-                    "items": {"type": "integer"}
-                },
-                "nf6": {
-                    "type": "array",
-                    "items": {"type": "string"}
-                },
-                "nf7": {
-                    "type": "object",
-                    "fields": {
-                        "nnf1": {"type": "string"},
-                        "nnf2": {"type": "integer"}
-                    }
-                },
-                "nf8": {
-                    "type": "array",
-                    "items": {"type": "string"}
-                },
-                "nf9": {
-                    "type": "array",
-                    "items": {"type": "integer"}
-                },
-                "nf10": {
-                    "type": "array",
-                    "items": {"type": "bigdecimal"}
-                },
-                "nf11": {
-                    "type": "array",
-                    "items": {"type": "integer"}
-                },
-                "nf12": {
-                    "type": "object",
-                    "fields": {
-
-                    }
-                }
-            }
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "blahblah"
         },
-        "field7": {
-            "type": "array",
-            "items": {
+        "status": {
+            "value": "active"
+        },
+        "fields": {
+            "object_type": {"type": "string"},
+            "field1": {"type": "string"},
+            "field2": {"type": "string"},
+            "field3": {"type": "integer"},
+            "field4": {"type": "bigdecimal"},
+            "field5": {"type": "boolean"},
+            "field6": {
                 "type": "object",
                 "fields": {
-                    "elemf1": {"type": "string"},
-                    "elemf2": {"type": "string"},
-                    "elemf3": {"type": "integer"}
-                }
-            }
-        },
-        "field8": {
-            "type": "object",
-            "fields": {
-                "nf1": {
-                    "type": "object",
-                    "fields": {
-                        "nnf1": {"type": "string"},
-                        "nnf2": {"type": "integer"},
-                        "nnf3": {"type": "array", "items": {"type": "integer"}},
-                        "nnf4": {"type": "array",
-					            "items": {
-					                "type": "object",
-					                "fields": {
-					                    "elemf1": {"type": "string"},
-					                    "elemf2": {"type": "string"},
-					                    "elemf3": {"type": "integer"}
-					                }
-					            }           
+                    "nf1": {"type": "string"},
+                    "nf2": {"type": "string"},
+                    "nf3": {"type": "integer"},
+                    "nf4": {"type": "boolean"},
+                    "nf5": {
+                        "type": "array",
+                        "items": {"type": "integer"}
+                    },
+                    "nf6": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "nf7": {
+                        "type": "object",
+                        "fields": {
+                            "nnf1": {"type": "string"},
+                            "nnf2": {"type": "integer"}
                         }
+                    },
+                    "nf8": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "nf9": {
+                        "type": "array",
+                        "items": {"type": "integer"}
+                    },
+                    "nf10": {
+                        "type": "array",
+                        "items": {"type": "bigdecimal"}
+                    },
+                    "nf11": {
+                        "type": "array",
+                        "items": {"type": "integer"}
+                    },
+                    "nf12": {
+                        "type": "object",
+                        "fields": {
                         }
                     }
-                },
-                "nf2": {
+                }
+            },
+            "field7": {
+                "type": "array",
+                "items": {
                     "type": "object",
                     "fields": {
-                        "nnf1": {"type": "string"},
-                        "nnf2": {"type": "integer"},
-                        "nnf3": {"type": "array", "items": {"type": "integer"}},
-                        "nnf4": {"type": "array",
+                        "elemf1": {"type": "string"},
+                        "elemf2": {"type": "string"},
+                        "elemf3": {"type": "integer"}
+                    }
+                }
+            },
+            "field8": {
+                "type": "object",
+                "fields": {
+                    "nf1": {
+                        "type": "object",
+                        "fields": {
+                            "nnf1": {"type": "string"},
+                            "nnf2": {"type": "integer"},
+                            "nnf3": {"type": "array", "items": {"type": "integer"}},
+                            "nnf4": {"type": "array",
                                 "items": {
                                     "type": "object",
                                     "fields": {
@@ -112,15 +96,33 @@
                                         "elemf2": {"type": "string"},
                                         "elemf3": {"type": "integer"}
                                     }
-                                }           
+                                }
+                            }
                         }
+                    },
+                    "nf2": {
+                        "type": "object",
+                        "fields": {
+                            "nnf1": {"type": "string"},
+                            "nnf2": {"type": "integer"},
+                            "nnf3": {"type": "array", "items": {"type": "integer"}},
+                            "nnf4": {"type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "fields": {
+                                        "elemf1": {"type": "string"},
+                                        "elemf2": {"type": "string"},
+                                        "elemf3": {"type": "integer"}
+                                    }
+                                }
+                            }
                         }
+                    }
                 }
-        },
-        "field9": {                 
-            "type": "array", "items": {"type": "integer"} 
-        }
-        }
+            },
+            "field9": {
+                "type": "array", "items": {"type": "integer"}
+            }
         }
     }
 }
