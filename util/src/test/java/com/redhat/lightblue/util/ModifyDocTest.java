@@ -215,13 +215,40 @@ public class ModifyDocTest {
 
     @Test
     public void remove_array_node_at_root() {
+        doc.modify(new Path("arr"), factory.arrayNode(), true);
+
+        doc.modify(new Path("arr"), null, false);
+
+        Assert.assertNull(doc.get(new Path("arr")));
+    }
+
+    @Test
+    public void nullify_array_node_at_root() {
+        doc.modify(new Path("arr"), factory.arrayNode(), true);
+
+        doc.modify(new Path("arr"), factory.nullNode(), false);
+
+        Assert.assertEquals(0, doc.get(new Path("arr")).size());
+    }
+    
+    @Test
+    public void remove_array_node_element_at_root() {
         doc.modify(new Path("arr.0"), factory.textNode("test"), true);
 
         doc.modify(new Path("arr.0"), null, false);
 
-        Assert.assertNull(doc.get(new Path("arr.1")));
+        Assert.assertNull(doc.get(new Path("arr.0")));
     }
 
+    @Test
+    public void nullify_array_element_node_at_root() {
+        doc.modify(new Path("arr.0"), factory.textNode("test"), true);
+
+        doc.modify(new Path("arr.0"), factory.nullNode(), false);
+
+        Assert.assertEquals(NullNode.class, doc.get(new Path("arr.0")).getClass());
+    }
+    
     @Test
     public void remove_nested_number_node() {
         doc.modify(new Path("x.y"), factory.numberNode(1), true);
@@ -250,6 +277,15 @@ public class ModifyDocTest {
     }
 
     @Test
+    public void nullify_nested_array_node() {
+        doc.modify(new Path("x.arr"), factory.arrayNode(), true);
+
+        doc.modify(new Path("x.arr"), factory.nullNode(), false);
+
+        Assert.assertEquals(NullNode.class, doc.get(new Path("x.arr")).getClass());
+    }
+    
+    @Test
     public void remove_nested_array_node_element() {
         doc.modify(new Path("x.arr.0"), factory.textNode("test"), true);
 
@@ -268,4 +304,32 @@ public class ModifyDocTest {
         Assert.assertEquals(1, doc.get(new Path("x.arr")).size());
     }
 
+    @Test
+    public void nullify_nested_array_node_element() {
+        doc.modify(new Path("x.arr.0"), factory.textNode("test0"), true);
+
+        doc.modify(new Path("x.arr.0"), factory.nullNode(), false);
+
+        Assert.assertEquals(1, doc.get(new Path("x.arr")).size());
+    }
+
+    @Test
+    public void nullify_nested_array_node_non_zero_index() {
+        doc.modify(new Path("x.arr.0"), factory.textNode("test0"), true);
+        doc.modify(new Path("x.arr.1"), factory.textNode("test1"), true);
+
+        doc.modify(new Path("x.arr.0"), factory.nullNode(), false);
+
+        Assert.assertEquals(2, doc.get(new Path("x.arr")).size());
+    }
+
+    @Test
+    public void insert_null_elements_nested_array_node_non_zero_index() {
+        doc.modify(new Path("x.arr.0"), factory.nullNode(), true);
+        doc.modify(new Path("x.arr.1"), factory.textNode("test1"), true);
+        doc.modify(new Path("x.arr.2"), factory.nullNode(), true);
+
+        Assert.assertEquals(3, doc.get(new Path("x.arr")).size());
+    }
+    
 }

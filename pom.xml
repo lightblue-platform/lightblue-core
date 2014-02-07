@@ -61,6 +61,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </roles>
             <timezone>-5</timezone>
         </developer>
+        <developer>
+            <id>dhaynes</id>
+            <name>Derek Haynes</name>
+            <email>dhaynes@redhat.com</email>
+            <organization>Red Hat</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
     </developers>
     <dependencyManagement>
         <dependencies>

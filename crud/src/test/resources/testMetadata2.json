@@ -122,6 +122,10 @@
             },
             "field9": {
                 "type": "array", "items": {"type": "integer"}
+            },
+            "field10": {
+                "type": "array",
+                "items": {"type": "integer"}
             }
         }
     }

@@ -204,4 +204,26 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
         Assert.assertEquals(stringArrayNode(expectedValues), doc.get(new Path("field6.nf8")));
     }
     
+    @Test
+    public void string_array_insert_null() throws Exception {
+        String[] expectedValues = {"four", "three", null, null, "two", "one"};
+        UpdateExpression expr=json("{ '$insert' : { 'field6.nf8.2' : [ '$null', '$null'] } }");
+        Updater updater=Updater.getInstance(factory,md,expr);
+        
+        updater.update(doc,md.getFieldTreeRoot(),new Path());
+        
+        Assert.assertEquals(stringArrayNode(expectedValues), doc.get(new Path("field6.nf8")));
+    }
+    
+    @Test
+    public void string_array_append_null() throws Exception {
+        String[] expectedValues = {"four", "three", "two", "one", null, null};
+        UpdateExpression expr=json("{ '$append' : { 'field6.nf8' : [ '$null', '$null'] } }");
+        Updater updater=Updater.getInstance(factory,md,expr);
+        
+        updater.update(doc,md.getFieldTreeRoot(),new Path());
+        
+        Assert.assertEquals(stringArrayNode(expectedValues), doc.get(new Path("field6.nf8")));
+    }
+    
 }

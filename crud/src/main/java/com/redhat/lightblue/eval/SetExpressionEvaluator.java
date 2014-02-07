@@ -34,6 +34,8 @@ import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.Arith;
+import com.redhat.lightblue.metadata.types.ObjectType;
+import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.query.FieldAndRValue;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.SetExpression;
@@ -121,58 +123,66 @@ public class SetExpressionEvaluator extends Updater {
     }
 
     private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
-        if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-            if(!mdNode.getType().equals(refMdNode.getType())) {
-                throw new EvaluationError("Incompatible dereference "+field+" <- "+refPath);
+        if (rvalue.getType() == RValueExpression.RValueType._dereference) {
+            if (!mdNode.getType().equals(refMdNode.getType())) {
+                throw new EvaluationError("Incompatible dereference " + field + " <- " + refPath);
             }
-        } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
-            throw new EvaluationError("Incompatible assignment "+field +" <- {}");
+        } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
+            throw new EvaluationError("Incompatible assignment " + field + " <- {}");
+        } else if (rvalue.getType() == RValueExpression.RValueType._null) {
+            return new FieldData(field, mdNode.getType(), refPath, ReferenceType.TYPE, rvalue);
         }
-        return new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
+        
+        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);    
     }
     
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
-        if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-            if(!(refMdNode instanceof ObjectField)) {
-                throw new EvaluationError("Incompatible assignment "+field+" <- "+refPath);
-            }                        
-        } else if(rvalue.getType()==RValueExpression.RValueType._value) {
-            throw new EvaluationError("Incompatible assignment "+field+" <- "+rvalue.getValue());
+        if (rvalue.getType() == RValueExpression.RValueType._dereference) {
+            if (!(refMdNode instanceof ObjectField)) {
+                throw new EvaluationError("Incompatible assignment " + field + " <- " + refPath);
+            }
+        } else if (rvalue.getType() == RValueExpression.RValueType._value) {
+            throw new EvaluationError("Incompatible assignment " + field + " <- " + rvalue.getValue());
+        } else if (rvalue.getType() == RValueExpression.RValueType._null) {
+            return new FieldData(field, mdNode.getType(), refPath, ObjectType.TYPE, rvalue);
         }
-        return new FieldData(field,mdNode.getType(),refPath,refMdNode==null?null:refMdNode.getType(),rvalue);
+        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
     }
     
     @Override
-    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-        boolean ret=false;
+    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+        boolean ret = false;
         LOGGER.debug("Starting");
-        for(FieldData df:setValues) {
-            LOGGER.debug("Set field {} in ctx: {}",df.field,contextPath);
-            JsonNode oldValueNode=null;
-            JsonNode newValueNode=null;
-            Object newValue=null;
-            Type newValueType=null;
-            switch(df.value.getType()) {
-                case _emptyObject: 
-                    newValueNode=factory.objectNode();                
+        for (FieldData df : setValues) {
+            LOGGER.debug("Set field {} in ctx: {}", df.field, contextPath);
+            JsonNode oldValueNode = null;
+            JsonNode newValueNode = null;
+            Object newValue = null;
+            Type newValueType = null;
+            switch (df.value.getType()) {
+                case _null:
+                    newValueNode = factory.nullNode();
+                    break;
+                case _emptyObject:
+                    newValueNode = factory.objectNode();
                     break;
                 case _dereference:
-                    JsonNode refNode=doc.get(new Path(contextPath,df.refPath));
-                    if(refNode!=null) {
-                        newValueNode=refNode.deepCopy();
-                        newValue=df.refType.fromJson(newValueNode);
-                        newValueType=df.refType;
+                    JsonNode refNode = doc.get(new Path(contextPath, df.refPath));
+                    if (refNode != null) {
+                        newValueNode = refNode.deepCopy();
+                        newValue = df.refType.fromJson(newValueNode);
+                        newValueType = df.refType;
                     }
                     break;
                 case _value:
-                    newValue=df.value.getValue().getValue();
-                    newValueNode=df.fieldType.toJson(factory,newValue);
-                    newValueType=df.fieldType;
+                    newValue = df.value.getValue().getValue();
+                    newValueNode = df.fieldType.toJson(factory, newValue);
+                    newValueType = df.fieldType;
                     break;
             }
             oldValueNode = setOrAdd(doc, contextPath, df, newValueNode, newValue, newValueType);
-            if(!ret) {
-                ret=oldAndNewAreDifferent(oldValueNode, newValueNode);
+            if (!ret) {
+                ret = oldAndNewAreDifferent(oldValueNode, newValueNode);
             }
         }
         LOGGER.debug("Completed");

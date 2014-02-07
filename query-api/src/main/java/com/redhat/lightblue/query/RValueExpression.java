@@ -20,7 +20,6 @@ package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.util.Path;
@@ -37,10 +36,11 @@ public class RValueExpression extends JsonObject {
     public static final String ERR_INVALID_RVALUE_EXPRESSION="INVALID_RVALUE_EXPRESSION";
 
     public enum RValueType {
-        _value,
-        _dereference,
-        _emptyObject
-            }
+        _value, 
+        _dereference, 
+        _emptyObject, 
+        _null
+    }
 
     private final Value value;
     private final Path path;
@@ -74,6 +74,15 @@ public class RValueExpression extends JsonObject {
     }
 
     /**
+     * Creates an rvalue expression that is of the specified type
+     */
+    public RValueExpression(RValueType type) {
+        this.type=type;
+        this.path=null;
+        this.value=null;
+    }
+    
+    /**
      * The constant value. Null if this rvalue references a field
      */
     public Value getValue() {
@@ -102,6 +111,8 @@ public class RValueExpression extends JsonObject {
             ObjectNode node=getFactory().objectNode();
             node.put("$valueof",path.toString());
             return node;
+        case _null:
+            return getFactory().nullNode();
         default:
             return getFactory().objectNode();
         }
@@ -111,18 +122,22 @@ public class RValueExpression extends JsonObject {
      * Parses an rvalue from a json node.
      */
     public static RValueExpression fromJson(JsonNode node) {
-        if(node instanceof ObjectNode) {
-            if(node.size()==1) {
-                JsonNode path=node.get("$valueof");
-                if(path!=null&&path.isValueNode()) {
+        if (node instanceof ObjectNode) {
+            if (node.size() == 1) {
+                JsonNode path = node.get("$valueof");
+                if (path != null && path.isValueNode()) {
                     return new RValueExpression(new Path(path.asText()));
                 }
             } else {
                 return new RValueExpression();
             }
-        } else if(node.isValueNode()) {
-            return new RValueExpression(Value.fromJson(node));
-        } 
-        throw Error.get(ERR_INVALID_RVALUE_EXPRESSION,node.toString());
+        } else if (node.isValueNode()) {
+            if(node.asText().equals("$null")) {
+                return new RValueExpression(RValueType._null);
+            } else {
+                return new RValueExpression(Value.fromJson(node));    
+            }   
+        }
+        throw Error.get(ERR_INVALID_RVALUE_EXPRESSION, node.toString());
     }
 }

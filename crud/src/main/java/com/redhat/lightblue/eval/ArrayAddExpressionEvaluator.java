@@ -18,27 +18,28 @@
  */
 package com.redhat.lightblue.eval;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.redhat.lightblue.query.ArrayAddExpression;
-import com.redhat.lightblue.query.UpdateOperator;
-import com.redhat.lightblue.query.RValueExpression;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.ArrayField;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.metadata.types.ReferenceType;
+import com.redhat.lightblue.query.ArrayAddExpression;
+import com.redhat.lightblue.query.RValueExpression;
+import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Adds a field to an array
@@ -114,25 +115,31 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 if(refMd==null) {
                     throw new EvaluationError("Invalid dereference:"+refPath);
                 }
-            } 
-            ArrayElement element=fieldMd.getElement();
+            }
+            
+            ArrayElement element = fieldMd.getElement();
             validateArrayElement(element, refMd, rvalue, refPath);
-            values.add(new RValueData(refPath,refMd==null?null:refMd.getType(),rvalue.getValue()));
+            
+            if(rvalue.getType()==RValueExpression.RValueType._null) {
+                values.add(new RValueData(null, ReferenceType.TYPE, null));
+            } else {
+                values.add(new RValueData(refPath, refMd == null ? null : refMd.getType(), rvalue.getValue()));    
+            }
         }
     }
     
     private void validateArrayElement(ArrayElement element, FieldTreeNode refMd, RValueExpression rvalue, Path refPath) {
-        if(element instanceof ObjectArrayElement) {
-            if(refMd!=null&&!refMd.getType().equals(element.getType())) {
-                throw new EvaluationError("Invalid assignment "+arrayField+" <- "+refPath);
-            } else if(rvalue.getType()==RValueExpression.RValueType._value) {
-                throw new EvaluationError("Object value expected for "+arrayField);
+        if (element instanceof ObjectArrayElement) {
+            if (refMd != null && !refMd.getType().equals(element.getType())) {
+                throw new EvaluationError("Invalid assignment " + arrayField + " <- " + refPath);
+            } else if (rvalue.getType() == RValueExpression.RValueType._value) {
+                throw new EvaluationError("Object value expected for " + arrayField);
             }
         } else {
-            if(refMd!=null&&!refMd.getType().equals(element.getType())) {
-                throw new EvaluationError("Invalid assignment "+arrayField+"<-"+refPath);
-            } else if(rvalue.getType()==RValueExpression.RValueType._emptyObject) {
-                throw new EvaluationError("Value expected for "+arrayField);
+            if (refMd != null && !refMd.getType().equals(element.getType())) {
+                throw new EvaluationError("Invalid assignment " + arrayField + "<-" + refPath);
+            } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
+                throw new EvaluationError("Value expected for " + arrayField);
             }
         }
     }
@@ -162,7 +169,11 @@ public class ArrayAddExpressionEvaluator extends Updater {
                     newValueNode=fieldMd.getElement().getType().toJson(factory,newValue);
                     newValueType=fieldMd.getElement().getType();
                 } else {
-                    newValueNode=factory.objectNode();                
+                    if (rvalueData.refType.equals(ReferenceType.TYPE)) {
+                        newValueNode = factory.nullNode();
+                    } else {
+                        newValueNode = factory.objectNode();
+                    }
                 }
                 LOGGER.debug("newValueType: " + newValueType);
                 

@@ -103,5 +103,5 @@
         }
     },
     "field9": null,
-    "field10": null
+    "field10": [20, 15, 10, 5]
 }
