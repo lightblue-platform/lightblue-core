@@ -198,4 +198,13 @@ public class BSONParser extends MetadataParser<BSONObject> {
             Error.pop();
         }
     }
+
+    @Override
+    public List<BSONObject> getObjectList(BSONObject object) {
+        if (object instanceof List) {
+            return (List<BSONObject>) object;
+        } else {
+            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA);
+        }
+    }
 }

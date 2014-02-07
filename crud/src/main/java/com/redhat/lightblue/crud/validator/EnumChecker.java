@@ -22,6 +22,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
@@ -46,8 +47,19 @@ public class EnumChecker implements FieldConstraintValueChecker {
                                 Path valuePath,
                                 JsonDoc doc,
                                 JsonNode fieldValue) {
-        Set<String> values = ((EnumConstraint) constraint).getValues();
-        if (!values.contains(fieldValue.asText())) {
+        String name = ((EnumConstraint) constraint).getName();
+        Set<String> values = null;
+
+        if (name != null && !validator.getEntityMetadata().getEntityInfo().getEnums().isEmpty()) // find value set for this enum
+        {
+            for (Enum e : validator.getEntityMetadata().getEntityInfo().getEnums().getEnums()) {
+                if (name.equals(e.getName())) {
+                    values = e.getValues();
+                }
+            }
+        }
+
+        if (null == values || !values.contains(fieldValue.asText())) {
             validator.addDocError(Error.get(ERR_INVALID_ENUM, fieldValue.asText()));
         }
     }

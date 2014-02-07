@@ -270,4 +270,7 @@ public class ConstraintValidator {
         }
     }
     
+    public EntityMetadata getEntityMetadata() {
+        return md;
+    }
 }

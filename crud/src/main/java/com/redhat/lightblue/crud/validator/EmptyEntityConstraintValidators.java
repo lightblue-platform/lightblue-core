@@ -52,7 +52,6 @@ public class EmptyEntityConstraintValidators
 
 
     public EmptyEntityConstraintValidators() {
-        checkers.put(Index.TYPE, new EmptyChecker());
         checkers.put(ReferencesConstraint.REFERENCES, new EmptyChecker());
     }
 
