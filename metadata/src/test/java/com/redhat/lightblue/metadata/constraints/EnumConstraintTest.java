@@ -38,6 +38,7 @@ public class EnumConstraintTest {
 
     @Test
     public void testGetName() {
+        constraint.setName("not null");
         assertNotNull(constraint.getName());
     }
 
