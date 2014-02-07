@@ -66,11 +66,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
         }
         
         public boolean isNull() {
-            if (this.refPath == null && this.refType == null && this.value == null) {
-                return true;
-            } else {
-                return false;
-            }
+            return this.refPath == null && this.refType == null && this.value == null;
         }
     }
 

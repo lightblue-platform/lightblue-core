@@ -19,47 +19,42 @@
 package com.redhat.lightblue.mediator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.DataError;
+import com.redhat.lightblue.DeleteRequest;
+import com.redhat.lightblue.FindRequest;
+import com.redhat.lightblue.InsertionRequest;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.SaveRequest;
+import com.redhat.lightblue.UpdateRequest;
+import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
+import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.PredefinedFields;
-
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.CRUDInsertionResponse;
-import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.CRUDSaveResponse;
-import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.CRUDDeleteResponse;
-
-import com.redhat.lightblue.InsertionRequest;
-import com.redhat.lightblue.SaveRequest;
-import com.redhat.lightblue.UpdateRequest;
-import com.redhat.lightblue.FindRequest;
-import com.redhat.lightblue.Response;
-import com.redhat.lightblue.Request;
-import com.redhat.lightblue.DeleteRequest;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.DataError;
 
 /**
  * The mediator looks at a request, performs basic validation, and passes the operation to one or more of the
@@ -334,10 +329,11 @@ public class Mediator {
         for(JsonDoc doc:docs) {
             PredefinedFields.updateArraySizes(NODE_FACTORY,doc);
             JsonNode node=doc.get(OBJECT_TYPE_PATH);
-            if(node==null)
+            if(node==null) {
                 doc.modify(OBJECT_TYPE_PATH,NODE_FACTORY.textNode(entity),false);
-            else if(!node.asText().equals(entity))
+            } else if(!node.asText().equals(entity)) {
                 throw Error.get(ERR_INVALID_ENTITY,node.asText());
+            }
         }
     }
 
@@ -432,9 +428,11 @@ public class Mediator {
         }
         String[] callerRoles=req.getClientId()==null?null:req.getClientId().getCallerRoles();
         Set<String> roles=new HashSet<String>();
-        if(callerRoles!=null)
-            for(String x:callerRoles)
+        if(callerRoles!=null) {
+            for(String x:callerRoles) {
                 roles.add(x);
+            }
+        }
         ctx.setCallerRoles(roles);
         LOGGER.debug("Caller roles: {} ",roles);
         LOGGER.debug("getOperationContext return");

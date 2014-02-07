@@ -28,6 +28,6 @@ import java.util.Set;
  */
 public interface CRUDOperationContext extends MetadataResolver {
 
-    public Factory getFactory();
-    public Set<String> getCallerRoles();
+    Factory getFactory();
+    Set<String> getCallerRoles();
 }

@@ -74,8 +74,9 @@ public class Access implements Serializable {
      * Returns if the given role can perform this operation
      */
     public boolean hasAccess(String role) {
-        if(isNoone())
+        if(isNoone()) {
             return false;
+        }
         return isAnyone() || values.contains(role);
     }
 
@@ -83,13 +84,17 @@ public class Access implements Serializable {
      * Returns if a caller with the given roles can perform this operation
      */
     public boolean hasAccess(Collection<String> roles) {
-        if(isNoone())
+        if(isNoone()) {
             return false;
-        if(isAnyone())
+        }            
+        if(isAnyone()) {
             return true;
-        for(String x:roles)
-            if(values.contains(x))
+        }
+        for(String x:roles) {
+            if(values.contains(x)) {
                 return true;
+            }
+        }
         return false;
     }
 }

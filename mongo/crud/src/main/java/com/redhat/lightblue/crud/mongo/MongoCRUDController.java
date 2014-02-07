@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -44,12 +43,10 @@ import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
@@ -58,8 +55,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.mongo.MongoConfiguration;
-import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
@@ -169,8 +166,9 @@ public class MongoCRUDController implements CRUDController {
                 if (projection != null) {
                     projector = Projector.getInstance(projection, md);
                     LOGGER.debug("projector {} ", projector);
-                } else
+                } else {
                     projector=null;
+                }
                 if (!successfulUpdates.isEmpty()) {
                     ArrayList<JsonDoc> resultDocs = new ArrayList<JsonDoc>(successfulUpdates.size());
                     for (DBObject doc : successfulUpdates) {
@@ -304,10 +302,11 @@ public class MongoCRUDController implements CRUDController {
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 Projector errorProjector;
-                if(projector==null)
+                if(projector==null) {
                     errorProjector=Projector.getInstance(new FieldProjection(new Path(ID_STR),true,false),md);
-                else
+                } else {
                     errorProjector=projector;
+                }   
                 iterateUpdate(coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);
             } else {
                 response.getErrors().add(Error.get(ERR_NO_ACCESS,"update:"+entity));
