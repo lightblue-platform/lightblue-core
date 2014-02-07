@@ -35,12 +35,12 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public CRUDInsertionResponse insert(CRUDOperationContext ctx,List<JsonDoc> documents, Projection projection) {
+    public CRUDInsertionResponse insert(CRUDOperationContext ctx,String entity,List<JsonDoc> documents, Projection projection) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public CRUDSaveResponse save(CRUDOperationContext ctx, List<JsonDoc> documents, boolean upsert, Projection projection) {
+    public CRUDSaveResponse save(CRUDOperationContext ctx, String entity, List<JsonDoc> documents, boolean upsert, Projection projection) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

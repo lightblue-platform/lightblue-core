@@ -169,7 +169,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Projection projection = projection("{'field':'_id'}");
         List<JsonDoc> docs = new ArrayList<>();
         docs.add(doc);
-        CRUDInsertionResponse response=controller.insert(mdr,docs,projection);
+        CRUDInsertionResponse response=controller.insert(mdr,"test",docs,projection);
         Assert.assertNotNull(response.getDocuments());
         Assert.assertEquals(1, response.getDocuments().size());
         Assert.assertTrue(response.getErrors() == null || response.getErrors().isEmpty());
@@ -190,7 +190,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs = new ArrayList<>();
         docs.add(doc);
         System.out.println("Write doc:"+doc);
-        CRUDInsertionResponse response=controller.insert(mdr,docs,projection);
+        CRUDInsertionResponse response=controller.insert(mdr,"test",docs,projection);
         String id=response.getDocuments().get(0).get(new Path("_id")).asText();
         JsonDoc readDoc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
                                         projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
@@ -202,7 +202,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         // Save it back
         docs.clear();
         docs.add(readDoc);
-        controller.save(mdr,docs,false,projection);
+        controller.save(mdr,"test",docs,false,projection);
         
         // Read it back
         JsonDoc r2doc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
@@ -222,7 +222,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs = new ArrayList<>();
         docs.add(doc);
         System.out.println("Write doc:"+doc);
-        CRUDInsertionResponse response=controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        CRUDInsertionResponse response=controller.insert(mdr,"test",docs,projection("{'field':'_id'}"));
         String id=response.getDocuments().get(0).get(new Path("_id")).asText();
         JsonDoc readDoc=controller.find(mdr,"test",query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
                                         projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
@@ -231,10 +231,10 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         docs.clear();
         docs.add(readDoc);
         // This should not insert anything
-        CRUDSaveResponse sr=controller.save(mdr,docs,false,projection("{'field':'_id'}"));
+        CRUDSaveResponse sr=controller.save(mdr,"test",docs,false,projection("{'field':'_id'}"));
         Assert.assertEquals(1,coll.find(null).count());
         
-        sr=controller.save(mdr,docs,true,projection("{'field':'_id'}"));
+        sr=controller.save(mdr,"test",docs,true,projection("{'field':'_id'}"));
         Assert.assertEquals(2,coll.find(null).count());
     }
 
@@ -254,7 +254,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
             docs.add(doc);
         }
-        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        controller.insert(mdr,"test",docs,projection("{'field':'_id'}"));
         Assert.assertEquals(numDocs,coll.find(null).count());
 
         // Single doc update
@@ -292,7 +292,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
             docs.add(doc);
         }
-        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        controller.insert(mdr,"test",docs,projection("{'field':'_id'}"));
 
         CRUDFindResponse response=controller.find(mdr,"test",query("{'field':'field3','op':'>=','rvalue':0}"),
                                                   projection("{'field':'*','recursive':1}"),
@@ -337,7 +337,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
             docs.add(doc);
         }
-        controller.insert(mdr,docs,projection("{'field':'_id'}"));
+        controller.insert(mdr,"test",docs,projection("{'field':'_id'}"));
         Assert.assertEquals(numDocs,coll.find(null).count());
 
         // Single doc delete

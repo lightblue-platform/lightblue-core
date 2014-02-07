@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -68,12 +69,15 @@ public class Mediator {
 
     public static final String ERR_CRUD = "CRUD";
     public static final String ERR_NO_ACCESS = "NO_ACCESS";
+    public static final String ERR_INVALID_ENTITY="INVALID_ENTITY";
 
     public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
     
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
 
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
+
+    private static final Path OBJECT_TYPE_PATH=new Path("object_type");
 
     private final Metadata metadata;
     private final Factory factory;
@@ -103,12 +107,12 @@ public class Mediator {
                 response.setStatus(OperationStatus.ERROR);
                 response.getErrors().add(Error.get(ERR_NO_ACCESS,"insert "+req.getEntity().getEntity()));
             } else {
-                updatePredefinedFields(ctx.getDocs());
+                updatePredefinedFields(ctx.getDocs(),md.getName());
                 List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
                 if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                    CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
+                    CRUDInsertionResponse insertionResponse = controller.insert(ctx, md.getName(),docsWithoutErrors, req.getReturnFields());
                     response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
                     mergeDataErrors(insertionResponse.getDataErrors(), response);
                     mergeErrors(insertionResponse.getErrors(), response);
@@ -151,12 +155,12 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.SAVE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            updatePredefinedFields(ctx.getDocs());
+            updatePredefinedFields(ctx.getDocs(),md.getName());
             List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
+                CRUDSaveResponse saveResponse = controller.save(ctx, md.getName(), docsWithoutErrors, req.isUpsert(), req.getReturnFields());
                 response.setEntityData(toJsonDocList(saveResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(saveResponse.getDataErrors(), response);
                 mergeErrors(saveResponse.getErrors(), response);
@@ -326,9 +330,14 @@ public class Mediator {
         return docsWithoutError;
     }
 
-    private void updatePredefinedFields(List<JsonDoc> docs) {
+    private void updatePredefinedFields(List<JsonDoc> docs,String entity) {
         for(JsonDoc doc:docs) {
             PredefinedFields.updateArraySizes(NODE_FACTORY,doc);
+            JsonNode node=doc.get(OBJECT_TYPE_PATH);
+            if(node==null)
+                doc.modify(OBJECT_TYPE_PATH,NODE_FACTORY.textNode(entity),false);
+            else if(!node.asText().equals(entity))
+                throw Error.get(ERR_INVALID_ENTITY,node.asText());
         }
     }
 

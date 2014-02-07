@@ -33,6 +33,7 @@ public interface CRUDController {
      * Performs insertion of documents to the back end
      *
      * @param ctx Operation context
+     * @param entity The entity to work on
      * @param documents The documents to insert
      * @param projection If non-null, the inserted documents are projected using this projection and returned in the
      * response
@@ -43,6 +44,7 @@ public interface CRUDController {
      * projected and returned, otherwise, no data is returned.
      */
     CRUDInsertionResponse insert(CRUDOperationContext ctx,
+                                 String entity,
                                  List<JsonDoc> documents,
                                  Projection projection);
 
@@ -50,6 +52,7 @@ public interface CRUDController {
      * Performs update or insertion of documents to the back end
      *
      * @param ctx Operation context
+     * @param entity The entity to work on
      * @param documents The documents to insert or update
      * @param upsert If true, and if a document does not exist, it is inserted
      * @param projection If non-null, the inserted/updated documents are projected using this projection and returned in
@@ -62,6 +65,7 @@ public interface CRUDController {
      * non-null, the data must be projected and returned, otherwise, no data is returned.
      */
     CRUDSaveResponse save(CRUDOperationContext ctx,
+                          String entity,
                           List<JsonDoc> documents,
                           boolean upsert,
                           Projection projection);
