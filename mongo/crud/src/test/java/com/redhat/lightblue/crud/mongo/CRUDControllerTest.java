@@ -301,7 +301,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         int lastValue=-1;
         for(JsonDoc doc:response.getResults()) {
             int value=doc.get(new Path("field3")).asInt();
-            if(value<lastValue)
+            if(value<lastValue) {
                 Assert.fail("wrong order");
             }
         }

@@ -45,6 +45,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </scm>
     <developers>
         <developer>
+            <id>bserdar</id>
+            <name>Burak Serdar</name>
+            <email>bserdar@redhat.com</email>
+            <organization>Red Hat</organization>
+        </developer>
+        <developer>
             <id>nmalik</id>
             <name>Naveen Malik</name>
             <email>nmalik@redhat.com</email>
