@@ -205,16 +205,31 @@ public class MongoCRUDController implements CRUDController {
             try {
                 WriteResult result=null;
                 String error=null;
+                boolean insertAccess=md.getAccess().getInsert().hasAccess(ctx.getCallerRoles());
+                boolean updateAccess=md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles());
                 if (operation.equals(OP_INSERT)) {
-                    result = collection.insert(doc, WriteConcern.SAFE);
+                    if(!insertAccess) {
+                        addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
+                    } else {
+                        result = collection.insert(doc, WriteConcern.SAFE);
+                    }
                 } else {
                     Object x = doc.get(ID_STR);
                     if (x == null&&upsert) {
-                        result = collection.insert(doc, WriteConcern.SAFE);
+                        if(!insertAccess) {
+                            addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
+                        } else {
+                            result = collection.insert(doc, WriteConcern.SAFE);
+                        }
                     } else if(x!=null) {
-                        BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
-                        LOGGER.debug("update query: {}",q);
-                        result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
+                        if( (upsert&&insertAccess&&updateAccess) ||
+                            (!upsert&updateAccess)) {
+                            BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
+                            LOGGER.debug("update query: {}",q);
+                            result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
+                        } else {
+                            addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
+                        }
                     }
                 }
                 LOGGER.debug("Write result {}",result);
@@ -273,26 +288,30 @@ public class MongoCRUDController implements CRUDController {
         Translator translator = new Translator(ctx, nodeFactory);
         try {
             EntityMetadata md = ctx.getEntityMetadata(entity);
-            ConstraintValidator validator=ctx.getFactory().getConstraintValidator(md);
-            LOGGER.debug("Translating query {}", query);
-            DBObject mongoQuery = translator.translate(md, query);
-            LOGGER.debug("Translated query {}", mongoQuery);
-            Projector projector;
-            if(projection!=null) {
-                projector = Projector.getInstance(projection, md);
-                response.setDocuments(new ArrayList<JsonDoc>());
+            if(md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
+                ConstraintValidator validator=ctx.getFactory().getConstraintValidator(md);
+                LOGGER.debug("Translating query {}", query);
+                DBObject mongoQuery = translator.translate(md, query);
+                LOGGER.debug("Translated query {}", mongoQuery);
+                Projector projector;
+                if(projection!=null) {
+                    projector = Projector.getInstance(projection, md);
+                    response.setDocuments(new ArrayList<JsonDoc>());
+                } else {
+                    projector = null;
+                }
+                Updater updater=Updater.getInstance(nodeFactory,md,update);
+                DB db = dbResolver.get((MongoDataStore) md.getDataStore());
+                DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+                Projector errorProjector;
+                if(projector==null)
+                    errorProjector=Projector.getInstance(new FieldProjection(new Path(ID_STR),true,false),md);
+                else
+                    errorProjector=projector;
+                iterateUpdate(coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);
             } else {
-                projector = null;
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"update:"+entity));
             }
-            Updater updater=Updater.getInstance(nodeFactory,md,update);
-            DB db = dbResolver.get((MongoDataStore) md.getDataStore());
-            DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-            Projector errorProjector;
-            if(projector==null)
-                errorProjector=Projector.getInstance(new FieldProjection(new Path(ID_STR),true,false),md);
-            else
-                errorProjector=projector;
-            iterateUpdate(coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);            
         } finally {
             Error.pop();
         }
@@ -390,15 +409,19 @@ public class MongoCRUDController implements CRUDController {
         Translator translator = new Translator(ctx, nodeFactory);
         try {
             EntityMetadata md = ctx.getEntityMetadata(entity);
-            LOGGER.debug("Translating query {}", query);
-            DBObject mongoQuery = translator.translate(md, query);
-            LOGGER.debug("Translated query {}", mongoQuery);
-            DB db = dbResolver.get((MongoDataStore) md.getDataStore());
-            DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-            LOGGER.debug("Removing docs");
-            WriteResult result=coll.remove(mongoQuery);
-            LOGGER.debug("Removal complete, write result={}",result);
-            response.setNumDeleted(result.getN());
+            if(md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
+                LOGGER.debug("Translating query {}", query);
+                DBObject mongoQuery = translator.translate(md, query);
+                LOGGER.debug("Translated query {}", mongoQuery);
+                DB db = dbResolver.get((MongoDataStore) md.getDataStore());
+                DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+                LOGGER.debug("Removing docs");
+                WriteResult result=coll.remove(mongoQuery);
+                LOGGER.debug("Removal complete, write result={}",result);
+                response.setNumDeleted(result.getN());
+            } else {
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"delete:"+entity));
+            }
         } catch (Exception e) {
             response.getErrors().add(Error.get(e.toString()));
         } finally {
@@ -428,47 +451,52 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
+        response.setErrors(new ArrayList<Error>());
         Translator translator = new Translator(ctx, nodeFactory);
         try {
             EntityMetadata md = ctx.getEntityMetadata(entity);
-            LOGGER.debug("Translating query {}", query);
-            DBObject mongoQuery = translator.translate(md, query);
-            LOGGER.debug("Translated query {}", mongoQuery);
-            DB db = dbResolver.get((MongoDataStore) md.getDataStore());
-            DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-            LOGGER.debug("Retrieve db collection:" + coll);
-            LOGGER.debug("Submitting query");
-            DBCursor cursor = coll.find(mongoQuery);
-            LOGGER.debug("Query evaluated");
-            if (sort != null) {
-                LOGGER.debug("Translating sort {}", sort);
-                DBObject mongoSort = translator.translate(sort);
+            if(md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
+                LOGGER.debug("Translating query {}", query);
+                DBObject mongoQuery = translator.translate(md, query);
+                LOGGER.debug("Translated query {}", mongoQuery);
+                DB db = dbResolver.get((MongoDataStore) md.getDataStore());
+                DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+                LOGGER.debug("Retrieve db collection:" + coll);
+                LOGGER.debug("Submitting query");
+                DBCursor cursor = coll.find(mongoQuery);
+                LOGGER.debug("Query evaluated");
+                if (sort != null) {
+                    LOGGER.debug("Translating sort {}", sort);
+                    DBObject mongoSort = translator.translate(sort);
                 LOGGER.debug("Translated sort {}", mongoSort);
                 cursor = cursor.sort(mongoSort);
                 LOGGER.debug("Result set sorted");
+                }
+                LOGGER.debug("Applying limits: {} - {}", from, to);
+                response.setSize(cursor.size());
+                if (from != null) {
+                    cursor.skip(from.intValue());
+                }
+                if (to != null) {
+                    cursor.limit(to.intValue() - (from == null ? 0 : from.intValue()) + 1);
+                }
+                LOGGER.debug("Retrieving results");
+                List<DBObject> mongoResults = cursor.toArray();
+                LOGGER.debug("Retrieved {} results", mongoResults.size());
+                List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
+                LOGGER.debug("Translated DBObjects to json");
+                // Project results
+                Projector projector = Projector.getInstance(projection, md);
+                QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
+                List<JsonDoc> results = new ArrayList<JsonDoc>(jsonDocs.size());
+                for (JsonDoc document : jsonDocs) {
+                    QueryEvaluationContext qctx = qeval.evaluate(document);
+                    results.add(projector.project(document, nodeFactory, qctx));
+                }
+                response.setResults(results);
+            } else {
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"find:"+entity));
             }
-            LOGGER.debug("Applying limits: {} - {}", from, to);
-            response.setSize(cursor.size());
-            if (from != null) {
-                cursor.skip(from.intValue());
-            }
-            if (to != null) {
-                cursor.limit(to.intValue() - (from == null ? 0 : from.intValue()) + 1);
-            }
-            LOGGER.debug("Retrieving results");
-            List<DBObject> mongoResults = cursor.toArray();
-            LOGGER.debug("Retrieved {} results", mongoResults.size());
-            List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
-            LOGGER.debug("Translated DBObjects to json");
-            // Project results
-            Projector projector = Projector.getInstance(projection, md);
-            QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
-            List<JsonDoc> results = new ArrayList<JsonDoc>(jsonDocs.size());
-            for (JsonDoc document : jsonDocs) {
-                QueryEvaluationContext qctx = qeval.evaluate(document);
-                results.add(projector.project(document, nodeFactory, qctx));
-            }
-            response.setResults(results);
         } finally {
             Error.pop();
         }

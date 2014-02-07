@@ -16,6 +16,12 @@
         "status": {
             "value": "active"
         },
+        "access" : {
+             "insert" : ["anyone"],
+             "update" : ["anyone"],
+             "delete" : [ "anyone" ] ,
+             "find" : [ "anyone" ]
+        },
         "fields": {
             "object_type": {"type": "string"},
             "_id": {"type": "string"},
