@@ -34,8 +34,6 @@ import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.Arith;
-import com.redhat.lightblue.metadata.types.ObjectType;
-import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.query.FieldAndRValue;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.SetExpression;
@@ -61,16 +59,12 @@ public class SetExpressionEvaluator extends Updater {
         private final Type refType;
         private final RValueExpression value;
 
-        public FieldData(Path field,
-                         Type t,
-                         Path refPath,
-                         Type refType,
-                         RValueExpression value) {
-            this.field=field;
-            this.fieldType=t;
-            this.refPath=refPath;
-            this.refType=refType;
-            this.value=value;
+        public FieldData(Path field, Type t, Path refPath, Type refType, RValueExpression value) {
+            this.field = field;
+            this.fieldType = t;
+            this.refPath = refPath;
+            this.refType = refType;
+            this.value = value;
         }
     }
 
@@ -84,40 +78,38 @@ public class SetExpressionEvaluator extends Updater {
      * This ctor resolves the field references in expr and stores them
      * to be applied later.
      */
-    public SetExpressionEvaluator(JsonNodeFactory factory,
-                                  FieldTreeNode context,
-                                  SetExpression expr) {
-        this.factory=factory;
-        op=expr.getOp();
-        for(FieldAndRValue fld:expr.getFields()) {
-            Path field=fld.getField();
-            LOGGER.debug("Parsing setter for {}",field);
-            RValueExpression rvalue=fld.getRValue();
-            Path refPath=null;
-            FieldTreeNode refMdNode=null;
-            FieldData data=null;
-            if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                refPath=rvalue.getPath();
-                refMdNode=context.resolve(refPath);
-                if(refMdNode==null) {
-                    throw new EvaluationError("Cannot access "+refPath);
+    public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
+        this.factory = factory;
+        op = expr.getOp();
+        for (FieldAndRValue fld : expr.getFields()) {
+            Path field = fld.getField();
+            LOGGER.debug("Parsing setter for {}", field);
+            RValueExpression rvalue = fld.getRValue();
+            Path refPath = null;
+            FieldTreeNode refMdNode = null;
+            FieldData data = null;
+            if (rvalue.getType() == RValueExpression.RValueType._dereference) {
+                refPath = rvalue.getPath();
+                refMdNode = context.resolve(refPath);
+                if (refMdNode == null) {
+                    throw new EvaluationError("Cannot access " + refPath);
                 }
-                LOGGER.debug("Refpath {}",refPath);
-            } 
-            FieldTreeNode mdNode=context.resolve(field);
-            if(mdNode==null) {
-                throw new EvaluationError("Cannot access "+field);
+                LOGGER.debug("Refpath {}", refPath);
             }
-            
+            FieldTreeNode mdNode = context.resolve(field);
+            if (mdNode == null) {
+                throw new EvaluationError("Cannot access " + field);
+            }
+
             if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
-                data=initializeSimple(rvalue, refMdNode, mdNode, field, refPath);
+                data = initializeSimple(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ObjectField || mdNode instanceof ObjectArrayElement) {
                 // Only a dereference or empty object is acceptable here
-                data=initializeObject(rvalue, refMdNode, mdNode, field, refPath);
-            } else if(mdNode instanceof ArrayField) {
+                data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
+            } else if (mdNode instanceof ArrayField) {
                 // Unacceptable
-                throw new EvaluationError("Assignment error for "+field);
-            } 
+                throw new EvaluationError("Assignment error for " + field);
+            }
             setValues.add(data);
         }
     }
@@ -129,11 +121,9 @@ public class SetExpressionEvaluator extends Updater {
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
             throw new EvaluationError("Incompatible assignment " + field + " <- {}");
-        } else if (rvalue.getType() == RValueExpression.RValueType._null) {
-            return new FieldData(field, mdNode.getType(), refPath, ReferenceType.TYPE, rvalue);
         }
-        
-        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);    
+
+        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
     }
     
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
@@ -143,8 +133,6 @@ public class SetExpressionEvaluator extends Updater {
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._value) {
             throw new EvaluationError("Incompatible assignment " + field + " <- " + rvalue.getValue());
-        } else if (rvalue.getType() == RValueExpression.RValueType._null) {
-            return new FieldData(field, mdNode.getType(), refPath, ObjectType.TYPE, rvalue);
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
     }
@@ -191,15 +179,15 @@ public class SetExpressionEvaluator extends Updater {
     
     private JsonNode setOrAdd(JsonDoc doc, Path contextPath, FieldData df, JsonNode newValueNode, Object newValue, Type newValueType) {
         JsonNode oldValueNode = null;
-        Path fieldPath=new Path(contextPath,df.field);
-        if(op==UpdateOperator._set) {
-            oldValueNode=doc.modify(fieldPath,newValueNode,true);
-        } else if(op==UpdateOperator._add) {
-            oldValueNode=doc.get(fieldPath);
-            if(newValueNode!=null && oldValueNode != null) {
-                newValueNode=df.fieldType.toJson(factory, Arith.add(df.fieldType.fromJson(oldValueNode), newValue, Arith.promote(df.fieldType,newValueType)));
-                doc.modify(fieldPath,newValueNode,false);
-             }
+        Path fieldPath = new Path(contextPath, df.field);
+        if (op == UpdateOperator._set) {
+            oldValueNode = doc.modify(fieldPath, newValueNode, true);
+        } else if (op == UpdateOperator._add) {
+            oldValueNode = doc.get(fieldPath);
+            if (newValueNode != null && oldValueNode != null) {
+                newValueNode = df.fieldType.toJson(factory, Arith.add(df.fieldType.fromJson(oldValueNode), newValue, Arith.promote(df.fieldType, newValueType)));
+                doc.modify(fieldPath, newValueNode, false);
+            }
         }
         return oldValueNode;
     }
@@ -213,7 +201,7 @@ public class SetExpressionEvaluator extends Updater {
             return !oldValueNode.equals(newValueNode);
         } else {
             return false;
-        }        
+        }
     }
     
  }

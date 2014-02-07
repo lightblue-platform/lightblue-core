@@ -32,7 +32,6 @@ import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.query.ArrayAddExpression;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.UpdateOperator;
@@ -60,71 +59,71 @@ public class ArrayAddExpressionEvaluator extends Updater {
         private final Type refType;
         private final Value value;
 
-        public RValueData(Path refPath,
-                          Type refType,
-                          Value value) {
-            this.refPath=refPath;
-            this.refType=refType;
-            this.value=value;
+        public RValueData(Path refPath, Type refType, Value value) {
+            this.refPath = refPath;
+            this.refType = refType;
+            this.value = value;
+        }
+        
+        public boolean isNull() {
+            if (this.refPath == null && this.refType == null && this.value == null) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
-    public ArrayAddExpressionEvaluator(JsonNodeFactory factory,
-                                       FieldTreeNode context,
-                                       ArrayAddExpression expr) {
-        this.factory=factory;
-        if(expr.getOp()==UpdateOperator._insert) {
+    public ArrayAddExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, ArrayAddExpression expr) {
+        this.factory = factory;
+        if (expr.getOp() == UpdateOperator._insert) {
             // Path should include an index
-            if(expr.getField().isIndex(expr.getField().numSegments()-1)) {
-                arrayField=expr.getField().prefix(-1);
-                insertionIndex=expr.getField().getIndex(expr.getField().numSegments()-1);
+            if (expr.getField().isIndex(expr.getField().numSegments() - 1)) {
+                arrayField = expr.getField().prefix(-1);
+                insertionIndex = expr.getField().getIndex(expr.getField().numSegments() - 1);
             } else {
-                throw new EvaluationError("Index required in insertion:"+expr.getField());
+                throw new EvaluationError("Index required in insertion:" + expr.getField());
             }
         } else {
-            arrayField=expr.getField();
-            insertionIndex=-1;
+            arrayField = expr.getField();
+            insertionIndex = -1;
         }
-        if(arrayField.nAnys()>0) {
-            throw new EvaluationError("Pattern not expected:"+arrayField);
+        if (arrayField.nAnys() > 0) {
+            throw new EvaluationError("Pattern not expected:" + arrayField);
         }
-        FieldTreeNode ftn=context.resolve(arrayField);
-        if(ftn instanceof ArrayField) {
-            fieldMd=(ArrayField)ftn;
+        FieldTreeNode ftn = context.resolve(arrayField);
+        if (ftn instanceof ArrayField) {
+            fieldMd = (ArrayField) ftn;
             // Array size field should be at the same level as the array field
-            MutablePath abs=new MutablePath();
+            MutablePath abs = new MutablePath();
             fieldMd.getFullPath(abs);
-            abs.setLast(abs.getLast()+"#");
+            abs.setLast(abs.getLast() + "#");
             // At this point, arraySizeField is derived from metadata,
             // so it has * as array indexes
-            arraySizeField=abs.immutableCopy();
-            values=new ArrayList<RValueData>(expr.getValues().size());
+            arraySizeField = abs.immutableCopy();
+            values = new ArrayList<RValueData>(expr.getValues().size());
             initializeArrayField(context, expr);
         } else {
-            throw new EvaluationError("Array required:"+arrayField);
+            throw new EvaluationError("Array required:" + arrayField);
         }
     }
     
     private void initializeArrayField(FieldTreeNode context, ArrayAddExpression expr) {
-        for(RValueExpression rvalue:expr.getValues()) {
-            Path refPath=null;
-            FieldTreeNode refMd=null;
-            if(rvalue.getType()==RValueExpression.RValueType._dereference) {
-                refPath=rvalue.getPath();
-                refMd=context.resolve(refPath);
-                if(refMd==null) {
-                    throw new EvaluationError("Invalid dereference:"+refPath);
+        for (RValueExpression rvalue : expr.getValues()) {
+            Path refPath = null;
+            FieldTreeNode refMd = null;
+            if (rvalue.getType() == RValueExpression.RValueType._dereference) {
+                refPath = rvalue.getPath();
+                refMd = context.resolve(refPath);
+                if (refMd == null) {
+                    throw new EvaluationError("Invalid dereference:" + refPath);
                 }
             }
-            
+
             ArrayElement element = fieldMd.getElement();
             validateArrayElement(element, refMd, rvalue, refPath);
-            
-            if(rvalue.getType()==RValueExpression.RValueType._null) {
-                values.add(new RValueData(null, ReferenceType.TYPE, null));
-            } else {
-                values.add(new RValueData(refPath, refMd == null ? null : refMd.getType(), rvalue.getValue()));    
-            }
+
+            values.add(new RValueData(refPath, refMd == null ? null : refMd.getType(), rvalue.getValue()));
         }
     }
     
@@ -145,61 +144,60 @@ public class ArrayAddExpressionEvaluator extends Updater {
     }
     
     @Override
-    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-        boolean ret=false;
-        Path absPath=new Path(contextPath,arrayField);
-        JsonNode node=doc.get(absPath);
-        int insertTo=insertionIndex;
-        if(node instanceof ArrayNode) {
-            ArrayNode arrayNode=(ArrayNode)node;
-            for(RValueData rvalueData:values) {
-                LOGGER.debug("add element to {}",absPath);
-                Object newValue=null;
-                Type newValueType=null;
-                JsonNode newValueNode=null;
-                if(rvalueData.refPath!=null) {
-                    JsonNode refNode=doc.get(new Path(contextPath,rvalueData.refPath));
-                    if(refNode!=null) {
-                        newValueNode=refNode.deepCopy();
-                        newValue=rvalueData.refType.fromJson(newValueNode);
-                        newValueType=rvalueData.refType;
+    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+        boolean ret = false;
+        Path absPath = new Path(contextPath, arrayField);
+        JsonNode node = doc.get(absPath);
+        int insertTo = insertionIndex;
+        if (node instanceof ArrayNode) {
+            ArrayNode arrayNode = (ArrayNode) node;
+            for (RValueData rvalueData : values) {
+                LOGGER.debug("add element to {}", absPath);
+                Object newValue = null;
+                Type newValueType = null;
+                JsonNode newValueNode = null;
+                if (rvalueData.refPath != null) {
+                    JsonNode refNode = doc.get(new Path(contextPath, rvalueData.refPath));
+                    if (refNode != null) {
+                        newValueNode = refNode.deepCopy();
+                        newValue = rvalueData.refType.fromJson(newValueNode);
+                        newValueType = rvalueData.refType;
                     }
-                } else if(rvalueData.value!=null) {
-                    newValue=rvalueData.value.getValue();
-                    newValueNode=fieldMd.getElement().getType().toJson(factory,newValue);
-                    newValueType=fieldMd.getElement().getType();
+                } else if (rvalueData.value != null) {
+                    newValue = rvalueData.value.getValue();
+                    newValueNode = fieldMd.getElement().getType().toJson(factory, newValue);
+                    newValueType = fieldMd.getElement().getType();
+                } else if (rvalueData.isNull()) {
+                    newValueNode = factory.nullNode();
                 } else {
-                    if (rvalueData.refType.equals(ReferenceType.TYPE)) {
-                        newValueNode = factory.nullNode();
-                    } else {
-                        newValueNode = factory.objectNode();
-                    }
+                    newValueNode = factory.objectNode();
                 }
                 LOGGER.debug("newValueType: " + newValueType);
-                
-                if(insertTo>=0) {
+
+                if (insertTo >= 0) {
                     // If we're inserting, make sure we have that many elements
-                    while(arrayNode.size()<insertTo) {
+                    while (arrayNode.size() < insertTo) {
                         arrayNode.addNull();
                     }
-                        
-                    if(arrayNode.size()>insertTo) {
-                        arrayNode.insert(insertTo,newValueNode);
+
+                    if (arrayNode.size() > insertTo) {
+                        arrayNode.insert(insertTo, newValueNode);
                     } else {
                         arrayNode.add(newValueNode);
-                    }   
+                    }
                     insertTo++;
                 } else {
                     arrayNode.add(newValueNode);
                 }
-                ret=true;
+                ret = true;
             }
-            if(ret) {
-                // We have to rewrite the array indexes in arraySizeField using the context path
-                MutablePath p=new MutablePath(arraySizeField);
+            if (ret) {
+                // We have to rewrite the array indexes in arraySizeField using
+                // the context path
+                MutablePath p = new MutablePath(arraySizeField);
                 p.rewriteIndexes(contextPath);
-                LOGGER.debug("Setting {} = {}",p,arrayNode.size());
-                doc.modify(p,factory.numberNode(arrayNode.size()),false);
+                LOGGER.debug("Setting {} = {}", p, arrayNode.size());
+                doc.modify(p, factory.numberNode(arrayNode.size()), false);
             }
         }
         return ret;
