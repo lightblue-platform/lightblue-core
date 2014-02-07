@@ -46,9 +46,10 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.MetadataResolver;
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
@@ -118,29 +119,27 @@ public class MongoCRUDController implements CRUDController {
      * Insertion operation for mongo
      */
     @Override
-    public CRUDInsertionResponse insert(MetadataResolver resolver,
-                                        Factory factory,
+    public CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                         List<JsonDoc> documents,
                                         Projection projection) {
         LOGGER.debug("insert() start");
         CRUDInsertionResponse response = new CRUDInsertionResponse();
-        saveOrInsert(resolver, documents, false, projection, response, OP_INSERT);
+        saveOrInsert(ctx, documents, false, projection, response, OP_INSERT);
         return response;
     }
 
     @Override
-    public CRUDSaveResponse save(MetadataResolver resolver,
-                                 Factory factory,
+    public CRUDSaveResponse save(CRUDOperationContext ctx,
                                  List<JsonDoc> documents,
                                  boolean upsert,
                                  Projection projection) {
         LOGGER.debug("save() start");
         CRUDSaveResponse response = new CRUDSaveResponse();
-        saveOrInsert(resolver, documents, upsert, projection, response, OP_SAVE);
+        saveOrInsert(ctx, documents, upsert, projection, response, OP_SAVE);
         return response;
     }
 
-    private void saveOrInsert(MetadataResolver resolver,
+    private void saveOrInsert(CRUDOperationContext ctx,
                               List<JsonDoc> documents,
                               boolean upsert,
                               Projection projection,
@@ -151,7 +150,7 @@ public class MongoCRUDController implements CRUDController {
         }
         LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
-        Translator translator = new Translator(resolver, nodeFactory);
+        Translator translator = new Translator(ctx, nodeFactory);
         try {
             LOGGER.debug("saveOrInsert: Translating docs");
             DBObject[] dbObjects = translator.toBson(documents);
@@ -159,10 +158,10 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("saveOrInsert: {} docs translated to bson", dbObjects.length);
                 Map<DBObject, List<Error>> errorMap = new HashMap<DBObject, List<Error>>();
                 List<DBObject> successfulUpdates = new ArrayList<DBObject>(documents.size());
-                DocIndex index = new DocIndex(resolver, dbResolver);
+                DocIndex index = new DocIndex(ctx, dbResolver);
                 saveDocs(dbObjects, operation, upsert, index, errorMap, successfulUpdates);
                 // Build projectors and translate docs
-                Map<String, Projector> projectorMap = buildProjectorsAndTranslateDocs(resolver, projection, index, translator, response, successfulUpdates);
+                Map<String, Projector> projectorMap = buildProjectorsAndTranslateDocs(ctx, projection, index, translator, response, successfulUpdates);
                 // Reorganize errors
                 reorganizeErrors(errorMap, projection, translator, projectorMap, response);
             }
@@ -224,8 +223,8 @@ public class MongoCRUDController implements CRUDController {
     }
     
     
-    private Map<String, Projector> buildProjectorsAndTranslateDocs(MetadataResolver resolver, Projection projection, DocIndex index, Translator translator, AbstractCRUDUpdateResponse response, List<DBObject> successfulUpdates) {
-        Map<String, Projector> projectorMap = buildProjectorMap(projection, index.getObjectTypes(), resolver);
+    private Map<String, Projector> buildProjectorsAndTranslateDocs(CRUDOperationContext ctx, Projection projection, DocIndex index, Translator translator, AbstractCRUDUpdateResponse response, List<DBObject> successfulUpdates) {
+        Map<String, Projector> projectorMap = buildProjectorMap(projection, index.getObjectTypes(), ctx);
         if (!successfulUpdates.isEmpty()) {
             ArrayList<JsonDoc> resultDocs = new ArrayList<JsonDoc>(successfulUpdates.size());
             for (DBObject doc : successfulUpdates) {
@@ -255,8 +254,7 @@ public class MongoCRUDController implements CRUDController {
     }
     
     @Override
-    public CRUDUpdateResponse update(MetadataResolver resolver,
-                                     Factory factory,
+    public CRUDUpdateResponse update(CRUDOperationContext ctx,
                                      String entity,
                                      QueryExpression query,
                                      UpdateExpression update,
@@ -269,10 +267,10 @@ public class MongoCRUDController implements CRUDController {
         CRUDUpdateResponse response = new CRUDUpdateResponse();
         response.setErrors(new ArrayList<Error>());
         response.setDataErrors(new ArrayList<DataError>());
-        Translator translator = new Translator(resolver, nodeFactory);
+        Translator translator = new Translator(ctx, nodeFactory);
         try {
-            EntityMetadata md = resolver.getEntityMetadata(entity);
-            ConstraintValidator validator=factory.getConstraintValidator(md);
+            EntityMetadata md = ctx.getEntityMetadata(entity);
+            ConstraintValidator validator=ctx.getFactory().getConstraintValidator(md);
             LOGGER.debug("Translating query {}", query);
             DBObject mongoQuery = translator.translate(md, query);
             LOGGER.debug("Translated query {}", mongoQuery);
@@ -376,8 +374,7 @@ public class MongoCRUDController implements CRUDController {
 
 
     @Override
-    public CRUDDeleteResponse delete(MetadataResolver resolver,
-                                     Factory factory,
+    public CRUDDeleteResponse delete(CRUDOperationContext ctx,
                                      String entity,
                                      QueryExpression query) {
         if (query == null) {
@@ -387,9 +384,9 @@ public class MongoCRUDController implements CRUDController {
         Error.push(OP_DELETE);
         CRUDDeleteResponse response = new CRUDDeleteResponse();
         response.setErrors(new ArrayList<Error>());
-        Translator translator = new Translator(resolver, nodeFactory);
+        Translator translator = new Translator(ctx, nodeFactory);
         try {
-            EntityMetadata md = resolver.getEntityMetadata(entity);
+            EntityMetadata md = ctx.getEntityMetadata(entity);
             LOGGER.debug("Translating query {}", query);
             DBObject mongoQuery = translator.translate(md, query);
             LOGGER.debug("Translated query {}", mongoQuery);
@@ -412,8 +409,7 @@ public class MongoCRUDController implements CRUDController {
      * Search implementation for mongo
      */
     @Override
-    public CRUDFindResponse find(MetadataResolver resolver,
-                                 Factory factory,
+    public CRUDFindResponse find(CRUDOperationContext ctx,
                                  String entity,
                                  QueryExpression query,
                                  Projection projection,
@@ -429,9 +425,9 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
-        Translator translator = new Translator(resolver, nodeFactory);
+        Translator translator = new Translator(ctx, nodeFactory);
         try {
-            EntityMetadata md = resolver.getEntityMetadata(entity);
+            EntityMetadata md = ctx.getEntityMetadata(entity);
             LOGGER.debug("Translating query {}", query);
             DBObject mongoQuery = translator.translate(md, query);
             LOGGER.debug("Translated query {}", mongoQuery);
@@ -466,8 +462,8 @@ public class MongoCRUDController implements CRUDController {
             QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
             List<JsonDoc> results = new ArrayList<JsonDoc>(jsonDocs.size());
             for (JsonDoc document : jsonDocs) {
-                QueryEvaluationContext ctx = qeval.evaluate(document);
-                results.add(projector.project(document, nodeFactory, ctx));
+                QueryEvaluationContext qctx = qeval.evaluate(document);
+                results.add(projector.project(document, nodeFactory, qctx));
             }
             response.setResults(results);
         } finally {

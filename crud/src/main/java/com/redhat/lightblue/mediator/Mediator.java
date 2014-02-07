@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +67,7 @@ import com.redhat.lightblue.DataError;
 public class Mediator {
 
     public static final String ERR_CRUD = "CRUD";
+    public static final String ERR_NO_ACCESS = "NO_ACCESS";
 
     public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
     
@@ -95,25 +99,30 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.INSERT);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            updatePredefinedFields(ctx.getDocs());
-            List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
-            if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
-                CRUDController controller = factory.getCRUDController(md);
-                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDInsertionResponse insertionResponse = controller.insert(ctx, factory, docsWithoutErrors, req.getReturnFields());
-                response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
-                mergeDataErrors(insertionResponse.getDataErrors(), response);
-                mergeErrors(insertionResponse.getErrors(), response);
-                response.setModifiedCount(insertionResponse.getDocuments().size());
-                if (insertionResponse.getDocuments().size() == ctx.getDocs().size()) {
-                    response.setStatus(OperationStatus.COMPLETE);
-                } else if (!insertionResponse.getDocuments().isEmpty()) {
-                    response.setStatus(OperationStatus.PARTIAL);
+            if(!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
+                response.setStatus(OperationStatus.ERROR);
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"insert "+req.getEntity().getEntity()));
+            } else {
+                updatePredefinedFields(ctx.getDocs());
+                List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
+                if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
+                    CRUDController controller = factory.getCRUDController(md);
+                    LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
+                    CRUDInsertionResponse insertionResponse = controller.insert(ctx, docsWithoutErrors, req.getReturnFields());
+                    response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
+                    mergeDataErrors(insertionResponse.getDataErrors(), response);
+                    mergeErrors(insertionResponse.getErrors(), response);
+                    response.setModifiedCount(insertionResponse.getDocuments().size());
+                    if (insertionResponse.getDocuments().size() == ctx.getDocs().size()) {
+                        response.setStatus(OperationStatus.COMPLETE);
+                    } else if (!insertionResponse.getDocuments().isEmpty()) {
+                        response.setStatus(OperationStatus.PARTIAL);
+                    } else {
+                        response.setStatus(OperationStatus.ERROR);
+                    }
                 } else {
                     response.setStatus(OperationStatus.ERROR);
                 }
-            } else {
-                response.setStatus(OperationStatus.ERROR);
             }
         } catch (Error e) {
             response.getErrors().add(e);
@@ -147,7 +156,7 @@ public class Mediator {
             if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDSaveResponse saveResponse = controller.save(ctx, factory, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
+                CRUDSaveResponse saveResponse = controller.save(ctx, docsWithoutErrors, req.isUpsert(), req.getReturnFields());
                 response.setEntityData(toJsonDocList(saveResponse.getDocuments(), NODE_FACTORY));
                 mergeDataErrors(saveResponse.getDataErrors(), response);
                 mergeErrors(saveResponse.getErrors(), response);
@@ -189,15 +198,19 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.UPDATE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            CRUDController controller = factory.getCRUDController(md);
-            LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-            CRUDUpdateResponse updateResponse = controller.update(ctx,
-                                                                  factory,
-                    req.getEntity().getEntity(),
-                    req.getQuery(),
-                    req.getUpdateExpression(),
-                    req.getReturnFields());
-            LOGGER.debug("# Updated", updateResponse.getNumUpdated());
+            if(!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
+                response.setStatus(OperationStatus.ERROR);
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"update "+req.getEntity().getEntity()));
+            } else {
+                CRUDController controller = factory.getCRUDController(md);
+                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
+                CRUDUpdateResponse updateResponse = controller.update(ctx,
+                                                                      req.getEntity().getEntity(),
+                                                                      req.getQuery(),
+                                                                      req.getUpdateExpression(),
+                                                                      req.getReturnFields());
+                LOGGER.debug("# Updated", updateResponse.getNumUpdated());
+            }
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -215,19 +228,23 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.DELETE);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            CRUDController controller = factory.getCRUDController(md);
-            LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-            CRUDDeleteResponse result = controller.delete(ctx,
-                                                          factory,
-                                                          req.getEntity().getEntity(),
-                                                          req.getQuery());
-            response.setModifiedCount(result.getNumDeleted());
-            List<Error> errors=result.getErrors();
-            if(errors!=null&&!errors.isEmpty()) {
-                response.getErrors().addAll(result.getErrors());
+            if(!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 response.setStatus(OperationStatus.ERROR);
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"delete "+req.getEntity().getEntity()));
             } else {
-                response.setStatus(OperationStatus.COMPLETE);
+                CRUDController controller = factory.getCRUDController(md);
+                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
+                CRUDDeleteResponse result = controller.delete(ctx,
+                                                              req.getEntity().getEntity(),
+                                                              req.getQuery());
+                response.setModifiedCount(result.getNumDeleted());
+                List<Error> errors=result.getErrors();
+                if(errors!=null&&!errors.isEmpty()) {
+                    response.getErrors().addAll(result.getErrors());
+                    response.setStatus(OperationStatus.ERROR);
+                } else {
+                    response.setStatus(OperationStatus.COMPLETE);
+                }
             }
         } catch (Error e) {
             response.getErrors().add(e);
@@ -256,19 +273,23 @@ public class Mediator {
         try {
             OperationContext ctx = getOperationContext(req, response, null, Operation.FIND);
             EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            CRUDController controller = factory.getCRUDController(md);
-            LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-            CRUDFindResponse result = controller.find(ctx,
-                                                      factory,
-                    req.getEntity().getEntity(),
-                    req.getQuery(),
-                    req.getProjection(),
-                    req.getSort(),
-                    req.getFrom(),
-                    req.getTo());
-            response.setStatus(OperationStatus.COMPLETE);
-            response.setMatchCount(result.getSize());
-            response.setEntityData(toJsonDocList(result.getResults(), NODE_FACTORY));
+            if(!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
+                response.setStatus(OperationStatus.ERROR);
+                response.getErrors().add(Error.get(ERR_NO_ACCESS,"find "+req.getEntity().getEntity()));
+            } else {
+                CRUDController controller = factory.getCRUDController(md);
+                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
+                CRUDFindResponse result = controller.find(ctx,
+                                                          req.getEntity().getEntity(),
+                                                          req.getQuery(),
+                                                          req.getProjection(),
+                                                          req.getSort(),
+                                                          req.getFrom(),
+                                                          req.getTo());
+                response.setStatus(OperationStatus.COMPLETE);
+                response.setMatchCount(result.getSize());
+                response.setEntityData(toJsonDocList(result.getResults(), NODE_FACTORY));
+            }
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
@@ -400,6 +421,13 @@ public class Mediator {
         if (ctx.getDocs() != null) {
             LOGGER.debug("There are {} docs in request", ctx.getDocs().size());
         }
+        String[] callerRoles=req.getClientId()==null?null:req.getClientId().getCallerRoles();
+        Set<String> roles=new HashSet<String>();
+        if(callerRoles!=null)
+            for(String x:callerRoles)
+                roles.add(x);
+        ctx.setCallerRoles(roles);
+        LOGGER.debug("Caller roles: {} ",roles);
         LOGGER.debug("getOperationContext return");
         return ctx;
     }

@@ -11,7 +11,7 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
-import com.redhat.lightblue.crud.MetadataResolver;
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Projection;
@@ -35,27 +35,27 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public CRUDInsertionResponse insert(MetadataResolver resolver, Factory factory,List<JsonDoc> documents, Projection projection) {
+    public CRUDInsertionResponse insert(CRUDOperationContext ctx,List<JsonDoc> documents, Projection projection) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public CRUDSaveResponse save(MetadataResolver resolver, Factory factory, List<JsonDoc> documents, boolean upsert, Projection projection) {
+    public CRUDSaveResponse save(CRUDOperationContext ctx, List<JsonDoc> documents, boolean upsert, Projection projection) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public CRUDUpdateResponse update(MetadataResolver resolver, Factory factory, String entity, QueryExpression query, UpdateExpression update, Projection projection) {
+    public CRUDUpdateResponse update(CRUDOperationContext ctx, String entity, QueryExpression query, UpdateExpression update, Projection projection) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public CRUDDeleteResponse delete(MetadataResolver resolver, Factory factory, String entity, QueryExpression query) {
+    public CRUDDeleteResponse delete(CRUDOperationContext ctx, String entity, QueryExpression query) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public CRUDFindResponse find(MetadataResolver resolver, Factory factory, String entity, QueryExpression query, Projection projection, Sort sort, Long from, Long to) {
+    public CRUDFindResponse find(CRUDOperationContext ctx, String entity, QueryExpression query, Projection projection, Sort sort, Long from, Long to) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

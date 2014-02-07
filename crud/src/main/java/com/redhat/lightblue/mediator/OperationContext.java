@@ -18,12 +18,12 @@
  */
 package com.redhat.lightblue.mediator;
 
-import com.redhat.lightblue.crud.MetadataResolver;
 import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -34,11 +34,12 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ReferenceField;
 
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.CRUDOperationContext;
 
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;
 
-public class OperationContext implements MetadataResolver, Serializable {
+public class OperationContext implements CRUDOperationContext, Serializable {
 
     private static final long serialVersionUID = 1;
 
@@ -49,6 +50,7 @@ public class OperationContext implements MetadataResolver, Serializable {
     private final Map<String, EntityMetadata> metadata = new HashMap<>();
     private List<JsonDoc> docs;
     private Operation operation;
+    private Set<String> callerRoles;
 
     public OperationContext(Request request,
                             Response response,
@@ -66,6 +68,7 @@ public class OperationContext implements MetadataResolver, Serializable {
         return md;
     }
 
+    @Override
     public Factory getFactory() {
         return factory;
     }
@@ -97,6 +100,15 @@ public class OperationContext implements MetadataResolver, Serializable {
 
     public void setDocs(List<JsonDoc> docs) {
         this.docs = docs;
+    }
+
+    @Override
+    public Set<String> getCallerRoles() {
+        return callerRoles;
+    }
+
+    public void setCallerRoles(Set<String> roles) {
+        callerRoles=roles;
     }
 
     private void initMetadata(EntityMetadata m) {

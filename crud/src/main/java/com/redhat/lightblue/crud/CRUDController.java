@@ -32,8 +32,7 @@ public interface CRUDController {
     /**
      * Performs insertion of documents to the back end
      *
-     * @param resolver The metadata resolver
-     * @param factory The factory object
+     * @param ctx Operation context
      * @param documents The documents to insert
      * @param projection If non-null, the inserted documents are projected using this projection and returned in the
      * response
@@ -43,16 +42,14 @@ public interface CRUDController {
      * Documents can belong to different data stores of the same back-end. If projection is non-null, the data must be
      * projected and returned, otherwise, no data is returned.
      */
-    CRUDInsertionResponse insert(MetadataResolver resolver,
-                                 Factory factory,
+    CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                  List<JsonDoc> documents,
                                  Projection projection);
 
     /**
      * Performs update or insertion of documents to the back end
      *
-     * @param resolver The metadata resolver
-     * @param factory The factory object
+     * @param ctx Operation context
      * @param documents The documents to insert or update
      * @param upsert If true, and if a document does not exist, it is inserted
      * @param projection If non-null, the inserted/updated documents are projected using this projection and returned in
@@ -64,8 +61,7 @@ public interface CRUDController {
      * field, the document is updated in the db. Otherwise, if upsert is true, the document is updated. If projection is
      * non-null, the data must be projected and returned, otherwise, no data is returned.
      */
-    CRUDSaveResponse save(MetadataResolver resolver,
-                          Factory factory,
+    CRUDSaveResponse save(CRUDOperationContext ctx,
                           List<JsonDoc> documents,
                           boolean upsert,
                           Projection projection);
@@ -73,8 +69,7 @@ public interface CRUDController {
     /**
      * Updates documents matching the search criteria
      *
-     * @param resolver The metadata resolver
-     * @param factory The factory object
+     * @param ctx Operation context
      * @param entity The entity to work on
      * @param query The query specifying the documents to update
      * @param update The update expression specifying the operations to be performed on matching documents
@@ -82,8 +77,7 @@ public interface CRUDController {
      *
      * If projection is non-null, the updated documents are projected and returned.
      */
-    CRUDUpdateResponse update(MetadataResolver resolver,
-                              Factory factory,
+    CRUDUpdateResponse update(CRUDOperationContext ctx,
                               String entity,
                               QueryExpression query,
                               UpdateExpression update,
@@ -93,21 +87,18 @@ public interface CRUDController {
     /**
      * Deletes documents matching the search criteria
      *
-     * @param resolver The metadata resolver
-     * @param factory The factory object
+     * @param ctx Operation context
      * @param entity The entity to work on
      * @param query The query specifying the documents to delete
      *
      */
-    CRUDDeleteResponse delete(MetadataResolver resolver,
-                              Factory factory,
+    CRUDDeleteResponse delete(CRUDOperationContext ctx,
                               String entity,
                               QueryExpression query);
    /**
      * Searches for documents
      *
-     * @param resolver The metadata resolver
-     * @param factory The factory object
+     * @param ctx Operation context
      * @param entity The entity to search for
      * @param query The query. Cannot be null
      * @param projection What fields to return. Cannot be null
@@ -115,8 +106,7 @@ public interface CRUDController {
      * @param from starting index in the result set. Can be null. Meaninguful only if a sort is given. Starts from 0.
      * @param to end index in the result set. Starts from 0, and inclusive. Can be null.
      */
-    CRUDFindResponse find(MetadataResolver resolver,
-                          Factory factory,
+    CRUDFindResponse find(CRUDOperationContext ctx,
                           String entity,
                           QueryExpression query,
                           Projection projection,

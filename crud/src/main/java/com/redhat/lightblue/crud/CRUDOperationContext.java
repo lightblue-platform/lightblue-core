@@ -16,19 +16,18 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue;
+package com.redhat.lightblue.crud;
 
-import com.redhat.lightblue.util.JsonObject;
+import java.util.Set;
 
 /**
- * This is the base class for implementation specific client identification. Implementations of this class must contain
- * data that identifies the caller of an API
+ * An implementation of this class is passed into CRUD operation
+ * implementations. It contains information about the caller roles,
+ * correct metadata versions, and the constraint validators that will
+ * be used in this call.
  */
-public abstract class ClientIdentification extends JsonObject {
-    private static final long serialVersionUID = 1L;
-    
-    /**
-     * Return the roles the caller is in.
-     */
-    public abstract String[] getCallerRoles();
+public interface CRUDOperationContext extends MetadataResolver {
+
+    public Factory getFactory();
+    public Set<String> getCallerRoles();
 }

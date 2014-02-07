@@ -28,8 +28,7 @@ import com.redhat.lightblue.query.Projection;
  */
 public class InsertionRequest extends Request {
 
-	private static final long serialVersionUID = 1L;
-	private transient JsonNode entityData;
+    private transient JsonNode entityData;
     private Projection returnFields;
 
     /**
