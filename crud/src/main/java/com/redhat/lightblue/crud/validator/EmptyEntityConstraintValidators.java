@@ -18,19 +18,15 @@
  */
 package com.redhat.lightblue.crud.validator;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
-import com.redhat.lightblue.util.Resolver;
-
-import com.redhat.lightblue.metadata.Index;
-import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
-import com.redhat.lightblue.metadata.EntityConstraint;
-
-import com.redhat.lightblue.crud.EntityConstraintChecker;
 import com.redhat.lightblue.crud.ConstraintValidator;
-
+import com.redhat.lightblue.crud.EntityConstraintChecker;
+import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Resolver;
 
 /**
  * This class contains empty entity constraint validators. These

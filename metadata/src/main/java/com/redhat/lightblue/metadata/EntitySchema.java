@@ -47,6 +47,9 @@ public class EntitySchema implements Serializable {
     private final FieldTreeNode fieldRoot;
 
     private class RootNode implements FieldTreeNode, Serializable {
+        
+        private static final long serialVersionUID = 1L;
+
         @Override
         public String getName() {
             return "";
