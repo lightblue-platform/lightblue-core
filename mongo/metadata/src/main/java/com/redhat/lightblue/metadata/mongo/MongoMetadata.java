@@ -60,6 +60,7 @@ public class MongoMetadata implements Metadata {
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
 
     private static final String LITERAL_ID = "_id";
+    private static final String LITERAL_ENTITY_NAME = "entityName";
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
@@ -95,7 +96,7 @@ public class MongoMetadata implements Metadata {
     public EntityMetadata getEntityMetadata(String entityName,
                                             String version) {
         if (entityName == null || entityName.length() == 0) {
-            throw new IllegalArgumentException("entityName");
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
         if (version == null || version.length() == 0) {
             throw new IllegalArgumentException(LITERAL_VERSION);
@@ -122,7 +123,7 @@ public class MongoMetadata implements Metadata {
 
     public EntityInfo getEntityInfo(String entityName) {
         if (entityName == null || entityName.length() == 0) {
-            throw new IllegalArgumentException("entityName");
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
 
         Error.push("getEntityInfo(" + entityName + ")");
@@ -159,7 +160,7 @@ public class MongoMetadata implements Metadata {
     @Override
     public Version[] getEntityVersions(String entityName) {
         if (entityName == null || entityName.length() == 0) {
-            throw new IllegalArgumentException("entityName");
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
         Error.push("getEntityVersions(" + entityName + ")");
         try {
@@ -167,7 +168,7 @@ public class MongoMetadata implements Metadata {
             BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName)
                     .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
             BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
-            project.append("_id", 0);
+            project.append(LITERAL_ID, 0);
             DBCursor cursor = collection.find(query, project);
             int n = cursor.count();
             Version[] ret = new Version[n];
@@ -304,7 +305,7 @@ public class MongoMetadata implements Metadata {
                                   String comment) {
 
         if (entityName == null || entityName.length() == 0) {
-            throw new IllegalArgumentException("entityName");
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
         if (version == null || version.length() == 0) {
             throw new IllegalArgumentException(LITERAL_VERSION);
@@ -328,7 +329,7 @@ public class MongoMetadata implements Metadata {
             schema.getStatusChangeLog().add(newLog);
             schema.setStatus(newStatus);
 
-            query = new BasicDBObject("_id", md.get("_id"));
+            query = new BasicDBObject(LITERAL_ID, md.get(LITERAL_ID));
             WriteResult result = collection.
                     update(query, (DBObject) mdParser.convert(schema), false, false);
             String error = result.getError();

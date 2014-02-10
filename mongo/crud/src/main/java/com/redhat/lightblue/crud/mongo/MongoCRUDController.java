@@ -220,8 +220,7 @@ public class MongoCRUDController implements CRUDController {
                             result = collection.insert(doc, WriteConcern.SAFE);
                         }
                     } else if(x!=null) {
-                        if( (upsert&&insertAccess&&updateAccess) ||
-                            (!upsert&updateAccess)) {
+                        if (canModify(insertAccess, updateAccess, upsert)) {
                             BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
                             LOGGER.debug("update query: {}",q);
                             result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
@@ -250,6 +249,13 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("saveOrInsert complete, {} sucessful updates", successfulUpdates.size());
     }
     
+    private boolean canModify(boolean insertAccess, boolean updateAccess, boolean upsertAccess) {
+        if(upsertAccess) {
+            return upsertAccess && insertAccess && updateAccess;
+        } else {
+            return !upsertAccess & updateAccess;
+        }
+    }
     
     private void reorganizeErrors(Map<DBObject, List<Error>> errorMap, Translator translator, Projector projector, AbstractCRUDUpdateResponse response) {
         List<DataError> dataErrors = new ArrayList<DataError>();

@@ -119,7 +119,8 @@ public final class PredefinedFields {
     private static void ensureID(EntityMetadata md) {
         Field f=md.getFields().getField(ID_FIELD);
         if(f==null) {
-            md.getFields().addNew(f=new SimpleField(ID_FIELD,StringType.TYPE));
+            f=new SimpleField(ID_FIELD,StringType.TYPE);
+            md.getFields().addNew(f);
         }
         if(f instanceof SimpleField &&
            // ID can be string, int, bigint
@@ -153,7 +154,8 @@ public final class PredefinedFields {
     private static void ensureObjectType(EntityMetadata md) {
         Field f=md.getFields().getField(OBJECTTYPE_FIELD);
         if(f==null) {
-            md.getFields().addNew(f=new SimpleField(OBJECTTYPE_FIELD,StringType.TYPE));
+            f=new SimpleField(OBJECTTYPE_FIELD,StringType.TYPE);
+            md.getFields().addNew(f);
         }
             
         if(f instanceof SimpleField&&
@@ -238,7 +240,8 @@ public final class PredefinedFields {
         Field f=fields.getField(fieldName);
         ParentNewChild ret;
         if(f==null) {
-            ret=new ParentNewChild(fields,f=new SimpleField(fieldName,IntegerType.TYPE));
+            f = new SimpleField(fieldName, IntegerType.TYPE);
+            ret = new ParentNewChild(fields, f);
         } else {
             ret=null;
         }
