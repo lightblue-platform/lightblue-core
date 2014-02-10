@@ -47,7 +47,6 @@ public class ForEachExpressionEvaluator extends Updater {
     private static final Logger LOGGER = LoggerFactory.getLogger(ForEachExpressionEvaluator.class);
 
     private final Path field;
-    private final Path absField;
     private final ArrayField fieldMd;
     private final QueryEvaluator queryEvaluator;
     private final Updater updater;
@@ -86,8 +85,6 @@ public class ForEachExpressionEvaluator extends Updater {
         if(field.nAnys()>0) {
             throw new EvaluationError("Pattern not expected:"+field);
         }
-        absField=fieldMd.getFullPath();
-        LOGGER.debug("Full path to Field is: " + absField.toString());
         // Get a query evaluator
         QueryExpression query=expr.getQuery();
         if(query instanceof AllMatchExpression) {

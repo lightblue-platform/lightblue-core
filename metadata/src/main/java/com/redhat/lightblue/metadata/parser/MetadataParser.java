@@ -81,6 +81,7 @@ public abstract class MetadataParser<T> {
     public static final String ERR_INVALID_CONSTRAINT = "INVALID_CONSTRAINT";
     public static final String ERR_INVALID_TYPE = "INVALID_TYPE";
 
+    private static final String STR_NAME = "name";
     private static final String STR_VALUE = "value";
     private static final String STR_VERSION = "version";
     private static final String STR_FIND = "find";
@@ -89,13 +90,35 @@ public abstract class MetadataParser<T> {
     private static final String STR_ACCESS = "access";
     private static final String STR_UPDATE = "update";
     private static final String STR_FIELDS = "fields";
+    private static final String STR_VALUES = "values";
+    private static final String STR_ITEMS = "items";
+    private static final String STR_UNIQUE = "unique";
+    private static final String STR_INDEXES = "indexes";
     private static final String STR_TYPE = "type";
-
+    private static final String STR_ENUMS = "enums";
+    private static final String STR_ENTITY_INFO = "entityInfo";
+    private static final String STR_SCHEMA = "schema";
+    private static final String STR_DATASTORE = "datastore";
+    private static final String STR_EXTEND_VERSIONS = "extendVersions";
+    private static final String STR_CHANGELOG = "changelog";
+    private static final String STR_LOG = "log";
+    private static final String STR_DATE = "date";
+    private static final String STR_COMMENT = "comment";
+    private static final String STR_DELETE = "delete";
+    private static final String STR_INSERT = "insert";
+    private static final String STR_ENTITY = "entity";
+    private static final String STR_VERSION_VALUE = "versionValue";
+    private static final String STR_PROJECTION = "projection";
+    private static final String STR_QUERY = "query";
+    private static final String STR_SORT = "sort";
+    private static final String STR_ACTIVE = "active";
+    private static final String STR_DEPRECATED = "deprecated";
+    private static final String STR_DISABLED = "disabled";
+    
     private final Extensions<T> extensions;
     private final TypeResolver typeResolver;
 
-    public MetadataParser(Extensions<T> ex,
-                          TypeResolver typeResolver) {
+    public MetadataParser(Extensions<T> ex, TypeResolver typeResolver) {
         this.extensions = ex;
         this.typeResolver = typeResolver;
     }
@@ -120,8 +143,8 @@ public abstract class MetadataParser<T> {
     public EntityMetadata parseEntityMetadata(T object) {
         Error.push("parseEntityMetadata");
         try {
-            EntityInfo info = parseEntityInfo(getRequiredObjectProperty(object, "entityInfo"));
-            EntitySchema schema = parseEntitySchema(getRequiredObjectProperty(object, "schema"));
+            EntityInfo info = parseEntityInfo(getRequiredObjectProperty(object, STR_ENTITY_INFO));
+            EntitySchema schema = parseEntitySchema(getRequiredObjectProperty(object, STR_SCHEMA));
 
             EntityMetadata md = new EntityMetadata(info, schema);
 
@@ -139,14 +162,14 @@ public abstract class MetadataParser<T> {
     public EntityInfo parseEntityInfo(T object) {
         Error.push("parseEntityInfo");
         try {
-            String name = getRequiredStringProperty(object, "name");
+            String name = getRequiredStringProperty(object, STR_NAME);
 
             EntityInfo info = new EntityInfo(name);
 
-            info.setIndexes(parseIndexes(getObjectProperty(object, "indexes")));
-            info.setEnums(parseEnums(getObjectProperty(object, "enums")));
+            info.setIndexes(parseIndexes(getObjectProperty(object, STR_INDEXES)));
+            info.setEnums(parseEnums(getObjectProperty(object, STR_ENUMS)));
 
-            T datastore = getRequiredObjectProperty(object, "datastore");
+            T datastore = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(datastore));
             return info;
         } finally {
@@ -184,9 +207,9 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 Index index = new Index();
 
-                String name = getStringProperty(object, "name");
-                Object unique = getValueProperty(object, "unique");
-                List<String> fields = getStringList(object, "fields");
+                String name = getStringProperty(object, STR_NAME);
+                Object unique = getValueProperty(object, STR_UNIQUE);
+                List<String> fields = getStringList(object, STR_FIELDS);
 
                 if (null != name) {
                     index.setName(name);
@@ -203,7 +226,7 @@ public abstract class MetadataParser<T> {
                     }
                     index.setFields(f);
                 } else {
-                    Error.get(ERR_PARSE_MISSING_ELEMENT, "fields");
+                    Error.get(ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
                 }
 
                 return index;
@@ -245,8 +268,8 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 Enum e = new Enum();
 
-                String name = getStringProperty(object, "name");
-                List<String> values = getStringList(object, "values");
+                String name = getStringProperty(object, STR_NAME);
+                List<String> values = getStringList(object, STR_VALUES);
 
                 if (null != name) {
                     e.setName(name);
@@ -255,7 +278,7 @@ public abstract class MetadataParser<T> {
                 if (null != values && !values.isEmpty()) {
                     e.setValues(values);
                 } else {
-                    Error.get(ERR_PARSE_MISSING_ELEMENT, "values");
+                    Error.get(ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
                 return e;
@@ -275,7 +298,7 @@ public abstract class MetadataParser<T> {
     public EntitySchema parseEntitySchema(T object) {
         Error.push("parseEntitySchema");
         try {
-            String name = getRequiredStringProperty(object, "name");
+            String name = getRequiredStringProperty(object, STR_NAME);
 
             EntitySchema schema = new EntitySchema(name);
             T version = getRequiredObjectProperty(object, STR_VERSION);
@@ -315,11 +338,11 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 Version v = new Version();
                 v.setValue(getRequiredStringProperty(object, STR_VALUE));
-                List<String> l = getStringList(object, "extendedVersions");
+                List<String> l = getStringList(object, STR_EXTEND_VERSIONS);
                 if (l != null) {
                     v.setExtendsVersions(l.toArray(new String[l.size()]));
                 }
-                v.setChangelog(getRequiredStringProperty(object, "changelog"));
+                v.setChangelog(getRequiredStringProperty(object, STR_CHANGELOG));
                 return v;
             } else {
                 return null;
@@ -338,19 +361,19 @@ public abstract class MetadataParser<T> {
         Error.push(STR_STATUS);
         try {
             schema.setStatus(statusFromString(getRequiredStringProperty(object, STR_VALUE)));
-            List<T> logList = getObjectList(object, "log");
+            List<T> logList = getObjectList(object, STR_LOG);
             List<StatusChange> list = new ArrayList<>();
             if (logList != null) {
                 for (T log : logList) {
                     StatusChange item = new StatusChange();
-                    String d = getRequiredStringProperty(log, "date");
+                    String d = getRequiredStringProperty(log, STR_DATE);
                     try {
                         item.setDate(DateType.getDateFormat().parse(d));
                     } catch (ParseException e) {
                         throw Error.get(ERR_ILL_FORMED_METADATA, d);
                     }
                     item.setStatus(statusFromString(getRequiredStringProperty(log, STR_VALUE)));
-                    item.setComment(getRequiredStringProperty(log, "comment"));
+                    item.setComment(getRequiredStringProperty(log, STR_COMMENT));
                     list.add(item);
                 }
                 schema.setStatusChangeLog(list);
@@ -373,8 +396,8 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 parseAccess(access.getFind(), getStringList(object, STR_FIND));
                 parseAccess(access.getUpdate(), getStringList(object, STR_UPDATE));
-                parseAccess(access.getDelete(), getStringList(object, "delete"));
-                parseAccess(access.getInsert(), getStringList(object, "insert"));
+                parseAccess(access.getDelete(), getStringList(object, STR_DELETE));
+                parseAccess(access.getInsert(), getStringList(object, STR_INSERT));
             }
         } finally {
             Error.pop();
@@ -560,14 +583,14 @@ public abstract class MetadataParser<T> {
     private Field parseReferenceField(String name,
                                       T object) {
         ReferenceField field = new ReferenceField(name);
-        field.setEntityName(getRequiredStringProperty(object, "entity"));
-        field.setVersionValue(getRequiredStringProperty(object, "versionValue"));
+        field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
+        field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
         try {
-            String x = getRequiredStringProperty(object, "projection");
+            String x = getRequiredStringProperty(object, STR_PROJECTION);
             field.setProjection(Projection.fromJson(JsonUtils.json(x)));
-            x = getRequiredStringProperty(object, "query");
+            x = getRequiredStringProperty(object, STR_QUERY);
             field.setQuery(QueryExpression.fromJson(JsonUtils.json(x)));
-            x = getStringProperty(object, "sort");
+            x = getStringProperty(object, STR_SORT);
             if (x != null) {
                 field.setSort(Sort.fromJson(JsonUtils.json(x)));
             }
@@ -577,18 +600,16 @@ public abstract class MetadataParser<T> {
         return field;
     }
 
-    private Field parseObjectField(String name,
-                                   T object) {
+    private Field parseObjectField(String name, T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
         parseFields(field.getFields(), fields);
         return field;
     }
 
-    private Field parseArrayField(String name,
-                                  T object) {
+    private Field parseArrayField(String name, T object) {
         ArrayField field = new ArrayField(name);
-        T items = getRequiredObjectProperty(object, "items");
+        T items = getRequiredObjectProperty(object, STR_ITEMS);
         field.setElement(parseArrayItem(items));
         return field;
     }
@@ -623,8 +644,8 @@ public abstract class MetadataParser<T> {
         Error.push("convert[metadata]");
         try {
             T ret = newNode();
-            putObject(ret, "entityInfo", convert(md.getEntityInfo()));
-            putObject(ret, "schema", convert(md.getEntitySchema()));
+            putObject(ret, STR_ENTITY_INFO, convert(md.getEntityInfo()));
+            putObject(ret, STR_SCHEMA, convert(md.getEntitySchema()));
             return ret;
         } finally {
             Error.pop();
@@ -639,7 +660,7 @@ public abstract class MetadataParser<T> {
         try {
             T ret = newNode();
             if (info.getName() != null) {
-                putString(ret, "name", info.getName());
+                putString(ret, STR_NAME, info.getName());
             }
             if (info.getIndexes() != null && !info.getIndexes().isEmpty()) {
                 // indexes is an array directly on the entity info, so do not create a new node ere, let conversion handle it
@@ -652,7 +673,7 @@ public abstract class MetadataParser<T> {
             if (info.getDataStore() != null) {
                 T dsNode = newNode();
                 convertDataStore(dsNode, info.getDataStore());
-                putObject(ret, "datastore", dsNode);
+                putObject(ret, STR_DATASTORE, dsNode);
             }
             return ret;
         } finally {
@@ -668,7 +689,7 @@ public abstract class MetadataParser<T> {
         try {
             T ret = newNode();
             if (schema.getName() != null) {
-                putString(ret, "name", schema.getName());
+                putString(ret, STR_NAME, schema.getName());
             }
             putObject(ret, STR_VERSION, convert(schema.getVersion()));
             putObject(ret, STR_STATUS, convert(schema.getStatus(), schema.getStatusChangeLog()));
@@ -694,13 +715,13 @@ public abstract class MetadataParser<T> {
                 }
                 String[] ex = v.getExtendsVersions();
                 if (ex != null && ex.length > 0) {
-                    Object arr = newArrayField(obj, "extendsVersions");
+                    Object arr = newArrayField(obj, STR_EXTEND_VERSIONS);
                     for (String x : ex) {
                         addStringToArray(arr, x);
                     }
                 }
                 if (v.getChangelog() != null) {
-                    putString(obj, "changelog", v.getChangelog());
+                    putString(obj, STR_CHANGELOG, v.getChangelog());
                 }
                 return obj;
             } finally {
@@ -720,17 +741,17 @@ public abstract class MetadataParser<T> {
 
                 // only create log if you have a value for status, else isn't schema compliant 
                 if (!changeLog.isEmpty()) {
-                    Object logArray = newArrayField(obj, "log");
+                    Object logArray = newArrayField(obj, STR_LOG);
                     for (StatusChange x : changeLog) {
                         T log = newNode();
                         if (x.getDate() != null) {
-                            putString(log, "date", DateType.getDateFormat().format(x.getDate()));
+                            putString(log, STR_DATE, DateType.getDateFormat().format(x.getDate()));
                         }
                         if (x.getStatus() != null) {
                             putString(log, STR_VALUE, toString(x.getStatus()));
                         }
                         if (x.getComment() != null) {
-                            putString(log, "comment", x.getComment());
+                            putString(log, STR_COMMENT, x.getComment());
                         }
                         addObjectToArray(logArray, log);
                     }
@@ -751,10 +772,10 @@ public abstract class MetadataParser<T> {
             Error.push(STR_ACCESS);
             try {
                 T ret = newNode();
-                convertRoles(ret, "insert", access.getInsert());
+                convertRoles(ret, STR_INSERT, access.getInsert());
                 convertRoles(ret, STR_UPDATE, access.getUpdate());
                 convertRoles(ret, STR_FIND, access.getFind());
-                convertRoles(ret, "delete", access.getDelete());
+                convertRoles(ret, STR_DELETE, access.getDelete());
                 return ret;
             } finally {
                 Error.pop();
@@ -866,24 +887,24 @@ public abstract class MetadataParser<T> {
     }
 
     public void convertIndexes(T parent, Indexes indexes) {
-        Error.push("indexes");
+        Error.push(STR_INDEXES);
         try {
             if (indexes != null && !indexes.isEmpty()) {
                 // create array node for indexes
-                Object array = newArrayField(parent, "indexes");
+                Object array = newArrayField(parent, STR_INDEXES);
 
                 // for each index, add it to array
                 for (Index i : indexes.getIndexes()) {
                     T node = newNode();
                     addObjectToArray(array, node);
-                    putString(node, "name", i.getName());
+                    putString(node, STR_NAME, i.getName());
                     // assume that if is not unique we don't need to set the flag
                     if (i.isUnique()) {
-                        putValue(node, "unique", Boolean.TRUE);
+                        putValue(node, STR_UNIQUE, Boolean.TRUE);
                     }
 
                     // for each field, add to a new fields array
-                    Object indexObj = newArrayField(node, "fields");
+                    Object indexObj = newArrayField(node, STR_FIELDS);
                     for (Path p : i.getFields()) {
                         addStringToArray(indexObj, p.toString());
                     }
@@ -895,20 +916,20 @@ public abstract class MetadataParser<T> {
     }
 
     public void convertEnums(T parent, Enums enums) {
-        Error.push("indexes");
+        Error.push(STR_INDEXES);
         try {
             if (enums != null && !enums.isEmpty()) {
                 // create array node for enums
-                Object array = newArrayField(parent, "enums");
+                Object array = newArrayField(parent, STR_ENUMS);
 
                 // for each enum, add it to array
                 for (Enum e : enums.getEnums()) {
                     T node = newNode();
                     addObjectToArray(array, node);
-                    putString(node, "name", e.getName());
+                    putString(node, STR_NAME, e.getName());
 
                     // for each value, add to a new values array
-                    Object indexObj = newArrayField(node, "values");
+                    Object indexObj = newArrayField(node, STR_VALUES);
                     for (String v : e.getValues()) {
                         addStringToArray(indexObj, v);
                     }
@@ -923,7 +944,7 @@ public abstract class MetadataParser<T> {
      * Adds the description of datastore to parent as a field named by the type of the datastore
      */
     public void convertDataStore(T parent, DataStore store) {
-        Error.push("datastore");
+        Error.push("convertDataStore");
         try {
             String type = store.getType();
             DataStoreParser<T> parser = getDataStoreParser(type);
@@ -945,7 +966,7 @@ public abstract class MetadataParser<T> {
     private void convertArrayField(ArrayField field, T fieldObject) {
         ArrayElement el = field.getElement();
         T items = newNode();
-        putObject(fieldObject, "items", items);
+        putObject(fieldObject, STR_ITEMS, items);
         putString(items, STR_TYPE, el.getType().getName());
         if (el instanceof ObjectArrayElement) {
             convertObjectArrayElement((ObjectArrayElement) el, items);
@@ -953,16 +974,16 @@ public abstract class MetadataParser<T> {
     }
 
     private void convertReferenceField(ReferenceField field, T fieldObject) {
-        putString(fieldObject, "entity", field.getEntityName());
-        putString(fieldObject, "versionValue", field.getVersionValue());
+        putString(fieldObject, STR_ENTITY, field.getEntityName());
+        putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
         if (field.getProjection() != null) {
-            putString(fieldObject, "projection", field.getProjection().toString());
+            putString(fieldObject, STR_PROJECTION, field.getProjection().toString());
         }
         if (field.getQuery() != null) {
-            putString(fieldObject, "query", field.getQuery().toString());
+            putString(fieldObject, STR_QUERY, field.getQuery().toString());
         }
         if (field.getSort() != null) {
-            putString(fieldObject, "sort", field.getSort().toString());
+            putString(fieldObject, STR_SORT, field.getSort().toString());
         }
     }
 
@@ -983,22 +1004,22 @@ public abstract class MetadataParser<T> {
     private String toString(MetadataStatus status) {
         switch (status) {
             case ACTIVE:
-                return "active";
+                return STR_ACTIVE;
             case DEPRECATED:
-                return "deprecated";
+                return STR_DEPRECATED;
             case DISABLED:
-                return "disabled";
+                return STR_DISABLED;
         }
         return null;
     }
 
     private MetadataStatus statusFromString(String status) {
         switch (status) {
-            case "active":
+            case STR_ACTIVE:
                 return MetadataStatus.ACTIVE;
-            case "deprecated":
+            case STR_DEPRECATED:
                 return MetadataStatus.DEPRECATED;
-            case "disabled":
+            case STR_DISABLED:
                 return MetadataStatus.DISABLED;
             default:
                 throw Error.get(ERR_PARSE_INVALID_STATUS, status);
@@ -1028,7 +1049,7 @@ public abstract class MetadataParser<T> {
      * @return The string property requested, or null if property does not exist
      */
     public String getRequiredStringProperty(T object, String name) {
-        Error.push("required");
+        Error.push("getRequiredStringProperty");
         Error.push(name);
         try {
             String property = getStringProperty(object, name);
@@ -1065,7 +1086,7 @@ public abstract class MetadataParser<T> {
      * @return The property requested, or null if property does not exist
      */
     public T getRequiredObjectProperty(T object, String name) {
-        Error.push("required");
+        Error.push("getRequiredObjectProperty");
         Error.push(name);
         try {
             T property = getObjectProperty(object, name);

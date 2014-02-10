@@ -32,7 +32,7 @@ public class EntityInfo implements Serializable {
     private final String name;
     //hooks
     private Indexes indexes;
-    private Enums enums;
+    private transient Enums enums;
     private DataStore dataStore;
 
     public EntityInfo(String name) {
