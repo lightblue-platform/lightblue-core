@@ -18,11 +18,16 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
+import com.google.common.base.Joiner;
 import com.redhat.lightblue.util.JsonObject;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Base class for all projection objects
@@ -37,4 +42,25 @@ public abstract class Projection extends JsonObject {
             return BasicProjection.fromJson((ObjectNode) node);
         }
     }
+    
+    protected static Path getNonRelativePath(Path p) {
+        List<String> segments = new ArrayList<String>();
+        int numberOfParentsOnPath = 0;
+        for (int i = p.numSegments() - 1; i >= 0; i--) {
+            if(Path.THIS.equals(p.head(i))) {
+                continue;
+            } else if(Path.PARENT.equals(p.head(i))) {
+                numberOfParentsOnPath ++ ;
+            } else {
+                if(numberOfParentsOnPath > 0) {
+                    numberOfParentsOnPath --;
+                    continue;
+                }
+                segments.add(p.head(i));
+            }
+        }
+        Collections.reverse(segments);
+        return new Path(Joiner.on(".").join(segments));
+    }
+
 }

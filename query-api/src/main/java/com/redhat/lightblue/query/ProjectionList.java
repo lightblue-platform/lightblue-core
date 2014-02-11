@@ -18,9 +18,9 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -58,8 +58,7 @@ public class ProjectionList extends Projection {
 
     public static ProjectionList fromJson(ArrayNode node) {
         ArrayList<Projection> list = new ArrayList<Projection>(node.size());
-        for (Iterator<JsonNode> itr = node.elements();
-                itr.hasNext();) {
+        for (Iterator<JsonNode> itr = node.elements();itr.hasNext();) {
             list.add(BasicProjection.fromJson((ObjectNode) itr.next()));
         }
         return new ProjectionList(list);

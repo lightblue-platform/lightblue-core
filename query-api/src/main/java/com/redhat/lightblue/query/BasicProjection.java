@@ -43,7 +43,9 @@ public abstract class BasicProjection extends Projection {
         if (field == null) {
             throw Error.get(INVALID_PROJECTION, "field");
         }
-        Path path = new Path(field);
+        
+        Path path = getNonRelativePath(new Path(field));
+        
         // Processing of optional elements. We decide on the type of
         // the final object based on what fields this object has
         JsonNode x = node.get("include");

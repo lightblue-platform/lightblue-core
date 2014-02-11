@@ -109,6 +109,9 @@ public abstract class Projector {
                            QueryEvaluationContext ctx) {
         JsonNodeCursor cursor = doc.cursor();
         cursor.firstChild();
+        
+        resolveRelativePathsForItems();
+        
         ObjectNode root = projectObject(this,
                 factory,
                 rootMdNode,
@@ -116,6 +119,15 @@ public abstract class Projector {
                 cursor,
                 ctx == null ? new QueryEvaluationContext(doc.getRoot()) : ctx);
         return new JsonDoc(root);
+    }
+
+    private void resolveRelativePathsForItems() {
+//        for(String item : this.) {
+//            
+//        }
+        
+        
+        
     }
 
     private ObjectNode projectObject(Projector projector,
