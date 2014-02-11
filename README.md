@@ -2,3 +2,13 @@ lightblue
 =========
 
 Project lightblue is designed to enable faster time to market on strategic business demands by increasing availability, resiliency, consistency, and performance of data SOA Services in a scalable, resilient and cloud capable fashion.  It breaks away from traditional modeling aproachs of knowing data structures at design time and provides a metadata driven framework with MongoDB support.  Lightblue is based on analysis of existing development models and is driven by a need to reduce maintenance and feature requests from external customers.  Some key features are versioned metadata, flexible plugin architecture, and the ability to aggregate data across various storage technologies (NoSQL, SQL, File, etc).  Red Hat IT is replacing 85% of its existing SOA Services with this one open source project and is reducing complexity, maintenance, support, and infrastructure needs while enhancing fexibility and security in a cloud enabled architecture.
+
+Open Source Dependencies
+========================
+
+* [Jackson](http://wiki.fasterxml.com/JacksonHome) - [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+* [Gson](https://code.google.com/p/google-gson/) - [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+* [JSONassert](https://github.com/skyscreamer/JSONassert) - [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+* [json-schema-validator](https://github.com/fge/json-schema-validator) - [LGPLv3 or later](https://www.gnu.org/licenses/lgpl.html)
+* [Flapdoodle Embedded MongoDB](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo) - [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+* [mongo-java-driver](https://github.com/mongodb/mongo-java-driver) - [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
