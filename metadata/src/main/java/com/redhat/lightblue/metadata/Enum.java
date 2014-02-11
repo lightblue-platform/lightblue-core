@@ -60,6 +60,7 @@ public class Enum implements Serializable {
     /**
      * The values allowed in this enumeration.
      */
+    @SuppressWarnings("unchecked")
     public Set<String> getValues() {
         return (HashSet<String>) values.clone();
     }

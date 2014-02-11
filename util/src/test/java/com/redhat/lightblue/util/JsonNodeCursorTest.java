@@ -8,8 +8,7 @@ package com.redhat.lightblue.util;
 import java.io.IOException;
 import java.util.Iterator;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;

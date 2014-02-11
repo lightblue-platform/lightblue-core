@@ -21,7 +21,7 @@ package com.redhat.lightblue.util.test;
 import java.io.IOException;
 import java.util.Iterator;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

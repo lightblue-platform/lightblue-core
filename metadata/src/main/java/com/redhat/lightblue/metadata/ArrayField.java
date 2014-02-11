@@ -27,6 +27,8 @@ import com.redhat.lightblue.metadata.types.ArrayType;
 
 public class ArrayField extends Field {
 	
+    private static final long serialVersionUID = 1L;
+    
     private ArrayElement element;
 
     public ArrayField(String name) {

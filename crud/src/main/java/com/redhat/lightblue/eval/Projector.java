@@ -22,28 +22,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.JsonNodeCursor;
-
+import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
-
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.FieldProjection;
-import com.redhat.lightblue.query.ProjectionList;
 import com.redhat.lightblue.query.ArrayMatchingElementsProjection;
-import com.redhat.lightblue.query.ArrayRangeProjection;
 import com.redhat.lightblue.query.ArrayQueryMatchProjection;
+import com.redhat.lightblue.query.ArrayRangeProjection;
+import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.ProjectionList;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonNodeCursor;
+import com.redhat.lightblue.util.Path;
 
 /**
  * This class evaluates a Projection.
@@ -110,8 +107,6 @@ public abstract class Projector {
         JsonNodeCursor cursor = doc.cursor();
         cursor.firstChild();
         
-        resolveRelativePathsForItems();
-        
         ObjectNode root = projectObject(this,
                 factory,
                 rootMdNode,
@@ -119,15 +114,6 @@ public abstract class Projector {
                 cursor,
                 ctx == null ? new QueryEvaluationContext(doc.getRoot()) : ctx);
         return new JsonDoc(root);
-    }
-
-    private void resolveRelativePathsForItems() {
-//        for(String item : this.) {
-//            
-//        }
-        
-        
-        
     }
 
     private ObjectNode projectObject(Projector projector,

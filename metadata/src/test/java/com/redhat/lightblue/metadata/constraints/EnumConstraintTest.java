@@ -3,9 +3,6 @@ package com.redhat.lightblue.metadata.constraints;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

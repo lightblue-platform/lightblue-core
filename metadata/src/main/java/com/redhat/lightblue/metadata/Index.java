@@ -72,6 +72,7 @@ public class Index implements Serializable {
     /**
      * The fields such that the ordered combination of their values must be unique
      */
+    @SuppressWarnings("unchecked")
     public List<Path> getFields() {
         return (ArrayList<Path>) fields.clone();
     }

@@ -5,20 +5,20 @@
  */
 package com.redhat.lightblue.crud.test;
 
+import java.util.List;
+
 import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.CRUDDeleteResponse;
-import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
-import java.util.List;
 
 /**
  *

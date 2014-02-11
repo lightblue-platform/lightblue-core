@@ -28,6 +28,7 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public abstract class Request extends JsonObject {
 	
+    private static final long serialVersionUID = 1L;
     private EntityVersion entity;
     private ClientIdentification client;
     private ExecutionOptions execution;

@@ -1,7 +1,6 @@
 package com.redhat.lightblue.eval;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +15,6 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
-import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
 public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {

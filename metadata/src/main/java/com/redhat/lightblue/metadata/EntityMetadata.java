@@ -81,7 +81,6 @@ public class EntityMetadata implements Serializable {
     /**
      * Returns the status change log
      */
-    @SuppressWarnings("unchecked")
     public List<StatusChange> getStatusChangeLog() {
         return schema.getStatusChangeLog();
     }
@@ -123,7 +122,6 @@ public class EntityMetadata implements Serializable {
     /**
      * Returns a deep copy list of constraints
      */
-    @SuppressWarnings("unchecked")
     public List<EntityConstraint> getConstraints() {
         return schema.getConstraints();
     }

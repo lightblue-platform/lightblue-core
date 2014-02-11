@@ -26,6 +26,7 @@ public class Enums {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<Enum> getEnums() {
         return (List<Enum>) enums.clone();
     }

@@ -1,14 +1,19 @@
 package com.redhat.lightblue.metadata.parser;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.json.JSONException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -21,14 +26,6 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.ParseException;
-
-import org.json.JSONException;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
@@ -315,7 +312,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = (JsonNode) parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.doubleValue(), x.doubleValue());
+        Assert.assertEquals(value.doubleValue(), x.doubleValue(), 0.001);
     }
 
     @Test
@@ -329,7 +326,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode x = (JsonNode) parent.get(name);
 
         Assert.assertNotNull(x);
-        Assert.assertEquals(value.floatValue(), x.floatValue());
+        Assert.assertEquals(value.floatValue(), x.floatValue(), 0.001);
     }
 
     @Test
@@ -400,7 +397,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
     @Test
     public void addStringToArray() {
-        String name = "foo";
         String value = "bar";
         ArrayNode array = new ArrayNode(factory);
 
@@ -414,7 +410,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
     @Test
     public void addObjectToArray() {
-        String name = "foo";
         JsonNode value = new TextNode("asdf");
         ArrayNode array = new ArrayNode(factory);
 
