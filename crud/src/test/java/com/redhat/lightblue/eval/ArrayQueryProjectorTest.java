@@ -45,8 +45,8 @@ public class ArrayQueryProjectorTest extends AbstractJsonNodeTest {
 
     @Before
     public void setUp() throws Exception {
-        doc = getDoc("./sample2.json");
-        md = getMd("./testMetadata2.json");
+        doc = getDoc("./sample1.json");
+        md = getMd("./testMetadata.json");
     }
     
     @Test(expected=com.redhat.lightblue.eval.EvaluationError.class)

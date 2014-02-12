@@ -55,7 +55,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projection p=json("[{'field':'field2'},{'field':'field6.*'}]");
         Projector projector=Projector.getInstance(p,md);
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{}}}".replace('\'','\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'','\"'));
         
         JsonDoc pdoc=projector.project(doc,factory,ctx);
 
@@ -68,10 +68,10 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projector projector=Projector.getInstance(p,md);
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
         
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2}}}".replace('\'','\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4]}}".replace('\'','\"'));
         
         JsonDoc pdoc=projector.project(doc,factory,ctx);
-        
+
         Assert.assertEquals(expectedNode.toString(),pdoc.toString());
     }
  
@@ -80,7 +80,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projection p=json("[{'field':'field7.$parent.field2'},{'field':'field7.$parent.field6.*'}]");
         Projector projector=Projector.getInstance(p,md);
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{}}}".replace('\'','\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'','\"'));
         
         JsonDoc pdoc=projector.project(doc,factory,ctx);
 
@@ -93,10 +93,11 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projector projector=Projector.getInstance(p,md);
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
         
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2}}}".replace('\'','\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4]}}".replace('\'','\"'));
         
         JsonDoc pdoc=projector.project(doc,factory,ctx);
-        
+        System.out.println("Expected: " + expectedNode.toString());
+        System.out.println("Actual: " + pdoc.toString());
         Assert.assertEquals(expectedNode.toString(),pdoc.toString());
     }
     
@@ -105,7 +106,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projection p=json("[{'field':'field6.nf7.$parent.$parent.field2'},{'field':'field6.nf7.$parent.$parent.field6.*'}]");
         Projector projector=Projector.getInstance(p,md);
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{}}}".replace('\'','\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'','\"'));
         
         JsonDoc pdoc=projector.project(doc,factory,ctx);
 
@@ -118,7 +119,7 @@ public class FieldProjectorTest extends AbstractJsonNodeTest {
         Projector projector=Projector.getInstance(p,md);
         QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
         
-        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2}}}".replace('\'','\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field2':'value2','field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[5,10,15,20],'nf6':['one','two','three','four'],'nf7':{'nnf1':'nnvalue1','nnf2':2},'nf8':['four','three','two','one'],'nf9':[20,15,10,5],'nf10':[20.1,15.2,10.3,5.4]}}".replace('\'','\"'));
         
         JsonDoc pdoc=projector.project(doc,factory,ctx);
         

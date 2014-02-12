@@ -48,8 +48,8 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
 
     @Before
     public void setUp() throws Exception {
-        md = getMd("./testMetadata2.json");
-        doc = getDoc("./sample2.json");
+        md = getMd("./testMetadata.json");
+        doc = getDoc("./sample1.json");
     }
 
     @Test

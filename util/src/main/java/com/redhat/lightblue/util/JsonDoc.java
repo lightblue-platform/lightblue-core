@@ -134,9 +134,7 @@ public class JsonDoc implements Serializable {
             return output;
         }
 
-        protected JsonNode handleNullChild(JsonNode parent,
-                                           Path p,
-                                           int level) {
+        protected JsonNode handleNullChild(JsonNode parent, Path p, int level) {
             return null;
         }
 
@@ -147,9 +145,9 @@ public class JsonDoc implements Serializable {
     }
 
     private static int findNextNonRealtiveSegment(Path path, int currentPosition) {
-        int indexOfSegment = -1;
+        int indexOfSegment = 0;
         
-        for(int i=currentPosition;i <= path.numSegments(); i++) {
+        for(int i=currentPosition;i < path.numSegments(); i++) {
             String segment = path.head(i);
             if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
                 indexOfSegment = i;
@@ -161,7 +159,7 @@ public class JsonDoc implements Serializable {
     }
     
     /**
-     * Given a path p=x_1.x_2...x_n, it creates all the intermetiate nodes x_1...x_(n-1), but not the node x_n. However,
+     * Given a path p=x_1.x_2...x_n, it creates all the intermediate nodes x_1...x_(n-1), but not the node x_n. However,
      * the node x_(n-1) is created correctly depending on the x_n: if x_n is an index, x_(n-1) is an ArrayNode,
      * otherwise x_(n-1) is an object node.
      */
