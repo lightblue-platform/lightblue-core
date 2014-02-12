@@ -2614,7 +2614,7 @@ Email: nmalik@redhat.com</content>
         <bounds x="1287" y="372"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="db07ed35" textAlignment="2" targetConnections="3b841ffe fe24058b" archimateElement="936beb35">
-        <bounds x="650" y="717" width="169" height="69"/>
+        <bounds x="624" y="767" width="169" height="69"/>
         <sourceConnection xsi:type="archimate:Connection" id="d763b1a0" source="db07ed35" target="84da4cca" relationship="c03a1d83"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="84da4cca" textAlignment="2" targetConnections="d763b1a0 c37b2980 c1f15650 31d06613 b724ab4f" archimateElement="bb928c1b">
@@ -2633,20 +2633,20 @@ Email: nmalik@redhat.com</content>
         <bounds x="338" y="849"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="7bf40c1f" textAlignment="2" archimateElement="85eed360">
-        <bounds x="218" y="740" width="181" height="62"/>
+        <bounds x="86" y="748" width="181" height="62"/>
         <sourceConnection xsi:type="archimate:Connection" id="d6ee5069" source="7bf40c1f" target="d84f0c40" relationship="3e6854d8"/>
         <sourceConnection xsi:type="archimate:Connection" id="87384397" source="7bf40c1f" target="44bc446d" relationship="a5f91989"/>
         <sourceConnection xsi:type="archimate:Connection" id="52818609" source="7bf40c1f" target="1b3fe110" relationship="67c85efb"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="f4746660" textAlignment="2" archimateElement="0aa820eb">
-        <bounds x="431" y="747" width="181" height="62"/>
+        <bounds x="301" y="745" width="181" height="62"/>
         <sourceConnection xsi:type="archimate:Connection" id="b55d5e1e" source="f4746660" target="1b3fe110" relationship="c5d23e25"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="44bc446d" textAlignment="2" targetConnections="87384397" archimateElement="1a3ad753">
-        <bounds x="372" y="624" width="157" height="70"/>
+        <bounds x="240" y="632" width="157" height="70"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="d84f0c40" textAlignment="2" targetConnections="d6ee5069" archimateElement="c40e4ad5">
-        <bounds x="206" y="624" width="133" height="70"/>
+        <bounds x="74" y="632" width="133" height="70"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="fdb9fdb5" textAlignment="2" targetConnections="e5d8134b c41789ea f2c3913b" archimateElement="543d2cc0">
         <bounds x="1287" y="585"/>
@@ -2673,17 +2673,17 @@ Email: nmalik@redhat.com</content>
         <bounds x="1121" y="414"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="c92d129e" textAlignment="2" targetConnections="7cff9f2f cad317cc" archimateElement="9de24768">
-        <bounds x="712" y="824" width="154" height="74"/>
+        <bounds x="648" y="864" width="154" height="74"/>
         <sourceConnection xsi:type="archimate:Connection" id="31d06613" source="c92d129e" target="84da4cca" relationship="ee753cba"/>
         <sourceConnection xsi:type="archimate:Connection" id="fe24058b" source="c92d129e" target="db07ed35" relationship="13f45194"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="6207becd" textAlignment="2" archimateElement="035ca421">
-        <bounds x="566" y="921" width="137" height="72"/>
+        <bounds x="504" y="963" width="137" height="72"/>
         <sourceConnection xsi:type="archimate:Connection" id="7cff9f2f" source="6207becd" target="c92d129e" relationship="84c94e68"/>
         <sourceConnection xsi:type="archimate:Connection" id="c2d9d157" source="6207becd" target="d07c7e3a" relationship="76d5fce7"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="d07c7e3a" textAlignment="2" targetConnections="c2d9d157" archimateElement="3cac592f">
-        <bounds x="746" y="933" width="157" height="77"/>
+        <bounds x="822" y="946" width="157" height="77"/>
         <sourceConnection xsi:type="archimate:Connection" id="cad317cc" source="d07c7e3a" target="c92d129e" relationship="ef3065d6"/>
         <sourceConnection xsi:type="archimate:Connection" id="ccfba888" source="d07c7e3a" target="4e465689" relationship="85c4c98e"/>
       </child>
@@ -2691,14 +2691,14 @@ Email: nmalik@redhat.com</content>
         <bounds x="914" y="824"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="8a270225" textAlignment="2" archimateElement="a61dbe76">
-        <bounds x="949" y="297" width="145" height="53"/>
+        <bounds x="146" y="563" width="145" height="53"/>
         <sourceConnection xsi:type="archimate:Connection" id="b08f6b81" source="8a270225" target="b2323dd3" relationship="dcb34046"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="70733a27" textAlignment="2" archimateElement="7c6e90e2">
         <bounds x="374" y="1055" width="131" height="51"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="b2323dd3" textAlignment="2" targetConnections="b08f6b81" archimateElement="6d2a46e5">
-        <bounds x="301" y="945" width="158" height="79"/>
+        <bounds x="396" y="499" width="158" height="79"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="e1e979e0" textAlignment="2" archimateElement="7a179730">
         <bounds x="518" y="1055" width="133" height="51"/>
