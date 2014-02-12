@@ -31,9 +31,13 @@ import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
+    
+    protected static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
+    protected JsonDoc doc;
     
     /**
      * Load resource as json document.

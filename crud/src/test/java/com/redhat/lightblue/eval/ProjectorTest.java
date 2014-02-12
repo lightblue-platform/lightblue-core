@@ -19,62 +19,38 @@
 package com.redhat.lightblue.eval;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
-
 public class ProjectorTest extends AbstractJsonNodeTest {
 
-    private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
-    
-    private JsonDoc getDoc(String fname) throws Exception {
-        JsonNode node = loadJsonNode(fname);
-        return new JsonDoc(node);
-    }
+    EntityMetadata md;
 
-    private EntityMetadata getMd(String fname) throws Exception {
-        JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
-        extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
-        TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
-        return parser.parseEntityMetadata(node);
-    }
-
-    private Projection json(String s) throws Exception {
-        return Projection.fromJson(JsonUtils.json(s.replace('\'','\"')));
+    @Before
+    public void setup() throws Exception {
+        doc = EvalTestContext.getDoc("./sample1.json");
+        md = EvalTestContext.getMd("./testMetadata.json");
     }
 
     @Test
     public void fieldProjectorTest_nonrecursive() throws Exception {
-        JsonDoc doc=getDoc("./sample1.json");
-        EntityMetadata md=getMd("./testMetadata.json");
-
-        Projection p=json("[{'field':'field2'},{'field':'field6.*'}]");
-        Projector projector=Projector.getInstance(p,md);
-        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*'}]");
+        Projector projector = Projector.getInstance(p, md);
+        QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc = projector.project(doc, factory, ctx);
         Assert.assertNull(pdoc.get(new Path("field1")));
-        Assert.assertEquals("value2",pdoc.get(new Path("field2")).asText());
+        Assert.assertEquals("value2", pdoc.get(new Path("field2")).asText());
         Assert.assertNull(pdoc.get(new Path("field3")));
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(10,pdoc.get(new Path("field6")).size());
+        Assert.assertEquals(10, pdoc.get(new Path("field6")).size());
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf2")));
@@ -82,20 +58,17 @@ public class ProjectorTest extends AbstractJsonNodeTest {
 
     @Test
     public void fieldProjectorTest_recursive() throws Exception {
-        JsonDoc doc=getDoc("./sample1.json");
-        EntityMetadata md=getMd("./testMetadata.json");
-
-        Projection p=json("[{'field':'field2'},{'field':'field6.*','recursive':true}]");
-        Projector projector=Projector.getInstance(p,md);
-        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*','recursive':true}]");
+        Projector projector = Projector.getInstance(p, md);
+        QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc = projector.project(doc, factory, ctx);
         Assert.assertNull(pdoc.get(new Path("field1")));
-        Assert.assertEquals("value2",pdoc.get(new Path("field2")).asText());
+        Assert.assertEquals("value2", pdoc.get(new Path("field2")).asText());
         Assert.assertNull(pdoc.get(new Path("field3")));
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(10,pdoc.get(new Path("field6")).size());
+        Assert.assertEquals(10, pdoc.get(new Path("field6")).size());
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf2")));
@@ -103,82 +76,72 @@ public class ProjectorTest extends AbstractJsonNodeTest {
 
     @Test
     public void fieldProjectorTest_arr_range() throws Exception {
-        JsonDoc doc=getDoc("./sample1.json");
-        EntityMetadata md=getMd("./testMetadata.json");
-
-        Projection p=json("{'field':'field7','range':[1,2],'project':{'field':'elemf3'}}");
-        Projector projector=Projector.getInstance(p,md);
-        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,2],'project':{'field':'elemf3'}}");
+        Projector projector = Projector.getInstance(p, md);
+        QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc = projector.project(doc, factory, ctx);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertNull(pdoc.get(new Path("field2")));
         Assert.assertNull(pdoc.get(new Path("field3")));
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field6")));
-        Assert.assertEquals(2,pdoc.get(new Path("field7")).size());
-        Assert.assertEquals(4,pdoc.get(new Path("field7.0.elemf3")).asInt());
-        Assert.assertEquals(5,pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals(2, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(4, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(5, pdoc.get(new Path("field7.1.elemf3")).asInt());
         Assert.assertNull(pdoc.get(new Path("field7.0.elemf1")));
         Assert.assertNull(pdoc.get(new Path("field7.0.elemf2")));
         Assert.assertNull(pdoc.get(new Path("field7.1.elemf1")));
         Assert.assertNull(pdoc.get(new Path("field7.1.elemf2")));
-      
+
     }
 
     @Test
     public void fieldProjectorTest_arr_query() throws Exception {
-        JsonDoc doc=getDoc("./sample1.json");
-        EntityMetadata md=getMd("./testMetadata.json");
-
-        Projection p=json("{'field':'field7','match':{'field':'elemf3','op':'>','rvalue':4},'project':{'field':'*'}}");
-        Projector projector=Projector.getInstance(p,md);
-        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','match':{'field':'elemf3','op':'>','rvalue':4},'project':{'field':'*'}}");
+        Projector projector = Projector.getInstance(p, md);
+        QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
+        JsonDoc pdoc = projector.project(doc, factory, ctx);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertNull(pdoc.get(new Path("field2")));
         Assert.assertNull(pdoc.get(new Path("field3")));
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field6")));
-        Assert.assertEquals(2,pdoc.get(new Path("field7")).size());
-        Assert.assertEquals(5,pdoc.get(new Path("field7.0.elemf3")).asInt());
-        Assert.assertEquals(6,pdoc.get(new Path("field7.1.elemf3")).asInt());
-        Assert.assertEquals("elvalue2_1",pdoc.get(new Path("field7.0.elemf1")).asText());
-        Assert.assertEquals("elvalue2_2",pdoc.get(new Path("field7.0.elemf2")).asText());
-        Assert.assertEquals("elvalue3_1",pdoc.get(new Path("field7.1.elemf1")).asText());
-        Assert.assertEquals("elvalue3_2",pdoc.get(new Path("field7.1.elemf2")).asText());
-      
+        Assert.assertEquals(2, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(5, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(6, pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals("elvalue2_1", pdoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals("elvalue2_2", pdoc.get(new Path("field7.0.elemf2")).asText());
+        Assert.assertEquals("elvalue3_1", pdoc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals("elvalue3_2", pdoc.get(new Path("field7.1.elemf2")).asText());
+
     }
 
     @Test
     public void fieldProjectorTest_arr_me() throws Exception {
-        JsonDoc doc=getDoc("./sample1.json");
-        EntityMetadata md=getMd("./testMetadata.json");
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','project':{'field':'*'}}");
+        Projector projector = Projector.getInstance(p, md);
+        QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
+        ctx.addExcludedArrayElement(new Path("field7"), 1);
 
-        Projection p=json("{'field':'field7','project':{'field':'*'}}");
-        Projector projector=Projector.getInstance(p,md);
-        QueryEvaluationContext ctx=new QueryEvaluationContext(doc.getRoot());
-        ctx.addExcludedArrayElement(new Path("field7"),1);
-
-        JsonDoc pdoc=projector.project(doc,factory,ctx);
+        JsonDoc pdoc = projector.project(doc, factory, ctx);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertNull(pdoc.get(new Path("field2")));
         Assert.assertNull(pdoc.get(new Path("field3")));
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field6")));
-        Assert.assertEquals(3,pdoc.get(new Path("field7")).size());
-        Assert.assertEquals(3,pdoc.get(new Path("field7.0.elemf3")).asInt());
-        Assert.assertEquals(5,pdoc.get(new Path("field7.1.elemf3")).asInt());
-        Assert.assertEquals(6,pdoc.get(new Path("field7.2.elemf3")).asInt());
-        Assert.assertEquals("elvalue0_1",pdoc.get(new Path("field7.0.elemf1")).asText());
-        Assert.assertEquals("elvalue0_2",pdoc.get(new Path("field7.0.elemf2")).asText());
-        Assert.assertEquals("elvalue2_1",pdoc.get(new Path("field7.1.elemf1")).asText());
-        Assert.assertEquals("elvalue2_2",pdoc.get(new Path("field7.1.elemf2")).asText());
-        Assert.assertEquals("elvalue3_1",pdoc.get(new Path("field7.2.elemf1")).asText());
-        Assert.assertEquals("elvalue3_2",pdoc.get(new Path("field7.2.elemf2")).asText());
-      
+        Assert.assertEquals(3, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(3, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(5, pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals(6, pdoc.get(new Path("field7.2.elemf3")).asInt());
+        Assert.assertEquals("elvalue0_1", pdoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals("elvalue0_2", pdoc.get(new Path("field7.0.elemf2")).asText());
+        Assert.assertEquals("elvalue2_1", pdoc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals("elvalue2_2", pdoc.get(new Path("field7.1.elemf2")).asText());
+        Assert.assertEquals("elvalue3_1", pdoc.get(new Path("field7.2.elemf1")).asText());
+        Assert.assertEquals("elvalue3_2", pdoc.get(new Path("field7.2.elemf2")).asText());
     }
 
 }
