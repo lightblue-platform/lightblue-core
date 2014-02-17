@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.eval;
 
+import java.util.Set;
+import java.util.HashSet;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.util.JsonDoc;
@@ -47,6 +50,21 @@ public abstract class Updater {
      * @return true if document is updated, false if not
      */
     public abstract boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath);
+
+    /**
+     * Add the fields updated by this updater to the set of fields.
+     *
+     * @param fields A Set to receive the fields to be updated
+     *
+     * The fields list should be added the absolute paths
+     */
+    public abstract void getUpdateFields(Set<Path> fields);
+
+    public Set<Path> getUpdateFields() {
+        Set<Path> set=new HashSet<Path>();
+        getUpdateFields(set);
+        return set;
+    }
 
     /**
      * Creates an updater object based on the given update expression

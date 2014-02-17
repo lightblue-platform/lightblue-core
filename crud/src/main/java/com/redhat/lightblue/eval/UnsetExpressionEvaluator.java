@@ -20,6 +20,7 @@ package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,18 +45,32 @@ public class UnsetExpressionEvaluator extends Updater {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnsetExpressionEvaluator.class);
 
     private static final class AbsPath {
+        /**
+         * The field to unset
+         */
         private final Path field;
+
+        /**
+         * If field refers to an array element, the absolute array
+         * field containing that element
+         */
         private final Path absArrayField;
 
-        public AbsPath(Path p, FieldTreeNode fieldNode) {
-            field = p;
-            if (fieldNode instanceof ArrayElement) {
-                MutablePath mp = new MutablePath();
+        /**
+         * Absolute path to field
+         */
+        private final Path absField;
+
+        public AbsPath(Path p,FieldTreeNode fieldNode,Path absField) {
+            field=p;
+            if(fieldNode instanceof ArrayElement) {
+                MutablePath mp=new MutablePath();
                 fieldNode.getParent().getFullPath(mp);
                 absArrayField = mp.immutableCopy();
             } else {
                 absArrayField = null;
             }
+            this.absField=absField;
         }
 
         public String toString() {
@@ -80,21 +95,27 @@ public class UnsetExpressionEvaluator extends Updater {
             if (node == null) {
                 throw new EvaluationError(Constants.ERR_INVLD_DERFRNCE + p);
             }
-            fields.add(new AbsPath(p, node));
+            fields.add(new AbsPath(p,node,node.getFullPath()));
         }
         LOGGER.debug("context {} fields {}", context, fields);
     }
     
     @Override
-    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
-        boolean ret = false;
-        MutablePath p = new MutablePath();
-        for (AbsPath x : fields) {
-            Path fld = new Path(contextPath, x.field);
-            LOGGER.debug("Removing {}", fld);
-            if (doc.modify(fld, null, false) != null) {
-                ret = true;
-                if (x.absArrayField != null) {
+    public void getUpdateFields(Set<Path> setFields) {
+        for(AbsPath x:fields)
+            setFields.add(x.absField);
+    }
+    
+    @Override
+    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
+        boolean ret=false;
+        MutablePath p=new MutablePath();
+        for(AbsPath x:fields) {
+            Path fld=new Path(contextPath,x.field);
+            LOGGER.debug("Removing {}",fld);
+            if(doc.modify(fld,null,false)!=null) {
+                ret=true;
+                if(x.absArrayField!=null) {
                     // This is an array
                     p.set(x.absArrayField);
                     p.rewriteIndexes(fld);

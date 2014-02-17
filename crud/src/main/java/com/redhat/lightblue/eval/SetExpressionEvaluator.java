@@ -20,6 +20,7 @@ package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,18 +55,42 @@ public class SetExpressionEvaluator extends Updater {
     private final JsonNodeFactory factory;
 
     private static final class FieldData {
+        /**
+         * Relative path to the field to set
+         */
         private final Path field;
+        /**
+         * Absolute path to the field to set. The absolute path may contain '*'
+         */
+        private final Path absField;
+
+        /**
+         * Type of the field to set
+         */
         private final Type fieldType;
+
+        /**
+         * If the field is to be set from another field, the referenced relative path to the source field
+         */
         private final Path refPath;
+
+        /**
+         * If the field is to be set from another field, the type of the source field
+         */
         private final Type refType;
+
+        /**
+         * If the field is set to a value, the value
+         */
         private final RValueExpression value;
 
-        public FieldData(Path field, Type t, Path refPath, Type refType, RValueExpression value) {
+        public FieldData(Path field, Type t, Path refPath, Type refType, RValueExpression value,Path absField) {
             this.field = field;
             this.fieldType = t;
             this.refPath = refPath;
             this.refType = refType;
             this.value = value;
+            this.absField = absField;
         }
     }
 
@@ -124,7 +149,7 @@ public class SetExpressionEvaluator extends Updater {
             throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- {}");
         }
 
-        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
+        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }
     
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
@@ -135,9 +160,15 @@ public class SetExpressionEvaluator extends Updater {
         } else if (rvalue.getType() == RValueExpression.RValueType._value) {
             throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- " + rvalue.getValue());
         }
-        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
+        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }
-    
+
+    @Override
+    public void getUpdateFields(Set<Path> fields) {
+        for(FieldData df: setValues)
+            fields.add(df.absField);
+    }
+
     @Override
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;

@@ -20,6 +20,7 @@ package com.redhat.lightblue.eval;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
@@ -47,11 +48,17 @@ public class UpdateExpressionListEvaluator extends Updater {
     }
 
     @Override
-    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
-        boolean ret = false;
-        for (Updater x : updaters) {
-            if (x.update(doc, contextMd, contextPath)) {
-                ret = true;
+    public void getUpdateFields(Set<Path> fields) {
+        for(Updater x:updaters)
+            x.getUpdateFields(fields);
+    }
+
+    @Override
+    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
+        boolean ret=false;
+        for(Updater x:updaters) {
+            if(x.update(doc,contextMd,contextPath)) {
+                ret=true;
             }
         }
         return ret;

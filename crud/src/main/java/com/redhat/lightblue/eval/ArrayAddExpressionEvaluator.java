@@ -20,6 +20,7 @@ package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
 
     private final Path arrayField;
     private final Path arraySizeField;
+    private final Path absArrayField;
     private final int insertionIndex;
     private final ArrayField fieldMd;
     private final List<RValueData> values;
@@ -94,6 +96,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             // Array size field should be at the same level as the array field
             MutablePath abs = new MutablePath();
             fieldMd.getFullPath(abs);
+            absArrayField=abs.mutableCopy();
             abs.setLast(abs.getLast() + "#");
             // At this point, arraySizeField is derived from metadata,
             // so it has * as array indexes
@@ -140,6 +143,12 @@ public class ArrayAddExpressionEvaluator extends Updater {
         }
     }
     
+    @Override
+    public void getUpdateFields(Set<Path> fields) {
+        fields.add(absArrayField);
+        fields.add(arraySizeField);
+    }
+
     @Override
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
