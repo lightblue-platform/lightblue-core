@@ -474,6 +474,7 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 parseAccess(access.getFind(), getStringList(object, STR_FIND));
                 parseAccess(access.getUpdate(), getStringList(object, STR_UPDATE));
+                parseAccess(access.getInsert(), getStringList(object, STR_INSERT));
             }
         } finally {
             Error.pop();

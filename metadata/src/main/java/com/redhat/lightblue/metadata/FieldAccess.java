@@ -26,6 +26,7 @@ public class FieldAccess implements Serializable {
 
     private final Access find = new Access();
     private final Access update = new Access();
+    private final Access insert = new Access();
 
     /**
      * Gets the value of find
@@ -43,6 +44,15 @@ public class FieldAccess implements Serializable {
      */
     public Access getUpdate() {
         return this.update;
+    }
+
+    /**
+     * Gets the value of insert
+     *
+     * @return the value of insert
+     */
+    public Access getInsert() {
+        return this.insert;
     }
 
 }
