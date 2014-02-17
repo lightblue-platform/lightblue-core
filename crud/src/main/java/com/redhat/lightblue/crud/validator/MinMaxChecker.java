@@ -22,23 +22,17 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
+import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.FieldConstraintValueChecker;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Error;
-
-import com.redhat.lightblue.crud.FieldConstraintValueChecker;
-import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 public class MinMaxChecker implements FieldConstraintValueChecker {
-
-    public static final String ERR_VALUE_TOO_SMALL = "VALUE_TOO_SMALL";
-    public static final String ERR_VALUE_TOO_LARGE = "VALUE_TOO_LARGE";
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
@@ -56,11 +50,11 @@ public class MinMaxChecker implements FieldConstraintValueChecker {
         // cmp >0: fieldValue>value
         if (MinMaxConstraint.MIN.equals(type)) {
             if (cmp < 0) {
-                validator.addDocError(Error.get(ERR_VALUE_TOO_SMALL, fieldValue.asText()));
+                validator.addDocError(Error.get(Constants.ERR_VALUE_TOO_SMALL, fieldValue.asText()));
             }
         } else {
             if (cmp > 0) {
-                validator.addDocError(Error.get(ERR_VALUE_TOO_LARGE, fieldValue.asText()));
+                validator.addDocError(Error.get(Constants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
             }
         }
     }

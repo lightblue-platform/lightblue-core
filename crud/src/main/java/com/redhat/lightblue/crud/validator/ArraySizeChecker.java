@@ -20,23 +20,17 @@ package com.redhat.lightblue.crud.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
+import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.FieldConstraintValueChecker;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
-
-import com.redhat.lightblue.crud.FieldConstraintValueChecker;
-import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 public class ArraySizeChecker implements FieldConstraintValueChecker {
-
-    public static final String ERR_ARRAY_TOO_SMALL = "ARRAY_TOO_SMALL";
-    public static final String ERR_ARRAY_TOO_LARGE = "ARRAY_TOO_LARGE";
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
@@ -50,11 +44,11 @@ public class ArraySizeChecker implements FieldConstraintValueChecker {
         String type = ((ArraySizeConstraint) constraint).getType();
         if (ArraySizeConstraint.MIN.equals(type)) {
             if (((ArrayNode) fieldValue).size() < value) {
-                validator.addDocError(Error.get(ERR_ARRAY_TOO_SMALL, Integer.toString(((ArrayNode) fieldValue).size())));
+                validator.addDocError(Error.get(Constants.ERR_ARRAY_TOO_SMALL, Integer.toString(((ArrayNode) fieldValue).size())));
             }
         } else {
             if (((ArrayNode) fieldValue).size() > value) {
-                validator.addDocError(Error.get(ERR_ARRAY_TOO_LARGE, Integer.toString(((ArrayNode) fieldValue).size())));
+                validator.addDocError(Error.get(Constants.ERR_ARRAY_TOO_LARGE, Integer.toString(((ArrayNode) fieldValue).size())));
             }
         }
     }

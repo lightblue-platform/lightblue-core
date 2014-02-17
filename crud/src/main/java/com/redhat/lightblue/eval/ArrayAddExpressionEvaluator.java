@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -78,14 +79,14 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 arrayField = expr.getField().prefix(-1);
                 insertionIndex = expr.getField().getIndex(expr.getField().numSegments() - 1);
             } else {
-                throw new EvaluationError("Index required in insertion:" + expr.getField());
+                throw new EvaluationError(Constants.ERR_IDX_REQD + expr.getField());
             }
         } else {
             arrayField = expr.getField();
             insertionIndex = -1;
         }
         if (arrayField.nAnys() > 0) {
-            throw new EvaluationError("Pattern not expected:" + arrayField);
+            throw new EvaluationError(Constants.ERR_PTRN_NOT_EXPCTD + arrayField);
         }
         FieldTreeNode ftn = context.resolve(arrayField);
         if (ftn instanceof ArrayField) {
@@ -100,7 +101,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             values = new ArrayList<RValueData>(expr.getValues().size());
             initializeArrayField(context, expr);
         } else {
-            throw new EvaluationError("Array required:" + arrayField);
+            throw new EvaluationError(Constants.ERR_ARRAY_REQD + arrayField);
         }
     }
     
@@ -112,7 +113,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 refPath = rvalue.getPath();
                 refMd = context.resolve(refPath);
                 if (refMd == null) {
-                    throw new EvaluationError("Invalid dereference:" + refPath);
+                    throw new EvaluationError(Constants.ERR_INVLD_DERFRNCE + refPath);
                 }
             }
 
@@ -126,15 +127,15 @@ public class ArrayAddExpressionEvaluator extends Updater {
     private void validateArrayElement(ArrayElement element, FieldTreeNode refMd, RValueExpression rvalue, Path refPath) {
         if (element instanceof ObjectArrayElement) {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
-                throw new EvaluationError("Invalid assignment " + arrayField + " <- " + refPath);
+                throw new EvaluationError(Constants.ERR_INVLD_ASSNMNT + arrayField + " <- " + refPath);
             } else if (rvalue.getType() == RValueExpression.RValueType._value) {
-                throw new EvaluationError("Object value expected for " + arrayField);
+                throw new EvaluationError(Constants.ERR_OBJ_VAL_EXPCTD + arrayField);
             }
         } else {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
-                throw new EvaluationError("Invalid assignment " + arrayField + "<-" + refPath);
+                throw new EvaluationError(Constants.ERR_INVLD_ASSNMNT + arrayField + "<-" + refPath);
             } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
-                throw new EvaluationError("Value expected for " + arrayField);
+                throw new EvaluationError(Constants.ERR_VAL_EXPCTD + arrayField);
             }
         }
     }

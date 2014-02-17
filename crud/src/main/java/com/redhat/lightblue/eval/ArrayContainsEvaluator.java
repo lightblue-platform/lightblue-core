@@ -18,17 +18,18 @@
  */
 package com.redhat.lightblue.eval;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ContainsOperator;
@@ -54,10 +55,10 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             if (el instanceof SimpleArrayElement) {
                 elem = (SimpleArrayElement) el;
             } else {
-                throw new EvaluationError(expr, "Expected simple array");
+                throw new EvaluationError(expr, Constants.ERR_SMPL_ARR_EXPCTD);
             }
         } else {
-            throw new EvaluationError(expr, "Expected array field");
+            throw new EvaluationError(expr, Constants.ERR_ARR_FLD_EXPCTD);
         }
     }
 

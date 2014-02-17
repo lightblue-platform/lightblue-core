@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -70,82 +71,81 @@ public class ForEachExpressionEvaluator extends Updater {
         }
     }
 
-    public ForEachExpressionEvaluator(JsonNodeFactory factory,
-                                      FieldTreeNode context,
-                                      ForEachExpression expr) {
-        this.factory=factory;
+    public ForEachExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr) {
+        this.factory = factory;
         // Resolve the field, make sure it is an array
-        field=expr.getField();
-        FieldTreeNode md=context.resolve(field);
-        if(md instanceof ArrayField) {
-            fieldMd=(ArrayField)md;
+        field = expr.getField();
+        FieldTreeNode md = context.resolve(field);
+        if (md instanceof ArrayField) {
+            fieldMd = (ArrayField) md;
         } else {
-            throw new EvaluationError("Field is not array:"+field);
+            throw new EvaluationError(Constants.ERR_FLD_NOT_ARR + field);
         }
-        if(field.nAnys()>0) {
-            throw new EvaluationError("Pattern not expected:"+field);
+        if (field.nAnys() > 0) {
+            throw new EvaluationError(Constants.ERR_PTRN_NOT_EXPCTD + field);
         }
         // Get a query evaluator
-        QueryExpression query=expr.getQuery();
-        if(query instanceof AllMatchExpression) {
-            queryEvaluator=new AllEvaluator();
+        QueryExpression query = expr.getQuery();
+        if (query instanceof AllMatchExpression) {
+            queryEvaluator = new AllEvaluator();
         } else {
-            queryEvaluator=QueryEvaluator.getInstance(query,fieldMd.getElement());
+            queryEvaluator = QueryEvaluator.getInstance(query, fieldMd.getElement());
         }
 
         // Get an updater to execute on each matching element
-        UpdateExpression upd=expr.getUpdate();
-        if(upd instanceof RemoveElementExpression) {
-            updater=new RemoveEvaluator();
+        UpdateExpression upd = expr.getUpdate();
+        if (upd instanceof RemoveElementExpression) {
+            updater = new RemoveEvaluator();
         } else {
-            updater=Updater.getInstance(factory,fieldMd.getElement(),upd);
+            updater = Updater.getInstance(factory, fieldMd.getElement(), upd);
         }
     }
     
     @Override
-    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-        boolean ret=false;
-        // Get a reference to the array field, and iterate all elements in the array
-        ArrayNode arrayNode=(ArrayNode)doc.get(field);
-        ArrayElement elementMd=fieldMd.getElement();
-        if(arrayNode!=null) {
-            int index=0;
-            MutablePath itrPath=new MutablePath(contextPath);
+    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+        boolean ret = false;
+        // Get a reference to the array field, and iterate all elements in the
+        // array
+        ArrayNode arrayNode = (ArrayNode) doc.get(field);
+        ArrayElement elementMd = fieldMd.getElement();
+        if (arrayNode != null) {
+            int index = 0;
+            MutablePath itrPath = new MutablePath(contextPath);
             itrPath.push(field);
-            MutablePath arrSizePath=itrPath.copy();
-            arrSizePath.setLast(arrSizePath.getLast()+"#");
+            MutablePath arrSizePath = itrPath.copy();
+            arrSizePath.setLast(arrSizePath.getLast() + "#");
             arrSizePath.rewriteIndexes(contextPath);
 
             itrPath.push(index);
             // Copy the nodes to a separate list, so we iterate on the
             // new copy, and modify the original
-            ArrayList<JsonNode> nodes=new ArrayList<JsonNode>();
-            for(Iterator<JsonNode> itr=arrayNode.elements();itr.hasNext();) {
+            ArrayList<JsonNode> nodes = new ArrayList<JsonNode>();
+            for (Iterator<JsonNode> itr = arrayNode.elements(); itr.hasNext();) {
                 nodes.add(itr.next());
             }
-            for(JsonNode elementNode:nodes) {
+            for (JsonNode elementNode : nodes) {
                 itrPath.setLast(index);
-                Path elementPath=itrPath.immutableCopy();
-                LOGGER.debug("itr:{}",elementPath);
-                QueryEvaluationContext ctx=new QueryEvaluationContext(elementNode,elementPath);
-                if(queryEvaluator.evaluate(ctx)) {
-                    LOGGER.debug("query matches {}",elementPath);
-                    if(updater.update(doc,elementMd,elementPath)) {
-                        ret=true;
+                Path elementPath = itrPath.immutableCopy();
+                LOGGER.debug("itr:{}", elementPath);
+                QueryEvaluationContext ctx = new QueryEvaluationContext(elementNode, elementPath);
+                if (queryEvaluator.evaluate(ctx)) {
+                    LOGGER.debug("query matches {}", elementPath);
+                    if (updater.update(doc, elementMd, elementPath)) {
+                        ret = true;
                         // Removal shifts nodes down
-                        if(updater instanceof RemoveEvaluator) {
+                        if (updater instanceof RemoveEvaluator) {
                             index--;
                         }
                     }
                 } else {
-                    LOGGER.debug("query does not match {}",elementPath);
+                    LOGGER.debug("query does not match {}", elementPath);
                 }
                 index++;
             }
-            if(ret) {
-                doc.modify(arrSizePath,factory.numberNode(arrayNode.size()),false);
+            if (ret) {
+                doc.modify(arrSizePath, factory.numberNode(arrayNode.size()), false);
             }
-        } 
+        }
         return ret;
     }
  }

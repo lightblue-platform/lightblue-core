@@ -22,12 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
-
 import com.redhat.lightblue.util.Path;
 
 public class ValueComparisonEvaluator extends QueryEvaluator {
@@ -45,12 +43,11 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
      * @param expr The expression
      * @param md Entity metadata
      */
-    public ValueComparisonEvaluator(ValueComparisonExpression expr,
-                                    FieldTreeNode context) {
+    public ValueComparisonEvaluator(ValueComparisonExpression expr, FieldTreeNode context) {
         this.field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, "No field " + field);
+            throw new EvaluationError(expr, Constants.ERR_NO_FLD + field);
         }
         operator = expr.getOp();
         value = expr.getRvalue().getValue();

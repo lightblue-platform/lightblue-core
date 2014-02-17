@@ -18,12 +18,11 @@
  */
 package com.redhat.lightblue.eval;
 
-import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.ArrayField;
-
+import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.ArrayProjection;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Base class for array projectors.
@@ -55,11 +54,9 @@ public abstract class ArrayProjector extends Projector {
         include = p.isInclude();
         FieldTreeNode nestedCtx = context.resolve(p.getField());
         if (nestedCtx instanceof ArrayField) {
-            nestedProjector = Projector.getInstance(p.getProject(),
-                    new Path(arrayFieldPattern, Path.ANYPATH),
-                    ((ArrayField) nestedCtx).getElement());
+            nestedProjector = Projector.getInstance(p.getProject(), new Path(arrayFieldPattern, Path.ANYPATH), ((ArrayField) nestedCtx).getElement());
         } else {
-            throw new EvaluationError("Expecting array element for " + arrayFieldPattern);
+            throw new EvaluationError(Constants.ERR_ARR_ELEM_EXPCTD + arrayFieldPattern);
         }
     }
 
@@ -80,8 +77,7 @@ public abstract class ArrayProjector extends Projector {
         // Is this field pointing to an element of the array
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
-        if (p.numSegments() == arrayFieldPattern.numSegments() + 1
-                && p.matchingDescendant(arrayFieldPattern)) {
+        if (p.numSegments() == arrayFieldPattern.numSegments() + 1 && p.matchingDescendant(arrayFieldPattern)) {
             return projectArray(p, ctx);
         }
         return null;

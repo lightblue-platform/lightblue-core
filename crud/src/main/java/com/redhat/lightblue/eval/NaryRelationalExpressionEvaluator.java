@@ -25,13 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-
 import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.Value;
-
 import com.redhat.lightblue.util.Path;
 
 public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
@@ -43,12 +41,11 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
     private final NaryRelationalOperator operator;
     private final List<Object> values;
 
-    public NaryRelationalExpressionEvaluator(NaryRelationalExpression expr,
-                                             FieldTreeNode context) {
+    public NaryRelationalExpressionEvaluator(NaryRelationalExpression expr, FieldTreeNode context) {
         field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, "No field " + field);
+            throw new EvaluationError(expr, Constants.ERR_NO_FLD + field);
         }
         operator = expr.getOp();
         List<Value> l = expr.getValues();
@@ -79,8 +76,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
                     in = true;
                     break;
                 }
-            } else if (x != null
-                    && fieldMd.getType().compare(docValue, x) == 0) {
+            } else if (x != null && fieldMd.getType().compare(docValue, x) == 0) {
                 in = true;
                 break;
             }

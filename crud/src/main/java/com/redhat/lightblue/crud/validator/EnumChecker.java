@@ -22,6 +22,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
 import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -32,8 +33,6 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
 public class EnumChecker implements FieldConstraintValueChecker {
-
-    public static final String ERR_INVALID_ENUM = "INVALID_ENUM";
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
@@ -56,7 +55,7 @@ public class EnumChecker implements FieldConstraintValueChecker {
         }
 
         if (null == values || !values.contains(fieldValue.asText())) {
-            validator.addDocError(Error.get(ERR_INVALID_ENUM, fieldValue.asText()));
+            validator.addDocError(Error.get(Constants.ERR_INVALID_ENUM, fieldValue.asText()));
         }
     }
 }

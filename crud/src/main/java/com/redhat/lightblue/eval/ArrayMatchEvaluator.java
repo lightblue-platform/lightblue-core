@@ -23,15 +23,13 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.ArrayElement;
-import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-
+import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.query.ArrayMatchExpression;
+import com.redhat.lightblue.util.Path;
 
 public class ArrayMatchEvaluator extends QueryEvaluator {
     private final Path field;
@@ -52,10 +50,10 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
                 elem = (ObjectArrayElement) el;
                 ev = QueryEvaluator.getInstance(expr.getElemMatch(), elem);
             } else {
-                throw new EvaluationError(expr, "Expected object array for " + field);
+                throw new EvaluationError(expr, Constants.ERR_OBJ_ARR_EXPCTD + field);
             }
         } else {
-            throw new EvaluationError(expr, "Expected array for " + field);
+            throw new EvaluationError(expr, Constants.ERR_ARR_EXPCTD + field);
         }
     }
 

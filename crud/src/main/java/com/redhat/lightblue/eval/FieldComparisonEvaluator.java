@@ -22,12 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-
-import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
-
+import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.util.Path;
 
 public class FieldComparisonEvaluator extends QueryEvaluator {
@@ -47,17 +45,16 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
      * @param md Entity metadata
      * @param context The path relative to which the expression will be evaluated
      */
-    public FieldComparisonEvaluator(FieldComparisonExpression expr,
-                                    FieldTreeNode context) {
+    public FieldComparisonEvaluator(FieldComparisonExpression expr, FieldTreeNode context) {
         this.relativePath = expr.getField();
         this.rfieldRelativePath = expr.getRfield();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, "No field " + relativePath);
+            throw new EvaluationError(expr, Constants.ERR_NO_FLD + relativePath);
         }
         rfieldMd = context.resolve(rfieldRelativePath);
         if (rfieldMd == null) {
-            throw new EvaluationError(expr, "No field " + rfieldRelativePath);
+            throw new EvaluationError(expr, Constants.ERR_NO_FLD + rfieldRelativePath);
         }
         operator = expr.getOp();
         LOGGER.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);

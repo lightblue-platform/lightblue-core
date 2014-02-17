@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
@@ -92,13 +93,13 @@ public class SetExpressionEvaluator extends Updater {
                 refPath = rvalue.getPath();
                 refMdNode = context.resolve(refPath);
                 if (refMdNode == null) {
-                    throw new EvaluationError("Cannot access " + refPath);
+                    throw new EvaluationError(Constants.ERR_CANT_ACCESS + refPath);
                 }
                 LOGGER.debug("Refpath {}", refPath);
             }
             FieldTreeNode mdNode = context.resolve(field);
             if (mdNode == null) {
-                throw new EvaluationError("Cannot access " + field);
+                throw new EvaluationError(Constants.ERR_CANT_ACCESS + field);
             }
 
             if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
@@ -108,7 +109,7 @@ public class SetExpressionEvaluator extends Updater {
                 data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ArrayField) {
                 // Unacceptable
-                throw new EvaluationError("Assignment error for " + field);
+                throw new EvaluationError(Constants.ERR_ASSIGNMENT + field);
             }
             setValues.add(data);
         }
@@ -117,10 +118,10 @@ public class SetExpressionEvaluator extends Updater {
     private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!mdNode.getType().equals(refMdNode.getType())) {
-                throw new EvaluationError("Incompatible dereference " + field + " <- " + refPath);
+                throw new EvaluationError(Constants.ERR_INCOMPAT_DEREF + field + " <- " + refPath);
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
-            throw new EvaluationError("Incompatible assignment " + field + " <- {}");
+            throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- {}");
         }
 
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
@@ -129,10 +130,10 @@ public class SetExpressionEvaluator extends Updater {
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!(refMdNode instanceof ObjectField)) {
-                throw new EvaluationError("Incompatible assignment " + field + " <- " + refPath);
+                throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- " + refPath);
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._value) {
-            throw new EvaluationError("Incompatible assignment " + field + " <- " + rvalue.getValue());
+            throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- " + rvalue.getValue());
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue);
     }
@@ -191,7 +192,7 @@ public class SetExpressionEvaluator extends Updater {
         }
         return oldValueNode;
     }
-    
+
     private boolean oldAndNewAreDifferent(JsonNode oldValueNode, JsonNode newValueNode) {
         if (oldValueNode == null && newValueNode != null) {
             return true;
