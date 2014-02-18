@@ -281,7 +281,7 @@ public class Translator {
      */
     private List<Object> translateValueList(Type t, List<Value> values) {
         if (values == null || values.isEmpty()) {
-            throw new IllegalArgumentException("Empty value list");
+            throw new IllegalArgumentException(MongoCrudConstants.ERR_EMPTY_VALUE_LIST);
         }
         List<Object> ret = new ArrayList<Object>(values.size());
         for (Value v : values) {

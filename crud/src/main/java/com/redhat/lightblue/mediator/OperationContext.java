@@ -19,25 +19,22 @@
 package com.redhat.lightblue.mediator;
 
 import java.io.Serializable;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
-
-import com.redhat.lightblue.util.JsonDoc;
-
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.FieldCursor;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.ReferenceField;
-
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.CRUDOperationContext;
 
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.FieldCursor;
+import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.util.JsonDoc;
 
 public class OperationContext implements CRUDOperationContext, Serializable {
 
@@ -115,8 +112,7 @@ public class OperationContext implements CRUDOperationContext, Serializable {
         EntityMetadata x = metadata.get(m.getName());
         if (x != null) {
             if (!x.getVersion().getValue().equals(m.getVersion().getValue())) {
-                throw new IllegalArgumentException("Metadata " + m.getName() + " appears with both " + m.getVersion().getValue()
-                        + " and " + x.getVersion().getValue());
+                throw new IllegalArgumentException(CrudConstants.ERR_METADATA_APPEARS_TWICE + m.getName() + " " + m.getVersion().getValue() + " and " + x.getVersion().getValue());
             }
         } else {
             metadata.put(m.getName(), m);
@@ -128,7 +124,7 @@ public class OperationContext implements CRUDOperationContext, Serializable {
                     String version = ((ReferenceField) node).getVersionValue();
                     EntityMetadata y = md.getEntityMetadata(name, version);
                     if (y == null) {
-                        throw new IllegalArgumentException("Cannot load metadata for " + name + ":" + version);
+                        throw new IllegalArgumentException(CrudConstants.ERR_CANNOT_LOAD_METADATA + name + ":" + version);
                     }
                     initMetadata(y);
                 }

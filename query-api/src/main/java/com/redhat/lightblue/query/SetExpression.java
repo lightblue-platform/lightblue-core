@@ -51,22 +51,22 @@ public class SetExpression extends PrimitiveUpdateExpression {
      */
     public SetExpression(UpdateOperator op,List<FieldAndRValue> list) {
         this.fields=list;
-        if(op==UpdateOperator._set||op==UpdateOperator._add) {
-            this.op=op;
+        if (op == UpdateOperator._set || op == UpdateOperator._add) {
+            this.op = op;
         } else {
-            throw new IllegalArgumentException("Operator:"+op);
+            throw new IllegalArgumentException(QueryConstants.ERR_UNSUPPORTED_OPERATOR + op);
         }
     }
     
     /**
      * Constructs a set expression using the given list
      */
-    public SetExpression(UpdateOperator op,FieldAndRValue... l) {
-        this.fields=Arrays.asList(l);
-        if(op==UpdateOperator._set||op==UpdateOperator._add) {
-            this.op=op;
+    public SetExpression(UpdateOperator op, FieldAndRValue... l) {
+        this.fields = Arrays.asList(l);
+        if (op == UpdateOperator._set || op == UpdateOperator._add) {
+            this.op = op;
         } else {
-            throw new IllegalArgumentException("Operator:"+op);
+            throw new IllegalArgumentException(QueryConstants.ERR_UNSUPPORTED_OPERATOR + op);
         }
     }
 

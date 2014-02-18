@@ -140,7 +140,7 @@ public class MongoCRUDController implements CRUDController {
                               AbstractCRUDUpdateResponse response,
                               String operation) {
         if (documents == null || documents.isEmpty()) {
-            throw new IllegalArgumentException("Empty documents");
+            throw new IllegalArgumentException(MongoCrudConstants.ERR_EMPTY_DOCUMENTS);
         }
         LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
@@ -275,7 +275,7 @@ public class MongoCRUDController implements CRUDController {
                                      UpdateExpression update,
                                      Projection projection) {
         if (query == null) {
-            throw new IllegalArgumentException("Null query");
+            throw new IllegalArgumentException(MongoCrudConstants.ERR_NULL_QUERY);
         }
         LOGGER.debug("update start: q:{} u:{} p:{}", query, update, projection);
         Error.push(OP_UPDATE);
@@ -398,7 +398,7 @@ public class MongoCRUDController implements CRUDController {
                                      String entity,
                                      QueryExpression query) {
         if (query == null) {
-            throw new IllegalArgumentException("Null query");
+            throw new IllegalArgumentException(MongoCrudConstants.ERR_NULL_QUERY);
         }
         LOGGER.debug("delete start: q:{}", query);
         Error.push(OP_DELETE);
@@ -441,10 +441,10 @@ public class MongoCRUDController implements CRUDController {
                                  Long from,
                                  Long to) {
         if (query == null) {
-            throw new IllegalArgumentException("Null query");
+            throw new IllegalArgumentException(MongoCrudConstants.ERR_NULL_QUERY);
         }
         if (projection == null) {
-            throw new IllegalArgumentException("Null projection");
+            throw new IllegalArgumentException(MongoCrudConstants.ERR_NULL_PROJECTION);
         }
         LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
