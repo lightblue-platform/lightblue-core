@@ -66,13 +66,6 @@ import com.redhat.lightblue.util.Path;
 
 public class MongoCRUDController implements CRUDController {
 
-    public static final String ERR_INVALID_OBJECT = "INVALID_OBJECT";
-    public static final String ERR_DUPLICATE = "DUPLICATE";
-    public static final String ERR_INSERTION_ERROR = "INSERTION_ERROR";
-    public static final String ERR_SAVE_ERROR = "SAVE_ERROR";
-    public static final String ERR_UPDATE_ERROR = "UPDATE_ERROR";
-    public static final String ERR_NO_ACCESS = "NO_ACCESS";
-
     public static final String ID_STR = "_id";
 
     private static final String OP_INSERT = "insert";
@@ -95,7 +88,7 @@ public class MongoCRUDController implements CRUDController {
                     // but we haven't thought about that enough.
                     return config.getDB();
                 } catch (UnknownHostException ex) {
-                    throw Error.get("CONNECTION_ERROR", ex.getMessage());
+                    throw Error.get(Constants.ERR_CONNECTION_ERROR, ex.getMessage());
                 }
             }
         };
@@ -207,7 +200,7 @@ public class MongoCRUDController implements CRUDController {
                 boolean updateAccess=md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles());
                 if (operation.equals(OP_INSERT)) {
                     if(!insertAccess) {
-                        addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
+                        addErrorToMap(errorMap,doc,operation,Constants.ERR_NO_ACCESS,operation+":"+md.getName());
                     } else {
                         result = collection.insert(doc, WriteConcern.SAFE);
                     }
@@ -215,7 +208,7 @@ public class MongoCRUDController implements CRUDController {
                     Object x = doc.get(ID_STR);
                     if (x == null&&upsert) {
                         if(!insertAccess) {
-                            addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
+                            addErrorToMap(errorMap,doc,operation,Constants.ERR_NO_ACCESS,operation+":"+md.getName());
                         } else {
                             result = collection.insert(doc, WriteConcern.SAFE);
                         }
@@ -225,7 +218,7 @@ public class MongoCRUDController implements CRUDController {
                             LOGGER.debug("update query: {}",q);
                             result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
                         } else {
-                            addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
+                            addErrorToMap(errorMap,doc,operation,Constants.ERR_NO_ACCESS,operation+":"+md.getName());
                         }
                     }
                 }
@@ -235,15 +228,15 @@ public class MongoCRUDController implements CRUDController {
                         error = result.getError();
                     }
                     if (error != null) {
-                        addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
+                        addErrorToMap(errorMap, doc, operation, Constants.ERR_SAVE_ERROR, error);
                     } else {
                         successfulUpdates.add(doc);
                     }
                 }
             } catch (MongoException.DuplicateKey dke) {
-                addErrorToMap(errorMap, doc, operation, ERR_DUPLICATE, dke.toString());
+                addErrorToMap(errorMap, doc, operation, Constants.ERR_DUPLICATE, dke.toString());
             } catch (Exception e) {
-                addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, e.toString());
+                addErrorToMap(errorMap, doc, operation, Constants.ERR_SAVE_ERROR, e.toString());
             }
         }
         LOGGER.debug("saveOrInsert complete, {} sucessful updates", successfulUpdates.size());
@@ -315,7 +308,7 @@ public class MongoCRUDController implements CRUDController {
                 }   
                 iterateUpdate(coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);
             } else {
-                response.getErrors().add(Error.get(ERR_NO_ACCESS,"update:"+entity));
+                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"update:"+entity));
             }
         } finally {
             Error.pop();
@@ -371,7 +364,7 @@ public class MongoCRUDController implements CRUDController {
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {
                             LOGGER.warn("Update exception for document {}: {}",docIndex,e);
-                            response.getErrors().add(Error.get(ERR_UPDATE_ERROR,e.toString()));
+                            response.getErrors().add(Error.get(Constants.ERR_UPDATE_ERROR,e.toString()));
                             hasErrors=true;
                         }
                     }
@@ -425,7 +418,7 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Removal complete, write result={}",result);
                 response.setNumDeleted(result.getN());
             } else {
-                response.getErrors().add(Error.get(ERR_NO_ACCESS,"delete:"+entity));
+                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"delete:"+entity));
             }
         } catch (Exception e) {
             response.getErrors().add(Error.get(e.toString()));
@@ -500,7 +493,7 @@ public class MongoCRUDController implements CRUDController {
                 }
                 response.setResults(results);
             } else {
-                response.getErrors().add(Error.get(ERR_NO_ACCESS,"find:"+entity));
+                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"find:"+entity));
             }
         } finally {
             Error.pop();
