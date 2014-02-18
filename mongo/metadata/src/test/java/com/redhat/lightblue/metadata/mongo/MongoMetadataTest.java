@@ -21,6 +21,7 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.*;
+import com.redhat.lightblue.mongo.MongoConfiguration;
 
 public class MongoMetadataTest {
 
@@ -34,6 +35,7 @@ public class MongoMetadataTest {
     private MongodExecutable mongodExe;
     private MongodProcess mongod;
     private Mongo mongo;
+    private DB db;
 
     private MongoMetadata md;
 
@@ -43,7 +45,15 @@ public class MongoMetadataTest {
         mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
         mongod = mongodExe.start();
         mongo = new Mongo(IN_MEM_CONNECTION_URL);
-        DB db = mongo.getDB(DB_NAME);
+
+        MongoConfiguration config = new MongoConfiguration();
+        config.setName(DB_NAME);
+        // disable ssl for test (enabled by default)
+        config.setSsl(Boolean.FALSE);
+        config.addServerAddress(MONGO_HOST, MONGO_PORT);
+
+        db = config.getDB();
+
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
         Extensions<BSONObject> x = new Extensions<>();
         x.addDefaultExtensions();
@@ -61,6 +71,10 @@ public class MongoMetadataTest {
             mongod.stop();
             mongodExe.stop();
         }
+        db = null;
+        mongo = null;
+        mongod = null;
+        mongodExe = null;
     }
 
     @Test

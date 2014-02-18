@@ -13,25 +13,20 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
- * TODO revisit having spun this out into a common module.  May only be needed by metadata.
+ * TODO revisit having spun this out into a common module. May only be needed by metadata.
+ *
  * @author nmalik
  */
 public class MongoConfiguration {
-    public static class Server {
-        private String hostname = "localhost";
-        private String port = "27017";
-
-        public ServerAddress toServerAddress() throws UnknownHostException {
-            return new ServerAddress(hostname, Integer.valueOf(port));
-        }
-    }
 
     private String name;
-    private List<Server> servers;
+    private final List<ServerAddress> servers = new ArrayList<>();
     private String collection;
     private Integer connectionsPerHost;
+    private Boolean ssl = Boolean.TRUE;
 
     /**
      * @return the name
@@ -61,30 +56,19 @@ public class MongoConfiguration {
         this.collection = collection;
     }
 
+    public void addServerAddress(String hostname, Integer port) throws UnknownHostException {
+        this.servers.add(new ServerAddress(hostname, port));
+    }
+
     /**
      * @return the servers
      */
-    public Iterator<Server> getServers() {
+    public Iterator<ServerAddress> getServerAddresses() {
         return servers.iterator();
     }
 
-    /**
-     * @param servers the servers to set
-     */
-    public void setServers(List<Server> servers) {
-        this.servers = servers;
-    }
-
-    public List<ServerAddress> getServerAddresses() throws UnknownHostException {
-        List<ServerAddress> serverAddresses = new ArrayList<>();
-
-        if (this.servers != null) {
-            for (Server server : servers) {
-                serverAddresses.add(server.toServerAddress());
-            }
-        }
-
-        return serverAddresses;
+    public void clearServerAddresses() {
+        servers.clear();
     }
 
     /**
@@ -102,6 +86,20 @@ public class MongoConfiguration {
     }
 
     /**
+     * @return the ssl
+     */
+    public Boolean getSsl() {
+        return ssl;
+    }
+
+    /**
+     * @param ssl the ssl to set
+     */
+    public void setSsl(Boolean ssl) {
+        this.ssl = ssl;
+    }
+
+    /**
      * Returns an options object with defaults overriden where there is a valid override.
      *
      * @return
@@ -113,11 +111,16 @@ public class MongoConfiguration {
             builder.connectionsPerHost(connectionsPerHost);
         }
 
+        if (ssl != null && ssl.booleanValue()) {
+            // taken from MongoClientURI, written this way so we don't have to construct a URI to connect
+            builder.socketFactory(SSLSocketFactory.getDefault());
+        }
+
         return builder.build();
     }
 
     public DB getDB() throws UnknownHostException {
-        MongoClient client = new MongoClient(getServerAddresses(), getMongoClientOptions());
+        MongoClient client = new MongoClient(servers, getMongoClientOptions());
         return client.getDB(getName());
     }
 }
