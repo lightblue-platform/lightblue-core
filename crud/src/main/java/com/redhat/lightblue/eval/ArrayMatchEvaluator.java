@@ -50,10 +50,10 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
                 elem = (ObjectArrayElement) el;
                 ev = QueryEvaluator.getInstance(expr.getElemMatch(), elem);
             } else {
-                throw new EvaluationError(expr, Constants.ERR_OBJ_ARR_EXPCTD + field);
+                throw new EvaluationError(expr, Constants.ERR_EXPECTED_OBJECT_ARRAY + field);
             }
         } else {
-            throw new EvaluationError(expr, Constants.ERR_ARR_EXPCTD + field);
+            throw new EvaluationError(expr, Constants.ERR_EXPECTED_ARRAY + field);
         }
     }
 

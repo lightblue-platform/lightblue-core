@@ -45,7 +45,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
         field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + field);
+            throw new EvaluationError(expr, Constants.ERR_FIELD_NOT_THERE + field);
         }
         operator = expr.getOp();
         List<Value> l = expr.getValues();

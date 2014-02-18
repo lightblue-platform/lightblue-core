@@ -143,10 +143,10 @@ public class SetExpressionEvaluator extends Updater {
     private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!mdNode.getType().equals(refMdNode.getType())) {
-                throw new EvaluationError(Constants.ERR_INCOMPAT_DEREF + field + " <- " + refPath);
+                throw new EvaluationError(Constants.ERR_INCOMPATIBLE_DEREFERENCE + field + " <- " + refPath);
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
-            throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- {}");
+            throw new EvaluationError(Constants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
         }
 
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
@@ -155,10 +155,10 @@ public class SetExpressionEvaluator extends Updater {
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!(refMdNode instanceof ObjectField)) {
-                throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- " + refPath);
+                throw new EvaluationError(Constants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._value) {
-            throw new EvaluationError(Constants.ERR_INCOMPAT_ASSIGN + field + " <- " + rvalue.getValue());
+            throw new EvaluationError(Constants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }

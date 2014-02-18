@@ -48,7 +48,7 @@ public class RegexEvaluator extends QueryEvaluator {
         this.relativePath = expr.getField();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + relativePath);
+            throw new EvaluationError(expr, Constants.ERR_FIELD_NOT_THERE + relativePath);
         }
         int flags = 0;
         if (expr.isCaseInsensitive()) {

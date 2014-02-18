@@ -91,10 +91,10 @@ public class ForEachExpressionEvaluator extends Updater {
         if (md instanceof ArrayField) {
             fieldMd = (ArrayField) md;
         } else {
-            throw new EvaluationError(Constants.ERR_FLD_NOT_ARR + field);
+            throw new EvaluationError(Constants.ERR_FIELD_NOT_ARRAY + field);
         }
         if (field.nAnys() > 0) {
-            throw new EvaluationError(Constants.ERR_PTRN_NOT_EXPCTD + field);
+            throw new EvaluationError(Constants.ERR_PATTERN_NOT_EXPECTED + field);
         }
         // Get a query evaluator
         QueryExpression query = expr.getQuery();

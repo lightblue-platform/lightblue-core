@@ -93,7 +93,7 @@ public class UnsetExpressionEvaluator extends Updater {
         for (Path p : expr.getFields()) {
             FieldTreeNode node = context.resolve(p);
             if (node == null) {
-                throw new EvaluationError(Constants.ERR_INVLD_DERFRNCE + p);
+                throw new EvaluationError(Constants.ERR_INVALID_DEREFERENCE + p);
             }
             fields.add(new AbsPath(p,node,node.getFullPath()));
         }

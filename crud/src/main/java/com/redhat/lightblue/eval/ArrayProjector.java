@@ -56,7 +56,7 @@ public abstract class ArrayProjector extends Projector {
         if (nestedCtx instanceof ArrayField) {
             nestedProjector = Projector.getInstance(p.getProject(), new Path(arrayFieldPattern, Path.ANYPATH), ((ArrayField) nestedCtx).getElement());
         } else {
-            throw new EvaluationError(Constants.ERR_ARR_ELEM_EXPCTD + arrayFieldPattern);
+            throw new EvaluationError(Constants.ERR_EXPECTED_ARRAY_ELEMENT + arrayFieldPattern);
         }
     }
 

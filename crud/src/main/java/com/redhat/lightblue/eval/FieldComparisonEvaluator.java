@@ -50,11 +50,11 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         this.rfieldRelativePath = expr.getRfield();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + relativePath);
+            throw new EvaluationError(expr, Constants.ERR_FIELD_NOT_THERE + relativePath);
         }
         rfieldMd = context.resolve(rfieldRelativePath);
         if (rfieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + rfieldRelativePath);
+            throw new EvaluationError(expr, Constants.ERR_FIELD_NOT_THERE + rfieldRelativePath);
         }
         operator = expr.getOp();
         LOGGER.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);

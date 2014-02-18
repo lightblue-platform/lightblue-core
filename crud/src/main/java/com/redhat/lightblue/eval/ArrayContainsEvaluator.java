@@ -55,10 +55,10 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             if (el instanceof SimpleArrayElement) {
                 elem = (SimpleArrayElement) el;
             } else {
-                throw new EvaluationError(expr, Constants.ERR_SMPL_ARR_EXPCTD);
+                throw new EvaluationError(expr, Constants.ERR_EXPECTED_SIMPLE_ARRAY);
             }
         } else {
-            throw new EvaluationError(expr, Constants.ERR_ARR_FLD_EXPCTD);
+            throw new EvaluationError(expr, Constants.ERR_EXPECTED_ARRAY_FIELD);
         }
     }
 
