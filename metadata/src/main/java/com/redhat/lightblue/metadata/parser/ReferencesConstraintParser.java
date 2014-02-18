@@ -18,20 +18,21 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.metadata.Constants;
 import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.metadata.constraints.Reference;
+import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
+import com.redhat.lightblue.util.Error;
 
 public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> {
 
     @Override
     public EntityConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!ReferencesConstraint.REFERENCES.equals(name)) {
-            Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+            Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
         }
 
         List<T> list = p.getObjectList(node, ReferencesConstraint.REFERENCES);
@@ -45,10 +46,10 @@ public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> 
             ref.setThisField(p.getStringProperty(item, "thisField"));
             ref.setEntityField(p.getStringProperty(item, "entityField"));
             if (ref.getEntityName() == null) {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, "references.entityName");
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, "references.entityName");
             }
             if (ref.getVersionValue() == null) {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, "references.versionValue");
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, "references.versionValue");
             }
             dest.add(ref);
         }

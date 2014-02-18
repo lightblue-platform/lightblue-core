@@ -19,16 +19,17 @@
 package com.redhat.lightblue.metadata.parser;
 
 
-import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.metadata.Constants;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
+import com.redhat.lightblue.util.Error;
 
 public class EnumConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
     public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!EnumConstraint.ENUM.equals(name)) {
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+            throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
         }
 
         String enumName = (String) p.getValueProperty(node, EnumConstraint.ENUM);

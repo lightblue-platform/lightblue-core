@@ -18,21 +18,21 @@
  */
 package com.redhat.lightblue.metadata.mongo;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.Date;
-
-import com.mongodb.BasicDBObject;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.EntitySchema;
+import java.util.List;
+import java.util.Set;
 
 import org.bson.BSONObject;
 
-import com.redhat.lightblue.util.Error;
+import com.mongodb.BasicDBObject;
+import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.util.Error;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BSONParser extends MetadataParser<BSONObject> {
@@ -51,7 +51,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if (x instanceof String) {
                 return (String) x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -65,7 +65,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if (x instanceof BSONObject) {
                 return (BSONObject) x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -82,7 +82,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
                     || x instanceof Boolean) {
                 return x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -100,7 +100,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
                 }
                 return ret;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -114,7 +114,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if (x instanceof List) {
                 return (List<BSONObject>) x;
             } else {
-                throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -204,7 +204,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
         if (object instanceof List) {
             return (List<BSONObject>) object;
         } else {
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA);
+            throw Error.get(Constants.ERR_ILL_FORMED_METADATA);
         }
     }
 }

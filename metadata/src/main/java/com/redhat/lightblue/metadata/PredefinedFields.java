@@ -48,7 +48,7 @@ import com.redhat.lightblue.util.Path;
  */
 public final class PredefinedFields {
 
-    public static final String ERR_FIELD_WRONG_TYPE="FIELD_WRONG_TYPE";
+
 
     public static final String ID_FIELD="_id";
     public static final String OBJECTTYPE_FIELD="object_type";
@@ -147,7 +147,7 @@ public final class PredefinedFields {
             setRoleIfEmpty(f.getAccess().getFind(),Constants.ROLE_ANYONE);
             setRoleIfEmpty(f.getAccess().getUpdate(),Constants.ROLE_NOONE);
         } else {
-            throw Error.get(ERR_FIELD_WRONG_TYPE,ID_FIELD+":"+f.getType().getName());
+            throw Error.get(Constants.ERR_FIELD_WRONG_TYPE,ID_FIELD+":"+f.getType().getName());
         }
     }
 
@@ -183,7 +183,7 @@ public final class PredefinedFields {
             setRoleIfEmpty(f.getAccess().getFind(),Constants.ROLE_ANYONE);
             setRoleIfEmpty(f.getAccess().getUpdate(),Constants.ROLE_NOONE);
         } else {
-            throw Error.get(ERR_FIELD_WRONG_TYPE,OBJECTTYPE_FIELD+":"+f.getType().getName());
+            throw Error.get(Constants.ERR_FIELD_WRONG_TYPE,OBJECTTYPE_FIELD+":"+f.getType().getName());
         }
     }
 
@@ -252,7 +252,7 @@ public final class PredefinedFields {
             setRoleIfEmpty(f.getAccess().getFind(),Constants.ROLE_ANYONE);
             setRoleIfEmpty(f.getAccess().getUpdate(),Constants.ROLE_NOONE);
         } else {
-            throw Error.get(ERR_FIELD_WRONG_TYPE,fieldName+":"+f.getType().getName());
+            throw Error.get(Constants.ERR_FIELD_WRONG_TYPE,fieldName+":"+f.getType().getName());
         }
         return ret;
     }

@@ -22,6 +22,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.Constants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 
@@ -61,10 +62,10 @@ public final class BinaryType implements Type, Serializable {
                 if (component.equals(byte.class)) {
                     ret = (byte[]) obj;
                 } else {
-                    throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, obj.toString());
+                    throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, obj.toString());
                 }
             } else {
-                throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, obj.toString());
+                throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, obj.toString());
             }
         }
 
@@ -84,7 +85,7 @@ public final class BinaryType implements Type, Serializable {
             } catch (Exception e) {
             }
         }
-        throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, node.toString());
+        throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, node.toString());
     }
 
     @Override

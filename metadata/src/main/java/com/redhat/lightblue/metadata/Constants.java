@@ -25,13 +25,29 @@ public final class Constants {
 
     public static final String ARRAY_ANY_ELEM = "*";
 
-    public static final String ERR_DUPLICATE_FIELD = "DUPLICATE_FIELD";
-    public static final String ERR_INVALID_ARRAY_REFERENCE = "INVALID_ARRAY_REFERENCE";
-    public static final String ERR_INVALID_FIELD_REFERENCE = "INVALID_FIELD_REFERENCE";
-    public static final String ERR_INVALID_REDIRECTION = "INVALID_REDIRECTION";
-    public static final String ERR_INVALID_THIS = "INVALID_$THIS";
-    public static final String ERR_INVALID_PARENT = "INVALID_$PARENT";
+    public static final String ERR_DUPLICATE_FIELD = "metadata:DuplicateField";
+    public static final String ERR_INVALID_ARRAY_REFERENCE = "metadata:InvalidArrayReference";
+    public static final String ERR_INVALID_FIELD_REFERENCE = "metadata:InvalidFieldReference";
+    public static final String ERR_INVALID_REDIRECTION = "metadata:InvalidRedirection";
+    public static final String ERR_INVALID_THIS = "metadata:Invalid$This";
+    public static final String ERR_INVALID_PARENT = "metadata:Invalid$Parent";
+
+    public static final String ERR_FIELD_WRONG_TYPE = "metadata:FieldWrongType";
+
+    public static final String ERR_PARSE_MISSING_ELEMENT = "metadata:ParseMissingElement";
+    public static final String ERR_PARSE_INVALID_STATUS = "metadata:ParseInvalidStatus";
+    public static final String ERR_INVALID_ARRAY_ELEMENT_TYPE = "metadata:InvalidArrayElementType";
+    public static final String ERR_ILL_FORMED_METADATA = "metadata:IllFormedMetadata";
+    public static final String ERR_INVALID_DATASTORE = "metadata:InvalidDatastore";
+    public static final String ERR_INVALID_INDEX = "metadata:InvalidIndex";
+    public static final String ERR_INVALID_ENUM = "metadata:InvalidEmum";
+    public static final String ERR_UNKNOWN_DATASTORE = "metadata:UnknownDatastore";
+    public static final String ERR_INVALID_CONSTRAINT = "metadata:InvalidConstraint";
+    public static final String ERR_INVALID_TYPE = "metadata:InvalidType";
+
+    public static final String ERR_INCOMPATIBLE_VALUE = "metadata:IncompatibleValue";
 
     private Constants() {
     }
+    
 }
