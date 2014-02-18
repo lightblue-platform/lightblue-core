@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.exceptions.ProcessingException;
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -43,7 +43,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
             @Override
             public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
                 if (!"empty".equals(name)) {
-                    throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
                 }
 
                 DataStore ds = new DataStore() {

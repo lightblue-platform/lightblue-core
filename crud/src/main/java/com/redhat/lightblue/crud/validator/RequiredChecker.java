@@ -20,7 +20,7 @@ package com.redhat.lightblue.crud.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintDocChecker;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -42,7 +42,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
             int nAnys = fieldMetadataPath.nAnys();
             if (nAnys == 0) {
                 if (doc.get(fieldMetadataPath) == null) {
-                    validator.addDocError(Error.get(Constants.ERR_REQUIRED));
+                    validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED));
                 }
             } else {
                 // The required field is a member of an object that's an element of an array
@@ -54,7 +54,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                     cursor.next();
                     JsonNode parentObject = cursor.getCurrentValue();
                     if (parentObject.get(fieldName) == null) {
-                        validator.addDocError(Error.get(Constants.ERR_REQUIRED, cursor.getCurrentKey() + "." + fieldName));
+                        validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED, cursor.getCurrentKey() + "." + fieldName));
                     }
                 }
             }

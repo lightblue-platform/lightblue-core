@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
-public final class Constants {
+public final class MetadataConstants {
 
     public static final String ROLE_ANYONE = "anyone";
     public static final String ROLE_NOONE = "noone";
@@ -47,7 +47,7 @@ public final class Constants {
 
     public static final String ERR_INCOMPATIBLE_VALUE = "metadata:IncompatibleValue";
 
-    private Constants() {
+    private MetadataConstants() {
     }
     
 }

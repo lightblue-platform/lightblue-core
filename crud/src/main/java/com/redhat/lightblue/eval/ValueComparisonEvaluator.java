@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
@@ -47,7 +47,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
         this.field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_FIELD_NOT_THERE + field);
+            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + field);
         }
         operator = expr.getOp();
         value = expr.getRvalue().getValue();

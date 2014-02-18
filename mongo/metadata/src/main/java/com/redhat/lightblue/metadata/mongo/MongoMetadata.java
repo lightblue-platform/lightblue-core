@@ -18,44 +18,38 @@
  */
 package com.redhat.lightblue.metadata.mongo;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
-import com.mongodb.DB;
-import com.mongodb.DBObject;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.WriteConcern;
-import com.mongodb.WriteResult;
-import com.mongodb.MongoException;
-
 import org.bson.BSONObject;
 
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.mongo.MongoConfiguration;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.Version;
-import com.redhat.lightblue.metadata.MetadataStatus;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
+import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
-import com.redhat.lightblue.metadata.StatusChange;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.PredefinedFields;
+import com.redhat.lightblue.metadata.StatusChange;
+import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-
-import java.net.UnknownHostException;
+import com.redhat.lightblue.mongo.MongoConfiguration;
+import com.redhat.lightblue.util.Error;
 
 public class MongoMetadata implements Metadata {
 
     private static final long serialVersionUID = 1L;
-    public static final String ERR_DUPLICATE_METADATA = "DUPLICATE_METADATA";
-    public static final String ERR_UNKNOWN_VERSION = "UNKNOWN_VERSION";
-    public static final String ERR_DB_ERROR = "DB_ERROR";
-    public static final String ERR_MISSING_ENTITY_INFO = "MISSING_ENTITY_INFO";
 
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
 
@@ -204,10 +198,10 @@ public class MongoMetadata implements Metadata {
                 WriteResult result = collection.insert(infoObj, WriteConcern.SAFE);
                 String error = result.getError();
                 if (error != null) {
-                    throw Error.get(ERR_DB_ERROR, error);
+                    throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
                 }
             } catch (MongoException.DuplicateKey dke) {
-                throw Error.get(ERR_DUPLICATE_METADATA, ver.getValue());
+                throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
             } finally {
                 Error.pop();
             }
@@ -217,10 +211,10 @@ public class MongoMetadata implements Metadata {
                 WriteResult result = collection.insert(schemaObj, WriteConcern.SAFE);
                 String error = result.getError();
                 if (error != null) {
-                    throw Error.get(ERR_DB_ERROR, error);
+                    throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
                 }
             } catch (MongoException.DuplicateKey dke) {
-                throw Error.get(ERR_DUPLICATE_METADATA, ver.getValue());
+                throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
             } finally {
                 Error.pop();
             }
@@ -249,7 +243,7 @@ public class MongoMetadata implements Metadata {
             EntityInfo info = getEntityInfo(md.getName());
 
             if (null == info) {
-                throw Error.get(ERR_MISSING_ENTITY_INFO, md.getName());
+                throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, md.getName());
             }
 
             PredefinedFields.ensurePredefinedFields(md);
@@ -258,11 +252,11 @@ public class MongoMetadata implements Metadata {
             WriteResult result = collection.insert(schemaObj, WriteConcern.SAFE);
             String error = result.getError();
             if (error != null) {
-                throw Error.get(ERR_DB_ERROR, error);
+                throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
 
         } catch (MongoException.DuplicateKey dke) {
-            throw Error.get(ERR_DUPLICATE_METADATA, ver.getValue());
+            throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
         } finally {
             Error.pop();
         }
@@ -318,7 +312,7 @@ public class MongoMetadata implements Metadata {
         try {
             DBObject md = collection.findOne(query);
             if (md == null) {
-                throw Error.get(ERR_UNKNOWN_VERSION, entityName + ":" + version);
+                throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
             EntitySchema schema = mdParser.parseEntitySchema(md);
 
@@ -334,7 +328,7 @@ public class MongoMetadata implements Metadata {
                     update(query, (DBObject) mdParser.convert(schema), false, false);
             String error = result.getError();
             if (error != null) {
-                throw Error.get(ERR_DB_ERROR, error);
+                throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
         } finally {
             Error.pop();

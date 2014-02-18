@@ -23,7 +23,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -50,11 +50,11 @@ public class MinMaxChecker implements FieldConstraintValueChecker {
         // cmp >0: fieldValue>value
         if (MinMaxConstraint.MIN.equals(type)) {
             if (cmp < 0) {
-                validator.addDocError(Error.get(Constants.ERR_VALUE_TOO_SMALL, fieldValue.asText()));
+                validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_SMALL, fieldValue.asText()));
             }
         } else {
             if (cmp > 0) {
-                validator.addDocError(Error.get(Constants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
+                validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
             }
         }
     }

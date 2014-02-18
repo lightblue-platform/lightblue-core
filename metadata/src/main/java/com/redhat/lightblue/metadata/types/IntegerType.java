@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 
@@ -58,7 +58,7 @@ public final class IntegerType implements Type, Serializable {
         if (node.isValueNode()) {
             return node.asLong();
         } else {
-            throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, node.toString());
+            throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
         }
     }
 
@@ -74,10 +74,10 @@ public final class IntegerType implements Type, Serializable {
                 try {
                     value = Long.valueOf((String) obj);
                 } catch (NumberFormatException e) {
-                    throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, obj.toString());
+                    throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
                 }
             } else {
-                throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, obj.toString());
+                throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
             }
         }
         return value;

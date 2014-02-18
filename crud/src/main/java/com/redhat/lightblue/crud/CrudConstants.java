@@ -1,6 +1,6 @@
 package com.redhat.lightblue.crud;
 
-public class Constants {
+public class CrudConstants {
   
     public static final String ERR_ARRAY_TOO_SMALL = "crud:ArrayTooSmall";
     public static final String ERR_ARRAY_TOO_LARGE = "crud:ArrayTooLarge";
@@ -39,7 +39,7 @@ public class Constants {
     public static final String ERR_CANT_ACCESS = "crud:CannotAccess";
     public static final String ERR_ASSIGNMENT = "crud:AssignmentError ";
 
-    private Constants() {
+    private CrudConstants() {
         
     }
 }

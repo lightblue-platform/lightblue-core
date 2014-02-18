@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.util.Error;
@@ -28,7 +28,7 @@ public class MinMaxConstraintParser<T> implements FieldConstraintParser<T> {
     @Override
     public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!MinMaxConstraint.MIN.equals(name) && !MinMaxConstraint.MAX.equals(name)) {
-            throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
         Object value = p.getValueProperty(node, name);
@@ -37,7 +37,7 @@ public class MinMaxConstraintParser<T> implements FieldConstraintParser<T> {
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());
         } else {
-            throw Error.get(Constants.ERR_ILL_FORMED_METADATA, ret.getType());
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ret.getType());
         }
 
         return ret;

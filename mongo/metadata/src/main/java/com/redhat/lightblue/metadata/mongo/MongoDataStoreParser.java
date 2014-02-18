@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.mongo;
 
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -31,7 +31,7 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
     @Override
     public DataStore parse(String name, MetadataParser<T> p, T node) {
         if (!"mongo".equals(name)) {
-            throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
         MongoDataStore ds = new MongoDataStore();

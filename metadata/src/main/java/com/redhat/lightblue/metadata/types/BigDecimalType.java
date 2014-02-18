@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 
@@ -59,7 +59,7 @@ public final class BigDecimalType implements Type, Serializable {
         if (node.isValueNode()) {
             return node.decimalValue();
         } else {
-            throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, node.toString());
+            throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
         }
     }
 
@@ -82,10 +82,10 @@ public final class BigDecimalType implements Type, Serializable {
                 try {
                     value = new BigDecimal((String) obj);
                 } catch (NumberFormatException e) {
-                    throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, obj.toString());
+                    throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
                 }
             } else {
-                throw Error.get(NAME, Constants.ERR_INCOMPATIBLE_VALUE, obj.toString());
+                throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
             }
 
         }

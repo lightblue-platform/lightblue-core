@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
@@ -118,13 +118,13 @@ public class SetExpressionEvaluator extends Updater {
                 refPath = rvalue.getPath();
                 refMdNode = context.resolve(refPath);
                 if (refMdNode == null) {
-                    throw new EvaluationError(Constants.ERR_CANT_ACCESS + refPath);
+                    throw new EvaluationError(CrudConstants.ERR_CANT_ACCESS + refPath);
                 }
                 LOGGER.debug("Refpath {}", refPath);
             }
             FieldTreeNode mdNode = context.resolve(field);
             if (mdNode == null) {
-                throw new EvaluationError(Constants.ERR_CANT_ACCESS + field);
+                throw new EvaluationError(CrudConstants.ERR_CANT_ACCESS + field);
             }
 
             if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
@@ -134,7 +134,7 @@ public class SetExpressionEvaluator extends Updater {
                 data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ArrayField) {
                 // Unacceptable
-                throw new EvaluationError(Constants.ERR_ASSIGNMENT + field);
+                throw new EvaluationError(CrudConstants.ERR_ASSIGNMENT + field);
             }
             setValues.add(data);
         }
@@ -143,10 +143,10 @@ public class SetExpressionEvaluator extends Updater {
     private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!mdNode.getType().equals(refMdNode.getType())) {
-                throw new EvaluationError(Constants.ERR_INCOMPATIBLE_DEREFERENCE + field + " <- " + refPath);
+                throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_DEREFERENCE + field + " <- " + refPath);
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
-            throw new EvaluationError(Constants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
+            throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
         }
 
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
@@ -155,10 +155,10 @@ public class SetExpressionEvaluator extends Updater {
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!(refMdNode instanceof ObjectField)) {
-                throw new EvaluationError(Constants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
+                throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
         } else if (rvalue.getType() == RValueExpression.RValueType._value) {
-            throw new EvaluationError(Constants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
+            throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }

@@ -26,7 +26,7 @@ import java.util.Set;
 import org.bson.BSONObject;
 
 import com.mongodb.BasicDBObject;
-import com.redhat.lightblue.metadata.Constants;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.TypeResolver;
@@ -51,7 +51,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if (x instanceof String) {
                 return (String) x;
             } else {
-                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -65,7 +65,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if (x instanceof BSONObject) {
                 return (BSONObject) x;
             } else {
-                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -82,7 +82,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
                     || x instanceof Boolean) {
                 return x;
             } else {
-                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -100,7 +100,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
                 }
                 return ret;
             } else {
-                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -114,7 +114,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
             if (x instanceof List) {
                 return (List<BSONObject>) x;
             } else {
-                throw Error.get(Constants.ERR_ILL_FORMED_METADATA, name);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
             }
         } else {
             return null;
@@ -204,7 +204,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
         if (object instanceof List) {
             return (List<BSONObject>) object;
         } else {
-            throw Error.get(Constants.ERR_ILL_FORMED_METADATA);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         }
     }
 }
