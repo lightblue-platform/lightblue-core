@@ -23,6 +23,5 @@ package com.redhat.lightblue.query;
  */
 public abstract class LogicalExpression extends QueryExpression {
 	private static final long serialVersionUID = 1L;
-	
-	public static final String INVALID_LOGICAL_EXPRESSION = "INVALID_LOGICAL_EXPRESSION";
+
 }

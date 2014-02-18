@@ -35,7 +35,6 @@ import com.redhat.lightblue.util.Error;
 public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
 
     private static final long serialVersionUID = 1L;
-    public static final String ERR_INVALID_ARRAY_UPDATE_EXPRESSION="INVALID_ARRAY_UPDATE_EXPRESSION";
     
     /**
      * Parses an array update expression using the given json object
@@ -46,7 +45,7 @@ public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
         } else if(node.has(UpdateOperator._foreach.toString())) {
             return ForEachExpression.fromJson(node);
         } else {
-            throw Error.get(ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
         }
             
     }

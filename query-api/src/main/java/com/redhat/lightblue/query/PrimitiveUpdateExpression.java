@@ -34,8 +34,7 @@ import com.redhat.lightblue.util.Error;
 public abstract class PrimitiveUpdateExpression extends PartialUpdateExpression {
 
     private static final long serialVersionUID = 1L;
-    public static final String ERR_INVALID_UPDATE_EXPRESSION="INVALID_UPDATE_EXPRESSION";
-    
+
     /**
      * Parses a primitive expression using the given json object
      */
@@ -45,7 +44,7 @@ public abstract class PrimitiveUpdateExpression extends PartialUpdateExpression 
         } else if (node.has(UpdateOperator._unset.toString())) {
             return UnsetExpression.fromJson(node);
         } else {
-            throw Error.get(ERR_INVALID_UPDATE_EXPRESSION, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_UPDATE_EXPRESSION, node.toString());
         }   
     }
 }

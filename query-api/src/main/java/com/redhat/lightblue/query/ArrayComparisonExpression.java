@@ -29,7 +29,6 @@ import com.redhat.lightblue.util.Error;
 public abstract class ArrayComparisonExpression extends ComparisonExpression {
 
 	private static final long serialVersionUID = 1L;
-	public static final String INVALID_ARRAY_COMPARISON_EXPRESSION = "INVALID_ARRAY_COMPARISON_EXPRESSION";
 
     /**
      * Parses an array contains or array match expression from the given object node
@@ -44,6 +43,6 @@ public abstract class ArrayComparisonExpression extends ComparisonExpression {
                 return ArrayMatchExpression.fromJson(node);
             }
         }
-        throw Error.get(INVALID_ARRAY_COMPARISON_EXPRESSION, node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_COMPARISON_EXPRESSION, node.toString());
     }
 }

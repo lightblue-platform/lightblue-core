@@ -1,6 +1,6 @@
 package com.redhat.lightblue.crud.mongo;
 
-public class MongoCrudConstants {
+public final class MongoCrudConstants {
 
     public static final String ERR_INVALID_OBJECT = "mongo-crud:InvalidObject";
     public static final String ERR_DUPLICATE = "mongo-crud:Duplicate";

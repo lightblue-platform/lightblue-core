@@ -122,6 +122,6 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
                 }
             }
         }
-        throw Error.get(ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
     }
 }

@@ -1,6 +1,6 @@
 package com.redhat.lightblue.crud;
 
-public class CrudConstants {
+public final class CrudConstants {
   
     public static final String ERR_ARRAY_TOO_SMALL = "crud:ArrayTooSmall";
     public static final String ERR_ARRAY_TOO_LARGE = "crud:ArrayTooLarge";

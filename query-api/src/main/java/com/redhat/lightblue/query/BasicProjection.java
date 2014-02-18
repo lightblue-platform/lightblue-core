@@ -31,9 +31,6 @@ import com.redhat.lightblue.util.Error;
 public abstract class BasicProjection extends Projection {
 
 	private static final long serialVersionUID = 1L;
-	
-    public static final String INVALID_PROJECTION = "INVALID_PROJECTION";
-    public static final String INVALID_ARRAY_RANGE_PROJECTION = "INVALID_ARRAY_RANGE_PROJECTION";
 
     /**
      * Parses a field or array projection from the given json object
@@ -41,7 +38,7 @@ public abstract class BasicProjection extends Projection {
     public static BasicProjection fromJson(ObjectNode node) {
         String field = node.get("field").asText();
         if (field == null) {
-            throw Error.get(INVALID_PROJECTION, "field");
+            throw Error.get(QueryConstants.ERR_INVALID_PROJECTION, "field");
         }
         
         Path path = getNonRelativePath(new Path(field));
@@ -74,7 +71,7 @@ public abstract class BasicProjection extends Projection {
                         projection,
                         from, to);
             } else {
-                throw Error.get(INVALID_ARRAY_RANGE_PROJECTION, node.toString());
+                throw Error.get(QueryConstants.ERR_INVALID_ARRAY_RANGE_PROJECTION, node.toString());
             }
         }
         x = node.get("match");

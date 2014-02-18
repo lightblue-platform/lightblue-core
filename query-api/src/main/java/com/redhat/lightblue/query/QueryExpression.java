@@ -29,9 +29,8 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public abstract class QueryExpression extends JsonObject {
 	private static final long serialVersionUID = 1L;
-    public static final String INVALID_QUERY = "INVALID_QUERY";
 
-    /**
+	/**
      * Parses a query expression from the given json node
      */
     public static QueryExpression fromJson(JsonNode node) {
@@ -48,7 +47,7 @@ public abstract class QueryExpression extends JsonObject {
                 return ComparisonExpression.fromJson(onode);
             }
         } else {
-            throw Error.get(INVALID_QUERY, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_QUERY, node.toString());
         }
     }
 }

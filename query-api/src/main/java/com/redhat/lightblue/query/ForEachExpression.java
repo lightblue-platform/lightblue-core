@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
@@ -109,6 +108,6 @@ public class ForEachExpression extends ArrayUpdateExpression {
                 }
             }
         }
-        throw Error.get(ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
     }
 }

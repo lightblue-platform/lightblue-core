@@ -43,8 +43,6 @@ public class SetExpression extends PrimitiveUpdateExpression {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String ERR_INVALID_SET_EXPRESSION="INVALID_SET_EXPRESSION";
-
     private final List<FieldAndRValue> fields;
     private UpdateOperator op;
 
@@ -121,6 +119,6 @@ public class SetExpression extends PrimitiveUpdateExpression {
                 return new SetExpression(op,list);
             }
         }
-        throw Error.get(ERR_INVALID_SET_EXPRESSION,node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_SET_EXPRESSION,node.toString());
     }
 }

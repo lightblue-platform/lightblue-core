@@ -81,12 +81,12 @@ public class NaryLogicalExpression extends LogicalExpression {
      */
     public static NaryLogicalExpression fromJson(ObjectNode node) {
         if (node.size() != 1) {
-            throw Error.get(INVALID_LOGICAL_EXPRESSION, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_LOGICAL_EXPRESSION, node.toString());
         }
         String fieldName = node.fieldNames().next();
         NaryLogicalOperator op = NaryLogicalOperator.fromString(fieldName);
         if (op == null) {
-            throw Error.get(INVALID_LOGICAL_EXPRESSION, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_LOGICAL_EXPRESSION, node.toString());
         }
         JsonNode x = node.get(fieldName);
         if (x instanceof ArrayNode) {
@@ -98,7 +98,7 @@ public class NaryLogicalExpression extends LogicalExpression {
             }
             return new NaryLogicalExpression(op, list);
         } else {
-            throw Error.get(INVALID_LOGICAL_EXPRESSION, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_LOGICAL_EXPRESSION, node.toString());
         }
     }
 }
