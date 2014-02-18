@@ -32,10 +32,10 @@ public class EmptyIterator<T> implements Iterator<T>, Serializable {
     }
 
     public T next() {
-        throw new NoSuchElementException();
+        throw new NoSuchElementException(UtilConstants.ERR_NEXT_ON_EMPTY_ITR);
     }
 
     public void remove() {
-        throw new IllegalStateException();
+        throw new IllegalStateException(UtilConstants.ERR_REMOVE_ON_EMPTY_ITR);
     }
 }

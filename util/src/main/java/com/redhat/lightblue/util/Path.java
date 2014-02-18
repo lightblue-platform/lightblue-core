@@ -400,7 +400,7 @@ public class Path implements Comparable<Path>, Serializable {
     private static int parsePathBeginningOrAfter(char c, StringBuilder buf, int i, String x, int currentState) {
         if (!Character.isWhitespace(c)) {
             if (c == '.') {
-                throw new InvalidPathException("Unexpected '.' at " + i, x);
+                throw new InvalidPathException(UtilConstants.ERR_UNEXPECTED_DOT + i, x);
             } else {
                 buf.append(c);
                 return 1;
@@ -431,10 +431,10 @@ public class Path implements Comparable<Path>, Serializable {
             if (c == '.') {
                 return 0;
             } else {
-                throw new InvalidPathException("Expected whitespace or '.' at " + i, x);
+                throw new InvalidPathException(UtilConstants.ERR_UNEXPECTED_WHITESPACE + i, x);
             }
         } else {
-            throw new InvalidPathException("Unexpected character at " + i, x);
+            throw new InvalidPathException(UtilConstants.ERR_UNEXPECTED_CHARACTER + i, x);
         }
     }
 

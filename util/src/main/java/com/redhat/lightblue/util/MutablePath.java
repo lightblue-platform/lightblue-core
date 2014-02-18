@@ -89,7 +89,7 @@ public class MutablePath extends Path {
      */
     public MutablePath push(String x) {
         if (x == null) {
-            throw new IllegalArgumentException("null value passed to push");
+            throw new IllegalArgumentException(UtilConstants.ERR_NULL_VALUE_PASSED_TO_PUSH);
         }
         List<String> s = parse(x);
         if(s!=null&&!s.isEmpty()) {
@@ -104,7 +104,7 @@ public class MutablePath extends Path {
      */
     public MutablePath push(Path x) {
         if (x == null) {
-            throw new IllegalArgumentException("null value passed to push");
+            throw new IllegalArgumentException(UtilConstants.ERR_NULL_VALUE_PASSED_TO_PUSH);
         }
         own();
         getData().append(x.getData());
@@ -131,7 +131,7 @@ public class MutablePath extends Path {
             own();
             getData().remove(getData().size()-1);
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalStateException("Attempted to pop empty path");
+            throw new IllegalStateException(UtilConstants.ERR_CANT_POP_EMPTY_PATH);
         }
         return this;
     }
@@ -149,7 +149,7 @@ public class MutablePath extends Path {
             getData().append(parse(x));
             return this;
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalStateException("Attempted to set last segment on empty path.");
+            throw new IllegalStateException(UtilConstants.ERR_CANT_SET_LAST_SEGMENT_ON_EMPTY_PATH);
         }
     }
 
