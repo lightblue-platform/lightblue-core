@@ -265,10 +265,10 @@ public class MongoMetadata implements Metadata {
     private Version checkVersionIsValid(EntityMetadata md) {
         Version ver = md.getVersion();
         if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
-            throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_VERSION);
+            throw new IllegalArgumentException("Invalid version");
         }
         if (ver.getValue().indexOf(' ') != -1) {
-            throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_VERSION_NUMBER);
+            throw new IllegalArgumentException("Invalid version number");
         }
         return ver;
     }
@@ -276,19 +276,19 @@ public class MongoMetadata implements Metadata {
     private void checkDataStoreIsValid(EntityMetadata md) {
         DataStore store = md.getDataStore();
         if (!(store instanceof MongoDataStore)) {
-            throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_DATASTORE);
+            throw new IllegalArgumentException("Invalid datastore");
         }
     }
 
     private void checkMetadataHasName(EntityMetadata md) {
         if (md.getName() == null || md.getName().length() == 0) {
-            throw new IllegalArgumentException(MongoMetadataConstants.ERR_EMPTY_METADATA_NAME);
+            throw new IllegalArgumentException("Empty metadata name");
         }
     }
 
     private void checkMetadataHasFields(EntityMetadata md) {
         if (md.getFields().getNumChildren() <= 0) {
-            throw new IllegalArgumentException(MongoMetadataConstants.ERR_METADATA_WITH_NO_FIELDS);
+            throw new IllegalArgumentException("Metadata without any fields");
         }
     }
 
@@ -305,7 +305,7 @@ public class MongoMetadata implements Metadata {
             throw new IllegalArgumentException(LITERAL_VERSION);
         }
         if (newStatus == null) {
-            throw new IllegalArgumentException(MongoMetadataConstants.ERR_NEW_STATUS_IS_NULL);
+            throw new IllegalArgumentException("status");
         }
         BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
         Error.push("setMetadataStatus(" + entityName + ":" + version + ")");

@@ -21,7 +21,6 @@ package com.redhat.lightblue.metadata.types;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 
 /**
@@ -81,7 +80,7 @@ public final class Arith {
         } else if (operand instanceof BigDecimalType) {
             return 3;
         } else {
-            throw new IllegalArgumentException(operand.getName() + MetadataConstants.ERR_NOT_A_NUMBER_TYPE);
+            throw new IllegalArgumentException(operand.getName() + " is not a number type");
         }  
     }
 

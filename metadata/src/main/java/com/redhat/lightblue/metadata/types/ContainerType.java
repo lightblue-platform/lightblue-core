@@ -20,7 +20,6 @@ package com.redhat.lightblue.metadata.types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 
 abstract class ContainerType implements Type {
@@ -47,22 +46,22 @@ abstract class ContainerType implements Type {
 
     @Override
     public int compare(Object v1, Object v2) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_COMPARE_NOT_SUPPORTED);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object cast(Object v) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_CAST_NOT_SUPPORTED);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public JsonNode toJson(JsonNodeFactory factory, Object value) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_TO_JSON_NOT_SUPPORTED);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object fromJson(JsonNode value) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_FROM_JSON_NOT_SUPPORTED);
+        throw new UnsupportedOperationException();
     }
 
     @Override

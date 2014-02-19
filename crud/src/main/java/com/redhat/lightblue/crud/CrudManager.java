@@ -98,7 +98,7 @@ public final class CrudManager {
 
         // validate
         if (!configuration.isValid()) {
-            throw new IllegalStateException(CrudConstants.ERR_CONFIG_NOT_VALID + CrudConfiguration.FILENAME);
+            throw new IllegalStateException("Configuration not valid: " + CrudConfiguration.FILENAME);
         }
 
         for (Controller x : configuration.getControllers()) {

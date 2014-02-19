@@ -50,7 +50,7 @@ public final class BinaryType implements Type, Serializable {
 
     @Override
     public int compare(Object v1, Object v2) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_COMPARE_NOT_SUPPORTED);
+        throw new UnsupportedOperationException();
     }
 
     @Override
