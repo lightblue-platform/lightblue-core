@@ -85,7 +85,7 @@ public final class MetadataManager {
         MetadataConfiguration configuration = g.fromJson(buff.toString(), MetadataConfiguration.class);
 
         if (null == configuration) {
-            throw new IllegalStateException("Configuration not found: " + MetadataConfiguration.FILENAME);
+            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + MetadataConfiguration.FILENAME);
         }
 
         // instantiate the database specific configuration object
@@ -95,7 +95,7 @@ public final class MetadataManager {
 
         // validate
         if (!configuration.isValid()) {
-            throw new IllegalStateException("Configuration not valid: " + MetadataConfiguration.FILENAME);
+            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_VALID + MetadataConfiguration.FILENAME);
         }
 
         Class metadataClass = Class.forName(configuration.getMetadataClass());
