@@ -2,7 +2,7 @@ Specification: Service REST API / Metadata
 ==========================================
 
 # Glossary
-For a definition of terms see the [Glossary](../GLOSSARY.md).
+For a definition of terms see the [Glossary](../../GLOSSARY.md).
 
 # Structure
 * Descriptive name is the Header
