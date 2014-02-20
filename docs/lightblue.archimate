@@ -241,6 +241,10 @@
     <element xsi:type="archimate:Requirement" id="91581bed" name="Log only what is needed"/>
     <element xsi:type="archimate:Goal" id="1635e13c" name="Know State of Application"/>
     <element xsi:type="archimate:Requirement" id="872b0437" name="Get state of a record at a specific time."/>
+    <element xsi:type="archimate:Requirement" id="9df3a91b" name="Restrict database access to DBA's and specific services."/>
+    <element xsi:type="archimate:Requirement" id="363a8c50" name="Allow metadata service CRUD access to MongoDB."/>
+    <element xsi:type="archimate:Requirement" id="5954f834" name="Allow data service CRUD access to MongoDB."/>
+    <element xsi:type="archimate:Constraint" id="12a6f5ae" name="Disable localhost admin login for MongoDB."/>
   </folder>
   <folder name="Implementation &amp; Migration" id="70b27f39" type="implementation_migration">
     <element xsi:type="archimate:Gap" id="5cf089bd" name="MS4: Async"/>
@@ -533,6 +537,10 @@
     <element xsi:type="archimate:RealisationRelationship" id="3a4ebc7f" source="127cee61" target="d03cc846"/>
     <element xsi:type="archimate:CompositionRelationship" id="ecb289ab" source="d03cc846" target="e1c0cdf2"/>
     <element xsi:type="archimate:UsedByRelationship" id="3553156e" source="4f1cf996" target="2e8bafb6"/>
+    <element xsi:type="archimate:RealisationRelationship" id="ab255ca5" source="9df3a91b" target="d33cc22d"/>
+    <element xsi:type="archimate:SpecialisationRelationship" id="aca04079" source="363a8c50" target="9df3a91b"/>
+    <element xsi:type="archimate:SpecialisationRelationship" id="adf230fb" source="5954f834" target="9df3a91b"/>
+    <element xsi:type="archimate:AggregationRelationship" id="aea34529" source="9df3a91b" target="12a6f5ae"/>
   </folder>
   <folder name="Views" id="19b98b0d" type="diagrams">
     <folder name="Technical" id="ee62d621">
@@ -3128,8 +3136,8 @@ Email: nmalik@redhat.com</content>
         <bounds x="1910" y="321"/>
         <sourceConnection xsi:type="archimate:Connection" id="409f76c9" source="81c589ea" target="2d0fd508" relationship="78c1d72b"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="426c524f" textAlignment="2" archimateElement="d33cc22d">
-        <bounds x="984" y="1053" width="132" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="426c524f" textAlignment="2" targetConnections="396ec553" archimateElement="d33cc22d">
+        <bounds x="801" y="1149" width="132" height="55"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="5c7a1f41" textAlignment="2" archimateElement="f80f81d3">
         <bounds x="1182" y="748"/>
@@ -3435,6 +3443,22 @@ Email: nmalik@redhat.com</content>
       <child xsi:type="archimate:DiagramObject" id="df269cb5" textAlignment="2" targetConnections="c6cbf2e9" archimateElement="872b0437">
         <bounds x="320" y="36"/>
         <sourceConnection xsi:type="archimate:Connection" id="35929b9b" source="df269cb5" target="0e50f8c2" relationship="fb8f87c1"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="1094bb31" textAlignment="2" targetConnections="f7f401d6 6848ef3c" archimateElement="9df3a91b">
+        <bounds x="778" y="1235" width="177" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="396ec553" source="1094bb31" target="426c524f" relationship="ab255ca5"/>
+        <sourceConnection xsi:type="archimate:Connection" id="00b4dbe4" source="1094bb31" target="664fa55f" relationship="aea34529"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="6140ac6f" textAlignment="2" archimateElement="363a8c50">
+        <bounds x="694" y="1315" width="155" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="f7f401d6" source="6140ac6f" target="1094bb31" relationship="aca04079"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="75ad8479" textAlignment="2" archimateElement="5954f834">
+        <bounds x="882" y="1317" width="152" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="6848ef3c" source="75ad8479" target="1094bb31" relationship="adf230fb"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="664fa55f" textAlignment="2" targetConnections="00b4dbe4" archimateElement="12a6f5ae">
+        <bounds x="553" y="1235" width="164" height="55"/>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" id="4963efbe" name="Roadmap: Adoption" viewpoint="24">
