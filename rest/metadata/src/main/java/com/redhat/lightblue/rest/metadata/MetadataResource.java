@@ -1,15 +1,12 @@
 package com.redhat.lightblue.rest.metadata;
 
 import com.redhat.lightblue.metadata.MetadataManager;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.GET;
@@ -27,7 +24,7 @@ public class MetadataResource {
 
     public static final String PATH_PARAM_ENTITY = "entity";
     public static final String PATH_PARAM_VERSION = "version";
-        
+
     @GET
     @Path("/{entity}/{version}")
     public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion) {
@@ -82,19 +79,7 @@ public class MetadataResource {
             // get the data
             Version[] versions = MetadataManager.getMetadata().getEntityVersions(entityName);
 
-            // convert to json and return
-            // bit of a hack, will wrap each individual converted version with an array
-            StringBuilder buff = new StringBuilder("{\"versions\":[");
-            Iterator<Version> itr = Arrays.asList(versions).iterator();
-            while (itr.hasNext()) {
-                JsonNode jn = MetadataManager.getJSONParser().convert(itr.next());
-                buff.append("({").append(jn.toString()).append("}");
-                if (itr.hasNext()) {
-                    buff.append(",");
-                }
-            }
-            buff.append("]}");
-            return buff.toString();
+            return new Gson().toJson(versions);
         } catch (Error e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
