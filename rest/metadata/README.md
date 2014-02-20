@@ -1,5 +1,5 @@
-Specification: Metadata Service REST API
-========================================
+Specification: Service REST API / Metadata
+==========================================
 
 # Glossary
 For a definition of terms see the [Glossary](Glossary).
