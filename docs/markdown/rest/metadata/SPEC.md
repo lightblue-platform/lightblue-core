@@ -49,44 +49,44 @@ If both entity name and version are specified the request is for all roles for t
 ### Response: Success
 Returns an array of objects that follow this JSON structure.  Note there is no JSON-schema for this at this time, subject to change.
 
-> [
->     {
->         role: <the role>,
->         insert: [array of paths],
->         find: [array of paths],
->         update: [array of paths],
->         delete: [array of paths]
->     }
-> ]
+    [
+        {
+            role: <the role>,
+            insert: [array of paths],
+            find: [array of paths],
+            update: [array of paths],
+            delete: [array of paths]
+        }
+    ]
 
 array of paths - each "path" starts with at least an entity name.  If there is no sub-path it is access to the full entity.  If it contains a sub-path it is access to a specific field on that entity.
 
 #### Example: user.find
-[
-    {
-        role: "user.find",
-        find: ["user"]
-    }
-]
+    [
+        {
+            role: "user.find",
+            find: ["user"]
+        }
+    ]
 
 #### Example: user.credentials.write
-[
-    {
-        role: "user.credentials.write",
-        insert: ["user.credentials"],
-        find: ["user.credentials"],
-        update: ["user.credentials"],
-        delete: ["user.credentials"]
-    }
-]
+    [
+        {
+            role: "user.credentials.write",
+            insert: ["user.credentials"],
+            find: ["user.credentials"],
+            update: ["user.credentials"],
+            delete: ["user.credentials"]
+        }
+    ]
 
 #### Example: user.credentials.read
-[
-    {
-        role: "user.credentials.read",
-        find: ["user.credentials.read"]
-    }
-]
+    [
+        {
+            role: "user.credentials.read",
+            find: ["user.credentials.read"]
+        }
+    ]
 
 ### Response: Errors
 Additional error codes:
