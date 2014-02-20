@@ -35,6 +35,64 @@ There are some common error codes that could be returned on any request and they
 
 # GET
 
+## Get Entity Roles
+Get list of all roles and the entities they allow access to.  See Request for details
+
+### Request
+Two optional path parameters.
+If no optional parameters are specified the request is for all roles for the default version of all entities.
+If only entity name is specified the request is for all roles for the default version of that entity.
+If both entity name and version are specified the request is for all roles for that specific version of the entity.
+
+> GET /metadata/roles[/{entityName}[/{version}]]
+
+### Response: Success
+Returns an array of objects that follow this JSON structure.  Note there is no JSON-schema for this at this time, subject to change.
+
+> [
+>     {
+>         role: <the role>,
+>         insert: [array of paths],
+>         find: [array of paths],
+>         update: [array of paths],
+>         delete: [array of paths]
+>     }
+> ]
+
+array of paths - each "path" starts with at least an entity name.  If there is no sub-path it is access to the full entity.  If it contains a sub-path it is access to a specific field on that entity.
+
+#### Example: user.find
+[
+    {
+        role: "user.find",
+        find: ["user"]
+    }
+]
+
+#### Example: user.credentials.write
+[
+    {
+        role: "user.credentials.write",
+        insert: ["user.credentials"],
+        find: ["user.credentials"],
+        update: ["user.credentials"],
+        delete: ["user.credentials"]
+    }
+]
+
+#### Example: user.credentials.read
+[
+    {
+        role: "user.credentials.read",
+        find: ["user.credentials.read"]
+    }
+]
+
+### Response: Errors
+Additional error codes:
+* metadata:MissingEntityInfo - if entityName is supplied, entity info does not exist
+* metadata:MissingSchema - if version is supplied, schema does not exist for given entity name + version
+
 ## Get Entity Names
 Get names of all defined entities.  There is no paging for this request, all entity names are returned in one response.
 
