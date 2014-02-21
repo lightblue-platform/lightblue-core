@@ -60,14 +60,14 @@ public class Access implements Serializable {
      * Returns if anyone can perform this operation
      */
     public boolean isAnyone() {
-        return values.contains(Constants.ROLE_ANYONE);
+        return values.contains(MetadataConstants.ROLE_ANYONE);
     }
 
     /**
      * Returns if noone can perform this operation
      */
     public boolean isNoone() {
-        return values.contains(Constants.ROLE_NOONE);
+        return values.contains(MetadataConstants.ROLE_NOONE);
     }
 
     /**

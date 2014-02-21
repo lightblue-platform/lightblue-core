@@ -19,17 +19,17 @@
 package com.redhat.lightblue.metadata.types;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import java.text.SimpleDateFormat;
-import java.text.DateFormat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
-
-import java.text.ParseException;
 
 public final class DateType implements Type, Serializable {
 
@@ -80,10 +80,10 @@ public final class DateType implements Type, Serializable {
             try {
                 return getDateFormat().parse(node.asText());
             } catch (ParseException e) {
-                throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, node.toString());
+                throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
             }
         } else {
-            throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, node.toString());
+            throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
         }
     }
 
@@ -98,10 +98,10 @@ public final class DateType implements Type, Serializable {
                 try {
                     value = fmt.parse((String) obj);
                 } catch (ParseException e) {
-                    throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, obj.toString());
+                    throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
                 }
             } else {
-                throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, obj.toString());
+                throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
             }
         }
         return value;

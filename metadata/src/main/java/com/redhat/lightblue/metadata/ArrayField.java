@@ -78,7 +78,7 @@ public class ArrayField extends Field {
                 } else if (Path.PARENT.equals(p.head(level))){
                     return this.getParent().resolve(p, level + 1);
                 } else {
-                    throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+                    throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
                 }
             } finally {
                 Error.pop();

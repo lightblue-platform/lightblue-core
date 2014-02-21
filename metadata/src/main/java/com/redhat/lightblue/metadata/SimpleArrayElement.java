@@ -51,7 +51,7 @@ public class SimpleArrayElement extends ArrayElement {
         } else if (p.head(level).equals(Path.PARENT)) { 
             return this.getParent().resolve(p, level + 1);
         } else {
-            throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+            throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
         }
     }
 

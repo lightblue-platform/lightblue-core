@@ -28,6 +28,7 @@ import java.util.Set;
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityConstraint;
@@ -69,17 +70,6 @@ import com.redhat.lightblue.util.Path;
  * The metadata parser is thread safe.
  */
 public abstract class MetadataParser<T> {
-
-    public static final String ERR_PARSE_MISSING_ELEMENT = "PARSE_MISSING_ELEMENT";
-    public static final String ERR_PARSE_INVALID_STATUS = "PARSE_INVALID_STATUS";
-    public static final String ERR_INVALID_ARRAY_ELEMENT_TYPE = "INVALID_ARRAY_ELEMENT_TYPE";
-    public static final String ERR_ILL_FORMED_METADATA = "ILL_FORMED_METADATA";
-    public static final String ERR_INVALID_DATASTORE = "INVALID_DATASTORE";
-    public static final String ERR_INVALID_INDEX = "INVALID_INDEX";
-    public static final String ERR_INVALID_ENUM = "INVALID_ENUM";
-    public static final String ERR_UNKNOWN_DATASTORE = "UNKNOWN_DATASTORE";
-    public static final String ERR_INVALID_CONSTRAINT = "INVALID_CONSTRAINT";
-    public static final String ERR_INVALID_TYPE = "INVALID_TYPE";
 
     private static final String STR_NAME = "name";
     private static final String STR_VALUE = "value";
@@ -226,7 +216,7 @@ public abstract class MetadataParser<T> {
                     }
                     index.setFields(f);
                 } else {
-                    Error.get(ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
+                    Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
                 }
 
                 return index;
@@ -278,7 +268,7 @@ public abstract class MetadataParser<T> {
                 if (null != values && !values.isEmpty()) {
                     e.setValues(values);
                 } else {
-                    Error.get(ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
+                    Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
                 return e;
@@ -370,7 +360,7 @@ public abstract class MetadataParser<T> {
                     try {
                         item.setDate(DateType.getDateFormat().parse(d));
                     } catch (ParseException e) {
-                        throw Error.get(ERR_ILL_FORMED_METADATA, d);
+                        throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, d);
                     }
                     item.setStatus(statusFromString(getRequiredStringProperty(log, STR_VALUE)));
                     item.setComment(getRequiredStringProperty(log, STR_COMMENT));
@@ -416,12 +406,12 @@ public abstract class MetadataParser<T> {
             List<EntityConstraint> entityConstraintList = new ArrayList<>();
             for (T x : constraintList) {
                 // The constraint object must contain a single field
-                String name = getSingleFieldName(x, ERR_INVALID_CONSTRAINT);
+                String name = getSingleFieldName(x, MetadataConstants.ERR_INVALID_CONSTRAINT);
                 Error.push(name);
                 try {
                     EntityConstraintParser<T> parser = getEntityConstraintParser(name);
                     if (parser == null) {
-                        throw Error.get(ERR_INVALID_CONSTRAINT, name);
+                        throw Error.get(MetadataConstants.ERR_INVALID_CONSTRAINT, name);
                     }
                     EntityConstraint constraint = parser.parse(name, this, x);
                     entityConstraintList.add(constraint);
@@ -446,7 +436,7 @@ public abstract class MetadataParser<T> {
                 try {
                     FieldConstraintParser<T> parser = getFieldConstraintParser(name);
                     if (parser == null) {
-                        throw Error.get(ERR_INVALID_CONSTRAINT, name);
+                        throw Error.get(MetadataConstants.ERR_INVALID_CONSTRAINT, name);
                     }
                     // for each FieldConstraint call parse on the parent object
                     FieldConstraint constraint = parser.parse(name, this, fieldConstraints);
@@ -519,10 +509,10 @@ public abstract class MetadataParser<T> {
      */
     public DataStore parseDataStore(T object) {
         if (object != null) {
-            String name = getSingleFieldName(object, ERR_INVALID_DATASTORE);
+            String name = getSingleFieldName(object, MetadataConstants.ERR_INVALID_DATASTORE);
             DataStoreParser<T> p = getDataStoreParser(name);
             if (p == null) {
-                throw Error.get(ERR_UNKNOWN_DATASTORE, name);
+                throw Error.get(MetadataConstants.ERR_UNKNOWN_DATASTORE, name);
             }
             return p.parse(name, this, getObjectProperty(object, name));
         } else {
@@ -575,7 +565,7 @@ public abstract class MetadataParser<T> {
         SimpleField field = new SimpleField(name);
         Type t = typeResolver.getType(type);
         if (t == null) {
-            throw Error.get(ERR_INVALID_TYPE, type);
+            throw Error.get(MetadataConstants.ERR_INVALID_TYPE, type);
         }
         field.setType(t);
         return field;
@@ -596,7 +586,7 @@ public abstract class MetadataParser<T> {
                 field.setSort(Sort.fromJson(JsonUtils.json(x)));
             }
         } catch (IOException e) {
-            throw Error.get(ERR_ILL_FORMED_METADATA, e.toString());
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
         }
         return field;
     }
@@ -626,12 +616,12 @@ public abstract class MetadataParser<T> {
             return ret;
         } else if (type.equals(ArrayType.TYPE.getName())
                 || type.equals(ReferenceType.TYPE.getName())) {
-            throw Error.get(ERR_INVALID_ARRAY_ELEMENT_TYPE, type);
+            throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_ELEMENT_TYPE, type);
         } else {
             SimpleArrayElement ret = new SimpleArrayElement();
             Type t = typeResolver.getType(type);
             if (t == null) {
-                throw Error.get(ERR_INVALID_TYPE, type);
+                throw Error.get(MetadataConstants.ERR_INVALID_TYPE, type);
             }
             ret.setType(t);
             return ret;
@@ -853,7 +843,7 @@ public abstract class MetadataParser<T> {
                     String constraintType = constraint.getType();
                     FieldConstraintParser<T> parser = getFieldConstraintParser(constraintType);
                     if (parser == null) {
-                        throw Error.get(ERR_INVALID_CONSTRAINT, constraintType);
+                        throw Error.get(MetadataConstants.ERR_INVALID_CONSTRAINT, constraintType);
                     }
                     parser.convert(this, constraintNode, constraint);
                 }
@@ -875,7 +865,7 @@ public abstract class MetadataParser<T> {
                     String constraintType = constraint.getType();
                     EntityConstraintParser<T> parser = getEntityConstraintParser(constraintType);
                     if (parser == null) {
-                        throw Error.get(ERR_INVALID_CONSTRAINT, constraintType);
+                        throw Error.get(MetadataConstants.ERR_INVALID_CONSTRAINT, constraintType);
                     }
                     T constraintNode = newNode();
                     parser.convert(this, constraintNode, constraint);
@@ -950,7 +940,7 @@ public abstract class MetadataParser<T> {
             String type = store.getType();
             DataStoreParser<T> parser = getDataStoreParser(type);
             if (parser == null) {
-                throw Error.get(ERR_UNKNOWN_DATASTORE, type);
+                throw Error.get(MetadataConstants.ERR_UNKNOWN_DATASTORE, type);
             }
             T dsNode = newNode();
             parser.convert(this, dsNode, store);
@@ -1023,7 +1013,7 @@ public abstract class MetadataParser<T> {
             case STR_DISABLED:
                 return MetadataStatus.DISABLED;
             default:
-                throw Error.get(ERR_PARSE_INVALID_STATUS, status);
+                throw Error.get(MetadataConstants.ERR_PARSE_INVALID_STATUS, status);
         }
     }
 
@@ -1055,7 +1045,7 @@ public abstract class MetadataParser<T> {
         try {
             String property = getStringProperty(object, name);
             if (property == null || property.trim().length() == 0) {
-                throw Error.get(ERR_PARSE_MISSING_ELEMENT, name);
+                throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, name);
             }
             return property;
         } finally {
@@ -1092,7 +1082,7 @@ public abstract class MetadataParser<T> {
         try {
             T property = getObjectProperty(object, name);
             if (property == null) {
-                throw Error.get(ERR_PARSE_MISSING_ELEMENT, name);
+                throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, name);
             }
             return property;
         } finally {

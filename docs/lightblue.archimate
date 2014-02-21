@@ -241,6 +241,10 @@
     <element xsi:type="archimate:Requirement" id="91581bed" name="Log only what is needed"/>
     <element xsi:type="archimate:Goal" id="1635e13c" name="Know State of Application"/>
     <element xsi:type="archimate:Requirement" id="872b0437" name="Get state of a record at a specific time."/>
+    <element xsi:type="archimate:Requirement" id="9df3a91b" name="Restrict database access to DBA's and specific services."/>
+    <element xsi:type="archimate:Requirement" id="363a8c50" name="Allow metadata service CRUD access to MongoDB."/>
+    <element xsi:type="archimate:Requirement" id="5954f834" name="Allow data service CRUD access to MongoDB."/>
+    <element xsi:type="archimate:Constraint" id="12a6f5ae" name="Disable localhost admin login for MongoDB."/>
   </folder>
   <folder name="Implementation &amp; Migration" id="70b27f39" type="implementation_migration">
     <element xsi:type="archimate:Gap" id="5cf089bd" name="MS4: Async"/>
@@ -533,6 +537,10 @@
     <element xsi:type="archimate:RealisationRelationship" id="3a4ebc7f" source="127cee61" target="d03cc846"/>
     <element xsi:type="archimate:CompositionRelationship" id="ecb289ab" source="d03cc846" target="e1c0cdf2"/>
     <element xsi:type="archimate:UsedByRelationship" id="3553156e" source="4f1cf996" target="2e8bafb6"/>
+    <element xsi:type="archimate:RealisationRelationship" id="ab255ca5" source="9df3a91b" target="d33cc22d"/>
+    <element xsi:type="archimate:SpecialisationRelationship" id="aca04079" source="363a8c50" target="9df3a91b"/>
+    <element xsi:type="archimate:SpecialisationRelationship" id="adf230fb" source="5954f834" target="9df3a91b"/>
+    <element xsi:type="archimate:AggregationRelationship" id="aea34529" source="9df3a91b" target="12a6f5ae"/>
   </folder>
   <folder name="Views" id="19b98b0d" type="diagrams">
     <folder name="Technical" id="ee62d621">
@@ -2325,8 +2333,8 @@ Send Response</content>
         </child>
       </element>
       <element xsi:type="archimate:SketchModel" id="4c808069" name="Data Service" background="0">
-        <child xsi:type="archimate:SketchModelSticky" id="fa539f7b" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="1c7fb307 43081fa9 c80c6b91 fa3a82c7" fillColor="#ffffb5">
-          <bounds x="553" y="340" width="119" height="52"/>
+        <child xsi:type="archimate:SketchModelSticky" id="fa539f7b" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="1c7fb307 43081fa9 c80c6b91 ca6626b7" fillColor="#ffffb5">
+          <bounds x="553" y="384" width="119" height="52"/>
           <content>MongoDB: Data</content>
         </child>
         <child xsi:type="archimate:SketchModelSticky" id="e60a4ceb" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="05a99256 b0e1d256" fillColor="#ffffb5">
@@ -2391,7 +2399,7 @@ Send Response</content>
           </child>
           <child xsi:type="archimate:SketchModelSticky" id="96aa6b4c" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="789a675f" fillColor="#b5ffff">
             <bounds x="181" y="342" width="122" height="49"/>
-            <sourceConnection id="fa3a82c7" source="96aa6b4c" target="fa539f7b"/>
+            <sourceConnection id="ca6626b7" source="96aa6b4c" target="fa539f7b" type="1"/>
             <content>Delete Data</content>
           </child>
         </child>
@@ -2412,12 +2420,12 @@ Send Response</content>
           <sourceConnection id="2a353b3b" source="af5966f3" target="3b8ba8df" type="13"/>
         </child>
         <child xsi:type="archimate:SketchModelSticky" id="3b8ba8df" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="6e7185e5 2a353b3b" fillColor="#ffffb5">
-          <bounds x="408" y="203" width="122" height="47"/>
+          <bounds x="348" y="203" width="122" height="47"/>
           <content>Authenticate &amp;
 Authorize</content>
         </child>
         <child xsi:type="archimate:SketchModelSticky" id="d5f91257" name="Sticky" textAlignment="1" lineColor="#5c5c5c" fillColor="#ffffff">
-          <bounds x="552" y="203" width="205" height="157"/>
+          <bounds x="492" y="203" width="205" height="157"/>
           <content>Legend: Colors
 
 Blue - project lightblue
@@ -2430,44 +2438,27 @@ Dashed - indirect dependency
 Dotted - no dependency</content>
         </child>
         <child xsi:type="archimate:Group" id="22bd50d8" name="Metadata Mgmt App" fillColor="#d7ffff">
-          <bounds x="48" y="155" width="325" height="337"/>
+          <bounds x="84" y="156" width="229" height="205"/>
           <child xsi:type="archimate:SketchModelSticky" id="fc025ae2" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="5f3dbe60" fillColor="#b5ffff">
-            <bounds x="12" y="30" width="121" height="49"/>
+            <bounds x="48" y="30" width="121" height="49"/>
             <sourceConnection id="05d83c61" source="fc025ae2" target="f797998d" type="1"/>
             <sourceConnection id="6e7185e5" source="fc025ae2" target="3b8ba8df" type="3"/>
             <content>Metadata Application Interface</content>
           </child>
-          <child xsi:type="archimate:SketchModelSticky" id="41168487" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="06cc1770" fillColor="#b5ffff">
-            <bounds x="180" y="78" width="121" height="49"/>
-            <sourceConnection id="ff22d654" source="41168487" target="01b846d8" type="1"/>
-            <content>Get Metadata</content>
-          </child>
           <child xsi:type="archimate:SketchModelSticky" id="f797998d" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="05d83c61" fillColor="#b5ffff">
-            <bounds x="12" y="162" width="121" height="49"/>
-            <sourceConnection id="d8acc187" source="f797998d" target="f30ed7c0" type="1"/>
-            <sourceConnection id="06cc1770" source="f797998d" target="41168487" type="1"/>
-            <sourceConnection id="3a0fd600" source="f797998d" target="0edabb33" type="1"/>
+            <bounds x="48" y="114" width="121" height="49"/>
+            <sourceConnection id="9bb4af31" source="f797998d" target="01b846d8" type="1"/>
             <content>Process Request
 Send Response</content>
           </child>
-          <child xsi:type="archimate:SketchModelSticky" id="0edabb33" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="3a0fd600" fillColor="#b5ffff">
-            <bounds x="181" y="162" width="121" height="49"/>
-            <sourceConnection id="a9271d9a" source="0edabb33" target="01b846d8" type="1"/>
-            <content>Create Metadata</content>
-          </child>
-          <child xsi:type="archimate:SketchModelSticky" id="f30ed7c0" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="d8acc187" fillColor="#b5ffff">
-            <bounds x="181" y="246" width="122" height="49"/>
-            <sourceConnection id="5c520cf1" source="f30ed7c0" target="01b846d8" type="1"/>
-            <content>Update Metadata</content>
-          </child>
         </child>
-        <child xsi:type="archimate:DiagramModelReference" id="01b846d8" textAlignment="2" targetConnections="5c520cf1 a9271d9a ff22d654" fillColor="#b5ffff" model="e73ac729">
-          <bounds x="409" y="336"/>
+        <child xsi:type="archimate:DiagramModelReference" id="01b846d8" textAlignment="2" targetConnections="9bb4af31" fillColor="#b5ffff" model="e73ac729">
+          <bounds x="349" y="288"/>
         </child>
       </element>
       <element xsi:type="archimate:SketchModel" id="1b49e776" name="Data Management Application" background="0">
         <child xsi:type="archimate:SketchModelActor" id="4efc26ac" name="Data User">
-          <bounds x="264" y="60" width="88" height="100"/>
+          <bounds x="360" y="60" width="88" height="100"/>
           <sourceConnection id="d9901cc3" source="4efc26ac" target="3f970a6b" type="1"/>
           <sourceConnection id="17559931" source="4efc26ac" target="11d1eab0" type="13"/>
         </child>
@@ -2490,48 +2481,61 @@ Dashed - indirect dependency
 Dotted - no dependency</content>
         </child>
         <child xsi:type="archimate:Group" id="f43709a7" name="Data Mgmt App" fillColor="#d7ffff">
-          <bounds x="72" y="175" width="325" height="426"/>
+          <bounds x="216" y="175" width="181" height="210"/>
           <child xsi:type="archimate:SketchModelSticky" id="3f970a6b" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="d9901cc3" fillColor="#b5ffff">
-            <bounds x="12" y="30" width="121" height="49"/>
+            <bounds x="24" y="30" width="121" height="49"/>
             <sourceConnection id="293ecd62" source="3f970a6b" target="25ed056d" type="1"/>
             <sourceConnection id="e5696d72" source="3f970a6b" target="11d1eab0" type="3"/>
             <content>Data
 Application Interface</content>
           </child>
-          <child xsi:type="archimate:SketchModelSticky" id="a83e274e" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="ebd25f6d" fillColor="#b5ffff">
-            <bounds x="180" y="78" width="121" height="49"/>
-            <sourceConnection id="8bf2da51" source="a83e274e" target="6618559f" type="1"/>
-            <content>Get Data</content>
-          </child>
           <child xsi:type="archimate:SketchModelSticky" id="25ed056d" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="293ecd62" fillColor="#b5ffff">
-            <bounds x="12" y="198" width="121" height="49"/>
-            <sourceConnection id="ebd25f6d" source="25ed056d" target="a83e274e" type="1"/>
-            <sourceConnection id="7b0f4fa3" source="25ed056d" target="aa8fc033" type="1"/>
-            <sourceConnection id="e2dada7a" source="25ed056d" target="4c2c8ca4" type="1"/>
-            <sourceConnection id="7777404c" source="25ed056d" target="78a96d6d" type="1"/>
+            <bounds x="24" y="114" width="121" height="49"/>
+            <sourceConnection id="d0c1ca4a" source="25ed056d" target="6618559f" type="1"/>
             <content>Process Request
 Send Response</content>
           </child>
-          <child xsi:type="archimate:SketchModelSticky" id="aa8fc033" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="7b0f4fa3" fillColor="#b5ffff">
-            <bounds x="181" y="162" width="121" height="49"/>
-            <sourceConnection id="e8198c4e" source="aa8fc033" target="6618559f" type="1"/>
-            <content>Create Data</content>
-          </child>
-          <child xsi:type="archimate:SketchModelSticky" id="4c2c8ca4" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="e2dada7a" fillColor="#b5ffff">
-            <bounds x="181" y="246" width="122" height="49"/>
-            <sourceConnection id="5262b33e" source="4c2c8ca4" target="6618559f" type="1"/>
-            <content>Update Data</content>
-          </child>
-          <child xsi:type="archimate:SketchModelSticky" id="78a96d6d" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="7777404c" fillColor="#b5ffff">
-            <bounds x="180" y="318" width="122" height="49"/>
-            <sourceConnection id="a14885c9" source="78a96d6d" target="6618559f" type="1"/>
-            <content>Delete Data</content>
-          </child>
         </child>
-        <child xsi:type="archimate:DiagramModelReference" id="6618559f" textAlignment="2" targetConnections="8bf2da51 e8198c4e 5262b33e a14885c9" fillColor="#b5ffff" model="4c808069">
-          <bounds x="433" y="396"/>
+        <child xsi:type="archimate:DiagramModelReference" id="6618559f" textAlignment="2" targetConnections="d0c1ca4a" fillColor="#b5ffff" model="4c808069">
+          <bounds x="433" y="312"/>
         </child>
       </element>
+      <element xsi:type="archimate:SketchModel" id="3aff1abd" name="AuthN/Z" background="0">
+        <child xsi:type="archimate:Group" id="2220e1d7" name="JBoss EAP">
+          <bounds x="84" y="192" width="193" height="205"/>
+          <child xsi:type="archimate:SketchModelSticky" id="08702ee3" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="b4c469ef" fillColor="#b5ffff">
+            <bounds x="36" y="114" width="121" height="49"/>
+            <content>Application
+or Service</content>
+          </child>
+          <child xsi:type="archimate:SketchModelSticky" id="fc450c49" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="b9968309" fillColor="#ffffb5">
+            <bounds x="36" y="18" width="121" height="49"/>
+            <sourceConnection id="2add9393" source="fc450c49" target="b587a34a" type="3"/>
+            <sourceConnection id="b4c469ef" source="fc450c49" target="08702ee3" type="1"/>
+            <content>Authentication Module</content>
+          </child>
+        </child>
+        <child xsi:type="archimate:SketchModelSticky" id="b587a34a" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="2add9393" fillColor="#ffffb5">
+          <bounds x="324" y="228" width="121" height="49"/>
+          <sourceConnection id="7e6efc7a" source="b587a34a" target="43c7029f" type="13"/>
+          <content>Authentication Provider</content>
+        </child>
+        <child xsi:type="archimate:SketchModelActor" id="43c7029f" name="Consumer" targetConnections="7e6efc7a">
+          <bounds x="144" y="59"/>
+          <sourceConnection id="b9968309" source="43c7029f" target="fc450c49" type="1"/>
+        </child>
+        <child xsi:type="archimate:SketchModelSticky" id="804cae08" name="Sticky" textAlignment="1" lineColor="#5c5c5c" fillColor="#ffffff">
+          <bounds x="288" y="288" width="205" height="145"/>
+          <content>Original request always passes through application server's authentication module first.  After successful authentication and authorization the original request is enhanced with the authorization information.  Then the requested component is called.</content>
+        </child>
+      </element>
+    </folder>
+    <folder name="FAQ" id="a2cfcf23">
+      <element xsi:type="archimate:ArchimateDiagramModel" id="db5f55bc" name="Auto-scaling"/>
+      <element xsi:type="archimate:ArchimateDiagramModel" id="bdb17dbe" name="Auto-healing"/>
+      <element xsi:type="archimate:ArchimateDiagramModel" id="8b7138dc" name="Resiliancy"/>
+      <element xsi:type="archimate:ArchimateDiagramModel" id="38cdb2fa" name="MongoDB"/>
+      <element xsi:type="archimate:ArchimateDiagramModel" id="232ffaa9" name="Testing"/>
     </folder>
     <element xsi:type="archimate:ArchimateDiagramModel" id="6924d47b" name="Master: Architecture">
       <child xsi:type="archimate:DiagramObject" id="b72eda87" textAlignment="2" archimateElement="61c6f34c">
@@ -3132,8 +3136,8 @@ Email: nmalik@redhat.com</content>
         <bounds x="1910" y="321"/>
         <sourceConnection xsi:type="archimate:Connection" id="409f76c9" source="81c589ea" target="2d0fd508" relationship="78c1d72b"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="426c524f" textAlignment="2" archimateElement="d33cc22d">
-        <bounds x="984" y="1053" width="132" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="426c524f" textAlignment="2" targetConnections="396ec553" archimateElement="d33cc22d">
+        <bounds x="801" y="1149" width="132" height="55"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="5c7a1f41" textAlignment="2" archimateElement="f80f81d3">
         <bounds x="1182" y="748"/>
@@ -3439,6 +3443,22 @@ Email: nmalik@redhat.com</content>
       <child xsi:type="archimate:DiagramObject" id="df269cb5" textAlignment="2" targetConnections="c6cbf2e9" archimateElement="872b0437">
         <bounds x="320" y="36"/>
         <sourceConnection xsi:type="archimate:Connection" id="35929b9b" source="df269cb5" target="0e50f8c2" relationship="fb8f87c1"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="1094bb31" textAlignment="2" targetConnections="f7f401d6 6848ef3c" archimateElement="9df3a91b">
+        <bounds x="778" y="1235" width="177" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="396ec553" source="1094bb31" target="426c524f" relationship="ab255ca5"/>
+        <sourceConnection xsi:type="archimate:Connection" id="00b4dbe4" source="1094bb31" target="664fa55f" relationship="aea34529"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="6140ac6f" textAlignment="2" archimateElement="363a8c50">
+        <bounds x="694" y="1315" width="155" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="f7f401d6" source="6140ac6f" target="1094bb31" relationship="aca04079"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="75ad8479" textAlignment="2" archimateElement="5954f834">
+        <bounds x="882" y="1317" width="152" height="55"/>
+        <sourceConnection xsi:type="archimate:Connection" id="6848ef3c" source="75ad8479" target="1094bb31" relationship="adf230fb"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="664fa55f" textAlignment="2" targetConnections="00b4dbe4" archimateElement="12a6f5ae">
+        <bounds x="553" y="1235" width="164" height="55"/>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" id="4963efbe" name="Roadmap: Adoption" viewpoint="24">

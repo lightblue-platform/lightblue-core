@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.UnsetExpression;
@@ -93,7 +93,7 @@ public class UnsetExpressionEvaluator extends Updater {
         for (Path p : expr.getFields()) {
             FieldTreeNode node = context.resolve(p);
             if (node == null) {
-                throw new EvaluationError(Constants.ERR_INVLD_DERFRNCE + p);
+                throw new EvaluationError(CrudConstants.ERR_INVALID_DEREFERENCE + p);
             }
             fields.add(new AbsPath(p,node,node.getFullPath()));
         }

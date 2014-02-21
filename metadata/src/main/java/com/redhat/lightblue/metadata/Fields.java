@@ -67,7 +67,7 @@ public class Fields implements Serializable {
     public void addNew(Field f) {
         String name = f.getName();
         if (has(name)) {
-            throw Error.get(Constants.ERR_DUPLICATE_FIELD, name);
+            throw Error.get(MetadataConstants.ERR_DUPLICATE_FIELD, name);
         }
         f.setParent(parent);
         fieldMap.put(name, f);
@@ -98,7 +98,7 @@ public class Fields implements Serializable {
             
     protected FieldTreeNode resolve(Path p, int level) {
         if (level >= p.numSegments()) {
-            throw Error.get(Constants.ERR_INVALID_REDIRECTION, p.toString());
+            throw Error.get(MetadataConstants.ERR_INVALID_REDIRECTION, p.toString());
         }
         
         String name = p.head(level);
@@ -106,10 +106,10 @@ public class Fields implements Serializable {
         
         try {     	
             if (p.isIndex(level)) {
-                throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
             }
             if (name.equals(Path.ANY)) {
-                throw Error.get(Constants.ERR_INVALID_ARRAY_REFERENCE);
+                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
             }             
             if(name.equals(Path.THIS)) {
                 return this.resolve(p, level+1);
@@ -117,7 +117,7 @@ public class Fields implements Serializable {
 
             Field field = getField(name);
             if (field == null) {
-                throw Error.get(Constants.ERR_INVALID_FIELD_REFERENCE);
+                throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE);
             }
             return field.resolve(p, level + 1);
             

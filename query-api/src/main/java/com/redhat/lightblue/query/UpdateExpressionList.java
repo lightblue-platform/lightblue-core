@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 public class UpdateExpressionList extends UpdateExpression {
 
     private static final long serialVersionUID = 1L;
+    
     private final List<PartialUpdateExpression> list;
 
     /**

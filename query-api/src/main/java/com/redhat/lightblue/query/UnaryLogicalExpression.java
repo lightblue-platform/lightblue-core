@@ -20,7 +20,6 @@ package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Error;
 
 /**
@@ -68,12 +67,12 @@ public class UnaryLogicalExpression extends LogicalExpression {
      */
     public static UnaryLogicalExpression fromJson(ObjectNode node) {
         if (node.size() != 1) {
-            throw Error.get(INVALID_LOGICAL_EXPRESSION, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_LOGICAL_EXPRESSION, node.toString());
         }
         String fieldName = node.fieldNames().next();
         UnaryLogicalOperator op = UnaryLogicalOperator.fromString(fieldName);
         if (op == null) {
-            throw Error.get(INVALID_LOGICAL_EXPRESSION, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_LOGICAL_EXPRESSION, node.toString());
         }
         QueryExpression q = QueryExpression.fromJson(node.get(fieldName));
         return new UnaryLogicalExpression(op, q);

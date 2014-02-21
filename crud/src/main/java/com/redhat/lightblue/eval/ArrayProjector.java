@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.eval;
 
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.ArrayProjection;
@@ -56,7 +56,7 @@ public abstract class ArrayProjector extends Projector {
         if (nestedCtx instanceof ArrayField) {
             nestedProjector = Projector.getInstance(p.getProject(), new Path(arrayFieldPattern, Path.ANYPATH), ((ArrayField) nestedCtx).getElement());
         } else {
-            throw new EvaluationError(Constants.ERR_ARR_ELEM_EXPCTD + arrayFieldPattern);
+            throw new EvaluationError(CrudConstants.ERR_EXPECTED_ARRAY_ELEMENT + arrayFieldPattern);
         }
     }
 

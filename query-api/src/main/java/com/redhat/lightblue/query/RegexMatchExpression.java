@@ -34,8 +34,6 @@ import com.redhat.lightblue.util.Error;
  */
 public class RegexMatchExpression extends RelationalExpression {
 	private static final long serialVersionUID = 1L;
-	
-    public static final String INVALID_REGEX_EXPRESSION = "INVALID_REGEX_EXPRESSION";
 
     private final Path field;
     private final String regex;
@@ -140,7 +138,7 @@ public class RegexMatchExpression extends RelationalExpression {
                         asBoolean(node.get("dotall")));
             }
         }
-        throw Error.get(INVALID_REGEX_EXPRESSION, node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_REGEX_EXPRESSION, node.toString());
     }
 
     private static boolean asBoolean(JsonNode node) {

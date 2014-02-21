@@ -22,6 +22,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 
@@ -57,7 +58,7 @@ public final class StringType implements Type, Serializable {
         if (node.isValueNode()) {
             return node.asText();
         } else {
-            throw Error.get(NAME, ERR_INCOMPATIBLE_VALUE, node.toString());
+            throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
         }
     }
 

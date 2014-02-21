@@ -43,8 +43,6 @@ import com.redhat.lightblue.metadata.FieldCursor;
 
 public class ConstraintValidator {
 
-    public static final String ERR_NO_CONSTRAINT = "NO_CONSTRAINT";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ConstraintValidator.class);
 
     private final Registry<String, FieldConstraintChecker> fRegistry;
@@ -184,7 +182,7 @@ public class ConstraintValidator {
             try {
                 EntityConstraintChecker checker = eRegistry.find(constraintType);
                 if (checker == null) {
-                    throw Error.get(ERR_NO_CONSTRAINT);
+                    throw Error.get(CrudConstants.ERR_NO_CONSTRAINT);
                 }
                 checker.checkConstraint(this, currentEntityConstraint, doc);
 
@@ -226,7 +224,7 @@ public class ConstraintValidator {
             try {
                 FieldConstraintChecker checker = fRegistry.find(constraintType);
                 if (checker == null) {
-                    throw Error.get(ERR_NO_CONSTRAINT);
+                    throw Error.get(CrudConstants.ERR_NO_CONSTRAINT);
                 }
                 if (checker instanceof FieldConstraintDocChecker) {
                     // Constraint needs to be checked once for the doc

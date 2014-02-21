@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -91,10 +91,10 @@ public class ForEachExpressionEvaluator extends Updater {
         if (md instanceof ArrayField) {
             fieldMd = (ArrayField) md;
         } else {
-            throw new EvaluationError(Constants.ERR_FLD_NOT_ARR + field);
+            throw new EvaluationError(CrudConstants.ERR_FIELD_NOT_ARRAY + field);
         }
         if (field.nAnys() > 0) {
-            throw new EvaluationError(Constants.ERR_PTRN_NOT_EXPCTD + field);
+            throw new EvaluationError(CrudConstants.ERR_PATTERN_NOT_EXPECTED + field);
         }
         // Get a query evaluator
         QueryExpression query = expr.getQuery();

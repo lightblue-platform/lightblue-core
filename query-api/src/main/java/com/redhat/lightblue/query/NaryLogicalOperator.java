@@ -33,7 +33,7 @@ public enum NaryLogicalOperator {
         if (ops != null && ops.length > 0) {
             this.ops = Arrays.asList(ops);
         } else {
-            throw new RuntimeException("Operator list cannot be null or empty.");
+            throw new RuntimeException(QueryConstants.ERR_OPERATOR_LIST_NULL_OR_EMPTY);
         }
     }
 

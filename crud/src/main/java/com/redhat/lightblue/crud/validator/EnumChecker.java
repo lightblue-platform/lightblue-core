@@ -22,7 +22,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
 import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -55,7 +55,7 @@ public class EnumChecker implements FieldConstraintValueChecker {
         }
 
         if (null == values || !values.contains(fieldValue.asText())) {
-            validator.addDocError(Error.get(Constants.ERR_INVALID_ENUM, fieldValue.asText()));
+            validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENUM, fieldValue.asText()));
         }
     }
 }

@@ -116,6 +116,6 @@ public class NaryRelationalExpression extends RelationalExpression {
                 }
             }
         }
-        throw Error.get(INVALID_COMPARISON_EXPRESSION, node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_COMPARISON_EXPRESSION, node.toString());
     }
 }

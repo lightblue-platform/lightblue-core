@@ -18,16 +18,17 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
+import com.redhat.lightblue.util.Error;
 
 public class ArraySizeConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
     public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!ArraySizeConstraint.MIN.equals(name) && !ArraySizeConstraint.MAX.equals(name)) {
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
         Object value = p.getValueProperty(node, name);
@@ -36,7 +37,7 @@ public class ArraySizeConstraintParser<T> implements FieldConstraintParser<T> {
         if (value instanceof Number) {
             ret.setValue(((Number) value).intValue());
         } else {
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, ret.getType());
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ret.getType());
         }
         return ret;
     }

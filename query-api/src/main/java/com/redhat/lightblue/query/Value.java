@@ -36,9 +36,7 @@ public class Value extends JsonObject {
 	
 	private final Object value;
 
-    public static final String INVALID_VALUE = "INVALID_VALUE";
-
-    /**
+	/**
      * Creates a Value with value=o
      */
     public Value(Object o) {
@@ -105,7 +103,7 @@ public class Value extends JsonObject {
             }
             return new Value(v);
         } else {
-            throw Error.get(INVALID_VALUE, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_VALUE, node.toString());
         }
     }
 }

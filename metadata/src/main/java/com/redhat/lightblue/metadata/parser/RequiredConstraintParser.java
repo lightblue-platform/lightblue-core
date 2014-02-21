@@ -18,16 +18,17 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
+import com.redhat.lightblue.util.Error;
 
 public class RequiredConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
     public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!RequiredConstraint.REQUIRED.equals(name)) {
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
         Object value = p.getValueProperty(node, RequiredConstraint.REQUIRED);
@@ -36,7 +37,7 @@ public class RequiredConstraintParser<T> implements FieldConstraintParser<T> {
         if (value instanceof Boolean) {
             ret.setValue((Boolean) value);
         } else {
-            throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, ret.getType());
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ret.getType());
         }
         return ret;
     }

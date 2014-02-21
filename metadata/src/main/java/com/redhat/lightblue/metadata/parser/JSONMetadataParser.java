@@ -18,18 +18,19 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.math.BigInteger;
 import java.math.BigDecimal;
-import java.util.Iterator;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.util.Error;
 
@@ -51,7 +52,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             JsonNode x = object.get(name);
             if (x != null) {
                 if (x.isContainerNode()) {
-                    throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
                 } else {
                     return x.asText();
                 }
@@ -83,7 +84,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
                         return x.asText();
                     }
                 } else {
-                    throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
                 }
             } else {
                 return null;
@@ -106,7 +107,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
                     }
                     return ret;
                 } else {
-                    throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
                 }
             } else {
                 return null;
@@ -129,7 +130,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
                     }
                     return ret;
                 } else {
-                    throw Error.get(MetadataParser.ERR_ILL_FORMED_METADATA, name);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
                 }
             } else {
                 return null;

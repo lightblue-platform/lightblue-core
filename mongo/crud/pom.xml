@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>mongo-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

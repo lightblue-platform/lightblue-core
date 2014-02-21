@@ -18,21 +18,24 @@
  */
 package com.redhat.lightblue.mediator;
 
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
 
-import com.redhat.lightblue.util.JsonDoc;
-
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.util.JsonDoc;
 
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.CRUDOperationContext;
@@ -45,7 +48,7 @@ public class OperationContext extends CRUDOperationContext {
 
     private final Request request;
     private final Metadata md;
-    private final Map<String, EntityMetadata> metadata = new HashMap<>();
+    private final Map<String, EntityMetadata> metadata = new HashMap<String,EntityMetadata>();
     private final Operation operation;
     private OperationStatus status=OperationStatus.COMPLETE;
 
@@ -160,8 +163,7 @@ public class OperationContext extends CRUDOperationContext {
         EntityMetadata x = metadata.get(name);
         if (x != null) {
             if (!x.getVersion().getValue().equals(version)) {
-                throw new IllegalArgumentException("Metadata " + name + " appears with both " + version
-                        + " and " + x.getVersion().getValue());
+                throw new IllegalArgumentException(CrudConstants.ERR_METADATA_APPEARS_TWICE + name + " " + version + " and " + x.getVersion().getValue());
             }
         } else {
             x=md.getEntityMetadata(name,version);

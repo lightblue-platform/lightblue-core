@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.RegexMatchExpression;
 import com.redhat.lightblue.util.Path;
@@ -48,7 +48,7 @@ public class RegexEvaluator extends QueryEvaluator {
         this.relativePath = expr.getField();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + relativePath);
+            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + relativePath);
         }
         int flags = 0;
         if (expr.isCaseInsensitive()) {

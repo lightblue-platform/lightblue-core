@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldComparisonExpression;
@@ -50,11 +50,11 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         this.rfieldRelativePath = expr.getRfield();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + relativePath);
+            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + relativePath);
         }
         rfieldMd = context.resolve(rfieldRelativePath);
         if (rfieldMd == null) {
-            throw new EvaluationError(expr, Constants.ERR_NO_FLD + rfieldRelativePath);
+            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + rfieldRelativePath);
         }
         operator = expr.getOp();
         LOGGER.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);

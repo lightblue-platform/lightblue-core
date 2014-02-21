@@ -25,7 +25,6 @@ import javax.ws.rs.Path;
  */
 @Path("/crud")
 public class CrudResource {
-    public static final String ERR_REST_ERROR = "REST_ERROR";
 
     @GET
     @Path("/find")
@@ -38,7 +37,7 @@ public class CrudResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestCrudConstants.ERR_REST_FIND).toJson().toString();
         }
     }
 
@@ -53,7 +52,7 @@ public class CrudResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestCrudConstants.ERR_REST_INSERT).toJson().toString();
         }
     }
 
@@ -68,7 +67,7 @@ public class CrudResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestCrudConstants.ERR_REST_UPDATE).toJson().toString();
         }
     }
 
@@ -83,7 +82,7 @@ public class CrudResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestCrudConstants.ERR_REST_SAVE).toJson().toString();
         }
     }
 
@@ -98,7 +97,7 @@ public class CrudResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestCrudConstants.ERR_REST_DELETE).toJson().toString();
         }
     }
 }

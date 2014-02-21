@@ -48,8 +48,8 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.Constants;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
@@ -98,7 +98,7 @@ public class Mediator {
             EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
-                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"insert "+ctx.getTopLevelEntityName()));
+                ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS,"insert "+ctx.getTopLevelEntityName()));
             } else {
                 updatePredefinedFields(ctx.getDocuments(),md.getName());
                 runBulkConstraintValidation(ctx);
@@ -128,7 +128,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -177,7 +177,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -206,7 +206,7 @@ public class Mediator {
             EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
-                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"update "+ctx.getTopLevelEntityName()));
+                ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS,"update "+ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -227,7 +227,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
        } catch (Exception e) {
-            response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -244,7 +244,7 @@ public class Mediator {
             EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
-                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"delete "+ctx.getTopLevelEntityName()));
+                ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS,"delete "+ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -262,7 +262,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
        } catch (Exception e) {
-            response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
             response.setStatus(OperationStatus.ERROR);
        } finally {
             Error.pop();
@@ -287,7 +287,7 @@ public class Mediator {
             EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
-                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"find "+ctx.getTopLevelEntityName()));
+                ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS,"find "+ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -306,7 +306,7 @@ public class Mediator {
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
         } finally {
             Error.pop();
         }
@@ -343,7 +343,7 @@ public class Mediator {
             if(node==null) {
                 doc.modify(OBJECT_TYPE_PATH,NODE_FACTORY.textNode(entity),false);
             } else if(!node.asText().equals(entity)) {
-                throw Error.get(Constants.ERR_INVALID_ENTITY,node.asText());
+                throw Error.get(CrudConstants.ERR_INVALID_ENTITY,node.asText());
             }
         }
     }

@@ -65,7 +65,7 @@ public class SortKey extends Sort {
 
     public static SortKey fromJson(ObjectNode node) {
         if (node.size() != 1) {
-            throw Error.get(INVALID_SORT, node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_SORT, node.toString());
         }
         String fieldString = node.fieldNames().next();
         String dir = node.get(fieldString).asText();
@@ -79,7 +79,7 @@ public class SortKey extends Sort {
                 desc = true;
                 break;
             default:
-                throw Error.get(INVALID_SORT, node.toString());
+                throw Error.get(QueryConstants.ERR_INVALID_SORT, node.toString());
         }
         return new SortKey(field, desc);
     }

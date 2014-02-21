@@ -20,7 +20,7 @@ package com.redhat.lightblue.crud.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -45,11 +45,11 @@ public class StringLengthChecker implements FieldConstraintValueChecker {
         int len = fieldValue.asText().length();
         if (StringLengthConstraint.MINLENGTH.equals(type)) {
             if (len < value) {
-                validator.addDocError(Error.get(Constants.ERR_TOO_SHORT, fieldValue.asText()));
+                validator.addDocError(Error.get(CrudConstants.ERR_TOO_SHORT, fieldValue.asText()));
             }
         } else {
             if (len > value) {
-                validator.addDocError(Error.get(Constants.ERR_TOO_LONG, fieldValue.asText()));
+                validator.addDocError(Error.get(CrudConstants.ERR_TOO_LONG, fieldValue.asText()));
             }
         }
     }

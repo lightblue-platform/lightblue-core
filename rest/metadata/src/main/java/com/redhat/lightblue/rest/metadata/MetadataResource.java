@@ -1,15 +1,12 @@
 package com.redhat.lightblue.rest.metadata;
 
 import com.redhat.lightblue.metadata.MetadataManager;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.GET;
@@ -24,25 +21,19 @@ import javax.ws.rs.PathParam;
  */
 @Path("/metadata")
 public class MetadataResource {
-    public static final String ERR_REST_ERROR = "REST_ERROR";
-    public static final String ERR_NO_ENTITY_NAME = "Entity name not provided";
-    public static final String ERR_NO_ENTITY_VERSION = "Version not provided";
-    public static final String ERR_NO_ENTITY_STATUS = "Entity status not provided";
-    public static final String ERR_NO_NAME_MATCH = "Entity name in query does not match metadata";
-    public static final String ERR_NO_VERSION_MATCH = "Entity version in query does not match metadata";
 
     public static final String PATH_PARAM_ENTITY = "entity";
     public static final String PATH_PARAM_VERSION = "version";
-        
+
     @GET
     @Path("/{entity}/{version}")
     public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
             }
             if (entityVersion == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_VERSION);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
             }
 
             // get the data
@@ -55,7 +46,7 @@ public class MetadataResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
 
@@ -73,7 +64,7 @@ public class MetadataResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
 
@@ -82,31 +73,19 @@ public class MetadataResource {
     public String getMetadataVersions(@PathParam(PATH_PARAM_ENTITY) String entityName) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
             }
 
             // get the data
             Version[] versions = MetadataManager.getMetadata().getEntityVersions(entityName);
 
-            // convert to json and return
-            // bit of a hack, will wrap each individual converted version with an array
-            StringBuilder buff = new StringBuilder("{\"versions\":[");
-            Iterator<Version> itr = Arrays.asList(versions).iterator();
-            while (itr.hasNext()) {
-                JsonNode jn = MetadataManager.getJSONParser().convert(itr.next());
-                buff.append("({").append(jn.toString()).append("}");
-                if (itr.hasNext()) {
-                    buff.append(",");
-                }
-            }
-            buff.append("]}");
-            return buff.toString();
+            return new Gson().toJson(versions);
         } catch (Error e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
 
@@ -123,10 +102,10 @@ public class MetadataResource {
     public String createMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, String metadata) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
             }
             if (entityVersion == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_VERSION);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
             }
 
             // convert to object
@@ -134,10 +113,10 @@ public class MetadataResource {
 
             // verify entity name and version
             if (!entityName.equals(em.getName())) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_NAME_MATCH);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_NAME_MATCH);
             }
             if (!entityVersion.equals(em.getVersion().getValue())) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_VERSION_MATCH);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_VERSION_MATCH);
             }
 
             // execute creation
@@ -150,7 +129,7 @@ public class MetadataResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
 
@@ -168,13 +147,13 @@ public class MetadataResource {
     public String updateMetadataStatus(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, @PathParam("status") String status, String comment) {
         try {
             if (entityName == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_NAME);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
             }
             if (entityVersion == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_VERSION);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
             }
             if (status == null) {
-                throw Error.get(ERR_REST_ERROR, ERR_NO_ENTITY_STATUS);
+                throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_STATUS);
             }
 
             MetadataStatus ms = MetadataStatus.valueOf(status);
@@ -188,7 +167,7 @@ public class MetadataResource {
             return e.toJson().toString();
         } catch (Exception e) {
             Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(ERR_REST_ERROR).toJson().toString();
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
 }

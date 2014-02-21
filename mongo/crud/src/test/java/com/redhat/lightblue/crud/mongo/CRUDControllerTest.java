@@ -36,6 +36,7 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.mongo.MongoConfiguration;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -66,6 +67,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
     private MongodExecutable mongodExe;
     private MongodProcess mongod;
     private Mongo mongo;
+    private DB db;
 
     private MongoCRUDController controller;
 
@@ -95,14 +97,22 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
         mongod = mongodExe.start();
         mongo = new Mongo(IN_MEM_CONNECTION_URL);
-        final DB db = mongo.getDB(DB_NAME);
 
-        db.createCollection(COLL_NAME, null);
+        MongoConfiguration config = new MongoConfiguration();
+        config.setName(DB_NAME);
+        // disable ssl for test (enabled by default)
+        config.setSsl(Boolean.FALSE);
+        config.addServerAddress(MONGO_HOST, MONGO_PORT);
+
+        db = config.getDB();
+
+        final DB dbx = db;
+        dbx.createCollection(COLL_NAME, null);
 
         controller=new MongoCRUDController(nodeFactory,new DBResolver() {
                 @Override
                 public DB get(MongoDataStore store) {
-                    return db;
+                    return dbx;
                 }
             });
 
@@ -118,6 +128,10 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             mongod.stop();
             mongodExe.stop();
         }
+        db = null;
+        mongo = null;
+        mongod = null;
+        mongodExe = null;
     }
 
     private Projection projection(String s) throws Exception {
@@ -244,10 +258,10 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs=new ArrayList<JsonDoc>();
         int numDocs = 20;
         for (int i = 0; i < numDocs; i++) {
-            JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
-            doc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
-            doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
-            docs.add(doc);
+            JsonDoc jsonDoc = new JsonDoc(loadJsonNode("./testdata1.json"));
+            jsonDoc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
+            jsonDoc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
+            docs.add(jsonDoc);
         }
         ctx.addDocuments(docs);
         controller.insert(ctx,projection("{'field':'_id'}"));
@@ -287,10 +301,10 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs = new ArrayList<>();
         int numDocs = 20;
         for (int i = 0; i < numDocs; i++) {
-            JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
-            doc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
-            doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
-            docs.add(doc);
+            JsonDoc jsonDoc = new JsonDoc(loadJsonNode("./testdata1.json"));
+            jsonDoc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
+            jsonDoc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
+            docs.add(jsonDoc);
         }
         ctx.addDocuments(docs);
         controller.insert(ctx,projection("{'field':'_id'}"));
@@ -336,10 +350,10 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs = new ArrayList<>();
         int numDocs = 20;
         for (int i = 0; i < numDocs; i++) {
-            JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
-            doc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
-            doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
-            docs.add(doc);
+            JsonDoc jsonDOc = new JsonDoc(loadJsonNode("./testdata1.json"));
+            jsonDOc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
+            jsonDOc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
+            docs.add(jsonDOc);
         }
         ctx.addDocuments(docs);
         controller.insert(ctx,projection("{'field':'_id'}"));

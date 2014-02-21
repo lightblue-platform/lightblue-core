@@ -25,7 +25,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -55,10 +55,10 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             if (el instanceof SimpleArrayElement) {
                 elem = (SimpleArrayElement) el;
             } else {
-                throw new EvaluationError(expr, Constants.ERR_SMPL_ARR_EXPCTD);
+                throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_SIMPLE_ARRAY);
             }
         } else {
-            throw new EvaluationError(expr, Constants.ERR_ARR_FLD_EXPCTD);
+            throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_ARRAY_FIELD);
         }
     }
 

@@ -25,7 +25,6 @@ import java.util.Iterator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
@@ -114,6 +113,6 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
                 }
             }
         }
-        throw Error.get(INVALID_ARRAY_COMPARISON_EXPRESSION, node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_COMPARISON_EXPRESSION, node.toString());
     }
 }

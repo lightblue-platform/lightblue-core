@@ -385,7 +385,7 @@ public class JsonDoc implements Serializable {
     public JsonNode modify(Path p, JsonNode newValue, boolean createPath) {
         int n = p.numSegments();
         if (n == 0) {
-            throw new IllegalArgumentException("Cannot set empty path value");
+            throw new IllegalArgumentException(UtilConstants.ERR_CANT_SET_EMPTY_PATH_VALUE);
         }
         Path parent = p.prefix(-1);
         // Parent must be a container node
@@ -461,10 +461,10 @@ public class JsonDoc implements Serializable {
         }
         if (parentNode != null) {
             if (!parentNode.isContainerNode()) {
-                throw new IllegalArgumentException(parent.toString() + " is not a container, while setting " + p);
+                throw new IllegalArgumentException(parent.toString() + UtilConstants.ERR_IS_NOT_A_CONTAINER + p);
             }
         } else {
-            throw new IllegalArgumentException("Parent of " + p + " does not exist");
+            throw new IllegalArgumentException(UtilConstants.ERR_PARENT_DOESNT_EXIST + p);
         }
         return parentNode;
     }
@@ -472,7 +472,7 @@ public class JsonDoc implements Serializable {
     private JsonNode modifyObjectNode(JsonNode parentNode, JsonNode newValue, String last, Path p) {
         JsonNode oldValue = null;
         if(Util.isNumber(last)) {
-            throw new IllegalArgumentException("Invalid indexed access:"+p);
+            throw new IllegalArgumentException(UtilConstants.ERR_INVALID_INDEXED_ACCESS + p);
         }
         ObjectNode obj = (ObjectNode) parentNode;
         if (newValue == null) {
@@ -491,7 +491,7 @@ public class JsonDoc implements Serializable {
         try {
             index = Integer.valueOf(last);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Array index expected:"+p);
+            throw new IllegalArgumentException(UtilConstants.ERR_EXPECTED_ARRAY_INDEX + p);
         }
         int size = arr.size();
         while (size < index) {
