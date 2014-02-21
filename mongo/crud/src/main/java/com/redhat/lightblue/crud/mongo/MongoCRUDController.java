@@ -38,7 +38,6 @@ import com.mongodb.MongoException;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.redhat.lightblue.DataError;
-import com.redhat.lightblue.crud.AbstractCRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -46,6 +45,7 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
@@ -83,6 +83,8 @@ public class MongoCRUDController implements CRUDController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoCRUDController.class);
 
+    private static final Projection ID_PROJECTION=new FieldProjection(new Path(ID_STR),true,false);
+
     private final JsonNodeFactory nodeFactory;
     private final DBResolver dbResolver;
 
@@ -118,137 +120,126 @@ public class MongoCRUDController implements CRUDController {
      */
     @Override
     public CRUDInsertionResponse insert(CRUDOperationContext ctx,
-                                        String entity,
-                                        List<JsonDoc> documents,
                                         Projection projection) {
         LOGGER.debug("insert() start");
         CRUDInsertionResponse response = new CRUDInsertionResponse();
-        saveOrInsert(ctx, entity,documents, false, projection, response, OP_INSERT);
+        int n=saveOrInsert(ctx, false, projection, OP_INSERT);
+        response.setNumInserted(n);
         return response;
     }
 
     @Override
     public CRUDSaveResponse save(CRUDOperationContext ctx,
-                                 String entity,
-                                 List<JsonDoc> documents,
                                  boolean upsert,
                                  Projection projection) {
         LOGGER.debug("save() start");
         CRUDSaveResponse response = new CRUDSaveResponse();
-        saveOrInsert(ctx, entity, documents, upsert, projection, response, OP_SAVE);
+        int n=saveOrInsert(ctx, upsert, projection, OP_SAVE);
+        response.setNumSaved(n);
         return response;
     }
 
-    private void saveOrInsert(CRUDOperationContext ctx,
-                              String entity,
-                              List<JsonDoc> documents,
-                              boolean upsert,
-                              Projection projection,
-                              AbstractCRUDUpdateResponse response,
-                              String operation) {
+    private int saveOrInsert(CRUDOperationContext ctx,
+                             boolean upsert,
+                             Projection projection,
+                             String operation) {
+        int ret=0;
+        List<DocCtx> documents=ctx.getDocumentsWithoutErrors();
         if (documents == null || documents.isEmpty()) {
-            throw new IllegalArgumentException("Empty documents");
+            return ret;
         }
         LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
         Translator translator = new Translator(ctx, nodeFactory);
         try {
             LOGGER.debug("saveOrInsert: Translating docs");
-            EntityMetadata md = ctx.getEntityMetadata(entity);
+            EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             DBObject[] dbObjects = translator.toBson(documents);
+            // dbObjects[i] is the translation of documents.get(i)
             if (dbObjects != null) {
                 LOGGER.debug("saveOrInsert: {} docs translated to bson", dbObjects.length);
-                Map<DBObject, List<Error>> errorMap = new HashMap<DBObject, List<Error>>();
-                List<DBObject> successfulUpdates = new ArrayList<DBObject>(documents.size());
-                saveDocs(ctx, md, dbObjects, operation, upsert, errorMap, successfulUpdates);
-                // Build projectors and translate docs
+
+                MongoDataStore store=(MongoDataStore) md.getDataStore();
+                DB db = dbResolver.get(store);
+                DBCollection collection = db.getCollection(store.getCollectionName());
+ 
                 Projector projector;
                 if (projection != null) {
                     projector = Projector.getInstance(projection, md);
-                    LOGGER.debug("projector {} ", projector);
                 } else {
                     projector=null;
                 }
-                if (!successfulUpdates.isEmpty()) {
-                    ArrayList<JsonDoc> resultDocs = new ArrayList<JsonDoc>(successfulUpdates.size());
-                    for (DBObject doc : successfulUpdates) {
-                        resultDocs.add(translateAndProject(doc, translator, projector));
+                LOGGER.debug("projector {} ", projector);
+                
+                for(int docIndex=0;docIndex<dbObjects.length;docIndex++) {
+                    DBObject dbObject=dbObjects[docIndex];
+                    DocCtx inputDoc=documents.get(docIndex);
+                    try {
+                        saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert);
+                    } catch (MongoException.DuplicateKey dke) {
+                        inputDoc.addError(Error.get(operation,ERR_DUPLICATE,dke.toString()));
+                    } catch (Exception e) {
+                        inputDoc.addError(Error.get(operation, ERR_SAVE_ERROR, e.toString()));
                     }
-                    response.setDocuments(resultDocs);
+                    inputDoc.setOutputDocument(translateAndProject(dbObject,translator,projector));
+                    if(!inputDoc.hasErrors())
+                        ret++;
                 }
-                // Reorganize errors
-                reorganizeErrors(errorMap, translator, projector, response);
             }
         } finally {
             Error.pop();
         }
-        LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), response.getDocuments()!=null?response.getDocuments().size():0);
+        LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), ret);
+        return ret;
     }
 
-    private void saveDocs(CRUDOperationContext ctx,
-                          EntityMetadata md,
-                          DBObject[] dbObjects, 
-                          String operation, 
-                          boolean upsert, 
-                          Map<DBObject, List<Error>> errorMap, 
-                          List<DBObject> successfulUpdates) {
-        LOGGER.debug("saveOrInsert: saving {} docs",dbObjects.length);
-        
-        // Group docs by collection
-        MongoDataStore store=(MongoDataStore) md.getDataStore();
-        DB db = dbResolver.get(store);
-        DBCollection collection = db.getCollection(store.getCollectionName());
-        
-        for (DBObject doc : dbObjects) {
-            try {
-                WriteResult result=null;
-                String error=null;
-                boolean insertAccess=md.getAccess().getInsert().hasAccess(ctx.getCallerRoles());
-                boolean updateAccess=md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles());
-                if (operation.equals(OP_INSERT)) {
-                    if(!insertAccess) {
-                        addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
-                    } else {
-                        result = collection.insert(doc, WriteConcern.SAFE);
-                    }
+    private void saveDoc(CRUDOperationContext ctx,
+                         DBCollection collection,
+                         EntityMetadata md,
+                         String operation,
+                         DBObject dbObject,
+                         DocCtx inputDoc,
+                         boolean upsert) {
+        WriteResult result=null;
+        String error=null;
+        boolean insertAccess=md.getAccess().getInsert().hasAccess(ctx.getCallerRoles());
+        boolean updateAccess=md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles());
+        if (operation.equals(OP_INSERT)) {
+            if(!insertAccess) {
+                inputDoc.addError(Error.get(operation,ERR_NO_ACCESS,operation+":"+md.getName()));
+            } else {
+                result = collection.insert(dbObject, WriteConcern.SAFE);
+            }
+        } else {
+            Object x = dbObject.get(ID_STR);
+            if (x == null&&upsert) {
+                if(!insertAccess) {
+                    inputDoc.addError(Error.get(operation,ERR_NO_ACCESS,operation+":"+md.getName()));
                 } else {
-                    Object x = doc.get(ID_STR);
-                    if (x == null&&upsert) {
-                        if(!insertAccess) {
-                            addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
-                        } else {
-                            result = collection.insert(doc, WriteConcern.SAFE);
-                        }
-                    } else if(x!=null) {
-                        if (canModify(insertAccess, updateAccess, upsert)) {
-                            BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
-                            LOGGER.debug("update query: {}",q);
-                            result = collection.update(q, doc, upsert, false, WriteConcern.SAFE);
-                        } else {
-                            addErrorToMap(errorMap,doc,operation,ERR_NO_ACCESS,operation+":"+md.getName());
-                        }
-                    }
+                    result = collection.insert(dbObject, WriteConcern.SAFE);
                 }
-                LOGGER.debug("Write result {}",result);
-                if(result!=null) {
-                    if(error==null) {
-                        error = result.getError();
-                    }
-                    if (error != null) {
-                        addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, error);
-                    } else {
-                        successfulUpdates.add(doc);
-                    }
+            } else if(x!=null) {
+                if (canModify(insertAccess, updateAccess, upsert)) {
+                    BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
+                    LOGGER.debug("update query: {}",q);
+                    result = collection.update(q, dbObject, upsert, false, WriteConcern.SAFE);
+                } else {
+                    inputDoc.addError(Error.get(operation,ERR_NO_ACCESS,operation+":"+md.getName()));
                 }
-            } catch (MongoException.DuplicateKey dke) {
-                addErrorToMap(errorMap, doc, operation, ERR_DUPLICATE, dke.toString());
-            } catch (Exception e) {
-                addErrorToMap(errorMap, doc, operation, ERR_SAVE_ERROR, e.toString());
             }
         }
-        LOGGER.debug("saveOrInsert complete, {} sucessful updates", successfulUpdates.size());
+        LOGGER.debug("Write result {}",result);
+        if(result!=null) {
+            if(error==null) {
+                error = result.getError();
+            }
+            if (error != null) {
+                inputDoc.addError(Error.get(operation, ERR_SAVE_ERROR, error));
+            } 
+        }
     }
-    
+
+
     private boolean canModify(boolean insertAccess, boolean updateAccess, boolean upsertAccess) {
         if(upsertAccess) {
             return upsertAccess && insertAccess && updateAccess;
@@ -257,27 +248,9 @@ public class MongoCRUDController implements CRUDController {
         }
     }
     
-    private void reorganizeErrors(Map<DBObject, List<Error>> errorMap, Translator translator, Projector projector, AbstractCRUDUpdateResponse response) {
-        List<DataError> dataErrors = new ArrayList<DataError>();
-        for (Map.Entry<DBObject, List<Error>> entry : errorMap.entrySet()) {
-            JsonDoc errorDoc;
-            if (projector != null) {
-                errorDoc = translateAndProject(entry.getKey(), translator, projector);
-            } else {
-                errorDoc = null;
-            }
-            DataError error = new DataError();
-            if (errorDoc != null) {
-                error.setEntityData(errorDoc.getRoot());
-            }
-            error.setErrors(entry.getValue());
-        }
-        response.setDataErrors(dataErrors);
-    }
     
     @Override
     public CRUDUpdateResponse update(CRUDOperationContext ctx,
-                                     String entity,
                                      QueryExpression query,
                                      UpdateExpression update,
                                      Projection projection) {
@@ -287,11 +260,9 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("update start: q:{} u:{} p:{}", query, update, projection);
         Error.push(OP_UPDATE);
         CRUDUpdateResponse response = new CRUDUpdateResponse();
-        response.setErrors(new ArrayList<Error>());
-        response.setDataErrors(new ArrayList<DataError>());
         Translator translator = new Translator(ctx, nodeFactory);
         try {
-            EntityMetadata md = ctx.getEntityMetadata(entity);
+            EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if(md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ConstraintValidator validator=ctx.getFactory().getConstraintValidator(md);
                 LOGGER.debug("Translating query {}", query);
@@ -300,7 +271,6 @@ public class MongoCRUDController implements CRUDController {
                 Projector projector;
                 if(projection!=null) {
                     projector = Projector.getInstance(projection, md);
-                    response.setDocuments(new ArrayList<JsonDoc>());
                 } else {
                     projector = null;
                 }
@@ -309,13 +279,13 @@ public class MongoCRUDController implements CRUDController {
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 Projector errorProjector;
                 if(projector==null) {
-                    errorProjector=Projector.getInstance(new FieldProjection(new Path(ID_STR),true,false),md);
+                    errorProjector=Projector.getInstance(ID_PROJECTION,md);
                 } else {
                     errorProjector=projector;
                 }   
-                iterateUpdate(coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);
+                iterateUpdate(ctx,coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);
             } else {
-                response.getErrors().add(Error.get(ERR_NO_ACCESS,"update:"+entity));
+                ctx.addError(Error.get(ERR_NO_ACCESS,"update:"+ctx.getEntityName()));
             }
         } finally {
             Error.pop();
@@ -324,7 +294,8 @@ public class MongoCRUDController implements CRUDController {
         return response;
     }
 
-    private void iterateUpdate(DBCollection collection,
+    private void iterateUpdate(CRUDOperationContext ctx,
+                               DBCollection collection,
                                ConstraintValidator validator,
                                Translator translator,
                                EntityMetadata md,
@@ -347,7 +318,7 @@ public class MongoCRUDController implements CRUDController {
                 boolean hasErrors=false;
                 LOGGER.debug("Retrieved doc {}",docIndex);
                 JsonDoc jsonDocument=translator.toJson(document);
-                QueryEvaluationContext ctx=new QueryEvaluationContext(jsonDocument.getRoot());
+                QueryEvaluationContext qctx=new QueryEvaluationContext(jsonDocument.getRoot());
                 if(updater.update(jsonDocument,md.getFieldTreeRoot(),Path.EMPTY)) {
                     LOGGER.debug("Document {} modified, updating",docIndex);
                     PredefinedFields.updateArraySizes(nodeFactory,jsonDocument);
@@ -356,12 +327,13 @@ public class MongoCRUDController implements CRUDController {
                     validator.validateDoc(jsonDocument);
                     List<Error> errors=validator.getErrors();
                     if(errors!=null&&!errors.isEmpty()) {
-                        response.getErrors().addAll(errors);
+                        ctx.addErrors(errors);
                         hasErrors=true;
                     }
                     errors=validator.getDocErrors().get(jsonDocument);
                     if(errors!=null&&!errors.isEmpty()) {
-                        response.getDataErrors().add(new DataError(errorProjector.project(jsonDocument,nodeFactory,ctx).getRoot(),errors));
+                        DocCtx doc=ctx.addDocument(errorProjector.project(jsonDocument,nodeFactory,qctx));
+                        doc.addErrors(errors);
                         hasErrors=true;
                     }
                     if(!hasErrors) {
@@ -371,7 +343,7 @@ public class MongoCRUDController implements CRUDController {
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {
                             LOGGER.warn("Update exception for document {}: {}",docIndex,e);
-                            response.getErrors().add(Error.get(ERR_UPDATE_ERROR,e.toString()));
+                            ctx.addError(Error.get(ERR_UPDATE_ERROR,e.toString()));
                             hasErrors=true;
                         }
                     }
@@ -384,8 +356,8 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     if(projector!=null) {
                         LOGGER.debug("Projecting document {}",docIndex);
-                        jsonDocument=projector.project(jsonDocument,nodeFactory,ctx);
-                        response.getDocuments().add(jsonDocument);
+                        jsonDocument=projector.project(jsonDocument,nodeFactory,qctx);
+                        ctx.addDocument(jsonDocument);
                     }
                 }
                 docIndex++;
@@ -402,7 +374,6 @@ public class MongoCRUDController implements CRUDController {
 
     @Override
     public CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                                     String entity,
                                      QueryExpression query) {
         if (query == null) {
             throw new IllegalArgumentException("Null query");
@@ -410,10 +381,9 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("delete start: q:{}", query);
         Error.push(OP_DELETE);
         CRUDDeleteResponse response = new CRUDDeleteResponse();
-        response.setErrors(new ArrayList<Error>());
         Translator translator = new Translator(ctx, nodeFactory);
         try {
-            EntityMetadata md = ctx.getEntityMetadata(entity);
+            EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if(md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 LOGGER.debug("Translating query {}", query);
                 DBObject mongoQuery = translator.translate(md, query);
@@ -425,10 +395,10 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Removal complete, write result={}",result);
                 response.setNumDeleted(result.getN());
             } else {
-                response.getErrors().add(Error.get(ERR_NO_ACCESS,"delete:"+entity));
+                ctx.addError(Error.get(ERR_NO_ACCESS,"delete:"+ctx.getEntityName()));
             }
         } catch (Exception e) {
-            response.getErrors().add(Error.get(e.toString()));
+            ctx.addError(Error.get(e.toString()));
         } finally {
             Error.pop();
         }
@@ -441,7 +411,6 @@ public class MongoCRUDController implements CRUDController {
      */
     @Override
     public CRUDFindResponse find(CRUDOperationContext ctx,
-                                 String entity,
                                  QueryExpression query,
                                  Projection projection,
                                  Sort sort,
@@ -456,10 +425,9 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
-        response.setErrors(new ArrayList<Error>());
         Translator translator = new Translator(ctx, nodeFactory);
         try {
-            EntityMetadata md = ctx.getEntityMetadata(entity);
+            EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if(md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 LOGGER.debug("Translating query {}", query);
                 DBObject mongoQuery = translator.translate(md, query);
@@ -473,9 +441,9 @@ public class MongoCRUDController implements CRUDController {
                 if (sort != null) {
                     LOGGER.debug("Translating sort {}", sort);
                     DBObject mongoSort = translator.translate(sort);
-                LOGGER.debug("Translated sort {}", mongoSort);
-                cursor = cursor.sort(mongoSort);
-                LOGGER.debug("Result set sorted");
+                    LOGGER.debug("Translated sort {}", mongoSort);
+                    cursor = cursor.sort(mongoSort);
+                    LOGGER.debug("Result set sorted");
                 }
                 LOGGER.debug("Applying limits: {} - {}", from, to);
                 response.setSize(cursor.size());
@@ -500,7 +468,7 @@ public class MongoCRUDController implements CRUDController {
                 }
                 response.setResults(results);
             } else {
-                response.getErrors().add(Error.get(ERR_NO_ACCESS,"find:"+entity));
+                ctx.addError(Error.get(ERR_NO_ACCESS,"find:"+ctx.getEntityName()));
             }
         } finally {
             Error.pop();

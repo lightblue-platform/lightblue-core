@@ -54,7 +54,7 @@ public class ConstraintValidator {
     private final Map<JsonDoc, List<Error>> docErrors = new HashMap<>();
     private final List<Error> errors = new ArrayList<>();
 
-    private List<JsonDoc> currentDocList;
+    private List<? extends JsonDoc> currentDocList;
     private JsonDoc currentDoc;
     private FieldTreeNode currentFieldNode;
     private Path currentFieldPath;
@@ -74,7 +74,7 @@ public class ConstraintValidator {
         errors.clear();
     }
 
-    public List<JsonDoc> getCurrentDocList() {
+    public List<? extends JsonDoc> getCurrentDocList() {
         return currentDocList;
     }
 
@@ -135,7 +135,7 @@ public class ConstraintValidator {
                 || !docErrors.isEmpty();
     }
 
-    public void validateDocs(List<JsonDoc> docList) {
+    public void validateDocs(List<? extends JsonDoc> docList) {
         currentDocList = docList;
         currentDoc = null;
 

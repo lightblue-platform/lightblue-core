@@ -18,7 +18,17 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.io.Serializable;
+
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Error;
+
+import com.redhat.lightblue.DataError;
 
 /**
  * An implementation of this class is passed into CRUD operation
@@ -26,8 +36,174 @@ import java.util.Set;
  * correct metadata versions, and the constraint validators that will
  * be used in this call.
  */
-public interface CRUDOperationContext extends MetadataResolver {
+public abstract class CRUDOperationContext implements MetadataResolver, Serializable {
 
-    Factory getFactory();
-    Set<String> getCallerRoles();
+    private static final long serialVersionUID=1l;
+
+    private final Factory factory;
+    private final String entityName;
+    private final Set<String> callerRoles;
+    private List<DocCtx> documents;
+    private final List<Error> errors=new ArrayList<Error>();
+
+    public CRUDOperationContext(String entityName,
+                                Factory f,
+                                Set<String> callerRoles,
+                                List<JsonDoc> docs) {
+        this.entityName=entityName;
+        this.factory=f;
+        this.callerRoles=callerRoles;
+        if(docs!=null) {
+            documents=new ArrayList<DocCtx>(docs.size());
+            for(JsonDoc doc:docs)
+                documents.add(new DocCtx(doc));
+        } else
+            documents=null;
+    }
+
+    /**
+     * Returns the entity name in the context
+     */
+    public String getEntityName() {
+        return entityName;
+    }
+
+    /**
+     * Returns the factory instance that controls the validator and
+     * CRUD instances.
+     */
+    public Factory getFactory() {
+        return factory;
+    }
+
+    /**
+     * Returns the roles the caller is in
+     */
+    public Set<String> getCallerRoles() {
+        return callerRoles;
+    }
+
+    /**
+     * Returns the list of documents in the context
+     */
+    public List<DocCtx> getDocuments() {
+        return documents;
+    }
+
+    /**
+     * Adds a new document to the context
+     *
+     * @return Returns the new document
+     */
+    public DocCtx addDocument(JsonDoc doc) {
+        if(documents==null)
+            documents=new ArrayList<DocCtx>();
+        DocCtx x=new DocCtx(doc);
+        documents.add(x);
+        return x;
+    }
+
+    /**
+     * Adds new documents to the context
+     */
+    public void addDocuments(Collection<JsonDoc> docs) {
+        if(documents==null)
+            documents=new ArrayList<DocCtx>();
+        for(JsonDoc x:docs)
+            documents.add(new DocCtx(x));
+    }
+
+
+    /**
+     * Returns a list of documents with no errors
+     */
+    public List<DocCtx> getDocumentsWithoutErrors() {
+        if(documents!=null) {
+            List<DocCtx> list=new ArrayList<DocCtx>(documents.size());
+            for(DocCtx doc:documents)
+                if(!doc.hasErrors())
+                    list.add(doc);
+            return list; 
+        } else
+            return null;
+    }
+
+    /**
+     * Returns a list of output documents with no errors
+     */
+    public List<JsonDoc> getOutputDocumentsWithoutErrors() {
+        if(documents!=null) {
+            List<JsonDoc> list=new ArrayList<JsonDoc>(documents.size());
+            for(DocCtx doc:documents)
+                if(!doc.hasErrors())
+                    list.add(doc.getOutputDocument());
+            return list;
+        } else
+            return null;
+    }
+
+    /**
+     * Adds an error to the context
+     */
+    public void addError(Error e) {
+        errors.add(e);
+    }
+
+    /**
+     * Adds errors to the context
+     */
+    public void addErrors(Collection<Error> l) {
+        errors.addAll(l);
+    }
+
+    /**
+     * Returns the list of errors
+     */
+    public List<Error> getErrors() {
+        return errors;
+    }
+
+    /**
+     * Returns all the data errors in the context. If there are none, returns an empty list.
+     */
+    public List<DataError> getDataErrors() {
+        List<DataError> list=new ArrayList<DataError>();
+        if(documents!=null)
+            for(DocCtx doc:documents) {
+                DataError err=doc.getDataError();
+                if(err!=null)
+                    list.add(err);
+            }
+        return list;
+    }
+
+    /**
+     * Returns if there are any document errors
+     */
+    public boolean hasDocumentErrors() {
+        if(documents!=null) 
+            for(DocCtx x:documents)
+                if(x.hasErrors())
+                    return true;
+        return false;
+    }
+
+    /**
+     * Returns if there are documents with no errors
+     */
+    public boolean hasDocumentsWithoutErrors() {
+        if(documents!=null)
+            for(DocCtx x:documents)
+                if(!x.hasErrors())
+                    return true;
+        return false;
+    }
+
+    /**
+     * Returns if there are any errors. This does not take into
+     * account document errors.
+     */
+    public boolean hasErrors() {
+        return !errors.isEmpty();
+    }
 }

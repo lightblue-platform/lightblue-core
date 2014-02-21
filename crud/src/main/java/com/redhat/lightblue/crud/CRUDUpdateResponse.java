@@ -18,37 +18,17 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.List;
-
-import com.redhat.lightblue.DataError;
-
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonDoc;
+import java.io.Serializable;
 
 /**
  * CRUD layer update response
  */
-public class CRUDUpdateResponse extends AbstractCRUDUpdateResponse {
+public class CRUDUpdateResponse implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID=1l;
+
     private int numUpdated;
     private int numFailed;
-
-    /**
-     * Default ctor
-     */
-    public CRUDUpdateResponse() {
-    }
-
-    /**
-     * Constructs a response object with the given values
-     */
-    public CRUDUpdateResponse(List<JsonDoc> docs,
-                              List<DataError> dataErrors,
-                              List<Error> errors) {
-        super(docs, dataErrors, errors);
-    }
 
     /**
      * Returns the number of updated docs

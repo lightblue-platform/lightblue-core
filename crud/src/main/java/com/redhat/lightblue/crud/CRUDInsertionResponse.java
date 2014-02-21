@@ -18,32 +18,29 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.List;
-
-import com.redhat.lightblue.DataError;
-
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonDoc;
+import java.io.Serializable;
 
 /**
  * CRUD layer insertion response
  */
-public class CRUDInsertionResponse extends AbstractCRUDUpdateResponse {
+public class CRUDInsertionResponse implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID=1l;
+
+    private int numInserted;
 
     /**
-     * Default ctor
+     * Number of docs inserted
      */
-    public CRUDInsertionResponse() {
+    public int getNumInserted()  {
+        return numInserted;
     }
 
     /**
-     * Constructs a response object with the given values
+     * Number of docs inserted
      */
-    public CRUDInsertionResponse(List<JsonDoc> docs,
-                                 List<DataError> dataErrors,
-                                 List<Error> errors) {
-        super(docs, dataErrors, errors);
+    public void setNumInserted(int n) {
+        numInserted=n;
     }
 }
+

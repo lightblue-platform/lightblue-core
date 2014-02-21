@@ -18,32 +18,28 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.List;
-
-import com.redhat.lightblue.DataError;
-
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonDoc;
+import java.io.Serializable;
 
 /**
  * CRUD layer save response
  */
-public class CRUDSaveResponse extends AbstractCRUDUpdateResponse {
+public class CRUDSaveResponse implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID=1l;
+
+    private int numSaved;
+
     /**
-     * Default ctor
+     * Number of documents saved
      */
-    public CRUDSaveResponse() {
+    public int getNumSaved() {
+        return numSaved;
     }
 
     /**
-     * Constructs a response object with the given values
+     * Number of documents saved
      */
-    public CRUDSaveResponse(List<JsonDoc> docs,
-                            List<DataError> dataErrors,
-                            List<Error> errors) {
-        super(docs, dataErrors, errors);
+    public void setNumSaved(int n) {
+        numSaved=n;
     }
 }

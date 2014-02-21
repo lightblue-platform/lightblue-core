@@ -26,28 +26,9 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to insert documents
  */
-public class InsertionRequest extends Request {
+public class InsertionRequest extends DocRequest {
 
-    private static final long serialVersionUID = 1L;
-    
-    private transient JsonNode entityData;
     private Projection returnFields;
-
-    /**
-     * The entity data to inserts. This can be an ObjectNode specifying one entity to be inserted, or an ArrayNode,
-     * specifying an array of entities to be inserted. All the inserted entities must be of the same type.
-     */
-    public JsonNode getEntityData() {
-        return entityData;
-    }
-
-    /**
-     * The entity data to inserts. This can be an ObjectNode specifying one entity to be inserted, or an ArrayNode,
-     * specifying an array of entities to be inserted. All the inserted entities must be of the same type.
-     */
-    public void setEntityData(JsonNode data) {
-        this.entityData = data;
-    }
 
     /**
      * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
@@ -71,9 +52,6 @@ public class InsertionRequest extends Request {
     @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
-        if (entityData != null) {
-            node.set("data", entityData);
-        }
         if (returnFields != null) {
             node.set("returning", returnFields.toJson());
         }
@@ -86,7 +64,6 @@ public class InsertionRequest extends Request {
     public static InsertionRequest fromJson(ObjectNode node) {
         InsertionRequest req = new InsertionRequest();
         req.parse(node);
-        req.entityData = node.get("data");
         JsonNode x = node.get("returning");
         if (x != null) {
             req.returnFields = Projection.fromJson(x);

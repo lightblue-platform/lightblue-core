@@ -138,7 +138,7 @@ public class Translator {
     /**
      * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
      */
-    public DBObject[] toBson(List<JsonDoc> docs) {
+    public DBObject[] toBson(List<? extends JsonDoc> docs) {
         DBObject[] ret = new DBObject[docs.size()];
         int i = 0;
         for (JsonDoc doc : docs) {

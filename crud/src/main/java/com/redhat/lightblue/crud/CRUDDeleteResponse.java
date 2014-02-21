@@ -18,31 +18,16 @@
  */
 package com.redhat.lightblue.crud;
 
-import java.util.List;
-
-import com.redhat.lightblue.util.Error;
+import java.io.Serializable;
 
 /**
  * Deletion operation response 
  */
-public class CRUDDeleteResponse extends AbstractCRUDResponse {
+public class CRUDDeleteResponse implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    
+    private static final long serialVersionUID=1l;
+
     private int numDeleted;
-
-    /**
-     * Default ctor for empty response
-     */
-    public CRUDDeleteResponse() {
-    }
-
-    /**
-     * Ctor with error list
-     */
-    public CRUDDeleteResponse(List<Error> errors) {
-        super(errors);
-    }
 
     /**
      * Number of records deleted

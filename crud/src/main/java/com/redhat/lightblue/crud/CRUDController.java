@@ -33,40 +33,34 @@ public interface CRUDController {
      * Performs insertion of documents to the back end
      *
      * @param ctx Operation context
-     * @param entity The entity to work on
-     * @param documents The documents to insert
      * @param projection If non-null, the inserted documents are projected using this projection and returned in the
      * response
      *
-     * The resolver must provide access to the correct versions of metadata used to insert all the documents. There is
-     * no limitation on the list of documents other than that they all have to belong to this particular back-end.
-     * Documents can belong to different data stores of the same back-end. If projection is non-null, the data must be
+     * The ctx must provide access to the correct versions of metadata
+     * used to insert all the documents. All documents must be of the
+     * same entity type.  If projection is non-null, the data must be
      * projected and returned, otherwise, no data is returned.
      */
     CRUDInsertionResponse insert(CRUDOperationContext ctx,
-                                 String entity,
-                                 List<JsonDoc> documents,
                                  Projection projection);
 
     /**
      * Performs update or insertion of documents to the back end
      *
      * @param ctx Operation context
-     * @param entity The entity to work on
-     * @param documents The documents to insert or update
      * @param upsert If true, and if a document does not exist, it is inserted
      * @param projection If non-null, the inserted/updated documents are projected using this projection and returned in
      * the response
      *
-     * The resolver must provide access to the correct versions of metadata used to insert/update all the documents.
-     * There is no limitation on the list of documents other than that they all have to belong to this particular
-     * back-end. Documents can belong to different data stores of the same back-end. If a document has nonnull _id
-     * field, the document is updated in the db. Otherwise, if upsert is true, the document is updated. If projection is
-     * non-null, the data must be projected and returned, otherwise, no data is returned.
+     * The ctx must provide access to the correct versions of metadata
+     * used to insert/update all the documents.  All documents must be
+     * of the same entity type. If a document has nonnull _id field,
+     * the document is updated in the db. Otherwise, if upsert is
+     * true, the document is updated. If projection is non-null, the
+     * data must be projected and returned, otherwise, no data is
+     * returned.
      */
     CRUDSaveResponse save(CRUDOperationContext ctx,
-                          String entity,
-                          List<JsonDoc> documents,
                           boolean upsert,
                           Projection projection);
 
@@ -74,7 +68,6 @@ public interface CRUDController {
      * Updates documents matching the search criteria
      *
      * @param ctx Operation context
-     * @param entity The entity to work on
      * @param query The query specifying the documents to update
      * @param update The update expression specifying the operations to be performed on matching documents
      * @param projection The fields to be returned from the updated documents
@@ -82,7 +75,6 @@ public interface CRUDController {
      * If projection is non-null, the updated documents are projected and returned.
      */
     CRUDUpdateResponse update(CRUDOperationContext ctx,
-                              String entity,
                               QueryExpression query,
                               UpdateExpression update,
                               Projection projection);
@@ -92,12 +84,10 @@ public interface CRUDController {
      * Deletes documents matching the search criteria
      *
      * @param ctx Operation context
-     * @param entity The entity to work on
      * @param query The query specifying the documents to delete
      *
      */
     CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                              String entity,
                               QueryExpression query);
    /**
      * Searches for documents
@@ -111,7 +101,6 @@ public interface CRUDController {
      * @param to end index in the result set. Starts from 0, and inclusive. Can be null.
      */
     CRUDFindResponse find(CRUDOperationContext ctx,
-                          String entity,
                           QueryExpression query,
                           Projection projection,
                           Sort sort,

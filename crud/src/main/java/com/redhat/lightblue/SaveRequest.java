@@ -26,30 +26,10 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to save documents
  */
-public class SaveRequest extends Request {
-	private static final long serialVersionUID = 1L;
+public class SaveRequest extends DocRequest {
 	
-    private transient JsonNode entityData;
     private Projection returnFields;
     private boolean upsert;
-
-    /**
-     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
-     * multiple entities. All entities must be of the same type. Each document must contain the _id of the document it
-     * is replacing.
-     */
-    public JsonNode getEntityData() {
-        return entityData;
-    }
-
-    /**
-     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
-     * multiple entities. All entities must be of the same type. Each document must contain the _id of the document it
-     * is replacing.
-     */
-    public void setEntityData(JsonNode data) {
-        this.entityData = data;
-    }
 
     /**
      * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
@@ -87,9 +67,6 @@ public class SaveRequest extends Request {
     @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
-        if (entityData != null) {
-            node.set("data", entityData);
-        }
         if (returnFields != null) {
             node.set("returning", returnFields.toJson());
         }
@@ -103,7 +80,6 @@ public class SaveRequest extends Request {
     public static SaveRequest fromJson(ObjectNode node) {
         SaveRequest req = new SaveRequest();
         req.parse(node);
-        req.entityData = node.get("data");
         JsonNode x = node.get("returning");
         if (x != null) {
             req.returnFields = Projection.fromJson(x);

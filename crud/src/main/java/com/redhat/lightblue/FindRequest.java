@@ -31,8 +31,6 @@ import com.redhat.lightblue.query.Sort;
  */
 public class FindRequest extends Request {
 
-	private static final long serialVersionUID = 1L;
-	
     private QueryExpression query;
     private Projection projection;
     private Sort sort;

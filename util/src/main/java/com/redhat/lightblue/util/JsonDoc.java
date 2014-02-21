@@ -21,11 +21,17 @@ package com.redhat.lightblue.util;
 import java.io.Serializable;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+/**
+ * Wrapper class around JSOn documents
+ */
 public class JsonDoc implements Serializable {
 
     private static final long serialVersionUID = 1l;
@@ -393,6 +399,59 @@ public class JsonDoc implements Serializable {
         }
         return oldValue;
     }
+
+    /**
+     * Return a list of JsonDoc objects from the given Json node
+     * 
+     * @psram data Json document containing one or more documents
+     *
+     * The Json document is either an ArrayNode containing Json
+     * documents at each element, or an ObjectNode containing only one
+     * document.
+     */
+    public static List<JsonDoc> docList(JsonNode data) {
+        ArrayList<JsonDoc> docs = null;
+        if (data != null) {
+            if (data instanceof ArrayNode) {
+                docs = new ArrayList<JsonDoc>(((ArrayNode) data).size());
+                for (Iterator<JsonNode> itr = ((ArrayNode) data).elements();
+                        itr.hasNext();) {
+                    docs.add(new JsonDoc(itr.next()));
+                }
+            } else if (data instanceof ObjectNode) {
+                docs = new ArrayList<JsonDoc>(1);
+                docs.add(new JsonDoc(data));
+            } 
+        }
+        return docs;
+    }
+
+    /**
+     * Combines all Json documents in a list into a single Json document
+     *
+     * @param docs List of JsonDoc objects
+     * @param nodeFactory Json node factory
+     *
+     * @return If the list has only one document, returns an
+     * ObjectNode, otherwise returns an array node containing each
+     * document in array elements
+     */
+    public static JsonNode listToDoc(List<JsonDoc> docs, JsonNodeFactory nodeFactory) {
+        if (docs == null) {
+            return null;
+        } else if (docs.isEmpty()) {
+            return nodeFactory.arrayNode();
+        } else if (docs.size() == 1) {
+            return docs.get(0).getRoot();
+        } else {
+            ArrayNode node = nodeFactory.arrayNode();
+            for (JsonDoc doc : docs) {
+                node.add(doc.getRoot());
+            }
+            return node;
+        }
+    }
+
 
     private JsonNode getParentNode(Path parent, boolean createPath, Path p) {
         JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);

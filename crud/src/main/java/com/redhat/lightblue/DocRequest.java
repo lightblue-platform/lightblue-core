@@ -21,52 +21,46 @@ package com.redhat.lightblue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.redhat.lightblue.query.QueryExpression;
-
 /**
- * Request to delete documents matching a query
+ * Abstract base class for requests containing a document list
  */
-public class DeleteRequest extends Request {
-
-    private QueryExpression query;
+public abstract class DocRequest extends Request {
+	
+    private JsonNode entityData;
 
     /**
-     * The query whose result set will be deleted
+     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
+     * multiple entities. All entities must be of the same type. 
      */
-    public QueryExpression getQuery() {
-        return query;
+    public JsonNode getEntityData() {
+        return entityData;
     }
 
     /**
-     * The query whose result set will be deleted
+     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
+     * multiple entities. All entities must be of the same type. 
      */
-    public void setQuery(QueryExpression q) {
-        query = q;
+    public void setEntityData(JsonNode data) {
+        this.entityData = data;
     }
 
     /**
-     * Returns a Json node representation of the request
+     * Returns json representation of this
      */
     @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
-        if (query != null) {
-            node.set("query", query.toJson());
+        if (entityData != null) {
+            node.set("data", entityData);
         }
         return node;
     }
 
     /**
-     * Parses an object node and populates a DeleteRequest. It is up to the caller to make sure that the node is
-     * actually a DeleteRequest. Any unrecignized elements are ignored.
+     * Parses the entitydata from the given Json object
      */
-    public static DeleteRequest fromJson(ObjectNode node) {
-        DeleteRequest req = new DeleteRequest();
-        req.parse(node);
-        JsonNode x = node.get("query");
-        if (x != null) {
-            req.query = QueryExpression.fromJson(x);
-        }
-        return req;
+    protected void parse(ObjectNode node) {
+        super.parse(node);
+        entityData = node.get("data");
     }
 }

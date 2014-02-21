@@ -49,6 +49,7 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.Constants;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
@@ -93,41 +94,45 @@ public class Mediator {
         Error.push("insert(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.INSERT);
-            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.INSERT);
+            EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
-                response.setStatus(OperationStatus.ERROR);
-                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"insert "+req.getEntity().getEntity()));
+                ctx.setStatus(OperationStatus.ERROR);
+                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"insert "+ctx.getTopLevelEntityName()));
             } else {
-                updatePredefinedFields(ctx.getDocs(),md.getName());
-                List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
-                if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
+                updatePredefinedFields(ctx.getDocuments(),md.getName());
+                runBulkConstraintValidation(ctx);
+                if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                    CRUDInsertionResponse insertionResponse = controller.insert(ctx, md.getName(),docsWithoutErrors, req.getReturnFields());
-                    response.setEntityData(toJsonDocList(insertionResponse.getDocuments(), NODE_FACTORY));
-                    mergeDataErrors(insertionResponse.getDataErrors(), response);
-                    mergeErrors(insertionResponse.getErrors(), response);
-                    response.setModifiedCount(insertionResponse.getDocuments().size());
-                    if (insertionResponse.getDocuments().size() == ctx.getDocs().size()) {
-                        response.setStatus(OperationStatus.COMPLETE);
-                    } else if (!insertionResponse.getDocuments().isEmpty()) {
-                        response.setStatus(OperationStatus.PARTIAL);
+                    CRUDInsertionResponse insertionResponse = controller.insert(ctx, req.getReturnFields());
+                    List<JsonDoc> insertedDocuments=ctx.getOutputDocumentsWithoutErrors();
+                    if(!insertedDocuments.isEmpty())
+                        response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
+                    response.setModifiedCount(insertedDocuments.size());
+                    if (insertedDocuments.size() == ctx.getDocuments().size()) {
+                        ctx.setStatus(OperationStatus.COMPLETE);
+                    } else if (!insertedDocuments.isEmpty()) {
+                        ctx.setStatus(OperationStatus.PARTIAL);
                     } else {
-                        response.setStatus(OperationStatus.ERROR);
+                        ctx.setStatus(OperationStatus.ERROR);
                     }
                 } else {
-                    response.setStatus(OperationStatus.ERROR);
+                    ctx.setStatus(OperationStatus.ERROR);
                 }
             }
+            response.getDataErrors().addAll(ctx.getDataErrors());
+            response.getErrors().addAll(ctx.getErrors());
+            response.setStatus(ctx.getStatus());
         } catch (Error e) {
             response.getErrors().add(e);
+            response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
             response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
         }
-
         return response;
     }
 
@@ -145,30 +150,35 @@ public class Mediator {
         Error.push("save(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = getOperationContext(req, response, req.getEntityData(), Operation.SAVE);
-            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
-            updatePredefinedFields(ctx.getDocs(),md.getName());
-            List<JsonDoc> docsWithoutErrors = runBulkConstraintValidation(md, ctx);
-            if (response.getErrors().isEmpty() && !docsWithoutErrors.isEmpty()) {
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
+            EntityMetadata md = ctx.getTopLevelEntityMD();
+            updatePredefinedFields(ctx.getDocuments(),md.getName());
+            runBulkConstraintValidation(ctx);
+            if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDSaveResponse saveResponse = controller.save(ctx, md.getName(), docsWithoutErrors, req.isUpsert(), req.getReturnFields());
-                response.setEntityData(toJsonDocList(saveResponse.getDocuments(), NODE_FACTORY));
-                mergeDataErrors(saveResponse.getDataErrors(), response);
-                mergeErrors(saveResponse.getErrors(), response);
-                response.setModifiedCount(saveResponse.getDocuments().size());
-                if (saveResponse.getDocuments().size() == ctx.getDocs().size()) {
-                    response.setStatus(OperationStatus.COMPLETE);
-                } else if (!saveResponse.getDocuments().isEmpty()) {
-                    response.setStatus(OperationStatus.PARTIAL);
+                CRUDSaveResponse saveResponse = controller.save(ctx, req.isUpsert(), req.getReturnFields());
+                List<JsonDoc> updatedDocuments=ctx.getOutputDocumentsWithoutErrors();
+                if(!updatedDocuments.isEmpty())
+                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
+                response.setModifiedCount(updatedDocuments.size());
+                if (updatedDocuments.size() == ctx.getDocuments().size()) {
+                    ctx.setStatus(OperationStatus.COMPLETE);
+                } else if (!updatedDocuments.isEmpty()) {
+                    ctx.setStatus(OperationStatus.PARTIAL);
                 } else {
-                    response.setStatus(OperationStatus.ERROR);
+                    ctx.setStatus(OperationStatus.ERROR);
                 }
             }
+            response.getDataErrors().addAll(ctx.getDataErrors());
+            response.getErrors().addAll(ctx.getErrors());
+            response.setStatus(ctx.getStatus());
         } catch (Error e) {
             response.getErrors().add(e);
+            response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
             response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
         }
@@ -192,25 +202,33 @@ public class Mediator {
         Error.push("update(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = getOperationContext(req, response, null, Operation.UPDATE);
-            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.UPDATE);
+            EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
-                response.setStatus(OperationStatus.ERROR);
-                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"update "+req.getEntity().getEntity()));
+                ctx.setStatus(OperationStatus.ERROR);
+                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"update "+ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDUpdateResponse updateResponse = controller.update(ctx,
-                                                                      req.getEntity().getEntity(),
                                                                       req.getQuery(),
                                                                       req.getUpdateExpression(),
                                                                       req.getReturnFields());
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
+                response.setModifiedCount(updateResponse.getNumUpdated());
+                if(ctx.hasErrors())
+                    ctx.setStatus(OperationStatus.ERROR);
+                else
+                    ctx.setStatus(OperationStatus.COMPLETE);
             }
+            response.getErrors().addAll(ctx.getErrors());
+            response.setStatus(ctx.getStatus());
         } catch (Error e) {
             response.getErrors().add(e);
-        } catch (Exception e) {
+            response.setStatus(OperationStatus.ERROR);
+       } catch (Exception e) {
             response.getErrors().add(Error.get(Constants.ERR_CRUD, e.toString()));
+            response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
         }
@@ -222,26 +240,24 @@ public class Mediator {
         Error.push("delete(" + req.getEntity().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = getOperationContext(req, response, null, Operation.DELETE);
-            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.DELETE);
+            EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
-                response.setStatus(OperationStatus.ERROR);
-                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"delete "+req.getEntity().getEntity()));
+                ctx.setStatus(OperationStatus.ERROR);
+                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"delete "+ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDDeleteResponse result = controller.delete(ctx,
-                                                              req.getEntity().getEntity(),
                                                               req.getQuery());
                 response.setModifiedCount(result.getNumDeleted());
-                List<Error> errors=result.getErrors();
-                if(errors!=null&&!errors.isEmpty()) {
-                    response.getErrors().addAll(result.getErrors());
-                    response.setStatus(OperationStatus.ERROR);
-                } else {
-                    response.setStatus(OperationStatus.COMPLETE);
-                }
+                if(ctx.hasErrors())
+                    ctx.setStatus(OperationStatus.ERROR);
+                else
+                    ctx.setStatus(OperationStatus.COMPLETE);
             }
+            response.getErrors().addAll(ctx.getErrors());
+            response.setStatus(ctx.getStatus());
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -267,24 +283,25 @@ public class Mediator {
         Response response = new Response();
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = getOperationContext(req, response, null, Operation.FIND);
-            EntityMetadata md = ctx.getEntityMetadata(req.getEntity().getEntity());
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.FIND);
+            EntityMetadata md = ctx.getTopLevelEntityMD();
             if(!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
-                response.setStatus(OperationStatus.ERROR);
-                response.getErrors().add(Error.get(Constants.ERR_NO_ACCESS,"find "+req.getEntity().getEntity()));
+                ctx.setStatus(OperationStatus.ERROR);
+                ctx.addError(Error.get(Constants.ERR_NO_ACCESS,"find "+ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDFindResponse result = controller.find(ctx,
-                                                          req.getEntity().getEntity(),
                                                           req.getQuery(),
                                                           req.getProjection(),
                                                           req.getSort(),
                                                           req.getFrom(),
                                                           req.getTo());
-                response.setStatus(OperationStatus.COMPLETE);
+                ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
-                response.setEntityData(toJsonDocList(result.getResults(), NODE_FACTORY));
+                response.setEntityData(JsonDoc.listToDoc(result.getResults(), NODE_FACTORY));
+                response.setStatus(ctx.getStatus());
+                response.getErrors().addAll(ctx.getErrors());
             }
         } catch (Error e) {
             response.getErrors().add(e);
@@ -297,32 +314,29 @@ public class Mediator {
     }
 
     /**
-     * Runs constraint violation and returns the documents that has no constraint errors
+     * Runs constraint violation 
      */
-    private List<JsonDoc> runBulkConstraintValidation(EntityMetadata md,
-                                                      OperationContext ctx) {
+    private void runBulkConstraintValidation(OperationContext ctx) {
         LOGGER.debug("Bulk constraint validation");
+        EntityMetadata md=ctx.getTopLevelEntityMD();
         ConstraintValidator constraintValidator = factory.getConstraintValidator(md);
-        constraintValidator.validateDocs(ctx.getDocs());
+        List<DocCtx> docs=ctx.getDocumentsWithoutErrors();
+        constraintValidator.validateDocs(docs);
         Map<JsonDoc, List<Error>> docErrors = constraintValidator.getDocErrors();
-        List<JsonDoc> docsWithoutError = new ArrayList<>(ctx.getDocs().size());
-        for (JsonDoc doc : ctx.getDocs()) {
-            List<Error> err = docErrors.get(doc);
-            if (err != null && !err.isEmpty()) {
-                addDataErrors(doc, err, ctx.getResponse().getDataErrors());
-            } else {
-                docsWithoutError.add(doc);
-            }
+        for(Map.Entry<JsonDoc,List<Error>> entry:docErrors.entrySet()) {
+            JsonDoc doc=entry.getKey();
+            List<Error> errors=entry.getValue();
+            if(errors!=null&&!errors.isEmpty())
+                ((DocCtx)doc).addErrors(errors);
         }
         List<Error> errors = constraintValidator.getErrors();
         if (errors != null && !errors.isEmpty()) {
-            ctx.getResponse().getErrors().addAll(errors);
+            ctx.addErrors(errors);
         }
-        LOGGER.debug("There are {} documents to process after constraint validation", docsWithoutError.size());
-        return docsWithoutError;
+        LOGGER.debug("Constraint validation complete");
     }
 
-    private void updatePredefinedFields(List<JsonDoc> docs,String entity) {
+    private void updatePredefinedFields(List<DocCtx> docs,String entity) {
         for(JsonDoc doc:docs) {
             PredefinedFields.updateArraySizes(NODE_FACTORY,doc);
             JsonNode node=doc.get(OBJECT_TYPE_PATH);
@@ -332,107 +346,5 @@ public class Mediator {
                 throw Error.get(Constants.ERR_INVALID_ENTITY,node.asText());
             }
         }
-    }
-
-    private void mergeErrors(List<Error> errors,
-                             Response resp) {
-        if (errors != null) {
-            resp.getErrors().addAll(errors);
-        }
-    }
-
-    private void mergeDataErrors(List<DataError> dataErrors,
-                                 Response resp) {
-        if (dataErrors != null && !dataErrors.isEmpty()) {
-            for (DataError x : dataErrors) {
-                DataError err = DataError.findErrorForDoc(resp.getDataErrors(), x.getEntityData());
-                if (err != null) {
-                    err.getErrors().addAll(x.getErrors());
-                } else {
-                    resp.getDataErrors().add(x);
-                }
-            }
-        }
-    }
-
-    private void addDataErrors(JsonDoc doc,
-                               List<Error> errors,
-                               List<DataError> dest) {
-        if (errors != null && !errors.isEmpty()) {
-            DataError err = DataError.findErrorForDoc(dest, doc.getRoot());
-            if (err == null) {
-                err = new DataError(doc.getRoot(), errors);
-                dest.add(err);
-            } else {
-                if (err.getErrors() == null) {
-                    err.setErrors(new ArrayList<Error>());
-                }
-                err.getErrors().addAll(errors);
-            }
-        }
-    }
-
-    private List<JsonDoc> fromJsonDocList(JsonNode data) {
-        ArrayList<JsonDoc> docs = null;
-        if (data != null) {
-            if (data instanceof ArrayNode) {
-                docs = new ArrayList<>(((ArrayNode) data).size());
-                for (Iterator<JsonNode> itr = ((ArrayNode) data).elements();
-                        itr.hasNext();) {
-                    docs.add(new JsonDoc(itr.next()));
-                }
-            } else if (data instanceof ObjectNode) {
-                docs = new ArrayList<>(1);
-                docs.add(new JsonDoc(data));
-            }
-        }
-        return docs;
-    }
-
-    private JsonNode toJsonDocList(List<JsonDoc> docs, JsonNodeFactory nodeFactory) {
-        if (docs == null) {
-            return null;
-        } else if (docs.isEmpty()) {
-            return nodeFactory.arrayNode();
-        } else if (docs.size() == 1) {
-            return docs.get(0).getRoot();
-        } else {
-            ArrayNode node = nodeFactory.arrayNode();
-            for (JsonDoc doc : docs) {
-                node.add(doc.getRoot());
-            }
-            return node;
-        }
-    }
-
-    private OperationContext getOperationContext(Request req,
-                                                 Response resp,
-                                                 JsonNode entityData,
-                                                 Operation op) {
-        LOGGER.debug("getOperationContext start");
-        OperationContext ctx
-                = new OperationContext(req, resp,
-                        metadata.
-                        getEntityMetadata(req.getEntity().getEntity(),
-                                req.getEntity().getVersion()),
-                        metadata,
-                        factory);
-        ctx.setOperation(op);
-        LOGGER.debug("metadata retrieved for {}", req.getEntity());
-        ctx.setDocs(fromJsonDocList(entityData));
-        if (ctx.getDocs() != null) {
-            LOGGER.debug("There are {} docs in request", ctx.getDocs().size());
-        }
-        String[] callerRoles=req.getClientId()==null?null:req.getClientId().getCallerRoles();
-        Set<String> roles=new HashSet<String>();
-        if(callerRoles!=null) {
-            for(String x:callerRoles) {
-                roles.add(x);
-            }
-        }
-        ctx.setCallerRoles(roles);
-        LOGGER.debug("Caller roles: {} ",roles);
-        LOGGER.debug("getOperationContext return");
-        return ctx;
     }
 }
