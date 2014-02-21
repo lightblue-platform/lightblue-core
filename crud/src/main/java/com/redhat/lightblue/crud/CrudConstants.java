@@ -12,6 +12,8 @@ public final class CrudConstants {
     public static final String ERR_TOO_LONG = " crud:TooLong ";
     public static final String ERR_CRUD = "crud ";
     public static final String ERR_NO_ACCESS = " crud:NoAccess ";
+    public static final String ERR_NO_FIELD_INSERT_ACCESS = "crud:insert:NoFieldAccess";
+    public static final String ERR_NO_FIELD_UPDATE_ACCESS = "crud:update:NoFieldAccess";
 
     public static final String ERR_INVALID_ENTITY=" crud:InvalidEntity ";
     public static final String ERR_INVALID_DEREFERENCE = " crud:InvalidDeference ";

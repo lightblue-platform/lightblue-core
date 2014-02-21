@@ -21,6 +21,7 @@ package com.redhat.lightblue.query;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -46,7 +47,7 @@ public class ProjectionList extends Projection {
     public List<Projection> getItems() {
         return items;
     }
-
+    
     @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();

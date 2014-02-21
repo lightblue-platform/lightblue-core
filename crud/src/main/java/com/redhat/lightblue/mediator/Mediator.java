@@ -86,8 +86,10 @@ public class Mediator {
      *
      * @param req Insertion request
      *
-     * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
-     * for that entity. CRUD implementation can perform further validations.
+     * Mediator performs constraint and role validation, and passes
+     * documents that pass the validation to the CRUD implementation
+     * for that entity. CRUD implementation can perform further
+     * validations.
      */
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntity());
@@ -137,13 +139,15 @@ public class Mediator {
     }
 
     /**
-     * Saves data. Documents in the DB that match the ID of the documents in the request are rewritten. If a document
-     * does not exist in the DB and upsert=true, the document is inserted.
+     * Saves data. Documents in the DB that match the ID of the
+     * documents in the request are rewritten. If a document does not
+     * exist in the DB and upsert=true, the document is inserted.
      *
      * @param req Save request
      *
-     * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
-     * for that entity. CRUD implementation can perform further validations
+     * Mediator performs constraint validation, and passes documents
+     * that pass the validation to the CRUD implementation for that
+     * entity. CRUD implementation can perform further validations
      */
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntity());
@@ -347,4 +351,6 @@ public class Mediator {
             }
         }
     }
+
 }
+

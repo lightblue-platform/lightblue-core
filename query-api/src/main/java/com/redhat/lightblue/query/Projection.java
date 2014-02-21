@@ -42,6 +42,24 @@ public abstract class Projection extends JsonObject {
             return BasicProjection.fromJson((ObjectNode) node);
         }
     }
+
+    /**
+     * Adds two projections and returns a new projection containing
+     * both. Any projection can be null. If the resulting projection
+     * is empty, returns null.
+     */
+    public static Projection add(Projection p1,Projection p2) {
+        List<Projection> list=new ArrayList<Projection>();
+        if(p1 instanceof ProjectionList)
+            list.addAll( ((ProjectionList)p1).getItems());
+        else if(p1 !=null)
+            list.add(p1);
+        if(p2 instanceof ProjectionList)
+            list.addAll( ((ProjectionList)p2).getItems());
+        else if(p2!=null)
+            list.add(p2);
+        return list.isEmpty()?null:new ProjectionList(list);
+    }
     
     protected static Path getNonRelativePath(Path p) {
         List<String> segments = new ArrayList<String>();

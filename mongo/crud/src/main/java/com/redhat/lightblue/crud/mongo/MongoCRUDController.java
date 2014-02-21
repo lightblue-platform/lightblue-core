@@ -47,10 +47,12 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Updater;
+import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
@@ -145,6 +147,9 @@ public class MongoCRUDController implements CRUDController {
         Error.push(operation);
         Translator translator = new Translator(ctx, nodeFactory);
         try {
+            FieldAccessRoleEvaluator roleEval=
+                new FieldAccessRoleEvaluator(ctx.getEntityMetadata(ctx.getEntityName()),
+                                             ctx.getCallerRoles());
             LOGGER.debug("saveOrInsert: Translating docs");
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             DBObject[] dbObjects = translator.toBson(documents);
@@ -156,25 +161,40 @@ public class MongoCRUDController implements CRUDController {
                 DB db = dbResolver.get(store);
                 DBCollection collection = db.getCollection(store.getCollectionName());
  
-                Projector projector;
-                if (projection != null) {
-                    projector = Projector.getInstance(projection, md);
-                } else {
-                    projector=null;
-                }
-                LOGGER.debug("projector {} ", projector);
+                Projection insertProjection=Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.insert));
+                Projection updateProjection=Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.update));
                 
+                Projector insertProjector;
+                Projector updateProjector;
+                if(insertProjection!=null) {
+                    insertProjector=Projector.getInstance(insertProjection,md);
+                } else {
+                    insertProjector=null;
+                }
+                if(updateProjection!=null) {
+                    updateProjector=Projector.getInstance(updateProjection,md);
+                } else {
+                    updateProjector=null;
+                }
+
                 for(int docIndex=0;docIndex<dbObjects.length;docIndex++) {
                     DBObject dbObject=dbObjects[docIndex];
                     DocCtx inputDoc=documents.get(docIndex);
+                    String op=null;
                     try {
-                        saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert);
+                        op=saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert,roleEval,translator);
                     } catch (MongoException.DuplicateKey dke) {
                         inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_DUPLICATE,dke.toString()));
                     } catch (Exception e) {
                         inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, e.toString()));
                     }
-                    inputDoc.setOutputDocument(translateAndProject(dbObject,translator,projector));
+                    JsonDoc jsonDoc = translator.toJson(dbObject);
+                    LOGGER.debug("Translated doc: {}", jsonDoc);
+                    if(OP_INSERT.equals(op))
+                        inputDoc.setOutputDocument(insertProjector.project(jsonDoc, nodeFactory, null));
+                    else 
+                        inputDoc.setOutputDocument(updateProjector.project(jsonDoc, nodeFactory, null));
+                    LOGGER.debug("projected doc: {}", inputDoc.getOutputDocument());
                     if(!inputDoc.hasErrors())
                         ret++;
                 }
@@ -186,42 +206,76 @@ public class MongoCRUDController implements CRUDController {
         return ret;
     }
 
-    private void saveDoc(CRUDOperationContext ctx,
-                         DBCollection collection,
-                         EntityMetadata md,
-                         String operation,
-                         DBObject dbObject,
-                         DocCtx inputDoc,
-                         boolean upsert) {
+    private WriteResult insertDoc(CRUDOperationContext ctx,
+                                  DBCollection collection,
+                                  EntityMetadata md,
+                                  DocCtx inputDoc,
+                                  DBObject dbObject,
+                                  FieldAccessRoleEvaluator roleEval) {
+        LOGGER.debug("Inserting doc");
+        if(!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
+            inputDoc.addError(Error.get(OP_INSERT,MongoCrudConstants.ERR_NO_ACCESS,OP_INSERT+":"+md.getName()));
+        } else {
+            List<Path> paths=roleEval.getInaccessibleFields_Insert(inputDoc);
+            if(paths==null||paths.isEmpty())
+                return collection.insert(dbObject, WriteConcern.SAFE);
+            else
+                inputDoc.addError(Error.get(OP_INSERT,CrudConstants.ERR_NO_FIELD_INSERT_ACCESS,paths.toString()));
+        }
+        return null;
+    }
+
+    /**
+     * Returns OP_INSERT or OP_UPDATE, denoting whether the document
+     * was attempted to be inserted or updated. 
+     */
+    private String saveDoc(CRUDOperationContext ctx,
+                           DBCollection collection,
+                           EntityMetadata md,
+                           String operation,
+                           DBObject dbObject,
+                           DocCtx inputDoc,
+                           boolean upsert,
+                           FieldAccessRoleEvaluator roleEval,
+                           Translator translator) {
         WriteResult result=null;
         String error=null;
-        boolean insertAccess=md.getAccess().getInsert().hasAccess(ctx.getCallerRoles());
         boolean updateAccess=md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles());
-        if (operation.equals(OP_INSERT)) {
-            if(!insertAccess) {
-                inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_NO_ACCESS,operation+":"+md.getName()));
+        String ret=null;
+
+        Object id=dbObject.get(ID_STR);
+        if(operation.equals(OP_INSERT) ||
+           (id==null&&upsert) ) {
+            // Inserting
+            result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
+            ret=OP_INSERT;
+        } else if(operation.equals(OP_UPDATE)&&id!=null) {
+            // Updating
+            ret=OP_UPDATE;
+            LOGGER.debug("Updating doc {}"+id);
+            BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(id.toString()));
+            DBObject oldDBObject=collection.findOne(q);
+            if(oldDBObject!=null) {
+                if(md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
+                    JsonDoc oldDoc=translator.toJson(oldDBObject);
+                    List<Path> paths=roleEval.getInaccessibleFields_Update(inputDoc,oldDoc);
+                    if(paths==null||paths.isEmpty()) {
+                        result=collection.update(q,dbObject,upsert,false,WriteConcern.SAFE);
+                    } else
+                        inputDoc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
+                } else
+                    inputDoc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_ACCESS,OP_UPDATE+":"+md.getName()));
             } else {
-                result = collection.insert(dbObject, WriteConcern.SAFE);
+                // Cannot update, doc does not exist, insert
+                result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
+                ret=OP_INSERT;
             }
         } else {
-            Object x = dbObject.get(ID_STR);
-            if (x == null&&upsert) {
-                if(!insertAccess) {
-                    inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_NO_ACCESS,operation+":"+md.getName()));
-                } else {
-                    result = collection.insert(dbObject, WriteConcern.SAFE);
-                }
-            } else if(x!=null) {
-                if (canModify(insertAccess, updateAccess, upsert)) {
-                    BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(x.toString()));
-                    LOGGER.debug("update query: {}",q);
-                    result = collection.update(q, dbObject, upsert, false, WriteConcern.SAFE);
-                } else {
-                    inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_NO_ACCESS,operation+":"+md.getName()));
-                }
-
-            }
+            // Error, invalid request
+            inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_SAVE_ERROR,"Invalid request"));
+            ret=OP_UPDATE;
         }
+
         LOGGER.debug("Write result {}",result);
         if(result!=null) {
             if(error==null) {
@@ -231,15 +285,7 @@ public class MongoCRUDController implements CRUDController {
                 inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, error));
             } 
         }
-    }
-
-
-    private boolean canModify(boolean insertAccess, boolean updateAccess, boolean upsertAccess) {
-        if(upsertAccess) {
-            return upsertAccess && insertAccess && updateAccess;
-        } else {
-            return !upsertAccess & updateAccess;
-        }
+        return ret;
     }
     
     
@@ -262,9 +308,11 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Translating query {}", query);
                 DBObject mongoQuery = translator.translate(md, query);
                 LOGGER.debug("Translated query {}", mongoQuery);
+                FieldAccessRoleEvaluator roleEval= new FieldAccessRoleEvaluator(md, ctx.getCallerRoles());
+
                 Projector projector;
                 if(projection!=null) {
-                    projector = Projector.getInstance(projection, md);
+                    projector = Projector.getInstance(Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.update)), md);
                 } else {
                     projector = null;
                 }
@@ -277,7 +325,7 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     errorProjector=projector;
                 }   
-                iterateUpdate(ctx,coll,validator,translator,md,response,mongoQuery,updater,projector,errorProjector);
+                iterateUpdate(ctx,coll,validator,roleEval,translator,md,response,mongoQuery,updater,projector,errorProjector);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS,"update:"+ctx.getEntityName()));
             }
@@ -291,6 +339,7 @@ public class MongoCRUDController implements CRUDController {
     private void iterateUpdate(CRUDOperationContext ctx,
                                DBCollection collection,
                                ConstraintValidator validator,
+                               FieldAccessRoleEvaluator roleEval,
                                Translator translator,
                                EntityMetadata md,
                                CRUDUpdateResponse response,
@@ -311,33 +360,41 @@ public class MongoCRUDController implements CRUDController {
                 DBObject document=cursor.next();
                 boolean hasErrors=false;
                 LOGGER.debug("Retrieved doc {}",docIndex);
-                JsonDoc jsonDocument=translator.toJson(document);
-                QueryEvaluationContext qctx=new QueryEvaluationContext(jsonDocument.getRoot());
-                if(updater.update(jsonDocument,md.getFieldTreeRoot(),Path.EMPTY)) {
+                DocCtx doc=ctx.addDocument(translator.toJson(document));
+                doc.setOutputDocument(doc.copy());
+                // From now on: doc contains the old copy, and doc.getOutputDocument contains the new copy
+                QueryEvaluationContext qctx=new QueryEvaluationContext(doc.getRoot());
+                if(updater.update(doc.getOutputDocument(),md.getFieldTreeRoot(),Path.EMPTY)) {
                     LOGGER.debug("Document {} modified, updating",docIndex);
-                    PredefinedFields.updateArraySizes(nodeFactory,jsonDocument);
+                    PredefinedFields.updateArraySizes(nodeFactory,doc.getOutputDocument());
                     LOGGER.debug("Running constraint validations");
                     validator.clearErrors();
-                    validator.validateDoc(jsonDocument);
+                    validator.validateDoc(doc.getOutputDocument());
                     List<Error> errors=validator.getErrors();
                     if(errors!=null&&!errors.isEmpty()) {
                         ctx.addErrors(errors);
                         hasErrors=true;
                     }
-                    errors=validator.getDocErrors().get(jsonDocument);
+                    errors=validator.getDocErrors().get(doc.getOutputDocument());
                     if(errors!=null&&!errors.isEmpty()) {
-                        DocCtx doc=ctx.addDocument(errorProjector.project(jsonDocument,nodeFactory,qctx));
                         doc.addErrors(errors);
                         hasErrors=true;
                     }
                     if(!hasErrors) {
+                        List<Path> paths=roleEval.getInaccessibleFields_Update(doc.getOutputDocument(),doc);
+                        if(paths!=null&&!paths.isEmpty()) {
+                            doc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
+                            hasErrors=true;
+                        }
+                    }
+                    if(!hasErrors) {
                         try {
-                            DBObject updatedObject=translator.toBson(jsonDocument);
+                            DBObject updatedObject=translator.toBson(doc.getOutputDocument());
                             WriteResult result=collection.save(updatedObject);                    
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {
                             LOGGER.warn("Update exception for document {}: {}",docIndex,e);
-                            ctx.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR,e.toString()));
+                            doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR,e.toString()));
                             hasErrors=true;
                         }
                     }
@@ -350,8 +407,7 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     if(projector!=null) {
                         LOGGER.debug("Projecting document {}",docIndex);
-                        jsonDocument=projector.project(jsonDocument,nodeFactory,qctx);
-                        ctx.addDocument(jsonDocument);
+                        doc.setOutputDocument(projector.project(doc.getOutputDocument(),nodeFactory,qctx));
                     }
                 }
                 docIndex++;
@@ -423,6 +479,7 @@ public class MongoCRUDController implements CRUDController {
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if(md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
+                FieldAccessRoleEvaluator roleEval= new FieldAccessRoleEvaluator(md, ctx.getCallerRoles());
                 LOGGER.debug("Translating query {}", query);
                 DBObject mongoQuery = translator.translate(md, query);
                 LOGGER.debug("Translated query {}", mongoQuery);
@@ -453,7 +510,7 @@ public class MongoCRUDController implements CRUDController {
                 List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
                 LOGGER.debug("Translated DBObjects to json");
                 // Project results
-                Projector projector = Projector.getInstance(projection, md);
+                Projector projector = Projector.getInstance(Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
                 List<JsonDoc> results = new ArrayList<JsonDoc>(jsonDocs.size());
                 for (JsonDoc document : jsonDocs) {
@@ -471,36 +528,4 @@ public class MongoCRUDController implements CRUDController {
         return response;
     }
 
-    private JsonDoc translateAndProject(DBObject doc,
-                                        Translator translator,
-                                        Projector projector) {
-        JsonDoc jsonDoc = translator.toJson(doc);
-        LOGGER.debug("Translated doc: {}", jsonDoc);
-        JsonDoc result = projector.project(jsonDoc, nodeFactory, null);
-        LOGGER.debug("projected doc: {}", result);
-        return result;
-    }
-
-
-    private void addErrorToMap(Map<DBObject, List<Error>> map,
-                               DBObject obj,
-                               String context,
-                               String errorCode,
-                               String msg) {
-        Error error = Error.get(context, errorCode, msg);
-        addErrorToMap(map, obj, error);
-    }
-
-    /**
-     * Adds a new error for the document to the errormap
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void addErrorToMap(Map<DBObject, List<Error>> map, DBObject object, Error error) {
-        List l = map.get(object);
-        if (l == null) {
-            l = new ArrayList<>();
-            map.put(object, l);
-        }
-        l.add(error);
-    }
 }

@@ -452,6 +452,12 @@ public class JsonDoc implements Serializable {
         }
     }
 
+    /**
+     * Returns a deep copy of the current document
+     */
+    public JsonDoc copy() {
+        return new JsonDoc(docRoot.deepCopy());
+    }
 
     private JsonNode getParentNode(Path parent, boolean createPath, Path p) {
         JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
