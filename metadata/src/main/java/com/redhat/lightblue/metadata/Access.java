@@ -57,6 +57,13 @@ public class Access implements Serializable {
     }
 
     /**
+     * Returns if there are no roles defined.
+     */
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    /**
      * Returns if anyone can perform this operation
      */
     public boolean isAnyone() {

@@ -161,22 +161,14 @@ public class MongoCRUDController implements CRUDController {
                 DB db = dbResolver.get(store);
                 DBCollection collection = db.getCollection(store.getCollectionName());
  
-                Projection insertProjection=Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.insert));
-                Projection updateProjection=Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.update));
+                Projection combinedProjection=Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find));
                 
-                Projector insertProjector;
-                Projector updateProjector;
-                if(insertProjection!=null) {
-                    insertProjector=Projector.getInstance(insertProjection,md);
+                Projector projector;
+                if(combinedProjection!=null) {
+                    projector=Projector.getInstance(combinedProjection,md);
                 } else {
-                    insertProjector=null;
+                    projector=null;
                 }
-                if(updateProjection!=null) {
-                    updateProjector=Projector.getInstance(updateProjection,md);
-                } else {
-                    updateProjector=null;
-                }
-
                 for(int docIndex=0;docIndex<dbObjects.length;docIndex++) {
                     DBObject dbObject=dbObjects[docIndex];
                     DocCtx inputDoc=documents.get(docIndex);
@@ -184,16 +176,16 @@ public class MongoCRUDController implements CRUDController {
                     try {
                         op=saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert,roleEval,translator);
                     } catch (MongoException.DuplicateKey dke) {
+                        LOGGER.error("saveOrInsert failed: {}",dke);
                         inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_DUPLICATE,dke.toString()));
                     } catch (Exception e) {
+                        LOGGER.error("saveOrInsert failed: {}",e);
                         inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, e.toString()));
                     }
                     JsonDoc jsonDoc = translator.toJson(dbObject);
                     LOGGER.debug("Translated doc: {}", jsonDoc);
-                    if(OP_INSERT.equals(op))
-                        inputDoc.setOutputDocument(insertProjector.project(jsonDoc, nodeFactory, null));
-                    else 
-                        inputDoc.setOutputDocument(updateProjector.project(jsonDoc, nodeFactory, null));
+                    if(projector!=null)
+                        inputDoc.setOutputDocument(projector.project(jsonDoc, nodeFactory, null));
                     LOGGER.debug("projected doc: {}", inputDoc.getOutputDocument());
                     if(!inputDoc.hasErrors())
                         ret++;
@@ -217,6 +209,7 @@ public class MongoCRUDController implements CRUDController {
             inputDoc.addError(Error.get(OP_INSERT,MongoCrudConstants.ERR_NO_ACCESS,OP_INSERT+":"+md.getName()));
         } else {
             List<Path> paths=roleEval.getInaccessibleFields_Insert(inputDoc);
+            LOGGER.debug("Inaccessible fields:{}",paths);
             if(paths==null||paths.isEmpty())
                 return collection.insert(dbObject, WriteConcern.SAFE);
             else
@@ -249,9 +242,9 @@ public class MongoCRUDController implements CRUDController {
             // Inserting
             result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
             ret=OP_INSERT;
-        } else if(operation.equals(OP_UPDATE)&&id!=null) {
+        } else if(operation.equals(OP_SAVE)&&id!=null) {
             // Updating
-            ret=OP_UPDATE;
+            ret=OP_SAVE;
             LOGGER.debug("Updating doc {}"+id);
             BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(id.toString()));
             DBObject oldDBObject=collection.findOne(q);
@@ -272,8 +265,9 @@ public class MongoCRUDController implements CRUDController {
             }
         } else {
             // Error, invalid request
+            LOGGER.warn("Invalid request, cannot update or insert");
             inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_SAVE_ERROR,"Invalid request"));
-            ret=OP_UPDATE;
+            ret=OP_SAVE;
         }
 
         LOGGER.debug("Write result {}",result);
@@ -312,7 +306,9 @@ public class MongoCRUDController implements CRUDController {
 
                 Projector projector;
                 if(projection!=null) {
-                    projector = Projector.getInstance(Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.update)), md);
+                    Projection x=Projection.add(projection,roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find));
+                    LOGGER.debug("Projection={}",x);
+                    projector = Projector.getInstance(x, md);
                 } else {
                     projector = null;
                 }
@@ -374,14 +370,17 @@ public class MongoCRUDController implements CRUDController {
                     if(errors!=null&&!errors.isEmpty()) {
                         ctx.addErrors(errors);
                         hasErrors=true;
+                        LOGGER.debug("Doc has errors");
                     }
                     errors=validator.getDocErrors().get(doc.getOutputDocument());
                     if(errors!=null&&!errors.isEmpty()) {
                         doc.addErrors(errors);
                         hasErrors=true;
+                        LOGGER.debug("Doc has data errors");
                     }
                     if(!hasErrors) {
                         List<Path> paths=roleEval.getInaccessibleFields_Update(doc.getOutputDocument(),doc);
+                        LOGGER.debug("Inaccesible fields during update={}"+paths);
                         if(paths!=null&&!paths.isEmpty()) {
                             doc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
                             hasErrors=true;

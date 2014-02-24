@@ -122,17 +122,14 @@ public class PredefinedFieldsTest {
         Field f = (SimpleField) md.resolve(new Path("object_type"));
         Assert.assertEquals(StringType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
-        Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(MetadataConstants.ROLE_NOONE));
 
         f = (SimpleField) md.resolve(new Path("simpleArr#"));
         Assert.assertEquals(IntegerType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
-        Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(MetadataConstants.ROLE_NOONE));
 
         f = (SimpleField) md.resolve(new Path("obj1.nested.objArr#"));
         Assert.assertEquals(IntegerType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
-        Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(MetadataConstants.ROLE_NOONE));
     }
 
     @Test
@@ -149,12 +146,10 @@ public class PredefinedFieldsTest {
         f = (SimpleField) md.resolve(new Path("simpleArr#"));
         Assert.assertEquals(IntegerType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
-        Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(MetadataConstants.ROLE_NOONE));
 
         f = (SimpleField) md.resolve(new Path("obj1.nested.objArr#"));
         Assert.assertEquals(IntegerType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
-        Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(MetadataConstants.ROLE_NOONE));
     }
 
     @Test

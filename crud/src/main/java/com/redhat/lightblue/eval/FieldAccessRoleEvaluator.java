@@ -29,6 +29,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldAccess;
+import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.Field;
 
 import com.redhat.lightblue.query.Projection;
@@ -101,9 +102,11 @@ public final class FieldAccessRoleEvaluator {
     public List<Path> getInaccessibleFields_Insert(JsonDoc doc) {
         Set<Path> inaccessibleFields=getInaccessibleFields(Operation.insert);
         List<Path> ret=new ArrayList<Path>(inaccessibleFields.size());
-        for(Path x:inaccessibleFields)
-            if(doc.get(x)!=null)
+        for(Path x:inaccessibleFields) {
+            KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(x);
+            if(cursor.hasNext())
                 ret.add(x);
+        }
         return ret;
     }
 
@@ -151,16 +154,17 @@ public final class FieldAccessRoleEvaluator {
 
     private boolean hasAccess(Field f,Operation op) {
         FieldAccess faccess=f.getAccess();
+        EntityAccess eaccess=md.getAccess();
         switch(op) {
         case insert:
-            return faccess.getInsert().hasAccess(roles);
+            return (faccess.getInsert().isEmpty()?eaccess.getInsert():faccess.getInsert()).hasAccess(roles);
         case update:
-            return faccess.getUpdate().hasAccess(roles);
+            return (faccess.getUpdate().isEmpty()?eaccess.getUpdate():faccess.getUpdate()).hasAccess(roles);
         case insert_and_update:
-            return faccess.getInsert().hasAccess(roles)&&
-                faccess.getUpdate().hasAccess(roles);
+            return (faccess.getInsert().isEmpty()?eaccess.getInsert():faccess.getInsert()).hasAccess(roles)&&
+                (faccess.getUpdate().isEmpty()?eaccess.getUpdate():faccess.getUpdate()).hasAccess(roles);
         case find:
-            return faccess.getFind().hasAccess(roles);
+            return (faccess.getFind().isEmpty()?eaccess.getFind():faccess.getFind()).hasAccess(roles);
         }
         return false;
     }

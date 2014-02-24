@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
@@ -176,6 +177,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Projection projection = projection("{'field':'_id'}");
         ctx.addDocument(doc);
         CRUDInsertionResponse response=controller.insert(ctx,projection);
+        System.out.println(ctx.getDataErrors());
         Assert.assertEquals(1, ctx.getDocuments().size());
         Assert.assertTrue(ctx.getErrors() == null || ctx.getErrors().isEmpty());
         Assert.assertTrue(ctx.getDataErrors() == null || ctx.getDataErrors().isEmpty());
@@ -275,8 +277,12 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
                                                  projection("{'field':'_id'}"));
         Assert.assertEquals(1,upd.getNumUpdated());
         Assert.assertEquals(0,upd.getNumFailed());
+        DBObject obj=coll.find(new BasicDBObject("field3",1000),new BasicDBObject("_id",1)).next();
+        Assert.assertNotNull(obj);
+        System.out.println("DBObject:"+obj);
+        System.out.println("Output doc:"+ctx.getDocuments().get(0).getOutputDocument());
         Assert.assertEquals(ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText(),
-                            coll.find(new BasicDBObject("field3",1000),new BasicDBObject("_id",1)).next().get("_id").toString());
+                            obj.get("_id").toString());
         Assert.assertEquals(1,coll.find(new BasicDBObject("field3",1000)).count());
 
         // Bulk update

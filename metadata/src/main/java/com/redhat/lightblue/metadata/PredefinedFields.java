@@ -250,7 +250,6 @@ public final class PredefinedFields {
            // Must be int
            f.getType().equals(IntegerType.TYPE)) {
             setRoleIfEmpty(f.getAccess().getFind(),MetadataConstants.ROLE_ANYONE);
-            setRoleIfEmpty(f.getAccess().getUpdate(),MetadataConstants.ROLE_NOONE);
         } else {
             throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE,fieldName+":"+f.getType().getName());
         }
