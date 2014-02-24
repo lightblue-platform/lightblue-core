@@ -107,7 +107,7 @@ public class Mediator {
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                    CRUDInsertionResponse insertionResponse = controller.insert(ctx, req.getReturnFields());
+                    controller.insert(ctx, req.getReturnFields());
                     List<JsonDoc> insertedDocuments=ctx.getOutputDocumentsWithoutErrors();
                     if(!insertedDocuments.isEmpty())
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
@@ -161,7 +161,7 @@ public class Mediator {
             if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDSaveResponse saveResponse = controller.save(ctx, req.isUpsert(), req.getReturnFields());
+                controller.save(ctx, req.isUpsert(), req.getReturnFields());
                 List<JsonDoc> updatedDocuments=ctx.getOutputDocumentsWithoutErrors();
                 if(!updatedDocuments.isEmpty())
                     response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));

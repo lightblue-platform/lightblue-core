@@ -29,7 +29,7 @@ import com.redhat.lightblue.util.JsonDoc;
  */
 public class CRUDFindResponse implements Serializable {
 
-    private static long serialVersionUID=1l;
+    private static final long serialVersionUID=1l;
 
     private List<JsonDoc> results;
     private long size;

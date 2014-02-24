@@ -172,9 +172,8 @@ public class MongoCRUDController implements CRUDController {
                 for(int docIndex=0;docIndex<dbObjects.length;docIndex++) {
                     DBObject dbObject=dbObjects[docIndex];
                     DocCtx inputDoc=documents.get(docIndex);
-                    String op=null;
                     try {
-                        op=saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert,roleEval,translator);
+                        saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert,roleEval,translator);
                     } catch (MongoException.DuplicateKey dke) {
                         LOGGER.error("saveOrInsert failed: {}",dke);
                         inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_DUPLICATE,dke.toString()));
@@ -218,33 +217,25 @@ public class MongoCRUDController implements CRUDController {
         return null;
     }
 
-    /**
-     * Returns OP_INSERT or OP_UPDATE, denoting whether the document
-     * was attempted to be inserted or updated. 
-     */
-    private String saveDoc(CRUDOperationContext ctx,
-                           DBCollection collection,
-                           EntityMetadata md,
-                           String operation,
-                           DBObject dbObject,
-                           DocCtx inputDoc,
-                           boolean upsert,
-                           FieldAccessRoleEvaluator roleEval,
-                           Translator translator) {
+    private void saveDoc(CRUDOperationContext ctx,
+                         DBCollection collection,
+                         EntityMetadata md,
+                         String operation,
+                         DBObject dbObject,
+                         DocCtx inputDoc,
+                         boolean upsert,
+                         FieldAccessRoleEvaluator roleEval,
+                         Translator translator) {
         WriteResult result=null;
         String error=null;
-        boolean updateAccess=md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles());
-        String ret=null;
 
         Object id=dbObject.get(ID_STR);
         if(operation.equals(OP_INSERT) ||
            (id==null&&upsert) ) {
             // Inserting
             result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
-            ret=OP_INSERT;
         } else if(operation.equals(OP_SAVE)&&id!=null) {
             // Updating
-            ret=OP_SAVE;
             LOGGER.debug("Updating doc {}"+id);
             BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(id.toString()));
             DBObject oldDBObject=collection.findOne(q);
@@ -261,13 +252,11 @@ public class MongoCRUDController implements CRUDController {
             } else {
                 // Cannot update, doc does not exist, insert
                 result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
-                ret=OP_INSERT;
             }
         } else {
             // Error, invalid request
             LOGGER.warn("Invalid request, cannot update or insert");
             inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_SAVE_ERROR,"Invalid request"));
-            ret=OP_SAVE;
         }
 
         LOGGER.debug("Write result {}",result);
@@ -279,7 +268,6 @@ public class MongoCRUDController implements CRUDController {
                 inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, error));
             } 
         }
-        return ret;
     }
     
     
@@ -403,6 +391,7 @@ public class MongoCRUDController implements CRUDController {
                 if(hasErrors) {
                     LOGGER.debug("Document {} has errors",docIndex);
                     numFailed++;
+                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(),nodeFactory,qctx));
                 } else {
                     if(projector!=null) {
                         LOGGER.debug("Projecting document {}",docIndex);
