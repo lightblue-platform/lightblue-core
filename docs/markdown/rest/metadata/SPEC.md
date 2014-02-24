@@ -35,6 +35,49 @@ There are some common error codes that could be returned on any request and they
 
 # GET
 
+## Get Entity Dependencies Graph
+Get a "graph" of dependencies between entities.  Default versions are used unless a specific entity with version is requested.
+
+### Request
+Two optional path params, one to specify the entity name and the second to specify a version.  If omitted all entities are processed with default versions.
+> GET /metadata/dependencies[/{entityName}[/{version}]]
+
+### Response: Success
+Returns an array of objects that follow this JSON structure.  Note there is no JSON-schema for this at this time, subject to change.
+
+[
+    {
+        name: <the entity>,
+        dependencies: [array of 'this' structure]
+    }
+]
+
+#### Example: cyclic
+[
+    {
+        name: "foo",
+        dependencies: [
+            {
+                name: "bar",
+                dependencies: [
+                    {
+                        name: "baz"
+                    },
+                    {
+                        name: "foo"
+                    }
+                ]
+            }
+        ]
+    }
+]
+
+### Response: Errors
+Additional error codes:
+* metadata:MissingEntityInfo - if entity name was specified, entity info does not exist
+* metadata:MissingSchema - if version was specified, schema does not exist for given entity name + version
+
+
 ## Get Entity Roles
 Get list of all roles and the entities they allow access to.  See Request for details
 
