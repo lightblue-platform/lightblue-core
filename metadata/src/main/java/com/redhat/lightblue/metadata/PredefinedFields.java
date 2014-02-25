@@ -48,16 +48,11 @@ import com.redhat.lightblue.util.Path;
  */
 public final class PredefinedFields {
 
-
-
-    public static final String ID_FIELD="_id";
     public static final String OBJECTTYPE_FIELD="object_type";
 
-    public static final Path ID_PATH=new Path(ID_FIELD);
     public static final Path OBJECTTYPE_PATH=new Path(OBJECTTYPE_FIELD);
 
     public static void ensurePredefinedFields(EntityMetadata md) {
-        ensureID(md);
         ensureObjectType(md);
         // Recursively find all arrays, and add array size fields
         List<ParentNewChild> l=new ArrayList<>();
@@ -108,48 +103,6 @@ public final class PredefinedFields {
         }
     }
    
-
-    /**
-     * Creates, or makes sure that there exists an ID field with:
-     *  - name is _id
-     *  - type string, int, or biginteger
-     *  - unique constraint
-     *  - access roles to allow read by anyone, and allow update by noone
-     */
-    private static void ensureID(EntityMetadata md) {
-        Field f=md.getFields().getField(ID_FIELD);
-        if(f==null) {
-            f=new SimpleField(ID_FIELD,StringType.TYPE);
-            md.getFields().addNew(f);
-        }
-        if(f instanceof SimpleField &&
-           // ID can be string, int, bigint
-           (f.getType().equals(IntegerType.TYPE)||
-            f.getType().equals(StringType.TYPE)||
-            f.getType().equals(BigIntegerType.TYPE))) {
-            // Need a unique constraint for ID
-            if(findConstraint(md.getConstraints(),
-                              new ConstraintSearchCB<EntityConstraint>() {
-                                  @Override
-                                  public boolean checkMatch(EntityConstraint c) {
-                                      if(c instanceof Index) {
-                                          List<Path> fields=((Index)c).getFields();
-                                          if(fields.size()==1&&fields.get(0).equals(ID_PATH)) {
-                                              return true;
-                                          }
-                                      }
-                                      return false;
-                                  }
-                              })==null) {
-                // TODO why is this here?  _id is unique and indexed always
-//                md.setConstraints(addConstraint(md.getConstraints(),new Index(ID_PATH)));
-            }
-            setRoleIfEmpty(f.getAccess().getFind(),MetadataConstants.ROLE_ANYONE);
-            setRoleIfEmpty(f.getAccess().getUpdate(),MetadataConstants.ROLE_NOONE);
-        } else {
-            throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE,ID_FIELD+":"+f.getType().getName());
-        }
-    }
 
     private static void ensureObjectType(EntityMetadata md) {
         Field f=md.getFields().getField(OBJECTTYPE_FIELD);

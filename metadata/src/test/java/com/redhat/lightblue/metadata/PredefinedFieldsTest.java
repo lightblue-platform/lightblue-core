@@ -95,11 +95,6 @@ public class PredefinedFieldsTest {
     public void testAddPredef() throws Exception {
         EntityMetadata md = getMD1();
         try {
-            md.resolve(new Path("_id"));
-            Assert.fail();
-        } catch (Exception e) {
-        }
-        try {
             md.resolve(new Path("object_type"));
             Assert.fail();
         } catch (Exception e) {
@@ -152,16 +147,6 @@ public class PredefinedFieldsTest {
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
     }
 
-    @Test
-    public void testInvalidId() throws Exception {
-        EntityMetadata md = new EntityMetadata("test");
-        md.getFields().addNew(new SimpleField("_id", DateType.TYPE));
-        try {
-            PredefinedFields.ensurePredefinedFields(md);
-            Assert.fail();
-        } catch (Exception e) {
-        }
-    }
 
     @Test
     public void testInvalidObjectType() throws Exception {
