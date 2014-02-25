@@ -49,6 +49,16 @@ public class Access implements Serializable {
     }
 
     /**
+     * Sets the roles.
+     */
+    public void setRoles(String...roles) {
+        values.clear();
+        if(roles!=null)
+            for(String x:roles)
+                values.add(x);
+    }
+
+    /**
      * Retrieves the roles. A copy of the internal storage is returned.
      */
     @SuppressWarnings("unchecked")

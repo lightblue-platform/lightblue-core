@@ -147,7 +147,8 @@ public class Mediator {
      *
      * Mediator performs constraint validation, and passes documents
      * that pass the validation to the CRUD implementation for that
-     * entity. CRUD implementation can perform further validations
+     * entity. CRUD implementation can perform further validations.
+     *
      */
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntity());
@@ -156,22 +157,28 @@ public class Mediator {
         try {
             OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMD();
-            updatePredefinedFields(ctx.getDocuments(),md.getName());
-            runBulkConstraintValidation(ctx);
-            if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
-                CRUDController controller = factory.getCRUDController(md);
-                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                controller.save(ctx, req.isUpsert(), req.getReturnFields());
-                List<JsonDoc> updatedDocuments=ctx.getOutputDocumentsWithoutErrors();
-                if(!updatedDocuments.isEmpty())
-                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
-                response.setModifiedCount(updatedDocuments.size());
-                if (updatedDocuments.size() == ctx.getDocuments().size()) {
-                    ctx.setStatus(OperationStatus.COMPLETE);
-                } else if (!updatedDocuments.isEmpty()) {
-                    ctx.setStatus(OperationStatus.PARTIAL);
-                } else {
-                    ctx.setStatus(OperationStatus.ERROR);
+            if(!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles()) ||
+               (req.isUpsert()&&!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) ) {
+                ctx.setStatus(OperationStatus.ERROR);
+                ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS,"insert/update "+ctx.getTopLevelEntityName()));
+            } else {
+                updatePredefinedFields(ctx.getDocuments(),md.getName());
+                runBulkConstraintValidation(ctx);
+                if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
+                    CRUDController controller = factory.getCRUDController(md);
+                    LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
+                    controller.save(ctx, req.isUpsert(), req.getReturnFields());
+                    List<JsonDoc> updatedDocuments=ctx.getOutputDocumentsWithoutErrors();
+                    if(!updatedDocuments.isEmpty())
+                        response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
+                    response.setModifiedCount(updatedDocuments.size());
+                    if (updatedDocuments.size() == ctx.getDocuments().size()) {
+                        ctx.setStatus(OperationStatus.COMPLETE);
+                    } else if (!updatedDocuments.isEmpty()) {
+                        ctx.setStatus(OperationStatus.PARTIAL);
+                    } else {
+                        ctx.setStatus(OperationStatus.ERROR);
+                    }
                 }
             }
             response.getDataErrors().addAll(ctx.getDataErrors());
@@ -304,9 +311,9 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
                 response.setEntityData(JsonDoc.listToDoc(result.getResults(), NODE_FACTORY));
-                response.setStatus(ctx.getStatus());
-                response.getErrors().addAll(ctx.getErrors());
             }
+            response.setStatus(ctx.getStatus());
+            response.getErrors().addAll(ctx.getErrors());
         } catch (Error e) {
             response.getErrors().add(e);
         } catch (Exception e) {
