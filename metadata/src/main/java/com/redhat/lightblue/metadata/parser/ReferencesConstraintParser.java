@@ -32,7 +32,7 @@ public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> 
     @Override
     public EntityConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!ReferencesConstraint.REFERENCES.equals(name)) {
-            Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
         List<T> list = p.getObjectList(node, ReferencesConstraint.REFERENCES);
