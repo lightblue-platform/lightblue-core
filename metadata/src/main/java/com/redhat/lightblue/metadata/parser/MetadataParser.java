@@ -216,7 +216,7 @@ public abstract class MetadataParser<T> {
                     }
                     index.setFields(f);
                 } else {
-                    Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
                 }
 
                 return index;
@@ -256,19 +256,15 @@ public abstract class MetadataParser<T> {
         Error.push("parseEnum");
         try {
             if (object != null) {
-                Enum e = new Enum();
-
                 String name = getStringProperty(object, STR_NAME);
+                if(name==null)
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
+                Enum e = new Enum(name);
                 List<String> values = getStringList(object, STR_VALUES);
-
-                if (null != name) {
-                    e.setName(name);
-                }
-
                 if (null != values && !values.isEmpty()) {
                     e.setValues(values);
                 } else {
-                    Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
                 return e;
@@ -914,7 +910,7 @@ public abstract class MetadataParser<T> {
                 Object array = newArrayField(parent, STR_ENUMS);
 
                 // for each enum, add it to array
-                for (Enum e : enums.getEnums()) {
+                for (Enum e : enums.getEnums().values()) {
                     T node = newNode();
                     addObjectToArray(array, node);
                     putString(node, STR_NAME, e.getName());

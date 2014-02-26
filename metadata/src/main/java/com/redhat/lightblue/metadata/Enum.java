@@ -30,17 +30,14 @@ public class Enum implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private String name;
+    private final String name;
     private final HashSet<String> values = new HashSet<>();
 
     /**
      * Default ctor
      */
-    public Enum() {
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public Enum(String name) {
+        this.name=name;
     }
 
     /**

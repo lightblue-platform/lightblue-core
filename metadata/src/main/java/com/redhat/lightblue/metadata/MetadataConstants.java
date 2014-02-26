@@ -26,6 +26,7 @@ public final class MetadataConstants {
     public static final String ARRAY_ANY_ELEM = "*";
 
     public static final String ERR_DUPLICATE_FIELD = "metadata:DuplicateField";
+    public static final String ERR_DUPLICATE_ENUM = "metadata:DuplicateEnum";
     public static final String ERR_INVALID_ARRAY_REFERENCE = "metadata:InvalidArrayReference";
     public static final String ERR_INVALID_FIELD_REFERENCE = "metadata:InvalidFieldReference";
     public static final String ERR_INVALID_REDIRECTION = "metadata:InvalidRedirection";
