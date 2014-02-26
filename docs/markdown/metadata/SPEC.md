@@ -25,7 +25,7 @@ Entity metadata are stored in a collection named "metadata". Format of metadata 
 ```
  
 * entityInfo: data about an entity that is not versioned
-  *  _id: <name>|
+  *  _id: \<name\>|
   *  name: Name of the entity.  Name is the same in entityInfo and schema sections.
   *  hooks: array of individual hook objects
 
@@ -74,7 +74,7 @@ Entity metadata are stored in a collection named "metadata". Format of metadata 
 ```
 
 * schema: data about an entity that is versioned
-  *  _id: <name>|<version>
+  *  _id: \<name\>|\<version\>
   *  name: Name of the entity.  Name is the same in entityInfo and schema sections.
   *  version: The version data for the metadata
      *  value - the version string [required]
@@ -117,17 +117,17 @@ an object containing one field. The field name determines the
 constraint type. Depending on the constraint, the constraintInfo can
 be a simple value, an array, or an object:
 ```
-       { "constraintName" : <constraintInfo>  }  
+       { "constraintName" : \<constraintInfo\>  }  
 ```
 
    * references: denotes entities this one depends on. The constraint requires that if this.thisField is non-null, there must be an instance of entity with { entityField: this.thisField }
 ```
     "constraints:[  
        { "references" : [ {  
-           "entityName" : <entityName>,  
+           "entityName" : \<entityName\>,  
            "versionValue" : version.value  
-           "thisField" : <this.fieldName>, (optional, if not given, _id)  
-           "entityField": <entity.fieldName> (optional, if not given, _id)  
+           "thisField" : \<this.fieldName\>, (optional, if not given, _id)  
+           "entityField": \<entity.fieldName\> (optional, if not given, _id)  
                    }, ...  
             ]  
         }  
@@ -139,7 +139,7 @@ be a simple value, an array, or an object:
 * "name": name of the field, this is the property name in the json document
 * type: one of:
    *  basic types: boolean, integer (64-bit int), string, double, biginteger, bigdecimal, date, binary
-       * If a field is defined as biginteger, or bigdecimal in metadata, store the value as string, and don't allow < > operators during search.operators are not supported for this field during search.
+       * If a field is defined as biginteger, or bigdecimal in metadata, store the value as string, and don't allow \< \> operators during search.operators are not supported for this field during search.
    * date: Re: How will we represent date in JSON?
    * a container type: object, array
 * fields: If type=object, an array of field objects
@@ -175,13 +175,13 @@ be a simple value, an array, or an object:
 *  constraints: array of field constraint objects
    *  minLength, maxLength for strings (minLength=1 is to be used to mean nonempty string)
 ```
-    { "minLength" : <value> }  
-    { "maxLength" : <value> }  
+    { "minLength" : \<value\> }  
+    { "maxLength" : \<value\> }  
 ```
    *  minItems and maxItems limit number of items in an array.  Default is 0 to unlimited.
 ```
-    { "minItems": <value> }  
-    { "maxItems": <value> }  
+    { "minItems": \<value\> }  
+    { "maxItems": \<value\> }  
 ```
    *  required: boolean indicating if the field is required, default is false.
 ```
@@ -189,8 +189,8 @@ be a simple value, an array, or an object:
 ```
    * minimum/maximum (for number types)
 ```
-    { "minimum" : <value> }  
-    { "maximum" : <value> }  
+    { "minimum" : \<value\> }  
+    { "maximum" : \<value\> }  
 ```
    *  enum reference where the enum name comes from entityInfo
 ```
@@ -201,9 +201,9 @@ be a simple value, an array, or an object:
 ```
     {  
         "hooks":{  
-            "insert":[<value1>...],  
-            "update":[<value1>...],  
-            "delete":[<value1>...]  
+            "insert":[\<value1\>...],  
+            "update":[\<value1\>...],  
+            "delete":[\<value1\>...]  
         }  
     }  
 ```
@@ -215,7 +215,7 @@ defines these as fields, they are exposed to the callers. Otherwise,
 these fields will not be exposed.
 
 
-*  <arrayField>#: arrayField is an array field of the entity. The variable <arrayField># keeps the number of elements in the array
+*  \<arrayField\>#: arrayField is an array field of the entity. The variable \<arrayField\># keeps the number of elements in the array
   * Type: int
   * read-only
    
