@@ -216,7 +216,7 @@ public abstract class MetadataParser<T> {
                     }
                     index.setFields(f);
                 } else {
-                    Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
                 }
 
                 return index;
@@ -268,7 +268,7 @@ public abstract class MetadataParser<T> {
                 if (null != values && !values.isEmpty()) {
                     e.setValues(values);
                 } else {
-                    Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
                 return e;
