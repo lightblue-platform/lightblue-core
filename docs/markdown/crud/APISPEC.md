@@ -1,4 +1,4 @@
-# Service Data Layer API Specification CRUD APIs:
+# Service Data Layer API and Query Language Specification
 
 ## CRUD APIs
 
