@@ -352,7 +352,7 @@ Return firstname and lastname:
    { field: "lastname", include: true } ]  
 ```
 Return everything but firstname:
-``
+```
  [ { field: "*", include: true, recursive: true}, 
    { field: "firstname", include: false} ]  
 ```
