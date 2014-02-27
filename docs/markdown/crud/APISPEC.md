@@ -9,10 +9,10 @@ object.
 
 ```
 {  
-  entity: \<entityName\>,  
-  entityVersion: \<entity metadata version\>,  
-  client: \<clientIdentification\>,  
-  execution: \<executionOptions\>  
+  entity: <entityName>,  
+  entityVersion: <entity metadata version>,  
+  client: <clientIdentification>,  
+  execution: <executionOptions>  
 }  
 ```
 
@@ -43,10 +43,10 @@ object.
   modifiedCount: int  
   matchCount: int  
   taskHandle: sync  
-  session:\<sessionInfo\>  
-  processed: [ \<entity data\> ]  
-  dataErrors: [ { data: \<entity data\>, errors: [ \<errors\> ] } ]  
-  errors: [ \<errors\> ]  
+  session:<sessionInfo>  
+  processed: [ <entity data> ]  
+  dataErrors: [ { data: <entity data>, errors: [ <errors> ] } ]  
+  errors: [ <errors> ]  
 }  
 ```
 * status: enumerated field
@@ -80,9 +80,9 @@ object.
 Request object:
 ```
 {  
-  \<common stuff\>  
-  data: [ \<entityData\> ]  
-  returning : \<projection\>
+  <common stuff>  
+  data: [ <entityData> ]  
+  returning : <projection>
 }  
 ```
 * data: Array of entity objects
@@ -98,10 +98,10 @@ Updates or inserts entities with the given ID.
 Request object:
 ```
 {  
-  \<common stuff\>  
-  data: [ \<entityData\> ],  
+  <common stuff>  
+  data: [ <entityData> ],  
   upsert: boolean  
-  returning : \<projection\>
+  returning : <projection>
 }  
 ```
 * data: Array of entity objects
@@ -121,10 +121,10 @@ Partially updates entities matching a search criteria
 Request object:
 ```
 {  
-  \<common stuff\>,  
-  query: \<query_expression,  
-  update: \<update_expression\>  
-  returning : \<projection\>
+  <common stuff>,  
+  query: <query_expression,  
+  update: <update_expression>  
+  returning : <projection>
 }  
 ```
 * query: A query expression determining which documents to update
@@ -137,8 +137,8 @@ Request object:
 Request object:
 ```
 {  
-  \<common stuff\>  
-  query: \<query_expression\>,  
+  <common stuff>  
+  query: <query_expression>,  
 }  
 ```
 
@@ -147,10 +147,10 @@ Request object:
 Request object:
 ```
 {  
-  \<common stuff\>  
-  query: \<query_expression\>,  
-  project: \<projection\>,  
-  sort: \<sort\>,  
+  <common stuff>  
+  query: <query_expression>,  
+  project: <projection>,  
+  sort: <sort>,  
   range: [ from, to ]  
 }  
 ```
@@ -241,6 +241,7 @@ Logical expressions:
         }  
     }  
 ```
+```
     {  
         "$and":[  
             {  
@@ -307,7 +308,7 @@ Search for a document where an array field contains "value1" and "value2"
     }
 ```
 Search for a document that contains an array with an object
- element with "item" field equals 1.
+element with "item" field equals 1.
 ```
     {  
         "array":"someArray",  

@@ -117,17 +117,17 @@ an object containing one field. The field name determines the
 constraint type. Depending on the constraint, the constraintInfo can
 be a simple value, an array, or an object:
 ```
-       { "constraintName" : \<constraintInfo\>  }  
+       { "constraintName" : <constraintInfo>  }  
 ```
 
    * references: denotes entities this one depends on. The constraint requires that if this.thisField is non-null, there must be an instance of entity with { entityField: this.thisField }
 ```
     "constraints:[  
        { "references" : [ {  
-           "entityName" : \<entityName\>,  
+           "entityName" : <entityName>,  
            "versionValue" : version.value  
-           "thisField" : \<this.fieldName\>, (optional, if not given, _id)  
-           "entityField": \<entity.fieldName\> (optional, if not given, _id)  
+           "thisField" : <this.fieldName>, (optional, if not given, _id)  
+           "entityField": <entity.fieldName> (optional, if not given, _id)  
                    }, ...  
             ]  
         }  
@@ -175,13 +175,13 @@ be a simple value, an array, or an object:
 *  constraints: array of field constraint objects
    *  minLength, maxLength for strings (minLength=1 is to be used to mean nonempty string)
 ```
-    { "minLength" : \<value\> }  
-    { "maxLength" : \<value\> }  
+    { "minLength" : <value> }  
+    { "maxLength" : <value> }  
 ```
    *  minItems and maxItems limit number of items in an array.  Default is 0 to unlimited.
 ```
-    { "minItems": \<value\> }  
-    { "maxItems": \<value\> }  
+    { "minItems": <value> }  
+    { "maxItems": <value> }  
 ```
    *  required: boolean indicating if the field is required, default is false.
 ```
@@ -189,8 +189,8 @@ be a simple value, an array, or an object:
 ```
    * minimum/maximum (for number types)
 ```
-    { "minimum" : \<value\> }  
-    { "maximum" : \<value\> }  
+    { "minimum" : <value> }  
+    { "maximum" : <value> }  
 ```
    *  enum reference where the enum name comes from entityInfo
 ```
@@ -201,9 +201,9 @@ be a simple value, an array, or an object:
 ```
     {  
         "hooks":{  
-            "insert":[\<value1\>...],  
-            "update":[\<value1\>...],  
-            "delete":[\<value1\>...]  
+            "insert":[<value1>...],  
+            "update":[<value1>...],  
+            "delete":[<value1>...]  
         }  
     }  
 ```
