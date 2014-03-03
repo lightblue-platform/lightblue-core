@@ -24,19 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.mongodb.BasicDBObject;
+
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteConcern;
-import com.mongodb.WriteResult;
+
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
@@ -70,11 +66,11 @@ public class MongoCRUDController implements CRUDController {
 
     public static final String ID_STR = "_id";
 
-    private static final String OP_INSERT = "insert";
-    private static final String OP_SAVE = "save";
-    private static final String OP_FIND = "find";
-    private static final String OP_UPDATE = "update";
-    private static final String OP_DELETE = "delete";
+    public static final String OP_INSERT = "insert";
+    public  static final String OP_SAVE = "save";
+    public  static final String OP_FIND = "find";
+    public  static final String OP_UPDATE = "update";
+    public  static final String OP_DELETE = "delete";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoCRUDController.class);
 
@@ -168,23 +164,24 @@ public class MongoCRUDController implements CRUDController {
                     projector=Projector.getInstance(combinedProjection,md);
                 } else {
                     projector=null;
-                }
+                }               
+                DocSaver saver=new BasicDocSaver(translator,roleEval);
                 for(int docIndex=0;docIndex<dbObjects.length;docIndex++) {
                     DBObject dbObject=dbObjects[docIndex];
                     DocCtx inputDoc=documents.get(docIndex);
                     try {
-                        saveDoc(ctx,collection,md,operation,dbObject,inputDoc,upsert,roleEval,translator);
-                    } catch (MongoException.DuplicateKey dke) {
-                        LOGGER.error("saveOrInsert failed: {}",dke);
-                        inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_DUPLICATE,dke.toString()));
+                        saver.saveDoc(ctx,operation.equals(OP_INSERT)?DocSaver.Op.insert:DocSaver.Op.save,
+                                      upsert,collection,md,dbObject,inputDoc);
                     } catch (Exception e) {
                         LOGGER.error("saveOrInsert failed: {}",e);
                         inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, e.toString()));
                     }
-                    JsonDoc jsonDoc = translator.toJson(dbObject);
-                    LOGGER.debug("Translated doc: {}", jsonDoc);
-                    if(projector!=null)
+                    if(projector!=null) {
+                        JsonDoc jsonDoc = translator.toJson(dbObject);
+                        LOGGER.debug("Translated doc: {}", jsonDoc);
                         inputDoc.setOutputDocument(projector.project(jsonDoc, nodeFactory, null));
+                    } else
+                        inputDoc.setOutputDocument(null);
                     LOGGER.debug("projected doc: {}", inputDoc.getOutputDocument());
                     if(!inputDoc.hasErrors())
                         ret++;
@@ -196,80 +193,6 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("saveOrInsert() end: {} docs requested, {} saved", documents.size(), ret);
         return ret;
     }
-
-    private WriteResult insertDoc(CRUDOperationContext ctx,
-                                  DBCollection collection,
-                                  EntityMetadata md,
-                                  DocCtx inputDoc,
-                                  DBObject dbObject,
-                                  FieldAccessRoleEvaluator roleEval) {
-        LOGGER.debug("Inserting doc");
-        if(!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
-            inputDoc.addError(Error.get(OP_INSERT,MongoCrudConstants.ERR_NO_ACCESS,OP_INSERT+":"+md.getName()));
-        } else {
-            List<Path> paths=roleEval.getInaccessibleFields_Insert(inputDoc);
-            LOGGER.debug("Inaccessible fields:{}",paths);
-            if(paths==null||paths.isEmpty())
-                return collection.insert(dbObject, WriteConcern.SAFE);
-            else
-                inputDoc.addError(Error.get(OP_INSERT,CrudConstants.ERR_NO_FIELD_INSERT_ACCESS,paths.toString()));
-        }
-        return null;
-    }
-
-    private void saveDoc(CRUDOperationContext ctx,
-                         DBCollection collection,
-                         EntityMetadata md,
-                         String operation,
-                         DBObject dbObject,
-                         DocCtx inputDoc,
-                         boolean upsert,
-                         FieldAccessRoleEvaluator roleEval,
-                         Translator translator) {
-        WriteResult result=null;
-        String error=null;
-
-        Object id=dbObject.get(ID_STR);
-        if(operation.equals(OP_INSERT) ||
-           (id==null&&upsert) ) {
-            // Inserting
-            result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
-        } else if(operation.equals(OP_SAVE)&&id!=null) {
-            // Updating
-            LOGGER.debug("Updating doc {}"+id);
-            BasicDBObject q=new BasicDBObject(ID_STR,new ObjectId(id.toString()));
-            DBObject oldDBObject=collection.findOne(q);
-            if(oldDBObject!=null) {
-                if(md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
-                    JsonDoc oldDoc=translator.toJson(oldDBObject);
-                    List<Path> paths=roleEval.getInaccessibleFields_Update(inputDoc,oldDoc);
-                    if(paths==null||paths.isEmpty()) {
-                        result=collection.update(q,dbObject,upsert,false,WriteConcern.SAFE);
-                    } else
-                        inputDoc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
-                } else
-                    inputDoc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_ACCESS,OP_UPDATE+":"+md.getName()));
-            } else {
-                // Cannot update, doc does not exist, insert
-                result=insertDoc(ctx,collection,md,inputDoc,dbObject,roleEval);
-            }
-        } else {
-            // Error, invalid request
-            LOGGER.warn("Invalid request, cannot update or insert");
-            inputDoc.addError(Error.get(operation,MongoCrudConstants.ERR_SAVE_ERROR,"Invalid request"));
-        }
-
-        LOGGER.debug("Write result {}",result);
-        if(result!=null) {
-            if(error==null) {
-                error = result.getError();
-            }
-            if (error != null) {
-                inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, error));
-            } 
-        }
-    }
-    
     
     @Override
     public CRUDUpdateResponse update(CRUDOperationContext ctx,
@@ -300,7 +223,6 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     projector = null;
                 }
-                Updater updater=Updater.getInstance(nodeFactory,md,update);
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 Projector errorProjector;
@@ -309,7 +231,10 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     errorProjector=projector;
                 }   
-                iterateUpdate(ctx,coll,validator,roleEval,translator,md,response,mongoQuery,updater,projector,errorProjector);
+                Updater updater=Updater.getInstance(nodeFactory,md,update);
+                DocUpdater docUpdater=new IterateAndUpdate(nodeFactory,validator,roleEval,translator,updater,
+                                                           projector,errorProjector);
+                docUpdater.update(ctx,coll,md,response,mongoQuery);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS,"update:"+ctx.getEntityName()));
             }
@@ -319,96 +244,6 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
         return response;
     }
-
-    private void iterateUpdate(CRUDOperationContext ctx,
-                               DBCollection collection,
-                               ConstraintValidator validator,
-                               FieldAccessRoleEvaluator roleEval,
-                               Translator translator,
-                               EntityMetadata md,
-                               CRUDUpdateResponse response,
-                               DBObject query,
-                               Updater updater,
-                               Projector projector,
-                               Projector errorProjector) {
-        LOGGER.debug("iterateUpdate: start");
-        LOGGER.debug("Computing the result set for {}",query);
-        DBCursor cursor=null;
-        int docIndex=0;
-        int numFailed=0;
-        try {
-            cursor=collection.find(query);
-            LOGGER.debug("Found {} documents",cursor.count());
-            // read-update-write
-            while(cursor.hasNext()) {
-                DBObject document=cursor.next();
-                boolean hasErrors=false;
-                LOGGER.debug("Retrieved doc {}",docIndex);
-                DocCtx doc=ctx.addDocument(translator.toJson(document));
-                doc.setOutputDocument(doc.copy());
-                // From now on: doc contains the old copy, and doc.getOutputDocument contains the new copy
-                QueryEvaluationContext qctx=new QueryEvaluationContext(doc.getRoot());
-                if(updater.update(doc.getOutputDocument(),md.getFieldTreeRoot(),Path.EMPTY)) {
-                    LOGGER.debug("Document {} modified, updating",docIndex);
-                    PredefinedFields.updateArraySizes(nodeFactory,doc.getOutputDocument());
-                    LOGGER.debug("Running constraint validations");
-                    validator.clearErrors();
-                    validator.validateDoc(doc.getOutputDocument());
-                    List<Error> errors=validator.getErrors();
-                    if(errors!=null&&!errors.isEmpty()) {
-                        ctx.addErrors(errors);
-                        hasErrors=true;
-                        LOGGER.debug("Doc has errors");
-                    }
-                    errors=validator.getDocErrors().get(doc.getOutputDocument());
-                    if(errors!=null&&!errors.isEmpty()) {
-                        doc.addErrors(errors);
-                        hasErrors=true;
-                        LOGGER.debug("Doc has data errors");
-                    }
-                    if(!hasErrors) {
-                        List<Path> paths=roleEval.getInaccessibleFields_Update(doc.getOutputDocument(),doc);
-                        LOGGER.debug("Inaccesible fields during update={}"+paths);
-                        if(paths!=null&&!paths.isEmpty()) {
-                            doc.addError(Error.get(OP_UPDATE,CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
-                            hasErrors=true;
-                        }
-                    }
-                    if(!hasErrors) {
-                        try {
-                            DBObject updatedObject=translator.toBson(doc.getOutputDocument());
-                            WriteResult result=collection.save(updatedObject);                    
-                            LOGGER.debug("Number of rows affected : ", result.getN());
-                        } catch (Exception e) {
-                            LOGGER.warn("Update exception for document {}: {}",docIndex,e);
-                            doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR,e.toString()));
-                            hasErrors=true;
-                        }
-                    }
-                } else {
-                    LOGGER.debug("Document {} was not modified",docIndex);
-                }
-                if(hasErrors) {
-                    LOGGER.debug("Document {} has errors",docIndex);
-                    numFailed++;
-                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(),nodeFactory,qctx));
-                } else {
-                    if(projector!=null) {
-                        LOGGER.debug("Projecting document {}",docIndex);
-                        doc.setOutputDocument(projector.project(doc.getOutputDocument(),nodeFactory,qctx));
-                    }
-                }
-                docIndex++;
-            }
-        } finally {
-            if(cursor!=null) {
-                cursor.close();
-            }
-        }
-        response.setNumUpdated(docIndex);
-        response.setNumFailed(numFailed);
-    }
-
 
     @Override
     public CRUDDeleteResponse delete(CRUDOperationContext ctx,
@@ -428,10 +263,8 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Translated query {}", mongoQuery);
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-                LOGGER.debug("Removing docs");
-                WriteResult result=coll.remove(mongoQuery);
-                LOGGER.debug("Removal complete, write result={}",result);
-                response.setNumDeleted(result.getN());
+                DocDeleter deleter=new BasicDocDeleter();
+                deleter.delete(ctx,coll,mongoQuery,response);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS,"delete:"+ctx.getEntityName()));
             }
@@ -471,30 +304,19 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Translating query {}", query);
                 DBObject mongoQuery = translator.translate(md, query);
                 LOGGER.debug("Translated query {}", mongoQuery);
+                DBObject mongoSort;
+                if (sort != null) {
+                    LOGGER.debug("Translating sort {}", sort);
+                    mongoSort = translator.translate(sort);
+                    LOGGER.debug("Translated sort {}", mongoSort);
+                } else {
+                    mongoSort=null;
+                }
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 LOGGER.debug("Retrieve db collection:" + coll);
-                LOGGER.debug("Submitting query");
-                DBCursor cursor = coll.find(mongoQuery);
-                LOGGER.debug("Query evaluated");
-                if (sort != null) {
-                    LOGGER.debug("Translating sort {}", sort);
-                    DBObject mongoSort = translator.translate(sort);
-                    LOGGER.debug("Translated sort {}", mongoSort);
-                    cursor = cursor.sort(mongoSort);
-                    LOGGER.debug("Result set sorted");
-                }
-                LOGGER.debug("Applying limits: {} - {}", from, to);
-                response.setSize(cursor.size());
-                if (from != null) {
-                    cursor.skip(from.intValue());
-                }
-                if (to != null) {
-                    cursor.limit(to.intValue() - (from == null ? 0 : from.intValue()) + 1);
-                }
-                LOGGER.debug("Retrieving results");
-                List<DBObject> mongoResults = cursor.toArray();
-                LOGGER.debug("Retrieved {} results", mongoResults.size());
+                DocFinder finder=new BasicDocFinder();
+                List<DBObject> mongoResults=finder.find(ctx,coll,response,mongoQuery,mongoSort,from,to);
                 List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
                 LOGGER.debug("Translated DBObjects to json");
                 // Project results
