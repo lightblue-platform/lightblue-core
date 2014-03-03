@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,8 @@ import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Updater;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.mongo.MongoConfiguration;
@@ -231,9 +234,37 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     errorProjector=projector;
                 }   
+                // See if we can translate the update expression
+                // We build an updated to check whether we're updating any fields with constraints.
+                // If we're updating fields with constraints, we can't run direct mongo update
                 Updater updater=Updater.getInstance(nodeFactory,md,update);
-                DocUpdater docUpdater=new IterateAndUpdate(nodeFactory,validator,roleEval,translator,updater,
-                                                           projector,errorProjector);
+                Set<Path> updatedFields=updater.getUpdateFields();
+                LOGGER.debug("Fields to be updated:{}", updatedFields);
+                DocUpdater docUpdater;
+                try {
+                    // See if there are any constraints
+                    for(Path x:updatedFields) {
+                        FieldTreeNode ftn=md.resolve(x);
+                        if(ftn instanceof Field)
+                            if(!((Field)ftn).getConstraints().isEmpty()) {
+                                LOGGER.debug("Field {} has constraints, can't run direct mongo update",ftn);
+                                throw new CannotTranslateException(x);
+                            }
+                    }
+                    // No constraints
+                    // if projection is requested, no way to direct update
+                    if(projector!=null) {
+                        LOGGER.debug("Projection requested in update, cannot use direct update");
+                        throw new CannotTranslateException(update);
+                    }
+                    DBObject mongoUpdateExpr=translator.translate(md,update);
+                    docUpdater=new DirectMongoUpdate(mongoUpdateExpr,roleEval,updatedFields);
+                    LOGGER.debug("Running direct mongo update with {}",mongoUpdateExpr);
+                } catch (CannotTranslateException cte) {
+                    LOGGER.debug("Cannot translate update expression, will run iterative upate: {}",cte.toString());
+                    docUpdater=new IterateAndUpdate(nodeFactory,validator,roleEval,translator,updater,
+                                                    projector,errorProjector);
+                }
                 docUpdater.update(ctx,coll,md,response,mongoQuery);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS,"update:"+ctx.getEntityName()));
