@@ -234,34 +234,40 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     errorProjector=projector;
                 }   
-                // See if we can translate the update expression
-                // We build an updated to check whether we're updating any fields with constraints.
-                // If we're updating fields with constraints, we can't run direct mongo update
+
+                // If there are any constraints for updated fields, we have to use iterate-update
                 Updater updater=Updater.getInstance(nodeFactory,md,update);
                 Set<Path> updatedFields=updater.getUpdateFields();
                 LOGGER.debug("Fields to be updated:{}", updatedFields);
-                DocUpdater docUpdater;
+                boolean constrainedFieldUpdated=false;
+                for(Path x:updatedFields) {
+                    FieldTreeNode ftn=md.resolve(x);
+                    if(ftn instanceof Field)
+                        if(!((Field)ftn).getConstraints().isEmpty()) {
+                            LOGGER.debug("Field {} has constraints, can't run direct mongo update",ftn);
+                            constrainedFieldUpdated=true;
+                            break;
+                        }
+                }
+                // See if we can translate the update expression
+                DBObject mongoUpdateExpr;
                 try {
-                    // See if there are any constraints
-                    for(Path x:updatedFields) {
-                        FieldTreeNode ftn=md.resolve(x);
-                        if(ftn instanceof Field)
-                            if(!((Field)ftn).getConstraints().isEmpty()) {
-                                LOGGER.debug("Field {} has constraints, can't run direct mongo update",ftn);
-                                throw new CannotTranslateException(x);
-                            }
-                    }
-                    // No constraints
-                    // if projection is requested, no way to direct update
-                    if(projector!=null) {
-                        LOGGER.debug("Projection requested in update, cannot use direct update");
-                        throw new CannotTranslateException(update);
-                    }
-                    DBObject mongoUpdateExpr=translator.translate(md,update);
-                    docUpdater=new DirectMongoUpdate(mongoUpdateExpr,roleEval,updatedFields);
-                    LOGGER.debug("Running direct mongo update with {}",mongoUpdateExpr);
-                } catch (CannotTranslateException cte) {
-                    LOGGER.debug("Cannot translate update expression, will run iterative upate: {}",cte.toString());
+                    mongoUpdateExpr=translator.translate(md,update);
+                } catch (CannotTranslateException e) {
+                    LOGGER.debug("Cannot translate update expression {}",e);
+                    mongoUpdateExpr=null;
+                }
+                // if we can translate mongo update expression, and if
+                // there are no constrained fields, we can use one of
+                // the mongo updaters
+                DocUpdater docUpdater;
+                if(mongoUpdateExpr!=null&&!constrainedFieldUpdated) {
+                    if(projector==null)
+                        docUpdater=new DirectMongoUpdate(mongoUpdateExpr,roleEval,updatedFields);
+                    else
+                        docUpdater=new AtomicIterateUpdate(nodeFactory,roleEval,translator,
+                                                           mongoUpdateExpr,projector,updatedFields);
+                } else {
                     docUpdater=new IterateAndUpdate(nodeFactory,validator,roleEval,translator,updater,
                                                     projector,errorProjector);
                 }
