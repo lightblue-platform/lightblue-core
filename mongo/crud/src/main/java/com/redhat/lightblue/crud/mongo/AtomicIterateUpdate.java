@@ -123,8 +123,8 @@ public class AtomicIterateUpdate implements DocUpdater {
                         doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR,e.toString()));
                         numFailed++;
                     }
+                    docIndex++;
                 }
-                docIndex++;
             } finally {
                 if(cursor!=null) {
                     cursor.close();
