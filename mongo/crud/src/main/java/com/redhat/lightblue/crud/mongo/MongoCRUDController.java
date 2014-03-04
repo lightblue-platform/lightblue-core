@@ -69,11 +69,31 @@ public class MongoCRUDController implements CRUDController {
 
     public static final String ID_STR = "_id";
 
+    /**
+     * Name of the property for the operation context that keeps the last saver class instance used
+     */
+    public static final String PROP_SAVER="MongoCRUDController:saver";
+
+    /**
+     * Name of the property for the operation context that keeps the last updater class instance used
+     */
+    public static final String PROP_UPDATER="MongoCRUDController:updater";
+
+    /**
+     * Name of the property for the operation context that keeps the last deleter class instance used
+     */
+    public static final String PROP_DELETER="MongoCRUDController:deleter";
+
+    /**
+     * Name of the property for the operation context that keeps the last finder class instance used
+     */
+    public static final String PROP_FINDER="MongoCRUDController:finder";
+
     public static final String OP_INSERT = "insert";
-    public  static final String OP_SAVE = "save";
-    public  static final String OP_FIND = "find";
-    public  static final String OP_UPDATE = "update";
-    public  static final String OP_DELETE = "delete";
+    public static final String OP_SAVE = "save";
+    public static final String OP_FIND = "find";
+    public static final String OP_UPDATE = "update";
+    public static final String OP_DELETE = "delete";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoCRUDController.class);
 
@@ -81,6 +101,7 @@ public class MongoCRUDController implements CRUDController {
 
     private final JsonNodeFactory nodeFactory;
     private final DBResolver dbResolver;
+
 
     public static MongoCRUDController create(final MongoConfiguration config) {
         DBResolver r = new DBResolver() {
@@ -169,6 +190,7 @@ public class MongoCRUDController implements CRUDController {
                     projector=null;
                 }               
                 DocSaver saver=new BasicDocSaver(translator,roleEval);
+                ctx.setProperty(PROP_SAVER,saver);
                 for(int docIndex=0;docIndex<dbObjects.length;docIndex++) {
                     DBObject dbObject=dbObjects[docIndex];
                     DocCtx inputDoc=documents.get(docIndex);
@@ -271,6 +293,7 @@ public class MongoCRUDController implements CRUDController {
                     docUpdater=new IterateAndUpdate(nodeFactory,validator,roleEval,translator,updater,
                                                     projector,errorProjector);
                 }
+                ctx.setProperty(PROP_UPDATER,docUpdater);
                 docUpdater.update(ctx,coll,md,response,mongoQuery);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS,"update:"+ctx.getEntityName()));
@@ -301,6 +324,7 @@ public class MongoCRUDController implements CRUDController {
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 DocDeleter deleter=new BasicDocDeleter();
+                ctx.setProperty(PROP_DELETER,deleter);
                 deleter.delete(ctx,coll,mongoQuery,response);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS,"delete:"+ctx.getEntityName()));
@@ -353,6 +377,7 @@ public class MongoCRUDController implements CRUDController {
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 LOGGER.debug("Retrieve db collection:" + coll);
                 DocFinder finder=new BasicDocFinder();
+                ctx.setProperty(PROP_FINDER,finder);
                 List<DBObject> mongoResults=finder.find(ctx,coll,response,mongoQuery,mongoSort,from,to);
                 List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
                 LOGGER.debug("Translated DBObjects to json");
