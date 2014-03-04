@@ -295,6 +295,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
                                                  projection("{'field':'_id'}"));
         Assert.assertEquals(1,upd.getNumUpdated());
         Assert.assertEquals(0,upd.getNumFailed());
+        Assert.assertEquals(AtomicIterateUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
         DBObject obj=coll.find(new BasicDBObject("field3",1000),new BasicDBObject("_id",1)).next();
         Assert.assertNotNull(obj);
         System.out.println("DBObject:"+obj);
@@ -309,10 +310,32 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
                               update("{ '$set': { 'field3' : 1000 } }"),
                               projection("{'field':'_id'}"));
+        Assert.assertEquals(AtomicIterateUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
         Assert.assertEquals(10,upd.getNumUpdated());
         Assert.assertEquals(0,upd.getNumFailed());
         Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
-    }
+
+        // Bulk direct update
+        ctx=new OCtx();
+        ctx.add(md);
+        upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
+                              update("{ '$set': { 'field3' : 1000 } }"),null);
+        Assert.assertEquals(DirectMongoUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        Assert.assertEquals(10,upd.getNumUpdated());
+        Assert.assertEquals(0,upd.getNumFailed());
+        Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
+
+        // Iterate update
+        ctx=new OCtx();
+        ctx.add(md);
+        // Updating an array field will force use of IterateAndupdate
+        upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
+                              update("{ '$set': { 'field7.0.elemf1' : 'blah' } }"),projection("{'field':'_id'}"));
+        Assert.assertEquals(IterateAndUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        Assert.assertEquals(10,upd.getNumUpdated());
+        Assert.assertEquals(0,upd.getNumFailed());
+        Assert.assertEquals(10,coll.find(new BasicDBObject("field7.0.elemf1","blah")).count());
+  }
 
     @Test
     public void sortAndPageTest() throws Exception {
