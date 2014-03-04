@@ -37,6 +37,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.Enums;
+import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -85,6 +86,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_UNIQUE = "unique";
     private static final String STR_INDEXES = "indexes";
     private static final String STR_TYPE = "type";
+    private static final String STR_HOOKS = "hooks";
     private static final String STR_ENUMS = "enums";
     private static final String STR_ENTITY_INFO = "entityInfo";
     private static final String STR_SCHEMA = "schema";
@@ -99,14 +101,39 @@ public abstract class MetadataParser<T> {
     private static final String STR_ENTITY = "entity";
     private static final String STR_VERSION_VALUE = "versionValue";
     private static final String STR_PROJECTION = "projection";
+    private static final String STR_ACTIONS = "actions";
     private static final String STR_QUERY = "query";
     private static final String STR_SORT = "sort";
     private static final String STR_ACTIVE = "active";
     private static final String STR_DEPRECATED = "deprecated";
     private static final String STR_DISABLED = "disabled";
-    
+    private static final String STR_CONFIGURATION = "configuration";
+
     private final Extensions<T> extensions;
     private final TypeResolver typeResolver;
+
+    private interface ArrCb<S,D> {
+        D parse(S child);
+    }
+
+    private final ArrCb<T,Index> PARSE_INDEX=new ArrCb<T,Index>() {
+        @Override public Index parse(T child) {
+            return parseIndex(child);
+        }
+    };
+
+    private final ArrCb<T,Enum> PARSE_ENUM=new ArrCb<T,Enum>() {
+        @Override public Enum parse(T child) {
+            return parseEnum(child);
+        }
+    };
+
+    private final ArrCb<T,Hook> PARSE_HOOK=new ArrCb<T,Hook>() {
+        @Override public Hook parse(T child) {
+            return parseHook(child);
+        }
+    };
+            
 
     public MetadataParser(Extensions<T> ex, TypeResolver typeResolver) {
         this.extensions = ex;
@@ -156,8 +183,9 @@ public abstract class MetadataParser<T> {
 
             EntityInfo info = new EntityInfo(name);
 
-            info.getIndexes().setIndexes(parseIndexes(getObjectProperty(object, STR_INDEXES)));
-            info.getEnums().setEnums(parseEnums(getObjectProperty(object, STR_ENUMS)));
+            info.getIndexes().setIndexes(parseArr(getObjectProperty(object, STR_INDEXES),PARSE_INDEX));
+            info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS),PARSE_ENUM));
+            info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS),PARSE_HOOK));
 
             T datastore = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(datastore));
@@ -167,19 +195,19 @@ public abstract class MetadataParser<T> {
         }
     }
 
-        public List<Index>  parseIndexes(T object) {
-        Error.push("parseIndexes");
+    private <I> List<I> parseArr(T object,ArrCb<T,I> cb) {
+        Error.push("parseArray");
         try {
             if (object != null) {
                 List<T> children = getObjectList(object);
 
-                List<Index> idxs = new ArrayList<>();
+                List<I> list = new ArrayList<I>();
 
                 for (T child : children) {
-                    idxs.add(parseIndex(child));
+                    list.add(cb.parse(child));
                 }
 
-                return idxs;
+                return list;
             } else {
                 return null;
             }
@@ -225,27 +253,6 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public List<Enum> parseEnums(T object) {
-        Error.push("parseEnums");
-        try {
-            if (object != null) {
-                List<T> children = getObjectList(object);
-
-                List<Enum> e = new ArrayList<>();
-
-                for (T child : children) {
-                    e.add(parseEnum(child));
-                }
-
-                return e;
-            } else {
-                return null;
-            }
-        } finally {
-            Error.pop();
-        }
-    }
-
     public Enum parseEnum(T object) {
         Error.push("parseEnum");
         try {
@@ -268,6 +275,44 @@ public abstract class MetadataParser<T> {
         } finally {
             Error.pop();
         }
+    }
+
+    public Hook parseHook(T object) {
+        Error.push("parseHook");
+        try {
+            if(object!=null) {
+                String name=getStringProperty(object, STR_NAME);
+                if(name==null)
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
+                Hook hook=new Hook(name);
+                String x = getStringProperty(object, STR_PROJECTION);
+                if(x!=null) {
+                    try {
+                        hook.setProjection(Projection.fromJson(JsonUtils.json(x)));
+                    } catch (IOException e) {
+                        throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
+                    }
+                List<String> values = getStringList(object, STR_ACTIONS);
+                if(values!=null) {
+                    hook.setInsert(values.contains(STR_INSERT));
+                    hook.setUpdate(values.contains(STR_UPDATE));
+                    hook.setDelete(values.contains(STR_DELETE));
+                    hook.setFind(values.contains(STR_FIND));
+                }
+                T cfg=getObjectProperty(object,STR_CONFIGURATION);
+                if(cfg!=null) {
+                    HookConfigurationParser<T> parser=extensions.getHookConfigurationParser(name);
+                    if(parser==null)
+                        throw Error.get(MetadataConstants.ERR_INVALID_HOOK,name);
+                    hook.setConfiguration(parser.parse(name,this,cfg));
+                }
+                return hook;
+                }
+            }
+        } finally {
+            Error.pop();
+        }
+        return null;
     }
 
     /**

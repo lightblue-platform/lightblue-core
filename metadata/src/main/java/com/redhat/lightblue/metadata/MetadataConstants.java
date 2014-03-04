@@ -42,6 +42,7 @@ public final class MetadataConstants {
     public static final String ERR_INVALID_DATASTORE = "metadata:InvalidDatastore";
     public static final String ERR_INVALID_INDEX = "metadata:InvalidIndex";
     public static final String ERR_INVALID_ENUM = "metadata:InvalidEmum";
+    public static final String ERR_INVALID_HOOK = "metadata:InvalidHook";
     public static final String ERR_UNKNOWN_DATASTORE = "metadata:UnknownDatastore";
     public static final String ERR_INVALID_CONSTRAINT = "metadata:InvalidConstraint";
     public static final String ERR_INVALID_TYPE = "metadata:InvalidType";

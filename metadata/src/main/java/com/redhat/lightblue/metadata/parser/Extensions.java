@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata.parser;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.HookConfiguration;
 
 /**
  * Parser extensions where T is the node type of the underlying object tree (for JSon, T is JsonNode).
@@ -32,6 +33,8 @@ public class Extensions<T> {
     private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
 
     private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
+
+    private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<T, HookConfiguration>();
 
     /**
      * Initializes this to include the default extensions
@@ -105,10 +108,33 @@ public class Extensions<T> {
         return (FieldConstraintParser<T>) fieldConstraintParsers.find(constraintName);
     }
 
+    /**
+     * Adds a hook configuration parser for a given hook name
+     *
+     * @param name Name of the hook
+     * @param parser The parser for the hook configuration
+     *
+     */
+    public void registerHookConfigurationParser(String name, HookConfigurationParser<T> parser) {
+        hookConfigurationParsers.add(name, parser);
+    }
+
+    /**
+     * Returns a parser that parses the given hook configuration
+     *
+     * @param hookName Name of the hook
+     *
+     * @return The parser that parses the hook configuration, or null if parser is not found
+     */
+    public HookConfigurationParser<T> getHookConfigurationParser(String hookName) {
+        return (HookConfigurationParser<T>) hookConfigurationParsers.find(hookName);
+    }
+
     @Override
     public String toString() {
         return dataStoreParsers.toString() + "\n"
-                + entityConstraintParsers.toString() + "\n"
-                + fieldConstraintParsers.toString();
+            + entityConstraintParsers.toString() + "\n"
+            + fieldConstraintParsers.toString() + "\n"
+            + hookConfigurationParsers.toString();
     }
 }
