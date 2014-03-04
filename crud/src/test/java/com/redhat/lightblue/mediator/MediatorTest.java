@@ -158,7 +158,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     @Test
     public void insertRoleTest() throws Exception {
         InsertionRequest req=new InsertionRequest();
-        req.setEntity(new EntityVersion("test","1.0"));
+        req.setEntityVersion(new EntityVersion("test","1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
 
@@ -186,7 +186,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     @Test
     public void saveRoleTest() throws Exception {
         SaveRequest req=new SaveRequest();
-        req.setEntity(new EntityVersion("test","1.0"));
+        req.setEntityVersion(new EntityVersion("test","1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
 
@@ -216,7 +216,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     @Test
     public void updateRoleTest() throws Exception {
         UpdateRequest req=new UpdateRequest();
-        req.setEntity(new EntityVersion("test","1.0"));
+        req.setEntityVersion(new EntityVersion("test","1.0"));
         req.setReturnFields(null);
 
         mdManager.md.getAccess().getUpdate().setRoles("role1");
@@ -244,7 +244,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     @Test
     public void deleteRoleTest() throws Exception {
         DeleteRequest req=new DeleteRequest();
-        req.setEntity(new EntityVersion("test","1.0"));
+        req.setEntityVersion(new EntityVersion("test","1.0"));
 
         mdManager.md.getAccess().getDelete().setRoles("role1");
         mockCrudController.deleteResponse=new CRUDDeleteResponse();
@@ -270,7 +270,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     @Test
     public void findRoleTest() throws Exception {
         FindRequest req=new FindRequest();
-        req.setEntity(new EntityVersion("test","1.0"));
+        req.setEntityVersion(new EntityVersion("test","1.0"));
 
         mdManager.md.getAccess().getFind().setRoles("role1");
         mockCrudController.findResponse=new CRUDFindResponse();

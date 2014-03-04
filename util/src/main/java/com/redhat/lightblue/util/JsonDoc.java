@@ -77,6 +77,7 @@ public class JsonDoc implements Serializable {
     private static final class CursorResolver extends Resolver {
         private Iteration[] iterators;
 
+        @Override
         protected JsonNode handleAny(Path p, JsonNode node, int level) {
             JsonNode output = null;
             if (iterators == null) {
@@ -106,16 +107,16 @@ public class JsonDoc implements Serializable {
     private static class Resolver {
         public JsonNode resolve(Path p, final JsonNode node, int level) {
             JsonNode output = node;
-            
+
             int n = p.numSegments();
-            for (int l = level; l < n; l++) {               
+            for (int l = level; l < n; l++) {
                 String name = p.head(l);
                 JsonNode newOutput;
                 if (name.equals(Path.ANY)) {
                     newOutput = handleAny(p, output, l);
                 } else if (name.equals(Path.THIS)) {
                     continue;
-                } else if (name.equals(Path.PARENT)) { 
+                } else if (name.equals(Path.PARENT)) {
                     output = node.findParent(p.head(findNextNonRealtiveSegment(p, l)));
                     continue;
                 } else if (output instanceof ArrayNode) {
@@ -129,13 +130,13 @@ public class JsonDoc implements Serializable {
                 if (newOutput == null) {
                     newOutput = handleNullChild(output, p, l);
                 }
-                
-                output = newOutput;    
-                
+
+                output = newOutput;
+
                 if (output == null) {
                     break;
                 }
-                
+
             }
             return output;
         }
@@ -152,18 +153,18 @@ public class JsonDoc implements Serializable {
 
     private static int findNextNonRealtiveSegment(Path path, int currentPosition) {
         int indexOfSegment = 0;
-        
-        for(int i=currentPosition;i < path.numSegments(); i++) {
+
+        for (int i = currentPosition; i < path.numSegments(); i++) {
             String segment = path.head(i);
-            if(!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
+            if (!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
                 indexOfSegment = i;
                 break;
             }
         }
-        
+
         return indexOfSegment;
     }
-    
+
     /**
      * Given a path p=x_1.x_2...x_n, it creates all the intermediate nodes x_1...x_(n-1), but not the node x_n. However,
      * the node x_(n-1) is created correctly depending on the x_n: if x_n is an index, x_(n-1) is an ArrayNode,
@@ -255,14 +256,17 @@ public class JsonDoc implements Serializable {
             }
         }
 
+        @Override
         public Path getCurrentKey() {
             return currentPath;
         }
 
+        @Override
         public JsonNode getCurrentValue() {
             return currentNode;
         }
 
+        @Override
         public boolean hasNext() {
             if (!nextFound && !ended) {
                 nextNode = seekNext();
@@ -270,6 +274,7 @@ public class JsonDoc implements Serializable {
             return nextFound;
         }
 
+        @Override
         public void next() {
             if (!nextFound && !ended) {
                 nextNode = seekNext();
@@ -390,7 +395,7 @@ public class JsonDoc implements Serializable {
         Path parent = p.prefix(-1);
         // Parent must be a container node
         JsonNode parentNode = getParentNode(parent, createPath, p);
-        JsonNode oldValue = null;
+        JsonNode oldValue;
         String last = p.getLast();
         if (parentNode instanceof ObjectNode) {
             oldValue = modifyObjectNode(parentNode, newValue, last, parent);
@@ -402,26 +407,25 @@ public class JsonDoc implements Serializable {
 
     /**
      * Return a list of JsonDoc objects from the given Json node
-     * 
+     *
      * @psram data Json document containing one or more documents
      *
-     * The Json document is either an ArrayNode containing Json
-     * documents at each element, or an ObjectNode containing only one
-     * document.
+     * The Json document is either an ArrayNode containing Json documents at each element, or an ObjectNode containing
+     * only one document.
      */
     public static List<JsonDoc> docList(JsonNode data) {
         ArrayList<JsonDoc> docs = null;
         if (data != null) {
             if (data instanceof ArrayNode) {
-                docs = new ArrayList<JsonDoc>(((ArrayNode) data).size());
+                docs = new ArrayList<>(((ArrayNode) data).size());
                 for (Iterator<JsonNode> itr = ((ArrayNode) data).elements();
                         itr.hasNext();) {
                     docs.add(new JsonDoc(itr.next()));
                 }
             } else if (data instanceof ObjectNode) {
-                docs = new ArrayList<JsonDoc>(1);
+                docs = new ArrayList<>(1);
                 docs.add(new JsonDoc(data));
-            } 
+            }
         }
         return docs;
     }
@@ -432,8 +436,7 @@ public class JsonDoc implements Serializable {
      * @param docs List of JsonDoc objects
      * @param nodeFactory Json node factory
      *
-     * @return If the list has only one document, returns an
-     * ObjectNode, otherwise returns an array node containing each
+     * @return If the list has only one document, returns an ObjectNode, otherwise returns an array node containing each
      * document in array elements
      */
     public static JsonNode listToDoc(List<JsonDoc> docs, JsonNodeFactory nodeFactory) {
@@ -474,10 +477,10 @@ public class JsonDoc implements Serializable {
         }
         return parentNode;
     }
-    
+
     private JsonNode modifyObjectNode(JsonNode parentNode, JsonNode newValue, String last, Path p) {
-        JsonNode oldValue = null;
-        if(Util.isNumber(last)) {
+        JsonNode oldValue;
+        if (Util.isNumber(last)) {
             throw new IllegalArgumentException(UtilConstants.ERR_INVALID_INDEXED_ACCESS + p);
         }
         ObjectNode obj = (ObjectNode) parentNode;
@@ -489,14 +492,14 @@ public class JsonDoc implements Serializable {
         }
         return oldValue;
     }
-    
+
     private JsonNode modifyArrayNode(ArrayNode parentNode, JsonNode newValue, String last, Path p) {
-        JsonNode oldValue = null;
+        JsonNode oldValue;
         ArrayNode arr = (ArrayNode) parentNode;
         int index;
         try {
             index = Integer.valueOf(last);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException(UtilConstants.ERR_EXPECTED_ARRAY_INDEX + p);
         }
         int size = arr.size();

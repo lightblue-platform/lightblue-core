@@ -20,9 +20,7 @@ package com.redhat.lightblue.crud.mongo;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,7 +32,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -44,7 +41,6 @@ import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
@@ -53,7 +49,6 @@ import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.mongo.MongoConfiguration;
 import com.redhat.lightblue.query.FieldProjection;

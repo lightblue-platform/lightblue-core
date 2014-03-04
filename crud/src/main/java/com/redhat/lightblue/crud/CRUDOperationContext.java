@@ -33,35 +33,35 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.DataError;
 
 /**
- * An implementation of this class is passed into CRUD operation
- * implementations. It contains information about the caller roles,
- * correct metadata versions, and the constraint validators that will
- * be used in this call.
+ * An implementation of this class is passed into CRUD operation implementations. It contains information about the
+ * caller roles, correct metadata versions, and the constraint validators that will be used in this call.
  */
 public abstract class CRUDOperationContext implements MetadataResolver, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private final Factory factory;
     private final String entityName;
     private final Set<String> callerRoles;
     private List<DocCtx> documents;
-    private final List<Error> errors=new ArrayList<Error>();
-    private final Map<String,Object> propertyMap=new HashMap<String,Object>();
+    private final List<Error> errors = new ArrayList<>();
+    private final Map<String, Object> propertyMap = new HashMap<>();
 
     public CRUDOperationContext(String entityName,
                                 Factory f,
                                 Set<String> callerRoles,
                                 List<JsonDoc> docs) {
-        this.entityName=entityName;
-        this.factory=f;
-        this.callerRoles=callerRoles;
-        if(docs!=null) {
-            documents=new ArrayList<DocCtx>(docs.size());
-            for(JsonDoc doc:docs)
+        this.entityName = entityName;
+        this.factory = f;
+        this.callerRoles = callerRoles;
+        if (docs != null) {
+            documents = new ArrayList<>(docs.size());
+            for (JsonDoc doc : docs) {
                 documents.add(new DocCtx(doc));
-        } else
-            documents=null;
+            }
+        } else {
+            documents = null;
+        }
     }
 
     /**
@@ -72,8 +72,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * Returns the factory instance that controls the validator and
-     * CRUD instances.
+     * Returns the factory instance that controls the validator and CRUD instances.
      */
     public Factory getFactory() {
         return factory;
@@ -99,9 +98,10 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * @return Returns the new document
      */
     public DocCtx addDocument(JsonDoc doc) {
-        if(documents==null)
-            documents=new ArrayList<DocCtx>();
-        DocCtx x=new DocCtx(doc);
+        if (documents == null) {
+            documents = new ArrayList<>();
+        }
+        DocCtx x = new DocCtx(doc);
         documents.add(x);
         return x;
     }
@@ -110,39 +110,46 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * Adds new documents to the context
      */
     public void addDocuments(Collection<JsonDoc> docs) {
-        if(documents==null)
-            documents=new ArrayList<DocCtx>();
-        for(JsonDoc x:docs)
+        if (documents == null) {
+            documents = new ArrayList<>();
+        }
+        for (JsonDoc x : docs) {
             documents.add(new DocCtx(x));
+        }
     }
-
 
     /**
      * Returns a list of documents with no errors
      */
     public List<DocCtx> getDocumentsWithoutErrors() {
-        if(documents!=null) {
-            List<DocCtx> list=new ArrayList<DocCtx>(documents.size());
-            for(DocCtx doc:documents)
-                if(!doc.hasErrors())
+        if (documents != null) {
+            List<DocCtx> list = new ArrayList<>(documents.size());
+            for (DocCtx doc : documents) {
+                if (!doc.hasErrors()) {
                     list.add(doc);
-            return list; 
-        } else
+                }
+            }
+            return list;
+        } else {
             return null;
+        }
     }
 
     /**
      * Returns a list of output documents with no errors
      */
     public List<JsonDoc> getOutputDocumentsWithoutErrors() {
-        if(documents!=null) {
-            List<JsonDoc> list=new ArrayList<JsonDoc>(documents.size());
-            for(DocCtx doc:documents)
-                if(!doc.hasErrors())
+        if (documents != null) {
+            List<JsonDoc> list = new ArrayList<>(documents.size());
+            for (DocCtx doc : documents) {
+                if (!doc.hasErrors()) {
                     list.add(doc.getOutputDocument());
+                }
+            }
             return list;
-        } else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -170,13 +177,15 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * Returns all the data errors in the context. If there are none, returns an empty list.
      */
     public List<DataError> getDataErrors() {
-        List<DataError> list=new ArrayList<DataError>();
-        if(documents!=null)
-            for(DocCtx doc:documents) {
-                DataError err=doc.getDataError();
-                if(err!=null)
+        List<DataError> list = new ArrayList<>();
+        if (documents != null) {
+            for (DocCtx doc : documents) {
+                DataError err = doc.getDataError();
+                if (err != null) {
                     list.add(err);
+                }
             }
+        }
         return list;
     }
 
@@ -184,10 +193,13 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * Returns if there are any document errors
      */
     public boolean hasDocumentErrors() {
-        if(documents!=null) 
-            for(DocCtx x:documents)
-                if(x.hasErrors())
+        if (documents != null) {
+            for (DocCtx x : documents) {
+                if (x.hasErrors()) {
                     return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -195,16 +207,18 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * Returns if there are documents with no errors
      */
     public boolean hasDocumentsWithoutErrors() {
-        if(documents!=null)
-            for(DocCtx x:documents)
-                if(!x.hasErrors())
+        if (documents != null) {
+            for (DocCtx x : documents) {
+                if (!x.hasErrors()) {
                     return true;
+                }
+            }
+        }
         return false;
     }
 
     /**
-     * Returns if there are any errors. This does not take into
-     * account document errors.
+     * Returns if there are any errors. This does not take into account document errors.
      */
     public boolean hasErrors() {
         return !errors.isEmpty();
@@ -220,7 +234,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     /**
      * Properties for the context
      */
-    public void setProperty(String name,Object value) {
-        propertyMap.put(name,value);
+    public void setProperty(String name, Object value) {
+        propertyMap.put(name, value);
     }
 }

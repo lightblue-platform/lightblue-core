@@ -28,22 +28,22 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public abstract class Request extends JsonObject {
 	
-    private EntityVersion entity;
+    private EntityVersion entityVersion;
     private ClientIdentification client;
     private ExecutionOptions execution;
 
     /**
      * Entity name and version
      */
-    public EntityVersion getEntity() {
-        return entity;
+    public EntityVersion getEntityVersion() {
+        return entityVersion;
     }
 
     /**
      * Entity name and version
      */
-    public void setEntity(EntityVersion e) {
-        entity = e;
+    public void setEntityVersion(EntityVersion e) {
+        entityVersion = e;
     }
 
     /**
@@ -79,8 +79,8 @@ public abstract class Request extends JsonObject {
      */
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
-        node.put("entity", entity.getEntity());
-        node.put("entityVersion", entity.getVersion());
+        node.put("entity", entityVersion.getEntity());
+        node.put("entityVersion", entityVersion.getVersion());
         if (client != null) {
             node.set("client", client.toJson());
         }
@@ -94,14 +94,14 @@ public abstract class Request extends JsonObject {
      * Parses the entity, client identification and execution options from the given json object
      */
     protected void parse(ObjectNode node) {
-        entity = new EntityVersion();
+        entityVersion = new EntityVersion();
         JsonNode x = node.get("entity");
         if (x != null) {
-            entity.setEntity(x.asText());
+            entityVersion.setEntity(x.asText());
         }
         x = node.get("entityVersion");
         if (x != null) {
-            entity.setVersion(x.asText());
+            entityVersion.setVersion(x.asText());
         }
         // TODO: clientIdentification
         x = node.get("execution");

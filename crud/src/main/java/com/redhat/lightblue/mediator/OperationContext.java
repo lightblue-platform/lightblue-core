@@ -18,15 +18,9 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.HashMap;
-
+import com.redhat.lightblue.DocRequest;
+import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
-import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
@@ -36,43 +30,41 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.util.JsonDoc;
-
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.CRUDOperationContext;
-
-import com.redhat.lightblue.Request;
-import com.redhat.lightblue.DocRequest;
-import com.redhat.lightblue.OperationStatus;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class OperationContext extends CRUDOperationContext {
 
     private final Request request;
-    private final Metadata md;
-    private final Map<String, EntityMetadata> metadata = new HashMap<String,EntityMetadata>();
+    private final Metadata metadata;
+    private final Map<String, EntityMetadata> entityMetadata = new HashMap<>();
     private final Operation operation;
-    private OperationStatus status=OperationStatus.COMPLETE;
+    private OperationStatus status = OperationStatus.COMPLETE;
 
     /**
      * Construct operation context
      *
-     * @param request The top-level request 
-     * @param md Metadata manager
+     * @param request The top-level request
+     * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
      * @param roles Roles of the current caller
      * @param docs The documents in the call. Can be null
      * @param operation The operation in progress
      */
-    public OperationContext(Request request,
-                            Metadata md,
-                            Factory factory,
-                            Set<String> roles,
-                            List<JsonDoc> docs,
-                            Operation operation) {
-        super(request.getEntity().getEntity(),factory,roles,docs);
+    private OperationContext(Request request,
+                             Metadata metadata,
+                             Factory factory,
+                             Set<String> roles,
+                             List<JsonDoc> docs,
+                             Operation operation) {
+        super(request.getEntityVersion().getEntity(), factory, roles, docs);
         this.request = request;
-        this.md = md;
-        this.operation=operation;
-        initMetadata(request.getEntity().getEntity(),request.getEntity().getVersion());
+        this.metadata = metadata;
+        this.operation = operation;
+        initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
     }
 
     /**
@@ -83,44 +75,44 @@ public class OperationContext extends CRUDOperationContext {
      * @param factory The factory to get validators and controllers
      * @param op The operation in progress
      */
-    public static OperationContext getInstance(Request req,Metadata md,Factory factory,Operation op) {
-        String[] callerRoles=req.getClientId()==null?null:req.getClientId().getCallerRoles();
-        Set<String> roles=new HashSet<String>();
-        if(callerRoles!=null) {
-            for(String x:callerRoles) {
+    public static OperationContext getInstance(Request req, Metadata md, Factory factory, Operation op) {
+        String[] callerRoles = req.getClientId() == null ? null : req.getClientId().getCallerRoles();
+        Set<String> roles = new HashSet<>();
+        if (callerRoles != null) {
+            for (String x : callerRoles) {
                 roles.add(x);
             }
         }
-        return new OperationContext(req,md,factory,roles,req instanceof DocRequest?
-                                    JsonDoc.docList(((DocRequest)req).getEntityData()):null,op);
+        List<JsonDoc> docs = req instanceof DocRequest ? JsonDoc.docList(((DocRequest) req).getEntityData()) : null;
+        return new OperationContext(req, md, factory, roles, docs, op);
     }
 
     /**
      * Returns the top level entity name
      */
     public String getTopLevelEntityName() {
-        return request.getEntity().getEntity();
+        return request.getEntityVersion().getEntity();
     }
 
     /**
      * Returns the top level entity version
      */
     public String getTopLevelEntityVersion() {
-        return request.getEntity().getVersion();
+        return request.getEntityVersion().getVersion();
     }
 
     /**
      * Returns the top level entity metadata
      */
-    public EntityMetadata getTopLevelEntityMD() {
+    public EntityMetadata getTopLevelEntityMetadata() {
         return getEntityMetadata(getTopLevelEntityName());
     }
 
     /**
      * Returns the metadata manager
      */
-    public Metadata getMd() {
-        return md;
+    public Metadata getMetadata() {
+        return metadata;
     }
 
     /**
@@ -138,11 +130,11 @@ public class OperationContext extends CRUDOperationContext {
     }
 
     /**
-     * Returns the entitye metadata with the version used in this call
+     * Returns the entity metadata with the version used in this call
      */
     @Override
     public EntityMetadata getEntityMetadata(String entityName) {
-        return metadata.get(entityName);
+        return entityMetadata.get(entityName);
     }
 
     /**
@@ -156,27 +148,28 @@ public class OperationContext extends CRUDOperationContext {
      * The operation status
      */
     public void setStatus(OperationStatus status) {
-        this.status=status;
+        this.status = status;
     }
 
-    private void initMetadata(String name,String version) {
-        EntityMetadata x = metadata.get(name);
+    private void initMetadata(String name, String version) {
+        EntityMetadata x = entityMetadata.get(name);
         if (x != null) {
             if (!x.getVersion().getValue().equals(version)) {
                 throw new IllegalArgumentException(CrudConstants.ERR_METADATA_APPEARS_TWICE + name + " " + version + " and " + x.getVersion().getValue());
             }
         } else {
-            x=md.getEntityMetadata(name,version);
-            if(x==null)
-                throw new IllegalArgumentException("Unknown entity:"+name+":"+version);
-            metadata.put(x.getName(), x);
+            x = metadata.getEntityMetadata(name, version);
+            if (x == null) {
+                throw new IllegalArgumentException("Unknown entity:" + name + ":" + version);
+            }
+            entityMetadata.put(x.getName(), x);
             FieldCursor c = x.getFieldCursor();
             while (c.next()) {
                 FieldTreeNode node = c.getCurrentNode();
                 if (node instanceof ReferenceField) {
                     String refName = ((ReferenceField) node).getEntityName();
                     String refVersion = ((ReferenceField) node).getVersionValue();
-                    initMetadata(refName,refVersion);
+                    initMetadata(refName, refVersion);
                 }
             }
         }

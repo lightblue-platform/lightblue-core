@@ -28,14 +28,13 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.DataError;
 
 /**
- * This class represents an input document and all its associated data
- * structures during an operation
+ * This class represents an input document and all its associated data structures during an operation
  */
 public class DocCtx extends JsonDoc {
 
-    private final List<Error> errors=new ArrayList<Error>();
-    private JsonDoc outputDoc=this;
-    
+    private final List<Error> errors = new ArrayList<>();
+    private JsonDoc outputDoc = this;
+
     public DocCtx(JsonDoc doc) {
         super(doc.getRoot());
     }
@@ -79,17 +78,17 @@ public class DocCtx extends JsonDoc {
      * The output document
      */
     public void setOutputDocument(JsonDoc doc) {
-        this.outputDoc=doc;
+        this.outputDoc = doc;
     }
 
     /**
-     * If there are errors for this documents, returns a data
-     * error. Otherwise, returns null.
+     * If there are errors for this documents, returns a data error. Otherwise, returns null.
      */
     public DataError getDataError() {
-        if(!errors.isEmpty())
-            return new DataError(outputDoc==null?getRoot():outputDoc.getRoot(),errors);
-        else
+        if (!errors.isEmpty()) {
+            return new DataError(outputDoc == null ? getRoot() : outputDoc.getRoot(), errors);
+        } else {
             return null;
+        }
     }
 }
