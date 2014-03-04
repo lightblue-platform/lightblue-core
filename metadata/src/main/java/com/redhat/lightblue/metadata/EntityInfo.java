@@ -30,9 +30,9 @@ public class EntityInfo implements Serializable {
     private static final long serialVersionUID = 1l;
 
     private final String name;
-    //hooks
-    private Indexes indexes;
-    private transient Enums enums;
+    private final Hooks hooks=new Hooks();
+    private final Indexes indexes=new Indexes();
+    private final Enums enums=new Enums();
     private DataStore dataStore;
 
     public EntityInfo(String name) {
@@ -52,16 +52,12 @@ public class EntityInfo implements Serializable {
         return indexes;
     }
 
-    public void setIndexes(Indexes indexes) {
-        this.indexes = indexes;
+    public Hooks getHooks() {
+        return hooks;
     }
 
     public Enums getEnums() {
         return this.enums;
-    }
-
-    public void setEnums(Enums enums) {
-        this.enums = enums;
     }
 
     /**

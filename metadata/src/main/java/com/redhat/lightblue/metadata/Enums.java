@@ -5,6 +5,8 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.io.Serializable;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
@@ -15,7 +17,10 @@ import com.redhat.lightblue.util.Error;
  *
  * @author nmalik
  */
-public class Enums {
+public class Enums implements Serializable {
+
+    private static final long serialVersionUID=1l;
+
     private final Map<String,Enum> enums = new HashMap<String,Enum>();
 
     /**

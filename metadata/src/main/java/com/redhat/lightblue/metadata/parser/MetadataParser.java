@@ -156,8 +156,8 @@ public abstract class MetadataParser<T> {
 
             EntityInfo info = new EntityInfo(name);
 
-            info.setIndexes(parseIndexes(getObjectProperty(object, STR_INDEXES)));
-            info.setEnums(parseEnums(getObjectProperty(object, STR_ENUMS)));
+            info.getIndexes().setIndexes(parseIndexes(getObjectProperty(object, STR_INDEXES)));
+            info.getEnums().setEnums(parseEnums(getObjectProperty(object, STR_ENUMS)));
 
             T datastore = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(datastore));
@@ -167,7 +167,7 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public Indexes parseIndexes(T object) {
+        public List<Index>  parseIndexes(T object) {
         Error.push("parseIndexes");
         try {
             if (object != null) {
@@ -179,10 +179,7 @@ public abstract class MetadataParser<T> {
                     idxs.add(parseIndex(child));
                 }
 
-                Indexes indexes = new Indexes();
-                indexes.setIndexes(idxs);
-
-                return indexes;
+                return idxs;
             } else {
                 return null;
             }
@@ -228,7 +225,7 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public Enums parseEnums(T object) {
+    public List<Enum> parseEnums(T object) {
         Error.push("parseEnums");
         try {
             if (object != null) {
@@ -240,10 +237,7 @@ public abstract class MetadataParser<T> {
                     e.add(parseEnum(child));
                 }
 
-                Enums enums = new Enums();
-                enums.setEnums(e);
-
-                return enums;
+                return e;
             } else {
                 return null;
             }
