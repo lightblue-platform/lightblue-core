@@ -7,7 +7,7 @@ Project lightblue is designed to enable faster time to market on strategic busin
 
 ## lightblue
 
-The license of lightblue is [GLPv3](https://www.gnu.org/licenses/gpl.html).  See COPYING in root of project for the full text.
+The license of lightblue is [GPLv3](https://www.gnu.org/licenses/gpl.html).  See COPYING in root of project for the full text.
 
 ## Dependencies
 
