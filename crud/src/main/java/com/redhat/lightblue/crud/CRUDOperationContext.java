@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Error;
@@ -45,6 +47,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final Set<String> callerRoles;
     private List<DocCtx> documents;
     private final List<Error> errors=new ArrayList<Error>();
+    private final Map<String,Object> propertyMap=new HashMap<String,Object>();
 
     public CRUDOperationContext(String entityName,
                                 Factory f,
@@ -205,5 +208,19 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public boolean hasErrors() {
         return !errors.isEmpty();
+    }
+
+    /**
+     * Properties for the context
+     */
+    public Object getProperty(String name) {
+        return propertyMap.get(name);
+    }
+
+    /**
+     * Properties for the context
+     */
+    public void setProperty(String name,Object value) {
+        propertyMap.put(name,value);
     }
 }
