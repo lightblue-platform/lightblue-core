@@ -42,13 +42,13 @@
             "additionalProperties": true,
             "description": "Session information for the client. How this is used is implementation dependent, and TBD"
         },
-        "processed": {
+        "response": {
             "type": "array",
             "items": {
                 "type": "object",
                 "additionalProperties": true
             },
-            "description": "Projected entity information for processed entities. Only for insert, update, delete. Contains only successfully updated entities. It is up to the caller to project identifying fields if caller needs."
+            "description": "Projected entity information for processed entities. Applicable for all operations. Contains only successfully updated entities if insert, update, or delete. It is up to the caller to project identifying fields if caller needs."
         },
         "dataErrors": {
             "type": "array",
