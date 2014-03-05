@@ -30,9 +30,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.util.Error;
+
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
@@ -225,5 +230,20 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public void addObjectToArray(Object array, Object value) {
         ((ArrayNode) array).add((JsonNode) value);
+    }
+
+    @Override
+    public Projection parseProjection(JsonNode object) {
+        return object==null?null:Projection.fromJson(object);
+    }
+
+    @Override
+    public QueryExpression parseQuery(JsonNode object) {
+        return object==null?null:QueryExpression.fromJson(object);
+    }
+
+    @Override
+    public Sort parseSort(JsonNode object) {
+        return object==null?null:Sort.fromJson(object);
     }
 }

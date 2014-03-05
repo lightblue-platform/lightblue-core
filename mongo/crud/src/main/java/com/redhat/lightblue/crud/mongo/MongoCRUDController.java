@@ -260,12 +260,10 @@ public class MongoCRUDController implements CRUDController {
                 boolean constrainedFieldUpdated = false;
                 for (Path x : updatedFields) {
                     FieldTreeNode ftn = md.resolve(x);
-                    if (ftn instanceof Field) {
-                        if (!((Field) ftn).getConstraints().isEmpty()) {
-                            LOGGER.debug("Field {} has constraints, can't run direct mongo update", ftn);
-                            constrainedFieldUpdated = true;
-                            break;
-                        }
+                    if(ftn instanceof Field&&!((Field)ftn).getConstraints().isEmpty()) {
+                        LOGGER.debug("Field {} has constraints, can't run direct mongo update", ftn);
+                        constrainedFieldUpdated = true;
+                        break;
                     }
                 }
                 // See if we can translate the update expression

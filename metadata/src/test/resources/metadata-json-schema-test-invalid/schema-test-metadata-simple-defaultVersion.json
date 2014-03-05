@@ -1,7 +1,9 @@
 {
     "entityInfo": {
         "name": "test",
-        "defaultVersion": "1.0",
+        "defaultVersion": {
+            "invalid": "1.0"
+        },
         "indexes": [
             {
                 "unique": true,

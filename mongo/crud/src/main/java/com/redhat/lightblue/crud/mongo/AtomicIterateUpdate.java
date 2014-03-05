@@ -41,7 +41,6 @@ import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.PredefinedFields;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;

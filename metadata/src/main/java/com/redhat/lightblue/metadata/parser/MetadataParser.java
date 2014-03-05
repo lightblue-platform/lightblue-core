@@ -18,12 +18,13 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -75,6 +76,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_NAME = "name";
     private static final String STR_VALUE = "value";
     private static final String STR_VERSION = "version";
+    private static final String STR_DEFAULT_VERSION = "defaultVersion";
     private static final String STR_FIND = "find";
     private static final String STR_STATUS = "status";
     private static final String STR_CONSTRAINTS = "constraints";
@@ -183,6 +185,7 @@ public abstract class MetadataParser<T> {
 
             EntityInfo info = new EntityInfo(name);
 
+            info.setDefaultVersion(getStringProperty(object, STR_DEFAULT_VERSION));
             info.getIndexes().setIndexes(parseArr(getObjectProperty(object, STR_INDEXES),PARSE_INDEX));
             info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS),PARSE_ENUM));
             info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS),PARSE_HOOK));
@@ -258,8 +261,9 @@ public abstract class MetadataParser<T> {
         try {
             if (object != null) {
                 String name = getStringProperty(object, STR_NAME);
-                if(name==null)
+                if(name==null) {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
+                }
                 Enum e = new Enum(name);
                 List<String> values = getStringList(object, STR_VALUES);
                 if (null != values && !values.isEmpty()) {
@@ -282,16 +286,14 @@ public abstract class MetadataParser<T> {
         try {
             if(object!=null) {
                 String name=getStringProperty(object, STR_NAME);
-                if(name==null)
+                if(name==null) {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
+                }
                 Hook hook=new Hook(name);
-                String x = getStringProperty(object, STR_PROJECTION);
+                T x = getObjectProperty(object, STR_PROJECTION);
                 if(x!=null) {
-                    try {
-                        hook.setProjection(Projection.fromJson(JsonUtils.json(x)));
-                    } catch (IOException e) {
-                        throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
-                    }
+                    hook.setProjection(parseProjection(x));
+                }
                 List<String> values = getStringList(object, STR_ACTIONS);
                 if(values!=null) {
                     hook.setInsert(values.contains(STR_INSERT));
@@ -302,12 +304,12 @@ public abstract class MetadataParser<T> {
                 T cfg=getObjectProperty(object,STR_CONFIGURATION);
                 if(cfg!=null) {
                     HookConfigurationParser<T> parser=extensions.getHookConfigurationParser(name);
-                    if(parser==null)
+                    if(parser==null) {
                         throw Error.get(MetadataConstants.ERR_INVALID_HOOK,name);
+                    }
                     hook.setConfiguration(parser.parse(name,this,cfg));
                 }
                 return hook;
-                }
             }
         } finally {
             Error.pop();
@@ -611,18 +613,9 @@ public abstract class MetadataParser<T> {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
         field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
-        try {
-            String x = getRequiredStringProperty(object, STR_PROJECTION);
-            field.setProjection(Projection.fromJson(JsonUtils.json(x)));
-            x = getRequiredStringProperty(object, STR_QUERY);
-            field.setQuery(QueryExpression.fromJson(JsonUtils.json(x)));
-            x = getStringProperty(object, STR_SORT);
-            if (x != null) {
-                field.setSort(Sort.fromJson(JsonUtils.json(x)));
-            }
-        } catch (IOException e) {
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
-        }
+        field.setProjection(parseProjection(getRequiredObjectProperty(object, STR_PROJECTION)));
+        field.setQuery(parseQuery(getRequiredObjectProperty(object, STR_QUERY)));
+        field.setSort(parseSort(getObjectProperty(object, STR_SORT)));
         return field;
     }
 
@@ -687,6 +680,9 @@ public abstract class MetadataParser<T> {
             T ret = newNode();
             if (info.getName() != null) {
                 putString(ret, STR_NAME, info.getName());
+            }
+            if (info.getDefaultVersion() != null) {
+                putString(ret, STR_DEFAULT_VERSION, info.getDefaultVersion());
             }
             if (info.getIndexes() != null && !info.getIndexes().isEmpty()) {
                 // indexes is an array directly on the entity info, so do not create a new node ere, let conversion handle it
@@ -1175,6 +1171,21 @@ public abstract class MetadataParser<T> {
      * @return The names of child elements
      */
     public abstract Set<String> getChildNames(T object);
+
+    /**
+     * Parse and return a projection
+     */
+    public abstract Projection parseProjection(T object);
+
+    /**
+     * Parse and return a query
+     */
+    public abstract QueryExpression parseQuery(T object);
+
+    /**
+     * Parse and return a sort
+     */
+    public abstract Sort parseSort(T object);
 
     /**
      * Creates a new node

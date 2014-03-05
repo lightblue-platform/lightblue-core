@@ -301,40 +301,35 @@ public class Translator {
                               BasicDBObject dest)
             throws CannotTranslateException {
         String op;
-        switch (expr.getOp()) {
-            case _set:
-                op = "$set";
-                break;
-            case _add:
-                op = "$inc";
-                break;
-            default:
-                throw new CannotTranslateException(expr);
+        switch(expr.getOp()) {
+        case _set: op="$set";break;
+        case _add: op="$inc";break;
+        default: throw new CannotTranslateException(expr);
         }
-        BasicDBObject obj = (BasicDBObject) dest.get(op);
-        if (obj == null) {
-            dest.put(op, obj = new BasicDBObject());
+        BasicDBObject obj=(BasicDBObject)dest.get(op);
+        if(obj==null) {
+            dest.put(op,obj=new BasicDBObject());
         }
-        for (FieldAndRValue frv : expr.getFields()) {
-            Path field = frv.getField();
-            if (hasArray(root, field)) {
+        for(FieldAndRValue frv:expr.getFields()) {
+            Path field=frv.getField();
+            if(hasArray(root,field)) {
                 throw new CannotTranslateException(expr);
             }
-            RValueExpression rvalue = frv.getRValue();
-            if (rvalue.getType() == RValueExpression.RValueType._value) {
-                Value value = rvalue.getValue();
-                FieldTreeNode ftn = root.resolve(field);
-                if (ftn == null) {
+            RValueExpression rvalue=frv.getRValue();
+            if(rvalue.getType()==RValueExpression.RValueType._value) {
+                Value value=rvalue.getValue();
+                FieldTreeNode ftn=root.resolve(field);
+                if(ftn==null) {
                     throw new CannotTranslateException(expr);
                 }
-                if (!(ftn instanceof SimpleField)) {
+                if(!(ftn instanceof SimpleField)) {
                     throw new CannotTranslateException(expr);
                 }
-                Object valueObject = ftn.getType().cast(value.getValue());
-                if (field.equals(ID_PATH)) {
-                    valueObject = new ObjectId(valueObject.toString());
+                Object valueObject=ftn.getType().cast(value.getValue());
+                if(field.equals(ID_PATH)) {
+                    valueObject=new ObjectId(valueObject.toString());
                 }
-                obj.put(field.toString(), valueObject);
+                obj.put(field.toString(),valueObject);
             } else {
                 throw new CannotTranslateException(expr);
             }
@@ -349,31 +344,31 @@ public class Translator {
         if (obj == null) {
             dest.put("$unset", obj = new BasicDBObject());
         }
-        for (Path field : expr.getFields()) {
-            if (hasArray(root, field)) {
+        for(Path field:expr.getFields()) {
+            if(hasArray(root,field)) {
                 throw new CannotTranslateException(expr);
             }
-            obj.put(field.toString(), "");
+            obj.put(field.toString(),"");
         }
     }
 
     /**
      * Returns true if the field is an array, or points to a field within an array
      */
-    private boolean hasArray(FieldTreeNode root, Path field)
-            throws CannotTranslateException {
-        FieldTreeNode node = root.resolve(field);
-        if (node == null) {
+    private boolean hasArray(FieldTreeNode root,Path field) 
+        throws CannotTranslateException {
+        FieldTreeNode node=root.resolve(field);
+        if(node==null) {
             throw new CannotTranslateException(field);
         }
         do {
-            if (node instanceof ArrayField
-                    || node instanceof ArrayElement) {
+            if(node instanceof ArrayField ||
+               node instanceof ArrayElement) {
                 return true;
             } else {
-                node = node.getParent();
+                node=node.getParent();
             }
-        } while (node != null);
+        } while(node!=null);
         return false;
     }
 

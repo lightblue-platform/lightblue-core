@@ -18,8 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.io.Serializable;
+
 /**
  * Interface that denotes a hook configuration
  */
-public interface HookConfiguration {
+public interface HookConfiguration extends Serializable {
 }

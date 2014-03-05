@@ -102,8 +102,9 @@ public class UnsetExpressionEvaluator extends Updater {
     
     @Override
     public void getUpdateFields(Set<Path> setFields) {
-        for(AbsPath x:fields)
+        for(AbsPath x:fields) {
             setFields.add(x.absField);
+        }
     }
     
     @Override

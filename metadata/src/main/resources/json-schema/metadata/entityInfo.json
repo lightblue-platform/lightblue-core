@@ -24,6 +24,10 @@
             "type": "string",
             "description": "A description of the entity."
         },
+        "defaultVersion": {
+            "type": "string",
+            "description": "Default version of the entity used unless a version is explicitly provided in the request."
+        },
         "hooks": {
             "type": "array",
             "description": "Definition of all hooks for use within field data.",

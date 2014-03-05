@@ -29,14 +29,16 @@ public class Enums implements Serializable {
     public void setEnums(Collection<Enum> l) {
         enums.clear();
         if (l != null) {
-            for(Enum x:l)
+            for(Enum x:l) {
                 addEnum(x);
+            }
         }
     }
 
     public void addEnum(Enum x) {
-        if(enums.containsKey(x.getName()))
+        if(enums.containsKey(x.getName())) {
             throw Error.get(MetadataConstants.ERR_DUPLICATE_ENUM,x.getName());
+        }
         enums.put(x.getName(),x);
     }
 

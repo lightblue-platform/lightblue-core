@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
-import com.redhat.lightblue.metadata.types.BigIntegerType;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Error;
