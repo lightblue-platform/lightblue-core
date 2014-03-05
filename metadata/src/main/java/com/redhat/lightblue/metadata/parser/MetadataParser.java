@@ -18,12 +18,13 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -289,13 +290,9 @@ public abstract class MetadataParser<T> {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
                 }
                 Hook hook=new Hook(name);
-                String x = getStringProperty(object, STR_PROJECTION);
+                T x = getObjectProperty(object, STR_PROJECTION);
                 if(x!=null) {
-                    try {
-                        hook.setProjection(Projection.fromJson(JsonUtils.json(x)));
-                    } catch (IOException e) {
-                        throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
-                    }
+                    hook.setProjection(parseProjection(x));
                 }
                 List<String> values = getStringList(object, STR_ACTIONS);
                 if(values!=null) {
@@ -616,18 +613,9 @@ public abstract class MetadataParser<T> {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
         field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
-        try {
-            String x = getRequiredStringProperty(object, STR_PROJECTION);
-            field.setProjection(Projection.fromJson(JsonUtils.json(x)));
-            x = getRequiredStringProperty(object, STR_QUERY);
-            field.setQuery(QueryExpression.fromJson(JsonUtils.json(x)));
-            x = getStringProperty(object, STR_SORT);
-            if (x != null) {
-                field.setSort(Sort.fromJson(JsonUtils.json(x)));
-            }
-        } catch (IOException e) {
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
-        }
+        field.setProjection(parseProjection(getRequiredObjectProperty(object, STR_PROJECTION)));
+        field.setQuery(parseQuery(getRequiredObjectProperty(object, STR_QUERY)));
+        field.setSort(parseSort(getObjectProperty(object, STR_SORT)));
         return field;
     }
 
@@ -1183,6 +1171,21 @@ public abstract class MetadataParser<T> {
      * @return The names of child elements
      */
     public abstract Set<String> getChildNames(T object);
+
+    /**
+     * Parse and return a projection
+     */
+    public abstract Projection parseProjection(T object);
+
+    /**
+     * Parse and return a query
+     */
+    public abstract QueryExpression parseQuery(T object);
+
+    /**
+     * Parse and return a sort
+     */
+    public abstract Sort parseSort(T object);
 
     /**
      * Creates a new node

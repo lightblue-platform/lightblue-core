@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.bson.BSONObject;
 
 import com.mongodb.BasicDBObject;
@@ -32,7 +34,11 @@ import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BSONParser extends MetadataParser<BSONObject> {
@@ -205,6 +211,29 @@ public class BSONParser extends MetadataParser<BSONObject> {
             return (List<BSONObject>) object;
         } else {
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+        }
+    }
+
+    @Override
+    public Projection parseProjection(BSONObject object) {
+        return object==null?null:Projection.fromJson(toJson(object));
+    }
+
+    @Override
+    public QueryExpression parseQuery(BSONObject object) {
+        return object==null?null:QueryExpression.fromJson(toJson(object));
+    }
+
+    @Override
+    public Sort parseSort(BSONObject object) {
+        return object==null?null:Sort.fromJson(toJson(object));
+    }
+
+    private JsonNode toJson(BSONObject object) {
+        try {
+            return JsonUtils.json(object.toString());
+        } catch (Exception e) {
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA,object.toString());
         }
     }
 }
