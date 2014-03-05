@@ -82,10 +82,11 @@ public class AtomicIterateUpdate implements DocUpdater {
                        DBObject query) {
         LOGGER.debug("atomicIterateUpdate: start");
         Set<Path> inaccessibleFields=roleEval.getInaccessibleFields(FieldAccessRoleEvaluator.Operation.update);
-        for(Path x:inaccessibleFields)
+        for(Path x:inaccessibleFields) {
             if(updatedFields.contains(x)) {
                 ctx.addError(Error.get("update",CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,x.toString()));
             }
+        }
         int numFailed=0;
         int numUpdated=0;
         if(!ctx.hasErrors()) {

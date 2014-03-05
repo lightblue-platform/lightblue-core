@@ -260,8 +260,9 @@ public abstract class MetadataParser<T> {
         try {
             if (object != null) {
                 String name = getStringProperty(object, STR_NAME);
-                if(name==null)
+                if(name==null) {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
+                }
                 Enum e = new Enum(name);
                 List<String> values = getStringList(object, STR_VALUES);
                 if (null != values && !values.isEmpty()) {
@@ -284,8 +285,9 @@ public abstract class MetadataParser<T> {
         try {
             if(object!=null) {
                 String name=getStringProperty(object, STR_NAME);
-                if(name==null)
+                if(name==null) {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT,STR_NAME);
+                }
                 Hook hook=new Hook(name);
                 String x = getStringProperty(object, STR_PROJECTION);
                 if(x!=null) {
@@ -294,6 +296,7 @@ public abstract class MetadataParser<T> {
                     } catch (IOException e) {
                         throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.toString());
                     }
+                }
                 List<String> values = getStringList(object, STR_ACTIONS);
                 if(values!=null) {
                     hook.setInsert(values.contains(STR_INSERT));
@@ -304,12 +307,12 @@ public abstract class MetadataParser<T> {
                 T cfg=getObjectProperty(object,STR_CONFIGURATION);
                 if(cfg!=null) {
                     HookConfigurationParser<T> parser=extensions.getHookConfigurationParser(name);
-                    if(parser==null)
+                    if(parser==null) {
                         throw Error.get(MetadataConstants.ERR_INVALID_HOOK,name);
+                    }
                     hook.setConfiguration(parser.parse(name,this,cfg));
                 }
                 return hook;
-                }
             }
         } finally {
             Error.pop();

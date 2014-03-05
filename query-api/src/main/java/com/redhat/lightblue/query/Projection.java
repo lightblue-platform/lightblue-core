@@ -52,12 +52,14 @@ public abstract class Projection extends JsonObject {
         List<Projection> list=new ArrayList<Projection>();
         if(p1 instanceof ProjectionList)
             list.addAll( ((ProjectionList)p1).getItems());
-        else if(p1 !=null)
+        else if(p1 !=null) {
             list.add(p1);
-        if(p2 instanceof ProjectionList)
+        }
+        if(p2 instanceof ProjectionList) {
             list.addAll( ((ProjectionList)p2).getItems());
-        else if(p2!=null)
+        } else if(p2!=null) {
             list.add(p2);
+        }
         return list.isEmpty()?null:new ProjectionList(list);
     }
     

@@ -65,10 +65,11 @@ public class DirectMongoUpdate implements DocUpdater {
                        CRUDUpdateResponse response,
                        DBObject query) {
         Set<Path> inaccessibleFields=roleEval.getInaccessibleFields(FieldAccessRoleEvaluator.Operation.update);
-        for(Path x:inaccessibleFields)
+        for(Path x:inaccessibleFields) {
             if(updatedFields.contains(x)) {
                 ctx.addError(Error.get("update",CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,x.toString()));
             }
+        }
         if(!ctx.hasErrors()) {
             LOGGER.debug("Calling update with q={} and u={}",query,mongoUpdate);
             WriteResult result=collection.update(query,mongoUpdate,false,true,WriteConcern.SAFE);

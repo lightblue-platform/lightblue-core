@@ -200,11 +200,13 @@ public class MongoCRUDController implements CRUDController {
                         JsonDoc jsonDoc = translator.toJson(dbObject);
                         LOGGER.debug("Translated doc: {}", jsonDoc);
                         inputDoc.setOutputDocument(projector.project(jsonDoc, nodeFactory, null));
-                    } else
+                    } else {
                         inputDoc.setOutputDocument(null);
+                    }
                     LOGGER.debug("projected doc: {}", inputDoc.getOutputDocument());
-                    if(!inputDoc.hasErrors())
+                    if(!inputDoc.hasErrors()) {
                         ret++;
+                    }
                 }
             }
         } finally {
@@ -259,12 +261,11 @@ public class MongoCRUDController implements CRUDController {
                 boolean constrainedFieldUpdated=false;
                 for(Path x:updatedFields) {
                     FieldTreeNode ftn=md.resolve(x);
-                    if(ftn instanceof Field)
-                        if(!((Field)ftn).getConstraints().isEmpty()) {
-                            LOGGER.debug("Field {} has constraints, can't run direct mongo update",ftn);
-                            constrainedFieldUpdated=true;
-                            break;
-                        }
+                    if(ftn instanceof Field&&!((Field)ftn).getConstraints().isEmpty()) {
+                        LOGGER.debug("Field {} has constraints, can't run direct mongo update",ftn);
+                        constrainedFieldUpdated=true;
+                        break;
+                    }
                 }
                 // See if we can translate the update expression
                 DBObject mongoUpdateExpr;
@@ -279,11 +280,12 @@ public class MongoCRUDController implements CRUDController {
                 // the mongo updaters
                 DocUpdater docUpdater;
                 if(mongoUpdateExpr!=null&&!constrainedFieldUpdated) {
-                    if(projector==null)
+                    if(projector==null) {
                         docUpdater=new DirectMongoUpdate(mongoUpdateExpr,roleEval,updatedFields);
-                    else
+                    } else {
                         docUpdater=new AtomicIterateUpdate(nodeFactory,roleEval,translator,
                                                            mongoUpdateExpr,projector,updatedFields);
+                    }
                 } else {
                     docUpdater=new IterateAndUpdate(nodeFactory,validator,roleEval,translator,updater,
                                                     projector,errorProjector);

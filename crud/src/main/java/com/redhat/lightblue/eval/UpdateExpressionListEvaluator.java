@@ -49,8 +49,9 @@ public class UpdateExpressionListEvaluator extends Updater {
 
     @Override
     public void getUpdateFields(Set<Path> fields) {
-        for(Updater x:updaters)
+        for(Updater x:updaters) {
             x.getUpdateFields(fields);
+        }
     }
 
     @Override

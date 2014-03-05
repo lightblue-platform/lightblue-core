@@ -314,23 +314,27 @@ public class Translator {
         }
         for(FieldAndRValue frv:expr.getFields()) {
             Path field=frv.getField();
-            if(hasArray(root,field))
+            if(hasArray(root,field)) {
                 throw new CannotTranslateException(expr);
+            }
             RValueExpression rvalue=frv.getRValue();
             if(rvalue.getType()==RValueExpression.RValueType._value) {
                 Value value=rvalue.getValue();
                 FieldTreeNode ftn=root.resolve(field);
-                if(ftn==null)
+                if(ftn==null) {
                     throw new CannotTranslateException(expr);
-                if(!(ftn instanceof SimpleField))
+                }
+                if(!(ftn instanceof SimpleField)) {
                     throw new CannotTranslateException(expr);
+                }
                 Object valueObject=ftn.getType().cast(value.getValue());
                 if(field.equals(ID_PATH)) {
                     valueObject=new ObjectId(valueObject.toString());
                 }
                 obj.put(field.toString(),valueObject);
-            } else
+            } else {
                 throw new CannotTranslateException(expr);
+            }
         }
     }
 
@@ -343,8 +347,9 @@ public class Translator {
             dest.put("$unset",obj=new BasicDBObject());
         }
         for(Path field:expr.getFields()) {
-            if(hasArray(root,field))
+            if(hasArray(root,field)) {
                 throw new CannotTranslateException(expr);
+            }
             obj.put(field.toString(),"");
         }
     }
@@ -355,14 +360,16 @@ public class Translator {
     private boolean hasArray(FieldTreeNode root,Path field) 
         throws CannotTranslateException {
         FieldTreeNode node=root.resolve(field);
-        if(node==null)
+        if(node==null) {
             throw new CannotTranslateException(field);
+        }
         do {
             if(node instanceof ArrayField ||
-               node instanceof ArrayElement)
+               node instanceof ArrayElement) {
                 return true;
-            else
+            } else {
                 node=node.getParent();
+            }
         } while(node!=null);
         return false;
     }

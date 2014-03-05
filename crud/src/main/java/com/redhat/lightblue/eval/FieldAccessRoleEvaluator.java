@@ -56,9 +56,11 @@ public final class FieldAccessRoleEvaluator {
      * fields based on the operation
      */
     public boolean hasAccess(Set<Path> fields,Operation op) {
-        for(Path x:fields)
-            if(!hasAccess(x,op))
+        for(Path x:fields) {
+            if(!hasAccess(x,op)) {
                 return false;
+            }
+        }
         return true;
     }
 
@@ -71,10 +73,12 @@ public final class FieldAccessRoleEvaluator {
         if(fn!=null) {
             if(fn instanceof Field) {
                 return hasAccess((Field)fn,op);
-            } else
+            } else {
                 return true;
-        } else
+            }
+        } else {
             return false;
+        }
     }
 
     /**
@@ -86,9 +90,8 @@ public final class FieldAccessRoleEvaluator {
         Set<Path> fields=new HashSet<Path>();
         while(cursor.next()) {
             FieldTreeNode fn=cursor.getCurrentNode();
-            if(fn instanceof Field) {
-                if(!hasAccess((Field)fn,op))
-                    fields.add(cursor.getCurrentPath());
+            if(fn instanceof Field&&!hasAccess((Field)fn,op)) {
+                fields.add(cursor.getCurrentPath());
             }
         }
         return fields;
@@ -104,8 +107,9 @@ public final class FieldAccessRoleEvaluator {
         List<Path> ret=new ArrayList<Path>(inaccessibleFields.size());
         for(Path x:inaccessibleFields) {
             KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(x);
-            if(cursor.hasNext())
+            if(cursor.hasNext()) {
                 ret.add(x);
+            }
         }
         return ret;
     }
@@ -123,8 +127,9 @@ public final class FieldAccessRoleEvaluator {
         for(Path x:inaccessibleFields) {
             KeyValueCursor<Path,JsonNode> oldCursor=oldDoc.getAllNodes(x);
             KeyValueCursor<Path,JsonNode> newCursor=newDoc.getAllNodes(x);
-            if(different(oldCursor,newCursor))
+            if(different(oldCursor,newCursor)) {
                 ret.add(x);
+            }
         }
         return ret;
     }
@@ -177,10 +182,12 @@ public final class FieldAccessRoleEvaluator {
                 c2.next();
                 JsonNode v1=c1.getCurrentValue();
                 JsonNode v2=c2.getCurrentValue();
-                if(!v1.equals(v2))
+                if(!v1.equals(v2)) {
                     return true;
-            } else
+                }
+            } else {
                 return true;
+            }
         }
         return c2.hasNext();
     }
