@@ -53,7 +53,7 @@ import com.redhat.lightblue.util.Path;
 public class IterateAndUpdate implements DocUpdater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IterateAndUpdate.class);
-    
+
     private final JsonNodeFactory nodeFactory;
     private final ConstraintValidator validator;
     private final FieldAccessRoleEvaluator roleEval;
@@ -69,13 +69,13 @@ public class IterateAndUpdate implements DocUpdater {
                             Updater updater,
                             Projector projector,
                             Projector errorProjector) {
-        this.nodeFactory=nodeFactory;
-        this.validator=validator;
-        this.roleEval=roleEval;
-        this.translator=translator;
-        this.updater=updater;
-        this.projector=projector;
-        this.errorProjector=errorProjector;
+        this.nodeFactory = nodeFactory;
+        this.validator = validator;
+        this.roleEval = roleEval;
+        this.translator = translator;
+        this.updater = updater;
+        this.projector = projector;
+        this.errorProjector = errorProjector;
     }
 
     @Override
@@ -85,82 +85,81 @@ public class IterateAndUpdate implements DocUpdater {
                        CRUDUpdateResponse response,
                        DBObject query) {
         LOGGER.debug("iterateUpdate: start");
-        LOGGER.debug("Computing the result set for {}",query);
-        DBCursor cursor=null;
-        int docIndex=0;
-        int numFailed=0;
+        LOGGER.debug("Computing the result set for {}", query);
+        DBCursor cursor = null;
+        int docIndex = 0;
+        int numFailed = 0;
         try {
-            cursor=collection.find(query);
-            LOGGER.debug("Found {} documents",cursor.count());
+            cursor = collection.find(query);
+            LOGGER.debug("Found {} documents", cursor.count());
             // read-update-write
-            while(cursor.hasNext()) {
-                DBObject document=cursor.next();
-                boolean hasErrors=false;
-                LOGGER.debug("Retrieved doc {}",docIndex);
-                DocCtx doc=ctx.addDocument(translator.toJson(document));
+            while (cursor.hasNext()) {
+                DBObject document = cursor.next();
+                boolean hasErrors = false;
+                LOGGER.debug("Retrieved doc {}", docIndex);
+                DocCtx doc = ctx.addDocument(translator.toJson(document));
                 doc.setOutputDocument(doc.copy());
                 // From now on: doc contains the old copy, and doc.getOutputDocument contains the new copy
-                QueryEvaluationContext qctx=new QueryEvaluationContext(doc.getRoot());
-                if(updater.update(doc.getOutputDocument(),md.getFieldTreeRoot(),Path.EMPTY)) {
-                    LOGGER.debug("Document {} modified, updating",docIndex);
-                    PredefinedFields.updateArraySizes(nodeFactory,doc.getOutputDocument());
+                QueryEvaluationContext qctx = new QueryEvaluationContext(doc.getRoot());
+                if (updater.update(doc.getOutputDocument(), md.getFieldTreeRoot(), Path.EMPTY)) {
+                    LOGGER.debug("Document {} modified, updating", docIndex);
+                    PredefinedFields.updateArraySizes(nodeFactory, doc.getOutputDocument());
                     LOGGER.debug("Running constraint validations");
                     validator.clearErrors();
                     validator.validateDoc(doc.getOutputDocument());
-                    List<Error> errors=validator.getErrors();
-                    if(errors!=null&&!errors.isEmpty()) {
+                    List<Error> errors = validator.getErrors();
+                    if (errors != null && !errors.isEmpty()) {
                         ctx.addErrors(errors);
-                        hasErrors=true;
+                        hasErrors = true;
                         LOGGER.debug("Doc has errors");
                     }
-                    errors=validator.getDocErrors().get(doc.getOutputDocument());
-                    if(errors!=null&&!errors.isEmpty()) {
+                    errors = validator.getDocErrors().get(doc.getOutputDocument());
+                    if (errors != null && !errors.isEmpty()) {
                         doc.addErrors(errors);
-                        hasErrors=true;
+                        hasErrors = true;
                         LOGGER.debug("Doc has data errors");
                     }
-                    if(!hasErrors) {
-                        List<Path> paths=roleEval.getInaccessibleFields_Update(doc.getOutputDocument(),doc);
-                        LOGGER.debug("Inaccesible fields during update={}"+paths);
-                        if(paths!=null&&!paths.isEmpty()) {
-                            doc.addError(Error.get("update",CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
-                            hasErrors=true;
+                    if (!hasErrors) {
+                        List<Path> paths = roleEval.getInaccessibleFields_Update(doc.getOutputDocument(), doc);
+                        LOGGER.debug("Inaccesible fields during update={}" + paths);
+                        if (paths != null && !paths.isEmpty()) {
+                            doc.addError(Error.get("update", CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS, paths.toString()));
+                            hasErrors = true;
                         }
                     }
-                    if(!hasErrors) {
+                    if (!hasErrors) {
                         try {
-                            DBObject updatedObject=translator.toBson(doc.getOutputDocument());
-                            WriteResult result=collection.save(updatedObject);                    
+                            DBObject updatedObject = translator.toBson(doc.getOutputDocument());
+                            WriteResult result = collection.save(updatedObject);
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {
-                            LOGGER.warn("Update exception for document {}: {}",docIndex,e);
-                            doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR,e.toString()));
-                            hasErrors=true;
+                            LOGGER.warn("Update exception for document {}: {}", docIndex, e);
+                            doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR, e.toString()));
+                            hasErrors = true;
                         }
                     }
                 } else {
-                    LOGGER.debug("Document {} was not modified",docIndex);
+                    LOGGER.debug("Document {} was not modified", docIndex);
                 }
-                if(hasErrors) {
-                    LOGGER.debug("Document {} has errors",docIndex);
+                if (hasErrors) {
+                    LOGGER.debug("Document {} has errors", docIndex);
                     numFailed++;
-                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(),nodeFactory,qctx));
+                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(), nodeFactory, qctx));
                 } else {
-                    if(projector!=null) {
-                        LOGGER.debug("Projecting document {}",docIndex);
-                        doc.setOutputDocument(projector.project(doc.getOutputDocument(),nodeFactory,qctx));
+                    if (projector != null) {
+                        LOGGER.debug("Projecting document {}", docIndex);
+                        doc.setOutputDocument(projector.project(doc.getOutputDocument(), nodeFactory, qctx));
                     }
                 }
                 docIndex++;
             }
         } finally {
-            if(cursor!=null) {
+            if (cursor != null) {
                 cursor.close();
             }
         }
         response.setNumUpdated(docIndex);
         response.setNumFailed(numFailed);
     }
-
 
 }

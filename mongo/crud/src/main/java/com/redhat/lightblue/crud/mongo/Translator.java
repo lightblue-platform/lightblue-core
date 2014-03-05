@@ -245,19 +245,18 @@ public class Translator {
      * @param md Entity metedata
      * @param expr Update expression
      *
-     * If the update expresssion is something that can be translated
-     * into a mongo update expression, translation is
-     * performed. Otherwise, CannotTranslateException is thrown, and
-     * the update operation must be performed using the Updaters.
+     * If the update expresssion is something that can be translated into a mongo update expression, translation is
+     * performed. Otherwise, CannotTranslateException is thrown, and the update operation must be performed using the
+     * Updaters.
      */
-    public DBObject translate(EntityMetadata md,UpdateExpression expr) 
-        throws CannotTranslateException {
-        LOGGER.debug("translate {}",expr);
+    public DBObject translate(EntityMetadata md, UpdateExpression expr)
+            throws CannotTranslateException {
+        LOGGER.debug("translate {}", expr);
         Error.push("translateUpdate");
         try {
-            BasicDBObject ret=new BasicDBObject();
-            translateUpdate(md.getFieldTreeRoot(),expr,ret);
-            LOGGER.debug("translated={}",ret);
+            BasicDBObject ret = new BasicDBObject();
+            translateUpdate(md.getFieldTreeRoot(), expr, ret);
+            LOGGER.debug("translated={}", ret);
             return ret;
         } finally {
             Error.pop();
@@ -267,32 +266,31 @@ public class Translator {
     /**
      * Translate update expression list and primitive updates. Anything else causes an exception.
      */
-    private void translateUpdate(FieldTreeNode root,UpdateExpression expr,BasicDBObject dest) 
-        throws CannotTranslateException {
-        if(expr instanceof ArrayUpdateExpression)
+    private void translateUpdate(FieldTreeNode root, UpdateExpression expr, BasicDBObject dest)
+            throws CannotTranslateException {
+        if (expr instanceof ArrayUpdateExpression) {
             throw new CannotTranslateException(expr);
-        else if(expr instanceof PrimitiveUpdateExpression)
-            translatePrimitiveUpdate(root, (PrimitiveUpdateExpression)expr, dest);
-        else if(expr instanceof UpdateExpressionList) {
-            for(PartialUpdateExpression x:((UpdateExpressionList)expr).getList()) {
-                translateUpdate(root,x,dest);
+        } else if (expr instanceof PrimitiveUpdateExpression) {
+            translatePrimitiveUpdate(root, (PrimitiveUpdateExpression) expr, dest);
+        } else if (expr instanceof UpdateExpressionList) {
+            for (PartialUpdateExpression x : ((UpdateExpressionList) expr).getList()) {
+                translateUpdate(root, x, dest);
             }
         }
     }
 
     /**
-     * Attempt to translate a primitive update expression. If the
-     * epxression touches any arrays or array elements, translation
-     * fails.
+     * Attempt to translate a primitive update expression. If the epxression touches any arrays or array elements,
+     * translation fails.
      */
     private void translatePrimitiveUpdate(FieldTreeNode root,
                                           PrimitiveUpdateExpression expr,
-                                          BasicDBObject dest) 
-        throws CannotTranslateException {
-        if(expr instanceof SetExpression) {
-            translateSet(root,(SetExpression)expr,dest);
-        } else if(expr instanceof UnsetExpression) {
-            translateUnset(root,(UnsetExpression)expr,dest);
+                                          BasicDBObject dest)
+            throws CannotTranslateException {
+        if (expr instanceof SetExpression) {
+            translateSet(root, (SetExpression) expr, dest);
+        } else if (expr instanceof UnsetExpression) {
+            translateUnset(root, (UnsetExpression) expr, dest);
         } else {
             throw new CannotTranslateException(expr);
         }
@@ -301,69 +299,81 @@ public class Translator {
     private void translateSet(FieldTreeNode root,
                               SetExpression expr,
                               BasicDBObject dest)
-        throws CannotTranslateException {
+            throws CannotTranslateException {
         String op;
-        switch(expr.getOp()) {
-        case _set: op="$set";break;
-        case _add: op="$inc";break;
-        default: throw new CannotTranslateException(expr);
-        }
-        BasicDBObject obj=(BasicDBObject)dest.get(op);
-        if(obj==null) {
-            dest.put(op,obj=new BasicDBObject());
-        }
-        for(FieldAndRValue frv:expr.getFields()) {
-            Path field=frv.getField();
-            if(hasArray(root,field))
+        switch (expr.getOp()) {
+            case _set:
+                op = "$set";
+                break;
+            case _add:
+                op = "$inc";
+                break;
+            default:
                 throw new CannotTranslateException(expr);
-            RValueExpression rvalue=frv.getRValue();
-            if(rvalue.getType()==RValueExpression.RValueType._value) {
-                Value value=rvalue.getValue();
-                FieldTreeNode ftn=root.resolve(field);
-                if(ftn==null)
+        }
+        BasicDBObject obj = (BasicDBObject) dest.get(op);
+        if (obj == null) {
+            dest.put(op, obj = new BasicDBObject());
+        }
+        for (FieldAndRValue frv : expr.getFields()) {
+            Path field = frv.getField();
+            if (hasArray(root, field)) {
+                throw new CannotTranslateException(expr);
+            }
+            RValueExpression rvalue = frv.getRValue();
+            if (rvalue.getType() == RValueExpression.RValueType._value) {
+                Value value = rvalue.getValue();
+                FieldTreeNode ftn = root.resolve(field);
+                if (ftn == null) {
                     throw new CannotTranslateException(expr);
-                if(!(ftn instanceof SimpleField))
-                    throw new CannotTranslateException(expr);
-                Object valueObject=ftn.getType().cast(value.getValue());
-                if(field.equals(ID_PATH)) {
-                    valueObject=new ObjectId(valueObject.toString());
                 }
-                obj.put(field.toString(),valueObject);
-            } else
+                if (!(ftn instanceof SimpleField)) {
+                    throw new CannotTranslateException(expr);
+                }
+                Object valueObject = ftn.getType().cast(value.getValue());
+                if (field.equals(ID_PATH)) {
+                    valueObject = new ObjectId(valueObject.toString());
+                }
+                obj.put(field.toString(), valueObject);
+            } else {
                 throw new CannotTranslateException(expr);
+            }
         }
     }
 
     private void translateUnset(FieldTreeNode root,
                                 UnsetExpression expr,
                                 BasicDBObject dest)
-        throws CannotTranslateException {
-        BasicDBObject obj=(BasicDBObject)dest.get("$unset");
-        if(obj==null) {
-            dest.put("$unset",obj=new BasicDBObject());
+            throws CannotTranslateException {
+        BasicDBObject obj = (BasicDBObject) dest.get("$unset");
+        if (obj == null) {
+            dest.put("$unset", obj = new BasicDBObject());
         }
-        for(Path field:expr.getFields()) {
-            if(hasArray(root,field))
+        for (Path field : expr.getFields()) {
+            if (hasArray(root, field)) {
                 throw new CannotTranslateException(expr);
-            obj.put(field.toString(),"");
+            }
+            obj.put(field.toString(), "");
         }
     }
 
     /**
      * Returns true if the field is an array, or points to a field within an array
      */
-    private boolean hasArray(FieldTreeNode root,Path field) 
-        throws CannotTranslateException {
-        FieldTreeNode node=root.resolve(field);
-        if(node==null)
+    private boolean hasArray(FieldTreeNode root, Path field)
+            throws CannotTranslateException {
+        FieldTreeNode node = root.resolve(field);
+        if (node == null) {
             throw new CannotTranslateException(field);
+        }
         do {
-            if(node instanceof ArrayField ||
-               node instanceof ArrayElement)
+            if (node instanceof ArrayField
+                    || node instanceof ArrayElement) {
                 return true;
-            else
-                node=node.getParent();
-        } while(node!=null);
+            } else {
+                node = node.getParent();
+            }
+        } while (node != null);
         return false;
     }
 
@@ -443,15 +453,15 @@ public class Translator {
                 throw Error.get(ERR_INVALID_COMPARISON, expr.toString());
             }
         }
-        Object valueObject=t.cast(expr.getRvalue().getValue());
-        if(expr.getField().equals(ID_PATH)) {
-            valueObject=new ObjectId(valueObject.toString());
+        Object valueObject = t.cast(expr.getRvalue().getValue());
+        if (expr.getField().equals(ID_PATH)) {
+            valueObject = new ObjectId(valueObject.toString());
         }
         if (expr.getOp() == BinaryComparisonOperator._eq) {
-            return new BasicDBObject(expr.getField().toString(),valueObject);
+            return new BasicDBObject(expr.getField().toString(), valueObject);
         } else {
             return new BasicDBObject(expr.getField().toString(),
-                                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()),valueObject));
+                    new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()), valueObject));
         }
     }
 
@@ -617,8 +627,7 @@ public class Translator {
         } while (mdCursor.nextSibling());
         return node;
     }
-    
-    
+
     private void convertSimpleFieldToJson(ObjectNode node, FieldTreeNode field, Object value, String fieldName) {
         JsonNode valueNode = ((SimpleField) field).getType().toJson(factory, value);
         if (valueNode != null) {
@@ -641,9 +650,9 @@ public class Translator {
     }
 
     @SuppressWarnings("rawtypes")
-        private void convertArrayFieldToJson(ObjectNode node,String fieldName,EntityMetadata md, FieldCursor mdCursor, Object value) {
+    private void convertArrayFieldToJson(ObjectNode node, String fieldName, EntityMetadata md, FieldCursor mdCursor, Object value) {
         ArrayNode valueNode = factory.arrayNode();
-        node.set(fieldName,valueNode);
+        node.set(fieldName, valueNode);
         // We must have an array element here
         FieldTreeNode x = mdCursor.getCurrentNode();
         if (x instanceof ArrayElement) {
@@ -653,14 +662,12 @@ public class Translator {
         }
         mdCursor.parent();
     }
-    
+
     private void convertReferenceFieldToJson() {
         //TODO
         LOGGER.debug("Converting reference field: ");
     }
-    
-    
-    
+
     private JsonNode arrayElementToJson(Object value,
                                         ArrayElement el,
                                         EntityMetadata md,
@@ -711,14 +718,14 @@ public class Translator {
         // Should we add fields with null values to the bson doc? 
         if (value != null) {
             LOGGER.debug("{} = {}", path, value);
-            if(path.equals(ID_PATH)) {
-                value=new ObjectId(value.toString());
-            } 
-            // Store big values as string. Mongo does not support big values
-            if(value instanceof BigDecimal || value instanceof BigInteger) {
-                value=value.toString();
+            if (path.equals(ID_PATH)) {
+                value = new ObjectId(value.toString());
             }
-                
+            // Store big values as string. Mongo does not support big values
+            if (value instanceof BigDecimal || value instanceof BigInteger) {
+                value = value.toString();
+            }
+
             dest.append(path.tail(0), value);
         }
     }
@@ -762,7 +769,7 @@ public class Translator {
             }
         }
     }
-    
+
     private void convertArrayFieldToBson(JsonNode node, JsonNodeCursor cursor, BasicDBObject ret, FieldTreeNode fieldMdNode, Path path, EntityMetadata md) {
         if (node != null) {
             if (node instanceof ArrayNode) {
@@ -775,16 +782,16 @@ public class Translator {
             }
         }
     }
-    
+
     private void convertReferenceFieldToBson() {
         //TODO  
         throw new java.lang.UnsupportedOperationException();
     }
-    
+
     /**
      * @param cursor The cursor, pointing to the first element of the array
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private List arrayToBson(JsonNodeCursor cursor, ArrayElement el, EntityMetadata md) {
         List l = new ArrayList();
         if (el instanceof SimpleArrayElement) {

@@ -31,7 +31,6 @@ import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.CRUDController;
@@ -45,7 +44,6 @@ import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
-import com.redhat.lightblue.metadata.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -66,50 +64,62 @@ import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;
 
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
 
 public class MediatorTest extends AbstractJsonSchemaTest {
     private Mediator mediator;
-    private TestMetadata mdManager=new TestMetadata();
-    private MockCrudController mockCrudController=new MockCrudController();
+    private final TestMetadata mdManager = new TestMetadata();
+    private final MockCrudController mockCrudController = new MockCrudController();
 
-    private static final JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(false);
+    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
 
     private static final class TestMetadata implements Metadata {
         private EntityMetadata md;
+
         @Override
         public EntityMetadata getEntityMetadata(String entityName, String version) {
             return md;
         }
+
         @Override
-        public String[] getEntityNames() {return null;}
+        public String[] getEntityNames() {
+            return null;
+        }
+
         @Override
-        public Version[] getEntityVersions(String entityName) {return null;}
+        public Version[] getEntityVersions(String entityName) {
+            return null;
+        }
+
         @Override
-        public void createNewMetadata(EntityMetadata md) {}
+        public void createNewMetadata(EntityMetadata md) {
+        }
+
         @Override
         public void setMetadataStatus(String entityName,
                                       String version,
                                       MetadataStatus newStatus,
-                                      String comment) {}
+                                      String comment) {
+        }
     }
 
     private static final class MockCrudController implements CRUDController {
         CRUDUpdateResponse updateResponse;
         CRUDDeleteResponse deleteResponse;
         CRUDFindResponse findResponse;
+
         @Override
         public CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                             Projection projection) {
             return null;
         }
+
         @Override
         public CRUDSaveResponse save(CRUDOperationContext ctx,
                                      boolean upsert,
                                      Projection projection) {
             return null;
         }
+
         @Override
         public CRUDUpdateResponse update(CRUDOperationContext ctx,
                                          QueryExpression query,
@@ -117,11 +127,13 @@ public class MediatorTest extends AbstractJsonSchemaTest {
                                          Projection projection) {
             return updateResponse;
         }
+
         @Override
         public CRUDDeleteResponse delete(CRUDOperationContext ctx,
                                          QueryExpression query) {
             return deleteResponse;
-       }
+        }
+
         @Override
         public CRUDFindResponse find(CRUDOperationContext ctx,
                                      QueryExpression query,
@@ -147,150 +159,149 @@ public class MediatorTest extends AbstractJsonSchemaTest {
 
     @Before
     public void initMediator() throws Exception {
-        Factory factory=new Factory();
+        Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
-        factory.addCRUDController("mongo",mockCrudController);
-        mdManager.md=getMd("./testMetadata.json");
-        mediator=new Mediator(mdManager,factory);
+        factory.addCRUDController("mongo", mockCrudController);
+        mdManager.md = getMd("./testMetadata.json");
+        mediator = new Mediator(mdManager, factory);
     }
 
     @Test
     public void insertRoleTest() throws Exception {
-        InsertionRequest req=new InsertionRequest();
-        req.setEntityVersion(new EntityVersion("test","1.0"));
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
-        Response response=mediator.insert(req);
+        Response response = mediator.insert(req);
 
-        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
-        Assert.assertEquals(0,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(1,response.getErrors().size());
-        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS,response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
-        response=mediator.insert(req);
+        response = mediator.insert(req);
 
-        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
-        Assert.assertEquals(1,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
 
-   }
+    }
 
     @Test
     public void saveRoleTest() throws Exception {
-        SaveRequest req=new SaveRequest();
-        req.setEntityVersion(new EntityVersion("test","1.0"));
+        SaveRequest req = new SaveRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
 
         mdManager.md.getAccess().getInsert().setRoles("role1");
         mdManager.md.getAccess().getUpdate().setRoles("role1");
-        Response response=mediator.save(req);
+        Response response = mediator.save(req);
 
-        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
-        Assert.assertEquals(0,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(1,response.getErrors().size());
-        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS,response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
 
         mdManager.md.getAccess().getInsert().setRoles("anyone");
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
-        response=mediator.save(req);
+        response = mediator.save(req);
 
-        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
-        Assert.assertEquals(1,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
 
     }
 
     @Test
     public void updateRoleTest() throws Exception {
-        UpdateRequest req=new UpdateRequest();
-        req.setEntityVersion(new EntityVersion("test","1.0"));
+        UpdateRequest req = new UpdateRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setReturnFields(null);
 
         mdManager.md.getAccess().getUpdate().setRoles("role1");
-        mockCrudController.updateResponse=new CRUDUpdateResponse();
-        Response response=mediator.update(req);
+        mockCrudController.updateResponse = new CRUDUpdateResponse();
+        Response response = mediator.update(req);
 
-        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
-        Assert.assertEquals(0,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(1,response.getErrors().size());
-        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS,response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
 
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
         mockCrudController.updateResponse.setNumUpdated(1);
-        response=mediator.update(req);
-        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
-        Assert.assertEquals(1,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(0,response.getErrors().size());
-
+        response = mediator.update(req);
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
     }
-    
+
     @Test
     public void deleteRoleTest() throws Exception {
-        DeleteRequest req=new DeleteRequest();
-        req.setEntityVersion(new EntityVersion("test","1.0"));
+        DeleteRequest req = new DeleteRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
 
         mdManager.md.getAccess().getDelete().setRoles("role1");
-        mockCrudController.deleteResponse=new CRUDDeleteResponse();
-        Response response=mediator.delete(req);
+        mockCrudController.deleteResponse = new CRUDDeleteResponse();
+        Response response = mediator.delete(req);
 
-        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
-        Assert.assertEquals(0,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(1,response.getErrors().size());
-        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS,response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
 
         mdManager.md.getAccess().getDelete().setRoles("anyone");
         mockCrudController.deleteResponse.setNumDeleted(1);
-        response=mediator.delete(req);
-        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
-        Assert.assertEquals(1,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(0,response.getErrors().size());
+        response = mediator.delete(req);
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
     }
 
     @Test
     public void findRoleTest() throws Exception {
-        FindRequest req=new FindRequest();
-        req.setEntityVersion(new EntityVersion("test","1.0"));
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
 
         mdManager.md.getAccess().getFind().setRoles("role1");
-        mockCrudController.findResponse=new CRUDFindResponse();
-        Response response=mediator.find(req);
+        mockCrudController.findResponse = new CRUDFindResponse();
+        Response response = mediator.find(req);
 
-        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
-        Assert.assertEquals(0,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(1,response.getErrors().size());
-        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS,response.getErrors().get(0).getErrorCode());
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
 
         mdManager.md.getAccess().getFind().setRoles("anyone");
         mockCrudController.findResponse.setSize(0);
-        response=mediator.find(req);
-        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
-        Assert.assertEquals(0,response.getModifiedCount());
-        Assert.assertEquals(0,response.getMatchCount());
-        Assert.assertEquals(0,response.getDataErrors().size());
-        Assert.assertEquals(0,response.getErrors().size());
+        response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
 
-   }
+    }
 }

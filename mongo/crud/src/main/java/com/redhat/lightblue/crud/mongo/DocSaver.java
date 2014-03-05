@@ -31,7 +31,9 @@ import com.redhat.lightblue.crud.DocCtx;
  */
 public interface DocSaver {
 
-    public enum Op { insert, save };
+    public enum Op {
+        insert, save
+    };
 
     /**
      * Inserts or saves a doc
@@ -44,13 +46,10 @@ public interface DocSaver {
      * @param dbObject Document to insert/save
      * @param inputDoc The input document
      *
-     * The implementation should insert or save the document to the
-     * collection. If operation is insert, the document is inserted,
-     * and the _id is returned in the output document of inputDoc. If
-     * the operation is save, and the document to be saved has _id,
-     * the document is attempted to be updated in the db. If the db
-     * does not have the document but upsert=true, document is
-     * inserted. Otherwise, update fails.
+     * The implementation should insert or save the document to the collection. If operation is insert, the document is
+     * inserted, and the _id is returned in the output document of inputDoc. If the operation is save, and the document
+     * to be saved has _id, the document is attempted to be updated in the db. If the db does not have the document but
+     * upsert=true, document is inserted. Otherwise, update fails.
      */
     void saveDoc(CRUDOperationContext ctx,
                  Op op,
@@ -60,4 +59,3 @@ public interface DocSaver {
                  DBObject dbObject,
                  DocCtx inputDoc);
 }
-

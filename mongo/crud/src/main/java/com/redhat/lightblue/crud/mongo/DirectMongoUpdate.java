@@ -44,7 +44,7 @@ import com.redhat.lightblue.util.Error;
  */
 public class DirectMongoUpdate implements DocUpdater {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DirectMongoUpdate.class);    
+    private static final Logger LOGGER = LoggerFactory.getLogger(DirectMongoUpdate.class);
 
     private final DBObject mongoUpdate;
     private final FieldAccessRoleEvaluator roleEval;
@@ -53,9 +53,9 @@ public class DirectMongoUpdate implements DocUpdater {
     public DirectMongoUpdate(DBObject mongoUpdate,
                              FieldAccessRoleEvaluator roleEval,
                              Set<Path> updatedFields) {
-        this.mongoUpdate=mongoUpdate;
-        this.roleEval=roleEval;
-        this.updatedFields=updatedFields;
+        this.mongoUpdate = mongoUpdate;
+        this.roleEval = roleEval;
+        this.updatedFields = updatedFields;
     }
 
     @Override
@@ -64,15 +64,16 @@ public class DirectMongoUpdate implements DocUpdater {
                        EntityMetadata md,
                        CRUDUpdateResponse response,
                        DBObject query) {
-        Set<Path> inaccessibleFields=roleEval.getInaccessibleFields(FieldAccessRoleEvaluator.Operation.update);
-        for(Path x:inaccessibleFields)
-            if(updatedFields.contains(x)) {
-                ctx.addError(Error.get("update",CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,x.toString()));
+        Set<Path> inaccessibleFields = roleEval.getInaccessibleFields(FieldAccessRoleEvaluator.Operation.update);
+        for (Path x : inaccessibleFields) {
+            if (updatedFields.contains(x)) {
+                ctx.addError(Error.get("update", CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS, x.toString()));
             }
-        if(!ctx.hasErrors()) {
-            LOGGER.debug("Calling update with q={} and u={}",query,mongoUpdate);
-            WriteResult result=collection.update(query,mongoUpdate,false,true,WriteConcern.SAFE);
-            LOGGER.debug("Update result={}",result);
+        }
+        if (!ctx.hasErrors()) {
+            LOGGER.debug("Calling update with q={} and u={}", query, mongoUpdate);
+            WriteResult result = collection.update(query, mongoUpdate, false, true, WriteConcern.SAFE);
+            LOGGER.debug("Update result={}", result);
             // No projections
             response.setNumUpdated(result.getN());
         }

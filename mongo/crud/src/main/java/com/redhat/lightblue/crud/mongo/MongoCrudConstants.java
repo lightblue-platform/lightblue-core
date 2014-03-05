@@ -9,14 +9,14 @@ public final class MongoCrudConstants {
     public static final String ERR_UPDATE_ERROR = "mongo-crud:UpdateError";
     public static final String ERR_NO_ACCESS = "mongo-crud:NoAccess";
     public static final String ERR_CONNECTION_ERROR = "mongo-crud:ConnectionError";
-    
+
     public static final String ERR_EMPTY_DOCUMENTS = "mongo-crud:EmptyDocuments";
     public static final String ERR_EMPTY_VALUE_LIST = "mongo-crud:EmptyValueList";
-    
+
     public static final String ERR_NULL_QUERY = "mongo-crud:NullQuery";
     public static final String ERR_NULL_PROJECTION = "mongo-crud:NullProjection";
-        
+
     private MongoCrudConstants() {
-        
+
     }
 }
