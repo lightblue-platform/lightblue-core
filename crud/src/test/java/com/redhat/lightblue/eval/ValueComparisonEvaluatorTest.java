@@ -15,14 +15,14 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
     }
 
     @Test
     public void multiple_value_comparison_returns_true_when_field_value_matches_expression() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [ {'field':'field4','op':'>','rvalue':3.5},{'field':'field6.nf1','op':'>','rvalue':'nvalue0'}] }");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 
@@ -31,7 +31,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field4','op':'>','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -41,7 +41,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field4','op':'<','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -51,7 +51,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field1','op':'=','rvalue':null}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -61,7 +61,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$parent.field4','op':'>','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -71,7 +71,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf7.$parent.$parent.field4','op':'<','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -81,7 +81,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf7.$parent.$parent.field4','op':'>','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -91,7 +91,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$parent.field4','op':'<','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -101,7 +101,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.nf3','op':'>','rvalue':2.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -111,7 +111,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.nf3','op':'<','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -121,7 +121,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.$this.nf3','op':'>','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -131,7 +131,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.$this.nf3','op':'<','rvalue':3.5}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -140,7 +140,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
     public void one_$parent_multiple_value_comparison_returns_true_when_field_value_matches_expression() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [ {'field':'field4','op':'>','rvalue':3.5},{'field':'field6.nf7.$parent.nf1','op':'>','rvalue':'nvalue0'}] }");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 
@@ -148,7 +148,7 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
     public void two_$parent_multiple_value_comparison_returns_true_when_field_value_matches_expression() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [ {'field':'field4','op':'>','rvalue':3.5},{'field':'field6.nf7.nnf1.$parent.$parent.nf1','op':'>','rvalue':'nvalue0'}] }");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 

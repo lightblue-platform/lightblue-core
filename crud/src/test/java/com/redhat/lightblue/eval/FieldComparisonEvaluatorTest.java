@@ -15,7 +15,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
     }
 
     @Test
@@ -23,7 +23,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field4','op':'>','rfield':'field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -33,7 +33,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field4','op':'<','rfield':'field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -43,7 +43,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$parent.field4','op':'>','rfield':'field6.$parent.field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -53,7 +53,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$parent.field4','op':'<','rfield':'field6.$parent.field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -63,7 +63,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf1.$parent.$parent.field4','op':'>','rfield':'field6.nf1.$parent.$parent.field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -73,7 +73,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf1.$parent.$parent.field4','op':'<','rfield':'field6.nf1.$parent.$parent.field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -83,7 +83,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field7.1.$this.elemf3','op':'>','rfield':'field7.0.$this.elemf3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -93,7 +93,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field7.1.$this.elemf3','op':'<','rfield':'field7.0.$this.elemf3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -103,7 +103,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field7.1.$this.$this.elemf3','op':'>','rfield':'field7.0.$this.$this.elemf3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -113,7 +113,7 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field7.1.$this.$this.elemf3','op':'<','rfield':'field7.0.$this.$this.elemf3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }

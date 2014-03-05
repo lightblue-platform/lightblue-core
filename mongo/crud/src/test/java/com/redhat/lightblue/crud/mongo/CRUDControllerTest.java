@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.junit.After;
@@ -93,7 +92,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
     private Factory factory;
 
     private class OCtx extends CRUDOperationContext {
-        private final Map<String, EntityMetadata> map = new HashMap<String, EntityMetadata>();
+        private final Map<String, EntityMetadata> map = new HashMap<>();
 
         public OCtx() {
             super("test", factory, new HashSet<String>(), null);
@@ -199,7 +198,6 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertTrue(ctx.getErrors() == null || ctx.getErrors().isEmpty());
         Assert.assertTrue(ctx.getDataErrors() == null || ctx.getDataErrors().isEmpty());
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        DB db = mongo.getDB(DB_NAME);
         DBCollection coll = db.getCollection(COLL_NAME);
         Assert.assertEquals(1, coll.find(new BasicDBObject("_id", new ObjectId(id))).count());
     }
@@ -237,7 +235,6 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void upsertTest() throws Exception {
-        DB db = mongo.getDB(DB_NAME);
         DBCollection coll = db.getCollection(COLL_NAME);
         EntityMetadata md = getMd("./testMetadata.json");
         OCtx ctx = new OCtx();
@@ -268,19 +265,18 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void updateTest() throws Exception {
-        DB db = mongo.getDB(DB_NAME);
         DBCollection coll = db.getCollection(COLL_NAME);
         EntityMetadata md = getMd("./testMetadata.json");
         OCtx ctx = new OCtx();
         ctx.add(md);
         // Generate some docs
-        List<JsonDoc> docs = new ArrayList<JsonDoc>();
+        List<JsonDoc> docs = new ArrayList<>();
         int numDocs = 20;
         for (int i = 0; i < numDocs; i++) {
-            JsonDoc jsonDoc = new JsonDoc(loadJsonNode("./testdata1.json"));
-            jsonDoc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
-            jsonDoc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
-            docs.add(jsonDoc);
+            JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
+            doc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
+            doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
+            docs.add(doc);
         }
         ctx.addDocuments(docs);
         controller.insert(ctx, projection("{'field':'_id'}"));
@@ -338,7 +334,6 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void sortAndPageTest() throws Exception {
-        DB db = mongo.getDB(DB_NAME);
         DBCollection coll = db.getCollection(COLL_NAME);
         EntityMetadata md = getMd("./testMetadata.json");
         OCtx ctx = new OCtx();
@@ -347,10 +342,10 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         List<JsonDoc> docs = new ArrayList<>();
         int numDocs = 20;
         for (int i = 0; i < numDocs; i++) {
-            JsonDoc jsonDoc = new JsonDoc(loadJsonNode("./testdata1.json"));
-            jsonDoc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
-            jsonDoc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
-            docs.add(jsonDoc);
+            JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
+            doc.modify(new Path("field1"), nodeFactory.textNode("doc" + i), false);
+            doc.modify(new Path("field3"), nodeFactory.numberNode(i), false);
+            docs.add(doc);
         }
         ctx.addDocuments(docs);
         controller.insert(ctx, projection("{'field':'_id'}"));
@@ -387,7 +382,6 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void deleteTest() throws Exception {
-        DB db = mongo.getDB(DB_NAME);
         DBCollection coll = db.getCollection(COLL_NAME);
         EntityMetadata md = getMd("./testMetadata.json");
         OCtx ctx = new OCtx();

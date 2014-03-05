@@ -15,7 +15,7 @@ public class NaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
     }
 
     @Test
@@ -23,7 +23,7 @@ public class NaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$and': [ {'field':'field3','op':'$gt','rvalue':2},{'field':'field7.0.elemf1','op':'$eq','rvalue':'elvalue0_1'}]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -33,7 +33,7 @@ public class NaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$and': [ {'field':'field2.$parent.field3','op':'$gt','rvalue':2},{'field':'field2.$parent.field7.0.elemf1','op':'$eq','rvalue':'elvalue0_1'}]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }

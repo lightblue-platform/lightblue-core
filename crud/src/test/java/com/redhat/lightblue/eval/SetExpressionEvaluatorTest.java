@@ -16,7 +16,7 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Before
     public void setUp() throws Exception {
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
         md = EvalTestContext.getMd("./testMetadata.json");
     }
 
@@ -25,8 +25,8 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field1' : '$null' } }] ");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals(NullNode.class, doc.get(new Path("field1")).getClass());
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field1")).getClass());
     }
 
     @Test
@@ -34,8 +34,8 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field6' : '$null' } }] ");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals(NullNode.class, doc.get(new Path("field6")).getClass());
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field6")).getClass());
     }
 
     @Test(expected = EvaluationError.class)
@@ -43,8 +43,8 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field7' : '$null' } }] ");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals(NullNode.class, doc.get(new Path("field6.nf5")).getClass());
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field6.nf5")).getClass());
     }
 
     @Test
@@ -52,8 +52,8 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field7.1' : '$null' } }] ");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals(NullNode.class, doc.get(new Path("field7.1")).getClass());
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field7.1")).getClass());
     }
 
 }

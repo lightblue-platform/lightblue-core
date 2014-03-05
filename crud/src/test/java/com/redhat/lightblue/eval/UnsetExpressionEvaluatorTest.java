@@ -15,7 +15,7 @@ public class UnsetExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Before
     public void setUp() throws Exception {
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
         md = EvalTestContext.getMd("./testMetadata.json");
     }
 
@@ -24,15 +24,15 @@ public class UnsetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$unset' : [ 'field1', 'field6.nf2', 'field6.nf6.1','field7.1'] }");
 
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertNull(doc.get(new Path("field1")));
-        Assert.assertNull(doc.get(new Path("field6.nf2")));
-        Assert.assertEquals("three", doc.get(new Path("field6.nf6.1")).asText());
-        Assert.assertEquals(3, doc.get(new Path("field6.nf6#")).asInt());
-        Assert.assertEquals(3, doc.get(new Path("field6.nf6")).size());
-        Assert.assertEquals("elvalue2_1", doc.get(new Path("field7.1.elemf1")).asText());
-        Assert.assertEquals(3, doc.get(new Path("field7#")).asInt());
-        Assert.assertEquals(3, doc.get(new Path("field7")).size());
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertNull(jsonDoc.get(new Path("field1")));
+        Assert.assertNull(jsonDoc.get(new Path("field6.nf2")));
+        Assert.assertEquals("three", jsonDoc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field6.nf6#")).asInt());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field6.nf6")).size());
+        Assert.assertEquals("elvalue2_1", jsonDoc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7")).size());
     }
 
     @Test
@@ -40,15 +40,15 @@ public class UnsetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$unset' : [ 'field2.$parent.field1', 'field2.$parent.field6.nf2', 'field2.$parent.field6.nf6.1','field2.$parent.field7.1'] }");
 
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertNull(doc.get(new Path("field1")));
-        Assert.assertNull(doc.get(new Path("field6.nf2")));
-        Assert.assertEquals("three", doc.get(new Path("field6.nf6.1")).asText());
-        Assert.assertEquals(3, doc.get(new Path("field6.nf6#")).asInt());
-        Assert.assertEquals(3, doc.get(new Path("field6.nf6")).size());
-        Assert.assertEquals("elvalue2_1", doc.get(new Path("field7.1.elemf1")).asText());
-        Assert.assertEquals(3, doc.get(new Path("field7#")).asInt());
-        Assert.assertEquals(3, doc.get(new Path("field7")).size());
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertNull(jsonDoc.get(new Path("field1")));
+        Assert.assertNull(jsonDoc.get(new Path("field6.nf2")));
+        Assert.assertEquals("three", jsonDoc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field6.nf6#")).asInt());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field6.nf6")).size());
+        Assert.assertEquals("elvalue2_1", jsonDoc.get(new Path("field7.1.elemf1")).asText());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7")).size());
     }
 
 }

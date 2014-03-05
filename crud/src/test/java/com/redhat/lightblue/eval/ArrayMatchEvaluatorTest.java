@@ -15,7 +15,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
     }
 
     @Test(expected = com.redhat.lightblue.eval.EvaluationError.class)
@@ -35,7 +35,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field7','elemMatch':{'field':'elemf3','op':'>','rvalue':10}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -45,7 +45,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field7','elemMatch':{'field':'elemf3','op':'>','rvalue':3}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -55,7 +55,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$parent.field7','elemMatch':{'field':'elemf3','op':'>','rvalue':10}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -65,7 +65,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$parent.field7','elemMatch':{'field':'elemf3','op':'>','rvalue':3}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -75,7 +75,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.$parent.$parent.field7','elemMatch':{'field':'elemf3','op':'>','rvalue':10}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -85,7 +85,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field8.nf1.$this.nnf4','elemMatch':{'field':'elemf3','op':'>','rvalue':50}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -95,7 +95,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field8.nf1.$this.nnf4','elemMatch':{'field':'elemf3','op':'>','rvalue':5}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -105,7 +105,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field8.nf1.$this.$this.nnf4','elemMatch':{'field':'elemf3','op':'>','rvalue':50}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -115,7 +115,7 @@ public class ArrayMatchEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field8.nf1.$this.$this.nnf4','elemMatch':{'field':'elemf3','op':'>','rvalue':5}}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }

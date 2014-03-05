@@ -36,7 +36,7 @@ import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
     protected static final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
-    protected JsonDoc doc;
+    protected JsonDoc jsonDoc;
 
     /**
      * Load resource as json document.
@@ -113,23 +113,14 @@ public abstract class AbstractJsonNodeTest {
     }
 
     public boolean textNodesHaveSameValue(JsonNode expected, JsonNode actual) {
-        if (!expected.asText().equals(actual.asText())) {
-            return false;
-        }
-        return true;
+        return expected.asText().equals(actual.asText());
     }
 
     public boolean intNodesHaveSameValue(JsonNode expected, JsonNode actual) {
-        if (expected.asInt() != actual.asInt()) {
-            return false;
-        }
-        return true;
+        return expected.asInt() == actual.asInt();
     }
 
     public boolean doubleNodesHaveSameValue(JsonNode expected, JsonNode actual) {
-        if (expected.asDouble() != actual.asDouble()) {
-            return false;
-        }
-        return true;
+        return expected.asDouble() == actual.asDouble();
     }
 }

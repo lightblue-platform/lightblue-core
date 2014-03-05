@@ -14,7 +14,7 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Before
     public void setUp() throws Exception {
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
         md = EvalTestContext.getMd("./testMetadata.json");
     }
 
@@ -23,54 +23,54 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : '$all', '$update' : '$remove' } }");
 
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(0, doc.get(new Path("field7")).size());
-        Assert.assertEquals(0, doc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(0, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals(0, jsonDoc.get(new Path("field7#")).asInt());
     }
 
     @Test
     public void array_foreach_removeone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : '$remove' } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(3, doc.get(new Path("field7")).size());
-        Assert.assertEquals("elvalue1_1", doc.get(new Path("field7.0.elemf1")).asText());
-        Assert.assertEquals(3, doc.get(new Path("field7#")).asInt());
-        Assert.assertEquals(3, doc.get(new Path("field7")).size());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("elvalue1_1", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7")).size());
     }
 
     @Test
     public void array_foreach_modone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : {'$set': { 'elemf1':'test'}} } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(4, doc.get(new Path("field7")).size());
-        Assert.assertEquals("test", doc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
     }
 
     @Test
     public void one_$parent_array_foreach_modone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field6.$parent.field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : {'$set': { 'elemf1':'test'}} } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(4, doc.get(new Path("field7")).size());
-        Assert.assertEquals("test", doc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
     }
 
     @Test
     public void one_$parent_array_foreach_removeone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field6.$parent.field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : '$remove' } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(3, doc.get(new Path("field7")).size());
-        Assert.assertEquals("elvalue1_1", doc.get(new Path("field7.0.elemf1")).asText());
-        Assert.assertEquals(3, doc.get(new Path("field7#")).asInt());
-        Assert.assertEquals(3, doc.get(new Path("field7")).size());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("elvalue1_1", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(3, jsonDoc.get(new Path("field7")).size());
     }
 
     @Test
@@ -78,9 +78,9 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field6.$parent.field7' : '$all', '$update' : '$remove' } }");
 
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(0, doc.get(new Path("field7")).size());
-        Assert.assertEquals(0, doc.get(new Path("field7#")).asInt());
+        Assert.assertEquals(0, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals(0, jsonDoc.get(new Path("field7#")).asInt());
     }
 }
