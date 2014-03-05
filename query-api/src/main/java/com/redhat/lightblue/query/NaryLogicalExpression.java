@@ -36,8 +36,8 @@ import com.redhat.lightblue.util.Error;
  */
 public class NaryLogicalExpression extends LogicalExpression {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     private final NaryLogicalOperator op;
     private final List<QueryExpression> queries;
 

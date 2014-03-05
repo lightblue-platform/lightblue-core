@@ -51,11 +51,13 @@ public class Access implements Serializable {
     /**
      * Sets the roles.
      */
-    public void setRoles(String...roles) {
+    public void setRoles(String... roles) {
         values.clear();
-        if(roles!=null)
-            for(String x:roles)
+        if (roles != null) {
+            for (String x : roles) {
                 values.add(x);
+            }
+        }
     }
 
     /**
@@ -91,7 +93,7 @@ public class Access implements Serializable {
      * Returns if the given role can perform this operation
      */
     public boolean hasAccess(String role) {
-        if(isNoone()) {
+        if (isNoone()) {
             return false;
         }
         return isAnyone() || values.contains(role);
@@ -101,14 +103,14 @@ public class Access implements Serializable {
      * Returns if a caller with the given roles can perform this operation
      */
     public boolean hasAccess(Collection<String> roles) {
-        if(isNoone()) {
+        if (isNoone()) {
             return false;
-        }            
-        if(isAnyone()) {
+        }
+        if (isAnyone()) {
             return true;
         }
-        for(String x:roles) {
-            if(values.contains(x)) {
+        for (String x : roles) {
+            if (values.contains(x)) {
                 return true;
             }
         }

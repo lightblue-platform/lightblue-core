@@ -26,7 +26,7 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public abstract class ClientIdentification extends JsonObject {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Return the roles the caller is in.
      */

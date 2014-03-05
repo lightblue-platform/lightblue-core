@@ -28,14 +28,14 @@ public class GsonTest {
 
         JSONAssert.assertEquals("[\"a\",\"b\",\"c\"]", json, false);
     }
-    
+
     @Test
     public void gsonVersionArray() throws JSONException {
         Version[] versions = new Version[2];
-        
+
         versions[0] = new Version("0.1.0", null, "initial");
         versions[1] = new Version("1.0.0", new String[]{"0.1.0"}, "release");
-        
+
         Gson g = new Gson();
         String json = g.toJson(versions);
 

@@ -10,7 +10,7 @@ public final class RestMetadataConstants {
     public static final String ERR_NO_VERSION_MATCH = "rest-metadata:NoVersionMatch";
 
     private RestMetadataConstants() {
-        
+
     }
-    
+
 }

@@ -69,7 +69,7 @@ public class ForEachExpressionEvaluator extends Updater {
         private final Path absField;
 
         public RemoveEvaluator(Path absField) {
-            this.absField=absField;
+            this.absField = absField;
         }
 
         @Override
@@ -78,8 +78,8 @@ public class ForEachExpressionEvaluator extends Updater {
         }
 
         @Override
-        public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-            return doc.modify(contextPath,null,false)!=null;
+        public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+            return doc.modify(contextPath, null, false) != null;
         }
     }
 
@@ -105,28 +105,28 @@ public class ForEachExpressionEvaluator extends Updater {
         }
 
         // Get an updater to execute on each matching element
-        UpdateExpression upd=expr.getUpdate();
-        if(upd instanceof RemoveElementExpression) {
-            updater=new RemoveEvaluator(fieldMd.getElement().getFullPath());
+        UpdateExpression upd = expr.getUpdate();
+        if (upd instanceof RemoveElementExpression) {
+            updater = new RemoveEvaluator(fieldMd.getElement().getFullPath());
         } else {
             updater = Updater.getInstance(factory, fieldMd.getElement(), upd);
         }
     }
-    
+
     @Override
     public void getUpdateFields(Set<Path> fields) {
         updater.getUpdateFields(fields);
     }
 
     @Override
-    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-        boolean ret=false;
+    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+        boolean ret = false;
         // Get a reference to the array field, and iterate all elements in the array
-        ArrayNode arrayNode=(ArrayNode)doc.get(field);
-        ArrayElement elementMd=fieldMd.getElement();
-        if(arrayNode!=null) {
-            int index=0;
-            MutablePath itrPath=new MutablePath(contextPath);
+        ArrayNode arrayNode = (ArrayNode) doc.get(field);
+        ArrayElement elementMd = fieldMd.getElement();
+        if (arrayNode != null) {
+            int index = 0;
+            MutablePath itrPath = new MutablePath(contextPath);
             itrPath.push(field);
             MutablePath arrSizePath = itrPath.copy();
             arrSizePath.setLast(arrSizePath.getLast() + "#");
@@ -164,4 +164,4 @@ public class ForEachExpressionEvaluator extends Updater {
         }
         return ret;
     }
- }
+}

@@ -22,8 +22,8 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayMatchingElementsProjection extends ArrayProjection {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     public ArrayMatchingElementsProjection(Path field,
                                            boolean include,
                                            Projection project) {

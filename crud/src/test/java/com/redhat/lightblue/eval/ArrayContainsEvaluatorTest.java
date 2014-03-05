@@ -11,7 +11,7 @@ import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     private EntityMetadata md;
-    
+
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");

@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class ComparisonExpression extends QueryExpression {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Parses a relational expression or an array comparison expression from the given json object

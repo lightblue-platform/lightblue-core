@@ -31,9 +31,9 @@ import com.redhat.lightblue.util.Error;
  * </pre>
  */
 public class SortKey extends Sort {
-	private static final long serialVersionUID = 1L;
-	
-	private final Path field;
+    private static final long serialVersionUID = 1L;
+
+    private final Path field;
     private final boolean desc;
 
     /**

@@ -25,11 +25,11 @@ import java.util.HashMap;
  * Update operators
  */
 public enum UpdateOperator {
-    _set("$set"), 
-    _unset("$unset"), 
-    _add("$add"), 
-    _append("$append"), 
-    _insert("$insert"), 
+    _set("$set"),
+    _unset("$unset"),
+    _add("$add"),
+    _append("$append"),
+    _insert("$insert"),
     _foreach("$foreach");
 
     private final String name;
@@ -37,7 +37,7 @@ public enum UpdateOperator {
     private static final Map<String, UpdateOperator> MAP;
 
     static {
-        MAP = new HashMap<String,UpdateOperator>();
+        MAP = new HashMap<String, UpdateOperator>();
         _set.init(MAP);
         _unset.init(MAP);
         _add.init(MAP);
@@ -47,11 +47,11 @@ public enum UpdateOperator {
     }
 
     private UpdateOperator(String x) {
-        this.name=x;
+        this.name = x;
     }
 
-    private void init(Map<String,UpdateOperator> map) {
-        map.put(name,this);
+    private void init(Map<String, UpdateOperator> map) {
+        map.put(name, this);
     }
 
     public String toString() {

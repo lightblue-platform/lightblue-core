@@ -33,10 +33,10 @@ import com.redhat.lightblue.util.Path;
 /**
  * Expression to modify a field (set and add)
  * <pre>
- * primitive_update_expression := { $set : { path : rvalue_expression , ...} } |  
- *                                { $unset : path } |  
- *                                { $unset :[ path, ... ] }  
- *                                { $add : { path : rvalue_expression, ... } }  
+ * primitive_update_expression := { $set : { path : rvalue_expression , ...} } |
+ *                                { $unset : path } |
+ *                                { $unset :[ path, ... ] }
+ *                                { $add : { path : rvalue_expression, ... } }
  * </pre>
  */
 public class SetExpression extends PrimitiveUpdateExpression {
@@ -49,15 +49,15 @@ public class SetExpression extends PrimitiveUpdateExpression {
     /**
      * Constructs a set expression using the given list
      */
-    public SetExpression(UpdateOperator op,List<FieldAndRValue> list) {
-        this.fields=list;
+    public SetExpression(UpdateOperator op, List<FieldAndRValue> list) {
+        this.fields = list;
         if (op == UpdateOperator._set || op == UpdateOperator._add) {
             this.op = op;
         } else {
             throw new IllegalArgumentException(QueryConstants.ERR_UNSUPPORTED_OPERATOR + op);
         }
     }
-    
+
     /**
      * Constructs a set expression using the given list
      */
@@ -86,13 +86,13 @@ public class SetExpression extends PrimitiveUpdateExpression {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=getFactory().objectNode();
-        ObjectNode values=getFactory().objectNode();
-        for(FieldAndRValue x:fields) {
+        ObjectNode node = getFactory().objectNode();
+        ObjectNode values = getFactory().objectNode();
+        for (FieldAndRValue x : fields) {
             values.set(x.getField().toString(),
-                       x.getRValue().toJson());
+                    x.getRValue().toJson());
         }
-        node.set(op.toString(),values);
+        node.set(op.toString(), values);
         return node;
     }
 
@@ -100,25 +100,25 @@ public class SetExpression extends PrimitiveUpdateExpression {
      * Parses a set expression using the given json object
      */
     public static SetExpression fromJson(ObjectNode node) {
-        if(node.size()==1) {
-            UpdateOperator op=null;
-            if(node.has(UpdateOperator._add.toString())) {
-                op=UpdateOperator._add;
-            } else if(node.has(UpdateOperator._set.toString())) {
-                op=UpdateOperator._set;
+        if (node.size() == 1) {
+            UpdateOperator op = null;
+            if (node.has(UpdateOperator._add.toString())) {
+                op = UpdateOperator._add;
+            } else if (node.has(UpdateOperator._set.toString())) {
+                op = UpdateOperator._set;
             }
-            if(op!=null) {
-                ObjectNode arg=(ObjectNode)node.get(op.toString());
-                List<FieldAndRValue> list=new ArrayList<FieldAndRValue>();
-                for(Iterator<Map.Entry<String,JsonNode>> itr=arg.fields();itr.hasNext();) {
-                    Map.Entry<String,JsonNode> entry=itr.next();
-                    Path field=new Path(entry.getKey());
-                    RValueExpression rvalue=RValueExpression.fromJson(entry.getValue());
-                    list.add(new FieldAndRValue(field,rvalue));
+            if (op != null) {
+                ObjectNode arg = (ObjectNode) node.get(op.toString());
+                List<FieldAndRValue> list = new ArrayList<FieldAndRValue>();
+                for (Iterator<Map.Entry<String, JsonNode>> itr = arg.fields(); itr.hasNext();) {
+                    Map.Entry<String, JsonNode> entry = itr.next();
+                    Path field = new Path(entry.getKey());
+                    RValueExpression rvalue = RValueExpression.fromJson(entry.getValue());
+                    list.add(new FieldAndRValue(field, rvalue));
                 }
-                return new SetExpression(op,list);
+                return new SetExpression(op, list);
             }
         }
-        throw Error.get(QueryConstants.ERR_INVALID_SET_EXPRESSION,node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_SET_EXPRESSION, node.toString());
     }
 }

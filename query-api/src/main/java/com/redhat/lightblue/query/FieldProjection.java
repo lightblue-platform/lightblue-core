@@ -24,8 +24,8 @@ import com.redhat.lightblue.util.Path;
 
 public class FieldProjection extends BasicProjection {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     public static final FieldProjection ALL = new FieldProjection(Path.ANYPATH, true, true);
 
     private final Path field;

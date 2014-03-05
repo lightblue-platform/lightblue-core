@@ -30,7 +30,7 @@ import com.redhat.lightblue.util.Error;
  */
 public abstract class BasicProjection extends Projection {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Parses a field or array projection from the given json object
@@ -40,9 +40,9 @@ public abstract class BasicProjection extends Projection {
         if (field == null) {
             throw Error.get(QueryConstants.ERR_INVALID_PROJECTION, "field");
         }
-        
+
         Path path = getNonRelativePath(new Path(field));
-        
+
         // Processing of optional elements. We decide on the type of
         // the final object based on what fields this object has
         JsonNode x = node.get("include");

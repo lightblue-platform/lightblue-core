@@ -32,7 +32,7 @@ public abstract class UpdateQueryExpression extends QueryExpression {
      * Parses a query expression that can be used in for-each clauses
      */
     public static QueryExpression fromJson(JsonNode node) {
-        if(node instanceof TextNode && "$all".equals(node.asText())) {
+        if (node instanceof TextNode && "$all".equals(node.asText())) {
             return new AllMatchExpression();
         } else {
             return QueryExpression.fromJson(node);

@@ -50,9 +50,9 @@ public final class CrudManager {
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private CrudManager() {
-        
+
     }
-    
+
     private static synchronized void initializeParser() {
         if (parser != null) {
             return;
@@ -63,7 +63,7 @@ public final class CrudManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException {
         if (mediator != null) {
             // already initalized

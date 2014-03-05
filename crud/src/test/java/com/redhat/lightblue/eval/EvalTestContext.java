@@ -19,14 +19,14 @@ import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 public class EvalTestContext extends AbstractJsonNodeTest {
 
     EvalTestContext context;
-    
+
     private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
-    
+
     public static JsonDoc getDoc(String fname) throws Exception {
         JsonNode node = loadJsonNode(fname);
         return new JsonDoc(node);
     }
-    
+
     public static EntityMetadata getMd(String fname) throws Exception {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<JsonNode>();
@@ -34,24 +34,24 @@ public class EvalTestContext extends AbstractJsonNodeTest {
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
-        EntityMetadata md=parser.parseEntityMetadata(node);
+        EntityMetadata md = parser.parseEntityMetadata(node);
         PredefinedFields.ensurePredefinedFields(md);
         return md;
     }
-    
+
     public static QueryExpression queryExpressionFromJson(String s) throws Exception {
-        return QueryExpression.fromJson(JsonUtils.json(s.replace('\'','\"')));
+        return QueryExpression.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
-    
+
     public static UpdateExpression updateExpressionFromJson(String s) throws Exception {
-        return UpdateExpression.fromJson(JsonUtils.json(s.replace('\'','\"')));
+        return UpdateExpression.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
-    
+
     public static Projection projectionFromJson(String s) throws Exception {
         return Projection.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
 
     private EvalTestContext() {
-        
+
     }
 }

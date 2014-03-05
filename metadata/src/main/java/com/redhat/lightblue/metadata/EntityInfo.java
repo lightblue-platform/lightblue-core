@@ -31,9 +31,9 @@ public class EntityInfo implements Serializable {
 
     private final String name;
     private String defaultVersion;
-    private final Hooks hooks=new Hooks();
-    private final Indexes indexes=new Indexes();
-    private final Enums enums=new Enums();
+    private final Hooks hooks = new Hooks();
+    private final Indexes indexes = new Indexes();
+    private final Enums enums = new Enums();
     private DataStore dataStore;
 
     public EntityInfo(String name) {

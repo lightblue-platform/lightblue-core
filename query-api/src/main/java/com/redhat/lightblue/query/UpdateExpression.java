@@ -27,7 +27,7 @@ import com.redhat.lightblue.util.JsonObject;
 /**
  * Base class for update expressions
  * <pre>
- * update_expression := partial_update_expression | [ partial_update_expression,...]  
+ * update_expression := partial_update_expression | [ partial_update_expression,...]
  * </pre>
  */
 public abstract class UpdateExpression extends JsonObject {

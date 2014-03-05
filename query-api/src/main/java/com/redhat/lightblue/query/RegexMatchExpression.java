@@ -33,7 +33,7 @@ import com.redhat.lightblue.util.Error;
  *
  */
 public class RegexMatchExpression extends RelationalExpression {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private final Path field;
     private final String regex;

@@ -38,7 +38,6 @@ import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.util.Error;
 
-
 public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     private final JsonNodeFactory factory;
@@ -234,16 +233,16 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public Projection parseProjection(JsonNode object) {
-        return object==null?null:Projection.fromJson(object);
+        return object == null ? null : Projection.fromJson(object);
     }
 
     @Override
     public QueryExpression parseQuery(JsonNode object) {
-        return object==null?null:QueryExpression.fromJson(object);
+        return object == null ? null : QueryExpression.fromJson(object);
     }
 
     @Override
     public Sort parseSort(JsonNode object) {
-        return object==null?null:Sort.fromJson(object);
+        return object == null ? null : Sort.fromJson(object);
     }
 }

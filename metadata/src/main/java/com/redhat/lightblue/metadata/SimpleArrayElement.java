@@ -25,8 +25,8 @@ import com.redhat.lightblue.util.Error;
 
 public class SimpleArrayElement extends ArrayElement {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     public SimpleArrayElement() {
     }
 
@@ -48,7 +48,7 @@ public class SimpleArrayElement extends ArrayElement {
     public FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
-        } else if (p.head(level).equals(Path.PARENT)) { 
+        } else if (p.head(level).equals(Path.PARENT)) {
             return this.getParent().resolve(p, level + 1);
         } else {
             throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);

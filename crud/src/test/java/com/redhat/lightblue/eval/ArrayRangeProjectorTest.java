@@ -41,7 +41,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
-        
+
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
 
@@ -89,7 +89,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
-        
+
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
 

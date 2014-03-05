@@ -31,7 +31,6 @@ import com.redhat.lightblue.util.Path;
 
 public class StringLengthChecker implements FieldConstraintValueChecker {
 
-
     @Override
     public void checkConstraint(ConstraintValidator validator,
                                 FieldTreeNode fieldMetadata,

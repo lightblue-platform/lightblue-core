@@ -26,8 +26,8 @@ import com.redhat.lightblue.metadata.types.ArrayType;
  */
 public class ArraySizeConstraint extends AbstractIntFieldConstraint {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     public static final String MIN = "minItems";
     public static final String MAX = "maxItems";
 

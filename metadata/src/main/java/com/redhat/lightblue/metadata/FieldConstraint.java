@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-
 /**
  * Interface for constraints that apply to a field
  */

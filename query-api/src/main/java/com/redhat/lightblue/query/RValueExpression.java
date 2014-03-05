@@ -25,8 +25,8 @@ import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Expression that can be on the right side of an assignment
- * operator. It can be a value, a field reference, or an empty object
+ * Expression that can be on the right side of an assignment operator. It can be a value, a field reference, or an empty
+ * object
  * <pre>
  *   rvalue_expression := value | { $valueof : path } | {}
  */
@@ -35,9 +35,9 @@ public class RValueExpression extends JsonObject {
     private static final long serialVersionUID = 1L;
 
     public enum RValueType {
-        _value, 
-        _dereference, 
-        _emptyObject, 
+        _value,
+        _dereference,
+        _emptyObject,
         _null
     }
 
@@ -49,38 +49,38 @@ public class RValueExpression extends JsonObject {
      * Creates an rvalue expression that is a constant value
      */
     public RValueExpression(Value value) {
-        this.value=value;
-        this.path=null;
-        this.type=RValueType._value;
+        this.value = value;
+        this.path = null;
+        this.type = RValueType._value;
     }
 
     /**
      * Creates an rvalue expression that references another field
      */
     public RValueExpression(Path p) {
-        this.type=RValueType._dereference;
-        this.path=p;
-        this.value=null;
+        this.type = RValueType._dereference;
+        this.path = p;
+        this.value = null;
     }
 
     /**
      * Creates an rvalue expression that is an empty object
      */
     public RValueExpression() {
-        this.type=RValueType._emptyObject;
-        this.path=null;
-        this.value=null;
+        this.type = RValueType._emptyObject;
+        this.path = null;
+        this.value = null;
     }
 
     /**
      * Creates an rvalue expression that is of the specified type
      */
     public RValueExpression(RValueType type) {
-        this.type=type;
-        this.path=null;
-        this.value=null;
+        this.type = type;
+        this.path = null;
+        this.value = null;
     }
-    
+
     /**
      * The constant value. Null if this rvalue references a field
      */
@@ -104,16 +104,17 @@ public class RValueExpression extends JsonObject {
 
     @Override
     public JsonNode toJson() {
-        switch(type) {
-        case _value: return value.toJson();
-        case _dereference: 
-            ObjectNode node=getFactory().objectNode();
-            node.put("$valueof",path.toString());
-            return node;
-        case _null:
-            return getFactory().nullNode();
-        default:
-            return getFactory().objectNode();
+        switch (type) {
+            case _value:
+                return value.toJson();
+            case _dereference:
+                ObjectNode node = getFactory().objectNode();
+                node.put("$valueof", path.toString());
+                return node;
+            case _null:
+                return getFactory().nullNode();
+            default:
+                return getFactory().objectNode();
         }
     }
 
@@ -131,11 +132,11 @@ public class RValueExpression extends JsonObject {
                 return new RValueExpression();
             }
         } else if (node.isValueNode()) {
-            if(node.asText().equals("$null")) {
+            if (node.asText().equals("$null")) {
                 return new RValueExpression(RValueType._null);
             } else {
-                return new RValueExpression(Value.fromJson(node));    
-            }   
+                return new RValueExpression(Value.fromJson(node));
+            }
         }
         throw Error.get(QueryConstants.ERR_INVALID_RVALUE_EXPRESSION, node.toString());
     }

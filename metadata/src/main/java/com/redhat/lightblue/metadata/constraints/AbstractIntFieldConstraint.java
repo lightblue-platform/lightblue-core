@@ -47,9 +47,9 @@ public abstract class AbstractIntFieldConstraint
     /**
      * Constructs a constraint with the given type and value
      */
-    public AbstractIntFieldConstraint(String type,int value) {
+    public AbstractIntFieldConstraint(String type, int value) {
         this(type);
-        this.value=value;
+        this.value = value;
     }
 
     @Override

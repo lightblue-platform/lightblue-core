@@ -25,7 +25,7 @@ import java.io.Serializable;
  */
 public class CRUDSaveResponse implements Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private int numSaved;
 
@@ -40,6 +40,6 @@ public class CRUDSaveResponse implements Serializable {
      * Number of documents saved
      */
     public void setNumSaved(int n) {
-        numSaved=n;
+        numSaved = n;
     }
 }

@@ -31,7 +31,7 @@ public class ObjectArrayElement extends ArrayElement {
 
     public ObjectArrayElement() {
         super(ObjectType.TYPE);
-        fields=new Fields(this);
+        fields = new Fields(this);
     }
 
     public Fields getFields() {
@@ -52,7 +52,7 @@ public class ObjectArrayElement extends ArrayElement {
     public FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
-        } else if (Path.PARENT.equals(p.head(level))){
+        } else if (Path.PARENT.equals(p.head(level))) {
             return this.getParent().resolve(p, level + 1);
         } else {
             return fields.resolve(p, level);

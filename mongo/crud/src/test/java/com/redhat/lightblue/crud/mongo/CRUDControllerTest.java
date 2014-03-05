@@ -90,14 +90,13 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     private MongoCRUDController controller;
 
-    private  Factory factory;
-
+    private Factory factory;
 
     private class OCtx extends CRUDOperationContext {
-        private final Map<String,EntityMetadata> map=new HashMap<String,EntityMetadata>();
+        private final Map<String, EntityMetadata> map = new HashMap<String, EntityMetadata>();
 
         public OCtx() {
-            super("test",factory,new HashSet<String>(),null);
+            super("test", factory, new HashSet<String>(), null);
         }
 
         public void add(EntityMetadata md) {
@@ -128,14 +127,14 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         final DB dbx = db;
         dbx.createCollection(COLL_NAME, null);
 
-        controller=new MongoCRUDController(nodeFactory,new DBResolver() {
-                @Override
-                public DB get(MongoDataStore store) {
-                    return dbx;
-                }
-            });
+        controller = new MongoCRUDController(nodeFactory, new DBResolver() {
+            @Override
+            public DB get(MongoDataStore store) {
+                return dbx;
+            }
+        });
 
-        factory=new Factory();
+        factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
     }
@@ -188,13 +187,13 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void insertTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        EntityMetadata md = getMd("./testMetadata.json");
+        OCtx ctx = new OCtx();
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         Projection projection = projection("{'field':'_id'}");
         ctx.addDocument(doc);
-        CRUDInsertionResponse response=controller.insert(ctx,projection);
+        CRUDInsertionResponse response = controller.insert(ctx, projection);
         System.out.println(ctx.getDataErrors());
         Assert.assertEquals(1, ctx.getDocuments().size());
         Assert.assertTrue(ctx.getErrors() == null || ctx.getErrors().isEmpty());
@@ -207,75 +206,75 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void saveTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        EntityMetadata md = getMd("./testMetadata.json");
+        OCtx ctx = new OCtx();
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         Projection projection = projection("{'field':'_id'}");
         ctx.addDocument(doc);
-        System.out.println("Write doc:"+doc);
-        CRUDInsertionResponse response=controller.insert(ctx,projection);
-        String id=ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        JsonDoc readDoc=controller.find(ctx,query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
-                                        projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
+        System.out.println("Write doc:" + doc);
+        CRUDInsertionResponse response = controller.insert(ctx, projection);
+        String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
+        JsonDoc readDoc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
         // Change some fields
         System.out.println("Read doc:" + readDoc);
         readDoc.modify(new Path("field1"), nodeFactory.textNode("updated"), false);
         readDoc.modify(new Path("field7.0.elemf1"), nodeFactory.textNode("updated too"), false);
 
         // Save it back
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
         ctx.addDocument(readDoc);
-        controller.save(ctx,false,projection);
-        
+        controller.save(ctx, false, projection);
+
         // Read it back
-        JsonDoc r2doc=controller.find(ctx,query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
-                                      projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
-        Assert.assertEquals(readDoc.get(new Path("field1")).asText(),r2doc.get(new Path("field1")).asText());
-        Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(),r2doc.get(new Path("field7.0.elemf1")).asText());
+        JsonDoc r2doc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
+        Assert.assertEquals(readDoc.get(new Path("field1")).asText(), r2doc.get(new Path("field1")).asText());
+        Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(), r2doc.get(new Path("field7.0.elemf1")).asText());
     }
 
     @Test
     public void upsertTest() throws Exception {
         DB db = mongo.getDB(DB_NAME);
-        DBCollection coll=db.getCollection(COLL_NAME);
-        EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        DBCollection coll = db.getCollection(COLL_NAME);
+        EntityMetadata md = getMd("./testMetadata.json");
+        OCtx ctx = new OCtx();
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         ctx.addDocument(doc);
-        System.out.println("Write doc:"+doc);
-        CRUDInsertionResponse response=controller.insert(ctx,projection("{'field':'_id'}"));
-        String id=ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        JsonDoc readDoc=controller.find(ctx,query("{'field':'_id','op':'=','rvalue':'"+id+"'}"),
-                                        projection("{'field':'*','recursive':1}"),null,null,null).getResults().get(0);
+        System.out.println("Write doc:" + doc);
+        CRUDInsertionResponse response = controller.insert(ctx, projection("{'field':'_id'}"));
+        String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
+        JsonDoc readDoc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
         // Remove id, to force re-insert
         readDoc.modify(new Path("_id"), null, false);
 
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
         ctx.addDocument(readDoc);
         // This should not insert anything
-        CRUDSaveResponse sr=controller.save(ctx,false,projection("{'field':'_id'}"));
-        Assert.assertEquals(1,coll.find(null).count());
-        
-        ctx=new OCtx();
+        CRUDSaveResponse sr = controller.save(ctx, false, projection("{'field':'_id'}"));
+        Assert.assertEquals(1, coll.find(null).count());
+
+        ctx = new OCtx();
         ctx.add(md);
         ctx.addDocument(readDoc);
-        sr=controller.save(ctx,true,projection("{'field':'_id'}"));
-        Assert.assertEquals(2,coll.find(null).count());
+        sr = controller.save(ctx, true, projection("{'field':'_id'}"));
+        Assert.assertEquals(2, coll.find(null).count());
     }
 
     @Test
     public void updateTest() throws Exception {
         DB db = mongo.getDB(DB_NAME);
-        DBCollection coll=db.getCollection(COLL_NAME);
-        EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        DBCollection coll = db.getCollection(COLL_NAME);
+        EntityMetadata md = getMd("./testMetadata.json");
+        OCtx ctx = new OCtx();
         ctx.add(md);
         // Generate some docs
-        List<JsonDoc> docs=new ArrayList<JsonDoc>();
+        List<JsonDoc> docs = new ArrayList<JsonDoc>();
         int numDocs = 20;
         for (int i = 0; i < numDocs; i++) {
             JsonDoc jsonDoc = new JsonDoc(loadJsonNode("./testdata1.json"));
@@ -284,65 +283,65 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             docs.add(jsonDoc);
         }
         ctx.addDocuments(docs);
-        controller.insert(ctx,projection("{'field':'_id'}"));
-        Assert.assertEquals(numDocs,coll.find(null).count());
+        controller.insert(ctx, projection("{'field':'_id'}"));
+        Assert.assertEquals(numDocs, coll.find(null).count());
 
         // Single doc update
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
-        CRUDUpdateResponse upd=controller.update(ctx,query("{'field':'field3','op':'$eq','rvalue':10}"),
-                                                 update("{ '$set': { 'field3' : 1000 } }"),
-                                                 projection("{'field':'_id'}"));
-        Assert.assertEquals(1,upd.getNumUpdated());
-        Assert.assertEquals(0,upd.getNumFailed());
-        Assert.assertEquals(AtomicIterateUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
-        DBObject obj=coll.find(new BasicDBObject("field3",1000),new BasicDBObject("_id",1)).next();
+        CRUDUpdateResponse upd = controller.update(ctx, query("{'field':'field3','op':'$eq','rvalue':10}"),
+                update("{ '$set': { 'field3' : 1000 } }"),
+                projection("{'field':'_id'}"));
+        Assert.assertEquals(1, upd.getNumUpdated());
+        Assert.assertEquals(0, upd.getNumFailed());
+        Assert.assertEquals(AtomicIterateUpdate.class, ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        DBObject obj = coll.find(new BasicDBObject("field3", 1000), new BasicDBObject("_id", 1)).next();
         Assert.assertNotNull(obj);
-        System.out.println("DBObject:"+obj);
-        System.out.println("Output doc:"+ctx.getDocuments().get(0).getOutputDocument());
+        System.out.println("DBObject:" + obj);
+        System.out.println("Output doc:" + ctx.getDocuments().get(0).getOutputDocument());
         Assert.assertEquals(ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText(),
-                            obj.get("_id").toString());
-        Assert.assertEquals(1,coll.find(new BasicDBObject("field3",1000)).count());
+                obj.get("_id").toString());
+        Assert.assertEquals(1, coll.find(new BasicDBObject("field3", 1000)).count());
 
         // Bulk update
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
-        upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
-                              update("{ '$set': { 'field3' : 1000 } }"),
-                              projection("{'field':'_id'}"));
-        Assert.assertEquals(AtomicIterateUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
-        Assert.assertEquals(10,upd.getNumUpdated());
-        Assert.assertEquals(0,upd.getNumFailed());
-        Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
+        upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
+                update("{ '$set': { 'field3' : 1000 } }"),
+                projection("{'field':'_id'}"));
+        Assert.assertEquals(AtomicIterateUpdate.class, ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        Assert.assertEquals(10, upd.getNumUpdated());
+        Assert.assertEquals(0, upd.getNumFailed());
+        Assert.assertEquals(10, coll.find(new BasicDBObject("field3", new BasicDBObject("$gt", 10))).count());
 
         // Bulk direct update
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
-        upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
-                              update("{ '$set': { 'field3' : 1000 } }"),null);
-        Assert.assertEquals(DirectMongoUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
-        Assert.assertEquals(10,upd.getNumUpdated());
-        Assert.assertEquals(0,upd.getNumFailed());
-        Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
+        upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
+                update("{ '$set': { 'field3' : 1000 } }"), null);
+        Assert.assertEquals(DirectMongoUpdate.class, ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        Assert.assertEquals(10, upd.getNumUpdated());
+        Assert.assertEquals(0, upd.getNumFailed());
+        Assert.assertEquals(10, coll.find(new BasicDBObject("field3", new BasicDBObject("$gt", 10))).count());
 
         // Iterate update
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
         // Updating an array field will force use of IterateAndupdate
-        upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
-                              update("{ '$set': { 'field7.0.elemf1' : 'blah' } }"),projection("{'field':'_id'}"));
-        Assert.assertEquals(IterateAndUpdate.class,ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
-        Assert.assertEquals(10,upd.getNumUpdated());
-        Assert.assertEquals(0,upd.getNumFailed());
-        Assert.assertEquals(10,coll.find(new BasicDBObject("field7.0.elemf1","blah")).count());
-  }
+        upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
+                update("{ '$set': { 'field7.0.elemf1' : 'blah' } }"), projection("{'field':'_id'}"));
+        Assert.assertEquals(IterateAndUpdate.class, ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        Assert.assertEquals(10, upd.getNumUpdated());
+        Assert.assertEquals(0, upd.getNumFailed());
+        Assert.assertEquals(10, coll.find(new BasicDBObject("field7.0.elemf1", "blah")).count());
+    }
 
     @Test
     public void sortAndPageTest() throws Exception {
         DB db = mongo.getDB(DB_NAME);
-        DBCollection coll=db.getCollection(COLL_NAME);
-        EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        DBCollection coll = db.getCollection(COLL_NAME);
+        EntityMetadata md = getMd("./testMetadata.json");
+        OCtx ctx = new OCtx();
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs = new ArrayList<>();
@@ -354,33 +353,33 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             docs.add(jsonDoc);
         }
         ctx.addDocuments(docs);
-        controller.insert(ctx,projection("{'field':'_id'}"));
-        
-        ctx=new OCtx();
+        controller.insert(ctx, projection("{'field':'_id'}"));
+
+        ctx = new OCtx();
         ctx.add(md);
-        CRUDFindResponse response=controller.find(ctx,query("{'field':'field3','op':'>=','rvalue':0}"),
-                                                  projection("{'field':'*','recursive':1}"),
-                                                  sort("{'field3':'$desc'}"),null,null);
-        Assert.assertEquals(numDocs,response.getResults().size());
-        int lastValue=-1;
-        for(JsonDoc doc:response.getResults()) {
-            int value=doc.get(new Path("field3")).asInt();
-            if(value<lastValue) {
+        CRUDFindResponse response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
+                projection("{'field':'*','recursive':1}"),
+                sort("{'field3':'$desc'}"), null, null);
+        Assert.assertEquals(numDocs, response.getResults().size());
+        int lastValue = -1;
+        for (JsonDoc doc : response.getResults()) {
+            int value = doc.get(new Path("field3")).asInt();
+            if (value < lastValue) {
                 Assert.fail("wrong order");
             }
         }
 
-        for(int k=0;k<15;k++) {
-            ctx=new OCtx();
+        for (int k = 0; k < 15; k++) {
+            ctx = new OCtx();
             ctx.add(md);
-            response=controller.find(ctx,query("{'field':'field3','op':'>=','rvalue':0}"),
-                                     projection("{'field':'*','recursive':1}"),
-                                     sort("{'field3':'$asc'}"),new Long(k),new Long(k+5));
-            
-            int i=0;
-            for(JsonDoc doc:response.getResults()) {
-                int value=doc.get(new Path("field3")).asInt();
-                Assert.assertEquals(i+k,value);
+            response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
+                    projection("{'field':'*','recursive':1}"),
+                    sort("{'field3':'$asc'}"), new Long(k), new Long(k + 5));
+
+            int i = 0;
+            for (JsonDoc doc : response.getResults()) {
+                int value = doc.get(new Path("field3")).asInt();
+                Assert.assertEquals(i + k, value);
                 i++;
             }
         }
@@ -389,9 +388,9 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
     @Test
     public void deleteTest() throws Exception {
         DB db = mongo.getDB(DB_NAME);
-        DBCollection coll=db.getCollection(COLL_NAME);
-        EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        DBCollection coll = db.getCollection(COLL_NAME);
+        EntityMetadata md = getMd("./testMetadata.json");
+        OCtx ctx = new OCtx();
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs = new ArrayList<>();
@@ -403,21 +402,21 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             docs.add(jsonDOc);
         }
         ctx.addDocuments(docs);
-        controller.insert(ctx,projection("{'field':'_id'}"));
-        Assert.assertEquals(numDocs,coll.find(null).count());
+        controller.insert(ctx, projection("{'field':'_id'}"));
+        Assert.assertEquals(numDocs, coll.find(null).count());
 
         // Single doc delete
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
-        CRUDDeleteResponse del=controller.delete(ctx,query("{'field':'field3','op':'$eq','rvalue':10}"));
-        Assert.assertEquals(1,del.getNumDeleted());
-        Assert.assertEquals(numDocs-1,coll.find(null).count());
+        CRUDDeleteResponse del = controller.delete(ctx, query("{'field':'field3','op':'$eq','rvalue':10}"));
+        Assert.assertEquals(1, del.getNumDeleted());
+        Assert.assertEquals(numDocs - 1, coll.find(null).count());
 
         // Bulk delete
-        ctx=new OCtx();
+        ctx = new OCtx();
         ctx.add(md);
-        del=controller.delete(ctx,query("{'field':'field3','op':'>','rvalue':10}"));
-        Assert.assertEquals(9,del.getNumDeleted());
-        Assert.assertEquals(10,coll.find(null).count());
+        del = controller.delete(ctx, query("{'field':'field3','op':'>','rvalue':10}"));
+        Assert.assertEquals(9, del.getNumDeleted());
+        Assert.assertEquals(10, coll.find(null).count());
     }
 }

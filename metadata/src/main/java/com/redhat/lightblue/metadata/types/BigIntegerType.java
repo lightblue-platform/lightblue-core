@@ -85,7 +85,7 @@ public final class BigIntegerType implements Type, Serializable {
         return value;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public int compare(Object v1, Object v2) {
         if (v1 == null) {

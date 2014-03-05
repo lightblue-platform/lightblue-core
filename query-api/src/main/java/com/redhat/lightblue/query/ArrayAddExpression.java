@@ -33,26 +33,26 @@ import com.redhat.lightblue.util.Path;
 /**
  * Array append and insert operations
  * <pre>
- * array_update_expression := { $append : { path : rvalue_expression } } |  
- *                            { $append : { path : [ rvalue_expression, ... ] }} |  
- *                            { $insert : { path : rvalue_expression } } |  
- *                            { $insert : { path : [ rvalue_expression,...] }} 
+ * array_update_expression := { $append : { path : rvalue_expression } } |
+ *                            { $append : { path : [ rvalue_expression, ... ] }} |
+ *                            { $insert : { path : rvalue_expression } } |
+ *                            { $insert : { path : [ rvalue_expression,...] }}
  * </pre>
  */
 public class ArrayAddExpression extends ArrayUpdateExpression {
-    
+
     private static final long serialVersionUID = 1L;
     private final List<RValueExpression> values;
     private final UpdateOperator op;
     private final Path field;
-    
+
     /**
      * Constructs an array update expression for insert and append operations
      */
-    public ArrayAddExpression(Path field,UpdateOperator op,List<RValueExpression> list) {
-        this.op=op;
-        this.values=list;
-        this.field=field;
+    public ArrayAddExpression(Path field, UpdateOperator op, List<RValueExpression> list) {
+        this.op = op;
+        this.values = list;
+        this.field = field;
     }
 
     /**
@@ -78,50 +78,50 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=getFactory().objectNode();
-        ObjectNode args=getFactory().objectNode();
-        if(values.size()==1) {
-            args.set(field.toString(),values.get(0).toJson());
+        ObjectNode node = getFactory().objectNode();
+        ObjectNode args = getFactory().objectNode();
+        if (values.size() == 1) {
+            args.set(field.toString(), values.get(0).toJson());
         } else {
-            ArrayNode arr=getFactory().arrayNode();
-            for(RValueExpression v:values){
+            ArrayNode arr = getFactory().arrayNode();
+            for (RValueExpression v : values) {
                 arr.add(v.toJson());
             }
-            args.set(field.toString(),arr);
+            args.set(field.toString(), arr);
         }
-        node.set(op.toString(),args);
+        node.set(op.toString(), args);
         return node;
     }
-    
+
     /**
      * Parses an array update expression using the given json object
      */
     public static ArrayAddExpression fromJson(ObjectNode node) {
-        if(node.size()==1) {
-            UpdateOperator op=UpdateOperator._append;
-            JsonNode arg=node.get(UpdateOperator._append.toString());
-            if(arg==null) {
-                arg=node.get(UpdateOperator._insert.toString());
-                op=UpdateOperator._insert;
+        if (node.size() == 1) {
+            UpdateOperator op = UpdateOperator._append;
+            JsonNode arg = node.get(UpdateOperator._append.toString());
+            if (arg == null) {
+                arg = node.get(UpdateOperator._insert.toString());
+                op = UpdateOperator._insert;
             }
-            if(arg instanceof ObjectNode) {
-                ObjectNode objArg=(ObjectNode)arg;
-                if(objArg.size()==1) {
-                    Map.Entry<String,JsonNode> item=objArg.fields().next();
-                    Path field=new Path(item.getKey());
-                    JsonNode valueNode=item.getValue();
-                    List<RValueExpression> rvalues=new ArrayList<RValueExpression>();
-                    if(valueNode instanceof ArrayNode) {
-                        for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
+            if (arg instanceof ObjectNode) {
+                ObjectNode objArg = (ObjectNode) arg;
+                if (objArg.size() == 1) {
+                    Map.Entry<String, JsonNode> item = objArg.fields().next();
+                    Path field = new Path(item.getKey());
+                    JsonNode valueNode = item.getValue();
+                    List<RValueExpression> rvalues = new ArrayList<RValueExpression>();
+                    if (valueNode instanceof ArrayNode) {
+                        for (Iterator<JsonNode> itr = ((ArrayNode) valueNode).elements(); itr.hasNext();) {
                             rvalues.add(RValueExpression.fromJson(itr.next()));
                         }
                     } else {
                         rvalues.add(RValueExpression.fromJson(valueNode));
                     }
-                    return new ArrayAddExpression(field,op,rvalues);
+                    return new ArrayAddExpression(field, op, rvalues);
                 }
             }
         }
-        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION, node.toString());
     }
 }

@@ -29,24 +29,24 @@ import com.redhat.lightblue.util.Error;
 /**
  * Array forEach expression
  * <pre>
- *  { $foreach : { path : update_query_expression,   
- *                             $update : foreach_update_expression } }  
+ *  { $foreach : { path : update_query_expression,
+ *                             $update : foreach_update_expression } }
  * </pre>
  */
 public class ForEachExpression extends ArrayUpdateExpression {
-    
+
     private static final long serialVersionUID = 1L;
     private final Path field;
     private final QueryExpression query;
     private final UpdateExpression update;
-    
+
     /**
      * Constructs a foreach expression using the values
      */
-    public ForEachExpression(Path field,QueryExpression query,UpdateExpression update) {
-        this.field=field;
-        this.query=query;
-        this.update=update;
+    public ForEachExpression(Path field, QueryExpression query, UpdateExpression update) {
+        this.field = field;
+        this.query = query;
+        this.update = update;
     }
 
     /**
@@ -72,42 +72,42 @@ public class ForEachExpression extends ArrayUpdateExpression {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=getFactory().objectNode();
-        ObjectNode opNode=getFactory().objectNode();
-        opNode.set(field.toString(),query.toJson());
-        opNode.set("$update",update.toJson());
-        node.set("$foreach",opNode);
+        ObjectNode node = getFactory().objectNode();
+        ObjectNode opNode = getFactory().objectNode();
+        opNode.set(field.toString(), query.toJson());
+        opNode.set("$update", update.toJson());
+        node.set("$foreach", opNode);
         return node;
     }
-    
+
     /**
      * Parses a foreach expression from the given json object
      */
     public static ForEachExpression fromJson(ObjectNode node) {
-        if(node.size()==1) {
-            JsonNode argNode=node.get("$foreach");
-            if(argNode instanceof ObjectNode) {
-                ObjectNode objArg=(ObjectNode)argNode;
-                if(objArg.size()==2) {
-                    JsonNode updateNode=null;
-                    JsonNode queryNode=null;
-                    Path field=null;
-                    for(Iterator<Map.Entry<String,JsonNode>> itr=objArg.fields();itr.hasNext();) {
-                        Map.Entry<String,JsonNode> entry=itr.next();
-                        if("$update".equals(entry.getKey())) {
-                            updateNode=entry.getValue();
+        if (node.size() == 1) {
+            JsonNode argNode = node.get("$foreach");
+            if (argNode instanceof ObjectNode) {
+                ObjectNode objArg = (ObjectNode) argNode;
+                if (objArg.size() == 2) {
+                    JsonNode updateNode = null;
+                    JsonNode queryNode = null;
+                    Path field = null;
+                    for (Iterator<Map.Entry<String, JsonNode>> itr = objArg.fields(); itr.hasNext();) {
+                        Map.Entry<String, JsonNode> entry = itr.next();
+                        if ("$update".equals(entry.getKey())) {
+                            updateNode = entry.getValue();
                         } else {
-                            field=new Path(entry.getKey());
-                            queryNode=entry.getValue();
+                            field = new Path(entry.getKey());
+                            queryNode = entry.getValue();
                         }
                     }
-                    if(queryNode!=null&&updateNode!=null&&field!=null) {
-                        return new ForEachExpression(field,UpdateQueryExpression.fromJson(queryNode),
+                    if (queryNode != null && updateNode != null && field != null) {
+                        return new ForEachExpression(field, UpdateQueryExpression.fromJson(queryNode),
                                 ForEachUpdateExpression.fromJson(updateNode));
                     }
                 }
             }
         }
-        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
+        throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION, node.toString());
     }
 }

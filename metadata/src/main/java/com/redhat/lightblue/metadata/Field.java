@@ -36,7 +36,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
     private final List<FieldConstraint> constraints = new ArrayList<FieldConstraint>();
 
     private FieldTreeNode parent;
-    
+
     public Field(String name) {
         this.name = name;
     }
@@ -65,11 +65,11 @@ public abstract class Field implements FieldTreeNode, Serializable {
     public FieldTreeNode getParent() {
         return parent;
     }
-    
+
     public void setParent(FieldTreeNode field) {
-    	this.parent = field;
+        this.parent = field;
     }
-    
+
     /**
      * @return a deep copy of the constraints
      */
@@ -88,7 +88,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return resolve(p, 0);
     }
 
-    public MutablePath getFullPath(MutablePath mp) {       
+    public MutablePath getFullPath(MutablePath mp) {
         if (parent != null) {
             parent.getFullPath(mp);
         }
@@ -99,6 +99,6 @@ public abstract class Field implements FieldTreeNode, Serializable {
     public Path getFullPath() {
         return getFullPath(new MutablePath()).immutableCopy();
     }
-    
+
     public abstract FieldTreeNode resolve(Path p, int level);
 }

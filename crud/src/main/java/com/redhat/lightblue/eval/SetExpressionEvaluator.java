@@ -50,7 +50,7 @@ public class SetExpressionEvaluator extends Updater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SetExpressionEvaluator.class);
 
-    private final List<FieldData> setValues=new ArrayList<FieldData>();
+    private final List<FieldData> setValues = new ArrayList<FieldData>();
     private final UpdateOperator op;
     private final JsonNodeFactory factory;
 
@@ -84,7 +84,7 @@ public class SetExpressionEvaluator extends Updater {
          */
         private final RValueExpression value;
 
-        public FieldData(Path field, Type t, Path refPath, Type refType, RValueExpression value,Path absField) {
+        public FieldData(Path field, Type t, Path refPath, Type refType, RValueExpression value, Path absField) {
             this.field = field;
             this.fieldType = t;
             this.refPath = refPath;
@@ -96,13 +96,12 @@ public class SetExpressionEvaluator extends Updater {
 
     /**
      * Creates a set expression evaluator
-     * 
+     *
      * @param factory Node factory
      * @param context The context from which the expression will be evaluated
      * @param expr The set expression
      *
-     * This ctor resolves the field references in expr and stores them
-     * to be applied later.
+     * This ctor resolves the field references in expr and stores them to be applied later.
      */
     public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
         this.factory = factory;
@@ -151,7 +150,7 @@ public class SetExpressionEvaluator extends Updater {
 
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }
-    
+
     private FieldData initializeObject(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
         if (rvalue.getType() == RValueExpression.RValueType._dereference) {
             if (!(refMdNode instanceof ObjectField)) {
@@ -165,8 +164,9 @@ public class SetExpressionEvaluator extends Updater {
 
     @Override
     public void getUpdateFields(Set<Path> fields) {
-        for(FieldData df: setValues)
+        for (FieldData df : setValues) {
             fields.add(df.absField);
+        }
     }
 
     @Override
@@ -208,7 +208,7 @@ public class SetExpressionEvaluator extends Updater {
         LOGGER.debug("Completed");
         return ret;
     }
-    
+
     private JsonNode setOrAdd(JsonDoc doc, Path contextPath, FieldData df, JsonNode newValueNode, Object newValue, Type newValueType) {
         JsonNode oldValueNode = null;
         Path fieldPath = new Path(contextPath, df.field);
@@ -235,5 +235,5 @@ public class SetExpressionEvaluator extends Updater {
             return false;
         }
     }
-    
- }
+
+}

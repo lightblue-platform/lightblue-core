@@ -28,9 +28,9 @@ import com.redhat.lightblue.util.JsonObject;
  * Base class for all query expressions
  */
 public abstract class QueryExpression extends JsonObject {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * Parses a query expression from the given json node
      */
     public static QueryExpression fromJson(JsonNode node) {

@@ -147,7 +147,6 @@ public class PredefinedFieldsTest {
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
     }
 
-
     @Test
     public void testInvalidObjectType() throws Exception {
         EntityMetadata md = new EntityMetadata("test");

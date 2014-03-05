@@ -29,7 +29,7 @@ public class Version implements Serializable {
     private String changelog;
 
     public Version() {
-    
+
     }
 
     public Version(String value, String[] extendsVersions, String changeLog) {

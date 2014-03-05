@@ -26,8 +26,8 @@ import com.redhat.lightblue.util.Path;
  * Represents a field and rvalue
  */
 public class FieldAndRValue implements Serializable {
-    
-    private static final long serialVersionUID=1l;
+
+    private static final long serialVersionUID = 1l;
 
     private Path field;
     private RValueExpression rvalue;
@@ -35,14 +35,15 @@ public class FieldAndRValue implements Serializable {
     /**
      * Default ctor
      */
-    public FieldAndRValue() {}
+    public FieldAndRValue() {
+    }
 
     /**
      * Constructs a field-value pair using the given values
      */
-    public FieldAndRValue(Path field,RValueExpression rvalue) {
-        this.field=field;
-        this.rvalue=rvalue;
+    public FieldAndRValue(Path field, RValueExpression rvalue) {
+        this.field = field;
+        this.rvalue = rvalue;
     }
 
     /**
@@ -56,7 +57,7 @@ public class FieldAndRValue implements Serializable {
      * The field
      */
     public void setField(Path p) {
-        field=p;
+        field = p;
     }
 
     /**
@@ -70,11 +71,11 @@ public class FieldAndRValue implements Serializable {
      * The rvalue
      */
     public void setRValue(RValueExpression e) {
-        rvalue=e;
+        rvalue = e;
     }
 
     @Override
     public String toString() {
-        return field+":"+rvalue;
+        return field + ":" + rvalue;
     }
 }

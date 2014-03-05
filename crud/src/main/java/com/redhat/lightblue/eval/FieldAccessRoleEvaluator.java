@@ -44,20 +44,21 @@ public final class FieldAccessRoleEvaluator {
     private final EntityMetadata md;
     private final Set<String> roles;
 
-    public static enum Operation { insert, update, insert_and_update, find };
+    public static enum Operation {
+        insert, update, insert_and_update, find
+    };
 
-    public FieldAccessRoleEvaluator(EntityMetadata md,Set<String> callerRoles) {
-        this.md=md;
-        this.roles=callerRoles;
+    public FieldAccessRoleEvaluator(EntityMetadata md, Set<String> callerRoles) {
+        this.md = md;
+        this.roles = callerRoles;
     }
 
     /**
-     * Returns whether the current caller has access to all the given
-     * fields based on the operation
+     * Returns whether the current caller has access to all the given fields based on the operation
      */
-    public boolean hasAccess(Set<Path> fields,Operation op) {
-        for(Path x:fields) {
-            if(!hasAccess(x,op)) {
+    public boolean hasAccess(Set<Path> fields, Operation op) {
+        for (Path x : fields) {
+            if (!hasAccess(x, op)) {
                 return false;
             }
         }
@@ -65,14 +66,13 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns whether the current caller has access to the given
-     * field based on the operation
+     * Returns whether the current caller has access to the given field based on the operation
      */
-    public boolean hasAccess(Path field,Operation op) {
-        FieldTreeNode fn=md.resolve(field);
-        if(fn!=null) {
-            if(fn instanceof Field) {
-                return hasAccess((Field)fn,op);
+    public boolean hasAccess(Path field, Operation op) {
+        FieldTreeNode fn = md.resolve(field);
+        if (fn != null) {
+            if (fn instanceof Field) {
+                return hasAccess((Field) fn, op);
             } else {
                 return true;
             }
@@ -82,15 +82,14 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a set of fields that are inaccessible to the user for
-     * the given operation
+     * Returns a set of fields that are inaccessible to the user for the given operation
      */
     public Set<Path> getInaccessibleFields(Operation op) {
-        FieldCursor cursor=md.getFieldCursor();
-        Set<Path> fields=new HashSet<Path>();
-        while(cursor.next()) {
-            FieldTreeNode fn=cursor.getCurrentNode();
-            if(fn instanceof Field&&!hasAccess((Field)fn,op)) {
+        FieldCursor cursor = md.getFieldCursor();
+        Set<Path> fields = new HashSet<Path>();
+        while (cursor.next()) {
+            FieldTreeNode fn = cursor.getCurrentNode();
+            if (fn instanceof Field && !hasAccess((Field) fn, op)) {
                 fields.add(cursor.getCurrentPath());
             }
         }
@@ -98,16 +97,15 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a list of fields in the doc inaccessible to the current
-     * user during insertion. If the returned list is empty, the user
-     * can insert the doc.
+     * Returns a list of fields in the doc inaccessible to the current user during insertion. If the returned list is
+     * empty, the user can insert the doc.
      */
     public List<Path> getInaccessibleFields_Insert(JsonDoc doc) {
-        Set<Path> inaccessibleFields=getInaccessibleFields(Operation.insert);
-        List<Path> ret=new ArrayList<Path>(inaccessibleFields.size());
-        for(Path x:inaccessibleFields) {
-            KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(x);
-            if(cursor.hasNext()) {
+        Set<Path> inaccessibleFields = getInaccessibleFields(Operation.insert);
+        List<Path> ret = new ArrayList<Path>(inaccessibleFields.size());
+        for (Path x : inaccessibleFields) {
+            KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(x);
+            if (cursor.hasNext()) {
                 ret.add(x);
             }
         }
@@ -115,74 +113,72 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a list of fields in the doc inaccessible to the current
-     * user during update. 
+     * Returns a list of fields in the doc inaccessible to the current user during update.
      *
      * @param newDoc The new version of the document
      * @param oldDoc The old version of the document
      */
-    public List<Path> getInaccessibleFields_Update(JsonDoc newDoc,JsonDoc oldDoc) {
-        Set<Path> inaccessibleFields=getInaccessibleFields(Operation.update);
-        List<Path> ret=new ArrayList<Path>(inaccessibleFields.size());
-        for(Path x:inaccessibleFields) {
-            KeyValueCursor<Path,JsonNode> oldCursor=oldDoc.getAllNodes(x);
-            KeyValueCursor<Path,JsonNode> newCursor=newDoc.getAllNodes(x);
-            if(different(oldCursor,newCursor)) {
+    public List<Path> getInaccessibleFields_Update(JsonDoc newDoc, JsonDoc oldDoc) {
+        Set<Path> inaccessibleFields = getInaccessibleFields(Operation.update);
+        List<Path> ret = new ArrayList<Path>(inaccessibleFields.size());
+        for (Path x : inaccessibleFields) {
+            KeyValueCursor<Path, JsonNode> oldCursor = oldDoc.getAllNodes(x);
+            KeyValueCursor<Path, JsonNode> newCursor = newDoc.getAllNodes(x);
+            if (different(oldCursor, newCursor)) {
                 ret.add(x);
             }
         }
         return ret;
     }
-            
 
     /**
-     * Returns a projection that excludes the fields the caller does
-     * not have access to based on the operation
+     * Returns a projection that excludes the fields the caller does not have access to based on the operation
      */
     public Projection getExcludedFields(Operation op) {
-        Set<Path> inaccessibleFields=getInaccessibleFields(op);
+        Set<Path> inaccessibleFields = getInaccessibleFields(op);
         Projection ret;
-        if(inaccessibleFields.isEmpty())
-            ret=null;
-        else {
-            if(inaccessibleFields.size()==1) {
-                ret=new FieldProjection(inaccessibleFields.iterator().next(),false,true);
+        if (inaccessibleFields.isEmpty()) {
+            ret = null;
+        } else {
+            if (inaccessibleFields.size() == 1) {
+                ret = new FieldProjection(inaccessibleFields.iterator().next(), false, true);
             } else {
-                List<Projection> list=new ArrayList<Projection>(inaccessibleFields.size());
-                for(Path x:inaccessibleFields)
-                    list.add(new FieldProjection(x,false,true));
-                ret=new ProjectionList(list);
+                List<Projection> list = new ArrayList<Projection>(inaccessibleFields.size());
+                for (Path x : inaccessibleFields) {
+                    list.add(new FieldProjection(x, false, true));
+                }
+                ret = new ProjectionList(list);
             }
         }
         return ret;
     }
 
-    private boolean hasAccess(Field f,Operation op) {
-        FieldAccess faccess=f.getAccess();
-        EntityAccess eaccess=md.getAccess();
-        switch(op) {
-        case insert:
-            return (faccess.getInsert().isEmpty()?eaccess.getInsert():faccess.getInsert()).hasAccess(roles);
-        case update:
-            return (faccess.getUpdate().isEmpty()?eaccess.getUpdate():faccess.getUpdate()).hasAccess(roles);
-        case insert_and_update:
-            return (faccess.getInsert().isEmpty()?eaccess.getInsert():faccess.getInsert()).hasAccess(roles)&&
-                (faccess.getUpdate().isEmpty()?eaccess.getUpdate():faccess.getUpdate()).hasAccess(roles);
-        case find:
-            return (faccess.getFind().isEmpty()?eaccess.getFind():faccess.getFind()).hasAccess(roles);
+    private boolean hasAccess(Field f, Operation op) {
+        FieldAccess faccess = f.getAccess();
+        EntityAccess eaccess = md.getAccess();
+        switch (op) {
+            case insert:
+                return (faccess.getInsert().isEmpty() ? eaccess.getInsert() : faccess.getInsert()).hasAccess(roles);
+            case update:
+                return (faccess.getUpdate().isEmpty() ? eaccess.getUpdate() : faccess.getUpdate()).hasAccess(roles);
+            case insert_and_update:
+                return (faccess.getInsert().isEmpty() ? eaccess.getInsert() : faccess.getInsert()).hasAccess(roles)
+                        && (faccess.getUpdate().isEmpty() ? eaccess.getUpdate() : faccess.getUpdate()).hasAccess(roles);
+            case find:
+                return (faccess.getFind().isEmpty() ? eaccess.getFind() : faccess.getFind()).hasAccess(roles);
         }
         return false;
     }
 
-    private boolean different(KeyValueCursor<Path,JsonNode> c1,
-                              KeyValueCursor<Path,JsonNode> c2) {
-        while(c1.hasNext()) {
-            if(c2.hasNext()) {
+    private boolean different(KeyValueCursor<Path, JsonNode> c1,
+                              KeyValueCursor<Path, JsonNode> c2) {
+        while (c1.hasNext()) {
+            if (c2.hasNext()) {
                 c1.next();
                 c2.next();
-                JsonNode v1=c1.getCurrentValue();
-                JsonNode v2=c2.getCurrentValue();
-                if(!v1.equals(v2)) {
+                JsonNode v1 = c1.getCurrentValue();
+                JsonNode v2 = c2.getCurrentValue();
+                if (!v1.equals(v2)) {
                     return true;
                 }
             } else {

@@ -19,9 +19,9 @@ import com.redhat.lightblue.util.Error;
  */
 public class Enums implements Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
-    private final Map<String,Enum> enums = new HashMap<String,Enum>();
+    private final Map<String, Enum> enums = new HashMap<String, Enum>();
 
     /**
      * Sets enums
@@ -29,25 +29,25 @@ public class Enums implements Serializable {
     public void setEnums(Collection<Enum> l) {
         enums.clear();
         if (l != null) {
-            for(Enum x:l) {
+            for (Enum x : l) {
                 addEnum(x);
             }
         }
     }
 
     public void addEnum(Enum x) {
-        if(enums.containsKey(x.getName())) {
-            throw Error.get(MetadataConstants.ERR_DUPLICATE_ENUM,x.getName());
+        if (enums.containsKey(x.getName())) {
+            throw Error.get(MetadataConstants.ERR_DUPLICATE_ENUM, x.getName());
         }
-        enums.put(x.getName(),x);
+        enums.put(x.getName(), x);
     }
 
     /**
      * Returns all enums
      */
     @SuppressWarnings("unchecked")
-    public Map<String,Enum> getEnums() {
-        return (Map<String,Enum>) ((HashMap)enums).clone();
+    public Map<String, Enum> getEnums() {
+        return (Map<String, Enum>) ((HashMap) enums).clone();
     }
 
     /**
@@ -56,7 +56,7 @@ public class Enums implements Serializable {
     public Enum getEnum(String name) {
         return enums.get(name);
     }
-    
+
     /**
      * Returns if enums list is empty
      */

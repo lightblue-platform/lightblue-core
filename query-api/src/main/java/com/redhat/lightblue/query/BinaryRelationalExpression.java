@@ -29,8 +29,8 @@ import com.redhat.lightblue.util.Path;
  */
 public abstract class BinaryRelationalExpression extends RelationalExpression {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     /**
      * Parses a field comparison or value comparison expression from the given json object
      */

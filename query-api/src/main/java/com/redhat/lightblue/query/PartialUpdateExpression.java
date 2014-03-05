@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * Base class for update expressions
  * <pre>
- * update_expression := partial_update_expression | [ partial_update_expression,...]  
+ * update_expression := partial_update_expression | [ partial_update_expression,...]
  * </pre>
  */
 public abstract class PartialUpdateExpression extends UpdateExpression {
@@ -34,11 +34,11 @@ public abstract class PartialUpdateExpression extends UpdateExpression {
      * Parses a partial update expression using the given json object
      */
     public static PartialUpdateExpression fromJson(ObjectNode node) {
-        if(node.has(UpdateOperator._append.toString())||
-           node.has(UpdateOperator._insert.toString())||
-           node.has(UpdateOperator._foreach.toString())) {
+        if (node.has(UpdateOperator._append.toString())
+                || node.has(UpdateOperator._insert.toString())
+                || node.has(UpdateOperator._foreach.toString())) {
             return ArrayUpdateExpression.fromJson(node);
-        }  else {
+        } else {
             return PrimitiveUpdateExpression.fromJson(node);
         }
     }
