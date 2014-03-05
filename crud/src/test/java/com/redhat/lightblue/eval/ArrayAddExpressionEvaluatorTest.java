@@ -25,19 +25,19 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     @Test(expected = com.redhat.lightblue.eval.EvaluationError.class)
     public void expression_evaluator_not_created_when_specified_field_is_not_an_array() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field5' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater.getInstance(factory, md, expr);
+        Updater.getInstance(JSON_NODE_FACTORY, md, expr);
     }
 
     @Test(expected = com.redhat.lightblue.eval.EvaluationError.class)
     public void array_insert_without_index_results_in_evaluation_error() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf6.$parent.nf8' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater.getInstance(factory, md, expr);
+        Updater.getInstance(JSON_NODE_FACTORY, md, expr);
     }
 
     @Test(expected = com.redhat.lightblue.eval.EvaluationError.class)
     public void assignment_of_invalid_type_results_in_evaluation_error() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf7.nnf1.$parent.$parent.nf11.5' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
     }
@@ -47,7 +47,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
         String[] expectedValues = { "four", "three", "two", "one", "five", "six", "value2" };
         JsonNode expectedNode = stringArrayNode(expectedValues);
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf8' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -58,7 +58,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void int_array_append() throws Exception {
         Integer[] expectedValues = { 5, 10, 15, 20, 1, 2, 3 };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf5' : [ 1,2,{'$valueof':'field3' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -69,7 +69,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void double_array_append() throws Exception {
         Double[] expectedValues = { 20.1, 15.2, 10.3, 5.4, 1.5, 2.6, 4.7 };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf10' : [ 1.5,2.6,{'$valueof':'field4' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -80,7 +80,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_insert() throws Exception {
         String[] expectedValues = { "four", "three", "five", "six", "value2", "two", "one" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf8.2' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -91,7 +91,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_insert_and_array_expansion() throws Exception {
         String[] expectedValues = { "four", "three", "two", "one", null, "five", "six", "value2" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf8.5' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -103,7 +103,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
         String[] expectedValues = { "four", "three", "two", "one", "five", "six", "value2" };
         JsonNode expectedNode = stringArrayNode(expectedValues);
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf6.$parent.nf8' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -114,7 +114,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_append_with_2_$parent_relative_path() throws Exception {
         String[] expectedValues = { "four", "three", "two", "one", "five", "six", "value2" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf7.nnf1.$parent.$parent.nf8' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -125,7 +125,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void int_array_append_with_1_$parent_relative_path() throws Exception {
         Integer[] expectedValues = { 5, 10, 15, 20, 1, 2, 3 };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf6.$parent.nf5' : [ 1,2,{'$valueof':'field3' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -136,7 +136,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void double_array_append_with_1_$parent_relative_path() throws Exception {
         Double[] expectedValues = { 20.1, 15.2, 10.3, 5.4, 1.5, 2.6, 4.7 };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf6.$parent.nf10' : [ 1.5,2.6,{'$valueof':'field4' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -147,7 +147,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_insert_with_1_$parent_relative_path() throws Exception {
         String[] expectedValues = { "four", "three", "five", "six", "value2", "two", "one" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf6.$parent.nf8.2' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -158,7 +158,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_insert_with_2_$parent_relative_path() throws Exception {
         String[] expectedValues = { "four", "three", "five", "six", "value2", "two", "one" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf7.nnf1.$parent.$parent.nf8.2' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -169,7 +169,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_insert_with_2_$parent_relative_path_and_array_expansion() throws Exception {
         String[] expectedValues = { "four", "three", "two", "one", null, "five", "six", "value2" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf7.nnf1.$parent.$parent.nf8.5' : [ 'five','six',{'$valueof':'field2' }] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -180,7 +180,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_insert_null() throws Exception {
         String[] expectedValues = { "four", "three", null, null, "two", "one" };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf8.2' : [ '$null', '$null'] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 
@@ -191,7 +191,7 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void string_array_append_null() throws Exception {
         String[] expectedValues = { "four", "three", "two", "one", null, null };
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf8' : [ '$null', '$null'] } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         updater.update(doc, md.getFieldTreeRoot(), new Path());
 

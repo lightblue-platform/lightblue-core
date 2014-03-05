@@ -24,7 +24,7 @@ public class UpdateExpressionListEvaluatorTest extends AbstractJsonNodeTest {
 
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field1' : 'set1', 'field2':'set2', 'field5': 0, 'field6.nf1':'set6' } }, {'$add' : { 'field3':1 } } ] ");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertEquals("set1", doc.get(new Path("field1")).asText());
         Assert.assertEquals("set2", doc.get(new Path("field2")).asText());
@@ -39,7 +39,7 @@ public class UpdateExpressionListEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext
                 .updateExpressionFromJson("[ {'$set' : { 'field2.$parent.field1' : 'set1', 'field3.$parent.field2':'set2', 'field2.$parent.field5': 0, 'field2.$parent.field6.nf1':'set6' } }, {'$add' : { 'field2.$parent.field3':1 } } ] ");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertEquals("set1", doc.get(new Path("field1")).asText());
         Assert.assertEquals("set2", doc.get(new Path("field2")).asText());

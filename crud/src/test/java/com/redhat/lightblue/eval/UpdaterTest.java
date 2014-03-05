@@ -42,7 +42,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void setSimpleFieldTest() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field1' : 'set1', 'field2':'set2', 'field5': 0, 'field6.nf1':'set6' } }, {'$add' : { 'field3':1 } } ] ");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertEquals("set1", doc.get(new Path("field1")).asText());
         Assert.assertEquals("set2", doc.get(new Path("field2")).asText());
@@ -55,7 +55,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void setArrayFieldTest() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$set' : { 'field6.nf5.0':'50', 'field6.nf6.1':'blah', 'field7.0.elemf1':'test'}} ");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertEquals(50, doc.get(new Path("field6.nf5.0")).intValue());
         Assert.assertEquals("blah", doc.get(new Path("field6.nf6.1")).asText());
@@ -66,7 +66,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void refSet() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$set' : { 'field6.nf5.0': { '$valueof' : 'field3' }, 'field7.0' : {}}}");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertEquals(doc.get(new Path("field3")).intValue(), doc.get(new Path("field6.nf5.0")).intValue());
         JsonNode node = doc.get(new Path("field7.0"));
@@ -79,7 +79,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void unset() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$unset' : [ 'field1', 'field6.nf2', 'field6.nf6.1','field7.1'] }");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertNull(doc.get(new Path("field1")));
         Assert.assertNull(doc.get(new Path("field6.nf2")));
@@ -95,7 +95,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void array_append() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field6.nf6' : [ 'five','six',{'$valueof':'field2' }] } }");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals("one", doc.get(new Path("field6.nf6.0")).asText());
@@ -114,7 +114,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void array_insert() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf6.2' : [ 'five','six',{'$valueof':'field2' }] } }");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals("one", doc.get(new Path("field6.nf6.0")).asText());
@@ -133,7 +133,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     public void array_foreach_removeall() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : '$all', '$update' : '$remove' } }");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals(0, doc.get(new Path("field7")).size());
@@ -143,7 +143,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     @Test
     public void array_foreach_removeone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : '$remove' } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals(3, doc.get(new Path("field7")).size());
@@ -155,7 +155,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     @Test
     public void array_foreach_modone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : {'$set': { 'elemf1':'test'}} } }");
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals(4, doc.get(new Path("field7")).size());

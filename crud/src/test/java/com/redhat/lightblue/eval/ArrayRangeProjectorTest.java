@@ -28,7 +28,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[{'elemf3':4},{'elemf3':5}]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(doc, factory, ctx);
+        JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -40,7 +40,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(doc, factory, ctx);
+        JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
         
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -52,7 +52,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[{'elemf3':4},{'elemf3':5}]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(doc, factory, ctx);
+        JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -64,7 +64,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(doc, factory, ctx);
+        JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -76,7 +76,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[{'elemf3':4},{'elemf3':5}]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(doc, factory, ctx);
+        JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -88,7 +88,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(doc, factory, ctx);
+        JsonDoc pdoc = projector.project(doc, JSON_NODE_FACTORY, ctx);
         
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }

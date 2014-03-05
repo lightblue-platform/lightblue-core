@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;   
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -35,8 +35,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
-    
-    protected static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
+    protected static final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
     protected JsonDoc doc;
     
     /**

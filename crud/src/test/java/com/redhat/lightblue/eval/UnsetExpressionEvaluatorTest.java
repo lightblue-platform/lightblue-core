@@ -23,7 +23,7 @@ public class UnsetExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void unset() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$unset' : [ 'field1', 'field6.nf2', 'field6.nf6.1','field7.1'] }");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertNull(doc.get(new Path("field1")));
         Assert.assertNull(doc.get(new Path("field6.nf2")));
@@ -39,7 +39,7 @@ public class UnsetExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void one_$parent_unset() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$unset' : [ 'field2.$parent.field1', 'field2.$parent.field6.nf2', 'field2.$parent.field6.nf6.1','field2.$parent.field7.1'] }");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
         Assert.assertNull(doc.get(new Path("field1")));
         Assert.assertNull(doc.get(new Path("field6.nf2")));
