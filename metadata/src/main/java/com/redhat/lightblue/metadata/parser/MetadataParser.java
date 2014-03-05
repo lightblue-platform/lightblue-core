@@ -75,6 +75,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_NAME = "name";
     private static final String STR_VALUE = "value";
     private static final String STR_VERSION = "version";
+    private static final String STR_DEFAULT_VERSION = "defaultVersion";
     private static final String STR_FIND = "find";
     private static final String STR_STATUS = "status";
     private static final String STR_CONSTRAINTS = "constraints";
@@ -183,6 +184,7 @@ public abstract class MetadataParser<T> {
 
             EntityInfo info = new EntityInfo(name);
 
+            info.setDefaultVersion(getStringProperty(object, STR_DEFAULT_VERSION));
             info.getIndexes().setIndexes(parseArr(getObjectProperty(object, STR_INDEXES),PARSE_INDEX));
             info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS),PARSE_ENUM));
             info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS),PARSE_HOOK));
@@ -687,6 +689,9 @@ public abstract class MetadataParser<T> {
             T ret = newNode();
             if (info.getName() != null) {
                 putString(ret, STR_NAME, info.getName());
+            }
+            if (info.getDefaultVersion() != null) {
+                putString(ret, STR_DEFAULT_VERSION, info.getDefaultVersion());
             }
             if (info.getIndexes() != null && !info.getIndexes().isEmpty()) {
                 // indexes is an array directly on the entity info, so do not create a new node ere, let conversion handle it

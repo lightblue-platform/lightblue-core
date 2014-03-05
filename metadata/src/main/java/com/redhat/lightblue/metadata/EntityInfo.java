@@ -30,6 +30,7 @@ public class EntityInfo implements Serializable {
     private static final long serialVersionUID = 1l;
 
     private final String name;
+    private String defaultVersion;
     private final Hooks hooks=new Hooks();
     private final Indexes indexes=new Indexes();
     private final Enums enums=new Enums();
@@ -46,6 +47,14 @@ public class EntityInfo implements Serializable {
      */
     public String getName() {
         return this.name;
+    }
+
+    public String getDefaultVersion() {
+        return this.defaultVersion;
+    }
+
+    public void setDefaultVersion(String version) {
+        this.defaultVersion = version;
     }
 
     public Indexes getIndexes() {
