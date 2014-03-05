@@ -32,7 +32,6 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.BasicDBObject;
 
-import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
