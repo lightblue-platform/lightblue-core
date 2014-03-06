@@ -57,8 +57,8 @@ public class BasicDocSaver implements DocSaver {
      */
     public BasicDocSaver(Translator translator,
                          FieldAccessRoleEvaluator roleEval) {
-        this.translator=translator;
-        this.roleEval=roleEval;
+        this.translator = translator;
+        this.roleEval = roleEval;
     }
 
     @Override
@@ -68,54 +68,56 @@ public class BasicDocSaver implements DocSaver {
                         DBCollection collection,
                         EntityMetadata md,
                         DBObject dbObject,
-                        DocCtx inputDoc ) {
+                        DocCtx inputDoc) {
 
-        WriteResult result=null;
-        String error=null;
+        WriteResult result = null;
+        String error = null;
 
-        Object id=dbObject.get(MongoCRUDController.ID_STR);
-        if(op==DocSaver.Op.insert ||
-           (id==null&&upsert) ) {
+        Object id = dbObject.get(MongoCRUDController.ID_STR);
+        if (op == DocSaver.Op.insert
+                || (id == null && upsert)) {
             // Inserting
-            result=insertDoc(ctx,collection,md,dbObject,inputDoc);
-        } else if(op==DocSaver.Op.save&&id!=null) {
+            result = insertDoc(ctx, collection, md, dbObject, inputDoc);
+        } else if (op == DocSaver.Op.save && id != null) {
             // Updating
-            LOGGER.debug("Updating doc {}"+id);
-            BasicDBObject q=new BasicDBObject(MongoCRUDController.ID_STR,new ObjectId(id.toString()));
-            DBObject oldDBObject=collection.findOne(q);
-            if(oldDBObject!=null) {
-                if(md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
-                    JsonDoc oldDoc=translator.toJson(oldDBObject);
-                    List<Path> paths=roleEval.getInaccessibleFields_Update(inputDoc,oldDoc);
-                    if(paths==null||paths.isEmpty()) {
-                        result=collection.update(q,dbObject,false,false,WriteConcern.SAFE);
+            LOGGER.debug("Updating doc {}" + id);
+            BasicDBObject q = new BasicDBObject(MongoCRUDController.ID_STR, new ObjectId(id.toString()));
+            DBObject oldDBObject = collection.findOne(q);
+            if (oldDBObject != null) {
+                if (md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
+                    JsonDoc oldDoc = translator.toJson(oldDBObject);
+                    List<Path> paths = roleEval.getInaccessibleFields_Update(inputDoc, oldDoc);
+                    if (paths == null || paths.isEmpty()) {
+                        result = collection.update(q, dbObject, upsert, false, WriteConcern.SAFE);
                         inputDoc.setOperationPerformed(Operation.UPDATE);
-                    } else
+                    } else {
                         inputDoc.addError(Error.get("update",
-                                                    CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
-                } else
+                                CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS, paths.toString()));
+                    }
+                } else {
                     inputDoc.addError(Error.get("update",
-                                                CrudConstants.ERR_NO_ACCESS,"update:"+md.getName()));
+                            CrudConstants.ERR_NO_ACCESS, "update:" + md.getName()));
+                }
             } else {
                 // Cannot update, doc does not exist, insert
-                result=insertDoc(ctx,collection,md,dbObject,inputDoc);
+                result = insertDoc(ctx, collection, md, dbObject, inputDoc);
             }
         } else {
             // Error, invalid request
             LOGGER.warn("Invalid request, cannot update or insert");
-            inputDoc.addError(Error.get(op.toString(),MongoCrudConstants.ERR_SAVE_ERROR,"Invalid request"));
+            inputDoc.addError(Error.get(op.toString(), MongoCrudConstants.ERR_SAVE_ERROR, "Invalid request"));
         }
 
-        LOGGER.debug("Write result {}",result);
-        if(result!=null) {
-            if(error==null) {
+        LOGGER.debug("Write result {}", result);
+        if (result != null) {
+            if (error == null) {
                 error = result.getError();
             }
             if (error != null) {
                 inputDoc.addError(Error.get(op.toString(), MongoCrudConstants.ERR_SAVE_ERROR, error));
-            } 
+            }
         }
-    }    
+    }
 
     private WriteResult insertDoc(CRUDOperationContext ctx,
                                   DBCollection collection,
@@ -123,24 +125,25 @@ public class BasicDocSaver implements DocSaver {
                                   DBObject dbObject,
                                   DocCtx inputDoc) {
         LOGGER.debug("Inserting doc");
-        if(!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
+        if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
             inputDoc.addError(Error.get("insert",
-                                        MongoCrudConstants.ERR_NO_ACCESS,
-                                        "insert:"+md.getName()));
+                    MongoCrudConstants.ERR_NO_ACCESS,
+                    "insert:" + md.getName()));
         } else {
-            List<Path> paths=roleEval.getInaccessibleFields_Insert(inputDoc);
-            LOGGER.debug("Inaccessible fields:{}",paths);
-            if(paths==null||paths.isEmpty()) {
+            List<Path> paths = roleEval.getInaccessibleFields_Insert(inputDoc);
+            LOGGER.debug("Inaccessible fields:{}", paths);
+            if (paths == null || paths.isEmpty()) {
                 try {
                     WriteResult r=collection.insert(dbObject, WriteConcern.SAFE);
                     inputDoc.setOperationPerformed(Operation.INSERT);
                     return r;
-                }  catch (MongoException.DuplicateKey dke) {
-                    LOGGER.error("saveOrInsert failed: {}",dke);
-                    inputDoc.addError(Error.get("insert",MongoCrudConstants.ERR_DUPLICATE,dke.toString()));
+                } catch (MongoException.DuplicateKey dke) {
+                    LOGGER.error("saveOrInsert failed: {}", dke);
+                    inputDoc.addError(Error.get("insert", MongoCrudConstants.ERR_DUPLICATE, dke.toString()));
                 }
-            } else
-                inputDoc.addError(Error.get("insert",CrudConstants.ERR_NO_FIELD_INSERT_ACCESS,paths.toString()));
+            } else {
+                inputDoc.addError(Error.get("insert", CrudConstants.ERR_NO_FIELD_INSERT_ACCESS, paths.toString()));
+            }
         }
         return null;
     }

@@ -49,7 +49,7 @@ public abstract class Updater {
      *
      * @return true if document is updated, false if not
      */
-    public abstract boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath);
+    public abstract boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath);
 
     /**
      * Add the fields updated by this updater to the set of fields.
@@ -61,7 +61,7 @@ public abstract class Updater {
     public abstract void getUpdateFields(Set<Path> fields);
 
     public Set<Path> getUpdateFields() {
-        Set<Path> set=new HashSet<Path>();
+        Set<Path> set = new HashSet<Path>();
         getUpdateFields(set);
         return set;
     }
@@ -70,7 +70,7 @@ public abstract class Updater {
      * Creates an updater object based on the given update expression
      */
     public static Updater getInstance(JsonNodeFactory factory, EntityMetadata md, UpdateExpression expr) {
-        return getInstance(factory,md.getFieldTreeRoot(),expr);
+        return getInstance(factory, md.getFieldTreeRoot(), expr);
     }
 
     /**
@@ -82,17 +82,17 @@ public abstract class Updater {
      */
     public static Updater getInstance(JsonNodeFactory factory, FieldTreeNode context, UpdateExpression expr) {
         Updater ret = null;
-        if(expr instanceof UpdateExpressionList) {
-            ret=new UpdateExpressionListEvaluator(factory,context,(UpdateExpressionList)expr);
-        } else if(expr instanceof SetExpression) {
-            ret=new SetExpressionEvaluator(factory,context,(SetExpression)expr);
-        } else if(expr instanceof UnsetExpression) {
-            ret=new UnsetExpressionEvaluator(factory,context,(UnsetExpression)expr);
-        } else if(expr instanceof ForEachExpression) {
-            ret=new ForEachExpressionEvaluator(factory,context,(ForEachExpression)expr);
-        } else if(expr instanceof ArrayAddExpression) {
-            ret=new ArrayAddExpressionEvaluator(factory,context,(ArrayAddExpression)expr);
-        }         
+        if (expr instanceof UpdateExpressionList) {
+            ret = new UpdateExpressionListEvaluator(factory, context, (UpdateExpressionList) expr);
+        } else if (expr instanceof SetExpression) {
+            ret = new SetExpressionEvaluator(factory, context, (SetExpression) expr);
+        } else if (expr instanceof UnsetExpression) {
+            ret = new UnsetExpressionEvaluator(factory, context, (UnsetExpression) expr);
+        } else if (expr instanceof ForEachExpression) {
+            ret = new ForEachExpressionEvaluator(factory, context, (ForEachExpression) expr);
+        } else if (expr instanceof ArrayAddExpression) {
+            ret = new ArrayAddExpressionEvaluator(factory, context, (ArrayAddExpression) expr);
+        }
         return ret;
     }
 }

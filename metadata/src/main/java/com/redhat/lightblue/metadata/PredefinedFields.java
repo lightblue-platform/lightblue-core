@@ -40,35 +40,38 @@ import com.redhat.lightblue.util.Path;
  * Ensures that the predefined fields are included in the metadata.
  *
  * <ul>
- * <li> _id, type is string, int or biginteger. Unique constraint, roles setup to allow read by anyone, noone updates</li>
- * <li> object_type, type is string. required and minimum length=1, roles setup to allow read by anyone, noone updates</li>
- * <li> for every array field with name "x", a field "x#" of type int, roles setup to allow read by anyone, noone updates</li>
+ * <li> _id, type is string, int or biginteger. Unique constraint, roles setup to allow read by anyone, noone
+ * updates</li>
+ * <li> object_type, type is string. required and minimum length=1, roles setup to allow read by anyone, noone
+ * updates</li>
+ * <li> for every array field with name "x", a field "x#" of type int, roles setup to allow read by anyone, noone
+ * updates</li>
  * </ul>
  */
 public final class PredefinedFields {
 
-    public static final String OBJECTTYPE_FIELD="object_type";
+    public static final String OBJECTTYPE_FIELD = "object_type";
 
-    public static final Path OBJECTTYPE_PATH=new Path(OBJECTTYPE_FIELD);
+    public static final Path OBJECTTYPE_PATH = new Path(OBJECTTYPE_FIELD);
 
     public static void ensurePredefinedFields(EntityMetadata md) {
         ensureObjectType(md);
         // Recursively find all arrays, and add array size fields
-        List<ParentNewChild> l=new ArrayList<>();
+        List<ParentNewChild> l = new ArrayList<>();
         // We have to go through all the array fields, and queue up
         // the new size fields to add, otherwise the following loop
         // throws a concurrent modification exception
-        FieldCursor cursor=md.getFieldCursor();
-        while(cursor.next()) {
-            FieldTreeNode f=cursor.getCurrentNode();
-            if(f instanceof ArrayField) {
-                ParentNewChild x=ensureArraySize(md,(ArrayField)f);
-                if(x!=null) {
+        FieldCursor cursor = md.getFieldCursor();
+        while (cursor.next()) {
+            FieldTreeNode f = cursor.getCurrentNode();
+            if (f instanceof ArrayField) {
+                ParentNewChild x = ensureArraySize(md, (ArrayField) f);
+                if (x != null) {
                     l.add(x);
                 }
             }
         }
-        for(ParentNewChild x:l) {
+        for (ParentNewChild x : l) {
             x.parent.addNew(x.newChild);
         }
     }
@@ -76,8 +79,8 @@ public final class PredefinedFields {
     /**
      * Updates all array size values in the given document
      */
-    public static void updateArraySizes(JsonNodeFactory factory,JsonDoc doc) {
-        updateArraySizes(factory,(ObjectNode)doc.getRoot());
+    public static void updateArraySizes(JsonNodeFactory factory, JsonDoc doc) {
+        updateArraySizes(factory, (ObjectNode) doc.getRoot());
     }
 
     /**
@@ -86,62 +89,61 @@ public final class PredefinedFields {
      * @param factory Node factory
      * @param node All array size fields under this subtree will be updated
      */
-    public static void updateArraySizes(JsonNodeFactory factory,ObjectNode node) {
-        Map<String,JsonNode> sizes=new HashMap<String,JsonNode>();
-        for(Iterator<Map.Entry<String,JsonNode>> itr=node.fields();itr.hasNext();) {
-            Map.Entry<String,JsonNode> field=itr.next();
-            JsonNode value=field.getValue();
-            if(value instanceof ArrayNode) {
-                sizes.put(field.getKey()+"#",factory.numberNode(((ArrayNode)value).size()));
-            } else if(value instanceof ObjectNode) {
-                updateArraySizes( factory, (ObjectNode)value);
+    public static void updateArraySizes(JsonNodeFactory factory, ObjectNode node) {
+        Map<String, JsonNode> sizes = new HashMap<String, JsonNode>();
+        for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields(); itr.hasNext();) {
+            Map.Entry<String, JsonNode> field = itr.next();
+            JsonNode value = field.getValue();
+            if (value instanceof ArrayNode) {
+                sizes.put(field.getKey() + "#", factory.numberNode(((ArrayNode) value).size()));
+            } else if (value instanceof ObjectNode) {
+                updateArraySizes(factory, (ObjectNode) value);
             }
         }
-        for(Map.Entry<String,JsonNode> entry:sizes.entrySet()) {
-            node.set(entry.getKey(),entry.getValue());
+        for (Map.Entry<String, JsonNode> entry : sizes.entrySet()) {
+            node.set(entry.getKey(), entry.getValue());
         }
     }
-   
 
     private static void ensureObjectType(EntityMetadata md) {
-        Field f=md.getFields().getField(OBJECTTYPE_FIELD);
-        if(f==null) {
-            f=new SimpleField(OBJECTTYPE_FIELD,StringType.TYPE);
+        Field f = md.getFields().getField(OBJECTTYPE_FIELD);
+        if (f == null) {
+            f = new SimpleField(OBJECTTYPE_FIELD, StringType.TYPE);
             md.getFields().addNew(f);
         }
-            
-        if(f instanceof SimpleField&&
-           // Object type must be string
-           f.getType().equals(StringType.TYPE)) {
+
+        if (f instanceof SimpleField
+                && // Object type must be string
+                f.getType().equals(StringType.TYPE)) {
             // Required constraint
-            if(findConstraint(f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
-                        public boolean checkMatch(FieldConstraint c) {
-                            return c instanceof RequiredConstraint;
-                        }
-                    })==null) {
-                f.setConstraints(addConstraint(f.getConstraints(),new RequiredConstraint()));
+            if (findConstraint(f.getConstraints(), new ConstraintSearchCB<FieldConstraint>() {
+                public boolean checkMatch(FieldConstraint c) {
+                    return c instanceof RequiredConstraint;
+                }
+            }) == null) {
+                f.setConstraints(addConstraint(f.getConstraints(), new RequiredConstraint()));
             }
             // Can't be empty
-            if(findConstraint(f.getConstraints(),new ConstraintSearchCB<FieldConstraint>() {
-                        public boolean checkMatch(FieldConstraint c) {
-                            if(c instanceof StringLengthConstraint && ((StringLengthConstraint)c).getType().equals(StringLengthConstraint.MINLENGTH)) {
-                                return true;
-                            }
-                            return false;
-                        }
-                    })==null) {
-                f.setConstraints(addConstraint(f.getConstraints(),new StringLengthConstraint(StringLengthConstraint.MINLENGTH,1)));
+            if (findConstraint(f.getConstraints(), new ConstraintSearchCB<FieldConstraint>() {
+                public boolean checkMatch(FieldConstraint c) {
+                    if (c instanceof StringLengthConstraint && ((StringLengthConstraint) c).getType().equals(StringLengthConstraint.MINLENGTH)) {
+                        return true;
+                    }
+                    return false;
+                }
+            }) == null) {
+                f.setConstraints(addConstraint(f.getConstraints(), new StringLengthConstraint(StringLengthConstraint.MINLENGTH, 1)));
             }
-            setRoleIfEmpty(f.getAccess().getFind(),MetadataConstants.ROLE_ANYONE);
-            setRoleIfEmpty(f.getAccess().getUpdate(),MetadataConstants.ROLE_NOONE);
+            setRoleIfEmpty(f.getAccess().getFind(), MetadataConstants.ROLE_ANYONE);
+            setRoleIfEmpty(f.getAccess().getUpdate(), MetadataConstants.ROLE_NOONE);
         } else {
-            throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE,OBJECTTYPE_FIELD+":"+f.getType().getName());
+            throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE, OBJECTTYPE_FIELD + ":" + f.getType().getName());
         }
     }
 
-    private static void setRoleIfEmpty(Access access,String role) {
-        if(access.getRoles().isEmpty()) {
-            List<String> l=new ArrayList<String>(1);
+    private static void setRoleIfEmpty(Access access, String role) {
+        if (access.getRoles().isEmpty()) {
+            List<String> l = new ArrayList<String>(1);
             l.add(role);
             access.setRoles(l);
         }
@@ -151,10 +153,10 @@ public final class PredefinedFields {
         boolean checkMatch(T c);
     }
 
-    private static<T> T findConstraint(List<T> list,ConstraintSearchCB<T> cb) {
-        if(list!=null) {
-            for(T x:list) {
-                if(cb.checkMatch(x)) {
+    private static <T> T findConstraint(List<T> list, ConstraintSearchCB<T> cb) {
+        if (list != null) {
+            for (T x : list) {
+                if (cb.checkMatch(x)) {
                     return x;
                 }
             }
@@ -162,8 +164,8 @@ public final class PredefinedFields {
         return null;
     }
 
-    private static<T> List<T> addConstraint(List<T> constraints,T newConstraint) {
-        List<T> ret=constraints==null?new ArrayList<T>(1):constraints;
+    private static <T> List<T> addConstraint(List<T> constraints, T newConstraint) {
+        List<T> ret = constraints == null ? new ArrayList<T>(1) : constraints;
         ret.add(newConstraint);
         return ret;
     }
@@ -172,41 +174,41 @@ public final class PredefinedFields {
         private final Fields parent;
         private final Field newChild;
 
-        public ParentNewChild(Fields parent,Field newChild) {
-            this.parent=parent;
-            this.newChild=newChild;
+        public ParentNewChild(Fields parent, Field newChild) {
+            this.parent = parent;
+            this.newChild = newChild;
         }
     }
 
-    private static ParentNewChild ensureArraySize(EntityMetadata md,ArrayField arr) {
+    private static ParentNewChild ensureArraySize(EntityMetadata md, ArrayField arr) {
         // Get the parent. The parent is either an object field, or the root
-        FieldTreeNode parent=arr.getParent();
+        FieldTreeNode parent = arr.getParent();
         Fields fields;
-        if(parent instanceof ObjectField) {
-            fields=((ObjectField)parent).getFields();
+        if (parent instanceof ObjectField) {
+            fields = ((ObjectField) parent).getFields();
+        } else {
+            fields = md.getFields();
         }
-        else {
-            fields=md.getFields();
-        }
-        String fieldName=arr.getName()+"#";
-        Field f=fields.getField(fieldName);
+        String fieldName = arr.getName() + "#";
+        Field f = fields.getField(fieldName);
         ParentNewChild ret;
-        if(f==null) {
+        if (f == null) {
             f = new SimpleField(fieldName, IntegerType.TYPE);
             ret = new ParentNewChild(fields, f);
         } else {
-            ret=null;
+            ret = null;
         }
-        
-        if(f instanceof SimpleField &&
-           // Must be int
-           f.getType().equals(IntegerType.TYPE)) {
-            setRoleIfEmpty(f.getAccess().getFind(),MetadataConstants.ROLE_ANYONE);
+
+        if (f instanceof SimpleField
+                && // Must be int
+                f.getType().equals(IntegerType.TYPE)) {
+            setRoleIfEmpty(f.getAccess().getFind(), MetadataConstants.ROLE_ANYONE);
         } else {
-            throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE,fieldName+":"+f.getType().getName());
+            throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE, fieldName + ":" + f.getType().getName());
         }
         return ret;
     }
 
-    private PredefinedFields() {}
+    private PredefinedFields() {
+    }
 }

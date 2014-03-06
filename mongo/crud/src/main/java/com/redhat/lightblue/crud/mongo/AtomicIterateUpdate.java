@@ -52,7 +52,7 @@ import com.redhat.lightblue.util.Path;
 public class AtomicIterateUpdate implements DocUpdater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtomicIterateUpdate.class);
-    
+
     private final JsonNodeFactory nodeFactory;
     private final FieldAccessRoleEvaluator roleEval;
     private final Translator translator;
@@ -66,12 +66,12 @@ public class AtomicIterateUpdate implements DocUpdater {
                                DBObject mongoUpdateExpr,
                                Projector projector,
                                Set<Path> updatedFields) {
-        this.nodeFactory=nodeFactory;
-        this.roleEval=roleEval;
-        this.translator=translator;
-        this.mongoUpdateExpr=mongoUpdateExpr;
-        this.projector=projector;
-        this.updatedFields=updatedFields;
+        this.nodeFactory = nodeFactory;
+        this.roleEval = roleEval;
+        this.translator = translator;
+        this.mongoUpdateExpr = mongoUpdateExpr;
+        this.projector = projector;
+        this.updatedFields = updatedFields;
     }
 
     @Override
@@ -81,54 +81,54 @@ public class AtomicIterateUpdate implements DocUpdater {
                        CRUDUpdateResponse response,
                        DBObject query) {
         LOGGER.debug("atomicIterateUpdate: start");
-        Set<Path> inaccessibleFields=roleEval.getInaccessibleFields(FieldAccessRoleEvaluator.Operation.update);
-        for(Path x:inaccessibleFields) {
-            if(updatedFields.contains(x)) {
-                ctx.addError(Error.get("update",CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,x.toString()));
+        Set<Path> inaccessibleFields = roleEval.getInaccessibleFields(FieldAccessRoleEvaluator.Operation.update);
+        for (Path x : inaccessibleFields) {
+            if (updatedFields.contains(x)) {
+                ctx.addError(Error.get("update", CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS, x.toString()));
             }
         }
-        int numFailed=0;
-        int numUpdated=0;
-        if(!ctx.hasErrors()) {
-            LOGGER.debug("Computing the result set for {}",query);
-            DBCursor cursor=null;
-            int docIndex=0;
+        int numFailed = 0;
+        int numUpdated = 0;
+        if (!ctx.hasErrors()) {
+            LOGGER.debug("Computing the result set for {}", query);
+            DBCursor cursor = null;
+            int docIndex = 0;
             try {
                 // Find docs
-                cursor=collection.find(query);
-                LOGGER.debug("Found {} documents",cursor.count());
+                cursor = collection.find(query);
+                LOGGER.debug("Found {} documents", cursor.count());
                 // read-update
-                while(cursor.hasNext()) {
-                    DBObject document=cursor.next();
+                while (cursor.hasNext()) {
+                    DBObject document = cursor.next();
                     // Add the doc to context
-                    DocCtx doc=ctx.addDocument(translator.toJson(document));
+                    DocCtx doc = ctx.addDocument(translator.toJson(document));
                     try {
-                        QueryEvaluationContext qctx=new QueryEvaluationContext(doc.getRoot());
-                        Object id=document.get("_id");
-                        LOGGER.debug("Retrieved doc {} id={}",docIndex,id);
+                        QueryEvaluationContext qctx = new QueryEvaluationContext(doc.getRoot());
+                        Object id = document.get("_id");
+                        LOGGER.debug("Retrieved doc {} id={}", docIndex, id);
                         // Update doc
-                        DBObject modifiedDoc=collection.findAndModify(new BasicDBObject("_id",id),
-                                                                      null,
-                                                                      null,
-                                                                      false,
-                                                                      mongoUpdateExpr,
-                                                                      true,
-                                                                      false);
-                        if(projector!=null) {
-                            LOGGER.debug("Projecting document {}",docIndex);
-                            doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc),nodeFactory,qctx));
+                        DBObject modifiedDoc = collection.findAndModify(new BasicDBObject("_id", id),
+                                null,
+                                null,
+                                false,
+                                mongoUpdateExpr,
+                                true,
+                                false);
+                        if (projector != null) {
+                            LOGGER.debug("Projecting document {}", docIndex);
+                            doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory, qctx));
                             doc.setOperationPerformed(Operation.UPDATE);
                         }
                         numUpdated++;
                     } catch (MongoException e) {
-                        LOGGER.warn("Update exception for document {}: {}",docIndex,e);
-                        doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR,e.toString()));
+                        LOGGER.warn("Update exception for document {}: {}", docIndex, e);
+                        doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR, e.toString()));
                         numFailed++;
                     }
                     docIndex++;
                 }
             } finally {
-                if(cursor!=null) {
+                if (cursor != null) {
                     cursor.close();
                 }
             }

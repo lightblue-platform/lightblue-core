@@ -23,21 +23,20 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Thrown whenever an update expression cannot be translated to
- * MongoDB update expression
+ * Thrown whenever an update expression cannot be translated to MongoDB update expression
  */
 public class CannotTranslateException extends Exception {
-    
+
     private final UpdateExpression expr;
 
     public CannotTranslateException(UpdateExpression expr) {
         super(expr.toString());
-        this.expr=expr;
+        this.expr = expr;
     }
 
     public CannotTranslateException(Path field) {
         super(field.toString());
-        expr=null;
+        expr = null;
     }
 
     public UpdateExpression getExpr() {

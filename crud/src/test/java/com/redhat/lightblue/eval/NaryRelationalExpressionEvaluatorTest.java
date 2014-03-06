@@ -15,7 +15,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
     }
 
     @Test
@@ -23,7 +23,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf3','op':'$in','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -33,7 +33,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf3','op':'$nin','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -43,7 +43,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf1','op':'$in','values':['blah','yada','nvalue1']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -53,7 +53,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf1','op':'$in','values':['blah','yada','nothere']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -63,7 +63,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field2.$parent.field6.nf3','op':'$in','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -73,7 +73,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field2.$parent.field6.nf3','op':'$nin','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -83,7 +83,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field2.$parent.field6.nf1','op':'$in','values':['blah','yada','nvalue1']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -93,7 +93,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field2.$parent.field6.nf1','op':'$in','values':['blah','yada','nothere']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -103,7 +103,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf7.$parent.$parent.field6.nf3','op':'$in','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -113,7 +113,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf7.$parent.$parent.field6.nf3','op':'$nin','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -123,7 +123,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf7.$parent.$parent.field6.nf1','op':'$in','values':['blah','yada','nvalue1']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -133,7 +133,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.nf7.$parent.$parent.field6.nf1','op':'$in','values':['blah','yada','nothere']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -143,7 +143,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.nf3','op':'$in','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -153,7 +153,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.nf3','op':'$nin','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -163,7 +163,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.nf1','op':'$in','values':['blah','yada','nvalue1']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -173,7 +173,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.nf1','op':'$in','values':['blah','yada','nothere']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -183,7 +183,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.$this.nf3','op':'$in','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -193,7 +193,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.$this.nf3','op':'$nin','values':[1,2,3,4]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }
@@ -203,7 +203,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.$this.nf1','op':'$in','values':['blah','yada','nvalue1']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertTrue(ctx.getResult());
     }
@@ -213,7 +213,7 @@ public class NaryRelationalExpressionEvaluatorTest extends AbstractJsonNodeTest 
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6.$this.$this.nf1','op':'$in','values':['blah','yada','nothere']}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
 
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
 
         Assert.assertFalse(ctx.getResult());
     }

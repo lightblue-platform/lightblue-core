@@ -23,7 +23,7 @@ import java.io.Serializable;
 import com.redhat.lightblue.query.Projection;
 
 public class Hook implements Serializable {
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private final String name;
     private Projection projection;
@@ -37,7 +37,7 @@ public class Hook implements Serializable {
      * Constructs a hook with the given name
      */
     public Hook(String name) {
-        this.name=name;
+        this.name = name;
     }
 
     /**
@@ -48,19 +48,17 @@ public class Hook implements Serializable {
     }
 
     /**
-     * Optional projection applied to data sent to the hook. If null,
-     * data is sent without projecting
+     * Optional projection applied to data sent to the hook. If null, data is sent without projecting
      */
     public Projection getProjection() {
         return projection;
     }
 
     /**
-     * Optional projection applied to data sent to the hook. If null,
-     * data is sent without projecting
+     * Optional projection applied to data sent to the hook. If null, data is sent without projecting
      */
     public void setProjection(Projection projection) {
-        this.projection=projection;
+        this.projection = projection;
     }
 
     /**
@@ -74,7 +72,7 @@ public class Hook implements Serializable {
      * Hook specific configuration
      */
     public void setConfiguration(HookConfiguration configuration) {
-        this.configuration=configuration;
+        this.configuration = configuration;
     }
 
     /**
@@ -88,7 +86,7 @@ public class Hook implements Serializable {
      * Determines if this is an insertion hook
      */
     public void setInsert(boolean b) {
-        insert=b;
+        insert = b;
     }
 
     /**
@@ -102,7 +100,7 @@ public class Hook implements Serializable {
      * Determines if this is an update hook
      */
     public void setUpdate(boolean b) {
-        update=b;
+        update = b;
     }
 
     /**
@@ -116,7 +114,7 @@ public class Hook implements Serializable {
      * Determines if this is a deletion hook
      */
     public void setDelete(boolean b) {
-        delete=b;
+        delete = b;
     }
 
     /**
@@ -130,6 +128,6 @@ public class Hook implements Serializable {
      * Determines if this is a find hook
      */
     public void setFind(boolean b) {
-        find=b;
+        find = b;
     }
 }

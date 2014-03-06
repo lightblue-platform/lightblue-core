@@ -133,8 +133,8 @@ public class Extensions<T> {
     @Override
     public String toString() {
         return dataStoreParsers.toString() + "\n"
-            + entityConstraintParsers.toString() + "\n"
-            + fieldConstraintParsers.toString() + "\n"
-            + hookConfigurationParsers.toString();
+                + entityConstraintParsers.toString() + "\n"
+                + fieldConstraintParsers.toString() + "\n"
+                + hookConfigurationParsers.toString();
     }
 }

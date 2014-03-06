@@ -29,9 +29,9 @@ import java.util.Iterator;
  */
 class PathRep implements Serializable, Comparable<PathRep> {
     private static final long serialVersionUID = 1l;
-    
+
     private final List<String> segments;
-    
+
     private transient String stringValue = null;
     private transient int hashValue = 0;
 
@@ -41,7 +41,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
     public PathRep() {
         segments = new ArrayList<String>(10);
     }
-    
+
     /**
      * Copy ctor
      */
@@ -55,8 +55,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
      * Prefix copy ctor
      *
      * @param data source
-     * @param x If x>0, x elements from the beginning are copied. If
-     * x<0, -x elements from the end are removed
+     * @param x If x>0, x elements from the beginning are copied. If x<0, -x elements from the end are removed
      */
     public PathRep(PathRep data, int x) {
         int k = data.segments.size();
@@ -113,8 +112,8 @@ class PathRep implements Serializable, Comparable<PathRep> {
     /**
      * Sets the element at index
      */
-    public void set(int index,String x) {
-        segments.set(index,x);
+    public void set(int index, String x) {
+        segments.set(index, x);
         resetState();
     }
 
@@ -124,7 +123,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
     public Iterator<String> iterator() {
         return segments.iterator();
     }
-    
+
     @Override
     public int hashCode() {
         if (hashValue == 0) {
@@ -132,7 +131,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
         }
         return hashValue;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof PathRep) {
@@ -141,7 +140,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
         }
         return false;
     }
-    
+
     /**
      * Removes 'from' elements from the beginning
      */
@@ -181,7 +180,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
         segments.addAll(x);
         resetState();
     }
-    
+
     @Override
     public int compareTo(PathRep x) {
         int tn = segments.size();

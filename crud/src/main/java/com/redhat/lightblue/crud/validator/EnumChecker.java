@@ -47,9 +47,9 @@ public class EnumChecker implements FieldConstraintValueChecker {
 
         if (name != null) {
             // find value set for this enum
-            Enum e=validator.getEntityMetadata().getEntityInfo().getEnums().getEnum(name);
-            if(e!=null) {
-                values=e.getValues();
+            Enum e = validator.getEntityMetadata().getEntityInfo().getEnums().getEnum(name);
+            if (e != null) {
+                values = e.getValues();
             }
         }
 

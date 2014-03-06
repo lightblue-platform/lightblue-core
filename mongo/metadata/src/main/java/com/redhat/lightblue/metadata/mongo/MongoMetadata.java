@@ -88,126 +88,126 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public EntityMetadata getEntityMetadata(String entityName,
-                                             String version) {
-         if (entityName == null || entityName.length() == 0) {
-             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
-         }
-         if (version == null || version.length() == 0) {
-             throw new IllegalArgumentException(LITERAL_VERSION);
-         }
+                                            String version) {
+        if (entityName == null || entityName.length() == 0) {
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
+        }
+        if (version == null || version.length() == 0) {
+            throw new IllegalArgumentException(LITERAL_VERSION);
+        }
 
-         Error.push("getEntityMetadata(" + entityName + ":" + version + ")");
-         try {
-             EntityInfo info = getEntityInfo(entityName);
-             EntitySchema schema;
+        Error.push("getEntityMetadata(" + entityName + ":" + version + ")");
+        try {
+            EntityInfo info = getEntityInfo(entityName);
+            EntitySchema schema;
 
-             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
-             DBObject es = collection.findOne(query);
-             if (es != null) {
-                 schema = mdParser.parseEntitySchema(es);
-             } else {
-                 schema = null;
-             }
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
+            DBObject es = collection.findOne(query);
+            if (es != null) {
+                schema = mdParser.parseEntitySchema(es);
+            } else {
+                schema = null;
+            }
 
-             return new EntityMetadata(info, schema);
-         } finally {
-             Error.pop();
-         }
-     }
+            return new EntityMetadata(info, schema);
+        } finally {
+            Error.pop();
+        }
+    }
 
-     public EntityInfo getEntityInfo(String entityName) {
-         if (entityName == null || entityName.length() == 0) {
-             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
-         }
+    public EntityInfo getEntityInfo(String entityName) {
+        if (entityName == null || entityName.length() == 0) {
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
+        }
 
-         Error.push("getEntityInfo(" + entityName + ")");
-         try {
-             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
-             DBObject ei = collection.findOne(query);
-             if (ei != null) {
-                 return mdParser.parseEntityInfo(ei);
-             } else {
-                 return null;
-             }
-         } finally {
-             Error.pop();
-         }
-     }
+        Error.push("getEntityInfo(" + entityName + ")");
+        try {
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
+            DBObject ei = collection.findOne(query);
+            if (ei != null) {
+                return mdParser.parseEntityInfo(ei);
+            } else {
+                return null;
+            }
+        } finally {
+            Error.pop();
+        }
+    }
 
-     @SuppressWarnings("rawtypes")
-     @Override
-     public String[] getEntityNames() {
-         Error.push("getEntityNames");
-         try {
-             List l = collection.distinct(LITERAL_NAME);
-             String[] arr = new String[l.size()];
-             int i = 0;
-             for (Object x : l) {
-                 arr[i++] = x.toString();
-             }
-             return arr;
-         } finally {
-             Error.pop();
-         }
-     }
+    @SuppressWarnings("rawtypes")
+    @Override
+    public String[] getEntityNames() {
+        Error.push("getEntityNames");
+        try {
+            List l = collection.distinct(LITERAL_NAME);
+            String[] arr = new String[l.size()];
+            int i = 0;
+            for (Object x : l) {
+                arr[i++] = x.toString();
+            }
+            return arr;
+        } finally {
+            Error.pop();
+        }
+    }
 
-     @Override
-     public Version[] getEntityVersions(String entityName) {
-         if (entityName == null || entityName.length() == 0) {
-             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
-         }
-         Error.push("getEntityVersions(" + entityName + ")");
-         try {
-             // query by name but only return documents that have a version
-             BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName)
-                     .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
-             BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
-             project.append(LITERAL_ID, 0);
-             DBCursor cursor = collection.find(query, project);
-             int n = cursor.count();
-             Version[] ret = new Version[n];
-             int i = 0;
-             while (cursor.hasNext()) {
-                 DBObject object = cursor.next();
-                 ret[i++] = mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
-             }
-             return ret;
-         } finally {
-             Error.pop();
-         }
-     }
+    @Override
+    public Version[] getEntityVersions(String entityName) {
+        if (entityName == null || entityName.length() == 0) {
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
+        }
+        Error.push("getEntityVersions(" + entityName + ")");
+        try {
+            // query by name but only return documents that have a version
+            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName)
+                    .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
+            BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
+            project.append(LITERAL_ID, 0);
+            DBCursor cursor = collection.find(query, project);
+            int n = cursor.count();
+            Version[] ret = new Version[n];
+            int i = 0;
+            while (cursor.hasNext()) {
+                DBObject object = cursor.next();
+                ret[i++] = mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
+            }
+            return ret;
+        } finally {
+            Error.pop();
+        }
+    }
 
-     @Override
-     public void createNewMetadata(EntityMetadata md) {
+    @Override
+    public void createNewMetadata(EntityMetadata md) {
 
-         checkMetadataHasName(md);
-         checkMetadataHasFields(md);
-         checkDataStoreIsValid(md);
-         Version ver = checkVersionIsValid(md);
+        checkMetadataHasName(md);
+        checkMetadataHasFields(md);
+        checkDataStoreIsValid(md);
+        Version ver = checkVersionIsValid(md);
 
-         Error.push("createNewMetadata(" + md.getName() + ")");
+        Error.push("createNewMetadata(" + md.getName() + ")");
 
-         // write info and schema as separate docs!
-         try {
-             PredefinedFields.ensurePredefinedFields(md);
-             DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
-             DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
+        // write info and schema as separate docs!
+        try {
+            PredefinedFields.ensurePredefinedFields(md);
+            DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
+            DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
 
-             Error.push("writeEntity");
-             try {
-                 WriteResult result = collection.insert(new DBObject[] {infoObj,schemaObj}, 
-                                                        WriteConcern.SAFE);
-                 String error = result.getError();
-                 if (error != null) {
-                     cleanup(infoObj.get(LITERAL_ID),schemaObj.get(LITERAL_ID));
-                     throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
-                 }
-             } catch (MongoException.DuplicateKey dke) {
-                 cleanup(infoObj.get(LITERAL_ID),schemaObj.get(LITERAL_ID));
-                 throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
-             } finally {
-                 Error.pop();
-             }
+            Error.push("writeEntity");
+            try {
+                WriteResult result = collection.insert(new DBObject[]{infoObj, schemaObj},
+                        WriteConcern.SAFE);
+                String error = result.getError();
+                if (error != null) {
+                    cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
+                    throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+                }
+            } catch (MongoException.DuplicateKey dke) {
+                cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
+                throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
+            } finally {
+                Error.pop();
+            }
 
         } finally {
             Error.pop();
@@ -215,11 +215,12 @@ public class MongoMetadata implements Metadata {
     }
 
     private void cleanup(Object... ids) {
-        for(Object id:ids) {
-            if(id!=null) {
+        for (Object id : ids) {
+            if (id != null) {
                 try {
-                    collection.remove(new BasicDBObject(LITERAL_ID,id));
-                } catch (Exception e) {}
+                    collection.remove(new BasicDBObject(LITERAL_ID, id));
+                } catch (Exception e) {
+                }
             }
         }
     }

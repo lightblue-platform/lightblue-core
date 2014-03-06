@@ -191,7 +191,7 @@ public class ConstraintValidator {
             }
         }
     }
-    
+
     private void checkConstraints(JsonDoc doc, Path currentValuePath, JsonNode currentValue) {
         LOGGER.debug("checking field constraints");
         FieldCursor cursor = md.getFieldCursor();
@@ -213,9 +213,9 @@ public class ConstraintValidator {
             }
         }
     }
-    
+
     private void checkFieldConstraints(JsonDoc doc, List<FieldConstraint> constraints, Path currentValuePath, JsonNode currentValue) {
-        
+
         for (FieldConstraint x : constraints) {
             currentFieldConstraint = x;
             String constraintType = currentFieldConstraint.getType();
@@ -238,7 +238,7 @@ public class ConstraintValidator {
             }
         }
     }
-    
+
     private void checkFieldContraints(JsonDoc doc, FieldConstraintDocChecker checker) {
         ((FieldConstraintDocChecker) checker).checkConstraint(this,
                 currentFieldNode,
@@ -246,7 +246,7 @@ public class ConstraintValidator {
                 currentFieldConstraint,
                 doc);
     }
-    
+
     private void checkValueContraints(JsonDoc doc, FieldConstraintChecker checker, Path currentValuePath, JsonNode currentValue) {
         KeyValueCursor<Path, JsonNode> fieldValues = doc.getAllNodes(currentFieldPath);
         while (fieldValues.hasNext()) {
@@ -267,7 +267,7 @@ public class ConstraintValidator {
             }
         }
     }
-    
+
     public EntityMetadata getEntityMetadata() {
         return md;
     }

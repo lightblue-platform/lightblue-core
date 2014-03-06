@@ -33,8 +33,8 @@ import com.redhat.lightblue.util.Path;
  * Base class for all projection objects
  */
 public abstract class Projection extends JsonObject {
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     public static Projection fromJson(JsonNode node) {
         if (node instanceof ArrayNode) {
             return ProjectionList.fromJson((ArrayNode) node);
@@ -44,36 +44,35 @@ public abstract class Projection extends JsonObject {
     }
 
     /**
-     * Adds two projections and returns a new projection containing
-     * both. Any projection can be null. If the resulting projection
-     * is empty, returns null.
+     * Adds two projections and returns a new projection containing both. Any projection can be null. If the resulting
+     * projection is empty, returns null.
      */
-    public static Projection add(Projection p1,Projection p2) {
-        List<Projection> list=new ArrayList<Projection>();
-        if(p1 instanceof ProjectionList)
-            list.addAll( ((ProjectionList)p1).getItems());
-        else if(p1 !=null) {
+    public static Projection add(Projection p1, Projection p2) {
+        List<Projection> list = new ArrayList<Projection>();
+        if (p1 instanceof ProjectionList) {
+            list.addAll(((ProjectionList) p1).getItems());
+        } else if (p1 != null) {
             list.add(p1);
         }
-        if(p2 instanceof ProjectionList) {
-            list.addAll( ((ProjectionList)p2).getItems());
-        } else if(p2!=null) {
+        if (p2 instanceof ProjectionList) {
+            list.addAll(((ProjectionList) p2).getItems());
+        } else if (p2 != null) {
             list.add(p2);
         }
-        return list.isEmpty()?null:new ProjectionList(list);
+        return list.isEmpty() ? null : new ProjectionList(list);
     }
-    
+
     protected static Path getNonRelativePath(Path p) {
-        List<String> segments = new ArrayList<String>();
+        List<String> segments = new ArrayList<>();
         int numberOfParentsOnPath = 0;
         for (int i = p.numSegments() - 1; i >= 0; i--) {
-            if(Path.THIS.equals(p.head(i))) {
+            if (Path.THIS.equals(p.head(i))) {
                 continue;
-            } else if(Path.PARENT.equals(p.head(i))) {
-                numberOfParentsOnPath ++ ;
+            } else if (Path.PARENT.equals(p.head(i))) {
+                numberOfParentsOnPath++;
             } else {
-                if(numberOfParentsOnPath > 0) {
-                    numberOfParentsOnPath --;
+                if (numberOfParentsOnPath > 0) {
+                    numberOfParentsOnPath--;
                     continue;
                 }
                 segments.add(p.head(i));
@@ -82,5 +81,4 @@ public abstract class Projection extends JsonObject {
         Collections.reverse(segments);
         return new Path(Joiner.on(".").join(segments));
     }
-
 }

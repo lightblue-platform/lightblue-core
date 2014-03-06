@@ -67,7 +67,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             this.refType = refType;
             this.value = value;
         }
-        
+
         public boolean isNull() {
             return this.refPath == null && this.refType == null && this.value == null;
         }
@@ -96,7 +96,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             // Array size field should be at the same level as the array field
             MutablePath abs = new MutablePath();
             fieldMd.getFullPath(abs);
-            absArrayField=abs.mutableCopy();
+            absArrayField = abs.mutableCopy();
             abs.setLast(abs.getLast() + "#");
             // At this point, arraySizeField is derived from metadata,
             // so it has * as array indexes
@@ -107,7 +107,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             throw new EvaluationError(CrudConstants.ERR_REQUIRED_ARRAY + arrayField);
         }
     }
-    
+
     private void initializeArrayField(FieldTreeNode context, ArrayAddExpression expr) {
         for (RValueExpression rvalue : expr.getValues()) {
             Path refPath = null;
@@ -126,7 +126,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             values.add(new RValueData(refPath, refMd == null ? null : refMd.getType(), rvalue.getValue()));
         }
     }
-    
+
     private void validateArrayElement(ArrayElement element, FieldTreeNode refMd, RValueExpression rvalue, Path refPath) {
         if (element instanceof ObjectArrayElement) {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
@@ -142,7 +142,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             }
         }
     }
-    
+
     @Override
     public void getUpdateFields(Set<Path> fields) {
         fields.add(absArrayField);
@@ -208,4 +208,4 @@ public class ArrayAddExpressionEvaluator extends Updater {
         }
         return ret;
     }
- }
+}

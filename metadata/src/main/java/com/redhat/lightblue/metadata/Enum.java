@@ -37,7 +37,7 @@ public class Enum implements Serializable {
      * Default ctor
      */
     public Enum(String name) {
-        this.name=name;
+        this.name = name;
     }
 
     /**

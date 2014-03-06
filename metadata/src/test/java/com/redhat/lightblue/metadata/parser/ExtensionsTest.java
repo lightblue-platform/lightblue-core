@@ -37,31 +37,39 @@ import com.redhat.lightblue.util.JsonUtils;
 
 public class ExtensionsTest {
 
-    private static final JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(false);
+    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
 
     public static class TestHookCfg implements HookConfiguration {
         String testName;
 
         public TestHookCfg(String n) {
-            testName=n;
+            testName = n;
         }
     }
 
     public static class HookTestCfgParser implements HookConfigurationParser<JsonNode> {
-        @Override public HookConfiguration parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+        @Override
+        public HookConfiguration parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
             return new TestHookCfg(node.get("testField").asText());
         }
-        @Override public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
+
+        @Override
+        public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
         }
     }
 
     public static class TestDatastoreParser implements DataStoreParser<JsonNode> {
-        @Override public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+        @Override
+        public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
             return new DataStore() {
-                public String getType() { return "test";}
+                public String getType() {
+                    return "test";
+                }
             };
         }
-        @Override public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
+
+        @Override
+        public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
         }
     }
 
@@ -71,24 +79,24 @@ public class ExtensionsTest {
 
     @Test
     public void hookTest() throws Exception {
-        Extensions<JsonNode> ex=new Extensions<JsonNode>();
-        HookTestCfgParser hookParser=new HookTestCfgParser();
-        ex.registerHookConfigurationParser("testHook",hookParser);
-        ex.registerDataStoreParser("test",new TestDatastoreParser());
-        JsonNode mdJson=json("{'name':'test','datastore':{'test': { } }, "+
-                             "'hooks':[ "+
-                             "{'name':'testHook','actions':['insert'],"+
-                             "'projection':{'field':'*','recursive':1},"+
-                             "'configuration':{'testField':'testValue'} } ] }");
-        JSONMetadataParser parser=new JSONMetadataParser(ex,new DefaultTypes(),nodeFactory);
-        EntityInfo ei=parser.parseEntityInfo(mdJson);
+        Extensions<JsonNode> ex = new Extensions<JsonNode>();
+        HookTestCfgParser hookParser = new HookTestCfgParser();
+        ex.registerHookConfigurationParser("testHook", hookParser);
+        ex.registerDataStoreParser("test", new TestDatastoreParser());
+        JsonNode mdJson = json("{'name':'test','datastore':{'test': { } }, "
+                + "'hooks':[ "
+                + "{'name':'testHook','actions':['insert'],"
+                + "'projection':{'field':'*','recursive':1},"
+                + "'configuration':{'testField':'testValue'} } ] }");
+        JSONMetadataParser parser = new JSONMetadataParser(ex, new DefaultTypes(), nodeFactory);
+        EntityInfo ei = parser.parseEntityInfo(mdJson);
         Assert.assertNotNull(ei);
         Assert.assertFalse(ei.getHooks().isEmpty());
-        Assert.assertEquals("testHook",ei.getHooks().getHooks().get(0).getName());
+        Assert.assertEquals("testHook", ei.getHooks().getHooks().get(0).getName());
         Assert.assertTrue(ei.getHooks().getHooks().get(0).isInsert());
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isUpdate());
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isDelete());
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isFind());
-        Assert.assertEquals("testValue",((TestHookCfg)ei.getHooks().getHooks().get(0).getConfiguration()).testName);
+        Assert.assertEquals("testValue", ((TestHookCfg) ei.getHooks().getHooks().get(0).getConfiguration()).testName);
     }
 }

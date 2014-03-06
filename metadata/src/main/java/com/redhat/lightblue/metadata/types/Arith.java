@@ -35,39 +35,37 @@ public final class Arith {
     public static Object add(Object operand1,
                              Object operand2,
                              Type resultType) {
-        Object o1=resultType.cast(operand1);
-        Object o2=resultType.cast(operand2);
+        Object o1 = resultType.cast(operand1);
+        Object o2 = resultType.cast(operand2);
         Object result;
-        if(resultType instanceof BigDecimalType) {
-            result=((BigDecimal)o1).add((BigDecimal)o2);
-        } else if(resultType instanceof BigIntegerType) {
-            result=((BigInteger)o1).add((BigInteger)o2);
-        } else if(resultType instanceof DoubleType) {
-            result=((Double)o1).doubleValue()+((Double)o2).doubleValue();
+        if (resultType instanceof BigDecimalType) {
+            result = ((BigDecimal) o1).add((BigDecimal) o2);
+        } else if (resultType instanceof BigIntegerType) {
+            result = ((BigInteger) o1).add((BigInteger) o2);
+        } else if (resultType instanceof DoubleType) {
+            result = ((Double) o1).doubleValue() + ((Double) o2).doubleValue();
         } else {
-            result=((Long)o1).longValue()+((Long)o2).longValue();
+            result = ((Long) o1).longValue() + ((Long) o2).longValue();
         }
         return result;
     }
 
     /**
-     * Determines the resulting type of an arithmetic operation
-     * between a value of type operand1 and a value of type
-     * operand2. Throws IllegalArgumentException if the operation is
-     * invalid.
+     * Determines the resulting type of an arithmetic operation between a value of type operand1 and a value of type
+     * operand2. Throws IllegalArgumentException if the operation is invalid.
      */
     public static Type promote(Type operand1,
                                Type operand2) {
         // For all cases except BigInteger-double operations, ordering
         // the types and getting max determines the reslt type. For
         // BigInteger-double operations, result is BigDecimal.
-        if((operand1 instanceof BigIntegerType && operand2 instanceof DoubleType)||
-           (operand1 instanceof DoubleType && operand2 instanceof BigIntegerType)) {
+        if ((operand1 instanceof BigIntegerType && operand2 instanceof DoubleType)
+                || (operand1 instanceof DoubleType && operand2 instanceof BigIntegerType)) {
             return BigDecimalType.TYPE;
         } else {
-            int o1=arithType(operand1);
-            int o2=arithType(operand2);
-            return arithType(Math.max(o1,o2));
+            int o1 = arithType(operand1);
+            int o2 = arithType(operand2);
+            return arithType(Math.max(o1, o2));
         }
     }
 
@@ -82,17 +80,22 @@ public final class Arith {
             return 3;
         } else {
             throw new IllegalArgumentException(operand.getName() + MetadataConstants.ERR_NOT_A_NUMBER_TYPE);
-        }  
+        }
     }
 
     private static Type arithType(int type) {
-        switch(type) {
-        case 0: return IntegerType.TYPE;
-        case 1: return BigIntegerType.TYPE;
-        case 2: return DoubleType.TYPE;
-        default: return BigDecimalType.TYPE; 
-        }   
+        switch (type) {
+            case 0:
+                return IntegerType.TYPE;
+            case 1:
+                return BigIntegerType.TYPE;
+            case 2:
+                return DoubleType.TYPE;
+            default:
+                return BigDecimalType.TYPE;
+        }
     }
 
-    private Arith() {}
+    private Arith() {
+    }
 }

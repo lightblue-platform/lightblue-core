@@ -51,9 +51,9 @@ public final class MetadataConstants {
 
     public static final String ERR_CONFIG_NOT_VALID = "metadata:ConfigurationNotValid";
     public static final String ERR_CONFIG_NOT_FOUND = "metadata:ConfigurationNotFound";
-    
+
     public static final String ERR_NOT_A_NUMBER_TYPE = "metadata:NotANumberType";
-    
+
     public static final String ERR_COMPARE_NOT_SUPPORTED = "metadata:CompareNotSupported";
     public static final String ERR_CAST_NOT_SUPPORTED = "metadata:CastNotSupported";
     public static final String ERR_TO_JSON_NOT_SUPPORTED = "metadata:ToJsonNotSupported";
@@ -61,5 +61,5 @@ public final class MetadataConstants {
 
     private MetadataConstants() {
     }
-    
+
 }

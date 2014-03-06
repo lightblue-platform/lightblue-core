@@ -132,9 +132,9 @@ public class DateTypeTest {
 
     @Test
     public void testCompareNotEqual() {
-    	Date date1 = new Date(new GregorianCalendar(2014, 00, 14).getTimeInMillis());
-    	Date date2 = new Date(new GregorianCalendar(2014, 00, 15).getTimeInMillis());
-    	assertEquals(dateType.compare(date1, date2), -1);
+        Date date1 = new Date(new GregorianCalendar(2014, 00, 14).getTimeInMillis());
+        Date date2 = new Date(new GregorianCalendar(2014, 00, 15).getTimeInMillis());
+        assertEquals(dateType.compare(date1, date2), -1);
     }
 
     @Test

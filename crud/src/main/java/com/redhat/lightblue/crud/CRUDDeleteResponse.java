@@ -21,11 +21,11 @@ package com.redhat.lightblue.crud;
 import java.io.Serializable;
 
 /**
- * Deletion operation response 
+ * Deletion operation response
  */
 public class CRUDDeleteResponse implements Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private int numDeleted;
 
@@ -40,6 +40,6 @@ public class CRUDDeleteResponse implements Serializable {
      * Number of records deleted
      */
     public void setNumDeleted(int n) {
-        numDeleted=n;
+        numDeleted = n;
     }
 }

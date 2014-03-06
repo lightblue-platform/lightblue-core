@@ -26,9 +26,9 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.metadata.types.ArrayType;
 
 public class ArrayField extends Field {
-	
+
     private static final long serialVersionUID = 1L;
-    
+
     private ArrayElement element;
 
     public ArrayField(String name) {
@@ -49,7 +49,7 @@ public class ArrayField extends Field {
         element = el;
         element.setParent(this);
     }
-    
+
     @Override
     public boolean hasChildren() {
         return true;
@@ -75,7 +75,7 @@ public class ArrayField extends Field {
             try {
                 if (p.isIndex(level) || p.head(level).equals(Path.ANY)) {
                     return element.resolve(p, level + 1);
-                } else if (Path.PARENT.equals(p.head(level))){
+                } else if (Path.PARENT.equals(p.head(level))) {
                     return this.getParent().resolve(p, level + 1);
                 } else {
                     throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);

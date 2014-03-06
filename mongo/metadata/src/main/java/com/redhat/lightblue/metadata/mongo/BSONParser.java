@@ -216,24 +216,24 @@ public class BSONParser extends MetadataParser<BSONObject> {
 
     @Override
     public Projection parseProjection(BSONObject object) {
-        return object==null?null:Projection.fromJson(toJson(object));
+        return object == null ? null : Projection.fromJson(toJson(object));
     }
 
     @Override
     public QueryExpression parseQuery(BSONObject object) {
-        return object==null?null:QueryExpression.fromJson(toJson(object));
+        return object == null ? null : QueryExpression.fromJson(toJson(object));
     }
 
     @Override
     public Sort parseSort(BSONObject object) {
-        return object==null?null:Sort.fromJson(toJson(object));
+        return object == null ? null : Sort.fromJson(toJson(object));
     }
 
     private JsonNode toJson(BSONObject object) {
         try {
             return JsonUtils.json(object.toString());
         } catch (Exception e) {
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA,object.toString());
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, object.toString());
         }
     }
 }

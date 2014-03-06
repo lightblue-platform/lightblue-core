@@ -24,9 +24,9 @@ import java.util.List;
  * A Path that can be modified. Uses copy-on-write semantics to prevent unnecessary copies.
  */
 public class MutablePath extends Path {
-    
+
     private static final long serialVersionUID = 1L;
-	
+
     /**
      * If true, this MutablePath is the only Path with a reference to the path data. If false, path data is referenced
      * by other Paths and a deep copy will only be made if data is modified.
@@ -92,7 +92,7 @@ public class MutablePath extends Path {
             throw new IllegalArgumentException(UtilConstants.ERR_NULL_VALUE_PASSED_TO_PUSH);
         }
         List<String> s = parse(x);
-        if(s!=null&&!s.isEmpty()) {
+        if (s != null && !s.isEmpty()) {
             own();
             getData().append(s);
         }
@@ -129,7 +129,7 @@ public class MutablePath extends Path {
     public MutablePath pop() {
         try {
             own();
-            getData().remove(getData().size()-1);
+            getData().remove(getData().size() - 1);
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException(UtilConstants.ERR_CANT_POP_EMPTY_PATH);
         }
@@ -145,7 +145,7 @@ public class MutablePath extends Path {
     public Path setLast(String x) {
         try {
             own();
-            getData().remove(getData().size()-1);
+            getData().remove(getData().size() - 1);
             getData().append(parse(x));
             return this;
         } catch (IndexOutOfBoundsException e) {
@@ -210,7 +210,7 @@ public class MutablePath extends Path {
             pathOwned = true;
         }
     }
-    
+
     @Override
     public boolean equals(Object x) {
         if (x instanceof Path) {
@@ -219,21 +219,19 @@ public class MutablePath extends Path {
             return false;
         }
     }
-    
+
     @Override
     public int hashCode() {
         return getData().hashCode();
     }
 
     /**
-     * Rewrites the array indexes in the prefix of this path that is
-     * common with fullPath, based on the array indexes in that shared
-     * prefix
+     * Rewrites the array indexes in the prefix of this path that is common with fullPath, based on the array indexes in
+     * that shared prefix
      *
-     * @param fullPath A path 
+     * @param fullPath A path
      *
-     * If 
-     * <pre>
+     * If      <pre>
      *   fullPath= x.y.1.w.2.k
      *   thisPath = x.y.*.w.*.k.*
      * <pre>
@@ -242,24 +240,24 @@ public class MutablePath extends Path {
      *    thisPath.rewriteIndexes(fullPath) -> x.y.1.w.2.k.*
      * </pre>
      *
-     * This is useful when interpreting an absolute path derived from
-     * metadata in the context of a definite absolute path with no ANYs
+     * This is useful when interpreting an absolute path derived from metadata in the context of a definite absolute
+     * path with no ANYs
      *
      * @return this
      */
     public MutablePath rewriteIndexes(Path fullPath) {
-        PathRep thisData=getData();
-        PathRep fpData=fullPath.getData();
-        int thisSize=thisData.size();
-        int fpSize=fpData.size();
-        for(int index=0;index<thisSize&&index<fpSize;index++) {
-            String thisSeg=thisData.get(index);
-            String fpSeg=fpData.get(index);
-            if(Path.ANY.equals(thisSeg)) {
+        PathRep thisData = getData();
+        PathRep fpData = fullPath.getData();
+        int thisSize = thisData.size();
+        int fpSize = fpData.size();
+        for (int index = 0; index < thisSize && index < fpSize; index++) {
+            String thisSeg = thisData.get(index);
+            String fpSeg = fpData.get(index);
+            if (Path.ANY.equals(thisSeg)) {
                 own();
-                thisData=getData();
-                thisData.set(index,fpSeg);
-            } else if(!thisSeg.equals(fpSeg)) {
+                thisData = getData();
+                thisData.set(index, fpSeg);
+            } else if (!thisSeg.equals(fpSeg)) {
                 break;
             }
         }

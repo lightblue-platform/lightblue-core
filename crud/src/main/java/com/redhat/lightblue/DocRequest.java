@@ -25,12 +25,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Abstract base class for requests containing a document list
  */
 public abstract class DocRequest extends Request {
-	
+
     private JsonNode entityData;
 
     /**
      * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
-     * multiple entities. All entities must be of the same type. 
+     * multiple entities. All entities must be of the same type.
      */
     public JsonNode getEntityData() {
         return entityData;
@@ -38,7 +38,7 @@ public abstract class DocRequest extends Request {
 
     /**
      * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
-     * multiple entities. All entities must be of the same type. 
+     * multiple entities. All entities must be of the same type.
      */
     public void setEntityData(JsonNode data) {
         this.entityData = data;

@@ -34,8 +34,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  */
 public final class Error extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     private static final JsonNodeFactory FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private static final ThreadLocal<ArrayDeque<String>> THREAD_CONTEXT = new ThreadLocal< ArrayDeque<String>>() {

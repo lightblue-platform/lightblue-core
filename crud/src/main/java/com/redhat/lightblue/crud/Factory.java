@@ -35,7 +35,7 @@ import com.redhat.lightblue.hooks.Hook;
 public class Factory implements Serializable {
 
     private static final long serialVersionUID = 1L;
-	
+
     private final transient DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
     private final transient DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
 

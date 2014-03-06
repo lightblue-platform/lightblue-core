@@ -31,12 +31,12 @@ import com.redhat.lightblue.util.JsonObject;
  * evaluation, metadata is used to interpret the actual value.
  */
 public class Value extends JsonObject {
-    
-	private static final long serialVersionUID = 1L;
-	
-	private final Object value;
 
-	/**
+    private static final long serialVersionUID = 1L;
+
+    private final Object value;
+
+    /**
      * Creates a Value with value=o
      */
     public Value(Object o) {

@@ -25,10 +25,10 @@ import com.redhat.lightblue.util.Error;
 /**
  * Base class for primitive update expressions
  * <pre>
- * primitive_update_expression := { $set : { path : rvalue_expression , ...} } |  
- *                                { $unset : path } |  
- *                                { $unset :[ path, ... ] }  
- *                                { $add : { path : rvalue_expression, ... } }  
+ * primitive_update_expression := { $set : { path : rvalue_expression , ...} } |
+ *                                { $unset : path } |
+ *                                { $unset :[ path, ... ] }
+ *                                { $add : { path : rvalue_expression, ... } }
  * </pre>
  */
 public abstract class PrimitiveUpdateExpression extends PartialUpdateExpression {
@@ -45,6 +45,6 @@ public abstract class PrimitiveUpdateExpression extends PartialUpdateExpression 
             return UnsetExpression.fromJson(node);
         } else {
             throw Error.get(QueryConstants.ERR_INVALID_UPDATE_EXPRESSION, node.toString());
-        }   
+        }
     }
 }

@@ -33,8 +33,8 @@ import java.util.Iterator;
  *
  * where fields are identifiers, and indexes are integers denoting array indexes.
  *
- * Paths can be used to represent fields as well as patterns. A
- * pattern path includes '*' for any matching index. For instance:
+ * Paths can be used to represent fields as well as patterns. A pattern path includes '*' for any matching index. For
+ * instance:
  *
  * <pre>
  *    user.address.1.city
@@ -48,9 +48,8 @@ import java.util.Iterator;
  *
  * matches all cities of addresses.
  *
- * Implementation is optimized to be fast to toString and hashCode,
- * and does not occupy too much memory when a lot of paths are created
- * from a common prefix.
+ * Implementation is optimized to be fast to toString and hashCode, and does not occupy too much memory when a lot of
+ * paths are created from a common prefix.
  *
  * $parent and $this keywords can be used to create relative paths.
  * <pre>
@@ -61,7 +60,7 @@ import java.util.Iterator;
  *   $parent.address.$parent.$parent.login // 'login' field relative to grand parent of address, which is relative to parent of this
  *   address.city.$this // points to 'address'
  * </pre>
- * 
+ *
  *
  * Path objects are immutable. Use MutablePath for modifiable paths.
  */
@@ -71,8 +70,8 @@ public class Path implements Comparable<Path>, Serializable {
 
     public static final String ANY = "*";
 
-    public static final String PARENT="$parent";
-    public static final String THIS="$this";
+    public static final String PARENT = "$parent";
+    public static final String THIS = "$this";
 
     public static final Path EMPTY = new Path();
     public static final Path ANYPATH = new Path(ANY);
@@ -83,21 +82,21 @@ public class Path implements Comparable<Path>, Serializable {
      * Constructs empty path
      */
     public Path() {
-        data=new PathRep();
+        data = new PathRep();
     }
 
     /**
      * Constructs a copy of x
      */
     public Path(Path x) {
-        data=new PathRep(x.data);
+        data = new PathRep(x.data);
     }
 
     /**
      * Constructs a path with x+y
      */
     public Path(Path x, Path y) {
-        data=new PathRep(x.data);
+        data = new PathRep(x.data);
         data.append(y.data);
     }
 
@@ -121,7 +120,7 @@ public class Path implements Comparable<Path>, Serializable {
     protected void setData(PathRep pr) {
         data = pr;
     }
-    
+
     protected PathRep getData() {
         return data;
     }
@@ -175,7 +174,7 @@ public class Path implements Comparable<Path>, Serializable {
      * Check if path is empty
      */
     public boolean isEmpty() {
-        return data.size()==0;
+        return data.size() == 0;
     }
 
     /**
@@ -223,7 +222,7 @@ public class Path implements Comparable<Path>, Serializable {
      */
     public int nAnys() {
         int n = 0;
-        for (Iterator<String> itr=data.iterator();itr.hasNext();) {
+        for (Iterator<String> itr = data.iterator(); itr.hasNext();) {
             if (ANY.equals(itr.next())) {
                 n++;
             }
@@ -367,16 +366,16 @@ public class Path implements Comparable<Path>, Serializable {
         }
         return segments;
     }
-    
+
     private static int parsePath(StringBuilder buf, String x, List<String> segments) {
         int state = 0;
         for (int i = 0; i < x.length(); i++) {
             char c = x.charAt(i);
-            state = parsePathElements(state, c, buf, i, x, segments);            
+            state = parsePathElements(state, c, buf, i, x, segments);
         }
         return state;
     }
-    
+
     private static int parsePathElements(int state, char c, StringBuilder buf, int i, String x, List<String> segments) {
         switch (state) {
             case 0:
@@ -396,7 +395,7 @@ public class Path implements Comparable<Path>, Serializable {
         }
         return state;
     }
-    
+
     private static int parsePathBeginningOrAfter(char c, StringBuilder buf, int i, String x, int currentState) {
         if (!Character.isWhitespace(c)) {
             if (c == '.') {
@@ -408,7 +407,7 @@ public class Path implements Comparable<Path>, Serializable {
         }
         return currentState;
     }
-    
+
     private static int parseWord(char c, StringBuilder buf, List<String> segments, int currentState) {
         if (Character.isWhitespace(c)) {
             segments.add(buf.toString());
@@ -425,7 +424,7 @@ public class Path implements Comparable<Path>, Serializable {
         }
         return currentState;
     }
-    
+
     private static int parseEndOfWord(char c, int i, String x) {
         if (!Character.isWhitespace(c)) {
             if (c == '.') {

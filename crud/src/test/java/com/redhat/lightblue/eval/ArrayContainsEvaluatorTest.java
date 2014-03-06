@@ -11,11 +11,11 @@ import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
 
     private EntityMetadata md;
-    
+
     @Before
     public void setUp() throws Exception {
         md = EvalTestContext.getMd("./testMetadata.json");
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
     }
 
     @Test(expected = com.redhat.lightblue.eval.EvaluationError.class)
@@ -35,7 +35,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$any', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -45,7 +45,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$any', 'values':[1,2,3,4,5]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -55,7 +55,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -65,7 +65,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -75,7 +75,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -85,7 +85,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf5', 'contains':'$none', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -95,7 +95,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$any', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -105,7 +105,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$any', 'values':[1,2,3,4,5]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -115,7 +115,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -125,7 +125,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -135,7 +135,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -145,7 +145,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf4.$parent.nf5', 'contains':'$none', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -155,7 +155,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$any', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -165,7 +165,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$any', 'values':[1,2,3,4,5]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -175,7 +175,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -185,7 +185,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -195,7 +195,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -205,7 +205,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.nf7.nnf1.$parent.$parent.nf5', 'contains':'$none', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -215,7 +215,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$any', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -225,7 +225,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$any', 'values':[1,2,3,4,5]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -235,7 +235,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -245,7 +245,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -255,7 +255,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -265,7 +265,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.nf5', 'contains':'$none', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -275,7 +275,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$any', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -285,7 +285,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$any', 'values':[1,2,3,4,5]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -295,7 +295,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$all', 'values':[5,10,15,20]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }
@@ -305,7 +305,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$all', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -315,7 +315,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$none', 'values':[5,10,15,25]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertFalse(context.getResult());
     }
@@ -325,7 +325,7 @@ public class ArrayContainsEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression expr = EvalTestContext.queryExpressionFromJson("{'array':'field6.$this.$this.nf5', 'contains':'$none', 'values':[1,2,3,4]}");
         QueryEvaluator eval = QueryEvaluator.getInstance(expr, md);
 
-        QueryEvaluationContext context = eval.evaluate(doc);
+        QueryEvaluationContext context = eval.evaluate(jsonDoc);
 
         Assert.assertTrue(context.getResult());
     }

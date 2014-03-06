@@ -79,7 +79,7 @@ public final class BooleanType implements Type, Serializable {
         return value;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public int compare(Object v1, Object v2) {
         if (v1 == null) {

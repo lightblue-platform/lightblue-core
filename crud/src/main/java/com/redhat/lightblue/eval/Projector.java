@@ -106,7 +106,7 @@ public abstract class Projector {
                            QueryEvaluationContext ctx) {
         JsonNodeCursor cursor = doc.cursor();
         cursor.firstChild();
-        
+
         ObjectNode root = projectObject(this,
                 factory,
                 rootMdNode,
@@ -170,7 +170,7 @@ public abstract class Projector {
         }
         return null;
     }
-    
+
     private JsonNode projectSimpleField(JsonNode fieldNode, ObjectNode ret, Path fieldPath) {
         if (fieldNode.isValueNode()) {
             ret.set(fieldPath.tail(0), fieldNode);
@@ -179,16 +179,16 @@ public abstract class Projector {
         }
         return null;
     }
-    
+
     private JsonNode projectArrayField(Projector projector,
-            JsonNodeFactory factory,
-            FieldTreeNode fieldMd,
-            ObjectNode ret,
-            Path fieldPath,
-            JsonNode fieldNode,
-            JsonNodeCursor cursor,
-            QueryEvaluationContext ctx) {
-        
+                                       JsonNodeFactory factory,
+                                       FieldTreeNode fieldMd,
+                                       ObjectNode ret,
+                                       Path fieldPath,
+                                       JsonNode fieldNode,
+                                       JsonNodeCursor cursor,
+                                       QueryEvaluationContext ctx) {
+
         if (fieldNode instanceof ArrayNode) {
             ArrayNode newNode = factory.arrayNode();
             ret.set(fieldPath.tail(0), newNode);
@@ -211,7 +211,7 @@ public abstract class Projector {
         }
         return null;
     }
-    
+
     private JsonNode projectArrayElement(Projector projector,
                                          JsonNodeFactory factory,
                                          ArrayElement mdContext,

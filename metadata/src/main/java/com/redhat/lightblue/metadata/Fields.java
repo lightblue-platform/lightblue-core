@@ -37,7 +37,7 @@ public class Fields implements Serializable {
     private final FieldTreeNode parent;
 
     public Fields(FieldTreeNode parent) {
-        this.parent=parent;
+        this.parent = parent;
     }
 
     public int getNumChildren() {
@@ -92,27 +92,27 @@ public class Fields implements Serializable {
         fieldMap.put(name, f);
     }
 
-    public FieldTreeNode resolve(Path p) {   	
-    	return resolve(p, 0);	
+    public FieldTreeNode resolve(Path p) {
+        return resolve(p, 0);
     }
-            
+
     protected FieldTreeNode resolve(Path p, int level) {
         if (level >= p.numSegments()) {
             throw Error.get(MetadataConstants.ERR_INVALID_REDIRECTION, p.toString());
         }
-        
+
         String name = p.head(level);
         Error.push(name);
-        
-        try {     	
+
+        try {
             if (p.isIndex(level)) {
                 throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
             }
             if (name.equals(Path.ANY)) {
                 throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
-            }             
-            if(name.equals(Path.THIS)) {
-                return this.resolve(p, level+1);
+            }
+            if (name.equals(Path.THIS)) {
+                return this.resolve(p, level + 1);
             }
 
             Field field = getField(name);
@@ -120,7 +120,7 @@ public class Fields implements Serializable {
                 throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE);
             }
             return field.resolve(p, level + 1);
-            
+
         } finally {
             Error.pop();
         }

@@ -51,8 +51,7 @@ public class UnsetExpressionEvaluator extends Updater {
         private final Path field;
 
         /**
-         * If field refers to an array element, the absolute array
-         * field containing that element
+         * If field refers to an array element, the absolute array field containing that element
          */
         private final Path absArrayField;
 
@@ -61,16 +60,16 @@ public class UnsetExpressionEvaluator extends Updater {
          */
         private final Path absField;
 
-        public AbsPath(Path p,FieldTreeNode fieldNode,Path absField) {
-            field=p;
-            if(fieldNode instanceof ArrayElement) {
-                MutablePath mp=new MutablePath();
+        public AbsPath(Path p, FieldTreeNode fieldNode, Path absField) {
+            field = p;
+            if (fieldNode instanceof ArrayElement) {
+                MutablePath mp = new MutablePath();
                 fieldNode.getParent().getFullPath(mp);
                 absArrayField = mp.immutableCopy();
             } else {
                 absArrayField = null;
             }
-            this.absField=absField;
+            this.absField = absField;
         }
 
         public String toString() {
@@ -95,28 +94,28 @@ public class UnsetExpressionEvaluator extends Updater {
             if (node == null) {
                 throw new EvaluationError(CrudConstants.ERR_INVALID_DEREFERENCE + p);
             }
-            fields.add(new AbsPath(p,node,node.getFullPath()));
+            fields.add(new AbsPath(p, node, node.getFullPath()));
         }
         LOGGER.debug("context {} fields {}", context, fields);
     }
-    
+
     @Override
     public void getUpdateFields(Set<Path> setFields) {
-        for(AbsPath x:fields) {
+        for (AbsPath x : fields) {
             setFields.add(x.absField);
         }
     }
-    
+
     @Override
-    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-        boolean ret=false;
-        MutablePath p=new MutablePath();
-        for(AbsPath x:fields) {
-            Path fld=new Path(contextPath,x.field);
-            LOGGER.debug("Removing {}",fld);
-            if(doc.modify(fld,null,false)!=null) {
-                ret=true;
-                if(x.absArrayField!=null) {
+    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+        boolean ret = false;
+        MutablePath p = new MutablePath();
+        for (AbsPath x : fields) {
+            Path fld = new Path(contextPath, x.field);
+            LOGGER.debug("Removing {}", fld);
+            if (doc.modify(fld, null, false) != null) {
+                ret = true;
+                if (x.absArrayField != null) {
                     // This is an array
                     p.set(x.absArrayField);
                     p.rewriteIndexes(fld);
@@ -128,4 +127,4 @@ public class UnsetExpressionEvaluator extends Updater {
         }
         return ret;
     }
- }
+}

@@ -22,6 +22,6 @@ package com.redhat.lightblue.query;
  * Base class for unary and nary logical expressions
  */
 public abstract class LogicalExpression extends QueryExpression {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 }

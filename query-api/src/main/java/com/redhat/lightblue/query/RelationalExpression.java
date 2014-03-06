@@ -26,8 +26,8 @@ import com.redhat.lightblue.util.Error;
  * Base class for all relational expression
  */
 public abstract class RelationalExpression extends ComparisonExpression {
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     /**
      * Parses a relational expression using the given object node
      */

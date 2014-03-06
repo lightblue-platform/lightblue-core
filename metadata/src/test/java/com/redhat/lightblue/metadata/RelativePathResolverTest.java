@@ -29,7 +29,7 @@ public class RelativePathResolverTest {
 
     private EntityMetadata getMD1() {
         EntityMetadata entityMetadata = new EntityMetadata("test");
-        
+
         entityMetadata.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
         entityMetadata.getFields().addNew(new SimpleField("simpleString", StringType.TYPE));
         ObjectField objectField1 = new ObjectField("obj1");
@@ -51,130 +51,130 @@ public class RelativePathResolverTest {
 
         return entityMetadata;
     }
-    
-    @Test(expected=com.redhat.lightblue.util.Error.class)
+
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void testNoContextRelativePathThis() throws Exception {
         getMD1().resolve(new Path("$this.nestedSimpleInteger"));
     }
-    
-    @Test(expected=com.redhat.lightblue.util.Error.class)
+
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void testNoContextRelativePathParent() throws Exception {
         getMD1().resolve(new Path("$parent.nestedSimpleInteger"));
     }
-    
-    @Test(expected=com.redhat.lightblue.util.Error.class)
+
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void testSimpleRelativePathThisNotFound() throws Exception {
         getMD1().resolve(new Path("obj1.$this.nonExistantField"));
     }
-    
+
     @Test
     public void testSimpleRelativePathThis() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.$this.nestedSimpleInteger"));
         Assert.assertEquals("nestedSimpleInteger", found.getName());
     }
-    
-    @Test(expected=com.redhat.lightblue.util.Error.class)
+
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void testNestedRelativePathThisNotFound() throws Exception {
         getMD1().resolve(new Path("obj1.nested.$this.nonExistantField"));
     }
-    
+
     @Test
     public void testNestedRelativePathThis() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$this.doubleNestedString"));
         Assert.assertEquals("doubleNestedString", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathDoubleThis() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$this.$this.doubleNestedString"));
         Assert.assertEquals("doubleNestedString", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathTripleThis() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$this.$this.$this.doubleNestedString"));
         Assert.assertEquals("doubleNestedString", found.getName());
     }
-    
-    @Test(expected=com.redhat.lightblue.util.Error.class)
+
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void testSimpleRelativePathParentNotFound() throws Exception {
-         getMD1().resolve(new Path("obj1.$parent.nonExistantField"));
+        getMD1().resolve(new Path("obj1.$parent.nonExistantField"));
     }
-    
+
     @Test
     public void testSimpleRelativePathParent() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.nestedSimpleInteger"));
         Assert.assertEquals("nestedSimpleInteger", found.getName());
     }
-     
+
     @Test
     public void testSimpleRelativePathDoubleParent() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.$parent.simpleInteger"));
         Assert.assertEquals("simpleInteger", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathParent() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.nestedSimpleInteger"));
         Assert.assertEquals("nestedSimpleInteger", found.getName());
     }
-    
-    @Test(expected=com.redhat.lightblue.util.Error.class)
+
+    @Test(expected = com.redhat.lightblue.util.Error.class)
     public void testNestedRelativePathParentNotFound() throws Exception {
         getMD1().resolve(new Path("obj1.nested.$parent.nonExistantField"));
     }
-    
+
     @Test
     public void testNestedRelativePathDoubleParent() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.$parent.simpleInteger"));
         Assert.assertEquals("simpleInteger", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathTripleParent() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$parent.$parent.simpleInteger"));
         Assert.assertEquals("simpleInteger", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathThisSimpleArray() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.$this.simpleArr"));
         Assert.assertEquals("simpleArr", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathThisArray() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.1.$this.nestedArrObjString1"));
         Assert.assertEquals("nestedArrObjString1", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathDoubleThisArray() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.1.$this.$this.nestedArrObjString1"));
         Assert.assertEquals("nestedArrObjString1", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathTripleThisArray() throws Exception {
         FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.1.$this.$this.$this.nestedArrObjString1"));
         Assert.assertEquals("nestedArrObjString1", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathParentArray() throws Exception {
-        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.$parent.doubleNestedString"));        
+        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.$parent.doubleNestedString"));
         Assert.assertEquals("doubleNestedString", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathDoubleParentArray() throws Exception {
-        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.nestedSimpleInteger"));        
+        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.nestedSimpleInteger"));
         Assert.assertEquals("nestedSimpleInteger", found.getName());
     }
-    
+
     @Test
     public void testNestedRelativePathTripleParentArray() throws Exception {
-        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.$parent.simpleInteger"));        
+        FieldTreeNode found = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.$parent.simpleInteger"));
         Assert.assertEquals("simpleInteger", found.getName());
     }
 }

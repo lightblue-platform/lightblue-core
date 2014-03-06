@@ -27,7 +27,7 @@ import com.redhat.lightblue.util.JsonObject;
  * Common part of all requests to the mediator
  */
 public abstract class Request extends JsonObject {
-	
+
     private EntityVersion entityVersion;
     private ClientIdentification client;
     private ExecutionOptions execution;

@@ -15,7 +15,7 @@ import com.redhat.lightblue.metadata.Version;
  * @author nmalik
  */
 public class DatabaseMetadata implements Metadata {
-    
+
     private static final long serialVersionUID = 1L;
 
     public static final Metadata create(DatabaseConfiguration config) {

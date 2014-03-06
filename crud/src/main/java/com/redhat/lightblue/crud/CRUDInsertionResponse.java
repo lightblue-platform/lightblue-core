@@ -25,14 +25,14 @@ import java.io.Serializable;
  */
 public class CRUDInsertionResponse implements Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private int numInserted;
 
     /**
      * Number of docs inserted
      */
-    public int getNumInserted()  {
+    public int getNumInserted() {
         return numInserted;
     }
 
@@ -40,7 +40,6 @@ public class CRUDInsertionResponse implements Serializable {
      * Number of docs inserted
      */
     public void setNumInserted(int n) {
-        numInserted=n;
+        numInserted = n;
     }
 }
-

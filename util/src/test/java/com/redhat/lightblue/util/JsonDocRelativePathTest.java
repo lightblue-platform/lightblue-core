@@ -32,7 +32,7 @@ public class JsonDocRelativePathTest extends AbstractJsonNodeTest {
 
     JsonNode node;
     JsonDoc doc;
-    
+
     protected JsonNode createJsonNode(String postfix) {
         try {
             return loadJsonNode("JsonNodeDocRelativeTest-" + postfix + ".json");
@@ -40,96 +40,95 @@ public class JsonDocRelativePathTest extends AbstractJsonNodeTest {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Before
     public void setup() {
         node = createJsonNode("complexarray");
         doc = new JsonDoc(node);
     }
-    
-    
+
     @Test
     public void relative_path_with_1_$this_and_valid_field_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$this.doublenestedsimple"));
-        
+
         Assert.assertEquals("doublenestedvalue", ((TextNode) result).asText());
     }
 
     @Test
     public void relative_path_with_2_$this_and_valid_field_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$this.$this.doublenestedsimple"));
-        
-        Assert.assertEquals("doublenestedvalue", ((TextNode) result).asText());
-    }
-    
-    @Test
-    public void relative_path_with_3_$this_and_valid_field_resolves_correctly() {        
-        JsonNode result = doc.get(new Path("object.nested1.doublenested1.$this.$this.$this.doublenestedsimple"));
-        
+
         Assert.assertEquals("doublenestedvalue", ((TextNode) result).asText());
     }
 
     @Test
-    public void relative_path_with_$this_and_invalid_field_returns_null() {        
+    public void relative_path_with_3_$this_and_valid_field_resolves_correctly() {
+        JsonNode result = doc.get(new Path("object.nested1.doublenested1.$this.$this.$this.doublenestedsimple"));
+
+        Assert.assertEquals("doublenestedvalue", ((TextNode) result).asText());
+    }
+
+    @Test
+    public void relative_path_with_$this_and_invalid_field_returns_null() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$this.notthere"));
-        
+
         Assert.assertNull(result);
     }
-    
+
     @Test
-    public void relative_path_with_1_$parent_and_valid_field_resolves_correctly()  {
+    public void relative_path_with_1_$parent_and_valid_field_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$parent.simplenested"));
-        
+
         Assert.assertEquals("nestedvalue", ((TextNode) result).textValue());
     }
-    
+
     @Test
     public void relative_path_with_2_$parent_and_valid_field_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.doublenestedsimple.$parent.$parent.simplenested"));
-        
+
         Assert.assertEquals("nestedvalue", ((TextNode) result).textValue());
     }
-    
+
     @Test
     public void relative_path_with_3_$parent_and_valid_field_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.triplenested1.$parent.$parent.$parent.simplenested"));
-        
+
         Assert.assertEquals("nestedvalue", ((TextNode) result).textValue());
     }
 
     @Test
     public void relative_path_with_gibberish_in_the_beginning_and_valid_field_returns_null() {
         JsonNode result = doc.get(new Path("does.not.exist.$parent.$parent.simplenested.doublenested1.doublenestedsimple"));
-        
+
         Assert.assertNull(result);
     }
-    
+
     @Test
-    public void relative_path_with_$parent_and_invalid_field_returns_null() {        
+    public void relative_path_with_$parent_and_invalid_field_returns_null() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$parent.notthere"));
-        
+
         Assert.assertNull(result);
     }
-    
+
     @Test
     public void relative_path_with_2_non_successive_$parent_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$parent.doublenested2.triplenested2.$parent.doublenestedsimple2"));
-        
+
         Assert.assertEquals("doublenestedvalue2", ((TextNode) result).textValue());
     }
 
     @Test
     public void relative_path_with_2_non_successive_$this_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.$this.doublenested1.$this.doublenestedsimple"));
-        
+
         Assert.assertEquals("doublenestedvalue", ((TextNode) result).asText());
     }
-    
+
     @Test
     public void relative_path_with_parent_and_this_resolves_correctly() {
         JsonNode result = doc.get(new Path("object.nested1.doublenested1.$parent.doublenested2.triplenested2.$this.triplenestedsimple2"));
-        
+
         Assert.assertEquals("triplenestedvalue2", ((TextNode) result).textValue());
     }
-    
+
 }

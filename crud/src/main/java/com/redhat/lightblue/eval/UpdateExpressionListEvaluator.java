@@ -36,7 +36,7 @@ import com.redhat.lightblue.util.Path;
  * Evaluates a list of update expressions
  */
 public class UpdateExpressionListEvaluator extends Updater {
-    
+
     private final List<Updater> updaters;
 
     public UpdateExpressionListEvaluator(JsonNodeFactory factory, FieldTreeNode context, UpdateExpressionList expr) {
@@ -49,19 +49,19 @@ public class UpdateExpressionListEvaluator extends Updater {
 
     @Override
     public void getUpdateFields(Set<Path> fields) {
-        for(Updater x:updaters) {
+        for (Updater x : updaters) {
             x.getUpdateFields(fields);
         }
     }
 
     @Override
-    public boolean update(JsonDoc doc,FieldTreeNode contextMd,Path contextPath) {
-        boolean ret=false;
-        for(Updater x:updaters) {
-            if(x.update(doc,contextMd,contextPath)) {
-                ret=true;
+    public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
+        boolean ret = false;
+        for (Updater x : updaters) {
+            if (x.update(doc, contextMd, contextPath)) {
+                ret = true;
             }
         }
         return ret;
     }
- }
+}

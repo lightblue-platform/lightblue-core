@@ -31,8 +31,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class CompositeSortKey extends Sort {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     private List<SortKey> keys;
 
     /**

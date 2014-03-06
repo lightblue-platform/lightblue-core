@@ -53,15 +53,15 @@ public class TranslatorUpdateTest extends AbstractJsonSchemaTest {
 
     @Before
     public void init() throws Exception {
-        translator=new Translator(new MetadataResolver() {
-                public EntityMetadata getEntityMetadata(String entityName) {
-                    try {
-                        return getMd("./testMetadata.json");
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+        translator = new Translator(new MetadataResolver() {
+            public EntityMetadata getEntityMetadata(String entityName) {
+                try {
+                    return getMd("./testMetadata.json");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            }, nodeFactory);
+            }
+        }, nodeFactory);
     }
 
     private EntityMetadata getMd(String fname) throws Exception {
@@ -87,65 +87,68 @@ public class TranslatorUpdateTest extends AbstractJsonSchemaTest {
 
     @Test
     public void setTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
-        DBObject obj=translator.translate(md,update("{ '$set': { 'field1':'blah', 'field2':'two'} }"));
+        EntityMetadata md = getMd("./testMetadata.json");
+        DBObject obj = translator.translate(md, update("{ '$set': { 'field1':'blah', 'field2':'two'} }"));
         Assert.assertNotNull(obj);
-        Assert.assertEquals("blah",((DBObject)obj.get("$set")).get("field1"));
-        Assert.assertEquals("two",((DBObject)obj.get("$set")).get("field2"));
+        Assert.assertEquals("blah", ((DBObject) obj.get("$set")).get("field1"));
+        Assert.assertEquals("two", ((DBObject) obj.get("$set")).get("field2"));
     }
 
     @Test
     public void nestedSetTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
-        DBObject obj=translator.translate(md,update("{ '$set': { 'field6.nf1':'blah', 'field6.nf2':'two'} }"));
+        EntityMetadata md = getMd("./testMetadata.json");
+        DBObject obj = translator.translate(md, update("{ '$set': { 'field6.nf1':'blah', 'field6.nf2':'two'} }"));
         Assert.assertNotNull(obj);
-        Assert.assertEquals("blah",((DBObject)obj.get("$set")).get("field6.nf1"));
-        Assert.assertEquals("two",((DBObject)obj.get("$set")).get("field6.nf2"));
+        Assert.assertEquals("blah", ((DBObject) obj.get("$set")).get("field6.nf1"));
+        Assert.assertEquals("two", ((DBObject) obj.get("$set")).get("field6.nf2"));
     }
 
     @Test
     public void incTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
-        DBObject obj=translator.translate(md,update("{ '$add': { 'field3':1, 'field4': -100} }"));
+        EntityMetadata md = getMd("./testMetadata.json");
+        DBObject obj = translator.translate(md, update("{ '$add': { 'field3':1, 'field4': -100} }"));
         Assert.assertNotNull(obj);
-        Assert.assertEquals("1",((DBObject)obj.get("$inc")).get("field3").toString());
-        Assert.assertEquals("-100",((DBObject)obj.get("$inc")).get("field4").toString());
+        Assert.assertEquals("1", ((DBObject) obj.get("$inc")).get("field3").toString());
+        Assert.assertEquals("-100", ((DBObject) obj.get("$inc")).get("field4").toString());
     }
 
     @Test
     public void unsetTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
-        DBObject obj=translator.translate(md,update("{ '$unset': [ 'field3', 'field4'] }"));
+        EntityMetadata md = getMd("./testMetadata.json");
+        DBObject obj = translator.translate(md, update("{ '$unset': [ 'field3', 'field4'] }"));
         Assert.assertNotNull(obj);
-        Assert.assertNotNull(((DBObject)obj.get("$unset")).get("field3"));
-        Assert.assertNotNull(((DBObject)obj.get("$unset")).get("field4"));
+        Assert.assertNotNull(((DBObject) obj.get("$unset")).get("field3"));
+        Assert.assertNotNull(((DBObject) obj.get("$unset")).get("field4"));
     }
 
     @Test
     public void arrTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
+        EntityMetadata md = getMd("./testMetadata.json");
         try {
-            DBObject obj=translator.translate(md,update("{ '$set': { 'field7.0.elemf1': 'blah'} }"));
+            DBObject obj = translator.translate(md, update("{ '$set': { 'field7.0.elemf1': 'blah'} }"));
             Assert.fail();
-        } catch (CannotTranslateException e) {}
+        } catch (CannotTranslateException e) {
+        }
     }
 
     @Test
     public void arrTest2() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
+        EntityMetadata md = getMd("./testMetadata.json");
         try {
-            DBObject obj=translator.translate(md,update("{ '$set': { 'field7': '$null'} }"));
+            DBObject obj = translator.translate(md, update("{ '$set': { 'field7': '$null'} }"));
             Assert.fail();
-        } catch (CannotTranslateException e) {}
+        } catch (CannotTranslateException e) {
+        }
     }
 
     @Test
     public void objTest() throws Exception {
-        EntityMetadata md=getMd("./testMetadata.json");
+        EntityMetadata md = getMd("./testMetadata.json");
         try {
-            DBObject obj=translator.translate(md,update("{ '$set': { 'field6': '$null'} }"));
+            DBObject obj = translator.translate(md, update("{ '$set': { 'field6': '$null'} }"));
             Assert.fail();
-        } catch (CannotTranslateException e) {}
+        } catch (CannotTranslateException e) {
+        }
     }
 
 }

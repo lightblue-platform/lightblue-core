@@ -32,7 +32,7 @@ public class RequiredConstraint implements FieldConstraint, Serializable {
 
     public static final String REQUIRED = "required";
 
-    private boolean value=true;
+    private boolean value = true;
 
     public String getType() {
         return REQUIRED;

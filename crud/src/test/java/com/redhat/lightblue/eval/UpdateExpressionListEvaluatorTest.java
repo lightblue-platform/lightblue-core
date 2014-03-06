@@ -15,7 +15,7 @@ public class UpdateExpressionListEvaluatorTest extends AbstractJsonNodeTest {
 
     @Before
     public void setUp() throws Exception {
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
         md = EvalTestContext.getMd("./testMetadata.json");
     }
 
@@ -24,13 +24,13 @@ public class UpdateExpressionListEvaluatorTest extends AbstractJsonNodeTest {
 
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field1' : 'set1', 'field2':'set2', 'field5': 0, 'field6.nf1':'set6' } }, {'$add' : { 'field3':1 } } ] ");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals("set1", doc.get(new Path("field1")).asText());
-        Assert.assertEquals("set2", doc.get(new Path("field2")).asText());
-        Assert.assertEquals(4, doc.get(new Path("field3")).asInt());
-        Assert.assertFalse(doc.get(new Path("field5")).asBoolean());
-        Assert.assertEquals("set6", doc.get(new Path("field6.nf1")).asText());
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertEquals("set1", jsonDoc.get(new Path("field1")).asText());
+        Assert.assertEquals("set2", jsonDoc.get(new Path("field2")).asText());
+        Assert.assertEquals(4, jsonDoc.get(new Path("field3")).asInt());
+        Assert.assertFalse(jsonDoc.get(new Path("field5")).asBoolean());
+        Assert.assertEquals("set6", jsonDoc.get(new Path("field6.nf1")).asText());
     }
 
     @Test
@@ -39,13 +39,13 @@ public class UpdateExpressionListEvaluatorTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext
                 .updateExpressionFromJson("[ {'$set' : { 'field2.$parent.field1' : 'set1', 'field3.$parent.field2':'set2', 'field2.$parent.field5': 0, 'field2.$parent.field6.nf1':'set6' } }, {'$add' : { 'field2.$parent.field3':1 } } ] ");
 
-        Updater updater = Updater.getInstance(factory, md, expr);
-        Assert.assertTrue(updater.update(doc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals("set1", doc.get(new Path("field1")).asText());
-        Assert.assertEquals("set2", doc.get(new Path("field2")).asText());
-        Assert.assertEquals(4, doc.get(new Path("field3")).asInt());
-        Assert.assertFalse(doc.get(new Path("field5")).asBoolean());
-        Assert.assertEquals("set6", doc.get(new Path("field6.nf1")).asText());
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        Assert.assertEquals("set1", jsonDoc.get(new Path("field1")).asText());
+        Assert.assertEquals("set2", jsonDoc.get(new Path("field2")).asText());
+        Assert.assertEquals(4, jsonDoc.get(new Path("field3")).asInt());
+        Assert.assertFalse(jsonDoc.get(new Path("field5")).asBoolean());
+        Assert.assertEquals("set6", jsonDoc.get(new Path("field6.nf1")).asText());
     }
 
 }

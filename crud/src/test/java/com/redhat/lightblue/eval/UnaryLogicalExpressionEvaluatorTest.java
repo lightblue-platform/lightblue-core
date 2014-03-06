@@ -14,7 +14,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Before
     public void setUp() throws Exception {
-        doc = EvalTestContext.getDoc("./sample1.json");
+        jsonDoc = EvalTestContext.getDoc("./sample1.json");
         md = EvalTestContext.getMd("./testMetadata.json");
     }
 
@@ -22,7 +22,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void $and_expression_case_insensitive_returns_true() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [{'field':'field1','regex':'Val.*','case_insensitive':1},{'field':'field3','op':'$eq','rvalue':3}]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 
@@ -30,7 +30,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void $and_expression_case_insensitive_returns_false() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$and' : [{'field':'field1','regex':'Val.*','case_insensitive':1},{'field':'field3','op':'$eq','rvalue':3}]}}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertFalse(ctx.getResult());
     }
 
@@ -38,7 +38,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void $and_expression_case_sensitiveinsensitive_returns_true() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field1','regex':'Val.*'},{'field':'field3','op':'$eq','rvalue':3}]}}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 
@@ -46,7 +46,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void one_$parent_$and_expression_case_insensitive_returns_true() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [{'field':'field2.$parent.field1','regex':'Val.*','case_insensitive':1},{'field':'field2.$parent.field3','op':'$eq','rvalue':3}]}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 
@@ -54,7 +54,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void one_$parent_$and_expression_case_insensitive_returns_false() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$and' : [{'field':'field2.$parent.field1','regex':'Val.*','case_insensitive':1},{'field':'field2.$parent.field3','op':'$eq','rvalue':3}]}}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertFalse(ctx.getResult());
     }
 
@@ -62,7 +62,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
     public void one_$parent_$and_expression_case_sensitiveinsensitive_returns_true() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field2.$parent.field1','regex':'Val.*'},{'field':'field2.$parent.field3','op':'$eq','rvalue':3}]}}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(doc);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 

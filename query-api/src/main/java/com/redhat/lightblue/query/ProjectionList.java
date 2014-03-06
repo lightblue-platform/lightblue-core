@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Represents a list of projections
  */
 public class ProjectionList extends Projection {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private List<Projection> items;
 
     /**
@@ -46,7 +46,7 @@ public class ProjectionList extends Projection {
     public List<Projection> getItems() {
         return items;
     }
-    
+
     @Override
     public JsonNode toJson() {
         ArrayNode arr = getFactory().arrayNode();
@@ -58,7 +58,7 @@ public class ProjectionList extends Projection {
 
     public static ProjectionList fromJson(ArrayNode node) {
         ArrayList<Projection> list = new ArrayList<Projection>(node.size());
-        for (Iterator<JsonNode> itr = node.elements();itr.hasNext();) {
+        for (Iterator<JsonNode> itr = node.elements(); itr.hasNext();) {
             list.add(BasicProjection.fromJson((ObjectNode) itr.next()));
         }
         return new ProjectionList(list);

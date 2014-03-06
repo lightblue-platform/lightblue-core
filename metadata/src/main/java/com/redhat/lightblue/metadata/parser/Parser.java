@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-
 /**
  * Common interface for parsers for metadata extensions
  *

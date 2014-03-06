@@ -29,8 +29,8 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
 
     private Type type;
 
-    private FieldTreeNode parent = null; 
-    
+    private FieldTreeNode parent = null;
+
     public ArrayElement() {
     }
 
@@ -65,19 +65,17 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     public FieldTreeNode resolve(Path p) {
         return resolve(p, 0);
     }
-    
+
     public abstract FieldTreeNode resolve(Path p, int level);
-    
 
     @Override
     public FieldTreeNode getParent() {
         return parent;
     }
-    
+
     protected void setParent(FieldTreeNode node) {
         parent = node;
     }
-    
 
     public MutablePath getFullPath(MutablePath mp) {
         parent.getFullPath(mp);
@@ -89,5 +87,5 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     public Path getFullPath() {
         return getFullPath(new MutablePath()).immutableCopy();
     }
-    
+
 }

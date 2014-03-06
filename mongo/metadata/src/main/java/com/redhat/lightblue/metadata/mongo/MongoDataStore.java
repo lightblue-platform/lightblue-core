@@ -127,43 +127,42 @@ public class MongoDataStore implements DataStore, Serializable {
         }
         return false;
     }
-    
+
     private boolean clientJndiNameEqual(String clientJndiName) {
-        if(this.clientJndiName == null && clientJndiName == null) {
+        if (this.clientJndiName == null && clientJndiName == null) {
             return true;
         } else {
-            if(this.clientJndiName != null && clientJndiName != null) {
+            if (this.clientJndiName != null && clientJndiName != null) {
                 return this.clientJndiName.equals(clientJndiName);
             } else {
-                return false;    
-            } 
+                return false;
+            }
         }
     }
-    
+
     private boolean clientDatabaseNameEqual(String databaseName) {
-        if(this.databaseName == null && databaseName == null) {
+        if (this.databaseName == null && databaseName == null) {
             return true;
         } else {
-            if(this.databaseName != null && databaseName != null) {
+            if (this.databaseName != null && databaseName != null) {
                 return this.databaseName.equals(databaseName);
             } else {
-                return false;    
-            } 
+                return false;
+            }
         }
     }
-    
+
     private boolean clientCollectionNameEqual(String collectionName) {
-        if(this.collectionName == null && collectionName == null) {
+        if (this.collectionName == null && collectionName == null) {
             return true;
         } else {
-            if(this.collectionName != null && collectionName != null) {
+            if (this.collectionName != null && collectionName != null) {
                 return this.collectionName.equals(collectionName);
             } else {
-                return false;    
-            } 
+                return false;
+            }
         }
     }
-    
 
     @Override
     public int hashCode() {

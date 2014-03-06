@@ -35,10 +35,9 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
-    
-    protected static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
-    protected JsonDoc doc;
-    
+    protected static final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
+    protected JsonDoc jsonDoc;
+
     /**
      * Load resource as json document.
      *
@@ -71,67 +70,57 @@ public abstract class AbstractJsonNodeTest {
 
         return buff.toString();
     }
-    
+
     public JsonNode stringArrayNode(String[] expectedValues) {
         ArrayNode expectedNode = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
-        for(String value : expectedValues) {
+        for (String value : expectedValues) {
             expectedNode.add(value);
         }
         return expectedNode;
     }
-    
+
     public JsonNode intArrayNode(Integer[] expectedValues) {
         ArrayNode expectedNode = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
-        for(Integer value : expectedValues) {
+        for (Integer value : expectedValues) {
             expectedNode.add(value);
         }
         return expectedNode;
     }
-    
-    
+
     public JsonNode doubleArrayNode(Double[] expectedValues) {
         ArrayNode expectedNode = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
-        for(Double value : expectedValues) {
+        for (Double value : expectedValues) {
             expectedNode.add(value);
         }
         return expectedNode;
     }
-    
+
     public boolean arrayNodesHaveSameValues(JsonNode expected, JsonNode actual) {
         int i = 0;
-        for(Iterator<JsonNode> nodes = expected.elements(); nodes.hasNext();i++) {
-            
+        for (Iterator<JsonNode> nodes = expected.elements(); nodes.hasNext(); i++) {
+
             JsonNode node = nodes.next();
-            
-            if(node instanceof TextNode) {
+
+            if (node instanceof TextNode) {
                 return textNodesHaveSameValue(node, actual.get(i));
-            } else if(node instanceof IntNode) {
+            } else if (node instanceof IntNode) {
                 return intNodesHaveSameValue(node, actual.get(i));
-            } else if(node instanceof DoubleNode) {
+            } else if (node instanceof DoubleNode) {
                 return doubleNodesHaveSameValue(node, actual.get(i));
             }
         }
         return true;
     }
-    
+
     public boolean textNodesHaveSameValue(JsonNode expected, JsonNode actual) {
-        if(!expected.asText().equals(actual.asText())) {
-            return false;
-        }
-        return true;
+        return expected.asText().equals(actual.asText());
     }
-    
+
     public boolean intNodesHaveSameValue(JsonNode expected, JsonNode actual) {
-        if(expected.asInt() != actual.asInt()) {
-            return false;
-        }
-        return true;
+        return expected.asInt() == actual.asInt();
     }
-    
+
     public boolean doubleNodesHaveSameValue(JsonNode expected, JsonNode actual) {
-        if(expected.asDouble() != actual.asDouble()) {
-            return false;
-        }
-        return true;
+        return expected.asDouble() == actual.asDouble();
     }
 }

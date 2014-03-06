@@ -46,9 +46,9 @@ public final class MetadataManager {
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private MetadataManager() {
-        
+
     }
-    
+
     private static synchronized void initializeParser() {
         if (parser != null) {
             return;
@@ -59,7 +59,7 @@ public final class MetadataManager {
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (metadata != null) {
             // already initalized

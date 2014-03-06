@@ -36,15 +36,15 @@ public abstract class ArrayProjector extends Projector {
     protected boolean isLastMatch() {
         return lastMatch;
     }
-    
+
     protected void setLastMatch(boolean lastMatch) {
         this.lastMatch = lastMatch;
     }
-    
+
     protected boolean isIncluded() {
         return include;
     }
-    
+
     /**
      * Sets up the projector context
      */

@@ -29,7 +29,7 @@ public class FullPathResolverTest {
 
     private EntityMetadata getMD1() {
         EntityMetadata entityMetadata = new EntityMetadata("test");
-        
+
         entityMetadata.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
         entityMetadata.getFields().addNew(new SimpleField("simpleString", StringType.TYPE));
         ObjectField objectField1 = new ObjectField("obj1");
@@ -51,19 +51,19 @@ public class FullPathResolverTest {
 
         return entityMetadata;
     }
-    
+
     @Test
     public void testGetFullPathSimpleField() {
         Path fullPath = getMD1().resolve(new Path("obj1.nestedSimpleInteger")).getFullPath();
         Assert.assertEquals(new Path("obj1.nestedSimpleInteger"), fullPath);
     }
-    
+
     @Test
     public void testGetFullPathNestedField() {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.doubleNestedString")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.doubleNestedString"), fullPath);
     }
- 
+
     @Test
     public void testSimpleRelativePathThis() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.$this.nestedSimpleInteger")).getFullPath();
@@ -75,13 +75,13 @@ public class FullPathResolverTest {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.$this.$this.doubleNestedString")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.doubleNestedString"), fullPath);
     }
-        
+
     @Test
     public void testNestedRelativePathTripleThis() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.$this.$this.$this.doubleNestedString")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.doubleNestedString"), fullPath);
     }
-    
+
     @Test
     public void testSimpleRelativePathParent() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.$parent.nestedSimpleInteger")).getFullPath();
@@ -93,20 +93,19 @@ public class FullPathResolverTest {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.doubleNestedString.$parent.$parent.nestedSimpleInteger")).getFullPath();
         Assert.assertEquals(new Path("obj1.nestedSimpleInteger"), fullPath);
     }
-        
+
     @Test
     public void testNestedRelativePathTripleParent() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.doubleNestedString.$parent.$parent.$parent.simpleInteger")).getFullPath();
         Assert.assertEquals(new Path("simpleInteger"), fullPath);
     }
 
-    
     @Test
     public void testNestedRelativePathThisSimpleArray() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.$this.simpleArr")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.simpleArr"), fullPath);
     }
-    
+
     @Test
     public void testNestedRelativePathThisArray() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.1.$this.nestedArrObjString1")).getFullPath();
@@ -118,28 +117,28 @@ public class FullPathResolverTest {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.1.$this.$this.nestedArrObjString1")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.objArr.*.nestedArrObjString1"), fullPath);
     }
-    
+
     @Test
     public void testNestedRelativePathTripleThisArray() throws Exception {
         Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.1.$this.$this.$this.nestedArrObjString1")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.objArr.*.nestedArrObjString1"), fullPath);
     }
-    
+
     @Test
     public void testNestedRelativePathParentArray() throws Exception {
-        Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.$parent.doubleNestedString")).getFullPath();        
+        Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.$parent.doubleNestedString")).getFullPath();
         Assert.assertEquals(new Path("obj1.nested.doubleNestedString"), fullPath);
     }
-    
+
     @Test
     public void testNestedRelativePathDoubleParentArray() throws Exception {
-        Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.nestedSimpleInteger")).getFullPath();        
+        Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.nestedSimpleInteger")).getFullPath();
         Assert.assertEquals(new Path("obj1.nestedSimpleInteger"), fullPath);
     }
-    
+
     @Test
     public void testNestedRelativePathTripleParentArray() throws Exception {
-        Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.$parent.simpleInteger")).getFullPath();        
+        Path fullPath = getMD1().resolve(new Path("obj1.nested.objArr.$parent.$parent.$parent.simpleInteger")).getFullPath();
         Assert.assertEquals(new Path("simpleInteger"), fullPath);
     }
 

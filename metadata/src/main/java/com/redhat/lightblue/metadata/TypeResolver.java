@@ -18,8 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-
-
 /**
  * Interface for classes that resolve types
  */

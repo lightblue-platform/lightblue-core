@@ -25,18 +25,18 @@ import com.redhat.lightblue.metadata.types.ObjectType;
 
 public class ObjectField extends Field {
     private static final long serialVersionUID = 1L;
-    
+
     private final Fields fields;
 
     public ObjectField(String name) {
         super(name, ObjectType.TYPE);
-        fields=new Fields(this);
+        fields = new Fields(this);
     }
 
     public Fields getFields() {
         return fields;
     }
-    
+
     @Override
     public boolean hasChildren() {
         return true;
@@ -51,8 +51,8 @@ public class ObjectField extends Field {
     public FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
-        } else if (Path.PARENT.equals(p.head(level))){
-            return this.getParent().resolve(p, level+1);
+        } else if (Path.PARENT.equals(p.head(level))) {
+            return this.getParent().resolve(p, level + 1);
         } else {
             return fields.resolve(p, level);
         }

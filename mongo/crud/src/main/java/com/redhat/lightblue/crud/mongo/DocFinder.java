@@ -42,16 +42,14 @@ public interface DocFinder {
      * @param from Optionsl from index, starting from 0
      * @param to Optionsl to index, starting from 0
      *
-     * The find implementation should search for documents in the
-     * given collection using the search criteria. If a sort is given,
-     * the results should be sorted, and optionally, a subset of the
-     * result set should be returned. The implementation should update
-     * the result set size numbers in the response.
+     * The find implementation should search for documents in the given collection using the search criteria. If a sort
+     * is given, the results should be sorted, and optionally, a subset of the result set should be returned. The
+     * implementation should update the result set size numbers in the response.
      *
      * @return List of objects found
      */
     List<DBObject> find(CRUDOperationContext ctx,
-                        DBCollection coll, 
+                        DBCollection coll,
                         CRUDFindResponse response,
                         DBObject mongoQuery,
                         DBObject mongoSort,

@@ -27,7 +27,7 @@ import com.redhat.lightblue.query.Projection;
  * Request to save documents
  */
 public class SaveRequest extends DocRequest {
-	
+
     private Projection returnFields;
     private boolean upsert;
 

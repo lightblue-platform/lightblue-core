@@ -36,10 +36,10 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 public class BasicDocFinder implements DocFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicDocFinder.class);
-    
+
     @Override
     public List<DBObject> find(CRUDOperationContext ctx,
-                               DBCollection coll, 
+                               DBCollection coll,
                                CRUDFindResponse response,
                                DBObject mongoQuery,
                                DBObject mongoSort,

@@ -25,8 +25,8 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayQueryMatchProjection extends ArrayProjection {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     private final QueryExpression match;
 
     public ArrayQueryMatchProjection(Path field,

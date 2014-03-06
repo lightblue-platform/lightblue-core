@@ -24,29 +24,29 @@ import com.redhat.lightblue.util.Error;
 /**
  * Base class for array update expressions
  * <pre>
- * array_update_expression := { $append : { path : rvalue_expression } } |  
- *                            { $append : { path : [ rvalue_expression, ... ] }} |  
- *                            { $insert : { path : rvalue_expression } } |  
- *                            { $insert : { path : [ rvalue_expression,...] }} |  
- *                            { $foreach : { path : update_query_expression,   
- *                                           $update : foreach_update_expression } } 
+ * array_update_expression := { $append : { path : rvalue_expression } } |
+ *                            { $append : { path : [ rvalue_expression, ... ] }} |
+ *                            { $insert : { path : rvalue_expression } } |
+ *                            { $insert : { path : [ rvalue_expression,...] }} |
+ *                            { $foreach : { path : update_query_expression,
+ *                                           $update : foreach_update_expression } }
  * </pre>
  */
 public abstract class ArrayUpdateExpression extends PartialUpdateExpression {
 
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Parses an array update expression using the given json object
      */
     public static ArrayUpdateExpression fromJson(ObjectNode node) {
-        if(node.has(UpdateOperator._append.toString()) || node.has(UpdateOperator._insert.toString())) {
+        if (node.has(UpdateOperator._append.toString()) || node.has(UpdateOperator._insert.toString())) {
             return ArrayAddExpression.fromJson(node);
-        } else if(node.has(UpdateOperator._foreach.toString())) {
+        } else if (node.has(UpdateOperator._foreach.toString())) {
             return ForEachExpression.fromJson(node);
         } else {
-            throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION,node.toString());
+            throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION, node.toString());
         }
-            
+
     }
 }

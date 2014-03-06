@@ -36,28 +36,28 @@ public final class JsonUtils {
      * Pretty print a json doc
      */
     public static String prettyPrint(JsonNode node) {
-        StringBuilder bld=new StringBuilder();
-        prettyPrint(bld,node);
+        StringBuilder bld = new StringBuilder();
+        prettyPrint(bld, node);
         return bld.toString();
     }
-    
+
     /**
      * Pretty print a json doc
      */
-    public static void prettyPrint(StringBuilder bld,JsonNode node) {
-        toString(bld,node,0,true);
+    public static void prettyPrint(StringBuilder bld, JsonNode node) {
+        toString(bld, node, 0, true);
     }
 
     private static boolean toString(StringBuilder bld,
                                     JsonNode node,
                                     int depth,
                                     boolean newLine) {
-        if(node instanceof ArrayNode) {
-            return arrayToString(bld,(ArrayNode)node,depth,newLine);
-        } else if(node instanceof ObjectNode) {
-            return objectToString(bld,(ObjectNode)node,depth,newLine);
+        if (node instanceof ArrayNode) {
+            return arrayToString(bld, (ArrayNode) node, depth, newLine);
+        } else if (node instanceof ObjectNode) {
+            return objectToString(bld, (ObjectNode) node, depth, newLine);
         } else {
-            return valueToString(bld,node,depth,newLine);
+            return valueToString(bld, node, depth, newLine);
         }
     }
 
@@ -65,23 +65,23 @@ public final class JsonUtils {
                                          ArrayNode node,
                                          int depth,
                                          boolean newLine) {
-        if(newLine) {
-            indent(bld,depth);
-            newLine=false;
+        if (newLine) {
+            indent(bld, depth);
+            newLine = false;
         }
         bld.append("[");
-        boolean first=true;
-        for(Iterator<JsonNode> itr=node.elements();
-            itr.hasNext();) {
-            if(first) {
-                first=false;
+        boolean first = true;
+        for (Iterator<JsonNode> itr = node.elements();
+                itr.hasNext();) {
+            if (first) {
+                first = false;
             } else {
                 bld.append(',');
             }
-            newLine=toString(bld,itr.next(),depth+1,newLine);
+            newLine = toString(bld, itr.next(), depth + 1, newLine);
         }
-        if(newLine) {
-            indent(bld,depth);
+        if (newLine) {
+            indent(bld, depth);
         }
         bld.append(']');
         return false;
@@ -91,47 +91,47 @@ public final class JsonUtils {
                                           ObjectNode node,
                                           int depth,
                                           boolean newLine) {
-        if(newLine) {
-            indent(bld,depth);
-            newLine=false;
+        if (newLine) {
+            indent(bld, depth);
+            newLine = false;
         }
-        if(node.size()>0) {
+        if (node.size() > 0) {
             bld.append("{\n");
-            newLine=true;
+            newLine = true;
         }
-        boolean first=true;
-        for(Iterator<Map.Entry<String,JsonNode>> itr=node.fields();
-            itr.hasNext();) {
-            if(first) {
-                first=false;
+        boolean first = true;
+        for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields();
+                itr.hasNext();) {
+            if (first) {
+                first = false;
             } else {
-                if(newLine) {
-                    indent(bld,depth);
-                    newLine=false;
+                if (newLine) {
+                    indent(bld, depth);
+                    newLine = false;
                 }
                 bld.append(',');
                 bld.append('\n');
-                newLine=true;
+                newLine = true;
             }
-            Map.Entry<String,JsonNode> entry=itr.next();
-            indent(bld,depth);
+            Map.Entry<String, JsonNode> entry = itr.next();
+            indent(bld, depth);
             bld.append('\"');
             bld.append(entry.getKey());
             bld.append('\"');
             bld.append(':');
-            newLine=toString(bld,entry.getValue(),depth+1,false);
-            if(newLine) {
-                indent(bld,depth);
-                newLine=false;
+            newLine = toString(bld, entry.getValue(), depth + 1, false);
+            if (newLine) {
+                indent(bld, depth);
+                newLine = false;
             }
         }
-        if(node.size()>0) {
+        if (node.size() > 0) {
             bld.append('\n');
-            newLine=true;
+            newLine = true;
         }
-        if(newLine) {
-            indent(bld,depth);
-            newLine=false;
+        if (newLine) {
+            indent(bld, depth);
+            newLine = false;
         }
         bld.append('}');
         return false;
@@ -141,17 +141,17 @@ public final class JsonUtils {
                                          JsonNode node,
                                          int depth,
                                          boolean newLine) {
-        if(newLine) {
-            indent(bld,depth);
-            newLine=false;
+        if (newLine) {
+            indent(bld, depth);
+            newLine = false;
         }
         bld.append(node.toString());
         return newLine;
     }
 
-    private static void indent(StringBuilder bld,int depth) {
-        int n=depth*2;
-        for(int i=0;i<n;i++) {
+    private static void indent(StringBuilder bld, int depth) {
+        int n = depth * 2;
+        for (int i = 0; i < n; i++) {
             bld.append(' ');
         }
     }

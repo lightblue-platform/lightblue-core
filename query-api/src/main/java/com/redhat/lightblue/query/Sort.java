@@ -28,7 +28,7 @@ import com.redhat.lightblue.util.JsonObject;
  * Base class for Sort objects.
  */
 public abstract class Sort extends JsonObject {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Parses a sort expression using the given json object

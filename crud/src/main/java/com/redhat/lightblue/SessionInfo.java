@@ -24,6 +24,6 @@ import com.redhat.lightblue.util.JsonObject;
  * Base class containing implementation dependent information to keep track of sessions
  */
 public abstract class SessionInfo extends JsonObject {
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
 }

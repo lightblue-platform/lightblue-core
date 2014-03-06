@@ -12,11 +12,11 @@ public final class MongoMetadataConstants {
     public static final String ERR_INVALID_DATASTORE = "mongo-metadata:InvalidDatastore";
     public static final String ERR_EMPTY_METADATA_NAME = "mongo-metadata:EmptyMetadataName";
     public static final String ERR_METADATA_WITH_NO_FIELDS = "mongo-metadata:MetadataWithNoFields";
-    
+
     public static final String ERR_NEW_STATUS_IS_NULL = "mongo-metadata:NewStatusIsNull";
-    
+
     private MongoMetadataConstants() {
-        
+
     }
-    
+
 }

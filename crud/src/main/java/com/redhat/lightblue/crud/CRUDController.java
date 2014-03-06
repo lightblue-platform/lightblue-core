@@ -32,10 +32,9 @@ public interface CRUDController {
      * @param projection If non-null, the inserted documents are projected using this projection and returned in the
      * response
      *
-     * The ctx must provide access to the correct versions of metadata
-     * used to insert all the documents. All documents must be of the
-     * same entity type.  If projection is non-null, the data must be
-     * projected and returned, otherwise, no data is returned.
+     * The ctx must provide access to the correct versions of metadata used to insert all the documents. All documents
+     * must be of the same entity type. If projection is non-null, the data must be projected and returned, otherwise,
+     * no data is returned.
      */
     CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                  Projection projection);
@@ -48,13 +47,10 @@ public interface CRUDController {
      * @param projection If non-null, the inserted/updated documents are projected using this projection and returned in
      * the response
      *
-     * The ctx must provide access to the correct versions of metadata
-     * used to insert/update all the documents.  All documents must be
-     * of the same entity type. If a document has nonnull _id field,
-     * the document is updated in the db. Otherwise, if upsert is
-     * true, the document is updated. If projection is non-null, the
-     * data must be projected and returned, otherwise, no data is
-     * returned.
+     * The ctx must provide access to the correct versions of metadata used to insert/update all the documents. All
+     * documents must be of the same entity type. If a document has nonnull _id field, the document is updated in the
+     * db. Otherwise, if upsert is true, the document is updated. If projection is non-null, the data must be projected
+     * and returned, otherwise, no data is returned.
      */
     CRUDSaveResponse save(CRUDOperationContext ctx,
                           boolean upsert,
@@ -75,7 +71,6 @@ public interface CRUDController {
                               UpdateExpression update,
                               Projection projection);
 
-
     /**
      * Deletes documents matching the search criteria
      *
@@ -85,7 +80,8 @@ public interface CRUDController {
      */
     CRUDDeleteResponse delete(CRUDOperationContext ctx,
                               QueryExpression query);
-   /**
+
+    /**
      * Searches for documents
      *
      * @param ctx Operation context

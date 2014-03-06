@@ -32,10 +32,10 @@ public abstract class ForEachUpdateExpression extends UpdateExpression {
      * Parses a foreach update expression from the given json object
      */
     public static UpdateExpression fromJson(JsonNode node) {
-        if(node instanceof TextNode && "$remove".equals(node.asText())) {
+        if (node instanceof TextNode && "$remove".equals(node.asText())) {
             return new RemoveElementExpression();
         } else {
             return UpdateExpression.fromJson(node);
-        }       
+        }
     }
 }

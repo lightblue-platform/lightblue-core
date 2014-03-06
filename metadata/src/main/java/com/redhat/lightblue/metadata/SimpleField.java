@@ -25,8 +25,8 @@ import com.redhat.lightblue.util.Error;
 
 public class SimpleField extends Field {
 
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     public SimpleField(String name) {
         super(name);
     }
@@ -49,7 +49,7 @@ public class SimpleField extends Field {
     public FieldTreeNode resolve(Path p, int level) {
         if (p.numSegments() == level) {
             return this;
-        } else if (Path.PARENT.equals(p.head(level))){
+        } else if (Path.PARENT.equals(p.head(level))) {
             return this.getParent().resolve(p, level + 1);
         } else {
             throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE);

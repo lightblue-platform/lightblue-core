@@ -194,7 +194,7 @@ public class ModifyDocTest {
 
         Assert.assertEquals("result", doc.get(new Path("arr.1")).textValue());
     }
-    
+
     @Test
     public void remove_basic_number_node_at_root() {
         doc.modify(new Path("x"), factory.numberNode(1), true);
@@ -230,7 +230,7 @@ public class ModifyDocTest {
 
         Assert.assertEquals(0, doc.get(new Path("arr")).size());
     }
-    
+
     @Test
     public void remove_array_node_element_at_root() {
         doc.modify(new Path("arr.0"), factory.textNode("test"), true);
@@ -248,7 +248,7 @@ public class ModifyDocTest {
 
         Assert.assertEquals(NullNode.class, doc.get(new Path("arr.0")).getClass());
     }
-    
+
     @Test
     public void remove_nested_number_node() {
         doc.modify(new Path("x.y"), factory.numberNode(1), true);
@@ -284,7 +284,7 @@ public class ModifyDocTest {
 
         Assert.assertEquals(NullNode.class, doc.get(new Path("x.arr")).getClass());
     }
-    
+
     @Test
     public void remove_nested_array_node_element() {
         doc.modify(new Path("x.arr.0"), factory.textNode("test"), true);
@@ -331,5 +331,5 @@ public class ModifyDocTest {
 
         Assert.assertEquals(3, doc.get(new Path("x.arr")).size());
     }
-    
+
 }

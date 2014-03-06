@@ -30,6 +30,7 @@ import com.redhat.lightblue.util.Path;
 
 /**
  * Version specific bits of metadata.
+ *
  * @author nmalik
  */
 public class EntitySchema implements Serializable {
@@ -47,60 +48,59 @@ public class EntitySchema implements Serializable {
     private final FieldTreeNode fieldRoot;
 
     private class RootNode implements FieldTreeNode, Serializable {
-        
+
         private static final long serialVersionUID = 1L;
 
         @Override
         public String getName() {
             return "";
         }
-        
+
         @Override
         public Type getType() {
             return null;
         }
-        
+
         @Override
         public boolean hasChildren() {
             return true;
         }
-        
+
         @Override
         public Iterator<? extends FieldTreeNode> getChildren() {
             return fields.getFields();
         }
-        
+
         @Override
         public FieldTreeNode resolve(Path p) {
             return fields.resolve(p);
         }
-        
+
         @Override
         public FieldTreeNode resolve(Path p, int level) {
             return fields.resolve(p, level);
         }
-        
+
         @Override
         public FieldTreeNode getParent() {
             return null;
         }
-	
+
         @Override
         public Path getFullPath() {
             return Path.EMPTY;
         }
-	
+
         @Override
         public MutablePath getFullPath(MutablePath mp) {
             return Path.EMPTY.mutableCopy();
         }
     };
 
-
     public EntitySchema(String name) {
         this.name = name;
-        this.fieldRoot=new RootNode();
-        this.fields=new Fields(fieldRoot);
+        this.fieldRoot = new RootNode();
+        this.fields = new Fields(fieldRoot);
     }
 
     /**
@@ -197,7 +197,6 @@ public class EntitySchema implements Serializable {
     public Fields getFields() {
         return this.fields;
     }
-
 
     public FieldTreeNode getFieldTreeRoot() {
         return fieldRoot;

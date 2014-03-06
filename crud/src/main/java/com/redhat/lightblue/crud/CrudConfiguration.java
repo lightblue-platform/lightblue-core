@@ -34,7 +34,7 @@ public class CrudConfiguration {
 
     private Controller[] copyControllerArray(Controller[] toCopy) {
         Controller[] theCopy = new Controller[toCopy.length];
-        for(int i=0;i<toCopy.length;i++) {
+        for (int i = 0; i < toCopy.length; i++) {
             Controller copy = new Controller();
             copy.setClassName(toCopy[i].getClassName());
             copy.setDatastoreType(toCopy[i].getDatastoreType());
@@ -43,7 +43,7 @@ public class CrudConfiguration {
         }
         return theCopy;
     }
-    
+
     /**
      * @return the databaseConfigurationClass
      */

@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.util;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +29,7 @@ public class MutablePathMutablePathTest extends StringMutablePathTest {
     }
 
     @Test
-    public void reinterpretTest1()  throws Exception {
+    public void reinterpretTest1() throws Exception {
         Assert.assertEquals(new Path("a.b.c.d.e"), new MutablePath("a.b.c.d.e").rewriteIndexes(new Path("x.y.z")));
         Assert.assertEquals(new Path("a.b.c.d.e"), new MutablePath("a.b.c.d.e").rewriteIndexes(new Path("x.y.z.a.b.c.d.e")));
         Assert.assertEquals(new Path("a.b.c.d.e"), new MutablePath("a.b.c.d.e").rewriteIndexes(new Path("a.b.c.d.e")));
@@ -39,7 +38,7 @@ public class MutablePathMutablePathTest extends StringMutablePathTest {
     }
 
     @Test
-    public void reinterpretTest2()  throws Exception {
+    public void reinterpretTest2() throws Exception {
         Assert.assertEquals(new Path("a.b.c.d.e.*"), new MutablePath("a.b.c.d.e.*").rewriteIndexes(new Path("a.b.c.d.e")));
         Assert.assertEquals(new Path("a.b.c.1.d.e.*"), new MutablePath("a.b.c.*.d.e.*").rewriteIndexes(new Path("a.b.c.1.d.e")));
         Assert.assertEquals(new Path("a.2.b.c.*.d.e.*"), new MutablePath("a.*.b.c.*.d.e.*").rewriteIndexes(new Path("a.2.b.c")));

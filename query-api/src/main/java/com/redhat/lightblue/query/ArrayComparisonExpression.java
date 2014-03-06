@@ -28,7 +28,7 @@ import com.redhat.lightblue.util.Error;
  */
 public abstract class ArrayComparisonExpression extends ComparisonExpression {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Parses an array contains or array match expression from the given object node

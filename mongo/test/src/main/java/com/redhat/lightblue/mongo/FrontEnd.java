@@ -43,10 +43,8 @@ import com.redhat.lightblue.util.JsonUtils;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.JSONMetadataParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
-import com.redhat.lightblue.metadata.Extensions;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 import com.redhat.lightblue.crud.Factory;
@@ -56,6 +54,8 @@ import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import java.io.IOException;
 
 /**
@@ -141,8 +141,8 @@ public class FrontEnd {
         switch (cmd) {
             case "getEntityMetadata":
                 System.out.println(JsonUtils.prettyPrint(parser.convert(md.
-                   getEntityMetadata(arg("entityName", args),
-                                     arg("version", args)))));
+                        getEntityMetadata(arg("entityName", args),
+                                arg("version", args)))));
                 break;
             case "getEntityNames":
                 printArr(md.getEntityNames());

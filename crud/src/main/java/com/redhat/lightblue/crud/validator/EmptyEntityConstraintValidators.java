@@ -29,9 +29,8 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Resolver;
 
 /**
- * This class contains empty entity constraint validators. These
- * entity constraint validators a implemented using back-end provided
- * facilities, so there is no need to check them.
+ * This class contains empty entity constraint validators. These entity constraint validators a implemented using
+ * back-end provided facilities, so there is no need to check them.
  */
 public class EmptyEntityConstraintValidators
         implements Resolver<String, EntityConstraintChecker> {
@@ -43,9 +42,9 @@ public class EmptyEntityConstraintValidators
         @Override
         public void checkConstraint(ConstraintValidator validator,
                                     EntityConstraint constraint,
-                                    JsonDoc doc) {}
+                                    JsonDoc doc) {
+        }
     }
-
 
     public EmptyEntityConstraintValidators() {
         checkers.put(ReferencesConstraint.REFERENCES, new EmptyChecker());
