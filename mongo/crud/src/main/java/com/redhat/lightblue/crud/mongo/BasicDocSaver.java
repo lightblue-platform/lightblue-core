@@ -34,6 +34,7 @@ import com.mongodb.BasicDBObject;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -87,7 +88,8 @@ public class BasicDocSaver implements DocSaver {
                     JsonDoc oldDoc=translator.toJson(oldDBObject);
                     List<Path> paths=roleEval.getInaccessibleFields_Update(inputDoc,oldDoc);
                     if(paths==null||paths.isEmpty()) {
-                        result=collection.update(q,dbObject,upsert,false,WriteConcern.SAFE);
+                        result=collection.update(q,dbObject,false,false,WriteConcern.SAFE);
+                        inputDoc.setOperationPerformed(Operation.UPDATE);
                     } else
                         inputDoc.addError(Error.get("update",
                                                     CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS,paths.toString()));
@@ -130,7 +132,9 @@ public class BasicDocSaver implements DocSaver {
             LOGGER.debug("Inaccessible fields:{}",paths);
             if(paths==null||paths.isEmpty()) {
                 try {
-                    return collection.insert(dbObject, WriteConcern.SAFE);
+                    WriteResult r=collection.insert(dbObject, WriteConcern.SAFE);
+                    inputDoc.setOperationPerformed(Operation.INSERT);
+                    return r;
                 }  catch (MongoException.DuplicateKey dke) {
                     LOGGER.error("saveOrInsert failed: {}",dke);
                     inputDoc.addError(Error.get("insert",MongoCrudConstants.ERR_DUPLICATE,dke.toString()));

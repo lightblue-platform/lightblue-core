@@ -25,18 +25,23 @@ import com.redhat.lightblue.util.Resolver;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 
+import com.redhat.lightblue.hooks.HookResolver;
+import com.redhat.lightblue.hooks.Hook;
+
 /**
  * Factory class should be configured on initialization with all the validators and hooks from all the subsystems, and
  * used as a shared singleton object by all threads.
  */
 public class Factory implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 	
-	private final transient DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
+    private final transient DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
     private final transient DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
 
     private final transient DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
+
+    private HookResolver hookResolver;
 
     /**
      * Adds a field constraint validator
@@ -107,5 +112,26 @@ public class Factory implements Serializable {
      */
     public CRUDController getCRUDController(EntityMetadata md) {
         return getCRUDController(md.getDataStore().getType());
+    }
+
+    /**
+     * Sets the hook resolver
+     */
+    public void setHookResolver(HookResolver h) {
+        hookResolver=h;
+    }
+
+    /**
+     * Returns the hook resolver
+     */
+    public HookResolver getHookResolver() {
+        return hookResolver;
+    }
+
+    /**
+     * Returns the hook with the given name. Returns null if hook doesn't exist
+     */
+    public Hook getHook(String hookName) {
+        return hookResolver.getHook(hookName);
     }
 }

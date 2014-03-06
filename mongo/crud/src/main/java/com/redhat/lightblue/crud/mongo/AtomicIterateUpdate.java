@@ -35,6 +35,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Operation;
 
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
@@ -116,6 +117,7 @@ public class AtomicIterateUpdate implements DocUpdater {
                         if(projector!=null) {
                             LOGGER.debug("Projecting document {}",docIndex);
                             doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc),nodeFactory,qctx));
+                            doc.setOperationPerformed(Operation.UPDATE);
                         }
                         numUpdated++;
                     } catch (MongoException e) {

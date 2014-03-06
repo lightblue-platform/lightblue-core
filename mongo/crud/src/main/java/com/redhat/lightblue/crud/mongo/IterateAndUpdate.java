@@ -35,6 +35,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Operation;
 
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Updater;
@@ -131,6 +132,7 @@ public class IterateAndUpdate implements DocUpdater {
                         try {
                             DBObject updatedObject=translator.toBson(doc.getOutputDocument());
                             WriteResult result=collection.save(updatedObject);                    
+                            doc.setOperationPerformed(Operation.UPDATE);
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {
                             LOGGER.warn("Update exception for document {}: {}",docIndex,e);

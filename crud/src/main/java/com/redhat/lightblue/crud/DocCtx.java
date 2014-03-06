@@ -34,6 +34,7 @@ public class DocCtx extends JsonDoc {
 
     private final List<Error> errors = new ArrayList<>();
     private JsonDoc outputDoc = this;
+    private Operation operationPerformed;
 
     public DocCtx(JsonDoc doc) {
         super(doc.getRoot());
@@ -79,6 +80,20 @@ public class DocCtx extends JsonDoc {
      */
     public void setOutputDocument(JsonDoc doc) {
         this.outputDoc = doc;
+    }
+
+    /**
+     * Returns the operation performed on this document
+     */
+    public Operation getOperationPerformed() {
+        return operationPerformed;
+    }
+
+    /**
+     * Sets the operation performed on this document
+     */
+    public void setOperationPerformed(Operation op) {
+        operationPerformed=op;
     }
 
     /**
