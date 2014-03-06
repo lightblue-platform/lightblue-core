@@ -33,6 +33,7 @@ import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.SaveRequest;
 import com.redhat.lightblue.UpdateRequest;
+import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;

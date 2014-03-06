@@ -45,6 +45,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -96,8 +97,8 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
     private class OCtx extends CRUDOperationContext {
         private final Map<String,EntityMetadata> map=new HashMap<String,EntityMetadata>();
 
-        public OCtx() {
-            super("test",factory,new HashSet<String>(),null);
+        public OCtx(Operation op) {
+            super(op,"test",factory,new HashSet<String>(),null);
         }
 
         public void add(EntityMetadata md) {
@@ -189,7 +190,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
     @Test
     public void insertTest() throws Exception {
         EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        OCtx ctx=new OCtx(Operation.INSERT);
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         Projection projection = projection("{'field':'_id'}");
@@ -208,7 +209,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
     @Test
     public void saveTest() throws Exception {
         EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        OCtx ctx=new OCtx(Operation.INSERT);
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         Projection projection = projection("{'field':'_id'}");
@@ -224,7 +225,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         readDoc.modify(new Path("field7.0.elemf1"), nodeFactory.textNode("updated too"), false);
 
         // Save it back
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
         controller.save(ctx,false,projection);
@@ -241,7 +242,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         DB db = mongo.getDB(DB_NAME);
         DBCollection coll=db.getCollection(COLL_NAME);
         EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        OCtx ctx=new OCtx(Operation.INSERT);
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         ctx.addDocument(doc);
@@ -253,14 +254,14 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         // Remove id, to force re-insert
         readDoc.modify(new Path("_id"), null, false);
 
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
         // This should not insert anything
         CRUDSaveResponse sr=controller.save(ctx,false,projection("{'field':'_id'}"));
         Assert.assertEquals(1,coll.find(null).count());
         
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
         sr=controller.save(ctx,true,projection("{'field':'_id'}"));
@@ -272,7 +273,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         DB db = mongo.getDB(DB_NAME);
         DBCollection coll=db.getCollection(COLL_NAME);
         EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        OCtx ctx=new OCtx(Operation.INSERT);
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs=new ArrayList<JsonDoc>();
@@ -288,7 +289,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(numDocs,coll.find(null).count());
 
         // Single doc update
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.UPDATE);
         ctx.add(md);
         CRUDUpdateResponse upd=controller.update(ctx,query("{'field':'field3','op':'$eq','rvalue':10}"),
                                                  update("{ '$set': { 'field3' : 1000 } }"),
@@ -305,7 +306,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1,coll.find(new BasicDBObject("field3",1000)).count());
 
         // Bulk update
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.UPDATE);
         ctx.add(md);
         upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
                               update("{ '$set': { 'field3' : 1000 } }"),
@@ -316,7 +317,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
 
         // Bulk direct update
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.UPDATE);
         ctx.add(md);
         upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
                               update("{ '$set': { 'field3' : 1000 } }"),null);
@@ -326,7 +327,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(10,coll.find(new BasicDBObject("field3",new BasicDBObject("$gt",10))).count());
 
         // Iterate update
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.UPDATE);
         ctx.add(md);
         // Updating an array field will force use of IterateAndupdate
         upd=controller.update(ctx,query("{'field':'field3','op':'>','rvalue':10}"),
@@ -342,7 +343,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         DB db = mongo.getDB(DB_NAME);
         DBCollection coll=db.getCollection(COLL_NAME);
         EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        OCtx ctx=new OCtx(Operation.INSERT);
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs = new ArrayList<>();
@@ -356,7 +357,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         ctx.addDocuments(docs);
         controller.insert(ctx,projection("{'field':'_id'}"));
         
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.FIND);
         ctx.add(md);
         CRUDFindResponse response=controller.find(ctx,query("{'field':'field3','op':'>=','rvalue':0}"),
                                                   projection("{'field':'*','recursive':1}"),
@@ -371,7 +372,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         }
 
         for(int k=0;k<15;k++) {
-            ctx=new OCtx();
+            ctx=new OCtx(Operation.FIND);
             ctx.add(md);
             response=controller.find(ctx,query("{'field':'field3','op':'>=','rvalue':0}"),
                                      projection("{'field':'*','recursive':1}"),
@@ -391,7 +392,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         DB db = mongo.getDB(DB_NAME);
         DBCollection coll=db.getCollection(COLL_NAME);
         EntityMetadata md=getMd("./testMetadata.json");
-        OCtx ctx=new OCtx();
+        OCtx ctx=new OCtx(Operation.INSERT);
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs = new ArrayList<>();
@@ -407,14 +408,14 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(numDocs,coll.find(null).count());
 
         // Single doc delete
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.DELETE);
         ctx.add(md);
         CRUDDeleteResponse del=controller.delete(ctx,query("{'field':'field3','op':'$eq','rvalue':10}"));
         Assert.assertEquals(1,del.getNumDeleted());
         Assert.assertEquals(numDocs-1,coll.find(null).count());
 
         // Bulk delete
-        ctx=new OCtx();
+        ctx=new OCtx(Operation.DELETE);
         ctx.add(md);
         del=controller.delete(ctx,query("{'field':'field3','op':'>','rvalue':10}"));
         Assert.assertEquals(9,del.getNumDeleted());

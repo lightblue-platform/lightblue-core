@@ -24,6 +24,7 @@ import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -36,12 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OperationContext extends CRUDOperationContext {
+public final class OperationContext extends CRUDOperationContext {
 
     private final Request request;
     private final Metadata metadata;
     private final Map<String, EntityMetadata> entityMetadata = new HashMap<>();
-    private final Operation operation;
     private OperationStatus status = OperationStatus.COMPLETE;
 
     /**
@@ -60,10 +60,9 @@ public class OperationContext extends CRUDOperationContext {
                              Set<String> roles,
                              List<JsonDoc> docs,
                              Operation operation) {
-        super(request.getEntityVersion().getEntity(), factory, roles, docs);
+        super(operation,request.getEntityVersion().getEntity(), factory, roles, docs);
         this.request = request;
         this.metadata = metadata;
-        this.operation = operation;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
     }
 
@@ -113,13 +112,6 @@ public class OperationContext extends CRUDOperationContext {
      */
     public Metadata getMetadata() {
         return metadata;
-    }
-
-    /**
-     * Returns the current operation
-     */
-    public Operation getOperation() {
-        return operation;
     }
 
     /**

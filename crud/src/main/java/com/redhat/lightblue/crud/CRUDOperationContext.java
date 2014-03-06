@@ -46,11 +46,14 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
+    private final Operation operation;
 
-    public CRUDOperationContext(String entityName,
+    public CRUDOperationContext(Operation op,
+                                String entityName,
                                 Factory f,
                                 Set<String> callerRoles,
                                 List<JsonDoc> docs) {
+        this.operation=op;
         this.entityName = entityName;
         this.factory = f;
         this.callerRoles = callerRoles;
@@ -116,6 +119,13 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         for (JsonDoc x : docs) {
             documents.add(new DocCtx(x));
         }
+    }
+
+    /**
+     * Returns the current operation
+     */
+    public Operation getOperation() {
+        return operation;
     }
 
     /**
