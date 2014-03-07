@@ -20,11 +20,10 @@ package com.redhat.lightblue.hooks;
 
 /**
  * Marker interface for hooks that are to be called at the mediator
- * level, instead of the CRUD level. Mediator hooks are always bulk
- * hooks, and if the operation is on composite entities, these hooks
- * are called only for top-level entities, instead of each contained
- * entity.
+ * level, instead of the CRUD level. If the operation is on composite
+ * entities, these hooks are called only for top-level entities,
+ * instead of each contained entity.
  */
-public interface MediatorHook extends BulkProcessingHook {
+public interface MediatorHook extends Hook {
 
 }
