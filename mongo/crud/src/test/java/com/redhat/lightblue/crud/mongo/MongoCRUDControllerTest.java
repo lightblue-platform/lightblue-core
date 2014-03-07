@@ -71,7 +71,7 @@ import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.process.runtime.Network;
 
-public class CRUDControllerTest extends AbstractJsonSchemaTest {
+public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
 
     private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
@@ -198,6 +198,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1, ctx.getDocuments().size());
         Assert.assertTrue(ctx.getErrors() == null || ctx.getErrors().isEmpty());
         Assert.assertTrue(ctx.getDataErrors() == null || ctx.getDataErrors().isEmpty());
+        Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
         DBCollection coll = db.getCollection(COLL_NAME);
         Assert.assertEquals(1, coll.find(new BasicDBObject("_id", new ObjectId(id))).count());
@@ -220,18 +221,20 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         System.out.println("Read doc:" + readDoc);
         readDoc.modify(new Path("field1"), nodeFactory.textNode("updated"), false);
         readDoc.modify(new Path("field7.0.elemf1"), nodeFactory.textNode("updated too"), false);
+        Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
 
         // Save it back
         ctx=new OCtx(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
-        controller.save(ctx, false, projection);
+        CRUDSaveResponse saveResponse = controller.save(ctx, false, projection);
 
         // Read it back
         JsonDoc r2doc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
                 projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
         Assert.assertEquals(readDoc.get(new Path("field1")).asText(), r2doc.get(new Path("field1")).asText());
         Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(), r2doc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), saveResponse.getNumSaved());
     }
 
     @Test
@@ -249,6 +252,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
                 projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
         // Remove id, to force re-insert
         readDoc.modify(new Path("_id"), null, false);
+        Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
 
         ctx=new OCtx(Operation.SAVE);
         ctx.add(md);
@@ -262,6 +266,7 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
         ctx.addDocument(readDoc);
         sr = controller.save(ctx, true, projection("{'field':'_id'}"));
         Assert.assertEquals(2, coll.find(null).count());
+        Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), sr.getNumSaved());
     }
 
     @Test
@@ -280,8 +285,9 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
             docs.add(doc);
         }
         ctx.addDocuments(docs);
-        controller.insert(ctx, projection("{'field':'_id'}"));
+        CRUDInsertionResponse response = controller.insert(ctx, projection("{'field':'_id'}"));
         Assert.assertEquals(numDocs, coll.find(null).count());
+        Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
 
         // Single doc update
         ctx=new OCtx(Operation.UPDATE);
@@ -335,7 +341,6 @@ public class CRUDControllerTest extends AbstractJsonSchemaTest {
 
     @Test
     public void sortAndPageTest() throws Exception {
-        DBCollection coll = db.getCollection(COLL_NAME);
         EntityMetadata md = getMd("./testMetadata.json");
         OCtx ctx=new OCtx(Operation.INSERT);
 
