@@ -105,8 +105,21 @@ public class MongoMetadata implements Metadata {
             DBObject es = collection.findOne(query);
             if (es != null) {
                 schema = mdParser.parseEntitySchema(es);
+                if(schema.getStatus()!=MetadataStatus.ACTIVE) {
+                    boolean foundDefault=false;
+                    if(info.getDefaultVersion()!=null) {
+                        query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + info.getDefaultVersion());
+                        es = collection.findOne(query);
+                        if(es != null) {
+                            schema = mdParser.parseEntitySchema(es);
+                            foundDefault=true;
+                        }
+                    }
+                    if(!foundDefault || schema.getStatus()!=MetadataStatus.ACTIVE)
+                        throw Error.get(MongoMetadataConstants.ERR_INACTIVE_VERSION, version);
+                }
             } else {
-                schema = null;
+                throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, version);
             }
 
             return new EntityMetadata(info, schema);

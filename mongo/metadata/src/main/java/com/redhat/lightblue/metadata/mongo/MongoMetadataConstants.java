@@ -7,6 +7,7 @@ public final class MongoMetadataConstants {
     public static final String ERR_DB_ERROR = "mongo-metadata:DatabaseError";
     public static final String ERR_MISSING_ENTITY_INFO = "mongo-metadata:MissingEntityInfo";
 
+    public static final String ERR_INACTIVE_VERSION = "mongo-metadata:InactiveVersion";
     public static final String ERR_INVALID_VERSION = "mongo-metadata:InvalidVersion";
     public static final String ERR_INVALID_VERSION_NUMBER = "mongo-metadata:InvalidVersionNumber";
     public static final String ERR_INVALID_DATASTORE = "mongo-metadata:InvalidDatastore";
