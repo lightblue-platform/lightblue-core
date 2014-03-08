@@ -164,6 +164,11 @@ public final class Error extends RuntimeException {
         return toJson().toString();
     }
 
+    @Override
+    public String getMessage() {
+        return this.toString();
+    }
+
     public static Error fromJson(JsonNode node) {
         if (node instanceof ObjectNode) {
             String e = null;

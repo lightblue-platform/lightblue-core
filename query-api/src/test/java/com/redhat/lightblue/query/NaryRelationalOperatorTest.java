@@ -52,4 +52,11 @@ public class NaryRelationalOperatorTest {
         Assert.assertNotNull(op);
         Assert.assertEquals(NaryRelationalOperator._not_in, op);
     }
+
+    @Test
+    public void fromStringNotValidOperator() {
+        NaryRelationalOperator op = NaryRelationalOperator.fromString("notValidOperatorTest");
+
+        Assert.assertNull(op);
+    }
 }

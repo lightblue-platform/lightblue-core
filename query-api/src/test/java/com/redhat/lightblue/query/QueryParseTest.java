@@ -1,5 +1,7 @@
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
 import java.math.BigInteger;
@@ -11,6 +13,9 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+import java.lang.reflect.Method;
 
 public class QueryParseTest {
 
@@ -80,15 +85,9 @@ public class QueryParseTest {
         testRegexQuery(regexQuery5, "x.y", "*pat*", false, false, false, true);
     }
 
-    private static final NestedTest u1NestedTest = new NestedTest() {
-        public void test(QueryExpression x) {
-            asserts((ValueComparisonExpression) x, "x.y.z", BinaryComparisonOperator._eq, "string");
-        }
-    };
-
     @Test
     public void testUnaries() throws Exception {
-        testUnaryQuery(unaryQuery1, u1NestedTest);
+        testUnaryQuery(unaryQuery1, factoryU1NestedTest());
         testUnaryQuery(unaryQuery2, new NestedTest() {
             @Override
             public void test(QueryExpression x) {
@@ -121,7 +120,7 @@ public class QueryParseTest {
             new NestedTest() {
                 @Override
                 public void test(QueryExpression x) {
-                    asserts((UnaryLogicalExpression) x, u1NestedTest);
+                    asserts((UnaryLogicalExpression) x, factoryU1NestedTest());
                 }
             }};
 
@@ -151,6 +150,100 @@ public class QueryParseTest {
                 asserts((RegexMatchExpression) x, "x.y", "*pat*", false, false, false, false);
             }
         });
+    }
+
+    /**
+     * Check the behavior of RegexMatchExpression in case of bad formated input.
+     * In this scenario, 'regex' is missing, expecting the system to raise a
+     * Error Exception
+     *
+     * PS1:RegexMatchExpression (and other classes that extends QueryExpression)
+     * hide their fromJson (shadowing), due it is static method and it can't
+     * override (so this can lead to a problem when someone expects to rely in
+     * the polymorphism using instance). But the shadowing methods use to change
+     * the return type and the method's parameter type as well. PS2:The Error
+     * exception is not reachable so far because the previous validations made
+     * in the chain of fromJson calls , maybe removed in a future.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRegexMatchExpressionFromJsonMethodExecptionField() throws Exception {
+        String withoutFieldString = "{\"missing\":\"x.y\",\"regex\":\"*pat*\",\"dotall\":true}";
+        abstractTestRegexMatchExpressionFromJsonMethodExecption(withoutFieldString);
+    }
+
+    /**
+     * Check the behavior of RegexMatchExpression in case of bad formated input.
+     * In this scenario, 'regex' is missing, expecting the system to raise a
+     * Error Exception
+     *
+     * PS1:RegexMatchExpression (and other classes that extends QueryExpression)
+     * hide their fromJson (shadowing), due it is static method and it can't
+     * override (so this can lead to a problem when someone expects to rely in
+     * the polymorphism using instance). But the shadowing methods use to change
+     * the return type and the method's parameter type as well. PS2:The Error
+     * exception is not reachable so far because the previous validations made
+     * in the chain of fromJson calls , maybe removed in a future.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRegexMatchExpressionFromJsonMethodExecptionRegex() throws Exception {
+        String withoutRegexString = "{\"field\":\"x.y\",\"missing\":\"*pat*\",\"dotall\":true}";
+        abstractTestRegexMatchExpressionFromJsonMethodExecption(withoutRegexString);
+    }
+
+    private void abstractTestRegexMatchExpressionFromJsonMethodExecption(String badInput) throws Exception {
+        ObjectNode node = (ObjectNode) JsonUtils.json(badInput);
+
+        /*
+         I would use the ExpectedException but due the 
+         com.fasterxml.jackson.databind.ObjectNode implementation, the json 
+         returned from toString() uses some differnt enconding characters 
+         which would make very difficult to maintain the test, so I will just 
+         check the contents of the Error instance.
+         Also the badInput need to be kind of trim()
+         */
+        try {
+            RegexMatchExpression query = RegexMatchExpression.fromJson(node);
+            Assert.assertNull("Invocation must throw an execption", query);
+        } catch (Error e) {
+            Assert.assertEquals("query-api:InvalidRegexExpression", e.getErrorCode());
+            Assert.assertEquals(badInput, e.getMsg());
+        }
+
+    }
+
+    @Test
+    public void testArrayContainsExpressionFromJsonMethodExecptionArray() throws Exception {
+        String str = "{\"missing\":\"x.y\",\"contains\":\"$invalid\",\"values\":[\"x\",\"y\"]}";
+        abstractTestArrayContainsExpressionFromJsonMethodExecption(str);
+    }
+
+    @Test
+    public void testArrayContainsExpressionFromJsonMethodExecptionContains() throws Exception {
+        String str = "{\"array\":\"x.y\",\"missing\":\"$invalid\",\"values\":[\"x\",\"y\"]}";
+        abstractTestArrayContainsExpressionFromJsonMethodExecption(str);
+    }
+
+    @Test
+    public void testArrayContainsExpressionFromJsonMethodExecptionValues() throws Exception {
+        String str = "{\"array\":\"x.y\",\"contains\":\"$invalid\",\"missing\":[\"x\",\"y\"]}";
+        abstractTestArrayContainsExpressionFromJsonMethodExecption(str);
+    }
+
+    private void abstractTestArrayContainsExpressionFromJsonMethodExecption(String badInput) throws Exception {
+        ObjectNode node = (ObjectNode) JsonUtils.json(badInput);
+
+        try {
+            ArrayContainsExpression query = ArrayContainsExpression.fromJson(node);
+            Assert.assertNull("Invocation must throw an execption", query);
+        } catch (Error e) {
+            Assert.assertEquals("query-api:InvalidArrayComparisonExpression", e.getErrorCode());
+            Assert.assertEquals(badInput, e.getMsg());
+        }
+
     }
 
     private void testValueComparisonExpression(String q,
@@ -291,5 +384,13 @@ public class QueryParseTest {
     private void asserts(ArrayMatchExpression x, String field, NestedTest t) {
         Assert.assertEquals(field, x.getArray().toString());
         t.test(x.getElemMatch());
+    }
+
+    private NestedTest factoryU1NestedTest() {
+        return new NestedTest() {
+            public void test(QueryExpression x) {
+                asserts((ValueComparisonExpression) x, "x.y.z", BinaryComparisonOperator._eq, "string");
+            }
+        };
     }
 }
