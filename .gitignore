@@ -27,3 +27,6 @@ mf.pom.xml
 bin
 bin/*
 *.bak
+util/nb-configuration.xml
+nb-configuration.xml
+metadata/nb-configuration.xml
