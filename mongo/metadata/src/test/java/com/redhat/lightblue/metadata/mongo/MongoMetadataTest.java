@@ -138,25 +138,25 @@ public class MongoMetadataTest {
         } catch(Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_INACTIVE_VERSION, ex.getErrorCode());
         }
+    }
 
-        //with non-existant default. need to add Inactive default test too
+    @Test
+    public void defaultVersionTest() throws Exception {
+
+        //with non-existant default.
         EntityMetadata eDefault = new EntityMetadata("testDefaultEntity");
         eDefault.setVersion(new Version("1.0", null, "some text blah blah"));
         eDefault.setStatus(MetadataStatus.DISABLED);
         eDefault.setDataStore(new MongoDataStore(null, null, "testCollection"));
         eDefault.getFields().put(new SimpleField("field1", StringType.TYPE));
         eDefault.getEntityInfo().setDefaultVersion("blah");
-        md.createNewMetadata(eDefault);
         try {
-            EntityMetadata g = md.getEntityMetadata("testDefaultEntity", "1.0");
-            Assert.fail("expected "+MongoMetadataConstants.ERR_INACTIVE_VERSION);
+            md.createNewMetadata(eDefault);
+            Assert.fail("expected "+MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
         } catch(Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_INACTIVE_VERSION, ex.getErrorCode());
+            Assert.assertEquals(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
         }
-    }
-
-    @Test
-    public void defaultVersionTest() throws Exception {
+        
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
