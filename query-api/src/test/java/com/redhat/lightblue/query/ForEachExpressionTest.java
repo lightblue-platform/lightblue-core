@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,7 +30,7 @@ import org.junit.Ignore;
  * @author lcestari
  */
 public class ForEachExpressionTest {
-    
+
     /**
      * Test of getField method, of class ForEachExpression.
      */
@@ -49,7 +48,8 @@ public class ForEachExpressionTest {
     @Test
     public void testGetQuery() {
         QueryExpression expResult = new QueryExpression() {
-            @Override public JsonNode toJson() {
+            @Override
+            public JsonNode toJson() {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
@@ -64,7 +64,8 @@ public class ForEachExpressionTest {
     @Test
     public void testGetUpdate() {
         UpdateExpression expResult = new UpdateExpression() {
-            @Override public JsonNode toJson() {
+            @Override
+            public JsonNode toJson() {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
@@ -96,8 +97,8 @@ public class ForEachExpressionTest {
         ForEachExpression result = ForEachExpression.fromJson(node);
         assertEquals(expResult, result);
     }
-    
-        @Test
+
+    @Test
     public void testHashCode() {
         assertEquals(new ForEachExpression(Path.EMPTY, null, null).hashCode(), new ForEachExpression(Path.EMPTY, null, null).hashCode());
     }
