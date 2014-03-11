@@ -9,6 +9,7 @@ public final class MongoMetadataConstants {
 
     public static final String ERR_INACTIVE_VERSION = "mongo-metadata:InactiveVersion";
     public static final String ERR_INVALID_VERSION = "mongo-metadata:InvalidVersion";
+    public static final String ERR_INVALID_DEFAULT_VERSION = "mongo-metadata:InvalidDefaultVersion";
     public static final String ERR_INVALID_VERSION_NUMBER = "mongo-metadata:InvalidVersionNumber";
     public static final String ERR_INVALID_DATASTORE = "mongo-metadata:InvalidDatastore";
     public static final String ERR_EMPTY_METADATA_NAME = "mongo-metadata:EmptyMetadataName";

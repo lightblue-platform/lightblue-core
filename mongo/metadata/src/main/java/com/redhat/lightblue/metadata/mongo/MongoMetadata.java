@@ -202,6 +202,15 @@ public class MongoMetadata implements Metadata {
 
         // write info and schema as separate docs!
         try {
+
+            if(md.getEntityInfo().getDefaultVersion()!=null && !md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
+                BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
+                DBObject es = collection.findOne(query);
+                if(es == null) {
+                    throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
+                }
+            }
+
             PredefinedFields.ensurePredefinedFields(md);
             DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
             DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
