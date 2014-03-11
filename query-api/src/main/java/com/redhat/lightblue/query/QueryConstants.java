@@ -5,7 +5,8 @@ public final class QueryConstants {
     public static final String ERR_INVALID_ARRAY_UPDATE_EXPRESSION = "query-api:InvalidArrayUpdateExpression";
     public static final String ERR_INVALID_ARRAY_COMPARISON_EXPRESSION = "query-api:InvalidArrayComparisonExpression";
     public static final String ERR_INVALID_PROJECTION = "query-api:InvalidProjection";
-    public static final String ERR_INVALID_ARRAY_RANGE_PROJECTION = "query-api:InvalidArrayRangeProjection";public static final String ERR_INVALID_COMPARISON_EXPRESSION = "query-api:InvalidComparisonExpression";
+    public static final String ERR_INVALID_ARRAY_RANGE_PROJECTION = "query-api:InvalidArrayRangeProjection";
+    public static final String ERR_INVALID_COMPARISON_EXPRESSION = "query-api:InvalidComparisonExpression";
     public static final String ERR_INVALID_LOGICAL_EXPRESSION = "query-api:InvalidLogicalExpression";
     public static final String ERR_INVALID_UPDATE_EXPRESSION = "query-api:InvalidUpdateExpression";
     public static final String ERR_INVALID_QUERY = "query-api:InvalidQuery";

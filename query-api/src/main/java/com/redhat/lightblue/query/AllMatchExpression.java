@@ -31,4 +31,15 @@ public class AllMatchExpression extends UpdateQueryExpression {
     public JsonNode toJson() {
         return getFactory().textNode("$all");
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.hashCode() == obj.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return "$all".hashCode();
+    }   
+    
 }

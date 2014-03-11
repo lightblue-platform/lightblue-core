@@ -26,6 +26,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.Collections;
 
 /**
  * Represents a list of partial update expressions
@@ -63,8 +64,10 @@ public class UpdateExpressionList extends UpdateExpression {
     @Override
     public JsonNode toJson() {
         ArrayNode node = getFactory().arrayNode();
-        for (PartialUpdateExpression x : list) {
-            node.add(x.toJson());
+        for (PartialUpdateExpression x : list != null ? list : Collections.<PartialUpdateExpression>emptyList()) {
+            if (x != null) {
+                node.add(x.toJson());
+            }
         }
         return node;
     }

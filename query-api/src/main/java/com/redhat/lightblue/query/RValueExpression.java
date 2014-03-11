@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.util.Path;
+import java.util.Objects;
 
 /**
  * Expression that can be on the right side of an assignment operator. It can be a value, a field reference, or an empty
@@ -140,4 +141,35 @@ public class RValueExpression extends JsonObject {
         }
         throw Error.get(QueryConstants.ERR_INVALID_RVALUE_EXPRESSION, node.toString());
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + Objects.hashCode(this.value);
+        hash = 79 * hash + Objects.hashCode(this.path);
+        hash = 79 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RValueExpression other = (RValueExpression) obj;
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        if (!Objects.equals(this.path, other.path)) {
+            return false;
+        }
+        if (this.type != other.type) {
+            return false;
+        }
+        return true;
+    }
+    
 }

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import java.util.Objects;
 
 /**
  * Array forEach expression
@@ -110,4 +111,35 @@ public class ForEachExpression extends ArrayUpdateExpression {
         }
         throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION, node.toString());
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.field);
+        hash = 97 * hash + Objects.hashCode(this.query);
+        hash = 97 * hash + Objects.hashCode(this.update);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ForEachExpression other = (ForEachExpression) obj;
+        if (!Objects.equals(this.field, other.field)) {
+            return false;
+        }
+        if (!Objects.equals(this.query, other.query)) {
+            return false;
+        }
+        if (!Objects.equals(this.update, other.update)) {
+            return false;
+        }
+        return true;
+    }
+    
 }

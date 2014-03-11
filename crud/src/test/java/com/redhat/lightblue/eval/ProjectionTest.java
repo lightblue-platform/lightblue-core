@@ -23,8 +23,6 @@ import org.junit.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonUtils;

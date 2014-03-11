@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import java.util.Objects;
 
 /**
  * Expression to modify a field (set and add)
@@ -121,4 +122,32 @@ public class SetExpression extends PrimitiveUpdateExpression {
         }
         throw Error.get(QueryConstants.ERR_INVALID_SET_EXPRESSION, node.toString());
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + Objects.hashCode(this.fields);
+        hash = 79 * hash + Objects.hashCode(this.op);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SetExpression other = (SetExpression) obj;
+        if (!Objects.equals(this.fields, other.fields)) {
+            return false;
+        }
+        if (this.op != other.op) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }
