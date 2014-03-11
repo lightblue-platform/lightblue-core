@@ -21,6 +21,7 @@ package com.redhat.lightblue.query;
 import java.io.Serializable;
 
 import com.redhat.lightblue.util.Path;
+import java.util.Objects;
 
 /**
  * Represents a field and rvalue
@@ -78,4 +79,32 @@ public class FieldAndRValue implements Serializable {
     public String toString() {
         return field + ":" + rvalue;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + Objects.hashCode(this.field);
+        hash = 67 * hash + Objects.hashCode(this.rvalue);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final FieldAndRValue other = (FieldAndRValue) obj;
+        if (!Objects.equals(this.field, other.field)) {
+            return false;
+        }
+        if (!Objects.equals(this.rvalue, other.rvalue)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

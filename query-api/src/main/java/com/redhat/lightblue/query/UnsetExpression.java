@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import java.util.Objects;
 
 /**
  * Expression to remove a field
@@ -89,4 +90,27 @@ public class UnsetExpression extends PrimitiveUpdateExpression {
         }
         throw Error.get(QueryConstants.ERR_INVALID_UNSET_EXPRESSION, node.toString());
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.fields);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final UnsetExpression other = (UnsetExpression) obj;
+        if (!Objects.equals(this.fields, other.fields)) {
+            return false;
+        }
+        return true;
+    }
+    
 }

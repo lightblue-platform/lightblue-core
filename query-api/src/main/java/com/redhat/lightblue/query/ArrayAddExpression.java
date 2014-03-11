@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import java.util.Objects;
 
 /**
  * Array append and insert operations
@@ -124,4 +125,36 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
         }
         throw Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION, node.toString());
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + Objects.hashCode(this.values);
+        hash = 89 * hash + Objects.hashCode(this.op);
+        hash = 89 * hash + Objects.hashCode(this.field);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ArrayAddExpression other = (ArrayAddExpression) obj;
+        if (!Objects.equals(this.values, other.values)) {
+            return false;
+        }
+        if (this.op != other.op) {
+            return false;
+        }
+        if (!Objects.equals(this.field, other.field)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

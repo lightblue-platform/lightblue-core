@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+import java.util.Objects;
 
 /**
  * Wrapper for primitive values in queries. Provides the basics to convert a primitive value to/from json. during query
@@ -106,4 +107,27 @@ public class Value extends JsonObject {
             throw Error.get(QueryConstants.ERR_INVALID_VALUE, node.toString());
         }
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.value);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Value other = (Value) obj;
+        if (!Objects.equals(this.value, other.value)) {
+            return false;
+        }
+        return true;
+    }
+    
 }
