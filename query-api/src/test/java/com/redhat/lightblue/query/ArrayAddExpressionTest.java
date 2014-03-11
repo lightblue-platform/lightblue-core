@@ -16,12 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -31,22 +33,16 @@ import static org.junit.Assert.*;
  * @author lcestari
  */
 public class ArrayAddExpressionTest {
-    
-    public ArrayAddExpressionTest() {
-    }
 
     /**
      * Test of getField method, of class ArrayAddExpression.
      */
     @Test
     public void testGetField() {
-        System.out.println("getField");
-        ArrayAddExpression instance = null;
-        Path expResult = null;
+        ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null);
+        Path expResult = Path.EMPTY;
         Path result = instance.getField();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -54,13 +50,11 @@ public class ArrayAddExpressionTest {
      */
     @Test
     public void testGetValues() {
-        System.out.println("getValues");
-        ArrayAddExpression instance = null;
-        List<RValueExpression> expResult = null;
+        List<RValueExpression> expResult = new ArrayList<RValueExpression>();
+        ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, expResult);
+        expResult.add(new RValueExpression(Path.EMPTY));
         List<RValueExpression> result = instance.getValues();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -68,41 +62,36 @@ public class ArrayAddExpressionTest {
      */
     @Test
     public void testGetOp() {
-        System.out.println("getOp");
-        ArrayAddExpression instance = null;
-        UpdateOperator expResult = null;
+        ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null);
+        UpdateOperator expResult = UpdateOperator._set;
         UpdateOperator result = instance.getOp();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of toJson method, of class ArrayAddExpression.
      */
     @Test
-    public void testToJson() {
-        System.out.println("toJson");
-        ArrayAddExpression instance = null;
-        JsonNode expResult = null;
+    public void testToJson() throws IOException {
+        List<RValueExpression> l = new ArrayList<RValueExpression>();
+        ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, l);
+        l.add(new RValueExpression(Path.EMPTY));
+        JsonNode expResult = JsonUtils.json("{\"$set\":{\"\":{\"$valueof\":\"\"}}}");
         JsonNode result = instance.toJson();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of fromJson method, of class ArrayAddExpression.
      */
     @Test
-    public void testFromJson() {
-        System.out.println("fromJson");
-        ObjectNode node = null;
-        ArrayAddExpression expResult = null;
+    public void testFromJson() throws IOException {
+        ObjectNode node = (ObjectNode) JsonUtils.json("{\"$append\":{\"\":{\"$valueof\":\"\"}}}");
+        List<RValueExpression> l = new ArrayList<RValueExpression>();
+        ArrayAddExpression expResult = new ArrayAddExpression(Path.EMPTY, UpdateOperator._append, l);
+        l.add(new RValueExpression(Path.EMPTY));
         ArrayAddExpression result = ArrayAddExpression.fromJson(node);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -110,28 +99,21 @@ public class ArrayAddExpressionTest {
      */
     @Test
     public void testHashCode() {
-        System.out.println("hashCode");
-        ArrayAddExpression instance = null;
-        int expResult = 0;
-        int result = instance.hashCode();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null).hashCode(), new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null).hashCode());
     }
 
     /**
      * Test of equals method, of class ArrayAddExpression.
      */
     @Test
-    public void testEquals() {
-        System.out.println("equals");
-        Object obj = null;
-        ArrayAddExpression instance = null;
-        boolean expResult = false;
-        boolean result = instance.equals(obj);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testEquals() throws IOException {
+        assertEquals(new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null), new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null));
+        ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, null);
+        assertFalse(instance.equals(null));
+        assertFalse(instance.equals(""));
+        assertFalse(instance.equals(ArrayAddExpression.fromJson((ObjectNode) JsonUtils.json("{\"$append\":{\"\":{\"$valueof\":\"\"}}}"))));
+        assertFalse(instance.equals(new ArrayAddExpression(Path.EMPTY, UpdateOperator._add, null)));
+        assertFalse(instance.equals(new ArrayAddExpression(Path.ANYPATH, UpdateOperator._set, null)));
     }
-    
+
 }

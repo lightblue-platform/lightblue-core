@@ -30,7 +30,6 @@ import org.junit.Ignore;
  *
  * @author lcestari
  */
-@Ignore
 public class ForEachExpressionTest {
     
     /**
@@ -38,13 +37,10 @@ public class ForEachExpressionTest {
      */
     @Test
     public void testGetField() {
-        System.out.println("getField");
-        ForEachExpression instance = null;
-        Path expResult = null;
+        ForEachExpression instance = new ForEachExpression(Path.EMPTY, null, null);
+        Path expResult = Path.EMPTY;
         Path result = instance.getField();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -52,13 +48,14 @@ public class ForEachExpressionTest {
      */
     @Test
     public void testGetQuery() {
-        System.out.println("getQuery");
-        ForEachExpression instance = null;
-        QueryExpression expResult = null;
+        QueryExpression expResult = new QueryExpression() {
+            @Override public JsonNode toJson() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        ForEachExpression instance = new ForEachExpression(Path.EMPTY, expResult, null);
         QueryExpression result = instance.getQuery();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -66,41 +63,51 @@ public class ForEachExpressionTest {
      */
     @Test
     public void testGetUpdate() {
-        System.out.println("getUpdate");
-        ForEachExpression instance = null;
-        UpdateExpression expResult = null;
+        UpdateExpression expResult = new UpdateExpression() {
+            @Override public JsonNode toJson() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        ForEachExpression instance = new ForEachExpression(Path.EMPTY, null, expResult);
         UpdateExpression result = instance.getUpdate();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of toJson method, of class ForEachExpression.
      */
     @Test
+    @Ignore
     public void testToJson() {
-        System.out.println("toJson");
         ForEachExpression instance = null;
         JsonNode expResult = null;
         JsonNode result = instance.toJson();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
      * Test of fromJson method, of class ForEachExpression.
      */
     @Test
+    @Ignore
     public void testFromJson() {
-        System.out.println("fromJson");
         ObjectNode node = null;
         ForEachExpression expResult = null;
         ForEachExpression result = ForEachExpression.fromJson(node);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
     
+        @Test
+    public void testHashCode() {
+        assertEquals(new ForEachExpression(Path.EMPTY, null, null).hashCode(), new ForEachExpression(Path.EMPTY, null, null).hashCode());
+    }
+
+    @Test
+    public void testEquals() {
+        assertEquals(new ForEachExpression(Path.EMPTY, null, null), new ForEachExpression(Path.EMPTY, null, null));
+        ForEachExpression instance = new ForEachExpression(Path.EMPTY, null, null);
+        assertFalse(instance.equals(null));
+        assertFalse(instance.equals(""));
+        assertFalse(instance.equals(new ForEachExpression(Path.ANYPATH, null, null)));
+    }
 }
