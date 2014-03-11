@@ -29,7 +29,7 @@ import com.redhat.lightblue.crud.DocCtx;
  * A hook is called once after an operation is completed,
  * with the list of documents that were processed during the operation
  */
-public interface Hook {
+public interface CRUDHook {
     /**
      * Return the hook name
      */

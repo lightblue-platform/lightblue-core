@@ -86,6 +86,7 @@ public class BasicDocSaver implements DocSaver {
             if (oldDBObject != null) {
                 if (md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                     JsonDoc oldDoc = translator.toJson(oldDBObject);
+                    inputDoc.setOriginalDocument(oldDoc);
                     List<Path> paths = roleEval.getInaccessibleFields_Update(inputDoc, oldDoc);
                     if (paths == null || paths.isEmpty()) {
                         result = collection.update(q, dbObject, upsert, false, WriteConcern.SAFE);

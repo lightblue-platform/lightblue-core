@@ -34,25 +34,22 @@ public interface DocFinder {
     /**
      * finds documents
      *
-     * @param ctx The operastion context
+     * @param ctx The operastion context. The found documents are stored in the context.
      * @param coll The collection on which the find operation will be performed
-     * @param response The find response, to set the result set size information
      * @param mongoQuery The MongoDB query
      * @param mongoSort Optional sort
      * @param from Optionsl from index, starting from 0
      * @param to Optionsl to index, starting from 0
      *
      * The find implementation should search for documents in the given collection using the search criteria. If a sort
-     * is given, the results should be sorted, and optionally, a subset of the result set should be returned. The
-     * implementation should update the result set size numbers in the response.
+     * is given, the results should be sorted, and optionally, a subset of the result set should be returned. 
      *
-     * @return List of objects found
+     * @return Total size of objects in the result set
      */
-    List<DBObject> find(CRUDOperationContext ctx,
-                        DBCollection coll,
-                        CRUDFindResponse response,
-                        DBObject mongoQuery,
-                        DBObject mongoSort,
-                        Long from,
-                        Long to);
+    long find(CRUDOperationContext ctx,
+              DBCollection coll,
+              DBObject mongoQuery,
+              DBObject mongoSort,
+              Long from,
+              Long to);
 }

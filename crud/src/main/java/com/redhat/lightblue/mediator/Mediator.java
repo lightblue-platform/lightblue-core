@@ -19,6 +19,7 @@
 package com.redhat.lightblue.mediator;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -288,6 +289,7 @@ public class Mediator {
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
+                LOGGER.debug("No access");
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
             } else {
                 CRUDController controller = factory.getCRUDController(md);
@@ -300,13 +302,21 @@ public class Mediator {
                         req.getTo());
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
-                response.setEntityData(JsonDoc.listToDoc(result.getResults(), NODE_FACTORY));
+                List<DocCtx> documents=ctx.getDocuments();
+                if(documents!=null) {
+                    List<JsonDoc> resultList=new ArrayList<>(documents.size());
+                    for(DocCtx doc:documents)
+                        resultList.add(doc.getOutputDocument());
+                    response.setEntityData(JsonDoc.listToDoc(resultList, NODE_FACTORY));
+                }
             }
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
         } catch (Error e) {
+            LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
+            LOGGER.debug("Exception during find:{}",e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
         } finally {
             Error.pop();

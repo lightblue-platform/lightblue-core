@@ -157,6 +157,9 @@ public class MongoCRUDController implements CRUDController {
         if (documents == null || documents.isEmpty()) {
             return ret;
         }
+        for(DocCtx doc:documents) {
+            doc.setOriginalDocument(doc);
+        }
         LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
         Translator translator = new Translator(ctx, nodeFactory);
@@ -279,15 +282,11 @@ public class MongoCRUDController implements CRUDController {
                 // the mongo updaters
                 DocUpdater docUpdater;
                 if (mongoUpdateExpr != null && !constrainedFieldUpdated) {
-                    if (projector == null) {
-                        docUpdater = new DirectMongoUpdate(mongoUpdateExpr, roleEval, updatedFields);
-                    } else {
-                        docUpdater = new AtomicIterateUpdate(nodeFactory, roleEval, translator,
-                                mongoUpdateExpr, projector, updatedFields);
-                    }
+                    docUpdater = new AtomicIterateUpdate(nodeFactory, roleEval, translator,
+                                                         mongoUpdateExpr, projector, updatedFields);
                 } else {
                     docUpdater = new IterateAndUpdate(nodeFactory, validator, roleEval, translator, updater,
-                            projector, errorProjector);
+                                                      projector, errorProjector);
                 }
                 ctx.setProperty(PROP_UPDATER, docUpdater);
                 docUpdater.update(ctx, coll, md, response, mongoQuery);
@@ -319,7 +318,7 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Translated query {}", mongoQuery);
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
-                DocDeleter deleter = new BasicDocDeleter();
+                DocDeleter deleter = new IterateDeleter(translator);
                 ctx.setProperty(PROP_DELETER, deleter);
                 deleter.delete(ctx, coll, mongoQuery, response);
             } else {
@@ -372,27 +371,23 @@ public class MongoCRUDController implements CRUDController {
                 DB db = dbResolver.get((MongoDataStore) md.getDataStore());
                 DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
                 LOGGER.debug("Retrieve db collection:" + coll);
-                DocFinder finder = new BasicDocFinder();
+                DocFinder finder = new BasicDocFinder(translator);
                 ctx.setProperty(PROP_FINDER, finder);
-                List<DBObject> mongoResults = finder.find(ctx, coll, response, mongoQuery, mongoSort, from, to);
-                List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
-                LOGGER.debug("Translated DBObjects to json");
+                response.setSize(finder.find(ctx, coll, mongoQuery, mongoSort, from, to));
                 // Project results
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
-                List<JsonDoc> results = new ArrayList<JsonDoc>(jsonDocs.size());
-                for (JsonDoc document : jsonDocs) {
+                for (DocCtx document : ctx.getDocuments()) {
                     QueryEvaluationContext qctx = qeval.evaluate(document);
-                    results.add(projector.project(document, nodeFactory, qctx));
+                    document.setOutputDocument(projector.project(document, nodeFactory, qctx));
                 }
-                response.setResults(results);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "find:" + ctx.getEntityName()));
             }
         } finally {
             Error.pop();
         }
-        LOGGER.debug("find end: query: {} results: {}", response.getResults().size());
+        LOGGER.debug("find end: query: {} results: {}", response.getSize());
         return response;
     }
 

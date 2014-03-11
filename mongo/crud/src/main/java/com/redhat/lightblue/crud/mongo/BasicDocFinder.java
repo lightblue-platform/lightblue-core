@@ -29,6 +29,10 @@ import com.mongodb.DBCursor;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.DocCtx;
+
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  * Basic doc search operation
@@ -37,14 +41,19 @@ public class BasicDocFinder implements DocFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicDocFinder.class);
 
+    private final Translator translator;
+
+    public BasicDocFinder(Translator translator) {
+        this.translator=translator;
+    }
+    
     @Override
-    public List<DBObject> find(CRUDOperationContext ctx,
-                               DBCollection coll,
-                               CRUDFindResponse response,
-                               DBObject mongoQuery,
-                               DBObject mongoSort,
-                               Long from,
-                               Long to) {
+    public long find(CRUDOperationContext ctx,
+                     DBCollection coll,
+                     DBObject mongoQuery,
+                     DBObject mongoSort,
+                     Long from,
+                     Long to) {
         LOGGER.debug("Submitting query");
         DBCursor cursor = coll.find(mongoQuery);
         LOGGER.debug("Query evaluated");
@@ -53,7 +62,7 @@ public class BasicDocFinder implements DocFinder {
             LOGGER.debug("Result set sorted");
         }
         LOGGER.debug("Applying limits: {} - {}", from, to);
-        response.setSize(cursor.size());
+        long ret=cursor.size();
         if (from != null) {
             cursor.skip(from.intValue());
         }
@@ -63,6 +72,11 @@ public class BasicDocFinder implements DocFinder {
         LOGGER.debug("Retrieving results");
         List<DBObject> mongoResults = cursor.toArray();
         LOGGER.debug("Retrieved {} results", mongoResults.size());
-        return mongoResults;
+        List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
+        ctx.addDocuments(jsonDocs);
+        for(DocCtx doc:ctx.getDocuments())
+            doc.setOperationPerformed(Operation.FIND);
+        LOGGER.debug("Translated DBObjects to json");
+        return ret;
     }
 }

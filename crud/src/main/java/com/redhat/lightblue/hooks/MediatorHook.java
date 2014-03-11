@@ -24,6 +24,6 @@ package com.redhat.lightblue.hooks;
  * entities, these hooks are called only for top-level entities,
  * instead of each contained entity.
  */
-public interface MediatorHook extends Hook {
+public interface MediatorHook extends CRUDHook {
 
 }

@@ -25,5 +25,5 @@ public interface HookResolver {
     /**
      * Returns an instance of the hook with the given name
      */
-    Hook getHook(String name);
+    CRUDHook getHook(String name);
 }

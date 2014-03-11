@@ -26,7 +26,7 @@ import com.redhat.lightblue.util.Resolver;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.hooks.HookResolver;
-import com.redhat.lightblue.hooks.Hook;
+import com.redhat.lightblue.hooks.CRUDHook;
 
 /**
  * Factory class should be configured on initialization with all the validators and hooks from all the subsystems, and
@@ -131,7 +131,7 @@ public class Factory implements Serializable {
     /**
      * Returns the hook with the given name. Returns null if hook doesn't exist
      */
-    public Hook getHook(String hookName) {
+    public CRUDHook getHook(String hookName) {
         return hookResolver.getHook(hookName);
     }
 }

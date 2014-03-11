@@ -19,6 +19,8 @@ public final class CrudConstants {
     public static final String ERR_INVALID_DEREFERENCE = "crud:InvalidDeference";
     public static final String ERR_INVALID_ASSIGNMENT = "crud:InvalidAssignment";
 
+    public static final String ERR_INVALID_HOOK = "crud:InvalidHook";
+
     public static final String ERR_INCOMPATIBLE_DEREFERENCE = "crud:IncompatibleDereference";
     public static final String ERR_INCOMPATIBLE_ASSIGNMENT = "crud:IncompatibleAssignment";
 

@@ -43,6 +43,7 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
@@ -215,8 +216,11 @@ public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
         System.out.println("Write doc:" + doc);
         CRUDInsertionResponse response = controller.insert(ctx, projection);
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        JsonDoc readDoc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
-                projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
+        ctx=new OCtx(Operation.FIND);
+        ctx.add(md);
+        controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                        projection("{'field':'*','recursive':1}"), null, null, null);
+        JsonDoc readDoc=ctx.getDocuments().get(0);
         // Change some fields
         System.out.println("Read doc:" + readDoc);
         readDoc.modify(new Path("field1"), nodeFactory.textNode("updated"), false);
@@ -229,9 +233,12 @@ public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
         ctx.addDocument(readDoc);
         CRUDSaveResponse saveResponse = controller.save(ctx, false, projection);
 
+        ctx=new OCtx(Operation.FIND);
+        ctx.add(md);
         // Read it back
-        JsonDoc r2doc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
-                projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
+        controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                        projection("{'field':'*','recursive':1}"), null, null, null);
+        JsonDoc r2doc = ctx.getDocuments().get(0); 
         Assert.assertEquals(readDoc.get(new Path("field1")).asText(), r2doc.get(new Path("field1")).asText());
         Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(), r2doc.get(new Path("field7.0.elemf1")).asText());
         Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), saveResponse.getNumSaved());
@@ -248,8 +255,11 @@ public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
         System.out.println("Write doc:" + doc);
         CRUDInsertionResponse response = controller.insert(ctx, projection("{'field':'_id'}"));
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        JsonDoc readDoc = controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
-                projection("{'field':'*','recursive':1}"), null, null, null).getResults().get(0);
+        ctx=new OCtx(Operation.FIND);
+        ctx.add(md);
+        controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                        projection("{'field':'*','recursive':1}"), null, null, null);
+        JsonDoc readDoc = ctx.getDocuments().get(0);
         // Remove id, to force re-insert
         readDoc.modify(new Path("_id"), null, false);
         Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
@@ -322,7 +332,7 @@ public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
         ctx.add(md);
         upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
                 update("{ '$set': { 'field3' : 1000 } }"), null);
-        Assert.assertEquals(DirectMongoUpdate.class, ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
+        Assert.assertEquals(AtomicIterateUpdate.class, ctx.getProperty(MongoCRUDController.PROP_UPDATER).getClass());
         Assert.assertEquals(10, upd.getNumUpdated());
         Assert.assertEquals(0, upd.getNumFailed());
         Assert.assertEquals(10, coll.find(new BasicDBObject("field3", new BasicDBObject("$gt", 10))).count());
@@ -362,10 +372,10 @@ public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
         CRUDFindResponse response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
                 projection("{'field':'*','recursive':1}"),
                 sort("{'field3':'$desc'}"), null, null);
-        Assert.assertEquals(numDocs, response.getResults().size());
+        Assert.assertEquals(numDocs, ctx.getDocuments().size());
         int lastValue = -1;
-        for (JsonDoc doc : response.getResults()) {
-            int value = doc.get(new Path("field3")).asInt();
+        for (DocCtx doc : ctx.getDocuments()) {
+            int value = doc.getOutputDocument().get(new Path("field3")).asInt();
             if (value < lastValue) {
                 Assert.fail("wrong order");
             }
@@ -379,8 +389,8 @@ public class MongoCRUDControllerTest extends AbstractJsonSchemaTest {
                     sort("{'field3':'$asc'}"), new Long(k), new Long(k + 5));
 
             int i = 0;
-            for (JsonDoc doc : response.getResults()) {
-                int value = doc.get(new Path("field3")).asInt();
+            for (DocCtx doc : ctx.getDocuments()) {
+                int value = doc.getOutputDocument().get(new Path("field3")).asInt();
                 Assert.assertEquals(i + k, value);
                 i++;
             }

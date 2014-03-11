@@ -152,6 +152,13 @@ public class EntityMetadata implements Serializable {
     }
 
     /**
+     * Returns hooks
+     */
+    public Hooks getHooks() {
+        return info.getHooks();
+    }
+
+    /**
      * Gets the value of fields
      *
      * @return the value of fields
