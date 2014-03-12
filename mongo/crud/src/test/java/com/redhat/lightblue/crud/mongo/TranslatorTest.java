@@ -27,7 +27,6 @@ import com.redhat.lightblue.query.UpdateExpression;
 import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -53,6 +52,15 @@ public class TranslatorTest extends AbstractMongoTest {
     @Test
     public void translateUpdateSetField() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-set-field.json");
+        UpdateExpression ue = update(updateQueryJson);
+        DBObject mongoUpdateExpr = translator.translate(md, ue);
+
+        Assert.assertNotNull(mongoUpdateExpr);
+    }
+
+    @Test
+    public void translateUpdateAddField() throws Exception {
+        String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-add-field.json");
         UpdateExpression ue = update(updateQueryJson);
         DBObject mongoUpdateExpr = translator.translate(md, ue);
 
@@ -146,8 +154,23 @@ public class TranslatorTest extends AbstractMongoTest {
     }
 
     @Test
-    @Ignore
     public void translateUpdateForeachSimple() throws Exception {
-        // just skip for now
+        String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-foreach-simple.json");
+        UpdateExpression ue = update(updateQueryJson);
+        try {
+            DBObject mongoUpdateExpr = translator.translate(md, ue);
+            Assert.fail("Expected CannotTranslateException");
+        } catch (CannotTranslateException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void translateUpdateListSetField() throws Exception {
+        String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-list-set-field.json");
+        UpdateExpression ue = update(updateQueryJson);
+        DBObject mongoUpdateExpr = translator.translate(md, ue);
+
+        Assert.assertNotNull(mongoUpdateExpr);
     }
 }

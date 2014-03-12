@@ -1,0 +1,7 @@
+{
+    "$add": {
+        "field3": {
+            "valueof": "field6.nf3"
+        }
+    }
+}

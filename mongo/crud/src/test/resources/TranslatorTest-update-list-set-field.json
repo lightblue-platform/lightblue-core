@@ -1,0 +1,11 @@
+[
+    {
+        "$set": {
+            "field2": "new value"
+        }
+    },
+    {
+        "$unset": "field1"
+    }
+
+]

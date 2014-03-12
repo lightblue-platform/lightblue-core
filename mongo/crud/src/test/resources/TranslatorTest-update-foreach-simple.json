@@ -1,0 +1,6 @@
+{
+    "$foreach": {
+        "path": "$all",
+        "$update": "$remove"
+    }
+}
