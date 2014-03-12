@@ -19,7 +19,6 @@
 package com.redhat.lightblue.crud.mongo;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -157,7 +156,7 @@ public class MongoCRUDController implements CRUDController {
         if (documents == null || documents.isEmpty()) {
             return ret;
         }
-        for(DocCtx doc:documents) {
+        for (DocCtx doc : documents) {
             doc.setOriginalDocument(doc);
         }
         LOGGER.debug("saveOrInsert() start");
@@ -283,10 +282,10 @@ public class MongoCRUDController implements CRUDController {
                 DocUpdater docUpdater;
                 if (mongoUpdateExpr != null && !constrainedFieldUpdated) {
                     docUpdater = new AtomicIterateUpdate(nodeFactory, roleEval, translator,
-                                                         mongoUpdateExpr, projector, updatedFields);
+                            mongoUpdateExpr, projector, updatedFields);
                 } else {
                     docUpdater = new IterateAndUpdate(nodeFactory, validator, roleEval, translator, updater,
-                                                      projector, errorProjector);
+                            projector, errorProjector);
                 }
                 ctx.setProperty(PROP_UPDATER, docUpdater);
                 docUpdater.update(ctx, coll, md, response, mongoQuery);

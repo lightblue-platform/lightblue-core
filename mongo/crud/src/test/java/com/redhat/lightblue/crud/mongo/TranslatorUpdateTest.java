@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.Assert;
 import org.junit.Before;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -54,6 +53,7 @@ public class TranslatorUpdateTest extends AbstractJsonSchemaTest {
     @Before
     public void init() throws Exception {
         translator = new Translator(new MetadataResolver() {
+            @Override
             public EntityMetadata getEntityMetadata(String entityName) {
                 try {
                     return getMd("./testMetadata.json");

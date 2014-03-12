@@ -28,7 +28,6 @@ import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.DocCtx;
 

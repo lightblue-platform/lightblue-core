@@ -132,7 +132,6 @@ public class Translator {
         NARY_RELATIONAL_OPERATOR_MAP = new HashMap<NaryRelationalOperator, String>();
         NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._in, "$in");
         NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._not_in, "$nin");
-
     }
 
     /**
