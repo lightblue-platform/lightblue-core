@@ -52,16 +52,15 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     }
 
     @Test
-    public void findBasic() throws IOException, ProcessingException {
-        String id = "findBasic1";
-        insert("{_id:'%s',object_type:'test'}", id);
+    public void findAll() throws IOException, ProcessingException {
+        String id = "findBasic";
+        insert("{_id:'%s',object_type:'test'}", id + "1");
+        insert("{_id:'%s',object_type:'test'}", id + "2");
+        insert("{_id:'%s',object_type:'test'}", id + "3");
 
-        Assert.assertEquals("count on collection", 1, coll.find(null).count());
+        Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
         BasicDocFinder finder = new BasicDocFinder(translator);
-
-        DBObject mongoQuery = new BasicDBObject();
-        mongoQuery.put("_id", id);
 
         long count = finder.find(
                 // CRUDOperationContext
@@ -69,7 +68,7 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 //DBCollection
                 coll,
                 // DBObject (query)
-                mongoQuery,
+                null,
                 // DBObject (sort)
                 null,
                 // Long (from)
@@ -77,7 +76,8 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 // Long (to)
                 null);
 
-        Assert.assertEquals("find count", 1, count);
+        Assert.assertEquals("find count", 3, count);
+        Assert.assertEquals(3, ctx.getDocumentsWithoutErrors().size());
     }
 
     @Test
@@ -109,6 +109,7 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 null);
 
         Assert.assertEquals("find count", 1, count);
+        Assert.assertEquals(1, ctx.getDocumentsWithoutErrors().size());
     }
 
     @Test
@@ -136,7 +137,8 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 // Long (to)
                 1l);
 
-        Assert.assertEquals("find count", 2, count);
+        Assert.assertEquals("find count", 3, count);
+        Assert.assertEquals(2, ctx.getDocumentsWithoutErrors().size());
     }
 
     @Test
@@ -168,6 +170,7 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 null);
 
         Assert.assertEquals("find count", 3, count);
+        Assert.assertEquals(3, ctx.getDocumentsWithoutErrors().size());
 
         // verify order
         Assert.assertEquals(id + "3", ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText());
@@ -203,7 +206,8 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 // Long (to)
                 1l);
 
-        Assert.assertEquals("find count", 2, count);
+        Assert.assertEquals("find count", 3, count);
+        Assert.assertEquals(2, ctx.getDocumentsWithoutErrors().size());
 
         // verify order
         Assert.assertEquals(id + "3", ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText());
@@ -235,7 +239,8 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 // Long (to)
                 null);
 
-        Assert.assertEquals("find count", 2, count);
+        Assert.assertEquals("find count", 3, count);
+        Assert.assertEquals(2, ctx.getDocumentsWithoutErrors().size());
 
         // verify data
         Assert.assertEquals(id + "2", ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText());
@@ -270,7 +275,8 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 // Long (to)
                 null);
 
-        Assert.assertEquals("find count", 2, count);
+        Assert.assertEquals("find count", 3, count);
+        Assert.assertEquals(2, ctx.getDocumentsWithoutErrors().size());
 
         // verify order
         Assert.assertEquals(id + "2", ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText());
@@ -306,7 +312,8 @@ public class BasicDocFinderTest extends AbstractMongoTest {
                 // Long (to)
                 2l);
 
-        Assert.assertEquals("find count", 2, count);
+        Assert.assertEquals("find count", 4, count);
+        Assert.assertEquals(2, ctx.getDocumentsWithoutErrors().size());
 
         // verify order
         Assert.assertEquals(id + "2", ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText());

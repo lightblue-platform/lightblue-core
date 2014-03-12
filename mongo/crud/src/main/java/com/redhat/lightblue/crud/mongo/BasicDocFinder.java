@@ -60,6 +60,7 @@ public class BasicDocFinder implements DocFinder {
             cursor = cursor.sort(mongoSort);
             LOGGER.debug("Result set sorted");
         }
+        long ret=cursor.size();
         LOGGER.debug("Applying limits: {} - {}", from, to);
         if (from != null) {
             cursor.skip(from.intValue());
@@ -67,7 +68,6 @@ public class BasicDocFinder implements DocFinder {
         if (to != null) {
             cursor.limit(to.intValue() - (from == null ? 0 : from.intValue()) + 1);
         }
-        long ret=cursor.size();
         LOGGER.debug("Retrieving results");
         List<DBObject> mongoResults = cursor.toArray();
         LOGGER.debug("Retrieved {} results", mongoResults.size());
