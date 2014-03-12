@@ -19,4 +19,3 @@ The license of lightblue is [GPLv3](https://www.gnu.org/licenses/gpl.html).  See
 | [json-schema-validator](https://github.com/fge/json-schema-validator) | Validation of JSON documents against a JSON schema.  Similar to XML Schema validation. | [LGPLv3 or later](https://www.gnu.org/licenses/lgpl.html)
 | [Flapdoodle Embedded MongoDB](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo) | In memory MongoDB used in unit tests to test against a real database. | [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 | [mongo-java-driver](https://github.com/mongodb/mongo-java-driver) | MongoDB driver for Java.  Used for all interactions with MongoDB from Java. | [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
