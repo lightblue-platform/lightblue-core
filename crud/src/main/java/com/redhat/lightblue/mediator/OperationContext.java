@@ -60,7 +60,7 @@ public final class OperationContext extends CRUDOperationContext {
                              Set<String> roles,
                              List<JsonDoc> docs,
                              Operation operation) {
-        super(operation,request.getEntityVersion().getEntity(), factory, roles, docs);
+        super(operation, request.getEntityVersion().getEntity(), factory, roles, docs);
         this.request = request;
         this.metadata = metadata;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());

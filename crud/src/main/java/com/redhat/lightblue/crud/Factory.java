@@ -118,7 +118,7 @@ public class Factory implements Serializable {
      * Sets the hook resolver
      */
     public void setHookResolver(HookResolver h) {
-        hookResolver=h;
+        hookResolver = h;
     }
 
     /**

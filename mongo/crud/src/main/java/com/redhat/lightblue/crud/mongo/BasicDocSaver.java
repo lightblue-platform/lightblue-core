@@ -135,7 +135,7 @@ public class BasicDocSaver implements DocSaver {
             LOGGER.debug("Inaccessible fields:{}", paths);
             if (paths == null || paths.isEmpty()) {
                 try {
-                    WriteResult r=collection.insert(dbObject, WriteConcern.SAFE);
+                    WriteResult r = collection.insert(dbObject, WriteConcern.SAFE);
                     inputDoc.setOperationPerformed(Operation.INSERT);
                     return r;
                 } catch (MongoException.DuplicateKey dke) {

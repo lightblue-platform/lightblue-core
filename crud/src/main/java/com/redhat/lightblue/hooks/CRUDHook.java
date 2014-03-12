@@ -26,8 +26,8 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 
 /**
- * A hook is called once after an operation is completed,
- * with the list of documents that were processed during the operation
+ * A hook is called once after an operation is completed, with the list of documents that were processed during the
+ * operation
  */
 public interface CRUDHook {
     /**
@@ -38,15 +38,14 @@ public interface CRUDHook {
     /**
      * Process the hook
      *
-     * @param ctx The operation context. This contains the operation
-     * performed on the entity, and the complete list of documents
+     * @param ctx The operation context. This contains the operation performed on the entity, and the complete list of
+     * documents
      * @param cfg The hook configuration as specified in the metadata
-     * @param processedDocuments Contains the list of documents that
-     * are operated on. If the hook specifies a projection in
-     * metadata, the input and output documents are projected.
+     * @param processedDocuments Contains the list of documents that are operated on. If the hook specifies a projection
+     * in metadata, the input and output documents are projected.
      */
     void processHook(CRUDOperationContext ctx,
                      HookConfiguration cfg,
                      List<DocCtx> processedDocuments);
-                     
+
 }

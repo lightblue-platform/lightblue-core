@@ -302,11 +302,12 @@ public class Mediator {
                         req.getTo());
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
-                List<DocCtx> documents=ctx.getDocuments();
-                if(documents!=null) {
-                    List<JsonDoc> resultList=new ArrayList<>(documents.size());
-                    for(DocCtx doc:documents)
+                List<DocCtx> documents = ctx.getDocuments();
+                if (documents != null) {
+                    List<JsonDoc> resultList = new ArrayList<>(documents.size());
+                    for (DocCtx doc : documents) {
                         resultList.add(doc.getOutputDocument());
+                    }
                     response.setEntityData(JsonDoc.listToDoc(resultList, NODE_FACTORY));
                 }
             }
@@ -316,7 +317,7 @@ public class Mediator {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);
         } catch (Exception e) {
-            LOGGER.debug("Exception during find:{}",e);
+            LOGGER.debug("Exception during find:{}", e);
             response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
         } finally {
             Error.pop();

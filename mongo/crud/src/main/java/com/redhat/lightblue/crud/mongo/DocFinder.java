@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
-
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -40,7 +39,7 @@ public interface DocFinder {
      * @param to Optional to index, starting from 0
      *
      * The find implementation should search for documents in the given collection using the search criteria. If a sort
-     * is given, the results should be sorted, and optionally, a subset of the result set should be returned. 
+     * is given, the results should be sorted, and optionally, a subset of the result set should be returned.
      *
      * @return Total number of objects found with given query before applying from and to conditions
      */

@@ -43,7 +43,7 @@ public class IterateDeleter implements DocDeleter {
     private final Translator translator;
 
     public IterateDeleter(Translator translator) {
-        this.translator=translator;
+        this.translator = translator;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class IterateDeleter implements DocDeleter {
         LOGGER.debug("Computing the result set for {}", mongoQuery);
         DBCursor cursor = null;
         int docIndex = 0;
-        int numDeleted=0;
+        int numDeleted = 0;
         try {
             // Find docs
             cursor = collection.find(mongoQuery);
@@ -63,11 +63,11 @@ public class IterateDeleter implements DocDeleter {
             while (cursor.hasNext()) {
                 DBObject document = cursor.next();
                 LOGGER.debug("Retrieved doc {}", docIndex);
-                Object id=document.get(MongoCRUDController.ID_STR);
-                DocCtx doc=ctx.addDocument(translator.toJson(document));
+                Object id = document.get(MongoCRUDController.ID_STR);
+                DocCtx doc = ctx.addDocument(translator.toJson(document));
                 doc.setOriginalDocument(doc);
-                WriteResult result=collection.remove(new BasicDBObject("_id",id),WriteConcern.SAFE);
-                if(result.getN()==1) {
+                WriteResult result = collection.remove(new BasicDBObject("_id", id), WriteConcern.SAFE);
+                if (result.getN() == 1) {
                     numDeleted++;
                     doc.setOperationPerformed(Operation.DELETE);
                 }

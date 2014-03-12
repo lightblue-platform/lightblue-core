@@ -40,9 +40,8 @@ public class Hooks {
      * Construct hooks with the given hook resolver
      */
     public Hooks(HookResolver r) {
-        resolver=r;
+        resolver = r;
     }
-
 
     // public void queueHooks(CRUDOperationContext ctx) {
     //     EntityMetadata md=ctx.getEntityMetadata(ctx.getEntityName());
@@ -76,8 +75,6 @@ public class Hooks {
     //                             inputDoc=projector.project(doc,nodeFactory);
     //                             outputDoc=projector.project(doc.getOutputDocument(),nodeFactory);
     //                         }
-
-
     //                     String hookName=h.getName();
     //                     CRUDHook ch=hookCache.get(hookName);
     //                     if(ch==null) {
@@ -92,11 +89,9 @@ public class Hooks {
     //         }
     //     }
     // }
-    
     // private void queue(DocCtx doc,
     //                    Projection projection,
     //                    HookConfiguration cfg,
     //                    CRUDHook hook) {
-        
     // }
 }
