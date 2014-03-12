@@ -18,9 +18,11 @@
  */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonUtils;
+import static com.redhat.lightblue.util.JsonUtils.getObjectMapper;
 import com.redhat.lightblue.util.Path;
 import java.io.IOException;
 import java.util.ArrayList;

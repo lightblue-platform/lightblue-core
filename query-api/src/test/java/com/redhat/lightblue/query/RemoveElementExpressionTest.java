@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,18 +29,23 @@ import static org.junit.Assert.*;
  * @author lcestari
  */
 public class RemoveElementExpressionTest {
-    
 
     /**
      * Test of toJson method, of class RemoveElementExpression.
+     * @throws java.io.IOException
      */
     @Test
-    public void testToJson() throws IOException{
+    public void testToJson() throws IOException {
         RemoveElementExpression instance = new RemoveElementExpression();
-        System.out.println(instance.toJson().toString());
         JsonNode expResult = JsonUtils.json("\"$remove\"");
         JsonNode result = instance.toJson();
         assertEquals(expResult, result);
     }
-    
+
+    @Test
+    public void testEqualsHashCode() {
+        RemoveElementExpression instance = new RemoveElementExpression();
+        assertEquals(new RemoveElementExpression().hashCode(), instance.hashCode());
+        assertEquals(new RemoveElementExpression(), instance);
+    }
 }

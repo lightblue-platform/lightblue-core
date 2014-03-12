@@ -33,12 +33,19 @@ public class RemoveElementExpression extends ForEachUpdateExpression {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return this.hashCode() == obj.hashCode();
+    public int hashCode() {
+        int hash = 7;
+        return hash;
     }
 
     @Override
-    public int hashCode() {
-        return "$remove".hashCode();
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        return true;
     }
 }

@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.query;
+package com.redhat.lightblue.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -26,16 +27,15 @@ import static org.junit.Assert.*;
  *
  * @author lcestari
  */
-public class AllMatchExpressionTest {
+public class UtilConstantsTest {
 
-    /**
-     * Test of toJson method, of class AllMatchExpression.
-     */
     @Test
-    public void testEqualsHashCode() {
-        AllMatchExpression instance = new AllMatchExpression();
-        assertEquals(new AllMatchExpression().hashCode(), instance.hashCode());
-        assertEquals(new AllMatchExpression(), instance);
+    public void testContructor() throws Exception {
+        // This method can be removed in case the QueryConstants change to an enum 
+        Constructor constructor = UtilConstants.class.getDeclaredConstructor();
+        assertTrue(Modifier.isPrivate(constructor.getModifiers()));
+        constructor.setAccessible(true);
+        constructor.newInstance();
     }
 
 }

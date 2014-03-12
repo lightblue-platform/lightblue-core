@@ -33,13 +33,20 @@ public class AllMatchExpression extends UpdateQueryExpression {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return this.hashCode() == obj.hashCode();
+    public int hashCode() {
+        int hash = 5;
+        return hash;
     }
 
     @Override
-    public int hashCode() {
-        return "$all".hashCode();
-    }   
-    
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        return true;
+    }
+
 }
