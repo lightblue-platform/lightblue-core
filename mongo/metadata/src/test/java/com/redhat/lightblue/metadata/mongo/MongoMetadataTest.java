@@ -19,7 +19,6 @@
 package com.redhat.lightblue.metadata.mongo;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -41,6 +40,9 @@ import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.*;
 import com.redhat.lightblue.mongo.MongoConfiguration;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class MongoMetadataTest {
 
@@ -51,15 +53,15 @@ public class MongoMetadataTest {
 
     private static final String DB_NAME = "testmetadata";
 
-    private MongodExecutable mongodExe;
-    private MongodProcess mongod;
-    private Mongo mongo;
-    private DB db;
+    private static MongodExecutable mongodExe;
+    private static MongodProcess mongod;
+    private static Mongo mongo;
+    private static DB db;
 
     private MongoMetadata md;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeClass
+    public static void setupClass() throws Exception {
         MongodStarter runtime = MongodStarter.getDefaultInstance();
         mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
         mongod = mongodExe.start();
@@ -74,6 +76,10 @@ public class MongoMetadataTest {
         db = config.getDB();
 
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
+    }
+
+    @Before
+    public void setup() {
         Extensions<BSONObject> x = new Extensions<>();
         x.addDefaultExtensions();
         x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
@@ -84,9 +90,15 @@ public class MongoMetadataTest {
     }
 
     @After
-    public void teardown() throws Exception {
-        if (mongod != null) {
+    public void teardown() {
+        if (mongo != null) {
             mongo.dropDatabase(DB_NAME);
+        }
+    }
+
+    @AfterClass
+    public static void teardownClass() throws Exception {
+        if (mongod != null) {
             mongod.stop();
             mongodExe.stop();
         }
@@ -136,8 +148,8 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
         try {
             EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
-            Assert.fail("expected "+MongoMetadataConstants.ERR_UNKNOWN_VERSION);
-        } catch(Error ex) {
+            Assert.fail("expected " + MongoMetadataConstants.ERR_UNKNOWN_VERSION);
+        } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_UNKNOWN_VERSION, ex.getErrorCode());
         }
     }
@@ -152,8 +164,8 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
         try {
             EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
-            Assert.fail("expected "+MongoMetadataConstants.ERR_INACTIVE_VERSION);
-        } catch(Error ex) {
+            Assert.fail("expected " + MongoMetadataConstants.ERR_INACTIVE_VERSION);
+        } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_INACTIVE_VERSION, ex.getErrorCode());
         }
     }
@@ -170,11 +182,11 @@ public class MongoMetadataTest {
         eDefault.getEntityInfo().setDefaultVersion("blah");
         try {
             md.createNewMetadata(eDefault);
-            Assert.fail("expected "+MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
-        } catch(Error ex) {
+            Assert.fail("expected " + MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
+        } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
         }
-        
+
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
