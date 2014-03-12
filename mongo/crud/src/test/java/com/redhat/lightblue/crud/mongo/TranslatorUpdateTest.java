@@ -24,29 +24,11 @@ import org.junit.Before;
 
 import com.mongodb.DBObject;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
 import com.redhat.lightblue.crud.MetadataResolver;
 
-import com.redhat.lightblue.query.UpdateExpression;
-
-import com.redhat.lightblue.util.JsonUtils;
-
-public class TranslatorUpdateTest extends AbstractJsonSchemaTest {
-
-    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+public class TranslatorUpdateTest extends AbstractMongoTest {
 
     private Translator translator;
 
@@ -62,27 +44,6 @@ public class TranslatorUpdateTest extends AbstractJsonSchemaTest {
                 }
             }
         }, nodeFactory);
-    }
-
-    private EntityMetadata getMd(String fname) throws Exception {
-        runValidJsonTest("json-schema/metadata/metadata.json", fname);
-        JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<>();
-        extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
-        TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
-        EntityMetadata md = parser.parseEntityMetadata(node);
-        PredefinedFields.ensurePredefinedFields(md);
-        return md;
-    }
-
-    private JsonNode json(String s) throws Exception {
-        return JsonUtils.json(s.replace('\'', '\"'));
-    }
-
-    private UpdateExpression update(String s) throws Exception {
-        return UpdateExpression.fromJson(json(s));
     }
 
     @Test
@@ -150,5 +111,4 @@ public class TranslatorUpdateTest extends AbstractJsonSchemaTest {
         } catch (CannotTranslateException e) {
         }
     }
-
 }

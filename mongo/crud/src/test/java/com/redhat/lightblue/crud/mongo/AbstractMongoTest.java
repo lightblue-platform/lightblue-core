@@ -7,7 +7,7 @@ package com.redhat.lightblue.crud.mongo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import static com.github.fge.jackson.JacksonUtils.nodeFactory;
+import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -35,11 +35,13 @@ import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 /**
  *
@@ -56,13 +58,13 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
     protected static final String DB_NAME = "test";
     protected static final String COLL_NAME = "data";
 
-    protected MongodExecutable mongodExe;
-    protected MongodProcess mongod;
-    protected Mongo mongo;
-    protected DB db;
-    protected DBCollection coll;
+    protected static MongodExecutable mongodExe;
+    protected static MongodProcess mongod;
+    protected static Mongo mongo;
+    protected static DB db;
+    protected static DBCollection coll;
 
-    protected Factory factory;
+    protected static Factory factory;
 
     protected class OCtx extends CRUDOperationContext {
         private final Map<String, EntityMetadata> map = new HashMap<>();
@@ -81,8 +83,8 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
         }
     }
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeClass
+    public static void setupClass() throws Exception {
         MongodStarter runtime = MongodStarter.getDefaultInstance();
         mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_4_3, MONGO_PORT, false));
         mongod = mongodExe.start();
@@ -103,10 +105,9 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterClass
+    public static void teardownClass() throws Exception {
         if (mongod != null) {
-            mongo.dropDatabase(DB_NAME);
             mongod.stop();
             mongodExe.stop();
         }
@@ -114,6 +115,13 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
         mongo = null;
         mongod = null;
         mongodExe = null;
+    }
+
+    @After
+    public void teardown() throws Exception {
+        if (mongod != null) {
+            mongo.dropDatabase(DB_NAME);
+        }
     }
 
     protected Projection projection(String s) throws Exception {
@@ -136,7 +144,7 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
         return JsonUtils.json(s.replace('\'', '\"'));
     }
 
-    protected EntityMetadata getMd(String fname) throws Exception {
+    protected EntityMetadata getMd(String fname) throws IOException, ProcessingException  {
         runValidJsonTest("json-schema/metadata/metadata.json", fname);
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();

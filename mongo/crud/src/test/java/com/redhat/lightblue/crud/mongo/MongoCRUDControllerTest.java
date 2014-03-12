@@ -47,10 +47,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     private MongoCRUDController controller;
 
     @Before
-    @Override
     public void setup() throws Exception {
-        super.setup();
-
         final DB dbx = db;
         dbx.createCollection(COLL_NAME, null);
 

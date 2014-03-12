@@ -61,13 +61,13 @@ public class BasicDocFinder implements DocFinder {
             LOGGER.debug("Result set sorted");
         }
         LOGGER.debug("Applying limits: {} - {}", from, to);
-        long ret=cursor.size();
         if (from != null) {
             cursor.skip(from.intValue());
         }
         if (to != null) {
             cursor.limit(to.intValue() - (from == null ? 0 : from.intValue()) + 1);
         }
+        long ret=cursor.size();
         LOGGER.debug("Retrieving results");
         List<DBObject> mongoResults = cursor.toArray();
         LOGGER.debug("Retrieved {} results", mongoResults.size());
