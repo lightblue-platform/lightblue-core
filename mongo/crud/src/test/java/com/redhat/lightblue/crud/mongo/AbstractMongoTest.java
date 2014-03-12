@@ -45,7 +45,7 @@ import org.junit.Before;
  *
  * @author nmalik
  */
-public class AbstractMongoTest extends AbstractJsonSchemaTest {
+public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
     protected static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     // Copied from  https://github.com/tommysdk/showcase/blob/master/mongo-in-mem/src/test/java/tommysdk/showcase/mongo/TestInMemoryMongo.java
