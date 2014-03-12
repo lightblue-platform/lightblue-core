@@ -106,7 +106,7 @@ public class Translator {
     private static final Map<NaryRelationalOperator, String> NARY_RELATIONAL_OPERATOR_MAP;
 
     static {
-        BINARY_COMPARISON_OPERATOR_JS_MAP = new HashMap<BinaryComparisonOperator, String>();
+        BINARY_COMPARISON_OPERATOR_JS_MAP = new HashMap<>();
         BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._eq, "==");
         BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._neq, "!=");
         BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lt, "<");
@@ -114,7 +114,7 @@ public class Translator {
         BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._lte, "<=");
         BINARY_COMPARISON_OPERATOR_JS_MAP.put(BinaryComparisonOperator._gte, ">=");
 
-        BINARY_COMPARISON_OPERATOR_MAP = new HashMap<BinaryComparisonOperator, String>();
+        BINARY_COMPARISON_OPERATOR_MAP = new HashMap<>();
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._eq, "$eq");
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._neq, "$neq");
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lt, "$lt");
@@ -122,14 +122,14 @@ public class Translator {
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lte, "$lte");
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gte, "$gte");
 
-        NARY_LOGICAL_OPERATOR_MAP = new HashMap<NaryLogicalOperator, String>();
+        NARY_LOGICAL_OPERATOR_MAP = new HashMap<>();
         NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._and, "$and");
         NARY_LOGICAL_OPERATOR_MAP.put(NaryLogicalOperator._or, "$or");
 
-        UNARY_LOGICAL_OPERATOR_MAP = new HashMap<UnaryLogicalOperator, String>();
+        UNARY_LOGICAL_OPERATOR_MAP = new HashMap<>();
         UNARY_LOGICAL_OPERATOR_MAP.put(UnaryLogicalOperator._not, "$not");
 
-        NARY_RELATIONAL_OPERATOR_MAP = new HashMap<NaryRelationalOperator, String>();
+        NARY_RELATIONAL_OPERATOR_MAP = new HashMap<>();
         NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._in, "$in");
         NARY_RELATIONAL_OPERATOR_MAP.put(NaryRelationalOperator._not_in, "$nin");
     }
@@ -195,7 +195,7 @@ public class Translator {
      * Translates DBObjects into Json documents
      */
     public List<JsonDoc> toJson(List<DBObject> objects) {
-        List<JsonDoc> list = new ArrayList<JsonDoc>(objects.size());
+        List<JsonDoc> list = new ArrayList<>(objects.size());
         for (DBObject object : objects) {
             list.add(toJson(object));
         }
@@ -429,7 +429,7 @@ public class Translator {
         if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException(MongoCrudConstants.ERR_EMPTY_VALUE_LIST);
         }
-        List<Object> ret = new ArrayList<Object>(values.size());
+        List<Object> ret = new ArrayList<>(values.size());
         for (Value v : values) {
             Object value = v == null ? null : v.getValue();
             if (value != null) {
@@ -504,7 +504,7 @@ public class Translator {
 
     private DBObject translateNaryLogicalExpression(FieldTreeNode context, NaryLogicalExpression expr) {
         List<QueryExpression> queries = expr.getQueries();
-        List<DBObject> list = new ArrayList<DBObject>(queries.size());
+        List<DBObject> list = new ArrayList<>(queries.size());
         for (QueryExpression query : queries) {
             list.add(translate(context, query));
         }
@@ -572,7 +572,7 @@ public class Translator {
      * </pre>
      */
     private DBObject translateArrayContainsAny(Type t, Path array, List<Value> values) {
-        List<BasicDBObject> l = new ArrayList<BasicDBObject>(values.size());
+        List<BasicDBObject> l = new ArrayList<>(values.size());
         for (Value x : values) {
             l.add(new BasicDBObject(array.toString(), x == null ? null
                     : x.getValue() == null ? null : t.cast(x.getValue())));
