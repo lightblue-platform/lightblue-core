@@ -1,0 +1,5 @@
+{
+    "$insert": {
+        "field6.nf6.1": "new value"
+    }
+}
