@@ -21,6 +21,7 @@ package com.redhat.lightblue.hooks;
 import java.util.List;
 
 import com.redhat.lightblue.metadata.HookConfiguration;
+import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
@@ -43,10 +44,12 @@ public interface CRUDHook {
      * @param cfg The hook configuration as specified in the metadata
      * @param processedDocuments Contains the list of documents that
      * are operated on. If the hook specifies a projection in
-     * metadata, the input and output documents are projected.
+     * metadata, the input and output documents are projected. The
+     * hook should not modify the documents in the list. Same
+     * documents are passed to the other hooks.
      */
-    void processHook(CRUDOperationContext ctx,
+    void processHook(EntityMetadata md,
                      HookConfiguration cfg,
-                     List<DocCtx> processedDocuments);
+                     List<HookDoc> processedDocuments);
                      
 }

@@ -21,6 +21,8 @@ package com.redhat.lightblue.crud;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -46,6 +48,7 @@ public class DocCtx extends JsonDoc {
     private JsonDoc outputDoc = this;
     private JsonDoc originalDoc = null;
     private Operation operationPerformed;
+    private Map<String,Object> propertyMap=new HashMap<>();
 
     public DocCtx(JsonDoc doc) {
         super(doc.getRoot());
@@ -149,5 +152,19 @@ public class DocCtx extends JsonDoc {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Properties for the document context
+     */
+    public Object getProperty(String name) {
+        return propertyMap.get(name);
+    }
+
+    /**
+     * Properties for the document context
+     */
+    public void setProperty(String name, Object value) {
+        propertyMap.put(name, value);
     }
 }
