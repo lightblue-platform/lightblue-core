@@ -24,9 +24,7 @@ import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
-import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -49,9 +47,6 @@ import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -78,23 +73,6 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
     protected static DBCollection coll;
 
     protected static Factory factory;
-
-    public class OCtx extends CRUDOperationContext {
-        private final Map<String, EntityMetadata> map = new HashMap<>();
-
-        public OCtx(Operation op) {
-            super(op, "test", factory, new HashSet<String>(), null);
-        }
-
-        public void add(EntityMetadata md) {
-            map.put(md.getName(), md);
-        }
-
-        @Override
-        public EntityMetadata getEntityMetadata(String entityName) {
-            return map.get(entityName);
-        }
-    }
 
     @BeforeClass
     public static void setupClass() throws Exception {
@@ -157,7 +135,7 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
         return JsonUtils.json(s.replace('\'', '\"'));
     }
 
-    protected EntityMetadata getMd(String fname) throws IOException, ProcessingException  {
+    public EntityMetadata getMd(String fname) throws IOException, ProcessingException {
         runValidJsonTest("json-schema/metadata/metadata.json", fname);
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();

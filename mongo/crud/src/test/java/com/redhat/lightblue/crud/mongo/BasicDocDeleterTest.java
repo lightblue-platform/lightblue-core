@@ -47,7 +47,7 @@ public class BasicDocDeleterTest extends AbstractMongoTest {
 
         // execute delete
         BasicDocDeleter deleter = new BasicDocDeleter();
-        CRUDOperationContext ctx = new OCtx(Operation.DELETE);
+        CRUDOperationContext ctx = new TestCRUDOperationContext(Operation.DELETE);
         DBObject mongoQuery = new BasicDBObject();
         mongoQuery.put("_id", id);
         CRUDDeleteResponse response = new CRUDDeleteResponse();

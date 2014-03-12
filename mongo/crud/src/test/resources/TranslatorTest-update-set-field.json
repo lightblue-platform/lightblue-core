@@ -1,0 +1,5 @@
+{
+    "$set": {
+        "field2": "new value"
+    }
+}

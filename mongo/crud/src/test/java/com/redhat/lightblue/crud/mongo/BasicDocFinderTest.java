@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
 import static com.redhat.lightblue.crud.mongo.AbstractMongoTest.coll;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -38,12 +39,12 @@ import org.junit.Test;
  */
 public class BasicDocFinderTest extends AbstractMongoTest {
 
-    private OCtx ctx;
+    private TestCRUDOperationContext ctx;
     private Translator translator;
 
     @Before
     public void setup() throws IOException, ProcessingException {
-        ctx = new OCtx(Operation.FIND);
+        ctx = new TestCRUDOperationContext(Operation.FIND);
         // load metadata 
         EntityMetadata md = getMd("./testMetadata.json");
         // and add it to metadata resolver (the context)

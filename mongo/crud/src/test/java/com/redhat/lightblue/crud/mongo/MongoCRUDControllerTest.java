@@ -62,7 +62,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     @Test
     public void insertTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
-        OCtx ctx = new OCtx(Operation.INSERT);
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         Projection projection = projection("{'field':'_id'}");
@@ -80,7 +80,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     @Test
     public void saveTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
-        OCtx ctx = new OCtx(Operation.INSERT);
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         Projection projection = projection("{'field':'_id'}");
@@ -88,7 +88,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         System.out.println("Write doc:" + doc);
         CRUDInsertionResponse response = controller.insert(ctx, projection);
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        ctx = new OCtx(Operation.FIND);
+        ctx = new TestCRUDOperationContext(Operation.FIND);
         ctx.add(md);
         controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
                 projection("{'field':'*','recursive':1}"), null, null, null);
@@ -100,12 +100,12 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
 
         // Save it back
-        ctx = new OCtx(Operation.SAVE);
+        ctx = new TestCRUDOperationContext(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
         CRUDSaveResponse saveResponse = controller.save(ctx, false, projection);
 
-        ctx = new OCtx(Operation.FIND);
+        ctx = new TestCRUDOperationContext(Operation.FIND);
         ctx.add(md);
         // Read it back
         controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
@@ -119,14 +119,14 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     @Test
     public void upsertTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
-        OCtx ctx = new OCtx(Operation.INSERT);
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
         ctx.add(md);
         JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
         ctx.addDocument(doc);
         System.out.println("Write doc:" + doc);
         CRUDInsertionResponse response = controller.insert(ctx, projection("{'field':'_id'}"));
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        ctx = new OCtx(Operation.FIND);
+        ctx = new TestCRUDOperationContext(Operation.FIND);
         ctx.add(md);
         controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
                 projection("{'field':'*','recursive':1}"), null, null, null);
@@ -135,14 +135,14 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         readDoc.modify(new Path("_id"), null, false);
         Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
 
-        ctx = new OCtx(Operation.SAVE);
+        ctx = new TestCRUDOperationContext(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
         // This should not insert anything
         CRUDSaveResponse sr = controller.save(ctx, false, projection("{'field':'_id'}"));
         Assert.assertEquals(1, coll.find(null).count());
 
-        ctx = new OCtx(Operation.SAVE);
+        ctx = new TestCRUDOperationContext(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
         sr = controller.save(ctx, true, projection("{'field':'_id'}"));
@@ -153,7 +153,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     @Test
     public void updateTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
-        OCtx ctx = new OCtx(Operation.INSERT);
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs = new ArrayList<>();
@@ -170,7 +170,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), response.getNumInserted());
 
         // Single doc update
-        ctx = new OCtx(Operation.UPDATE);
+        ctx = new TestCRUDOperationContext(Operation.UPDATE);
         ctx.add(md);
         CRUDUpdateResponse upd = controller.update(ctx, query("{'field':'field3','op':'$eq','rvalue':10}"),
                 update("{ '$set': { 'field3' : 1000 } }"),
@@ -187,7 +187,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(1, coll.find(new BasicDBObject("field3", 1000)).count());
 
         // Bulk update
-        ctx = new OCtx(Operation.UPDATE);
+        ctx = new TestCRUDOperationContext(Operation.UPDATE);
         ctx.add(md);
         upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
                 update("{ '$set': { 'field3' : 1000 } }"),
@@ -198,7 +198,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(10, coll.find(new BasicDBObject("field3", new BasicDBObject("$gt", 10))).count());
 
         // Bulk direct update
-        ctx = new OCtx(Operation.UPDATE);
+        ctx = new TestCRUDOperationContext(Operation.UPDATE);
         ctx.add(md);
         upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
                 update("{ '$set': { 'field3' : 1000 } }"), null);
@@ -208,7 +208,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(10, coll.find(new BasicDBObject("field3", new BasicDBObject("$gt", 10))).count());
 
         // Iterate update
-        ctx = new OCtx(Operation.UPDATE);
+        ctx = new TestCRUDOperationContext(Operation.UPDATE);
         ctx.add(md);
         // Updating an array field will force use of IterateAndupdate
         upd = controller.update(ctx, query("{'field':'field3','op':'>','rvalue':10}"),
@@ -222,7 +222,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     @Test
     public void sortAndPageTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
-        OCtx ctx = new OCtx(Operation.INSERT);
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
 
         ctx.add(md);
         // Generate some docs
@@ -237,7 +237,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         ctx.addDocuments(docs);
         controller.insert(ctx, projection("{'field':'_id'}"));
 
-        ctx = new OCtx(Operation.FIND);
+        ctx = new TestCRUDOperationContext(Operation.FIND);
         ctx.add(md);
         CRUDFindResponse response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
                 projection("{'field':'*','recursive':1}"),
@@ -252,7 +252,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         }
 
         for (int k = 0; k < 15; k++) {
-            ctx = new OCtx(Operation.FIND);
+            ctx = new TestCRUDOperationContext(Operation.FIND);
             ctx.add(md);
             response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
                     projection("{'field':'*','recursive':1}"),
@@ -270,7 +270,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
     @Test
     public void deleteTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
-        OCtx ctx = new OCtx(Operation.INSERT);
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
         ctx.add(md);
         // Generate some docs
         List<JsonDoc> docs = new ArrayList<>();
@@ -286,14 +286,14 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(numDocs, coll.find(null).count());
 
         // Single doc delete
-        ctx = new OCtx(Operation.DELETE);
+        ctx = new TestCRUDOperationContext(Operation.DELETE);
         ctx.add(md);
         CRUDDeleteResponse del = controller.delete(ctx, query("{'field':'field3','op':'$eq','rvalue':10}"));
         Assert.assertEquals(1, del.getNumDeleted());
         Assert.assertEquals(numDocs - 1, coll.find(null).count());
 
         // Bulk delete
-        ctx = new OCtx(Operation.DELETE);
+        ctx = new TestCRUDOperationContext(Operation.DELETE);
         ctx.add(md);
         del = controller.delete(ctx, query("{'field':'field3','op':'>','rvalue':10}"));
         Assert.assertEquals(9, del.getNumDeleted());
