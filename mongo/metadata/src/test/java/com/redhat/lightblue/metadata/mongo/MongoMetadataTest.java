@@ -171,7 +171,7 @@ public class MongoMetadataTest {
     }
 
     @Test
-    public void defaultVersionTest() throws Exception {
+    public void invalidDefaultVersionTest() throws Exception {
 
         //with non-existant default.
         EntityMetadata eDefault = new EntityMetadata("testDefaultEntity");
@@ -186,6 +186,10 @@ public class MongoMetadataTest {
         } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
         }
+    }
+
+    @Test
+    public void defaultVersionTest() throws Exception {
 
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
