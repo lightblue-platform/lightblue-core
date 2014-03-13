@@ -312,7 +312,8 @@ public class Translator {
         }
         BasicDBObject obj = (BasicDBObject) dest.get(op);
         if (obj == null) {
-            dest.put(op, obj = new BasicDBObject());
+            obj = new BasicDBObject();
+            dest.put(op, obj);
         }
         for (FieldAndRValue frv : expr.getFields()) {
             Path field = frv.getField();
@@ -346,7 +347,8 @@ public class Translator {
             throws CannotTranslateException {
         BasicDBObject obj = (BasicDBObject) dest.get("$unset");
         if (obj == null) {
-            dest.put("$unset", obj = new BasicDBObject());
+            obj = new BasicDBObject();
+            dest.put("$unset", obj);
         }
         for (Path field : expr.getFields()) {
             if (hasArray(root, field)) {

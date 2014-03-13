@@ -254,5 +254,4 @@ public class Hooks {
             return p.project(doc,factory,new QueryEvaluationContext(doc.getRoot()));
         }
     }
-                        
 }

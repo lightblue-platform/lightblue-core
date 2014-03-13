@@ -105,18 +105,19 @@ public class MongoMetadata implements Metadata {
             DBObject es = collection.findOne(query);
             if (es != null) {
                 schema = mdParser.parseEntitySchema(es);
-                if(schema.getStatus()!=MetadataStatus.ACTIVE) {
-                    boolean foundDefault=false;
-                    if(info.getDefaultVersion()!=null) {
+                if (schema.getStatus() != MetadataStatus.ACTIVE) {
+                    boolean foundDefault = false;
+                    if (info.getDefaultVersion() != null) {
                         query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + info.getDefaultVersion());
                         es = collection.findOne(query);
-                        if(es != null) {
+                        if (es != null) {
                             schema = mdParser.parseEntitySchema(es);
-                            foundDefault=true;
+                            foundDefault = true;
                         }
                     }
-                    if(!foundDefault || schema.getStatus()!=MetadataStatus.ACTIVE)
+                    if (!foundDefault || schema.getStatus() != MetadataStatus.ACTIVE) {
                         throw Error.get(MongoMetadataConstants.ERR_INACTIVE_VERSION, version);
+                    }
                 }
             } else {
                 throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, version);
@@ -203,10 +204,10 @@ public class MongoMetadata implements Metadata {
         // write info and schema as separate docs!
         try {
 
-            if(md.getEntityInfo().getDefaultVersion()!=null && !md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
+            if (md.getEntityInfo().getDefaultVersion() != null && !md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
                 BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
                 DBObject es = collection.findOne(query);
-                if(es == null) {
+                if (es == null) {
                     throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
                 }
             }

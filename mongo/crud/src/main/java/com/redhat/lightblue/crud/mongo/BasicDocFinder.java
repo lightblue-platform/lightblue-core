@@ -43,9 +43,9 @@ public class BasicDocFinder implements DocFinder {
     private final Translator translator;
 
     public BasicDocFinder(Translator translator) {
-        this.translator=translator;
+        this.translator = translator;
     }
-    
+
     @Override
     public long find(CRUDOperationContext ctx,
                      DBCollection coll,
@@ -60,7 +60,7 @@ public class BasicDocFinder implements DocFinder {
             cursor = cursor.sort(mongoSort);
             LOGGER.debug("Result set sorted");
         }
-        long ret=cursor.size();
+        long ret = cursor.size();
         LOGGER.debug("Applying limits: {} - {}", from, to);
         if (from != null) {
             cursor.skip(from.intValue());
@@ -73,8 +73,9 @@ public class BasicDocFinder implements DocFinder {
         LOGGER.debug("Retrieved {} results", mongoResults.size());
         List<JsonDoc> jsonDocs = translator.toJson(mongoResults);
         ctx.addDocuments(jsonDocs);
-        for(DocCtx doc:ctx.getDocuments())
+        for (DocCtx doc : ctx.getDocuments()) {
             doc.setOperationPerformed(Operation.FIND);
+        }
         LOGGER.debug("Translated DBObjects to json");
         return ret;
     }

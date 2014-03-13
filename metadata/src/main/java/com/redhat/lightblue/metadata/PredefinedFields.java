@@ -112,9 +112,9 @@ public final class PredefinedFields {
             md.getFields().addNew(f);
         }
 
+        // Object type must be string
         if (f instanceof SimpleField
-                && // Object type must be string
-                f.getType().equals(StringType.TYPE)) {
+                && f.getType().equals(StringType.TYPE)) {
             // Required constraint
             if (findConstraint(f.getConstraints(), new ConstraintSearchCB<FieldConstraint>() {
                 public boolean checkMatch(FieldConstraint c) {
@@ -199,9 +199,9 @@ public final class PredefinedFields {
             ret = null;
         }
 
+        // Must be int
         if (f instanceof SimpleField
-                && // Must be int
-                f.getType().equals(IntegerType.TYPE)) {
+                && f.getType().equals(IntegerType.TYPE)) {
             setRoleIfEmpty(f.getAccess().getFind(), MetadataConstants.ROLE_ANYONE);
         } else {
             throw Error.get(MetadataConstants.ERR_FIELD_WRONG_TYPE, fieldName + ":" + f.getType().getName());

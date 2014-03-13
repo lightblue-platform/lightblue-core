@@ -60,7 +60,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
                                 JsonNodeFactory nf,
                                 Set<String> callerRoles,
                                 List<JsonDoc> docs) {
-        this.operation=op;
+        this.operation = op;
         this.entityName = entityName;
         this.factory = f;
         this.nodeFactory=nf;

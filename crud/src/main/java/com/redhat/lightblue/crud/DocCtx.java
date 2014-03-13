@@ -35,11 +35,11 @@ import com.redhat.lightblue.DataError;
  * DocCtx provides three views of a document:
  * <ul>
  * <li>DocCtx instance: This is the document on which we operate.</li>
- * <li>originalDoc: This is the copy of the document before any modifications are done on it. 
- * This has to be explicitly set.</li>
- * <li>outputDoc: This is the version of the document that is projected to be returned. 
- *  Initially it points to DocCtx instance, and must be explicitly set to point to 
- *  something else if projections are applied, or null if document will not appear in the output.</li>
+ * <li>originalDoc: This is the copy of the document before any modifications are done on it. This has to be explicitly
+ * set.</li>
+ * <li>outputDoc: This is the version of the document that is projected to be returned. Initially it points to DocCtx
+ * instance, and must be explicitly set to point to something else if projections are applied, or null if document will
+ * not appear in the output.</li>
  * </ul>
  */
 public class DocCtx extends JsonDoc {
@@ -82,7 +82,6 @@ public class DocCtx extends JsonDoc {
         return !errors.isEmpty();
     }
 
-
     /**
      * The output document
      */
@@ -108,7 +107,7 @@ public class DocCtx extends JsonDoc {
      * Sets the originalDocument to a copy of this
      */
     public void copyOriginalFromThis() {
-        originalDoc=copy();
+        originalDoc = copy();
     }
 
     /*
@@ -118,15 +117,16 @@ public class DocCtx extends JsonDoc {
      * document if there isn't one set already.
      */
     public void startModifications() {
-        if(originalDoc==null||originalDoc==this)
+        if (originalDoc == null || originalDoc == this) {
             copyOriginalFromThis();
+        }
     }
 
     /**
      * Sets the copy of the document before any modifications
      */
     public void setOriginalDocument(JsonDoc doc) {
-        originalDoc=doc;
+        originalDoc = doc;
     }
 
     /**
@@ -140,7 +140,7 @@ public class DocCtx extends JsonDoc {
      * Sets the operation performed on this document
      */
     public void setOperationPerformed(Operation op) {
-        operationPerformed=op;
+        operationPerformed = op;
     }
 
     /**

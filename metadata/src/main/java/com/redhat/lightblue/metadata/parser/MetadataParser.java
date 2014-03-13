@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -63,7 +62,6 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 
 /**
@@ -118,21 +116,21 @@ public abstract class MetadataParser<T> {
         D parse(S child);
     }
 
-    private final ArrCb<T, Index> PARSE_INDEX = new ArrCb<T, Index>() {
+    private final ArrCb<T, Index> parseIndex = new ArrCb<T, Index>() {
         @Override
         public Index parse(T child) {
             return parseIndex(child);
         }
     };
 
-    private final ArrCb<T, Enum> PARSE_ENUM = new ArrCb<T, Enum>() {
+    private final ArrCb<T, Enum> parseEnum = new ArrCb<T, Enum>() {
         @Override
         public Enum parse(T child) {
             return parseEnum(child);
         }
     };
 
-    private final ArrCb<T, Hook> PARSE_HOOK = new ArrCb<T, Hook>() {
+    private final ArrCb<T, Hook> parseHook = new ArrCb<T, Hook>() {
         @Override
         public Hook parse(T child) {
             return parseHook(child);
@@ -188,9 +186,9 @@ public abstract class MetadataParser<T> {
             EntityInfo info = new EntityInfo(name);
 
             info.setDefaultVersion(getStringProperty(object, STR_DEFAULT_VERSION));
-            info.getIndexes().setIndexes(parseArr(getObjectProperty(object, STR_INDEXES), PARSE_INDEX));
-            info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS), PARSE_ENUM));
-            info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS), PARSE_HOOK));
+            info.getIndexes().setIndexes(parseArr(getObjectProperty(object, STR_INDEXES), parseIndex));
+            info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS), parseEnum));
+            info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS), parseHook));
 
             T datastore = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(datastore));
