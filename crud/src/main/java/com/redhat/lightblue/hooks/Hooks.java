@@ -39,6 +39,22 @@ import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
+/**
+ * This class manages hooks. As operations are performed, queueHooks()
+ * is called to queue up hooks for successfully processed
+ * documents. Once operations are complete and changes are committed,
+ * callQueuedHooks is called to execute all hooks that were
+ * queued. The queues are executed in the order they are queued, but
+ * the hooks for a single document can be executed in a
+ * non-deterministic order.
+ *
+ * Each hook receives a list containing pre- and post- update versions
+ * of the documents. If there are multiple hooks for the given
+ * operation, the hooks of that operation share the document
+ * copies. Because of this, hooks must treat documents as read-only.
+ *
+ *
+ */
 public class Hooks {
 
     private final HookResolver resolver;
@@ -51,9 +67,9 @@ public class Hooks {
         private final JsonDoc pre;
         private final JsonDoc post;
         private final Operation op;
-        private final List<Hook> hooks;
+        private final Map<Hook,CRUDHook> hooks;
 
-        public DocHooks(DocCtx doc,List<Hook> hooks) {
+        public DocHooks(DocCtx doc,Map<Hook,CRUDHook> hooks) {
             this.doc=doc;
             op=doc.getOperationPerformed();
             // Create a copy of the original version of the document, if non-null
@@ -84,11 +100,13 @@ public class Hooks {
 
     private static final class HookDocs {
         private final Hook hook;
+        private final CRUDHook crudHook;
         private final EntityMetadata md;
         private final List<HookDoc> docs=new ArrayList<>();
 
-        public HookDocs(Hook hook,EntityMetadata md) {
+        public HookDocs(Hook hook,CRUDHook crudHook,EntityMetadata md) {
             this.hook=hook;
+            this.crudHook=crudHook;
             this.md=md;
         }
     }
@@ -102,14 +120,81 @@ public class Hooks {
         this.factory=factory;
     }
 
+    /**
+     * Clears all queued hooks
+     */
     public void clear() {
         queuedHooks.clear();
     }
 
 
+    /**
+     * Queues hooks for the operation reporesented by the operation context
+     *
+     * @param ctx Operation context 
+     *
+     * This will create copies of all the documents that has no errors
+     * in the context, and save them for later hook execution.
+     */
     public void queueHooks(CRUDOperationContext ctx) {
+        queueHooks(ctx,CRUDHook.class);
+    }
+
+    /**
+     * Queues mediator hooks for the operation reporesented by the operation context
+     *
+     * @param ctx Operation context 
+     *
+     * This operation will only queue mediator hooks.This will create
+     * copies of all the documents that has no errors in the context,
+     * and save them for later hook execution.
+     */
+    public void queueMediatorHooks(CRUDOperationContext ctx) {
+        queueHooks(ctx,MediatorHook.class);
+    }
+
+    /**
+     * Calls all queued hooks, and then clears the queued hooks. Any
+     * hook that failed will be logged, but hook execution will
+     * continue unless one of the hooks thows an exception
+     * with @StopHookProcessing annotation.
+     */
+    public void callQueuedHooks() {
+        for(HookDocs hd:queuedHooks) {
+            List<HookDoc> processedDocuments;
+            if(hd.hook.getProjection()!=null) {
+                // Project the docs
+                processedDocuments=new ArrayList<>(hd.docs.size());
+                Projector projector=Projector.getInstance(hd.hook.getProjection(),hd.md);
+                for(HookDoc doc:hd.docs) {
+                    processedDocuments.add(new HookDoc(project(doc.getPreDoc(),projector),
+                                                       project(doc.getPostDoc(),projector),
+                                                       doc.getOperation()));
+                }
+            } else {
+                processedDocuments=hd.docs;
+            }
+            try { 
+                hd.crudHook.processHook(hd.md,hd.hook.getConfiguration(),processedDocuments);
+            } catch (RuntimeException e) {
+                if(e.getClass().isAnnotationPresent(StopHookProcessing.class))
+                    throw e;
+            }
+        }
+        clear();
+    }
+
+    private void queueHooks(CRUDOperationContext ctx,Class<?> hookClass) {
         EntityMetadata md=ctx.getEntityMetadata(ctx.getEntityName());
-        List<Hook> hooks=md.getHooks().getHooks();
+        List<Hook> mdHooks=md.getHooks().getHooks();
+        Map<Hook,CRUDHook> hooks=new HashMap<>();
+        for(Hook h:mdHooks) {
+            CRUDHook crudHook=resolver.getHook(h.getName());
+            if(crudHook==null)
+                throw Error.get(CrudConstants.ERR_INVALID_HOOK,h.getName());
+            if(hookClass.isAssignableFrom(crudHook.getClass()))
+                hooks.put(h,crudHook);
+        }
         if(!hooks.isEmpty()) {
             List<DocCtx> documents=ctx.getDocumentsWithoutErrors();
             // We don't want to create a separate copy of every
@@ -124,19 +209,19 @@ public class Hooks {
             List<DocHooks> docHooksList=new ArrayList<>();
             for(DocCtx doc:documents) {
                 if(doc.getOperationPerformed()!=null) {
-                    List<Hook> hooksList=null;
-                    for(Hook hook:hooks) {
+                    Map<Hook,CRUDHook> hooksList=null;
+                    for(Map.Entry<Hook,CRUDHook>  hook:hooks.entrySet()) {
                         boolean queue=false;
                         switch(doc.getOperationPerformed()) {
-                        case INSERT: queue=hook.isInsert();break;
-                        case UPDATE: queue=hook.isUpdate();break;
-                        case DELETE: queue=hook.isDelete();break;
-                        case FIND: queue=hook.isFind();break;
+                        case INSERT: queue=hook.getKey().isInsert();break;
+                        case UPDATE: queue=hook.getKey().isUpdate();break;
+                        case DELETE: queue=hook.getKey().isDelete();break;
+                        case FIND: queue=hook.getKey().isFind();break;
                         }
                         if(queue) {
                             if(hooksList==null)
-                                hooksList=new ArrayList<>();
-                            hooksList.add(hook);
+                                hooksList=new HashMap<>();
+                            hooksList.put(hook.getKey(),hook.getValue());
                         }
                     }
                     if(hooksList!=null) {
@@ -150,37 +235,15 @@ public class Hooks {
             // it will get.
             Map<Hook,HookDocs> hookCache=new HashMap<>();
             for(DocHooks dh:docHooksList) {
-                for(Hook hook:dh.hooks) {
-                    HookDocs hd=hookCache.get(hook);
+                for(Map.Entry<Hook,CRUDHook> hook:dh.hooks.entrySet()) {
+                    HookDocs hd=hookCache.get(hook.getKey());
                     if(hd==null)
-                        hookCache.put(hook,hd=new HookDocs(hook,md));
+                        hookCache.put(hook.getKey(),hd=new HookDocs(hook.getKey(),hook.getValue(),md));
                     hd.docs.add(new HookDoc(dh.pre,dh.post,dh.op));
                 }
             }
             // Queue the hooks
             queuedHooks.addAll(hookCache.values());
-        }
-    }
-
-    public void callQueuedHooks() {
-        for(HookDocs hd:queuedHooks) {
-            CRUDHook crudHook=resolver.getHook(hd.hook.getName());
-            if(crudHook==null)
-                throw Error.get(CrudConstants.ERR_INVALID_HOOK,hd.hook.getName());
-            List<HookDoc> processedDocuments;
-            if(hd.hook.getProjection()!=null) {
-                // Project the docs
-                processedDocuments=new ArrayList<>(hd.docs.size());
-                Projector projector=Projector.getInstance(hd.hook.getProjection(),hd.md);
-                for(HookDoc doc:hd.docs) {
-                    processedDocuments.add(new HookDoc(project(doc.getPreDoc(),projector),
-                                                       project(doc.getPostDoc(),projector),
-                                                       doc.getOperation()));
-                }
-            } else {
-                processedDocuments=hd.docs;
-            }
-            crudHook.processHook(hd.md,hd.hook.getConfiguration(),processedDocuments);
         }
     }
 

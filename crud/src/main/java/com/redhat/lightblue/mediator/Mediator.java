@@ -86,7 +86,7 @@ public class Mediator {
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.INSERT);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -98,6 +98,7 @@ public class Mediator {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.insert(ctx, req.getReturnFields());
+                    ctx.getHooks().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (!insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
@@ -117,6 +118,8 @@ public class Mediator {
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
+            if(response.getStatus()!=OperationStatus.ERROR)
+                ctx.getHooks().callQueuedHooks();
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -144,7 +147,7 @@ public class Mediator {
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -157,6 +160,7 @@ public class Mediator {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.save(ctx, req.isUpsert(), req.getReturnFields());
+                    ctx.getHooks().queueMediatorHooks(ctx);
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (!updatedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
@@ -174,6 +178,8 @@ public class Mediator {
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
+            if(response.getStatus()!=OperationStatus.ERROR)
+                ctx.getHooks().callQueuedHooks();
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -202,7 +208,7 @@ public class Mediator {
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.UPDATE);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.UPDATE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -214,6 +220,7 @@ public class Mediator {
                         req.getQuery(),
                         req.getUpdateExpression(),
                         req.getReturnFields());
+                ctx.getHooks().queueMediatorHooks(ctx);
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
                 response.setModifiedCount(updateResponse.getNumUpdated());
                 if (ctx.hasErrors()) {
@@ -224,7 +231,9 @@ public class Mediator {
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
-        } catch (Error e) {
+            if(response.getStatus()!=OperationStatus.ERROR)
+                ctx.getHooks().callQueuedHooks();
+       } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
@@ -241,7 +250,7 @@ public class Mediator {
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.DELETE);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.DELETE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -251,6 +260,7 @@ public class Mediator {
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDDeleteResponse result = controller.delete(ctx,
                         req.getQuery());
+                ctx.getHooks().queueMediatorHooks(ctx);
                 response.setModifiedCount(result.getNumDeleted());
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
@@ -260,6 +270,8 @@ public class Mediator {
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
+            if(response.getStatus()!=OperationStatus.ERROR)
+                ctx.getHooks().callQueuedHooks();
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -285,7 +297,7 @@ public class Mediator {
         Response response = new Response();
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.FIND);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.FIND);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -300,6 +312,7 @@ public class Mediator {
                         req.getSort(),
                         req.getFrom(),
                         req.getTo());
+                ctx.getHooks().queueMediatorHooks(ctx);
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
                 List<DocCtx> documents=ctx.getDocuments();
@@ -312,6 +325,8 @@ public class Mediator {
             }
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
+            if(response.getStatus()!=OperationStatus.ERROR)
+                ctx.getHooks().callQueuedHooks();
         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);

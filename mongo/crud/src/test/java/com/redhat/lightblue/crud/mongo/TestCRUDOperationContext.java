@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
 import static com.redhat.lightblue.crud.mongo.AbstractMongoTest.factory;
@@ -35,7 +36,7 @@ public class TestCRUDOperationContext extends CRUDOperationContext {
     private final Map<String, EntityMetadata> map = new HashMap<>();
 
     public TestCRUDOperationContext(Operation op) {
-        super(op, "test", factory, new HashSet<String>(), null);
+        super(op, "test", factory, JsonNodeFactory.withExactBigDecimals(true), new HashSet<String>(), null);
     }
 
     public void add(EntityMetadata md) {

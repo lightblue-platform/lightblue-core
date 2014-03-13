@@ -27,6 +27,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
+import com.redhat.lightblue.hooks.Hooks;
+
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Error;
 
@@ -41,22 +45,27 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private static final long serialVersionUID = 1l;
 
     private final Factory factory;
+    private final JsonNodeFactory nodeFactory;
     private final String entityName;
     private final Set<String> callerRoles;
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final Operation operation;
+    private final Hooks hooks;
 
     public CRUDOperationContext(Operation op,
                                 String entityName,
                                 Factory f,
+                                JsonNodeFactory nf,
                                 Set<String> callerRoles,
                                 List<JsonDoc> docs) {
         this.operation=op;
         this.entityName = entityName;
         this.factory = f;
+        this.nodeFactory=nf;
         this.callerRoles = callerRoles;
+        this.hooks=new Hooks(factory.getHookResolver(),nodeFactory);
         if (docs != null) {
             documents = new ArrayList<>(docs.size());
             for (JsonDoc doc : docs) {
@@ -246,5 +255,12 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public void setProperty(String name, Object value) {
         propertyMap.put(name, value);
+    }
+
+    /**
+     * The hooks for this operation
+     */
+    public Hooks getHooks() {
+        return hooks;
     }
 }
