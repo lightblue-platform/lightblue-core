@@ -23,9 +23,6 @@ import java.util.List;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.DocCtx;
-
 /**
  * A hook is called once after an operation is completed, with the list of documents that were processed during the
  * operation

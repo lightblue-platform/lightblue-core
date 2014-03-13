@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -56,6 +59,8 @@ import com.redhat.lightblue.util.JsonDoc;
  *
  */
 public class Hooks {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Hooks.class);
 
     private final HookResolver resolver;
     private final JsonNodeFactory factory;
@@ -137,7 +142,7 @@ public class Hooks {
      * in the context, and save them for later hook execution.
      */
     public void queueHooks(CRUDOperationContext ctx) {
-        queueHooks(ctx,CRUDHook.class);
+        queueHooks(ctx,false);
     }
 
     /**
@@ -150,7 +155,7 @@ public class Hooks {
      * and save them for later hook execution.
      */
     public void queueMediatorHooks(CRUDOperationContext ctx) {
-        queueHooks(ctx,MediatorHook.class);
+        queueHooks(ctx,true);
     }
 
     /**
@@ -184,19 +189,24 @@ public class Hooks {
         clear();
     }
 
-    private void queueHooks(CRUDOperationContext ctx,Class<?> hookClass) {
+    private void queueHooks(CRUDOperationContext ctx,boolean mediatorHooks) {
+        LOGGER.debug("queueHooks start mediatorHooks={}",mediatorHooks);
         EntityMetadata md=ctx.getEntityMetadata(ctx.getEntityName());
         List<Hook> mdHooks=md.getHooks().getHooks();
+        LOGGER.debug("There are {} hooks in metadata",mdHooks.size());
         Map<Hook,CRUDHook> hooks=new HashMap<>();
         for(Hook h:mdHooks) {
             CRUDHook crudHook=resolver.getHook(h.getName());
             if(crudHook==null)
                 throw Error.get(CrudConstants.ERR_INVALID_HOOK,h.getName());
-            if(hookClass.isAssignableFrom(crudHook.getClass()))
+            if( (mediatorHooks&&crudHook instanceof MediatorHook) ||
+                (!mediatorHooks&&!(crudHook instanceof MediatorHook)) )
                 hooks.put(h,crudHook);
         }
+        LOGGER.debug("Hooks are resolved: {}",hooks);
         if(!hooks.isEmpty()) {
             List<DocCtx> documents=ctx.getDocumentsWithoutErrors();
+            LOGGER.debug("There are {} documents",documents.size());
             // We don't want to create a separate copy of every
             // document for each hook. So, we share the only copy of
             // the document between hooks.  First we create a list of
@@ -229,6 +239,7 @@ public class Hooks {
                     }
                 }
             }
+            LOGGER.debug("List of docs with hooks size={}",docHooksList.size());
             // At this point, we have the list of documents, with each
             // document containing its hooks. Now we process that, and
             // create a list of hooks, each containing the documents
@@ -242,6 +253,7 @@ public class Hooks {
                     hd.docs.add(new HookDoc(dh.pre,dh.post,dh.op));
                 }
             }
+            LOGGER.debug("Queueing {} hooks",hookCache.size());
             // Queue the hooks
             queuedHooks.addAll(hookCache.values());
         }
