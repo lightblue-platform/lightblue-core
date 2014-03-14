@@ -29,18 +29,18 @@ import java.nio.charset.Charset;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.gson.Gson;
+import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.crud.CrudConfiguration.Controller;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
- * instances created down to a reasonable level.
+ * Because rest resources are instantiated for every request this manager exists
+ * to keep the number of Metadata instances created down to a reasonable level.
  *
  * @author nmalik
  */

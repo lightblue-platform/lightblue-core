@@ -49,7 +49,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
-import com.redhat.lightblue.mongo.MongoConfiguration;
+import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;

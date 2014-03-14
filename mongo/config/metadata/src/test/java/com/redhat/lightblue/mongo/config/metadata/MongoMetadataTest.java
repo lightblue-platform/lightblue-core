@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.mongo;
+package com.redhat.lightblue.mongo.config.metadata;
 
 import org.junit.After;
 import org.junit.Test;
@@ -37,9 +37,12 @@ import org.bson.BSONObject;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.mongo.MongoDataStore;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.metadata.mongo.MongoMetadataConstants;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.*;
-import com.redhat.lightblue.mongo.MongoConfiguration;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

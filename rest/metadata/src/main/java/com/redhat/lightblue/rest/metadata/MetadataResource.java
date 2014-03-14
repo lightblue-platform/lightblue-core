@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.rest.metadata;
 
-import com.redhat.lightblue.metadata.MetadataManager;
 import com.google.gson.Gson;
+import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Version;

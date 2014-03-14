@@ -96,5 +96,6 @@
         <module>crud</module>
         <module>metadata</module>
         <!--module>test</module-->
+        <module>config</module>
     </modules>
 </project>

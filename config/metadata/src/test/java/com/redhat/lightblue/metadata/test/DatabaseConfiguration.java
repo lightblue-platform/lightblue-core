@@ -16,23 +16,32 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
-
-import com.redhat.lightblue.metadata.MetadataManager;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.test.DatabaseMetadata;
-import org.junit.Assert;
-import org.junit.Test;
+package com.redhat.lightblue.metadata.test;
 
 /**
  *
  * @author nmalik
  */
-public class MetadataManagerTest {
-    @Test
-    public void getMetadata() throws Exception {
-        Metadata m = MetadataManager.getMetadata();
-        Assert.assertNotNull(m);
-        Assert.assertTrue(m instanceof DatabaseMetadata);
+public class DatabaseConfiguration {
+    private String name;
+    private String hostname = "localhost";
+    private String port = "27017";
+    private String collection = "metadata";
+
+    public String getName() {
+        return name;
     }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public String getCollection() {
+        return collection;
+    }
+
 }
