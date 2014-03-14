@@ -139,6 +139,59 @@ public class MongoMetadataTest {
     }
 
     @Test
+    public void updateStatusTest() throws Exception {
+        EntityMetadata e2 = new EntityMetadata("testEntity");
+        e2.setVersion(new Version("1.1", null, "some text blah blah"));
+        e2.setStatus(MetadataStatus.ACTIVE);
+        e2.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e2.getFields().put(new SimpleField("field1", StringType.TYPE));
+        md.createNewSchema(e2);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
+        Assert.assertEquals(MetadataStatus.ACTIVE, g.getStatus());
+
+        md.setMetadataStatus("testEntity", "1.1", MetadataStatus.DEPRECATED, "disable testEntity");
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1");
+        Assert.assertEquals(e2.getVersion().getValue(), g1.getVersion().getValue());
+        Assert.assertEquals(MetadataStatus.DEPRECATED, g1.getStatus());
+    }
+
+    @Test
+    public void disabledDefaultUpdateTest() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        e.getEntityInfo().setDefaultVersion("1.0");
+        md.createNewMetadata(e);
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0");
+        Assert.assertEquals(e.getVersion().getValue(), g1.getVersion().getValue());
+        Assert.assertEquals(MetadataStatus.ACTIVE, g1.getStatus());
+        try {
+            md.setMetadataStatus("testEntity", "1.0", MetadataStatus.DISABLED, "disabling the default version");
+            Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION);
+        } catch (Error ex) {
+             Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void disabledDefaultCreationTest() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.DISABLED);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        e.getEntityInfo().setDefaultVersion("1.0");
+        try {
+            md.createNewMetadata(e);
+            Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION);
+        } catch (Error ex) {
+            Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, ex.getErrorCode());
+        }
+    }
+
+    @Test
     public void unknownVersionTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
@@ -158,7 +211,7 @@ public class MongoMetadataTest {
     public void inactiveVersionTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
-        e.setStatus(MetadataStatus.DEPRECATED);
+        e.setStatus(MetadataStatus.DISABLED);
         e.setDataStore(new MongoDataStore(null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
@@ -204,7 +257,7 @@ public class MongoMetadataTest {
 
         EntityMetadata eDeprecated = new EntityMetadata("testEntity");
         eDeprecated.setVersion(new Version("1.1", null, "some text blah blah"));
-        eDeprecated.setStatus(MetadataStatus.DEPRECATED);
+        eDeprecated.setStatus(MetadataStatus.DISABLED);
         eDeprecated.setDataStore(new MongoDataStore(null, null, "testCollection"));
         eDeprecated.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewSchema(eDeprecated);
