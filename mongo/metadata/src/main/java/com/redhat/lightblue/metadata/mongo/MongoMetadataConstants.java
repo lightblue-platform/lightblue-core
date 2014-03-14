@@ -25,7 +25,7 @@ public final class MongoMetadataConstants {
     public static final String ERR_DB_ERROR = "mongo-metadata:DatabaseError";
     public static final String ERR_MISSING_ENTITY_INFO = "mongo-metadata:MissingEntityInfo";
 
-    public static final String ERR_INACTIVE_VERSION = "mongo-metadata:InactiveVersion";
+    public static final String ERR_DISABLED_VERSION = "mongo-metadata:DisabledVersion";
     public static final String ERR_INVALID_VERSION = "mongo-metadata:InvalidVersion";
     public static final String ERR_INVALID_DEFAULT_VERSION = "mongo-metadata:InvalidDefaultVersion";
     public static final String ERR_DISABLED_DEFAULT_VERSION = "mongo-metadata:DisabledDefaultVersion";

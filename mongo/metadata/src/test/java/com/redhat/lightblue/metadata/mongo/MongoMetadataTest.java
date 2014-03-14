@@ -208,7 +208,7 @@ public class MongoMetadataTest {
     }
 
     @Test
-    public void inactiveVersionTest() throws Exception {
+    public void disabledVersionTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.DISABLED);
@@ -217,9 +217,9 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
         try {
             EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
-            Assert.fail("expected " + MongoMetadataConstants.ERR_INACTIVE_VERSION);
+            Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_VERSION);
         } catch (Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_INACTIVE_VERSION, ex.getErrorCode());
+            Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_VERSION, ex.getErrorCode());
         }
     }
 

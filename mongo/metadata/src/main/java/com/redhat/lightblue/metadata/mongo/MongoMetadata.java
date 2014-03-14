@@ -116,7 +116,7 @@ public class MongoMetadata implements Metadata {
                         }
                     }
                     if (!foundDefault || schema.getStatus() == MetadataStatus.DISABLED) {
-                        throw Error.get(MongoMetadataConstants.ERR_INACTIVE_VERSION, entityName + ":" + version);
+                        throw Error.get(MongoMetadataConstants.ERR_DISABLED_VERSION, entityName + ":" + version);
                     }
                 }
             } else {
