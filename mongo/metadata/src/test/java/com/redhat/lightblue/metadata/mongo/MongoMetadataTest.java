@@ -145,7 +145,7 @@ public class MongoMetadataTest {
         e2.setStatus(MetadataStatus.ACTIVE);
         e2.setDataStore(new MongoDataStore(null, null, "testCollection"));
         e2.getFields().put(new SimpleField("field1", StringType.TYPE));
-        md.createNewSchema(e2);
+        md.createNewMetadata(e2);
         EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
         Assert.assertEquals(MetadataStatus.ACTIVE, g.getStatus());
 

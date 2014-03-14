@@ -116,11 +116,11 @@ public class MongoMetadata implements Metadata {
                         }
                     }
                     if (!foundDefault || schema.getStatus() == MetadataStatus.DISABLED) {
-                        throw Error.get(MongoMetadataConstants.ERR_INACTIVE_VERSION, version);
+                        throw Error.get(MongoMetadataConstants.ERR_INACTIVE_VERSION, entityName + ":" + version);
                     }
                 }
             } else {
-                throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, version);
+                throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
 
             return new EntityMetadata(info, schema);
@@ -204,20 +204,17 @@ public class MongoMetadata implements Metadata {
         // write info and schema as separate docs!
         try {
 
-            if (md.getEntityInfo().getDefaultVersion() != null && !md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
-                BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
-                DBObject es = collection.findOne(query);
-                if (es == null) {
-                    throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
+            if(md.getEntityInfo().getDefaultVersion() != null) {
+                if (!md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
+                    BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
+                    DBObject es = collection.findOne(query);
+                    if (es == null) {
+                        throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, md.getEntityInfo().getName() + ":" + md.getEntityInfo().getDefaultVersion());
+                    }
+                } else if (md.getStatus() == MetadataStatus.DISABLED) {
+                    throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, md.getEntityInfo().getName() + ":" + md.getEntityInfo().getDefaultVersion());
                 }
             }
-
-            if (md.getEntityInfo().getDefaultVersion() != null && md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
-                if (md.getStatus() == MetadataStatus.DISABLED) {
-                    throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION);
-                }
-            }
-
             PredefinedFields.ensurePredefinedFields(md);
             DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
             DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
