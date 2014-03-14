@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.config.metadata;
 
 import com.google.gson.internal.LinkedTreeMap;
 

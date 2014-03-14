@@ -71,6 +71,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </roles>
             <timezone>-5</timezone>
         </developer>
+        <developer>
+            <id>lcestari</id>
+            <name>Luan Cestari</name>
+            <email>lcestari@redhat.com</email>
+            <organization>Red Hat</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-3</timezone>
+        </developer>
     </developers>
     <dependencyManagement>
         <dependencies>
@@ -141,6 +151,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>mongo</module>
         <module>util</module>
         <module>rest</module>
+        <module>config</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>

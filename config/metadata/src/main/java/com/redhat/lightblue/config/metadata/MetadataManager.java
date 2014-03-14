@@ -16,11 +16,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue.config.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.gson.Gson;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -35,8 +37,8 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 /**
- * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
- * instances created down to a reasonable level.
+ * Because rest resources are instantiated for every request this manager exists
+ * to keep the number of Metadata instances created down to a reasonable level.
  *
  * @author nmalik
  */
