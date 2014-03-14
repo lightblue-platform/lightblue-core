@@ -42,11 +42,21 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonUtils;
 import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import de.flapdoodle.embed.process.config.io.ProcessOutput;
+import de.flapdoodle.embed.process.io.IStreamProcessor;
+import de.flapdoodle.embed.process.io.Processors;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.ReferenceQueue;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -71,33 +81,57 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
     protected static Mongo mongo;
     protected static DB db;
     protected static DBCollection coll;
-
     protected static Factory factory;
+    protected static ReferenceQueue referenceQueue = new ReferenceQueue();
+
+    static {
+        try {
+            IStreamProcessor mongodOutput = Processors.named("[mongod>]",
+                    new FileStreamProcessor(File.createTempFile("mongod", "log")));
+            IStreamProcessor mongodError = new FileStreamProcessor(File.createTempFile("mongod-error", "log"));
+            IStreamProcessor commandsOutput = Processors.namedConsole("[console>]");
+
+            IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
+                    .defaults(Command.MongoD)
+                    .processOutput(new ProcessOutput(mongodOutput, mongodError, commandsOutput))
+                    .build();
+
+            MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
+            mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_4_3, MONGO_PORT, false));
+            mongod = mongodExe.start();
+            mongo = new Mongo(IN_MEM_CONNECTION_URL);
+
+            MongoConfiguration config = new MongoConfiguration();
+            config.setName(DB_NAME);
+            // disable ssl for test (enabled by default)
+            config.setSsl(Boolean.FALSE);
+            config.addServerAddress(MONGO_HOST, MONGO_PORT);
+
+            db = config.getDB();
+
+            coll = db.createCollection(COLL_NAME, null);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    clearDatabase();
+                }
+
+            });
+        } catch (IOException e) {
+            throw new Error(e);
+        }
+    }
 
     @BeforeClass
     public static void setupClass() throws Exception {
-        MongodStarter runtime = MongodStarter.getDefaultInstance();
-        mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_4_3, MONGO_PORT, false));
-        mongod = mongodExe.start();
-        mongo = new Mongo(IN_MEM_CONNECTION_URL);
-
-        MongoConfiguration config = new MongoConfiguration();
-        config.setName(DB_NAME);
-        // disable ssl for test (enabled by default)
-        config.setSsl(Boolean.FALSE);
-        config.addServerAddress(MONGO_HOST, MONGO_PORT);
-
-        db = config.getDB();
-
-        coll = db.createCollection(COLL_NAME, null);
-
         factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
     }
 
-    @AfterClass
-    public static void teardownClass() throws Exception {
+    public static void clearDatabase() {
         if (mongod != null) {
             mongod.stop();
             mongodExe.stop();
@@ -146,6 +180,33 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
         EntityMetadata md = parser.parseEntityMetadata(node);
         PredefinedFields.ensurePredefinedFields(md);
         return md;
+    }
+
+    public static class FileStreamProcessor implements IStreamProcessor {
+        private FileOutputStream outputStream;
+
+        public FileStreamProcessor(File file) throws FileNotFoundException {
+            outputStream = new FileOutputStream(file);
+        }
+
+        @Override
+        public void process(String block) {
+            try {
+                outputStream.write(block.getBytes());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public void onProcessed() {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
     }
 
 }

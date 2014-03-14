@@ -43,6 +43,16 @@ import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadataConstants;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.types.*;
+import de.flapdoodle.embed.mongo.Command;
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import de.flapdoodle.embed.process.config.io.ProcessOutput;
+import de.flapdoodle.embed.process.io.IStreamProcessor;
+import de.flapdoodle.embed.process.io.Processors;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,22 +73,44 @@ public class MongoMetadataTest {
 
     private MongoMetadata md;
 
-    @BeforeClass
-    public static void setupClass() throws Exception {
-        MongodStarter runtime = MongodStarter.getDefaultInstance();
-        mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
-        mongod = mongodExe.start();
-        mongo = new Mongo(IN_MEM_CONNECTION_URL);
+    static {
+        try {
+            IStreamProcessor mongodOutput = Processors.named("[mongod>]",
+                    new FileStreamProcessor(File.createTempFile("mongod", "log")));
+            IStreamProcessor mongodError = new FileStreamProcessor(File.createTempFile("mongod-error", "log"));
+            IStreamProcessor commandsOutput = Processors.namedConsole("[console>]");
 
-        MongoConfiguration config = new MongoConfiguration();
-        config.setName(DB_NAME);
-        // disable ssl for test (enabled by default)
-        config.setSsl(Boolean.FALSE);
-        config.addServerAddress(MONGO_HOST, MONGO_PORT);
+            IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
+                    .defaults(Command.MongoD)
+                    .processOutput(new ProcessOutput(mongodOutput, mongodError, commandsOutput))
+                    .build();
 
-        db = config.getDB();
+            MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
+            mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
+            mongod = mongodExe.start();
+            mongo = new Mongo(IN_MEM_CONNECTION_URL);
 
-        db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
+            MongoConfiguration config = new MongoConfiguration();
+            config.setName(DB_NAME);
+            // disable ssl for test (enabled by default)
+            config.setSsl(Boolean.FALSE);
+            config.addServerAddress(MONGO_HOST, MONGO_PORT);
+
+            db = config.getDB();
+
+            db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    clearDatabase();
+                }
+
+            });
+        } catch (IOException e) {
+            throw new java.lang.Error(e);
+        }
     }
 
     @Before
@@ -99,8 +131,7 @@ public class MongoMetadataTest {
         }
     }
 
-    @AfterClass
-    public static void teardownClass() throws Exception {
+    public static void clearDatabase() {
         if (mongod != null) {
             mongod.stop();
             mongodExe.stop();
@@ -174,7 +205,7 @@ public class MongoMetadataTest {
             md.setMetadataStatus("testEntity", "1.0", MetadataStatus.DISABLED, "disabling the default version");
             Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION);
         } catch (Error ex) {
-             Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, ex.getErrorCode());
+            Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, ex.getErrorCode());
         }
     }
 
@@ -295,5 +326,32 @@ public class MongoMetadataTest {
             Assert.fail();
         } catch (Exception x) {
         }
+    }
+
+    public static class FileStreamProcessor implements IStreamProcessor {
+        private FileOutputStream outputStream;
+
+        public FileStreamProcessor(File file) throws FileNotFoundException {
+            outputStream = new FileOutputStream(file);
+        }
+
+        @Override
+        public void process(String block) {
+            try {
+                outputStream.write(block.getBytes());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public void onProcessed() {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
     }
 }
