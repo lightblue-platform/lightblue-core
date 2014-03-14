@@ -104,10 +104,10 @@ public class Hooks {
     }
 
     private static final class HookDocs {
-        private final Hook hook;
-        private final CRUDHook crudHook;
-        private final EntityMetadata md;
-        private final List<HookDoc> docs=new ArrayList<>();
+        final Hook hook;
+        final CRUDHook crudHook;
+        final EntityMetadata md;
+        final List<HookDoc> docs=new ArrayList<>();
 
         public HookDocs(Hook hook,CRUDHook crudHook,EntityMetadata md) {
             this.hook=hook;
@@ -221,12 +221,13 @@ public class Hooks {
                 if(doc.getOperationPerformed()!=null) {
                     Map<Hook,CRUDHook> hooksList=null;
                     for(Map.Entry<Hook,CRUDHook>  hook:hooks.entrySet()) {
-                        boolean queue=false;
+                        boolean queue;
                         switch(doc.getOperationPerformed()) {
                         case INSERT: queue=hook.getKey().isInsert();break;
                         case UPDATE: queue=hook.getKey().isUpdate();break;
                         case DELETE: queue=hook.getKey().isDelete();break;
                         case FIND: queue=hook.getKey().isFind();break;
+                        default: queue=false; break;
                         }
                         if(queue) {
                             if(hooksList==null)

@@ -41,6 +41,7 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.FieldProjection;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
@@ -308,5 +309,28 @@ public class HooksTest extends AbstractJsonNodeTest  {
         Assert.assertTrue(mediatorHook.cfg instanceof MHConfig);
         Assert.assertEquals(3,mediatorHook.processed.size());
 
+    }
+
+    @Test
+    public void projectionTest() throws Exception {
+        Hooks hooks=new Hooks(resolver, nodeFactory);
+        OpCtx ctx=setupContext(Operation.INSERT);
+        // Add projection to one of the hooks
+        for(Hook h:ctx.md.getHooks().getHooks())
+            if(h.getName().equals("hook1")) {
+                h.setProjection(new FieldProjection(new Path("field1"),true,false));
+            }
+        
+        hooks.queueHooks(ctx);
+        hooks.callQueuedHooks();
+        
+        Assert.assertEquals(ctx.md,hook1.md);
+        Assert.assertTrue(hook1.cfg instanceof CH1Config);
+        Assert.assertEquals(ctx.getDocuments().size(),hook1.processed.size());
+        for(HookDoc h:hook1.processed) {
+            Assert.assertNull(h.getPreDoc());
+            Assert.assertTrue(h.getPostDoc().get(new Path("field1"))!=null);
+            Assert.assertTrue(h.getPostDoc().get(new Path("field2"))==null);
+        }
     }
 }
