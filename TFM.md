@@ -118,10 +118,10 @@ types. It is expected by the application using Metadata to construct a
 TypeResolver to resolve all supported types. The Types class is a
 basic type resolver that also knows about the types already supported
 by Lightblue. That is:
-
+```
    Types t=new Types();
    t.addDefaultTypeResolvers()
-
+```
 At this point, 't' is a type resolver that knows all the supported
 types. If the application has support for additional types, it can
 implement the Type interface, and extend the Types instance using that
