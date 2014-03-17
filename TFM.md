@@ -11,7 +11,7 @@ document from an expression.
 
 * metadata: Metadata definition classes, and interface specification for
 metadata manager. This project also contains the basic data types,
-aupported data constraints, and the basic metadata parsing framework.
+supported data constraints, and the basic metadata parsing framework.
 
 * crud: Back-end independent parts of data management. Provides the
 definitions for input/output interfaces, back-end CRUD implementation
