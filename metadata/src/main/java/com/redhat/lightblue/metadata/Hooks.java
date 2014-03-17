@@ -28,7 +28,7 @@ public class Hooks implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final ArrayList<Hook> hooks = new ArrayList<Hook>();
+    private final ArrayList<Hook> hooks = new ArrayList<>();
 
     public void setHooks(Collection<Hook> hooks) {
         this.hooks.clear();

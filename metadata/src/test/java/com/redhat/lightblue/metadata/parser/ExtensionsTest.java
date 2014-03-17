@@ -18,9 +18,7 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -62,6 +60,7 @@ public class ExtensionsTest {
         @Override
         public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
             return new DataStore() {
+                @Override
                 public String getType() {
                     return "test";
                 }
@@ -79,7 +78,7 @@ public class ExtensionsTest {
 
     @Test
     public void hookTest() throws Exception {
-        Extensions<JsonNode> ex = new Extensions<JsonNode>();
+        Extensions<JsonNode> ex = new Extensions<>();
         HookTestCfgParser hookParser = new HookTestCfgParser();
         ex.registerHookConfigurationParser("testHook", hookParser);
         ex.registerDataStoreParser("test", new TestDatastoreParser());

@@ -23,26 +23,23 @@ import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * Lists of HookDoc objects are passed to CRUDHooks. This object
- * contains the pre- and post- update versions of the document, and
- * the operation performed on the document. If the operation is
- * DELETE, the post- version is null. If the operation is INSERT or FIND, the
- * pre- version is null.
+ * Lists of HookDoc objects are passed to CRUDHooks. This object contains the pre- and post- update versions of the
+ * document, and the operation performed on the document. If the operation is DELETE, the post- version is null. If the
+ * operation is INSERT or FIND, the pre- version is null.
  */
 public class HookDoc {
-
     private final JsonDoc pre;
     private final JsonDoc post;
     private final Operation op;
-    
+
     /**
-     * Constructs a hook document with the given pre- and post- update
-     * versions of the document, and the operation performed.
+     * Constructs a hook document with the given pre- and post- update versions of the document, and the operation
+     * performed.
      */
-    public HookDoc(JsonDoc pre,JsonDoc post,Operation op) {
-        this.pre=pre;
-        this.post=post;
-        this.op=op;
+    public HookDoc(JsonDoc pre, JsonDoc post, Operation op) {
+        this.pre = pre;
+        this.post = post;
+        this.op = op;
     }
 
     /**
@@ -65,6 +62,4 @@ public class HookDoc {
     public Operation getOperation() {
         return op;
     }
-
 }
-

@@ -34,7 +34,7 @@ public class Extensions<T> {
 
     private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
 
-    private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<T, HookConfiguration>();
+    private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<>();
 
     /**
      * Initializes this to include the default extensions

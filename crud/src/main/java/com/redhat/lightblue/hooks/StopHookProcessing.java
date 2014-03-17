@@ -23,13 +23,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-
 /**
- * Exceptions during hook processing will stop the processing of the
- * current hook, but processing of the remaining hoks will
- * continue. If an exception marked with this annotarion is thrown,
- * all hook processing is stopped.
+ * Exceptions during hook processing will stop the processing of the current hook, but processing of the remaining hooks
+ * will continue. If an exception marked with this annotation is thrown, all hook processing is stopped.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface StopHookProcessing {}
+public @interface StopHookProcessing {
+}

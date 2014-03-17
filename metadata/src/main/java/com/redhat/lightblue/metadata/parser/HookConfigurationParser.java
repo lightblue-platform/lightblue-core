@@ -21,9 +21,8 @@ package com.redhat.lightblue.metadata.parser;
 import com.redhat.lightblue.metadata.HookConfiguration;
 
 /**
- * Interface for hook configuration parsers
+ * Interface for hook configuration parsers.
  */
-public interface HookConfigurationParser<NodeType>
-        extends Parser<NodeType, HookConfiguration> {
+public interface HookConfigurationParser<N> extends Parser<N, HookConfiguration> {
 
 }

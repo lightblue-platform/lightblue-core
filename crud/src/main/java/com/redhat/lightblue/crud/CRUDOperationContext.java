@@ -29,7 +29,7 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.hooks.Hooks;
+import com.redhat.lightblue.hooks.HookManager;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Error;
@@ -52,7 +52,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final Operation operation;
-    private final Hooks hooks;
+    private final HookManager hooks;
 
     public CRUDOperationContext(Operation op,
                                 String entityName,
@@ -65,7 +65,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.factory = f;
         this.nodeFactory=nf;
         this.callerRoles = callerRoles;
-        this.hooks=new Hooks(factory.getHookResolver(),nodeFactory);
+        this.hooks=new HookManager(factory.getHookResolver(),nodeFactory);
         if (docs != null) {
             documents = new ArrayList<>(docs.size());
             for (JsonDoc doc : docs) {
@@ -260,7 +260,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     /**
      * The hooks for this operation
      */
-    public Hooks getHooks() {
+    public HookManager getHooks() {
         return hooks;
     }
 }

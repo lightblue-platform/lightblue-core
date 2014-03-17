@@ -48,7 +48,7 @@ public class DocCtx extends JsonDoc {
     private JsonDoc outputDoc = this;
     private JsonDoc originalDoc = null;
     private Operation operationPerformed;
-    private Map<String,Object> propertyMap=new HashMap<>();
+    private final Map<String, Object> propertyMap = new HashMap<>();
 
     public DocCtx(JsonDoc doc) {
         super(doc.getRoot());

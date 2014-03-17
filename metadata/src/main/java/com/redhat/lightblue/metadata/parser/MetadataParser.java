@@ -204,7 +204,7 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 List<T> children = getObjectList(object);
 
-                List<I> list = new ArrayList<I>();
+                List<I> list = new ArrayList<>();
 
                 for (T child : children) {
                     list.add(cb.parse(child));

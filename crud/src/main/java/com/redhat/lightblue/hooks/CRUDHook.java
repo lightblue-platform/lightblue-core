@@ -39,11 +39,9 @@ public interface CRUDHook {
      * @param ctx The operation context. This contains the operation performed on the entity, and the complete list of
      * documents
      * @param cfg The hook configuration as specified in the metadata
-     * @param processedDocuments Contains the list of documents that
-     * are operated on. If the hook specifies a projection in
-     * metadata, the input and output documents are projected. The
-     * hook should not modify the documents in the list. Same
-     * documents are passed to the other hooks.
+     * @param processedDocuments Contains the list of documents that are operated on. If the hook specifies a projection
+     * in metadata, the input and output documents are projected. The hook should not modify the documents in the list.
+     * Same documents are passed to the other hooks.
      */
     void processHook(EntityMetadata md,
                      HookConfiguration cfg,
