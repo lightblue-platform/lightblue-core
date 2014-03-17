@@ -98,7 +98,7 @@ public class Mediator {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.insert(ctx, req.getReturnFields());
-                    ctx.getHooks().queueMediatorHooks(ctx);
+                    ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (!insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
@@ -119,7 +119,7 @@ public class Mediator {
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
             if(response.getStatus()!=OperationStatus.ERROR)
-                ctx.getHooks().callQueuedHooks();
+                ctx.getHookManager().callQueuedHooks();
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -160,7 +160,7 @@ public class Mediator {
                     CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.save(ctx, req.isUpsert(), req.getReturnFields());
-                    ctx.getHooks().queueMediatorHooks(ctx);
+                    ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (!updatedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
@@ -179,7 +179,7 @@ public class Mediator {
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
             if(response.getStatus()!=OperationStatus.ERROR)
-                ctx.getHooks().callQueuedHooks();
+                ctx.getHookManager().callQueuedHooks();
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -220,7 +220,7 @@ public class Mediator {
                         req.getQuery(),
                         req.getUpdateExpression(),
                         req.getReturnFields());
-                ctx.getHooks().queueMediatorHooks(ctx);
+                ctx.getHookManager().queueMediatorHooks(ctx);
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
                 response.setModifiedCount(updateResponse.getNumUpdated());
                 if (ctx.hasErrors()) {
@@ -232,7 +232,7 @@ public class Mediator {
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
             if(response.getStatus()!=OperationStatus.ERROR)
-                ctx.getHooks().callQueuedHooks();
+                ctx.getHookManager().callQueuedHooks();
        } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -260,7 +260,7 @@ public class Mediator {
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDDeleteResponse result = controller.delete(ctx,
                         req.getQuery());
-                ctx.getHooks().queueMediatorHooks(ctx);
+                ctx.getHookManager().queueMediatorHooks(ctx);
                 response.setModifiedCount(result.getNumDeleted());
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
@@ -271,7 +271,7 @@ public class Mediator {
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
             if(response.getStatus()!=OperationStatus.ERROR)
-                ctx.getHooks().callQueuedHooks();
+                ctx.getHookManager().callQueuedHooks();
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -312,7 +312,7 @@ public class Mediator {
                         req.getSort(),
                         req.getFrom(),
                         req.getTo());
-                ctx.getHooks().queueMediatorHooks(ctx);
+                ctx.getHookManager().queueMediatorHooks(ctx);
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
                 List<DocCtx> documents = ctx.getDocuments();
@@ -327,7 +327,7 @@ public class Mediator {
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
             if(response.getStatus()!=OperationStatus.ERROR)
-                ctx.getHooks().callQueuedHooks();
+                ctx.getHookManager().callQueuedHooks();
         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);

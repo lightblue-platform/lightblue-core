@@ -58,7 +58,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 /**
@@ -183,7 +182,7 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
     }
 
     public static class FileStreamProcessor implements IStreamProcessor {
-        private FileOutputStream outputStream;
+        private final FileOutputStream outputStream;
 
         public FileStreamProcessor(File file) throws FileNotFoundException {
             outputStream = new FileOutputStream(file);

@@ -52,7 +52,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final Operation operation;
-    private final HookManager hooks;
+    private final HookManager hookManager;
 
     public CRUDOperationContext(Operation op,
                                 String entityName,
@@ -65,7 +65,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.factory = f;
         this.nodeFactory=nf;
         this.callerRoles = callerRoles;
-        this.hooks=new HookManager(factory.getHookResolver(),nodeFactory);
+        this.hookManager=new HookManager(factory.getHookResolver(),nodeFactory);
         if (docs != null) {
             documents = new ArrayList<>(docs.size());
             for (JsonDoc doc : docs) {
@@ -258,9 +258,9 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * The hooks for this operation
+     * The hookManager for this operation
      */
-    public HookManager getHooks() {
-        return hooks;
+    public HookManager getHookManager() {
+        return hookManager;
     }
 }

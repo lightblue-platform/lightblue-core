@@ -193,7 +193,7 @@ public class MongoCRUDController implements CRUDController {
                     try {
                         saver.saveDoc(ctx, operation.equals(OP_INSERT) ? DocSaver.Op.insert : DocSaver.Op.save,
                                 upsert, collection, md, dbObject, inputDoc);
-                        ctx.getHooks().queueHooks(ctx);
+                        ctx.getHookManager().queueHooks(ctx);
                     } catch (Exception e) {
                         LOGGER.error("saveOrInsert failed: {}", e);
                         inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, e.toString()));
@@ -290,7 +290,7 @@ public class MongoCRUDController implements CRUDController {
                 }
                 ctx.setProperty(PROP_UPDATER, docUpdater);
                 docUpdater.update(ctx, coll, md, response, mongoQuery);
-                ctx.getHooks().queueHooks(ctx);
+                ctx.getHookManager().queueHooks(ctx);
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "update:" + ctx.getEntityName()));
             }
@@ -322,7 +322,7 @@ public class MongoCRUDController implements CRUDController {
                 DocDeleter deleter = new IterateDeleter(translator);
                 ctx.setProperty(PROP_DELETER, deleter);
                 deleter.delete(ctx, coll, mongoQuery, response);
-                ctx.getHooks().queueHooks(ctx);
+                ctx.getHookManager().queueHooks(ctx);
            } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "delete:" + ctx.getEntityName()));
             }
@@ -383,7 +383,7 @@ public class MongoCRUDController implements CRUDController {
                     QueryEvaluationContext qctx = qeval.evaluate(document);
                     document.setOutputDocument(projector.project(document, nodeFactory, qctx));
                 }
-                ctx.getHooks().queueHooks(ctx);
+                ctx.getHookManager().queueHooks(ctx);
            } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "find:" + ctx.getEntityName()));
             }
@@ -393,5 +393,4 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find end: query: {} results: {}", response.getSize());
         return response;
     }
-
 }
