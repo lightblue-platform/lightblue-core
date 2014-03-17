@@ -47,6 +47,7 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+            <!-- Arquillian website suggestion due some bugs in the surefire default version -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12</version>
