@@ -83,6 +83,7 @@ public final class MetadataManager {
         JsonNode root = JsonUtils.json(buff.toString());
 
         // convert root to Configuration object
+        // TODO swap out something other than Gson
         Gson g = new Gson();
         MetadataConfiguration configuration = g.fromJson(buff.toString(), MetadataConfiguration.class);
 

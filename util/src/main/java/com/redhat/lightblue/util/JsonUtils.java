@@ -66,6 +66,30 @@ public final class JsonUtils {
         toString(bld, node, 0, true);
     }
 
+    /**
+     * Utility method to convert array of strings to a json document.
+     *
+     * @param strings
+     * @return
+     */
+    public static String toJson(String[] strings) {
+        return _toJson(strings);
+    }
+
+    private static String _toJson(Object[] objects) {
+        StringBuilder buff = new StringBuilder("[\"");
+        for (int x = 0; x < objects.length; x++) {
+            if (objects[x] != null) {
+                buff.append(objects[x].toString());
+                if (x + 1 < objects.length) {
+                    buff.append("\",\"");
+                }
+            }
+        }
+        buff.append("\"]");
+        return buff.toString();
+    }
+
     private static boolean toString(StringBuilder bld,
                                     JsonNode node,
                                     int depth,
