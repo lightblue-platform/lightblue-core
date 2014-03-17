@@ -35,7 +35,7 @@ public class ITCaseCrudResourceTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/lightblue-clud.json"), "lightblue-clud.json")
+                .addAsResource(new File("src/test/resources/lightblue-clud.json"), "lightblue-crud.json")
                 .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties")
                 ;
                 //.addClasses(RestApplication.class, RestCrudConstants.class, CrudResource.class);//, CrudConfiguration.class);
