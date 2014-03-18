@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.rest.metadata;
 
+import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.Version;
 import org.json.JSONException;
@@ -53,5 +54,75 @@ public class GsonTest {
         String json = g.toJson(versions);
 
         JSONAssert.assertEquals("[{\"value\":\"0.1.0\",\"extendsVersions\":[],\"changelog\":\"initial\"},{\"value\":\"1.0.0\",\"extendsVersions\":[\"0.1.0\"],\"changelog\":\"release\"}]", json, false);
+    }
+
+    @Test
+    public void stringArrayBenchmark() throws JSONException {
+        int count = 1000;
+        String[] strings = new String[]{"a", "b", "c"};
+
+        {
+            long start = System.currentTimeMillis();
+
+            for (int i = 0; i < count; i++) {
+                Gson g = new Gson();
+                String json = g.toJson(strings);
+                JSONAssert.assertEquals("[\"a\",\"b\",\"c\"]", json, false);
+            }
+
+            long end = System.currentTimeMillis();
+
+            System.out.println("BENCHMARK (stringArrayBenchmark) | Gson = " + (end - start));
+        }
+
+        {
+            long start = System.currentTimeMillis();
+
+            for (int i = 0; i < count; i++) {
+                StringBuilder buff = new StringBuilder("[\"");
+                buff.append(Joiner.on("\",\"").join(strings));
+                buff.append("\"]");
+                String json = buff.toString();
+                JSONAssert.assertEquals("[\"a\",\"b\",\"c\"]", json, false);
+            }
+
+            long end = System.currentTimeMillis();
+
+            System.out.println("BENCHMARK (stringArrayBenchmark) | Joiner+Builder = " + (end - start));
+        }
+
+        {
+            long start = System.currentTimeMillis();
+
+            for (int i = 0; i < count; i++) {
+                String json = String.format("[\"%s\"]", Joiner.on("\",\"").join(strings));
+                JSONAssert.assertEquals("[\"a\",\"b\",\"c\"]", json, false);
+            }
+
+            long end = System.currentTimeMillis();
+
+            System.out.println("BENCHMARK (stringArrayBenchmark) | Joiner+format = " + (end - start));
+        }
+
+        {
+            long start = System.currentTimeMillis();
+
+            for (int i = 0; i < count; i++) {
+                StringBuilder buff = new StringBuilder("[\"");
+                for (int x = 0; x < strings.length; x++) {
+                    buff.append(strings[x]);
+                    if (x + 1 < strings.length) {
+                        buff.append("\",\"");
+                    }
+                }
+                buff.append("\"]");
+                String json = buff.toString();
+                JSONAssert.assertEquals("[\"a\",\"b\",\"c\"]", json, false);
+            }
+
+            long end = System.currentTimeMillis();
+
+            System.out.println("BENCHMARK (stringArrayBenchmark) | StringBuilder = " + (end - start));
+        }
     }
 }

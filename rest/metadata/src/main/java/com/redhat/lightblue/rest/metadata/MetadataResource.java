@@ -18,19 +18,18 @@
  */
 package com.redhat.lightblue.rest.metadata;
 
-import com.google.gson.Gson;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple service to test out NewRelic custom metrics.
@@ -39,6 +38,7 @@ import javax.ws.rs.PathParam;
  */
 @Path("/metadata")
 public class MetadataResource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataResource.class);
 
     public static final String PATH_PARAM_ENTITY = "entity";
     public static final String PATH_PARAM_VERSION = "version";
@@ -60,10 +60,8 @@ public class MetadataResource {
             // convert to json and return
             return MetadataManager.getJSONParser().convert(em).toString();
         } catch (Error e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
         } catch (Exception e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
@@ -76,12 +74,10 @@ public class MetadataResource {
             String[] names = MetadataManager.getMetadata().getEntityNames();
 
             // convert to json and return
-            return new Gson().toJson(names);
+            return JsonUtils.toJson(names);
         } catch (Error e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
         } catch (Exception e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
@@ -97,12 +93,15 @@ public class MetadataResource {
             // get the data
             Version[] versions = MetadataManager.getMetadata().getEntityVersions(entityName);
 
-            return new Gson().toJson(versions);
+            StringBuilder buff = new StringBuilder("[");
+            for (int x = 0; x < versions.length; x++) {
+                buff.append(MetadataManager.getJSONParser().convert(versions[x]));
+            }
+            buff.append("]");
+            return buff.toString();
         } catch (Error e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
         } catch (Exception e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
@@ -143,10 +142,8 @@ public class MetadataResource {
             // if successful fetch the metadata back out of the database and return it (simply reuse the existing rest api to do it)
             return getMetadata(entityName, entityVersion);
         } catch (Error e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
         } catch (Exception e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
@@ -181,10 +178,8 @@ public class MetadataResource {
             // if successful fetch the metadata back out of the database and return it (simply reuse the existing rest api to do it)
             return getMetadata(entityName, entityVersion);
         } catch (Error e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return e.toJson().toString();
         } catch (Exception e) {
-            Logger.getLogger(MetadataResource.class.getName()).log(Level.SEVERE, null, e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
         }
     }
