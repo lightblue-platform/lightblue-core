@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.config.metadata;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import org.junit.Assert;

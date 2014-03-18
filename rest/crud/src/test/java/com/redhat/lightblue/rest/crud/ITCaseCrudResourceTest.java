@@ -59,6 +59,7 @@ public class ITCaseCrudResourceTest {
         return archive;
 
     }
+    
     @Inject
     private CrudResource cut; //class under test
 

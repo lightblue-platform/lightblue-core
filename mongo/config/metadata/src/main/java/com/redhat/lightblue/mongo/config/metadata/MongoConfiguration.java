@@ -22,11 +22,16 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.net.ssl.SSLSocketFactory;
+import org.bson.BSONObject;
 
 /**
  * TODO revisit having spun this out into a common module. May only be needed by metadata.
@@ -40,7 +45,16 @@ public class MongoConfiguration {
     private String collection;
     private Integer connectionsPerHost;
     private Boolean ssl = Boolean.TRUE;
-
+    
+    public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
+        DB db = configuration.getDB();
+        Extensions<BSONObject> parserExtensions = new Extensions<>();
+        parserExtensions.addDefaultExtensions();
+        parserExtensions.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
+        DefaultTypes typeResolver = new DefaultTypes();
+        return new MongoMetadata(db, parserExtensions, typeResolver);
+    }
+    
     /**
      * @return the name
      */

@@ -1,14 +1,14 @@
 {
-    "metadataClass": "com.redhat.lightblue.metadata.test.DatabaseMetadata",
+    "metadataClass": "com.redhat.lightblue.metadata.mongo.MongoMetadata",
     "metadataFactoryMethod": "create",
     "controllers": [
         {
             "datastoreType": "test",
-            "className": "com.redhat.lightblue.crud.test.TestCRUDController",
+            "className": "com.redhat.lightblue.crud.mongo.MongoCRUDController",
             "factoryMethod": "create"
         }
     ],
-    "databaseConfigurationClass": "com.redhat.lightblue.metadata.test.DatabaseConfiguration",
+    "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
     "database": {
         "name": "test",
         "host": "whatever",

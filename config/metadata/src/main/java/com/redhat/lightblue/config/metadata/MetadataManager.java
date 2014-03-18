@@ -101,9 +101,7 @@ public final class MetadataManager {
             throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_VALID +" - "+ MetadataConfiguration.FILENAME);
         }
 
-        Class metadataClass = Class.forName(configuration.getMetadataClass());
-
-        Method m = metadataClass.getDeclaredMethod(configuration.getMetadataFactoryMethod(), databaseConfigurationClass);
+        Method m = databaseConfigurationClass.getDeclaredMethod(configuration.getMetadataFactoryMethod(), databaseConfigurationClass);
 
         metadata = (Metadata) m.invoke(null, configuration.getDatabaseConfiguration());
     }

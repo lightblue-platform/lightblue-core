@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.metadata.test;
 
+import com.redhat.lightblue.metadata.Metadata;
+
 /**
  *
  * @author nmalik
@@ -27,6 +29,10 @@ public class DatabaseConfiguration {
     private String hostname = "localhost";
     private String port = "27017";
     private String collection = "metadata";
+
+    public static final Metadata create(DatabaseConfiguration config) {
+        return new DatabaseMetadata();
+    }
 
     public String getName() {
         return name;
