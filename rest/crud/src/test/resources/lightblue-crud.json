@@ -1,6 +1,6 @@
 {
-    "mediatorClass": "",
-    "mediatorFactoryMethod": "",
+    "metadataClass": "com.redhat.lightblue.metadata.test.DatabaseMetadata",
+    "metadataFactoryMethod": "create",
     "controllers": [
         {
             "datastoreType": "test",
@@ -8,7 +8,7 @@
             "factoryMethod": "create"
         }
     ],
-    "databaseConfigurationClass": "com.redhat.lightblue.crud.test.DatabaseConfiguration",
+    "databaseConfigurationClass": "com.redhat.lightblue.metadata.test.DatabaseConfiguration",
     "database": {
         "name": "test",
         "host": "whatever",

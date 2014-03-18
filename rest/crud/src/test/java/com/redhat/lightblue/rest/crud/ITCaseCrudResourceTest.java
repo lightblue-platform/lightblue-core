@@ -1,10 +1,24 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ *
+ * This file is part of lightblue.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.redhat.lightblue.rest.crud;
 
+import com.redhat.lightblue.config.metadata.MetadataConfiguration;
 import com.redhat.lightblue.crud.CrudConfiguration;
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,10 +49,8 @@ public class ITCaseCrudResourceTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/lightblue-clud.json"), "lightblue-crud.json")
-                .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties")
-                ;
-                //.addClasses(RestApplication.class, RestCrudConstants.class, CrudResource.class);//, CrudConfiguration.class);
+                .addAsResource(new File("src/test/resources/lightblue-crud.json"), MetadataConfiguration.FILENAME)
+                .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -53,7 +65,7 @@ public class ITCaseCrudResourceTest {
     @Test
     public void testFirstIntegrationTest() throws IOException {
         System.out.println("crudResource: " + cut);
-        System.out.println("crudResource find: " + cut.find("test"));
+        System.out.println("crudResource find: " + cut.find("{\"test\":\"true\"}"));
 
     }
 
