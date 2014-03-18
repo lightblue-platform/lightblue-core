@@ -9,10 +9,9 @@
         }
     ],
     "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
-    "database": {
-        "name": "test",
-        "host": "whatever",
-        "port": 1234,
-        "collection": "metadata"
+    "database": {       
+        "name":"testmetadata",
+        "servers":[{"_host":"localhost","_port":27777}],
+        "ssl":false
     }
 }

@@ -18,21 +18,41 @@
  */
 package com.redhat.lightblue.rest.crud;
 
+import com.google.gson.Gson;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.Mongo;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
-import com.redhat.lightblue.crud.CrudConfiguration;
-import java.io.BufferedReader;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
+import de.flapdoodle.embed.mongo.Command;
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.MongodStarter;
+import de.flapdoodle.embed.mongo.config.MongodConfig;
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import de.flapdoodle.embed.process.config.io.ProcessOutput;
+import de.flapdoodle.embed.process.io.IStreamProcessor;
+import de.flapdoodle.embed.process.io.Processors;
+import de.flapdoodle.embed.process.runtime.Network;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import javax.inject.Inject;
+import org.bson.BSONObject;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +62,118 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class ITCaseCrudResourceTest {
+
+    public static class FileStreamProcessor implements IStreamProcessor {
+        private FileOutputStream outputStream;
+
+        public FileStreamProcessor(File file) throws FileNotFoundException {
+            outputStream = new FileOutputStream(file);
+        }
+
+        @Override
+        public void process(String block) {
+            try {
+                outputStream.write(block.getBytes());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public void onProcessed() {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+    }
+    
+    private static final String MONGO_HOST = "localhost";
+    private static final int MONGO_PORT = 27777;
+    private static final String IN_MEM_CONNECTION_URL = MONGO_HOST + ":" + MONGO_PORT;
+
+    private static final String DB_NAME = "testmetadata";
+
+    private static MongodExecutable mongodExe;
+    private static MongodProcess mongod;
+    private static Mongo mongo;
+    private static DB db;
+
+    private MongoMetadata md;
+
+    static {
+        try {
+            IStreamProcessor mongodOutput = Processors.named("[mongod>]",
+                    new FileStreamProcessor(File.createTempFile("mongod", "log")));
+            IStreamProcessor mongodError = new FileStreamProcessor(File.createTempFile("mongod-error", "log"));
+            IStreamProcessor commandsOutput = Processors.namedConsole("[console>]");
+
+            IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
+                    .defaults(Command.MongoD)
+                    .processOutput(new ProcessOutput(mongodOutput, mongodError, commandsOutput))
+                    .build();
+
+            MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
+            mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
+            mongod = mongodExe.start();
+            mongo = new Mongo(IN_MEM_CONNECTION_URL);
+
+            MongoConfiguration config = new MongoConfiguration();
+            config.setName(DB_NAME);
+            // disable ssl for test (enabled by default)
+            config.setSsl(Boolean.FALSE);
+            config.addServerAddress(MONGO_HOST, MONGO_PORT);
+
+            db = config.getDB();
+
+            db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    clearDatabase();
+                }
+
+            });
+        } catch (IOException e) {
+            throw new java.lang.Error(e);
+        }
+    }
+
+    @Before
+    public void setup() {
+        Extensions<BSONObject> x = new Extensions<>();
+        x.addDefaultExtensions();
+        x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
+        md = new MongoMetadata(db, x, new DefaultTypes());
+        BasicDBObject index = new BasicDBObject("name", 1);
+        index.put("version.value", 1);
+        db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
+
+        System.out.println("DEBUG");
+        System.out.println(new Gson().toJson(md));
+    }
+
+    @After
+    public void teardown() {
+        if (mongo != null) {
+            mongo.dropDatabase(DB_NAME);
+        }
+    }
+
+    public static void clearDatabase() {
+        if (mongod != null) {
+            mongod.stop();
+            mongodExe.stop();
+        }
+        db = null;
+        mongo = null;
+        mongod = null;
+        mongodExe = null;
+    }
 
     @Deployment
     public static WebArchive createDeployment() {
@@ -59,14 +191,14 @@ public class ITCaseCrudResourceTest {
         return archive;
 
     }
-    
+
     @Inject
     private CrudResource cut; //class under test
 
     @Test
     public void testFirstIntegrationTest() throws IOException {
         System.out.println("crudResource: " + cut);
-        System.out.println("crudResource find: " + cut.find("{\"test\":\"true\"}"));
+        System.out.println("crudResource find: " + cut.find("{\"name\":\"1\"}"));
 
     }
 

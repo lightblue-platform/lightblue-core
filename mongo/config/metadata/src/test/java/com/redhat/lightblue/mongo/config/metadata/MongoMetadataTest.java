@@ -53,12 +53,37 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 public class MongoMetadataTest {
 
+    public static class FileStreamProcessor implements IStreamProcessor {
+        private FileOutputStream outputStream;
+
+        public FileStreamProcessor(File file) throws FileNotFoundException {
+            outputStream = new FileOutputStream(file);
+        }
+
+        @Override
+        public void process(String block) {
+            try {
+                outputStream.write(block.getBytes());
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public void onProcessed() {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
+    }
+    
     // Copied from  https://github.com/tommysdk/showcase/blob/master/mongo-in-mem/src/test/java/tommysdk/showcase/mongo/TestInMemoryMongo.java
     private static final String MONGO_HOST = "localhost";
     private static final int MONGO_PORT = 27777;
@@ -328,30 +353,4 @@ public class MongoMetadataTest {
         }
     }
 
-    public static class FileStreamProcessor implements IStreamProcessor {
-        private FileOutputStream outputStream;
-
-        public FileStreamProcessor(File file) throws FileNotFoundException {
-            outputStream = new FileOutputStream(file);
-        }
-
-        @Override
-        public void process(String block) {
-            try {
-                outputStream.write(block.getBytes());
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-        @Override
-        public void onProcessed() {
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
-    }
 }
