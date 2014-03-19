@@ -92,22 +92,8 @@ public class MongoMetadata implements Metadata {
             DBObject es = collection.findOne(query);
             if (es != null) {
                 schema = mdParser.parseEntitySchema(es);
-                if (schema.getStatus() == MetadataStatus.DISABLED) {
-                    boolean foundDefault = false;
-                    if (info.getDefaultVersion() != null) {
-                        query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + info.getDefaultVersion());
-                        es = collection.findOne(query);
-                        if (es != null) {
-                            schema = mdParser.parseEntitySchema(es);
-                            foundDefault = true;
-                        }
-                    }
-                    if (!foundDefault || schema.getStatus() == MetadataStatus.DISABLED) {
-                        throw Error.get(MongoMetadataConstants.ERR_DISABLED_VERSION, entityName + ":" + version);
-                    }
-                }
             } else {
-                throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
+                schema = null;
             }
 
             return new EntityMetadata(info, schema);
@@ -191,7 +177,7 @@ public class MongoMetadata implements Metadata {
         // write info and schema as separate docs!
         try {
 
-            if(md.getEntityInfo().getDefaultVersion() != null) {
+            if (md.getEntityInfo().getDefaultVersion() != null) {
                 if (!md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
                     BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
                     DBObject es = collection.findOne(query);
@@ -330,7 +316,7 @@ public class MongoMetadata implements Metadata {
             }
 
             EntityInfo info = getEntityInfo(entityName);
-            if(info.getDefaultVersion() != null && info.getDefaultVersion().contentEquals(version) && newStatus == MetadataStatus.DISABLED)
+            if (info.getDefaultVersion() != null && info.getDefaultVersion().contentEquals(version) && newStatus == MetadataStatus.DISABLED)
                 throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, entityName + ":" + version);
 
             EntitySchema schema = mdParser.parseEntitySchema(md);
