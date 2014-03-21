@@ -48,7 +48,7 @@ public abstract class Projection extends JsonObject {
      * projection is empty, returns null.
      */
     public static Projection add(Projection p1, Projection p2) {
-        List<Projection> list = new ArrayList<Projection>();
+        List<Projection> list = new ArrayList<>();
         if (p1 instanceof ProjectionList) {
             list.addAll(((ProjectionList) p1).getItems());
         } else if (p1 != null) {

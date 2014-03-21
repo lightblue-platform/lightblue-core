@@ -45,7 +45,7 @@ public class QueryEvaluationContext {
     public QueryEvaluationContext(JsonNode root, Path p) {
         this.contextRoot = root;
         this.contextPath = p.mutableCopy();
-        excludedArrayElements = new HashSet<Path>();
+        excludedArrayElements = new HashSet<>();
     }
 
     private QueryEvaluationContext(QueryEvaluationContext ctx, JsonNode root, Path relativePath) {

@@ -49,7 +49,7 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
         }
         operator = expr.getOp();
         List<Value> l = expr.getValues();
-        values = new ArrayList<Object>(l.size());
+        values = new ArrayList<>(l.size());
         for (Value x : l) {
             if (x != null) {
                 values.add(x.getValue());

@@ -27,14 +27,14 @@ public class EmptyIteratorTest {
 
     @Test
     public void hasNext() {
-        EmptyIterator<Object> i = new EmptyIterator<Object>();
+        EmptyIterator<Object> i = new EmptyIterator<>();
 
         Assert.assertFalse(i.hasNext());
     }
 
     @Test
     public void next() {
-        EmptyIterator<Object> i = new EmptyIterator<Object>();
+        EmptyIterator<Object> i = new EmptyIterator<>();
         try {
             i.next();
             Assert.fail();
@@ -45,7 +45,7 @@ public class EmptyIteratorTest {
 
     @Test
     public void remove() {
-        EmptyIterator<Object> i = new EmptyIterator<Object>();
+        EmptyIterator<Object> i = new EmptyIterator<>();
         try {
             i.remove();
             Assert.fail();

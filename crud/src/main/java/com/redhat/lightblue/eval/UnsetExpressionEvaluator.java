@@ -87,7 +87,7 @@ public class UnsetExpressionEvaluator extends Updater {
     private final JsonNodeFactory factory;
 
     public UnsetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, UnsetExpression expr) {
-        fields = new ArrayList<AbsPath>(expr.getFields().size());
+        fields = new ArrayList<>(expr.getFields().size());
         this.factory = factory;
         for (Path p : expr.getFields()) {
             FieldTreeNode node = context.resolve(p);

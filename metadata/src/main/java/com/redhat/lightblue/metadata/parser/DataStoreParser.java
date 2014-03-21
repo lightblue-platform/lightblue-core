@@ -24,5 +24,5 @@ import com.redhat.lightblue.metadata.DataStore;
  * Interface for data store parsers
  */
 public interface DataStoreParser<NodeType> extends Parser<NodeType, DataStore> {
-
+    String getDefaultName();
 }

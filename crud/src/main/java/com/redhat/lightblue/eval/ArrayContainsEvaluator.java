@@ -71,7 +71,7 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             ContainsOperator op = expr.getOp();
             Type t = elem.getType();
             int numElementsContained = 0;
-            List<Integer> nonmatchingIndexes = new ArrayList<Integer>();
+            List<Integer> nonmatchingIndexes = new ArrayList<>();
             int index = 0;
             for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
                 boolean match = false;

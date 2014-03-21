@@ -77,7 +77,7 @@ public class UnsetExpression extends PrimitiveUpdateExpression {
         if (node.size() == 1) {
             JsonNode val = node.get(UpdateOperator._unset.toString());
             if (val != null) {
-                List<Path> fields = new ArrayList<Path>();
+                List<Path> fields = new ArrayList<>();
                 if (val instanceof ArrayNode) {
                     for (Iterator<JsonNode> itr = ((ArrayNode) val).elements(); itr.hasNext();) {
                         fields.add(new Path(itr.next().asText()));

@@ -32,7 +32,7 @@ public class PathParseTest extends Path {
 
     @Before
     public void setup() {
-        expected = new ArrayList<String>();
+        expected = new ArrayList<>();
     }
 
     @Test(expected = InvalidPathException.class)

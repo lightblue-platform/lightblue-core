@@ -36,7 +36,7 @@ public class EmptyEntityConstraintValidators
         implements Resolver<String, EntityConstraintChecker> {
 
     private final Map<String, EntityConstraintChecker> checkers
-            = new HashMap<String, EntityConstraintChecker>();
+            = new HashMap<>();
 
     private static final class EmptyChecker implements EntityConstraintChecker {
         @Override

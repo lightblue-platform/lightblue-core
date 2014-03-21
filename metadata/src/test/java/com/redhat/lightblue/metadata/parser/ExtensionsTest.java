@@ -54,6 +54,7 @@ public class ExtensionsTest {
         @Override
         public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
         }
+
     }
 
     public static class TestDatastoreParser implements DataStoreParser<JsonNode> {
@@ -69,6 +70,11 @@ public class ExtensionsTest {
 
         @Override
         public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
+        }
+
+        @Override
+        public String getDefaultName() {
+            return null;
         }
     }
 

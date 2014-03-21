@@ -57,7 +57,7 @@ public class ProjectionList extends Projection {
     }
 
     public static ProjectionList fromJson(ArrayNode node) {
-        ArrayList<Projection> list = new ArrayList<Projection>(node.size());
+        ArrayList<Projection> list = new ArrayList<>(node.size());
         for (Iterator<JsonNode> itr = node.elements(); itr.hasNext();) {
             list.add(BasicProjection.fromJson((ObjectNode) itr.next()));
         }

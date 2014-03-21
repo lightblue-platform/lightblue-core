@@ -101,7 +101,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             // At this point, arraySizeField is derived from metadata,
             // so it has * as array indexes
             arraySizeField = abs.immutableCopy();
-            values = new ArrayList<RValueData>(expr.getValues().size());
+            values = new ArrayList<>(expr.getValues().size());
             initializeArrayField(context, expr);
         } else {
             throw new EvaluationError(CrudConstants.ERR_REQUIRED_ARRAY + arrayField);

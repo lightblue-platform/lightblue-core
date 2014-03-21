@@ -252,7 +252,7 @@ public class ResponseTest {
 
     private List<DataError> getPopulatedDataErrors(int numberOfErrors) {
 
-        List<DataError> dataErrors = new ArrayList<DataError>();
+        List<DataError> dataErrors = new ArrayList<>();
 
         DataError dataError = new DataError(node, getPopulatedErrors(numberOfErrors));
         dataErrors.add(dataError);
@@ -263,7 +263,7 @@ public class ResponseTest {
     private List<Error> getPopulatedErrors(int numberOfErrors) {
         String errorText = "error";
 
-        List<Error> errors = new ArrayList<Error>();
+        List<Error> errors = new ArrayList<>();
 
         for (int i = 0; i < numberOfErrors; i++) {
             errors.add(Error.get(errorText + i));

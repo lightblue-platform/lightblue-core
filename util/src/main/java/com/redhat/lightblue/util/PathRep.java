@@ -39,14 +39,14 @@ class PathRep implements Serializable, Comparable<PathRep> {
      * Creates an empty path
      */
     public PathRep() {
-        segments = new ArrayList<String>(10);
+        segments = new ArrayList<>(10);
     }
 
     /**
      * Copy ctor
      */
     public PathRep(PathRep data) {
-        segments = new ArrayList<String>(data.segments);
+        segments = new ArrayList<>(data.segments);
         stringValue = data.stringValue;
         hashValue = data.hashValue;
     }
@@ -59,7 +59,7 @@ class PathRep implements Serializable, Comparable<PathRep> {
      */
     public PathRep(PathRep data, int x) {
         int k = data.segments.size();
-        segments = new ArrayList<String>(k);
+        segments = new ArrayList<>(k);
         int n;
         if (x >= 0) {
             n = k > x ? x : k;

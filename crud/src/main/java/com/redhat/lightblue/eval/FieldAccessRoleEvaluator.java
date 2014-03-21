@@ -86,7 +86,7 @@ public final class FieldAccessRoleEvaluator {
      */
     public Set<Path> getInaccessibleFields(Operation op) {
         FieldCursor cursor = md.getFieldCursor();
-        Set<Path> fields = new HashSet<Path>();
+        Set<Path> fields = new HashSet<>();
         while (cursor.next()) {
             FieldTreeNode fn = cursor.getCurrentNode();
             if (fn instanceof Field && !hasAccess((Field) fn, op)) {
@@ -102,7 +102,7 @@ public final class FieldAccessRoleEvaluator {
      */
     public List<Path> getInaccessibleFields_Insert(JsonDoc doc) {
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.insert);
-        List<Path> ret = new ArrayList<Path>(inaccessibleFields.size());
+        List<Path> ret = new ArrayList<>(inaccessibleFields.size());
         for (Path x : inaccessibleFields) {
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(x);
             if (cursor.hasNext()) {
@@ -120,7 +120,7 @@ public final class FieldAccessRoleEvaluator {
      */
     public List<Path> getInaccessibleFields_Update(JsonDoc newDoc, JsonDoc oldDoc) {
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.update);
-        List<Path> ret = new ArrayList<Path>(inaccessibleFields.size());
+        List<Path> ret = new ArrayList<>(inaccessibleFields.size());
         for (Path x : inaccessibleFields) {
             KeyValueCursor<Path, JsonNode> oldCursor = oldDoc.getAllNodes(x);
             KeyValueCursor<Path, JsonNode> newCursor = newDoc.getAllNodes(x);
@@ -143,7 +143,7 @@ public final class FieldAccessRoleEvaluator {
             if (inaccessibleFields.size() == 1) {
                 ret = new FieldProjection(inaccessibleFields.iterator().next(), false, true);
             } else {
-                List<Projection> list = new ArrayList<Projection>(inaccessibleFields.size());
+                List<Projection> list = new ArrayList<>(inaccessibleFields.size());
                 for (Path x : inaccessibleFields) {
                     list.add(new FieldProjection(x, false, true));
                 }

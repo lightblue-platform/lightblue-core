@@ -38,7 +38,7 @@ public class DefaultFieldConstraintValidators
         implements Resolver<String, FieldConstraintChecker> {
 
     private final Map<String, FieldConstraintChecker> checkers
-            = new HashMap<String, FieldConstraintChecker>();
+            = new HashMap<>();
 
     public DefaultFieldConstraintValidators() {
         checkers.put(ArraySizeConstraint.MIN, new ArraySizeChecker());

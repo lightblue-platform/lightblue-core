@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.gson.Gson;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -35,6 +36,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * Because rest resources are instantiated for every request this manager exists
@@ -45,18 +47,29 @@ import java.nio.charset.Charset;
 public final class MetadataManager {
     private static Metadata metadata = null;
     private static JSONMetadataParser parser = null;
+    private static MetadataConfiguration configuration = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private MetadataManager() {
 
     }
 
-    private static synchronized void initializeParser() {
+    private static synchronized void initializeParser() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         if (parser != null) {
             return;
         }
+        initializeMetadata();
+
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
+        if(configuration != null && configuration.getDataStoreParserNames() != null) {
+            for (Map.Entry<String,String> entry : configuration.getDataStoreParserNames().entrySet()) {
+                Class<DataStoreParser> databaseConfigurationClass = (Class<DataStoreParser>) Class.forName(entry.getValue());
+                DataStoreParser i = databaseConfigurationClass.newInstance();
+                final String defaultName = entry.getKey() == null? i.getDefaultName() : entry.getKey();
+                extensions.registerDataStoreParser(defaultName, i);
+            }
+        }
 
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
@@ -85,7 +98,8 @@ public final class MetadataManager {
         // convert root to Configuration object
         // TODO swap out something other than Gson
         Gson g = new Gson();
-        MetadataConfiguration configuration = g.fromJson(buff.toString(), MetadataConfiguration.class);
+
+        configuration = g.fromJson(buff.toString(), MetadataConfiguration.class);
 
         if (null == configuration) {
             throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND +" - "+ MetadataConfiguration.FILENAME);
@@ -114,7 +128,7 @@ public final class MetadataManager {
         return metadata;
     }
 
-    public static JSONMetadataParser getJSONParser() {
+    public static JSONMetadataParser getJSONParser() throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (parser == null) {
             initializeParser();
         }

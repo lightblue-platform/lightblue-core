@@ -41,7 +41,7 @@ public class UpdateExpressionListEvaluator extends Updater {
 
     public UpdateExpressionListEvaluator(JsonNodeFactory factory, FieldTreeNode context, UpdateExpressionList expr) {
         List<PartialUpdateExpression> list = expr.getList();
-        updaters = new ArrayList<Updater>(list.size());
+        updaters = new ArrayList<>(list.size());
         for (PartialUpdateExpression x : list) {
             updaters.add(Updater.getInstance(factory, context, x));
         }

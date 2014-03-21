@@ -32,8 +32,8 @@ public class Fields implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private final Map<String, Field> fieldMap = new HashMap<String, Field>();
-    private final List<Field> fields = new ArrayList<Field>();
+    private final Map<String, Field> fieldMap = new HashMap<>();
+    private final List<Field> fields = new ArrayList<>();
     private final FieldTreeNode parent;
 
     public Fields(FieldTreeNode parent) {

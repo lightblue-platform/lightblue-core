@@ -65,7 +65,7 @@ public class CompositeSortKey extends Sort {
      * Parses a composite sort key using the json array node
      */
     public static CompositeSortKey fromJson(ArrayNode node) {
-        ArrayList<SortKey> l = new ArrayList<SortKey>(node.size());
+        ArrayList<SortKey> l = new ArrayList<>(node.size());
         for (Iterator<JsonNode> itr = node.elements();
                 itr.hasNext();) {
             l.add(SortKey.fromJson((ObjectNode) itr.next()));

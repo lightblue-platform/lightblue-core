@@ -30,7 +30,7 @@ public class ReferencesConstraint implements EntityConstraint, Serializable {
 
     public static final String REFERENCES = "references";
 
-    private final ArrayList<Reference> references = new ArrayList<Reference>();
+    private final ArrayList<Reference> references = new ArrayList<>();
 
     public String getType() {
         return REFERENCES;

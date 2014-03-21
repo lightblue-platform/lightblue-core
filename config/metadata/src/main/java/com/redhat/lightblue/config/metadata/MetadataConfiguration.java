@@ -36,6 +36,7 @@ public class MetadataConfiguration {
     private String databaseConfigurationClass;
     private Object databaseConfiguration;
     private LinkedTreeMap<String, Object> properties;
+    private LinkedTreeMap<String, String> dataStoreParserNames;
 
     /**
      * Validate that the configuration has all data needed.
@@ -112,5 +113,13 @@ public class MetadataConfiguration {
      */
     public void setProperties(LinkedTreeMap<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public LinkedTreeMap<String, String> getDataStoreParserNames() {
+        return dataStoreParserNames;
+    }
+
+    public void setDataStoreParserNames(LinkedTreeMap<String, String>  dataStoreParserNames) {
+        this.dataStoreParserNames = dataStoreParserNames;
     }
 }

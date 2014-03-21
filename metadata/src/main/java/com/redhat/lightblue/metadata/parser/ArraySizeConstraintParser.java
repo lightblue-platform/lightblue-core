@@ -46,4 +46,5 @@ public class ArraySizeConstraintParser<T> implements FieldConstraintParser<T> {
     public void convert(MetadataParser<T> p, T emptyNode, FieldConstraint object) {
         p.putValue(emptyNode, object.getType(), ((ArraySizeConstraint) object).getValue());
     }
+
 }

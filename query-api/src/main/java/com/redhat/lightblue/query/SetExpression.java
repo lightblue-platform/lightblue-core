@@ -110,7 +110,7 @@ public class SetExpression extends PrimitiveUpdateExpression {
             }
             if (op != null) {
                 ObjectNode arg = (ObjectNode) node.get(op.toString());
-                List<FieldAndRValue> list = new ArrayList<FieldAndRValue>();
+                List<FieldAndRValue> list = new ArrayList<>();
                 for (Iterator<Map.Entry<String, JsonNode>> itr = arg.fields(); itr.hasNext();) {
                     Map.Entry<String, JsonNode> entry = itr.next();
                     Path field = new Path(entry.getKey());

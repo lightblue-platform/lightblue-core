@@ -58,7 +58,7 @@ public class ArrayField extends Field {
     @Override
     public Iterator<? extends FieldTreeNode> getChildren() {
         if (element != null) {
-            ArrayList<FieldTreeNode> l = new ArrayList<FieldTreeNode>(1);
+            ArrayList<FieldTreeNode> l = new ArrayList<>(1);
             l.add(element);
             return l.iterator();
         }

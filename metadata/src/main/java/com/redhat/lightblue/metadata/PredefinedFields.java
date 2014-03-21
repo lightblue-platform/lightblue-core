@@ -90,7 +90,7 @@ public final class PredefinedFields {
      * @param node All array size fields under this subtree will be updated
      */
     public static void updateArraySizes(JsonNodeFactory factory, ObjectNode node) {
-        Map<String, JsonNode> sizes = new HashMap<String, JsonNode>();
+        Map<String, JsonNode> sizes = new HashMap<>();
         for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields(); itr.hasNext();) {
             Map.Entry<String, JsonNode> field = itr.next();
             JsonNode value = field.getValue();
@@ -143,7 +143,7 @@ public final class PredefinedFields {
 
     private static void setRoleIfEmpty(Access access, String role) {
         if (access.getRoles().isEmpty()) {
-            List<String> l = new ArrayList<String>(1);
+            List<String> l = new ArrayList<>(1);
             l.add(role);
             access.setRoles(l);
         }

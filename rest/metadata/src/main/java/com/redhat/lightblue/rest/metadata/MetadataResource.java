@@ -94,8 +94,8 @@ public class MetadataResource {
             Version[] versions = MetadataManager.getMetadata().getEntityVersions(entityName);
 
             StringBuilder buff = new StringBuilder("[");
-            for (int x = 0; x < versions.length; x++) {
-                buff.append(MetadataManager.getJSONParser().convert(versions[x]));
+            for (Version version : versions) {
+                buff.append(MetadataManager.getJSONParser().convert(version));
             }
             buff.append("]");
             return buff.toString();
@@ -124,7 +124,7 @@ public class MetadataResource {
             if (entityVersion == null) {
                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
             }
-
+            
             // convert to object
             EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
 
@@ -135,10 +135,10 @@ public class MetadataResource {
             if (!entityVersion.equals(em.getVersion().getValue())) {
                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_VERSION_MATCH);
             }
-
+            
             // execute creation
             MetadataManager.getMetadata().createNewMetadata(em);
-
+            
             // if successful fetch the metadata back out of the database and return it (simply reuse the existing rest api to do it)
             return getMetadata(entityName, entityVersion);
         } catch (Error e) {

@@ -102,6 +102,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
                                       MetadataStatus newStatus,
                                       String comment) {
         }
+
     }
 
     private static final class MockCrudController implements CRUDController {

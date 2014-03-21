@@ -44,7 +44,7 @@ public class PrimitiveUpdateExpressionTest {
      */
     @Test
     public void testFromJson() throws IOException {
-        List<FieldAndRValue> list = new ArrayList<FieldAndRValue>();
+        List<FieldAndRValue> list = new ArrayList<>();
         FieldAndRValue fav = new FieldAndRValue();
         fav.setField(Path.EMPTY);
         fav.setRValue(new RValueExpression(Path.EMPTY));

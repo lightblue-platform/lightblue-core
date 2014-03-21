@@ -111,7 +111,7 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
                     Map.Entry<String, JsonNode> item = objArg.fields().next();
                     Path field = new Path(item.getKey());
                     JsonNode valueNode = item.getValue();
-                    List<RValueExpression> rvalues = new ArrayList<RValueExpression>();
+                    List<RValueExpression> rvalues = new ArrayList<>();
                     if (valueNode instanceof ArrayNode) {
                         for (Iterator<JsonNode> itr = ((ArrayNode) valueNode).elements(); itr.hasNext();) {
                             rvalues.add(RValueExpression.fromJson(itr.next()));

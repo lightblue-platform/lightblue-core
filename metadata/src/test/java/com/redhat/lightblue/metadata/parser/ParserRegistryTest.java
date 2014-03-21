@@ -33,6 +33,7 @@ public class ParserRegistryTest {
         @Override
         public void convert(MetadataParser<Object> p, Object emptyNode, Object object) {
         }
+
     }
 
     @Test

@@ -76,7 +76,7 @@ public class UpdateExpressionList extends UpdateExpression {
      * Parses an update expression list using the given json object
      */
     public static UpdateExpressionList fromJson(ArrayNode node) {
-        ArrayList<PartialUpdateExpression> list = new ArrayList<PartialUpdateExpression>(node.size());
+        ArrayList<PartialUpdateExpression> list = new ArrayList<>(node.size());
         for (Iterator<JsonNode> itr = node.elements(); itr.hasNext();) {
             list.add(PartialUpdateExpression.fromJson((ObjectNode) itr.next()));
         }

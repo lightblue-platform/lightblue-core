@@ -83,7 +83,7 @@ public class SetExpressionTest {
      */
     @Test
     public void testToJson() {
-        List<FieldAndRValue> list = new ArrayList<FieldAndRValue>();
+        List<FieldAndRValue> list = new ArrayList<>();
         FieldAndRValue fav = new FieldAndRValue();
         fav.setField(Path.EMPTY);
         fav.setRValue(new RValueExpression(Path.EMPTY));
@@ -102,7 +102,7 @@ public class SetExpressionTest {
      */
     @Test
     public void testFromJson() throws IOException {
-        List<FieldAndRValue> list = new ArrayList<FieldAndRValue>();
+        List<FieldAndRValue> list = new ArrayList<>();
         FieldAndRValue fav = new FieldAndRValue();
         fav.setField(Path.EMPTY);
         fav.setRValue(new RValueExpression(Path.EMPTY));

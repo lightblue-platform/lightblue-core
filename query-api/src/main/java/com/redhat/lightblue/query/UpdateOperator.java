@@ -37,7 +37,7 @@ public enum UpdateOperator {
     private static final Map<String, UpdateOperator> MAP;
 
     static {
-        MAP = new HashMap<String, UpdateOperator>();
+        MAP = new HashMap<>();
         _set.init(MAP);
         _unset.init(MAP);
         _add.init(MAP);

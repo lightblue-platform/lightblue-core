@@ -47,7 +47,7 @@ public class EvalTestContext extends AbstractJsonNodeTest {
 
     public static EntityMetadata getMd(String fname) throws Exception {
         JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();

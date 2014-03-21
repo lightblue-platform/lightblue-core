@@ -3,7 +3,7 @@
     "metadataFactoryMethod": "create",
     "controllers": [
         {
-            "datastoreType": "test",
+            "datastoreType": "mongo",
             "className": "com.redhat.lightblue.crud.mongo.MongoCRUDController",
             "factoryMethod": "create"
         }
@@ -11,7 +11,10 @@
     "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
     "database": {       
         "name":"testmetadata",
-        "servers":[{"_host":"localhost","_port":27777}],
+        "serversConfigurations":["localhost:27777"],
         "ssl":false
+    },
+    "dataStoreParserNames": {
+        "mongo": "com.redhat.lightblue.metadata.mongo.MongoDataStoreParser"
     }
 }

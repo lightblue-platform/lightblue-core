@@ -52,4 +52,5 @@ public interface Metadata extends Serializable {
                            String version,
                            MetadataStatus newStatus,
                            String comment);
+
 }

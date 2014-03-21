@@ -61,7 +61,7 @@ public abstract class Updater {
     public abstract void getUpdateFields(Set<Path> fields);
 
     public Set<Path> getUpdateFields() {
-        Set<Path> set = new HashSet<Path>();
+        Set<Path> set = new HashSet<>();
         getUpdateFields(set);
         return set;
     }

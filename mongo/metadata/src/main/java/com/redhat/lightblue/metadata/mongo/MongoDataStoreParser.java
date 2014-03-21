@@ -58,4 +58,9 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
             p.putString(emptyNode, "collection", ds.getCollectionName());
         }
     }
+
+    @Override
+    public String getDefaultName() {
+        return "mongo";
+    }
 }

@@ -34,7 +34,7 @@ public class Enums implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private final Map<String, Enum> enums = new HashMap<String, Enum>();
+    private final Map<String, Enum> enums = new HashMap<>();
 
     /**
      * Sets enums

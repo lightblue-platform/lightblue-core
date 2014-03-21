@@ -64,7 +64,7 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
         if (node instanceof ArrayNode) {
             ArrayNode array = (ArrayNode) node;
             int index = 0;
-            ArrayList<Integer> indexList = new ArrayList<Integer>(array.size());
+            ArrayList<Integer> indexList = new ArrayList<>(array.size());
             QueryEvaluationContext nestedCtx = null;
             for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
                 JsonNode arrayElem = itr.next();

@@ -33,7 +33,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
     private final String name;
     private Type type;
     private final FieldAccess access = new FieldAccess();
-    private final List<FieldConstraint> constraints = new ArrayList<FieldConstraint>();
+    private final List<FieldConstraint> constraints = new ArrayList<>();
 
     private FieldTreeNode parent;
 
@@ -74,7 +74,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
      * @return a deep copy of the constraints
      */
     public List<FieldConstraint> getConstraints() {
-        return new ArrayList<FieldConstraint>(constraints);
+        return new ArrayList<>(constraints);
     }
 
     public void setConstraints(Collection<FieldConstraint> l) {

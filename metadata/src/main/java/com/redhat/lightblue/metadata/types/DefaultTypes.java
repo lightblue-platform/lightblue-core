@@ -33,7 +33,7 @@ public final class DefaultTypes implements TypeResolver {
     }
 
     public DefaultTypes() {
-        typeMap = new HashMap<String, Type>();
+        typeMap = new HashMap<>();
         typeMap.put(BooleanType.NAME, BooleanType.TYPE);
         typeMap.put(IntegerType.NAME, IntegerType.TYPE);
         typeMap.put(BigIntegerType.NAME, BigIntegerType.TYPE);

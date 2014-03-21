@@ -135,7 +135,7 @@ public class ForEachExpressionEvaluator extends Updater {
             itrPath.push(index);
             // Copy the nodes to a separate list, so we iterate on the
             // new copy, and modify the original
-            ArrayList<JsonNode> nodes = new ArrayList<JsonNode>();
+            ArrayList<JsonNode> nodes = new ArrayList<>();
             for (Iterator<JsonNode> itr = arrayNode.elements(); itr.hasNext();) {
                 nodes.add(itr.next());
             }

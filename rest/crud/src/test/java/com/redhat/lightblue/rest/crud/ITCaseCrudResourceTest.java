@@ -18,16 +18,23 @@
  */
 package com.redhat.lightblue.rest.crud;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
+import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
+import com.redhat.lightblue.rest.metadata.MetadataResource;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -44,6 +51,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.inject.Inject;
+
+import junit.framework.Assert;
 import org.bson.BSONObject;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -55,6 +64,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static junit.framework.Assert.*;
 
 /**
  *
@@ -128,8 +139,6 @@ public class ITCaseCrudResourceTest {
 
             db = config.getDB();
 
-            db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
-
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
@@ -145,16 +154,10 @@ public class ITCaseCrudResourceTest {
 
     @Before
     public void setup() {
-        Extensions<BSONObject> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
-        md = new MongoMetadata(db, x, new DefaultTypes());
+        db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
-
-        System.out.println("DEBUG");
-        System.out.println(new Gson().toJson(md));
     }
 
     @After
@@ -193,13 +196,129 @@ public class ITCaseCrudResourceTest {
     }
 
     @Inject
-    private CrudResource cut; //class under test
+    private CrudResource cutCrudResource; //class under test
+    
+    @Inject
+    private MetadataResource cutMetadataResource;
 
     @Test
     public void testFirstIntegrationTest() throws IOException {
-        System.out.println("crudResource: " + cut);
-        System.out.println("crudResource find: " + cut.find("{\"name\":\"1\"}"));
+        assertNotNull("CrudResource was not injected by the container", cutCrudResource);
+        assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
+        String expectedCreated = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0",
+"{\n" +
+"   \"entityInfo\": { "+
+"        \"name\": \"country\",\n" +
+"        \"indexes\": [\n" +
+"            {\n" +
+"                \"unique\": true,\n" +
+"                \"fields\": [\"name\"]\n" +
+"            }\n" +
+"        ],\n" +
+"        \"datastore\": {\n" +
+"            \"mongo\": {\n" +
+"                  \"collection\": \"country\"\n" +
+"            }\n" +
+"        }"+
+"    },\n"+
+"    \"schema\": {\n" +
+"        \"name\": \"country\",\n"+
+"        \"version\": {\n"+
+"           \"value\": \"1.0.0\",\n"+
+"           \"changelog\": \"blahblah\"\n"+
+"       },\n"+
+"        \"status\": {\n"+
+"            \"value\": \"active\"\n"+
+"       },\n"+
+"        \"access\" : {\n" +
+"             \"insert\" : [\"anyone\"],\n" +
+"             \"update\" : [\"anyone\"],\n" +
+"             \"delete\" : [ \"anyone\" ] ,\n" +
+"             \"find\" : [ \"anyone\" ]\n" +
+"        },"+
+"        \"fields\": {\n"+
+"            \"name\": {\"type\": \"string\"},\n"+
+"            \"iso2code\": {\"type\": \"string\"},\n"+
+"            \"iso3code\": {\"type\": \"string\"}\n"+
+"        }\n" +
+"    }\n" +
+"}");
+        assertEquals(expectedCreated,resultCreated);
+
+
+
+        String expectedInserted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"iso3code\":\"CAN\",\"iso2code\":\"CA\",\"name\":\"Canada\",\"object_type\":\"country\"}}";
+        String resultInserted = cutCrudResource.insert(
+"{\n" +
+"    \"entity\": \"country\",\n" +
+"    \"entityVersion\": \"1.0.0\",\n" +
+"    \"data\": [\n" +
+"        {\n" +
+"            \"name\": \"Canada\",\n" +
+"            \"iso2code\": \"CA\",\n" +
+"            \"iso3code\": \"CAN\"\n" +
+"        }\n" +
+"    ],\n" +
+"    \"returning\": [\n" +
+"        {\n" +
+"            \"field\": \"*\",\n" +
+"            \"include\": true\n" +
+"        }\n" +
+"    ]\n" +
+"}");
+        assertEquals(expectedInserted,resultInserted);
+
+                   /*
+
+        String expectedFound = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0}";
+        String resultFound = cutCrudResource.find(
+                "{\n" +
+                        "    \"entity\": \"country\",\n" +
+                        "    \"entityVersion\": \"1.0.0\",\n" +
+                        "    \"query\": {\n" +
+                        "        \"field\": \"iso2code\",\n" +
+                        "        \"op\": \"=\",\n" +
+                        "        \"rvalue\": \"CA\"\n" +
+                        "    },\n" +
+                        "    \"project\": [\n" +
+                        "        {\n" +
+                        "            \"field\": \"name\",\n" +
+                        "            \"include\": true\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "            \"field\": \"iso3code\",\n" +
+                        "            \"include\": true\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}");
+        //assertEquals(expectedDeleted,resultDeleted);
+        System.out.println(resultFound);
+                     */
+
+
+        String expectedDeleted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0}";
+        String resultDeleted = cutCrudResource.delete(
+"{\n" +
+"    \"entity\": \"country\",\n" +
+"    \"entityVersion\": \"1.0.0\",\n" +
+"    \"query\": {\n" +
+"        \"field\": \"iso2code\",\n" +
+"        \"op\": \"=\",\n" +
+"        \"rvalue\": \"CA\"\n" +
+"    },\n" +
+"    \"project\": [\n" +
+"        {\n" +
+"            \"field\": \"name\",\n" +
+"            \"include\": true\n" +
+"        },\n" +
+"        {\n" +
+"            \"field\": \"iso3code\",\n" +
+"            \"include\": true\n" +
+"        }\n" +
+"    ]\n" +
+"}");
+        assertEquals(expectedDeleted,resultDeleted);
 
     }
-
 }

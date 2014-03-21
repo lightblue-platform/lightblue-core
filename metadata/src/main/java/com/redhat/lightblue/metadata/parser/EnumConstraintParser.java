@@ -46,4 +46,5 @@ public class EnumConstraintParser<T> implements FieldConstraintParser<T> {
     public void convert(MetadataParser<T> p, T emptyNode, FieldConstraint object) {
         p.putString(emptyNode, EnumConstraint.ENUM.toString(), ((EnumConstraint) object).getName());
     }
+
 }

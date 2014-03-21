@@ -37,7 +37,7 @@ public class ListProjector extends Projector {
     public ListProjector(ProjectionList l, Path ctxPath, FieldTreeNode ctx) {
         super(ctxPath, ctx);
         List<Projection> projections = l.getItems();
-        items = new ArrayList<Projector>(projections.size());
+        items = new ArrayList<>(projections.size());
         for (Projection x : projections) {
             items.add(Projector.getInstance(x, ctxPath, ctx));
         }

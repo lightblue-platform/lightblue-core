@@ -80,6 +80,11 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
             public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore ds) {
                 // nothing to do
             }
+
+            @Override
+            public String getDefaultName() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
         });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
@@ -235,8 +240,8 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertNotNull(s);
         Assert.assertEquals(childNames.size(), s.size());
 
-        for (int i = 0; i < childNames.size(); i++) {
-            s.remove(childNames.get(i));
+        for (String childName : childNames) {
+            s.remove(childName);
         }
 
         Assert.assertTrue("not all child names were removed..", s.isEmpty());

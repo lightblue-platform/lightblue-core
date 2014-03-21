@@ -41,7 +41,8 @@ import org.bson.BSONObject;
 public class MongoConfiguration {
 
     private String name;
-    private final List<ServerAddress> servers = new ArrayList<>();
+    private transient final List<ServerAddress> servers = new ArrayList<>();
+    private final List<String> serversConfigurations = new ArrayList<>();
     private String collection;
     private Integer connectionsPerHost;
     private Boolean ssl = Boolean.TRUE;
@@ -85,6 +86,7 @@ public class MongoConfiguration {
 
     public void addServerAddress(String hostname, Integer port) throws UnknownHostException {
         this.servers.add(new ServerAddress(hostname, port));
+        this.serversConfigurations.add(hostname+":"+port)       ;
     }
 
     /**
@@ -95,7 +97,8 @@ public class MongoConfiguration {
     }
 
     public void clearServerAddresses() {
-        servers.clear();
+        this.servers.clear();
+        this.serversConfigurations.clear();
     }
 
     /**
@@ -132,6 +135,20 @@ public class MongoConfiguration {
      * @return
      */
     public MongoClientOptions getMongoClientOptions() {
+        if(this.servers.size() == 0) {
+            for (String configuration : serversConfigurations) {
+                String[] confSplit = configuration.split(":");
+                if(confSplit == null || confSplit.length != 2){
+                    throw new IllegalStateException("Illegal serversConfigurations->"+configuration);
+                }
+                try {
+                    this.servers.add(new ServerAddress(confSplit[0], Integer.parseInt(confSplit[1])));
+                } catch (UnknownHostException | NumberFormatException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+
         MongoClientOptions.Builder builder = MongoClientOptions.builder();
 
         if (connectionsPerHost != null) {

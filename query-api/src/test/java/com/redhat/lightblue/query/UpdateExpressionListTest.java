@@ -41,7 +41,7 @@ public class UpdateExpressionListTest {
     @Test
     @Ignore // The constructors from this class have different behaviors, is this expected?
     public void testContructors() {
-        List<PartialUpdateExpression> list = new ArrayList<PartialUpdateExpression>();
+        List<PartialUpdateExpression> list = new ArrayList<>();
         PartialUpdateExpression elem = new PartialUpdateExpression() {
             @Override
             public JsonNode toJson() {
@@ -75,7 +75,7 @@ public class UpdateExpressionListTest {
         // Erase this method after defining what to do with the issue above, this
         // method is just covering few less conditions then the above test and
         // it aims to increase the test coverage without the resolution of the issue above
-        List<PartialUpdateExpression> list = new ArrayList<PartialUpdateExpression>();
+        List<PartialUpdateExpression> list = new ArrayList<>();
         PartialUpdateExpression elem = new PartialUpdateExpression() {
             @Override
             public JsonNode toJson() {

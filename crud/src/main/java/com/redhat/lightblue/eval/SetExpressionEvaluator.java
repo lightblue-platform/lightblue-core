@@ -50,7 +50,7 @@ public class SetExpressionEvaluator extends Updater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SetExpressionEvaluator.class);
 
-    private final List<FieldData> setValues = new ArrayList<FieldData>();
+    private final List<FieldData> setValues = new ArrayList<>();
     private final UpdateOperator op;
     private final JsonNodeFactory factory;
 

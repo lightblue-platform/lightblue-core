@@ -35,4 +35,5 @@ public interface Parser<N, T> {
      * Intialize the empt node <code>emptyNode</code> with the contents of <code>object</code>
      */
     void convert(MetadataParser<N> p, N emptyNode, T object);
+
 }

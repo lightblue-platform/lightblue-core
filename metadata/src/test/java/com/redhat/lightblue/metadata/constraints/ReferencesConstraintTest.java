@@ -39,7 +39,7 @@ public class ReferencesConstraintTest {
         reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE);
         reference.setThisField(ReferenceTest.THIS_FIELD_VALUE);
         reference.setVersionValue(ReferenceTest.VERSION_VALUE);
-        references = new ArrayList<Reference>();
+        references = new ArrayList<>();
         references.add(reference);
         constraint.setReferences(references);
     }
@@ -65,7 +65,7 @@ public class ReferencesConstraintTest {
         reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE + 1);
         reference.setThisField(ReferenceTest.THIS_FIELD_VALUE + 1);
         reference.setVersionValue(ReferenceTest.VERSION_VALUE + 1);
-        references = new ArrayList<Reference>();
+        references = new ArrayList<>();
         references.add(reference);
         constraint.setReferences(references);
         assertTrue(constraint.getReferences().equals(references));

@@ -52,7 +52,7 @@ public class ArrayAddExpressionTest {
      */
     @Test
     public void testGetValues() {
-        List<RValueExpression> expResult = new ArrayList<RValueExpression>();
+        List<RValueExpression> expResult = new ArrayList<>();
         ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, expResult);
         expResult.add(new RValueExpression(Path.EMPTY));
         List<RValueExpression> result = instance.getValues();
@@ -75,7 +75,7 @@ public class ArrayAddExpressionTest {
      */
     @Test
     public void testToJson() throws IOException {
-        List<RValueExpression> l = new ArrayList<RValueExpression>();
+        List<RValueExpression> l = new ArrayList<>();
         ArrayAddExpression instance = new ArrayAddExpression(Path.EMPTY, UpdateOperator._set, l);
         l.add(new RValueExpression(Path.EMPTY));
         JsonNode expResult = JsonUtils.json("{\"$set\":{\"\":{\"$valueof\":\"\"}}}");
@@ -89,7 +89,7 @@ public class ArrayAddExpressionTest {
     @Test
     public void testFromJson() throws IOException {
         ObjectNode node = (ObjectNode) JsonUtils.json("{\"$append\":{\"\":{\"$valueof\":\"\"}}}");
-        List<RValueExpression> l = new ArrayList<RValueExpression>();
+        List<RValueExpression> l = new ArrayList<>();
         ArrayAddExpression expResult = new ArrayAddExpression(Path.EMPTY, UpdateOperator._append, l);
         l.add(new RValueExpression(Path.EMPTY));
         ArrayAddExpression result = ArrayAddExpression.fromJson(node);
