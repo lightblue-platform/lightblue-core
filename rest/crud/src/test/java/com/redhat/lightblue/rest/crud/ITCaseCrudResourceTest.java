@@ -248,14 +248,14 @@ public class ITCaseCrudResourceTest {
 
 
 
-        String expectedInserted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"iso3code\":\"CAN\",\"iso2code\":\"CA\",\"name\":\"Canada\",\"object_type\":\"country\"}}";
+        String expectedInserted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"iso3code\":\"CAN\",\"iso2code\":\"CA\",\"name\":\"Canad\",\"object_type\":\"country\"}}";
         String resultInserted = cutCrudResource.insert(
 "{\n" +
 "    \"entity\": \"country\",\n" +
 "    \"entityVersion\": \"1.0.0\",\n" +
 "    \"data\": [\n" +
 "        {\n" +
-"            \"name\": \"Canada\",\n" +
+"            \"name\": \"Canad\",\n" +
 "            \"iso2code\": \"CA\",\n" +
 "            \"iso3code\": \"CAN\"\n" +
 "        }\n" +
@@ -270,27 +270,53 @@ public class ITCaseCrudResourceTest {
         assertEquals(expectedInserted,resultInserted);
 
 
+        String expectedUpdated = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"name\":\"Canada\"}}";
+        String resultUpdated = cutCrudResource.update(
+"{\n" +
+"        \"entity\": \"country\",\n" +
+"        \"entityVersion\": \"1.0.0\",\n" +
+"        \"query\": {\n" +
+"            \"field\": \"iso2code\",\n" +
+"                \"op\": \"=\",\n" +
+"            \"rvalue\": \"CA\"\n" +
+"        },\n" +
+"        \"returning\": [\n" +
+"            {\n" +
+"                \"field\": \"name\",\n" +
+"                \"include\": true\n" +
+"            }\n" +
+"        ],\n" +
+"        \"update\": {\n" +
+"            \"$set\": {\n" +
+"                \"name\": \"Canada\"\n" +
+"            }\n" +
+"        }\n" +
+"}");
+        assertEquals(expectedUpdated,resultUpdated);
+
+
+
 
         String expectedFound = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":1,\"processed\":{\"iso3code\":\"CAN\",\"name\":\"Canada\"}}";
         String resultFound = cutCrudResource.find(
-                "{\n" +
-                        "    \"entity\": \"country\",\n" +
-                        "    \"entityVersion\": \"1.0.0\",\n" +
-                        "    \"query\": {\n" +
-                        "        \"field\": \"iso2code\",\n" +
-                        "        \"op\": \"=\",\n" +
-                        "        \"rvalue\": \"CA\"\n" +
-                        "    },\n" +
-                        "    \"returning\": [\n" +
-                        "        {\n" +
-                        "            \"field\": \"name\",\n" +
-                        "            \"include\": true\n" +
-                        "        },\n" +
-                        "        {\n" +
-                        "            \"field\": \"iso3code\",\n" +
-                        "            \"include\": true\n" +
-                        "        }\n" +
-                        "    ]\n" +
+"{\n" +
+"    \"entity\": \"country\",\n" +
+"    \"entityVersion\": \"1.0.0\",\n" +
+"    \"query\": {\n" +
+"        \"field\": \"iso2code\",\n" +
+"        \"op\": \"=\",\n" +
+"        \"rvalue\": \"CA\"\n" +
+"    },\n" +
+"    \"returning\": [\n" +
+"        {\n" +
+"            \"field\": \"name\",\n" +
+"            \"include\": true\n" +
+"        },\n" +
+"        {\n" +
+"            \"field\": \"iso3code\",\n" +
+"            \"include\": true\n" +
+"        }\n" +
+"    ]\n" +
                         "}");
         assertEquals(expectedFound,resultFound);
 
@@ -323,25 +349,25 @@ public class ITCaseCrudResourceTest {
 
         String expectedFound2 = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":0,\"processed\":[]}";
         String resultFound2 = cutCrudResource.find(
-                "{\n" +
-                        "    \"entity\": \"country\",\n" +
-                        "    \"entityVersion\": \"1.0.0\",\n" +
-                        "    \"query\": {\n" +
-                        "        \"field\": \"iso2code\",\n" +
-                        "        \"op\": \"=\",\n" +
-                        "        \"rvalue\": \"CA\"\n" +
-                        "    },\n" +
-                        "    \"returning\": [\n" +
-                        "        {\n" +
-                        "            \"field\": \"name\",\n" +
-                        "            \"include\": true\n" +
-                        "        },\n" +
-                        "        {\n" +
-                        "            \"field\": \"iso3code\",\n" +
-                        "            \"include\": true\n" +
-                        "        }\n" +
-                        "    ]\n" +
-                        "}");
+"{\n" +
+"    \"entity\": \"country\",\n" +
+"    \"entityVersion\": \"1.0.0\",\n" +
+"    \"query\": {\n" +
+"        \"field\": \"iso2code\",\n" +
+"        \"op\": \"=\",\n" +
+"        \"rvalue\": \"CA\"\n" +
+"    },\n" +
+"    \"returning\": [\n" +
+"        {\n" +
+"            \"field\": \"name\",\n" +
+"            \"include\": true\n" +
+"        },\n" +
+"        {\n" +
+"            \"field\": \"iso3code\",\n" +
+"            \"include\": true\n" +
+"        }\n" +
+"    ]\n" +
+"}");
         assertEquals(expectedFound2,resultFound2);
     }
 }

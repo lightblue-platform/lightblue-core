@@ -223,6 +223,10 @@ public class Mediator {
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
                 response.setModifiedCount(updateResponse.getNumUpdated());
+                List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
+                if (!updatedDocuments.isEmpty()) {
+                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
+                }
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
                 } else {
