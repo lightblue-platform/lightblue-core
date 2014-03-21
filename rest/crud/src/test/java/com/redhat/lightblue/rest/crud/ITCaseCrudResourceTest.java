@@ -269,9 +269,9 @@ public class ITCaseCrudResourceTest {
 "}");
         assertEquals(expectedInserted,resultInserted);
 
-                   /*
 
-        String expectedFound = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0}";
+
+        String expectedFound = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":1,\"processed\":{\"iso3code\":\"CAN\",\"name\":\"Canada\"}}";
         String resultFound = cutCrudResource.find(
                 "{\n" +
                         "    \"entity\": \"country\",\n" +
@@ -281,7 +281,7 @@ public class ITCaseCrudResourceTest {
                         "        \"op\": \"=\",\n" +
                         "        \"rvalue\": \"CA\"\n" +
                         "    },\n" +
-                        "    \"project\": [\n" +
+                        "    \"returning\": [\n" +
                         "        {\n" +
                         "            \"field\": \"name\",\n" +
                         "            \"include\": true\n" +
@@ -292,9 +292,8 @@ public class ITCaseCrudResourceTest {
                         "        }\n" +
                         "    ]\n" +
                         "}");
-        //assertEquals(expectedDeleted,resultDeleted);
-        System.out.println(resultFound);
-                     */
+        assertEquals(expectedFound,resultFound);
+
 
 
         String expectedDeleted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0}";
@@ -320,5 +319,29 @@ public class ITCaseCrudResourceTest {
 "}");
         assertEquals(expectedDeleted,resultDeleted);
 
+
+
+        String expectedFound2 = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":0,\"processed\":[]}";
+        String resultFound2 = cutCrudResource.find(
+                "{\n" +
+                        "    \"entity\": \"country\",\n" +
+                        "    \"entityVersion\": \"1.0.0\",\n" +
+                        "    \"query\": {\n" +
+                        "        \"field\": \"iso2code\",\n" +
+                        "        \"op\": \"=\",\n" +
+                        "        \"rvalue\": \"CA\"\n" +
+                        "    },\n" +
+                        "    \"returning\": [\n" +
+                        "        {\n" +
+                        "            \"field\": \"name\",\n" +
+                        "            \"include\": true\n" +
+                        "        },\n" +
+                        "        {\n" +
+                        "            \"field\": \"iso3code\",\n" +
+                        "            \"include\": true\n" +
+                        "        }\n" +
+                        "    ]\n" +
+                        "}");
+        assertEquals(expectedFound2,resultFound2);
     }
 }
