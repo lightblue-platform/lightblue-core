@@ -100,7 +100,7 @@ public class Mediator {
                     controller.insert(ctx, req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
-                    if (!insertedDocuments.isEmpty()) {
+                    if (insertedDocuments!= null && !insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
                     }
                     response.setModifiedCount(insertedDocuments.size());
@@ -162,7 +162,7 @@ public class Mediator {
                     controller.save(ctx, req.isUpsert(), req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
-                    if (!updatedDocuments.isEmpty()) {
+                    if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
                     }
                     response.setModifiedCount(updatedDocuments.size());
@@ -224,7 +224,7 @@ public class Mediator {
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
                 response.setModifiedCount(updateResponse.getNumUpdated());
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
-                if (!updatedDocuments.isEmpty()) {
+                if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                     response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
                 }
                 if (ctx.hasErrors()) {
