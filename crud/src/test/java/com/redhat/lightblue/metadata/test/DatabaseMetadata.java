@@ -36,7 +36,7 @@ public class DatabaseMetadata implements Metadata {
     }
 
     @Override
-    public EntityMetadata getEntityMetadata(String entityName, String version) {
+    public EntityMetadata getEntityMetadata(String entityName, String version, boolean forceVersion) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

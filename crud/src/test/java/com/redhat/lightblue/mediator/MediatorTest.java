@@ -78,7 +78,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         private EntityMetadata md;
 
         @Override
-        public EntityMetadata getEntityMetadata(String entityName, String version) {
+        public EntityMetadata getEntityMetadata(String entityName, String version, boolean forceVersion) {
             return md;
         }
 

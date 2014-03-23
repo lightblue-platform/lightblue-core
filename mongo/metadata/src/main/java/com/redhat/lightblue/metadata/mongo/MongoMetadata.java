@@ -75,7 +75,8 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public EntityMetadata getEntityMetadata(String entityName,
-                                            String version) {
+                                            String version,
+                                            boolean forceVersion) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
@@ -92,6 +93,20 @@ public class MongoMetadata implements Metadata {
             DBObject es = collection.findOne(query);
             if (es != null) {
                 schema = mdParser.parseEntitySchema(es);
+                if (!forceVersion && schema.getStatus() == MetadataStatus.DISABLED) {
+                    boolean foundDefault = false;
+                    if (info.getDefaultVersion() != null) {
+                        query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + info.getDefaultVersion());
+                        es = collection.findOne(query);
+                        if (es != null) {
+                            schema = mdParser.parseEntitySchema(es);
+                            foundDefault = true;
+                        }
+                    }
+                    if (!foundDefault || schema.getStatus() == MetadataStatus.DISABLED) {
+                        throw Error.get(MongoMetadataConstants.ERR_DISABLED_VERSION, entityName + ":" + version);
+                    }
+                }
             } else {
                 schema = null;
             }

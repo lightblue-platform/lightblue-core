@@ -26,9 +26,10 @@ import java.io.Serializable;
 public interface Metadata extends Serializable {
 
     /**
-     * Returns a particular version of the entity metadata
+     * Returns a particular version of the entity metadata if forceVersion is true.
+     * Otherwise, it returns the default version if the specific version is disabled
      */
-    EntityMetadata getEntityMetadata(String entityName, String version);
+    EntityMetadata getEntityMetadata(String entityName, String version, boolean forceVersion);
 
     /**
      * Returns the names of all entities
