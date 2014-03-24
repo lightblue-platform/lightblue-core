@@ -122,4 +122,15 @@ public class MetadataConfiguration {
     public void setDataStoreParserNames(LinkedTreeMap<String, String>  dataStoreParserNames) {
         this.dataStoreParserNames = dataStoreParserNames;
     }
+
+    public String toString() {
+        StringBuilder bld=new StringBuilder();
+        bld.append("metadataClass:").append(metadataClass).append('\n').
+            append("metadataFactoryMethod:").append(metadataFactoryMethod).append('\n').
+            append("databaseConfigurationClass:").append(databaseConfigurationClass).append('\n').
+            append("databaseConfiguration:").append(databaseConfiguration).append('\n').
+            append("properties:").append(properties).append('\n').
+            append("dataStoreParserNames:").append(dataStoreParserNames);
+        return bld.toString();
+    }
 }

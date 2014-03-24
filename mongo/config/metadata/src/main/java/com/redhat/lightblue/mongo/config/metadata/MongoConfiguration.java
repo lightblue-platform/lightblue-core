@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.mongo.config.metadata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -40,13 +42,15 @@ import org.bson.BSONObject;
  */
 public class MongoConfiguration {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoConfiguration.class);
+
     private String name;
     private transient final List<ServerAddress> servers = new ArrayList<>();
     private final List<String> serversConfigurations = new ArrayList<>();
     private String collection;
     private Integer connectionsPerHost;
     private Boolean ssl = Boolean.TRUE;
-    
+
     public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
         DB db = configuration.getDB();
         Extensions<BSONObject> parserExtensions = new Extensions<>();
@@ -164,7 +168,21 @@ public class MongoConfiguration {
     }
 
     public DB getDB() throws UnknownHostException {
-        MongoClient client = new MongoClient(servers, getMongoClientOptions());
+        MongoClientOptions options=getMongoClientOptions();
+        LOGGER.debug("getDB with servers:{} and options:{}",servers,options);
+        MongoClient client = new MongoClient(servers, options);
         return client.getDB(getName());
     }
+
+    public String toString() {
+        StringBuilder bld=new StringBuilder();
+        bld.append("name:").append(name).append('\n').
+            append("servers:").append(servers).append('\n').
+            append("serversConfigurations:").append(serversConfigurations).append('\n').
+            append("collection:").append(collection).append('\n').
+            append("connectionsPerHost:").append(connectionsPerHost).append('\n').
+            append("ssl:").append(ssl);
+        return bld.toString();
+    }
+            
 }

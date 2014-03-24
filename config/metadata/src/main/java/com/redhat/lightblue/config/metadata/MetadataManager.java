@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.config.metadata;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.gson.Gson;
@@ -45,6 +48,8 @@ import java.util.Map;
  * @author nmalik
  */
 public final class MetadataManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataManager.class);
+
     private static Metadata metadata = null;
     private static JSONMetadataParser parser = null;
     private static MetadataConfiguration configuration = null;
@@ -80,7 +85,7 @@ public final class MetadataManager {
             // already initalized
             return;
         }
-
+        LOGGER.debug("Initializing metadata");
         StringBuilder buff = new StringBuilder();
 
         try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME);
@@ -94,6 +99,7 @@ public final class MetadataManager {
 
         // get the root json node so can throw subsets of the tree at Gson later
         JsonNode root = JsonUtils.json(buff.toString());
+        LOGGER.debug("Config root:{}",root);
 
         // convert root to Configuration object
         // TODO swap out something other than Gson
@@ -104,11 +110,13 @@ public final class MetadataManager {
         if (null == configuration) {
             throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND +" - "+ MetadataConfiguration.FILENAME);
         }
+        LOGGER.debug("Configuration:{}",configuration);
 
         // instantiate the database specific configuration object
         Class databaseConfigurationClass = Class.forName(configuration.getDatabaseConfigurationClass());
-        JsonNode dbNode = root.findValue("database");
+        JsonNode dbNode = root.findValue("databaseConfiguration");
         configuration.setDatabaseConfiguration(g.fromJson(dbNode.toString(), databaseConfigurationClass));
+        LOGGER.debug("database configuration:{}",configuration.getDatabaseConfiguration());
 
         // validate
         if (!configuration.isValid()) {

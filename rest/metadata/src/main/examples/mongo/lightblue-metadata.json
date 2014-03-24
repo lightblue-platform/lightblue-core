@@ -6,9 +6,9 @@
         "database - JSON object that is converted to database configuration pojo and used for Metadata creation"
     ],
     "metadataClass": "com.redhat.lightblue.metadata.mongo.MongoMetadata",
-    "databaseConfigurationClass": "com.redhat.lightblue.metadata.mongo.MongoConfiguration",
+    "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
     "metadataFactoryMethod": "create",
-    "database": {
+    "databaseConfiguration": {
         "name": "mongo",
         "servers": [
             {
