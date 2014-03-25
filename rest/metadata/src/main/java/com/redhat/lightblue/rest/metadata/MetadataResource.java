@@ -122,11 +122,12 @@ public class MetadataResource {
         return "";
     }
 
+    /* Commented just because it isn't implemented yet, so the old implementation will be uncommented just to keep the tests running
     @PUT @Path("/{entity}/{version}")
     @Consumes(MediaType.APPLICATION_JSON)
     public String createMetadata(@PathParam("entity") String entity,@PathParam("version") String version,String metadata) {
         return "";
-    }
+    }*/
 
     @PUT @Path("/{entity}/schema={version}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -148,26 +149,29 @@ public class MetadataResource {
 
     // @GET
     // @Path("/{entity}/{version}/{forceVersion}")
-    // public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, @PathParam(PATH_PARAM_FORCEVERSION) boolean forceVersion) {
-    //     try {
-    //         if (entityName == null) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
-    //         }
-    //         if (entityVersion == null) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
-    //         }
+    public static final String PATH_PARAM_ENTITY = "entity";
+    public static final String PATH_PARAM_VERSION = "version";
+    public static final String PATH_PARAM_FORCEVERSION = "forceVersion";
+    public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, @PathParam(PATH_PARAM_FORCEVERSION) boolean forceVersion) {
+         try {
+             if (entityName == null) {
+                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
+             }
+             if (entityVersion == null) {
+                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
+             }
 
-    //         // get the data
-    //         EntityMetadata em = MetadataManager.getMetadata().getEntityMetadata(entityName, entityVersion, forceVersion);
+             // get the data
+             EntityMetadata em = MetadataManager.getMetadata().getEntityMetadata(entityName, entityVersion, forceVersion);
 
-    //         // convert to json and return
-    //         return MetadataManager.getJSONParser().convert(em).toString();
-    //     } catch (Error e) {
-    //         return e.toJson().toString();
-    //     } catch (Exception e) {
-    //         return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
-    //     }
-    // }
+             // convert to json and return
+             return MetadataManager.getJSONParser().convert(em).toString();
+         } catch (Error e) {
+             return e.toJson().toString();
+         } catch (Exception e) {
+             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
+         }
+    }
 
     // @GET
     // @Path("/names")
@@ -209,47 +213,48 @@ public class MetadataResource {
     //     }
     // }
 
-    // /**
-    //  * Body is required metadata (json).
-    //  *
-    //  * @param entityName
-    //  * @param entityVersion
-    //  * @param metadata
-    //  * @return the metadata created from this request
-    //  */
-    // @PUT
-    // @Path("/{entity}/{version}")
-    // public String createMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, String metadata) {
-    //     try {
-    //         if (entityName == null) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
-    //         }
-    //         if (entityVersion == null) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
-    //         }
+    /**
+      * Body is required metadata (json).
+      *
+      * @param entityName
+      * @param entityVersion
+      * @param metadata
+      * @return the metadata created from this request
+      */
+    @PUT
+    @Path("/{entity}/{version}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String createMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, String metadata) {
+         try {
+             if (entityName == null) {
+                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
+             }
+             if (entityVersion == null) {
+                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_VERSION);
+             }
 
-    //         // convert to object
-    //         EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+             // convert to object
+             EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
 
-    //         // verify entity name and version
-    //         if (!entityName.equals(em.getName())) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_NAME_MATCH);
-    //         }
-    //         if (!entityVersion.equals(em.getVersion().getValue())) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_VERSION_MATCH);
-    //         }
+             // verify entity name and version
+             if (!entityName.equals(em.getName())) {
+                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_NAME_MATCH);
+             }
+             if (!entityVersion.equals(em.getVersion().getValue())) {
+                 throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_VERSION_MATCH);
+             }
 
-    //         // execute creation
-    //         MetadataManager.getMetadata().createNewMetadata(em);
+             // execute creation
+             MetadataManager.getMetadata().createNewMetadata(em);
 
-    //         // if successful fetch the metadata back out of the database and return it (simply reuse the existing rest api to do it)
-    //         return getMetadata(entityName, entityVersion, true);
-    //     } catch (Error e) {
-    //         return e.toJson().toString();
-    //     } catch (Exception e) {
-    //         return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
-    //     }
-    // }
+             // if successful fetch the metadata back out of the database and return it (simply reuse the existing rest api to do it)
+             return getMetadata(entityName, entityVersion, true);
+         } catch (Error e) {
+             return e.toJson().toString();
+         } catch (Exception e) {
+             return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
+         }
+    }
 
     // /**
     //  * Body is optional comment.

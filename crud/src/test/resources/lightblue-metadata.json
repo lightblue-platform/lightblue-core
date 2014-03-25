@@ -8,7 +8,7 @@
     "metadataClass": "com.redhat.lightblue.metadata.test.DatabaseMetadata",
     "databaseConfigurationClass": "com.redhat.lightblue.metadata.test.DatabaseConfiguration",
     "metadataFactoryMethod": "create",
-    "database": {
+    "databaseConfiguration": {
         "name": "mongo",
         "host": "whatever",
         "port": 1234,

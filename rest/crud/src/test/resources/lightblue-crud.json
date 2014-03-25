@@ -9,7 +9,12 @@
         }
     ],
     "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
-    "database": {       
+    "database": {
+        "name":"testmetadata",
+        "serversConfigurations":["localhost:27777"],
+        "ssl":false
+    },
+    "databaseConfiguration": {
         "name":"testmetadata",
         "serversConfigurations":["localhost:27777"],
         "ssl":false

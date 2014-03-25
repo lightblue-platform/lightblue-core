@@ -142,7 +142,7 @@ public class FrontEnd {
             case "getEntityMetadata":
                 System.out.println(JsonUtils.prettyPrint(parser.convert(md.
                         getEntityMetadata(arg("entityName", args),
-                                arg("version", args)))));
+                                arg("version", args),true))));
                 break;
             case "getEntityNames":
                 printArr(md.getEntityNames());
