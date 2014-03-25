@@ -77,6 +77,7 @@ public abstract class Request extends JsonObject {
     /**
      * Returns a JSON representation of this
      */
+    @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
         node.put("entity", entityVersion.getEntity());

@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.DeleteRequest;
-import com.redhat.lightblue.FindRequest;
-import com.redhat.lightblue.InsertionRequest;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.SaveRequest;
-import com.redhat.lightblue.UpdateRequest;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
@@ -100,13 +100,13 @@ public class Mediator {
                     controller.insert(ctx, req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
-                    if (insertedDocuments!= null && !insertedDocuments.isEmpty()) {
+                    if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
                         response.setModifiedCount(insertedDocuments.size());
                     }
-                    if (insertedDocuments!=null&&insertedDocuments.size() == ctx.getDocuments().size()) {
+                    if (insertedDocuments != null && insertedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
-                    } else if (insertedDocuments!=null&&!insertedDocuments.isEmpty()) {
+                    } else if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
                     } else {
                         ctx.setStatus(OperationStatus.ERROR);
@@ -118,8 +118,9 @@ public class Mediator {
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
-            if(response.getStatus()!=OperationStatus.ERROR)
+            if (response.getStatus() != OperationStatus.ERROR) {
                 ctx.getHookManager().callQueuedHooks();
+            }
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -166,9 +167,9 @@ public class Mediator {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
                         response.setModifiedCount(updatedDocuments.size());
                     }
-                    if (updatedDocuments!=null&&updatedDocuments.size() == ctx.getDocuments().size()) {
+                    if (updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
-                    } else if (updatedDocuments!=null&&!updatedDocuments.isEmpty()) {
+                    } else if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
                     } else {
                         ctx.setStatus(OperationStatus.ERROR);
@@ -178,8 +179,9 @@ public class Mediator {
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
-            if(response.getStatus()!=OperationStatus.ERROR)
+            if (response.getStatus() != OperationStatus.ERROR) {
                 ctx.getHookManager().callQueuedHooks();
+            }
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -235,9 +237,10 @@ public class Mediator {
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
-            if(response.getStatus()!=OperationStatus.ERROR)
+            if (response.getStatus() != OperationStatus.ERROR) {
                 ctx.getHookManager().callQueuedHooks();
-       } catch (Error e) {
+            }
+        } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
@@ -274,8 +277,9 @@ public class Mediator {
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
-            if(response.getStatus()!=OperationStatus.ERROR)
+            if (response.getStatus() != OperationStatus.ERROR) {
                 ctx.getHookManager().callQueuedHooks();
+            }
         } catch (Error e) {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
@@ -330,8 +334,9 @@ public class Mediator {
             }
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
-            if(response.getStatus()!=OperationStatus.ERROR)
+            if (response.getStatus() != OperationStatus.ERROR) {
                 ctx.getHookManager().callQueuedHooks();
+            }
         } catch (Error e) {
             LOGGER.debug("Error during find:{}", e);
             response.getErrors().add(e);

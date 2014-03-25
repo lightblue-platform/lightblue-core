@@ -24,18 +24,19 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.query.UpdateExpression;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.JsonObject;
+import sun.misc.Sort;
 
 public class JsonNodeBuilder {
 
-    private ObjectNode root = JsonObject.getFactory().objectNode();
+    private final ObjectNode root = JsonObject.getFactory().objectNode();
 
     private boolean includeNulls = false;
 
+    protected ObjectNode getRoot() {
+        return root;
+    }
+    
     public boolean includeNulls() {
         return includeNulls;
     }
@@ -50,21 +51,6 @@ public class JsonNodeBuilder {
         }
         return this;
 
-    }
-
-    public JsonNodeBuilder add(String key, QueryExpression value) {
-        if (include(value)) {
-            root.put(key, value.toString().toLowerCase());
-        }
-        return this;
-
-    }
-
-    public JsonNodeBuilder add(String key, Projection value) {
-        if (include(value)) {
-            root.put(key, value.toString());
-        }
-        return this;
     }
 
     public JsonNodeBuilder add(String key, Sort value) {
@@ -123,13 +109,6 @@ public class JsonNodeBuilder {
         return this;
     }
 
-    public JsonNodeBuilder add(String key, UpdateExpression value) {
-        if (include(value)) {
-            root.put(key, value.toString());
-        }
-        return this;
-    }
-
     public <T> JsonNodeBuilder add(String key, List<T> values) {
         if (includes(values)) {
             ArrayNode arr = JsonObject.getFactory().arrayNode();
@@ -141,7 +120,7 @@ public class JsonNodeBuilder {
         return this;
     }
 
-    private boolean include(Object object) {
+    protected boolean include(Object object) {
         return object != null || includeNulls;
     }
 

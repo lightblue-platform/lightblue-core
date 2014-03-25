@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.util.ArrayList;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,11 +55,11 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Sort;
 
-import com.redhat.lightblue.InsertionRequest;
-import com.redhat.lightblue.DeleteRequest;
-import com.redhat.lightblue.SaveRequest;
-import com.redhat.lightblue.UpdateRequest;
-import com.redhat.lightblue.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
+import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;

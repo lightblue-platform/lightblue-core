@@ -20,7 +20,7 @@ package com.redhat.lightblue.mediator;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.DocRequest;
+import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDOperationContext;
