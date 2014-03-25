@@ -19,6 +19,8 @@
 package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Metadata manager interface
@@ -26,8 +28,37 @@ import java.io.Serializable;
 public interface Metadata extends Serializable {
 
     /**
-     * Returns a particular version of the entity metadata if forceVersion is true.
-     * Otherwise, it returns the default version if the specific version is disabled
+     * Get all dependencies using default versions. If an entity does not have a default version defined it will be
+     * skipped.
+     */
+    List<Dependency> getDependencies();
+
+    /**
+     * Get all dependencies for the given entity using default versions. If an entity does not have a default version
+     * defined it will be skipped.
+     */
+    List<Dependency> getDependencies(String entityName);
+
+    /**
+     * Get all dependencies for the given version of the entity. If an entity does not have a default version defined it
+     * will be skipped.
+     */
+    List<Dependency> getDependnecies(String entityName, String version);
+
+    /**
+     * Get all roles (access) defined.
+     *
+     * @return
+     */
+    Map<String, Access> getAccess();
+
+    String[] getAccess(String entityName);
+
+    String[] getAccess(String entityName, String version);
+
+    /**
+     * Returns a particular version of the entity metadata if forceVersion is true. Otherwise, it returns the default
+     * version if the specific version is disabled
      */
     EntityMetadata getEntityMetadata(String entityName, String version, boolean forceVersion);
 
