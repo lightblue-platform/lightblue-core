@@ -25,24 +25,14 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
-    <artifactId>crud</artifactId>
+    <artifactId>core-api</artifactId>
     <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
         <dependency>
-            <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-config-metadata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.redhat.lightblue</groupId>
-            <artifactId>core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.redhat.lightblue</groupId>
-            <artifactId>query-api</artifactId>
+            <artifactId>util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -56,10 +46,6 @@
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

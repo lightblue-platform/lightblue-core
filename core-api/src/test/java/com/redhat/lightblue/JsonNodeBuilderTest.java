@@ -19,7 +19,6 @@
 package com.redhat.lightblue;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -27,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.query.QueryExpression;
 
 public class JsonNodeBuilderTest {
 
@@ -66,26 +64,6 @@ public class JsonNodeBuilderTest {
     }
 
     @Test
-    public void testAddQueryExpression() {
-    }
-
-    @Test
-    public void testAddQueryExpressionNull() {
-        builder.add("query", (QueryExpression) null);
-        assertNull(builder.build().get("query"));
-    }
-
-    @Test
-    public void testAddProjection() {
-
-    }
-
-    @Test
-    public void testAddSort() {
-
-    }
-
-    @Test
     public void testAddLong() {
 
     }
@@ -117,11 +95,6 @@ public class JsonNodeBuilderTest {
 
     @Test
     public void testAddSessionInfo() {
-
-    }
-
-    @Test
-    public void testAddUpdateExpression() {
 
     }
 

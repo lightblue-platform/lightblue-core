@@ -16,10 +16,11 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue;
+package com.redhat.lightblue.crud;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.Request;
 
 /**
  * Abstract base class for requests containing a document list
@@ -59,6 +60,7 @@ public abstract class DocRequest extends Request {
     /**
      * Parses the entitydata from the given Json object
      */
+    @Override
     protected void parse(ObjectNode node) {
         super.parse(node);
         entityData = node.get("data");

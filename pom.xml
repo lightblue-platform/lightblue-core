@@ -145,6 +145,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </dependency>
     </dependencies>
     <modules>
+        <module>core-api</module>
         <module>query-api</module>
         <module>crud</module>
         <module>metadata</module>

@@ -19,12 +19,12 @@
 package com.redhat.lightblue.rest.crud;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.DeleteRequest;
-import com.redhat.lightblue.FindRequest;
-import com.redhat.lightblue.InsertionRequest;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.SaveRequest;
-import com.redhat.lightblue.UpdateRequest;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.CrudManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;

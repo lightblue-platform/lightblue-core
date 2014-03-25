@@ -137,14 +137,14 @@ public class ResponseTest {
 
     @Test
     public void testWithDataErrors() {
-        ObjectNode node = JsonObject.getFactory().objectNode();
+        ObjectNode objNode = JsonObject.getFactory().objectNode();
         ArrayNode arr = JsonObject.getFactory().arrayNode();
 
         for (DataError err : getPopulatedDataErrors(3)) {
             arr.add(err.toJson());
         }
 
-        node.set("dataErrors", arr);
+        objNode.set("dataErrors", arr);
         builder.withDataErrors(arr);
 
         for (int i = 0; i < builder.buildResponse().getDataErrors().size(); i++) {
@@ -166,14 +166,14 @@ public class ResponseTest {
 
     @Test
     public void testWithErrors() {
-        ObjectNode node = JsonObject.getFactory().objectNode();
+        ObjectNode objNode = JsonObject.getFactory().objectNode();
         ArrayNode arr = JsonObject.getFactory().arrayNode();
 
         for (Error err : getPopulatedErrors(3)) {
             arr.add(err.toJson());
         }
 
-        node.set("errors", arr);
+        objNode.set("errors", arr);
 
         builder.withErrors(arr);
 
@@ -191,7 +191,6 @@ public class ResponseTest {
 
     @Test
     public void testBuildResponse() {
-        Response response = new Response();
         response.setStatus(OperationStatus.COMPLETE);
         response.setModifiedCount(Integer.MAX_VALUE);
         response.setMatchCount(Integer.MIN_VALUE);
@@ -208,7 +207,6 @@ public class ResponseTest {
 
     @Test
     public void testToJson() {
-        Response response = new Response();
         response.setStatus(OperationStatus.COMPLETE);
         response.setModifiedCount(Integer.MAX_VALUE);
         response.setMatchCount(Integer.MIN_VALUE);
@@ -242,7 +240,6 @@ public class ResponseTest {
 
     @Test
     public void testBuildJsonNull() {
-
         ObjectNode expectedNode = JsonObject.getFactory().objectNode();
         expectedNode.put("modifiedCount", 0L);
         expectedNode.put("matchCount", 0L);
@@ -251,7 +248,6 @@ public class ResponseTest {
     }
 
     private List<DataError> getPopulatedDataErrors(int numberOfErrors) {
-
         List<DataError> dataErrors = new ArrayList<>();
 
         DataError dataError = new DataError(node, getPopulatedErrors(numberOfErrors));
