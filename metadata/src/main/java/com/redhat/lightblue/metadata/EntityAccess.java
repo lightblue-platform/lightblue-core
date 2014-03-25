@@ -20,7 +20,7 @@ package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
 
-public class EntityAccess implements Serializable {
+public class EntityAccess implements Serializable, MetadataAccess {
 
     private static final long serialVersionUID = 1l;
 

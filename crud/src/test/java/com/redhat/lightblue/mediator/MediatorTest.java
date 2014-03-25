@@ -102,6 +102,15 @@ public class MediatorTest extends AbstractJsonSchemaTest {
                                       String comment) {
         }
 
+        @Override
+        public Response getDependnecies(String entityName, String version) {
+            return null;
+        }
+
+        @Override
+        public Response getAccess(String entityName, String version) {
+            return null;
+        }
     }
 
     private static final class MockCrudController implements CRUDController {

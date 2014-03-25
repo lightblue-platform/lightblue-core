@@ -28,25 +28,29 @@ public class FieldCursor extends AbstractTreeCursor<FieldTreeNode> {
 
     private static final class Adapter implements KeyValueCursor<String, FieldTreeNode> {
 
-        private Iterator<? extends FieldTreeNode> itr;
+        private final Iterator<? extends FieldTreeNode> itr;
         private FieldTreeNode node;
 
         public Adapter(Iterator<? extends FieldTreeNode> itr) {
             this.itr = itr;
         }
 
+        @Override
         public boolean hasNext() {
             return itr.hasNext();
         }
 
+        @Override
         public void next() {
             node = itr.next();
         }
 
+        @Override
         public String getCurrentKey() {
             return node.getName();
         }
 
+        @Override
         public FieldTreeNode getCurrentValue() {
             return node;
         }
@@ -56,12 +60,13 @@ public class FieldCursor extends AbstractTreeCursor<FieldTreeNode> {
         super(p, start);
     }
 
+    @Override
     protected KeyValueCursor<String, FieldTreeNode> getCursor(FieldTreeNode node) {
         return new Adapter(node.getChildren());
     }
 
+    @Override
     protected boolean hasChildren(FieldTreeNode node) {
         return node.hasChildren();
     }
-
 }

@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.mongo.config.metadata;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.Assert;
@@ -31,6 +34,8 @@ import de.flapdoodle.embed.process.runtime.Network;
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.BasicDBObject;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
 
 import org.bson.BSONObject;
 
@@ -42,7 +47,9 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadataConstants;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.*;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
@@ -53,12 +60,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.json.JSONException;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class MongoMetadataTest {
 
     public static class FileStreamProcessor implements IStreamProcessor {
-        private FileOutputStream outputStream;
+        private final FileOutputStream outputStream;
 
         public FileStreamProcessor(File file) throws FileNotFoundException {
             outputStream = new FileOutputStream(file);
@@ -112,7 +123,12 @@ public class MongoMetadataTest {
 
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
-            mongod = mongodExe.start();
+            try {
+                mongod = mongodExe.start();
+            } catch (Throwable t) {
+                // try again, could be killed breakpoint in IDE
+                mongod = mongodExe.start();
+            }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
 
             MongoConfiguration config = new MongoConfiguration();
@@ -349,4 +365,146 @@ public class MongoMetadataTest {
         }
     }
 
+    @Test
+    public void getAccessEntityVersion() throws IOException, JSONException {
+        // setup parser
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
+
+        // get JsonNode representing metadata
+        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-entity-version.json");
+
+        // parser into EntityMetadata
+        EntityMetadata e = parser.parseEntityMetadata(jsonMetadata);
+
+        // persist
+        md.createNewMetadata(e);
+
+        // ready to test!
+        Response response = md.getAccess(e.getName(), e.getVersion().getValue());
+
+        Assert.assertNotNull(response);
+
+        // verify response content
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertTrue(response.getDataErrors().isEmpty());
+
+        // verify data
+        Assert.assertNotNull(response.getEntityData());
+        String jsonEntityData = response.getEntityData().toString();
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
+    }
+
+    @Test
+    public void getAccessEntityMissingDefaultVersion() throws IOException, JSONException {
+        // setup parser
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
+
+        // get JsonNode representing metadata
+        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-entity-missing-default-version.json");
+
+        // parser into EntityMetadata
+        EntityMetadata e = parser.parseEntityMetadata(jsonMetadata);
+
+        // persist
+        md.createNewMetadata(e);
+
+        // ready to test!
+        Response response = md.getAccess(e.getName(), null);
+
+        Assert.assertNotNull(response);
+
+        // verify response content
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertFalse(response.getDataErrors().isEmpty());
+
+        // verify data
+        Assert.assertNull(response.getEntityData());
+    }
+
+    /**
+     * TODO enable once mongo metadata allows falling back on default version in getEntityMetadata()
+     *
+     * @throws IOException
+     * @throws JSONException
+     */
+    @Test
+    @Ignore
+    public void getAccessEntityDefaultVersion() throws IOException, JSONException {
+        // setup parser
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
+
+        // get JsonNode representing metadata
+        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-entity-default-version.json");
+
+        // parser into EntityMetadata
+        EntityMetadata e = parser.parseEntityMetadata(jsonMetadata);
+
+        // persist
+        md.createNewMetadata(e);
+
+        // ready to test!
+        Response response = md.getAccess(e.getName(), null);
+
+        Assert.assertNotNull(response);
+
+        // verify response content
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertTrue(response.getDataErrors().isEmpty());
+
+        // verify data
+        Assert.assertNotNull(response.getEntityData());
+        String jsonEntityData = response.getEntityData().toString();
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
+    }
+
+    /**
+     * TODO enable once mongo metadata allows falling back on default version in getEntityMetadata()
+     *
+     * @throws IOException
+     * @throws JSONException
+     */
+    @Test
+    @Ignore
+    public void getAccessAllEntitiesDefaultVersion() throws IOException, JSONException {
+        // setup parser
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
+
+        // get JsonNode representing metadata
+        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-all-entities-default-version.json");
+
+        // parser into EntityMetadata
+        EntityMetadata e = parser.parseEntityMetadata(jsonMetadata);
+
+        // persist
+        md.createNewMetadata(e);
+
+        // ready to test!
+        Response response = md.getAccess(null, null);
+
+        Assert.assertNotNull(response);
+
+        // verify response content
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertTrue(response.getDataErrors().isEmpty());
+
+        // verify data
+        Assert.assertNotNull(response.getEntityData());
+        String jsonEntityData = response.getEntityData().toString();
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
+    }
 }

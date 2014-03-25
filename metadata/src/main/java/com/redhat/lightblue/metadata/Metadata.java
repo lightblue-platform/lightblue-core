@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.Response;
 import java.io.Serializable;
 
 /**
@@ -26,8 +27,26 @@ import java.io.Serializable;
 public interface Metadata extends Serializable {
 
     /**
-     * Returns a particular version of the entity metadata if forceVersion is true.
-     * Otherwise, it returns the default version if the specific version is disabled
+     * Get all dependencies for the given entity using the given version. If entity name is not specified all entity
+     * dependencies are processed. If no entity version is specified default version for the entity is used, lack of
+     * default version is treated as a data error.
+     *
+     * @return Response with an array of Dependency object data.
+     */
+    Response getDependnecies(String entityName, String version);
+
+    /**
+     * Get all entity and field access for the given entity using the given version. If entity name is not specified all
+     * entities are processed. If no entity version is specified default version for the entity is used, lack of default
+     * version is treated as a data error.
+     *
+     * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
+     */
+    Response getAccess(String entityName, String version);
+
+    /**
+     * Returns a particular version of the entity metadata if forceVersion is true. Otherwise, it returns the default
+     * version if the specific version is disabled
      */
     EntityMetadata getEntityMetadata(String entityName, String version, boolean forceVersion);
 
