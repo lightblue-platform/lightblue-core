@@ -19,8 +19,7 @@
 package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import javax.xml.ws.Response;
 
 /**
  * Metadata manager interface
@@ -28,33 +27,54 @@ import java.util.Map;
 public interface Metadata extends Serializable {
 
     /**
-     * Get all dependencies using default versions. If an entity does not have a default version defined it will be
-     * skipped.
-     */
-    List<Dependency> getDependencies();
-
-    /**
-     * Get all dependencies for the given entity using default versions. If an entity does not have a default version
-     * defined it will be skipped.
-     */
-    List<Dependency> getDependencies(String entityName);
-
-    /**
-     * Get all dependencies for the given version of the entity. If an entity does not have a default version defined it
-     * will be skipped.
-     */
-    List<Dependency> getDependnecies(String entityName, String version);
-
-    /**
-     * Get all roles (access) defined.
+     * Get all dependencies using default versions. If the entity has a default version defined the dependencies for
+     * that default version is included. If the entity does not have a default version defined then it is added into the
+     * data error section of the response.
      *
-     * @return
+     * @return Response with an array of Dependency object data.
      */
-    Map<String, Access> getAccess();
+    Response getDependencies();
 
-    String[] getAccess(String entityName);
+    /**
+     * Get all dependencies for the given entity using default versions. If the entity has a default version defined the
+     * dependencies for that default version is included. If the entity does not have a default version defined then it
+     * is added into the data error section of the response.
+     *
+     * @return Response with an array of Dependency object data.
+     */
+    Response getDependencies(String entityName);
 
-    String[] getAccess(String entityName, String version);
+    /**
+     * Get all dependencies for the given entity using the given version.
+     *
+     * @return Response with an array of Dependency object data.
+     */
+    Response getDependnecies(String entityName, String version);
+
+    /**
+     * Get all entity and field access for all entities using default versions. If the entity has a default version
+     * defined the access for that default version is included. If the entity does not have a default version defined
+     * then it is added into the data error section of the response.
+     *
+     * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
+     */
+    Response getAccess();
+
+    /**
+     * Get all entity and field access for the given entity using default versions. If the entity has a default version
+     * defined the access for that default version is included. If the entity does not have a default version defined
+     * then it is added into the data error section of the response.
+     *
+     * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
+     */
+    Response getAccess(String entityName);
+
+    /**
+     * Get all entity and field access for the given entity using the given version.
+     *
+     * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
+     */
+    Response getAccess(String entityName, String version);
 
     /**
      * Returns a particular version of the entity metadata if forceVersion is true. Otherwise, it returns the default
