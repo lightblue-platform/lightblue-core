@@ -110,11 +110,7 @@ public final class CrudManager {
             CRUDController controller = (CRUDController) m.invoke(null, configuration.getDatabaseConfiguration());
             factory.addCRUDController(x.getDatastoreType(), controller);
         }
-        try {
-            mediator = new Mediator(MetadataManager.getMetadata(), factory);
-        } catch (Exception e) {
-            // TODO: FIX THIS
-        }
+        mediator = new Mediator(MetadataManager.getMetadata(), factory);
     }
 
     public static Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
