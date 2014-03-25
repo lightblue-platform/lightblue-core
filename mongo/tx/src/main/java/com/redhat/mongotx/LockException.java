@@ -1,5 +1,7 @@
 package com.redhat.mongotx;
 
+import java.util.List;
+
 public class LockException extends Exception {
 
     public LockException(String txId,String collection,String msg) {

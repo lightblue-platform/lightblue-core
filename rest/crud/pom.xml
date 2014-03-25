@@ -50,6 +50,7 @@
             <groupId>com.redhat.lightblue.rest</groupId>
             <artifactId>rest-metadata</artifactId>
             <version>${project.version}</version>
+            <type>war</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
