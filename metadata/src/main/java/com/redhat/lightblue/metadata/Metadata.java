@@ -27,50 +27,18 @@ import java.io.Serializable;
 public interface Metadata extends Serializable {
 
     /**
-     * Get all dependencies using default versions. If the entity has a default version defined the dependencies for
-     * that default version is included. If the entity does not have a default version defined then it is added into the
-     * data error section of the response.
-     *
-     * @return Response with an array of Dependency object data.
-     */
-    Response getDependencies();
-
-    /**
-     * Get all dependencies for the given entity using default versions. If the entity has a default version defined the
-     * dependencies for that default version is included. If the entity does not have a default version defined then it
-     * is added into the data error section of the response.
-     *
-     * @return Response with an array of Dependency object data.
-     */
-    Response getDependencies(String entityName);
-
-    /**
-     * Get all dependencies for the given entity using the given version.
+     * Get all dependencies for the given entity using the given version. If entity name is not specified all entity
+     * dependencies are processed. If no entity version is specified default version for the entity is used, lack of
+     * default version is treated as a data error.
      *
      * @return Response with an array of Dependency object data.
      */
     Response getDependnecies(String entityName, String version);
 
     /**
-     * Get all entity and field access for all entities using default versions. If the entity has a default version
-     * defined the access for that default version is included. If the entity does not have a default version defined
-     * then it is added into the data error section of the response.
-     *
-     * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
-     */
-    Response getAccess();
-
-    /**
-     * Get all entity and field access for the given entity using default versions. If the entity has a default version
-     * defined the access for that default version is included. If the entity does not have a default version defined
-     * then it is added into the data error section of the response.
-     *
-     * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
-     */
-    Response getAccess(String entityName);
-
-    /**
-     * Get all entity and field access for the given entity using the given version.
+     * Get all entity and field access for the given entity using the given version. If entity name is not specified all
+     * entities are processed. If no entity version is specified default version for the entity is used, lack of default
+     * version is treated as a data error.
      *
      * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
      */
