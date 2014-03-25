@@ -143,14 +143,14 @@ public class Response extends JsonObject {
      * Errors related to each document
      */
     public List<DataError> getDataErrors() {
-        return dataErrors == null ? new ArrayList<DataError>() : dataErrors;
+        return dataErrors;
     }
 
     /**
      * Errors related to the operation
      */
     public List<Error> getErrors() {
-        return errors == null ? new ArrayList<Error>() : errors;
+        return errors;
     }
 
     /**
