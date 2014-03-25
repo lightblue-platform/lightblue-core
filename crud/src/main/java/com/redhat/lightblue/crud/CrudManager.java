@@ -64,7 +64,7 @@ public final class CrudManager {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException {
+    private static synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator != null) {
             // already initalized
             return;
@@ -114,7 +114,7 @@ public final class CrudManager {
         mediator = new Mediator(MetadataManager.getMetadata(), factory);
     }
 
-    public static Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException {
+    public static Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator == null) {
             initializeMediator();
         }
