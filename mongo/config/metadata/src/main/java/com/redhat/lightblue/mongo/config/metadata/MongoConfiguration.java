@@ -50,7 +50,7 @@ public class MongoConfiguration implements JsonInitializable {
     private final List<ServerAddress> servers = new ArrayList<>();
     private String collection;
     private Integer connectionsPerHost;
-    private Boolean ssl = Boolean.TRUE;
+    private Boolean ssl = Boolean.FALSE;
 
     public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
         DB db = configuration.getDB();
@@ -148,7 +148,7 @@ public class MongoConfiguration implements JsonInitializable {
             builder.connectionsPerHost(connectionsPerHost);
         }
 
-        if (ssl != null) {
+        if (ssl != null && ssl) {
             // taken from MongoClientURI, written this way so we don't have to construct a URI to connect
             builder.socketFactory(SSLSocketFactory.getDefault());
         }
