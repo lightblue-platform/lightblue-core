@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.config.metadata;
 
+import com.redhat.lightblue.util.JsonInitializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public final class MetadataManager {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata != null) {
             // already initalized
             return;
@@ -115,7 +116,9 @@ public final class MetadataManager {
         // instantiate the database specific configuration object
         Class databaseConfigurationClass = Class.forName(configuration.getDatabaseConfigurationClass());
         JsonNode dbNode = root.findValue("databaseConfiguration");
-        configuration.setDatabaseConfiguration(g.fromJson(dbNode.toString(), databaseConfigurationClass));
+        JsonInitializable databaseConfiguration = (JsonInitializable) databaseConfigurationClass.newInstance();
+        databaseConfiguration.initializeFromJson(dbNode);
+        configuration.setDatabaseConfiguration(databaseConfiguration);
         LOGGER.debug("database configuration:{}",configuration.getDatabaseConfiguration());
 
         // validate
@@ -128,7 +131,7 @@ public final class MetadataManager {
         metadata = (Metadata) m.invoke(null, configuration.getDatabaseConfiguration());
     }
 
-    public static Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public static Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
             initializeMetadata();
         }

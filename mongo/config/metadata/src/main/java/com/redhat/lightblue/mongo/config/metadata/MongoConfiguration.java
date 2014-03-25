@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.mongo.config.metadata;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.util.JsonInitializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.mongodb.DB;
@@ -40,13 +42,12 @@ import org.bson.BSONObject;
  *
  * @author nmalik
  */
-public class MongoConfiguration {
+public class MongoConfiguration implements JsonInitializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoConfiguration.class);
 
     private String name;
-    private transient final List<ServerAddress> servers = new ArrayList<>();
-    private final List<String> serversConfigurations = new ArrayList<>();
+    private final List<ServerAddress> servers = new ArrayList<>();
     private String collection;
     private Integer connectionsPerHost;
     private Boolean ssl = Boolean.TRUE;
@@ -90,7 +91,6 @@ public class MongoConfiguration {
 
     public void addServerAddress(String hostname, Integer port) throws UnknownHostException {
         this.servers.add(new ServerAddress(hostname, port));
-        this.serversConfigurations.add(hostname+":"+port)       ;
     }
 
     /**
@@ -102,7 +102,6 @@ public class MongoConfiguration {
 
     public void clearServerAddresses() {
         this.servers.clear();
-        this.serversConfigurations.clear();
     }
 
     /**
@@ -139,27 +138,13 @@ public class MongoConfiguration {
      * @return
      */
     public MongoClientOptions getMongoClientOptions() {
-        if(this.servers.size() == 0) {
-            for (String configuration : serversConfigurations) {
-                String[] confSplit = configuration.split(":");
-                if(confSplit == null || confSplit.length != 2){
-                    throw new IllegalStateException("Illegal serversConfigurations->"+configuration);
-                }
-                try {
-                    this.servers.add(new ServerAddress(confSplit[0], Integer.parseInt(confSplit[1])));
-                } catch (UnknownHostException | NumberFormatException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-
         MongoClientOptions.Builder builder = MongoClientOptions.builder();
 
         if (connectionsPerHost != null) {
             builder.connectionsPerHost(connectionsPerHost);
         }
 
-        if (ssl != null && ssl.booleanValue()) {
+        if (ssl != null) {
             // taken from MongoClientURI, written this way so we don't have to construct a URI to connect
             builder.socketFactory(SSLSocketFactory.getDefault());
         }
@@ -178,11 +163,32 @@ public class MongoConfiguration {
         StringBuilder bld=new StringBuilder();
         bld.append("name:").append(name).append('\n').
             append("servers:").append(servers).append('\n').
-            append("serversConfigurations:").append(serversConfigurations).append('\n').
             append("collection:").append(collection).append('\n').
             append("connectionsPerHost:").append(connectionsPerHost).append('\n').
             append("ssl:").append(ssl);
         return bld.toString();
     }
-            
+
+    @Override
+    public void initializeFromJson(JsonNode node) {
+        if (node != null) {
+            this.name = node.get("name").asText();
+            this.collection = node.get("name").asText();
+            this.connectionsPerHost = node.get("connectionsPerHost").asInt();
+            this.ssl = node.get("ssl").asBoolean();
+            JsonNode jsonNodeServers = node.get("servers");
+            if (jsonNodeServers != null && jsonNodeServers.isArray()) {
+                Iterator<JsonNode> elements = jsonNodeServers.elements();
+                while (elements.hasNext()) {
+                    JsonNode next =  elements.next();
+                    try {
+                        addServerAddress(next.get("host").asText(),next.get("port").asInt());
+                    } catch (UnknownHostException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+
+            }
+        }
+    }
 }
