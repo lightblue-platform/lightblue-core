@@ -39,6 +39,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 
@@ -94,8 +95,7 @@ public class MetadataResource {
         LOGGER.debug("getEntityNames:");
         Error.push("getEntityNames");
         try {
-            Metadata md=MetadataManager.getMetadata();
-            String[] names=md.getEntityNames();
+            String[] names=MetadataManager.getMetadata().getEntityNames();
             ObjectNode node=NODE_FACTORY.objectNode();
             ArrayNode arr=NODE_FACTORY.arrayNode();
             node.put("entities",arr);
@@ -114,11 +114,48 @@ public class MetadataResource {
 
     @GET @Path("/{entity}")
     public String getEntityVersions(@PathParam("entity") String entity) {
-        return "";
+        LOGGER.debug("getEntityVersions: {}",entity);
+        Error.push("getEntityVersions");
+        try {
+            Version[] versions=MetadataManager.getMetadata().getEntityVersions(entity);
+            ObjectNode node=NODE_FACTORY.objectNode();
+            ArrayNode arr=NODE_FACTORY.arrayNode();
+            node.put("versions",arr);
+            JSONMetadataParser parser=MetadataManager.getJSONParser();
+            for(Version x:versions)
+                arr.add(parser.convert(x));
+            return node.toString();
+        } catch (Error e) {
+            return e.toString();
+        } catch (Exception e) {
+            LOGGER.error("Failure: {}",e);
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
+        } finally {
+            Error.pop();
+        }
     }
 
     @GET @Path("/{entity}/{version}")
     public String getMetadata(@PathParam("entity") String entity,@PathParam("version") String version) {
+        LOGGER.debug("getMetadata {} {}",entity,version);
+        Error.push("getMetadata");
+        // try {
+        //     EntityMetadata md=MetadataManager.getMetadata().getEntityVersions(entity);
+        //     ObjectNode node=NODE_FACTORY.objectNode();
+        //     ArrayNode arr=NODE_FACTORY.arrayNode();
+        //     node.put("versions",arr);
+        //     JSONMetadataParser parser=MetadataManager.getJSONParser();
+        //     for(Version x:versions)
+        //         arr.add(parser.convert(x));
+        //     return node.toString();
+        // } catch (Error e) {
+        //     return e.toString();
+        // } catch (Exception e) {
+        //     LOGGER.error("Failure: {}",e);
+        //     return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
+        // } finally {
+        //     Error.pop();
+        // }
         return "";
     }
 
@@ -173,45 +210,6 @@ public class MetadataResource {
          }
     }
 
-    // @GET
-    // @Path("/names")
-    // public String getEntityNames() {
-    //     try {
-    //         // get the data
-    //         String[] names = MetadataManager.getMetadata().getEntityNames();
-
-    //         // convert to json and return
-    //         return JsonUtils.toJson(names);
-    //     } catch (Error e) {
-    //         return e.toJson().toString();
-    //     } catch (Exception e) {
-    //         return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
-    //     }
-    // }
-
-    // @GET
-    // @Path("/{entity}/versions")
-    // public String getMetadataVersions(@PathParam(PATH_PARAM_ENTITY) String entityName) {
-    //     try {
-    //         if (entityName == null) {
-    //             throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
-    //         }
-
-    //         // get the data
-    //         Version[] versions = MetadataManager.getMetadata().getEntityVersions(entityName);
-
-    //         StringBuilder buff = new StringBuilder("[");
-    //         for (Version version : versions) {
-    //             buff.append(MetadataManager.getJSONParser().convert(version));
-    //         }
-    //         buff.append("]");
-    //         return buff.toString();
-    //     } catch (Error e) {
-    //         return e.toJson().toString();
-    //     } catch (Exception e) {
-    //         return Error.get(RestMetadataConstants.ERR_REST_ERROR).toJson().toString();
-    //     }
-    // }
 
     /**
       * Body is required metadata (json).

@@ -50,7 +50,7 @@ public class MongoConfiguration implements JsonInitializable {
     private final List<ServerAddress> servers = new ArrayList<>();
     private String collection;
     private Integer connectionsPerHost;
-    private Boolean ssl = Boolean.TRUE;
+    private Boolean ssl = Boolean.FALSE;
 
     public static MongoMetadata create(MongoConfiguration configuration) throws UnknownHostException {
         DB db = configuration.getDB();
@@ -89,8 +89,12 @@ public class MongoConfiguration implements JsonInitializable {
         this.collection = collection;
     }
 
-    public void addServerAddress(String hostname, Integer port) throws UnknownHostException {
+    public void addServerAddress(String hostname, int port) throws UnknownHostException {
         this.servers.add(new ServerAddress(hostname, port));
+    }
+
+    public void addServerAddress(String hostname) throws UnknownHostException {
+        this.servers.add(new ServerAddress(hostname));
     }
 
     /**
@@ -144,7 +148,7 @@ public class MongoConfiguration implements JsonInitializable {
             builder.connectionsPerHost(connectionsPerHost);
         }
 
-        if (ssl != null) {
+        if (ssl != null && ssl) {
             // taken from MongoClientURI, written this way so we don't have to construct a URI to connect
             builder.socketFactory(SSLSocketFactory.getDefault());
         }
@@ -172,17 +176,36 @@ public class MongoConfiguration implements JsonInitializable {
     @Override
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
-            this.name = node.get("name").asText();
-            this.collection = node.get("name").asText();
-            this.connectionsPerHost = node.get("connectionsPerHost").asInt();
-            this.ssl = node.get("ssl").asBoolean();
+            JsonNode x=node.get("name");
+            if(x!=null)
+                name=x.asText();
+            x=node.get("collection");
+            if(x!=null)
+                collection=x.asText();
+            x=node.get("connectionsPerHost");
+            if(x!=null)
+                connectionsPerHost=x.asInt();
+            x=node.get("ssl");
+            if(x!=null)
+                ssl=x.asBoolean();
             JsonNode jsonNodeServers = node.get("servers");
             if (jsonNodeServers != null && jsonNodeServers.isArray()) {
                 Iterator<JsonNode> elements = jsonNodeServers.elements();
                 while (elements.hasNext()) {
                     JsonNode next =  elements.next();
                     try {
-                        addServerAddress(next.get("host").asText(),next.get("port").asInt());
+                        String host;
+                        int port;
+                        x=next.get("host");
+                        if(x!=null)
+                            host=x.asText();
+                        else
+                            host=null;
+                        x=next.get("port");
+                        if(x!=null)
+                            addServerAddress(host,x.asInt());
+                        else
+                            addServerAddress(host);
                     } catch (UnknownHostException e) {
                         throw new IllegalStateException(e);
                     }
