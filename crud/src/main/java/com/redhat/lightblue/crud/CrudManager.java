@@ -36,6 +36,7 @@ import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.util.JsonInitializable;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
@@ -94,8 +95,10 @@ public final class CrudManager {
 
         // instantiate the database specific configuration object
         Class databaseConfigurationClass = Class.forName(configuration.getDatabaseConfigurationClass());
-        JsonNode dbNode = root.findValue("database");
-        configuration.setDatabaseConfiguration(g.fromJson(dbNode.toString(), databaseConfigurationClass));
+        JsonNode dbNode = root.findValue("databaseConfiguration");
+        JsonInitializable databaseConfiguration = (JsonInitializable) databaseConfigurationClass.newInstance();
+        databaseConfiguration.initializeFromJson(dbNode);
+        configuration.setDatabaseConfiguration(databaseConfiguration);
 
         // validate
         if (!configuration.isValid()) {

@@ -9,7 +9,7 @@
         }
     ],
     "databaseConfigurationClass": "com.redhat.lightblue.crud.test.DatabaseConfiguration",
-    "database": {
+    "databaseConfiguration": {
         "name": "test",
         "host": "whatever",
         "port": 1234,

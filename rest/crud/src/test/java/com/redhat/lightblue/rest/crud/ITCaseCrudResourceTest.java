@@ -18,23 +18,15 @@
  */
 package com.redhat.lightblue.rest.crud;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.metadata.DataStore;
-import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
-import com.redhat.lightblue.rest.metadata.MetadataResource;
+import com.redhat.lightblue.util.JsonUtils;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -46,26 +38,26 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import javax.inject.Inject;
-
-import junit.framework.Assert;
-import org.bson.BSONObject;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static junit.framework.Assert.*;
+import javax.inject.Inject;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  *
@@ -197,16 +189,12 @@ public class ITCaseCrudResourceTest {
 
     @Inject
     private CrudResource cutCrudResource; //class under test
-    
-    @Inject
-    private MetadataResource cutMetadataResource;
 
     @Test
-    public void testFirstIntegrationTest() throws IOException {
+    public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
         String expectedCreated = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
-        String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0",
+        String metadata =
 "{\n" +
 "   \"entityInfo\": { "+
 "        \"name\": \"country\",\n" +
@@ -243,7 +231,12 @@ public class ITCaseCrudResourceTest {
 "            \"iso3code\": {\"type\": \"string\"}\n"+
 "        }\n" +
 "    }\n" +
-"}");
+"}";
+
+        EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+        MetadataManager.getMetadata().createNewMetadata(em);
+        EntityMetadata em2 = MetadataManager.getMetadata().getEntityMetadata("country", "1.0.0", true);
+        String resultCreated = MetadataManager.getJSONParser().convert(em2).toString();
         assertEquals(expectedCreated,resultCreated);
 
 

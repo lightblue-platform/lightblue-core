@@ -47,10 +47,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.rest</groupId>
-            <artifactId>rest-metadata</artifactId>
+            <groupId>com.redhat.lightblue.config</groupId>
+            <artifactId>config-metadata</artifactId>
             <version>${project.version}</version>
-            <type>war</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
