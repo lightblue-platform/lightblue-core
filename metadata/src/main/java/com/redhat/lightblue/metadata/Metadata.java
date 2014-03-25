@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.Response;
 import java.io.Serializable;
-import javax.xml.ws.Response;
 
 /**
  * Metadata manager interface
