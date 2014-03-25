@@ -103,27 +103,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         }
 
         @Override
-        public Response getDependencies() {
-            return null;
-        }
-
-        @Override
-        public Response getDependencies(String entityName) {
-            return null;
-        }
-
-        @Override
         public Response getDependnecies(String entityName, String version) {
-            return null;
-        }
-
-        @Override
-        public Response getAccess() {
-            return null;
-        }
-
-        @Override
-        public Response getAccess(String entityName) {
             return null;
         }
 
