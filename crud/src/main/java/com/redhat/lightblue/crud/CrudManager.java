@@ -39,8 +39,8 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Because rest resources are instantiated for every request this manager exists
- * to keep the number of Metadata instances created down to a reasonable level.
+ * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
+ * instances created down to a reasonable level.
  *
  * @author nmalik
  */
@@ -99,7 +99,7 @@ public final class CrudManager {
 
         // validate
         if (!configuration.isValid()) {
-            throw new IllegalStateException(CrudConstants.ERR_CONFIG_NOT_VALID + " - "+ CrudConfiguration.FILENAME);
+            throw new IllegalStateException(CrudConstants.ERR_CONFIG_NOT_VALID + " - " + CrudConfiguration.FILENAME);
         }
 
         for (Controller x : configuration.getControllers()) {
@@ -112,7 +112,9 @@ public final class CrudManager {
         }
         try {
             mediator = new Mediator(MetadataManager.getMetadata(), factory);
-        } catch (Exception e) {// TODO: FIX THIS}
+        } catch (Exception e) {
+            // TODO: FIX THIS
+        }
     }
 
     public static Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
