@@ -1,4 +1,4 @@
-/*
+*
  Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
  This file is part of lightblue.
@@ -102,11 +102,11 @@ public class Mediator {
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (insertedDocuments!= null && !insertedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
+                        response.setModifiedCount(insertedDocuments.size());
                     }
-                    response.setModifiedCount(insertedDocuments.size());
-                    if (insertedDocuments.size() == ctx.getDocuments().size()) {
+                    if (insertedDocuments!=null&&insertedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
-                    } else if (!insertedDocuments.isEmpty()) {
+                    } else if (insertedDocuments!=null&&!insertedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
                     } else {
                         ctx.setStatus(OperationStatus.ERROR);
@@ -164,11 +164,11 @@ public class Mediator {
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
+                        response.setModifiedCount(updatedDocuments.size());
                     }
-                    response.setModifiedCount(updatedDocuments.size());
-                    if (updatedDocuments.size() == ctx.getDocuments().size()) {
+                    if (updatedDocuments!=null&&updatedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
-                    } else if (!updatedDocuments.isEmpty()) {
+                    } else if (updatedDocuments!=null&&!updatedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
                     } else {
                         ctx.setStatus(OperationStatus.ERROR);
