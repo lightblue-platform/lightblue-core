@@ -18,13 +18,15 @@
  */
 package com.redhat.lightblue.metadata.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.util.JsonInitializable;
 
 /**
  *
  * @author nmalik
  */
-public class DatabaseConfiguration {
+public class DatabaseConfiguration implements JsonInitializable {
     private String name;
     private String hostname = "localhost";
     private String port = "27017";
@@ -50,4 +52,8 @@ public class DatabaseConfiguration {
         return collection;
     }
 
+    @Override
+    public void initializeFromJson(JsonNode node) {
+
+    }
 }
