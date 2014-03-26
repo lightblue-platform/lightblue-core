@@ -439,7 +439,6 @@ public class MongoMetadataTest {
      * @throws JSONException
      */
     @Test
-    @Ignore
     public void getAccessEntityDefaultVersion() throws IOException, JSONException {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
@@ -479,7 +478,6 @@ public class MongoMetadataTest {
      * @throws JSONException
      */
     @Test
-    @Ignore
     public void getAccessAllEntitiesDefaultVersion() throws IOException, JSONException {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
