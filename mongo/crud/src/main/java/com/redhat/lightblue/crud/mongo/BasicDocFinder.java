@@ -30,6 +30,7 @@ import com.mongodb.DBCursor;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.mongo.hystrix.FindCommand;
 
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -54,7 +55,7 @@ public class BasicDocFinder implements DocFinder {
                      Long from,
                      Long to) {
         LOGGER.debug("Submitting query");
-        DBCursor cursor = coll.find(mongoQuery);
+        DBCursor cursor = new FindCommand(null, coll, mongoQuery, null).execute();
         LOGGER.debug("Query evaluated");
         if (mongoSort != null) {
             cursor = cursor.sort(mongoSort);

@@ -42,6 +42,8 @@ import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.mongo.hystrix.FindAndModifyCommand;
+import com.redhat.lightblue.mongo.hystrix.FindCommand;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -95,7 +97,7 @@ public class AtomicIterateUpdate implements DocUpdater {
             int docIndex = 0;
             try {
                 // Find docs
-                cursor = collection.find(query);
+                cursor = new FindCommand(null, collection, query, null).execute();
                 LOGGER.debug("Found {} documents", cursor.count());
                 // read-update
                 while (cursor.hasNext()) {
@@ -107,13 +109,14 @@ public class AtomicIterateUpdate implements DocUpdater {
                         Object id = document.get("_id");
                         LOGGER.debug("Retrieved doc {} id={}", docIndex, id);
                         // Update doc
-                        DBObject modifiedDoc = collection.findAndModify(new BasicDBObject("_id", id),
+                        DBObject modifiedDoc = new FindAndModifyCommand(null, collection,
+                                new BasicDBObject("_id", id),
                                 null,
                                 null,
                                 false,
                                 mongoUpdateExpr,
                                 true,
-                                false);
+                                false).execute();
                         if (projector != null) {
                             LOGGER.debug("Projecting document {}", docIndex);
                             doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory, qctx));

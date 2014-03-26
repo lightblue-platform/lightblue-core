@@ -7,6 +7,7 @@ package com.redhat.lightblue.mongo.hystrix;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
 /**
@@ -15,19 +16,24 @@ import com.mongodb.WriteResult;
  */
 public class RemoveCommand extends AbstractMongoCommand<WriteResult> {
     private final DBObject data;
+    private final WriteConcern concern;
 
-    /**
-     *
-     * @param clientKey used to set thread pool key
-     * @param query
-     */
     public RemoveCommand(String clientKey, DBCollection collection, DBObject data) {
+        this(clientKey, collection, data, null);
+    }
+
+    public RemoveCommand(String clientKey, DBCollection collection, DBObject data, WriteConcern concern) {
         super(RemoveCommand.class.getSimpleName(), RemoveCommand.class.getSimpleName(), clientKey, collection);
         this.data = data;
+        this.concern = concern;
     }
 
     @Override
     protected WriteResult run() throws Exception {
-        return getDBCollection().remove(data);
+        if (concern != null) {
+            return getDBCollection().remove(data, concern);
+        } else {
+            return getDBCollection().remove(data);
+        }
     }
 }

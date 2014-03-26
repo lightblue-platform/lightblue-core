@@ -38,6 +38,9 @@ import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
+import com.redhat.lightblue.mongo.hystrix.InsertCommand;
+import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -82,14 +85,15 @@ public class BasicDocSaver implements DocSaver {
             // Updating
             LOGGER.debug("Updating doc {}" + id);
             BasicDBObject q = new BasicDBObject(MongoCRUDController.ID_STR, new ObjectId(id.toString()));
-            DBObject oldDBObject = collection.findOne(q);
+            DBObject oldDBObject = new FindOneCommand(null, collection, q).execute();
             if (oldDBObject != null) {
                 if (md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                     JsonDoc oldDoc = translator.toJson(oldDBObject);
                     inputDoc.setOriginalDocument(oldDoc);
                     List<Path> paths = roleEval.getInaccessibleFields_Update(inputDoc, oldDoc);
                     if (paths == null || paths.isEmpty()) {
-                        result = collection.update(q, dbObject, upsert, false, WriteConcern.SAFE);
+                        //public WriteResult update( DBObject q , DBObject o , boolean upsert , boolean multi , WriteConcern concern ){
+                        result = new UpdateCommand(null, collection, q, dbObject, upsert, upsert, WriteConcern.SAFE).execute();
                         inputDoc.setOperationPerformed(Operation.UPDATE);
                     } else {
                         inputDoc.addError(Error.get("update",
@@ -135,7 +139,7 @@ public class BasicDocSaver implements DocSaver {
             LOGGER.debug("Inaccessible fields:{}", paths);
             if (paths == null || paths.isEmpty()) {
                 try {
-                    WriteResult r = collection.insert(dbObject, WriteConcern.SAFE);
+                    WriteResult r = new InsertCommand(null, collection, dbObject, WriteConcern.SAFE).execute();
                     inputDoc.setOperationPerformed(Operation.INSERT);
                     return r;
                 } catch (MongoException.DuplicateKey dke) {

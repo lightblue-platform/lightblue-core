@@ -27,6 +27,7 @@ import com.mongodb.WriteResult;
 
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 
 /**
  * Basic document deletion with no transaction support
@@ -41,7 +42,7 @@ public class BasicDocDeleter implements DocDeleter {
                        DBObject mongoQuery,
                        CRUDDeleteResponse response) {
         LOGGER.debug("Removing docs with {}", mongoQuery);
-        WriteResult result = collection.remove(mongoQuery);
+        WriteResult result = new RemoveCommand(null, collection, mongoQuery).execute();
         LOGGER.debug("Removal complete, write result={}", result);
         response.setNumDeleted(result.getN());
     }

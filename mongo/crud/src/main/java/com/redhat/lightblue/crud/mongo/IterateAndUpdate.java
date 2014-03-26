@@ -44,6 +44,8 @@ import com.redhat.lightblue.eval.QueryEvaluationContext;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
+import com.redhat.lightblue.mongo.hystrix.FindCommand;
+import com.redhat.lightblue.mongo.hystrix.SaveCommand;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -91,7 +93,7 @@ public class IterateAndUpdate implements DocUpdater {
         int docIndex = 0;
         int numFailed = 0;
         try {
-            cursor = collection.find(query);
+            cursor = new FindCommand(null, collection, query, null).execute();
             LOGGER.debug("Found {} documents", cursor.count());
             // read-update-write
             while (cursor.hasNext()) {
@@ -131,7 +133,7 @@ public class IterateAndUpdate implements DocUpdater {
                     if (!hasErrors) {
                         try {
                             DBObject updatedObject = translator.toBson(doc.getOutputDocument());
-                            WriteResult result = collection.save(updatedObject);
+                            WriteResult result = new SaveCommand(null, collection, updatedObject).execute();
                             doc.setOperationPerformed(Operation.UPDATE);
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {

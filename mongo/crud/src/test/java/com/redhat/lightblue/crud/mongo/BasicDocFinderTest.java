@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
-import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
 import static com.redhat.lightblue.crud.mongo.AbstractMongoTest.coll;
 import com.redhat.lightblue.metadata.EntityMetadata;

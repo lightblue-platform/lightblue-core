@@ -32,6 +32,8 @@ import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.mongo.hystrix.FindCommand;
+import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 
 /**
  * Iterates the result set and deleted documents one by one
@@ -57,7 +59,7 @@ public class IterateDeleter implements DocDeleter {
         int numDeleted = 0;
         try {
             // Find docs
-            cursor = collection.find(mongoQuery);
+            cursor = new FindCommand(null, collection, mongoQuery, null).execute();
             LOGGER.debug("Found {} documents", cursor.count());
             // read-delet
             while (cursor.hasNext()) {
@@ -66,7 +68,7 @@ public class IterateDeleter implements DocDeleter {
                 Object id = document.get(MongoCRUDController.ID_STR);
                 DocCtx doc = ctx.addDocument(translator.toJson(document));
                 doc.setOriginalDocument(doc);
-                WriteResult result = collection.remove(new BasicDBObject("_id", id), WriteConcern.SAFE);
+                WriteResult result = new RemoveCommand(null, collection, new BasicDBObject("_id", id), WriteConcern.SAFE).execute();
                 if (result.getN() == 1) {
                     numDeleted++;
                     doc.setOperationPerformed(Operation.DELETE);
