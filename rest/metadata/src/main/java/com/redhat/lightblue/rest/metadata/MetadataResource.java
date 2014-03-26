@@ -22,6 +22,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
@@ -42,6 +43,7 @@ import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 
@@ -243,7 +245,27 @@ public class MetadataResource {
 
 
     @PUT @Path("/{entity}/{version}/{status}")
-    public String updateSchemaStatus(@PathParam("entity") String entity, @PathParam("version") String version, @PathParam("status") String status) {
-        return "";
+    public String updateSchemaStatus(@PathParam("entity") String entity, 
+                                     @PathParam("version") String version, 
+                                     @PathParam("status") String status,
+                                     @QueryParam("comment") String comment) {
+        LOGGER.debug("updateSchemaStatus {} {} {}",entity,version,status);
+        Error.reset();
+        Error.push("updateSchemaStatus");
+        Error.push(entity);
+        Error.push(version);
+        try {
+            MetadataStatus st=MetadataParser.statusFromString(status);
+            Metadata md=MetadataManager.getMetadata();
+            md.setMetadataStatus(entity,version,st,comment);
+            return MetadataManager.getJSONParser().convert(md.getEntityMetadata(entity,version)).toString();
+        } catch (Error e) {
+            return e.toString();
+        } catch (Exception e) {
+            LOGGER.error("Failure: {}",e);
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
+        } finally {
+            Error.reset();
+        }
     }
 }
