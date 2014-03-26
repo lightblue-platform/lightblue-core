@@ -27,6 +27,9 @@ public final class RestCrudConstants {
     public static final String ERR_REST_SAVE = "rest-crud:RestSaveError";
     public static final String ERR_REST_DELETE = "rest-crud:RestDeleteError";
 
+    public static final String ERR_NO_ENTITY_MATCH = "rest-crud:NoEntityMatch";
+    public static final String ERR_NO_VERSION_MATCH = "rest-crud:NoVersionMatch";
+
     private RestCrudConstants() {
 
     }

@@ -31,12 +31,15 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.Request;
+import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.CrudManager;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 
@@ -64,13 +67,43 @@ public class CrudResource {
         Error.push("insert");
         Error.push(entity);
         try {
-            return "";
+            InsertionRequest ireq=InsertionRequest.fromJson((ObjectNode)JsonUtils.json(req));
+            validateReq(ireq,entity,version);
+            Response r=CrudManager.getMediator().insert(ireq);
+            return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("insert failure: {}",e);
             return e.toString();
         } catch (Exception e) {
             LOGGER.error("insert failure: {}",e);
             return Error.get(RestCrudConstants.ERR_REST_INSERT,e.toString()).toString();
+        } finally {
+            Error.reset();
+        }
+    }
+
+    @POST @Path("/save/{entity}")
+    public String save(@PathParam("entity") String entity, String req) {
+        return save(entity,null,req);
+    }
+
+    @POST @Path("/save/{entity}/{version}")
+    public String save(@PathParam("entity") String entity,@PathParam("version") String version, String req) {
+        LOGGER.debug("save: {} {}",entity,version);
+        Error.reset();
+        Error.push("save");
+        Error.push(entity);
+        try {
+            SaveRequest ireq=SaveRequest.fromJson((ObjectNode)JsonUtils.json(req));
+            validateReq(ireq,entity,version);
+            Response r=CrudManager.getMediator().save(ireq);
+            return r.toJson().toString();
+        } catch (Error e) {
+            LOGGER.error("save failure: {}",e);
+            return e.toString();
+        } catch (Exception e) {
+            LOGGER.error("save failure: {}",e);
+            return Error.get(RestCrudConstants.ERR_REST_SAVE,e.toString()).toString();
         } finally {
             Error.reset();
         }
@@ -88,7 +121,10 @@ public class CrudResource {
         Error.push("update");
         Error.push(entity);
         try {
-            return "";
+            UpdateRequest ireq=UpdateRequest.fromJson((ObjectNode)JsonUtils.json(req));
+            validateReq(ireq,entity,version);
+            Response r=CrudManager.getMediator().update(ireq);
+            return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("update failure: {}",e);
             return e.toString();
@@ -112,7 +148,10 @@ public class CrudResource {
         Error.push("delete");
         Error.push(entity);
         try {
-            return "";
+            DeleteRequest ireq=DeleteRequest.fromJson((ObjectNode)JsonUtils.json(req));
+            validateReq(ireq,entity,version);
+            Response r=CrudManager.getMediator().delete(ireq);
+            return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("delete failure: {}",e);
             return e.toString();
@@ -137,7 +176,10 @@ public class CrudResource {
         Error.push("find");
         Error.push(entity);
         try {
-            return "";
+            FindRequest ireq=FindRequest.fromJson((ObjectNode)JsonUtils.json(req));
+            validateReq(ireq,entity,version);
+            Response r=CrudManager.getMediator().find(ireq);
+            return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("find failure: {}",e);
             return e.toString();
@@ -147,5 +189,21 @@ public class CrudResource {
         } finally {
             Error.reset();
         }
+    }
+
+    private void validateReq(Request req,String entity,String version) {
+        if(req.getEntityVersion()==null)  {
+            req.setEntityVersion(new EntityVersion());
+        }
+        if(req.getEntityVersion().getEntity()==null) {
+            req.getEntityVersion().setEntity(entity);
+        }
+        if(req.getEntityVersion().getVersion()==null) {
+            req.getEntityVersion().setVersion(version);
+        }
+        if(!req.getEntityVersion().getEntity().equals(entity))
+            throw Error.get(RestCrudConstants.ERR_NO_ENTITY_MATCH,entity);
+        if(!req.getEntityVersion().getVersion().equals(version))
+            throw Error.get(RestCrudConstants.ERR_NO_VERSION_MATCH,version);
     }
 }

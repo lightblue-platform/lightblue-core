@@ -64,7 +64,6 @@ import static junit.framework.Assert.assertNotNull;
  *
  * @author lcestari
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class ITCaseCrudResourceTest {
 
