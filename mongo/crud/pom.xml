@@ -36,11 +36,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-config-metadata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <scope>test</scope>

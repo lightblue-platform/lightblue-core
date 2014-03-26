@@ -65,6 +65,7 @@ import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.OperationStatus;
 
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
 public class MediatorTest extends AbstractJsonSchemaTest {
     private Mediator mediator;
@@ -73,44 +74,12 @@ public class MediatorTest extends AbstractJsonSchemaTest {
 
     private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
 
-    private static final class TestMetadata implements Metadata {
-        private EntityMetadata md;
-
-        @Override
-        public EntityMetadata getEntityMetadata(String entityName, String version) {
-            return md;
-        }
-
-        @Override
-        public String[] getEntityNames() {
-            return null;
-        }
-
-        @Override
-        public Version[] getEntityVersions(String entityName) {
-            return null;
-        }
-
-        @Override
-        public void createNewMetadata(EntityMetadata md) {
-        }
-
-        @Override
-        public void setMetadataStatus(String entityName,
-                                      String version,
-                                      MetadataStatus newStatus,
-                                      String comment) {
-        }
-
-        @Override
-        public Response getDependencies(String entityName, String version) {
-            return null;
-        }
-
-        @Override
-        public Response getAccess(String entityName, String version) {
-            return null;
-        }
+    private static final class TestMetadata extends DatabaseMetadata {
+        EntityMetadata md;
+       @Override
+       public EntityMetadata getEntityMetadata(String entityName, String version) {
+           return md;
+       }
     }
 
     private static final class MockCrudController implements CRUDController {

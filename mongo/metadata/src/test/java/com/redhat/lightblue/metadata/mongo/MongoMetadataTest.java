@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo.config.metadata;
+package com.redhat.lightblue.metadata.mongo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,6 +64,7 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.junit.Before;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 
 public class MongoMetadataTest {
 
@@ -129,14 +130,7 @@ public class MongoMetadataTest {
                 mongod = mongodExe.start();
             }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
-
-            MongoConfiguration config = new MongoConfiguration();
-            config.setName(DB_NAME);
-            // disable ssl for test (enabled by default)
-            config.setSsl(Boolean.FALSE);
-            config.addServerAddress(MONGO_HOST, MONGO_PORT);
-
-            db = config.getDB();
+            db=mongo.getDB(DB_NAME);
 
             db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
 
