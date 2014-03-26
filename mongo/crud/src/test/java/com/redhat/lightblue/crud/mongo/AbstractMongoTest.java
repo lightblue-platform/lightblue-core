@@ -97,7 +97,12 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
 
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_4_3, MONGO_PORT, false));
-            mongod = mongodExe.start();
+            try {
+                mongod = mongodExe.start();
+            } catch (Throwable t) {
+                // try again, could be killed breakpoint in IDE
+                mongod = mongodExe.start();
+            }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
 
             MongoConfiguration config = new MongoConfiguration();

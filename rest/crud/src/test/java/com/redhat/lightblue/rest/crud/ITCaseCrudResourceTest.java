@@ -120,7 +120,12 @@ public class ITCaseCrudResourceTest {
 
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
-            mongod = mongodExe.start();
+            try {
+                mongod = mongodExe.start();
+            } catch (Throwable t) {
+                // try again, could be killed breakpoint in IDE
+                mongod = mongodExe.start();
+            }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
 
             MongoConfiguration config = new MongoConfiguration();

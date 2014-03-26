@@ -19,7 +19,6 @@
 package com.redhat.lightblue.mongo.config.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.After;
 import org.junit.Test;
@@ -64,7 +63,6 @@ import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class MongoMetadataTest {
 

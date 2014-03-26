@@ -117,7 +117,12 @@ public class FrontEnd {
                 MongodStarter runtime = MongodStarter.getDefaultInstance();
                 MongodExecutable mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT,
                         Network.localhostIsIPv6()));
-                mongodExe.start();
+                try {
+                    mongod = mongodExe.start();
+                } catch (Throwable t) {
+                    // try again, could be killed breakpoint in IDE
+                    mongod = mongodExe.start();
+                }
                 Mongo mongo = new Mongo(IN_MEM_CONNECTION_URL);
                 db = mongo.getDB(dbName);
             }
