@@ -400,7 +400,7 @@ public class MongoMetadata implements Metadata {
                     obj.put("version", version);
                 }
                 List<Error> errors = new ArrayList<>();
-                errors.add(Error.get("ERR_NO_METADATA", "Could not get metadata for given input: " + e.getMessage()));
+                errors.add(Error.get("ERR_NO_METADATA", "Could not get metadata for given input. Error message: " + e.getMessage()));
                 DataError error = new DataError(obj, errors);
                 response.getDataErrors().add(error);
                 // skip to next entity name

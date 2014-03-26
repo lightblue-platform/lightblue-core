@@ -19,6 +19,7 @@
 package com.redhat.lightblue.mongo.config.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.After;
 import org.junit.Test;
@@ -59,9 +60,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import org.json.JSONException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 public class MongoMetadataTest {
@@ -478,7 +479,7 @@ public class MongoMetadataTest {
      * @throws JSONException
      */
     @Test
-    public void getAccessAllEntitiesDefaultVersion() throws IOException, JSONException {
+    public void getAccessSingleEntityDefaultVersion() throws IOException, JSONException {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
@@ -486,11 +487,10 @@ public class MongoMetadataTest {
         JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
 
         // get JsonNode representing metadata
-        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-all-entities-default-version.json");
+        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-single-entity-default-version.json");
 
         // parser into EntityMetadata
         EntityMetadata e = parser.parseEntityMetadata(jsonMetadata);
-
         // persist
         md.createNewMetadata(e);
 
@@ -507,6 +507,52 @@ public class MongoMetadataTest {
         Assert.assertNotNull(response.getEntityData());
         String jsonEntityData = response.getEntityData().toString();
         String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
+    }
+
+    /**
+     * TODO enable once mongo metadata allows falling back on default version in getEntityMetadata()
+     *
+     * @throws IOException
+     * @throws JSONException
+     */
+    @Test
+    public void getAccessMultipleEntitiesDefaultVersion() throws IOException, JSONException {
+        // setup parser
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
+
+        // get JsonNode representing metadata
+        JsonNode jsonMetadata = AbstractJsonNodeTest.loadJsonNode(getClass().getSimpleName() + "-access-multiple-entities-default-version.json");
+
+        ArrayNode an = (ArrayNode) jsonMetadata;
+        Iterator<JsonNode> itr = an.iterator();
+        while (itr.hasNext()) {
+            // parser into EntityMetadata
+            EntityMetadata e = parser.parseEntityMetadata(itr.next());
+
+            // persist
+            md.createNewMetadata(e);
+        }
+
+        // ready to test!
+        Response response = md.getAccess(null, null);
+
+        Assert.assertNotNull(response);
+
+        // verify response content
+        Assert.assertEquals(OperationStatus.PARTIAL, response.getStatus());
+        Assert.assertFalse(response.getDataErrors().isEmpty());
+        Assert.assertEquals(1, response.getDataErrors().size());
+        String jsonErrorExpected = "[{\"data\":{\"name\":\"test2\"},\"errors\":[{\"object_type\":\"error\",\"errorCode\":\"ERR_NO_METADATA\",\"msg\":\"Could not get metadata for given input. Error message: version\"}]}]";
+        JSONAssert.assertEquals(jsonErrorExpected, response.getDataErrors().toString(), false);
+
+        // verify data
+        Assert.assertNotNull(response.getEntityData());
+        String jsonEntityData = response.getEntityData().toString();
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
 }
