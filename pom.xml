@@ -139,25 +139,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <groupId>com.netflix.servo</groupId>
                 <artifactId>servo-core</artifactId>
                 <version>0.5.5</version>
-                <!-- imports old version of guava and trumps other newer imports for some reasons -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.netflix.servo</groupId>
                 <artifactId>servo-graphite</artifactId>
                 <version>0.5.5</version>
-                <!-- imports old version of guava and trumps other newer imports for some reasons -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>
