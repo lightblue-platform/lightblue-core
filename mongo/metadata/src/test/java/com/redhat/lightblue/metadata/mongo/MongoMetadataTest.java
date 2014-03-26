@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo.config.metadata;
+package com.redhat.lightblue.metadata.mongo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,6 +64,7 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.junit.Before;
 import org.skyscreamer.jsonassert.JSONAssert;
+
 
 public class MongoMetadataTest {
 
@@ -129,14 +130,7 @@ public class MongoMetadataTest {
                 mongod = mongodExe.start();
             }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
-
-            MongoConfiguration config = new MongoConfiguration();
-            config.setName(DB_NAME);
-            // disable ssl for test (enabled by default)
-            config.setSsl(Boolean.FALSE);
-            config.addServerAddress(MONGO_HOST, MONGO_PORT);
-
-            db = config.getDB();
+            db=mongo.getDB(DB_NAME);
 
             db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
 
@@ -323,6 +317,46 @@ public class MongoMetadataTest {
         }
 
     }
+
+    @Test
+    public void updateEntityInfo() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+
+        EntityInfo ei=new EntityInfo("testEntity");
+        ei.setDataStore(new MongoDataStore(null,null,"somethingelse"));
+        md.updateEntityInfo(ei);
+    }
+
+    @Test
+    public void updateEntityInfo_noEntity() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+
+        EntityInfo ei=new EntityInfo("NottestEntity");
+        ei.setDataStore(new MongoDataStore(null,null,"somethingelse"));
+        try {
+            md.updateEntityInfo(ei);
+            Assert.fail();
+        } catch (Error ex) {
+            Assert.assertEquals(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO,ex.getErrorCode());
+        }
+    }
+
 
     @Test
     public void invalidDefaultVersionTest() throws Exception {

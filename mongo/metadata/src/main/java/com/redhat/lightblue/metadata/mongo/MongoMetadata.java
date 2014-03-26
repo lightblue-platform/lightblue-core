@@ -128,7 +128,8 @@ public class MongoMetadata implements Metadata {
             Error.pop();
         }
     }
-
+    
+    @Override
     public EntityInfo getEntityInfo(String entityName) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
@@ -205,14 +206,11 @@ public class MongoMetadata implements Metadata {
         try {
 
             if (md.getEntityInfo().getDefaultVersion() != null) {
-                if (!md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
-                    BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
-                    DBObject es = new FindOneCommand(null, collection, query).execute();
-                    if (es == null) {
-                        throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, md.getEntityInfo().getName() + ":" + md.getEntityInfo().getDefaultVersion());
-                    }
-                } else if (md.getStatus() == MetadataStatus.DISABLED) {
-                    throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, md.getEntityInfo().getName() + ":" + md.getEntityInfo().getDefaultVersion());
+                if(!md.getEntityInfo().getDefaultVersion().equals(ver.getValue())) {
+                    validateDefaultVersion(md.getEntityInfo());
+                }
+                if (md.getStatus() == MetadataStatus.DISABLED) {
+                    throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, md.getName() + ":" + md.getEntityInfo().getDefaultVersion());
                 }
             }
             PredefinedFields.ensurePredefinedFields(md);
@@ -250,11 +248,46 @@ public class MongoMetadata implements Metadata {
         }
     }
 
+    private void validateDefaultVersion(EntityInfo ei) {
+        if (ei.getDefaultVersion() != null) {
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID + ei.getDefaultVersion());
+            DBObject es = collection.findOne(query);
+            if (es == null) {
+                throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ei.getName() + ":" + ei.getDefaultVersion());
+            }
+        }
+    }
+
+    @Override
+    public void updateEntityInfo(EntityInfo ei) {
+        checkMetadataHasName(ei);
+        checkDataStoreIsValid(ei);
+        Error.push("updateEntityInfo("+ei.getName()+")");
+
+        // Verify entity info exists
+        EntityInfo old=getEntityInfo(ei.getName());
+        if (null == old) {
+            throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ei.getName());
+        }
+        if( (old.getDefaultVersion()==null&&ei.getDefaultVersion()!=null) ||
+            (old.getDefaultVersion()!=null&&ei.getDefaultVersion()!=null&&
+             !old.getDefaultVersion().equals(ei.getDefaultVersion())) )
+            validateDefaultVersion(ei);
+
+        try {
+            collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
+                              (DBObject)mdParser.convert(ei));
+        } catch (Exception e) {
+            throw Error.get(MongoMetadataConstants.ERR_DB_ERROR,e.toString());
+        }
+    }
+
     /**
      * Creates a new schema (versioned data) for an existing metadata.
      *
      * @param md
      */
+    @Override
     public void createNewSchema(EntityMetadata md) {
 
         checkMetadataHasName(md);
@@ -289,6 +322,10 @@ public class MongoMetadata implements Metadata {
     }
 
     private Version checkVersionIsValid(EntityMetadata md) {
+        return checkVersionIsValid(md.getEntitySchema());
+    }
+
+    private Version checkVersionIsValid(EntitySchema md) {
         Version ver = md.getVersion();
         if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_VERSION);
@@ -300,6 +337,10 @@ public class MongoMetadata implements Metadata {
     }
 
     private void checkDataStoreIsValid(EntityMetadata md) {
+        checkDataStoreIsValid(md.getEntityInfo());
+    }
+
+    private void checkDataStoreIsValid(EntityInfo md) {
         DataStore store = md.getDataStore();
         if (!(store instanceof MongoDataStore)) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_DATASTORE);
@@ -307,12 +348,20 @@ public class MongoMetadata implements Metadata {
     }
 
     private void checkMetadataHasName(EntityMetadata md) {
+        checkMetadataHasName(md.getEntityInfo());
+    }
+    
+    private void checkMetadataHasName(EntityInfo md) {
         if (md.getName() == null || md.getName().length() == 0) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_EMPTY_METADATA_NAME);
         }
     }
 
     private void checkMetadataHasFields(EntityMetadata md) {
+        checkMetadataHasFields(md.getEntitySchema());
+    }
+
+    private void checkMetadataHasFields(EntitySchema md) {
         if (md.getFields().getNumChildren() <= 0) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_METADATA_WITH_NO_FIELDS);
         }

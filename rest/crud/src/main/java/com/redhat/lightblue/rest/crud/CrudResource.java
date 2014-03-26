@@ -18,6 +18,17 @@
  */
 package com.redhat.lightblue.rest.crud;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.core.MediaType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.DeleteRequest;
@@ -28,94 +39,113 @@ import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.CrudManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
 
 /**
- * Simple service to test out NewRelic custom metrics.
  *
  * @author nmalik
+ * @author bserdar
  */
-@Path("/crud")
+@Path("/") // metadata/ prefix is the application context
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class CrudResource {
 
-    @GET
-    @Path("/find")
-    public String find(String data) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrudResource.class);
+
+    @PUT @Path("/{entity}")
+    public String insert(@PathParam("entity") String entity, String req) {
+        return insert(entity,null,req);
+    }
+
+    @PUT @Path("/{entity}/{version}")
+    public String insert(@PathParam("entity") String entity,@PathParam("version") String version,String req) {
+        LOGGER.debug("insert: {} {}",entity,version);
+        Error.reset();
+        Error.push("insert");
+        Error.push(entity);
         try {
-            Response r = CrudManager.getMediator().find(FindRequest.fromJson((ObjectNode) JsonUtils.json(data)));
-            return r.toJson().toString();
+            return "";
         } catch (Error e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return e.toJson().toString();
+            LOGGER.error("insert failure: {}",e);
+            return e.toString();
         } catch (Exception e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(RestCrudConstants.ERR_REST_FIND).toJson().toString();
+            LOGGER.error("insert failure: {}",e);
+            return Error.get(RestCrudConstants.ERR_REST_INSERT,e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 
-    @PUT
-    @Path("/insert")
-    public String insert(String data) {
+    @POST @Path("/update/{entity}")
+    public String update(@PathParam("entity") String entity, String req) {
+        return update(entity,null,req);
+    }
+
+    @POST @Path("/update/{entity}/{version}")
+    public String update(@PathParam("entity") String entity,@PathParam("version") String version, String req) {
+        LOGGER.debug("update: {} {}",entity,version);
+        Error.reset();
+        Error.push("update");
+        Error.push(entity);
         try {
-            Response r = CrudManager.getMediator().insert(InsertionRequest.fromJson((ObjectNode) JsonUtils.json(data)));
-            return r.toJson().toString();
+            return "";
         } catch (Error e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return e.toJson().toString();
+            LOGGER.error("update failure: {}",e);
+            return e.toString();
         } catch (Exception e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(RestCrudConstants.ERR_REST_INSERT).toJson().toString();
+            LOGGER.error("update failure: {}",e);
+            return Error.get(RestCrudConstants.ERR_REST_UPDATE,e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 
-    @POST
-    @Path("/update")
-    public String update(String data) {
+    @POST @Path("/delete/{entity}")
+    public String delete(@PathParam("entity") String entity, String req) {
+        return delete(entity,null,req);
+    }
+
+    @POST @Path("/delete/{entity}/{version}")
+    public String delete(@PathParam("entity") String entity,@PathParam("version") String version, String req) {
+        LOGGER.debug("delete: {} {}",entity,version);
+        Error.reset();
+        Error.push("delete");
+        Error.push(entity);
         try {
-            Response r = CrudManager.getMediator().update(UpdateRequest.fromJson((ObjectNode) JsonUtils.json(data)));
-            return r.toJson().toString();
+            return "";
         } catch (Error e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return e.toJson().toString();
+            LOGGER.error("delete failure: {}",e);
+            return e.toString();
         } catch (Exception e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(RestCrudConstants.ERR_REST_UPDATE).toJson().toString();
+            LOGGER.error("delete failure: {}",e);
+            return Error.get(RestCrudConstants.ERR_REST_DELETE,e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 
-    @PUT
-    @Path("/save")
-    public String save(String data) {
-        try {
-            Response r = CrudManager.getMediator().save(SaveRequest.fromJson((ObjectNode) JsonUtils.json(data)));
-            return r.toJson().toString();
-        } catch (Error e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return e.toJson().toString();
-        } catch (Exception e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(RestCrudConstants.ERR_REST_SAVE).toJson().toString();
-        }
+    
+    @POST @Path("/find/{entity}")
+    public String find(@PathParam("entity") String entity, String req) {
+        return find(entity,null,req);
     }
 
-    @DELETE
-    @Path("/delete")
-    public String delete(String data) {
+    @POST @Path("/find/{entity}/{version}")
+    public String find(@PathParam("entity") String entity,@PathParam("version") String version, String req) {
+        LOGGER.debug("find: {} {}",entity,version);
+        Error.reset();
+        Error.push("find");
+        Error.push(entity);
         try {
-            Response r = CrudManager.getMediator().delete(DeleteRequest.fromJson((ObjectNode) JsonUtils.json(data)));
-            return r.toJson().toString();
+            return "";
         } catch (Error e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return e.toJson().toString();
+            LOGGER.error("find failure: {}",e);
+            return e.toString();
         } catch (Exception e) {
-            Logger.getLogger(CrudResource.class.getName()).log(Level.SEVERE, null, e);
-            return Error.get(RestCrudConstants.ERR_REST_DELETE).toJson().toString();
+            LOGGER.error("find failure: {}",e);
+            return Error.get(RestCrudConstants.ERR_REST_FIND,e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 }

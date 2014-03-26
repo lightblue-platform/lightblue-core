@@ -51,6 +51,11 @@ public interface Metadata extends Serializable {
     EntityMetadata getEntityMetadata(String entityName, String version);
 
     /**
+     * Returns the entity info for the given entity.
+     */
+    EntityInfo getEntityInfo(String entityName);
+
+    /**
      * Returns the names of all entities
      */
     String[] getEntityNames();
@@ -64,6 +69,18 @@ public interface Metadata extends Serializable {
      * Creates a new entity metadata
      */
     void createNewMetadata(EntityMetadata md);
+
+    /**
+     * Creates a new schema (versioned data) for an existing metadata.
+     *
+     * @param md
+     */
+    void createNewSchema(EntityMetadata md);
+
+    /**
+     * Updates entity info
+     */
+    void updateEntityInfo(EntityInfo ei);
 
     /**
      * Sets the status of a particular version of an entity
