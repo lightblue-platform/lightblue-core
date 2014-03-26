@@ -93,42 +93,31 @@ public class MongoMetadata implements Metadata {
     
     @Override
     public EntityMetadata getEntityMetadata(String entityName,
-                                            String version,
-                                            boolean forceVersion) {
+                                            String version) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
-        }
-        if (version == null || version.length() == 0) {
-            throw new IllegalArgumentException(LITERAL_VERSION);
         }
         
         Error.push("getEntityMetadata(" + entityName + ":" + version + ")");
         try {
             EntityInfo info = getEntityInfo(entityName);
+            if (version == null || version.length() == 0) {
+                if (info.getDefaultVersion() == null || info.getDefaultVersion().length() == 0) {
+                    throw new IllegalArgumentException(LITERAL_VERSION);
+                } else {
+                    version = info.getDefaultVersion();
+                }
+            }
+
             EntitySchema schema;
-            
+
             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
             DBObject es = collection.findOne(query);
             if (es != null) {
                 schema = mdParser.parseEntitySchema(es);
-                if (!forceVersion && schema.getStatus() == MetadataStatus.DISABLED) {
-                    boolean foundDefault = false;
-                    if (info.getDefaultVersion() != null) {
-                        query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + info.getDefaultVersion());
-                        es = collection.findOne(query);
-                        if (es != null) {
-                            schema = mdParser.parseEntitySchema(es);
-                            foundDefault = true;
-                        }
-                    }
-                    if (!foundDefault || schema.getStatus() == MetadataStatus.DISABLED) {
-                        throw Error.get(MongoMetadataConstants.ERR_DISABLED_VERSION, entityName + ":" + version);
-                    }
-                }
             } else {
-                schema = null;
+                throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
-            
             return new EntityMetadata(info, schema);
         } finally {
             Error.pop();
@@ -401,7 +390,7 @@ public class MongoMetadata implements Metadata {
         for (String name : entityNames) {
             EntityMetadata metadata;
             try {
-                metadata = getEntityMetadata(name, version, true);
+                metadata = getEntityMetadata(name, version);
             } catch (Exception e) {
                 response.setStatus(OperationStatus.PARTIAL);
                 // construct error data

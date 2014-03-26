@@ -197,13 +197,7 @@ public class MongoMetadataTest {
         e.getEntityInfo().setDefaultVersion("1.0");
         md.createNewMetadata(e);
 
-        EntityMetadata eDeprecated = new EntityMetadata("testEntity");
-        eDeprecated.setVersion(new Version("1.1", null, "some text blah blah"));
-        eDeprecated.setStatus(MetadataStatus.DISABLED);
-        eDeprecated.setDataStore(new MongoDataStore(null, null, "testCollection"));
-        eDeprecated.getFields().put(new SimpleField("field1", StringType.TYPE));
-        md.createNewSchema(eDeprecated);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1", false);
+        EntityMetadata g = md.getEntityMetadata("testEntity", null);
         Assert.assertEquals("1.0", g.getVersion().getValue());
     }
 
@@ -218,7 +212,7 @@ public class MongoMetadataTest {
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0", false);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
         Assert.assertNotNull("Can't retrieve entity", g);
         Assert.assertEquals(e.getName(), g.getName());
         Assert.assertEquals(e.getVersion().getValue(), g.getVersion().getValue());
@@ -245,11 +239,11 @@ public class MongoMetadataTest {
         e2.setDataStore(new MongoDataStore(null, null, "testCollection"));
         e2.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e2);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1", true);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
         Assert.assertEquals(MetadataStatus.ACTIVE, g.getStatus());
 
         md.setMetadataStatus("testEntity", "1.1", MetadataStatus.DEPRECATED, "disable testEntity");
-        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1", true);
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1");
         Assert.assertEquals(e2.getVersion().getValue(), g1.getVersion().getValue());
         Assert.assertEquals(MetadataStatus.DEPRECATED, g1.getStatus());
     }
@@ -263,7 +257,7 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         e.getEntityInfo().setDefaultVersion("1.0");
         md.createNewMetadata(e);
-        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0", true);
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0");
         Assert.assertEquals(e.getVersion().getValue(), g1.getVersion().getValue());
         Assert.assertEquals(MetadataStatus.ACTIVE, g1.getStatus());
         try {
@@ -291,6 +285,30 @@ public class MongoMetadataTest {
     }
 
     @Test
+    public void illegalArgumentTest() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        md.createNewMetadata(e);
+        try {
+            EntityMetadata g = md.getEntityMetadata("testEntity", "");
+            Assert.fail("expected " + IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            Assert.assertEquals("version", ex.getMessage());
+        }
+
+        try {
+            EntityMetadata g = md.getEntityMetadata("testEntity", null);
+            Assert.fail("expected " + IllegalArgumentException.class);
+        } catch (IllegalArgumentException ex) {
+            Assert.assertEquals("version", ex.getMessage());
+        }
+
+    }
+
+    @Test
     public void unknownVersionTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
@@ -298,25 +316,13 @@ public class MongoMetadataTest {
         e.setDataStore(new MongoDataStore(null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1", true);
-        Assert.assertEquals("testEntity", g.getEntityInfo().getName());
-        Assert.assertNull(g.getEntitySchema());
-    }
-
-    @Test
-    public void disabledVersionTest() throws Exception {
-        EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
-        e.setStatus(MetadataStatus.DISABLED);
-        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
-        e.getFields().put(new SimpleField("field1", StringType.TYPE));
-        md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "1.0", false);
-            Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_VERSION);
+            EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
+            Assert.fail("expected " + MongoMetadataConstants.ERR_UNKNOWN_VERSION);
         } catch (Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_VERSION, ex.getErrorCode());
+            Assert.assertEquals(MongoMetadataConstants.ERR_UNKNOWN_VERSION, ex.getErrorCode());
         }
+
     }
 
     @Test
@@ -347,7 +353,7 @@ public class MongoMetadataTest {
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0", true);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
         Assert.assertNotNull("Can't retrieve entity", g);
         Assert.assertEquals(e.getName(), g.getName());
         Assert.assertEquals(e.getVersion().getValue(), g.getVersion().getValue());
