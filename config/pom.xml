@@ -31,5 +31,6 @@
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <modules>
         <module>metadata</module>
+        <module>crud</module>
     </modules>
 </project>
