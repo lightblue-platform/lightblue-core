@@ -47,6 +47,7 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
@@ -63,6 +64,7 @@ import static junit.framework.Assert.assertNotNull;
  *
  * @author lcestari
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class ITCaseCrudResourceTest {
 

@@ -36,6 +36,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntitySchema;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.Version;
@@ -91,7 +93,7 @@ public class MetadataResource {
     @GET @Path("/")
     public String getEntityNames() {
         LOGGER.debug("getEntityNames:");
-        Error.rest();
+        Error.reset();
         Error.push("getEntityNames");
         try {
             String[] names=MetadataManager.getMetadata().getEntityNames();
@@ -146,7 +148,7 @@ public class MetadataResource {
             EntityMetadata md=MetadataManager.getMetadata().getEntityMetadata(entity,version);
             if(md!=null) {
                 JSONMetadataParser parser=MetadataManager.getJSONParser();
-                return parser.convert(md);
+                return parser.convert(md).toString();
             } else
                 throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_VERSION,entity+":"+version);
         } catch (Error e) {
@@ -170,7 +172,7 @@ public class MetadataResource {
             JSONMetadataParser parser=MetadataManager.getJSONParser();
             EntityMetadata emd=parser.parseEntityMetadata(JsonUtils.json(data));
             Metadata md=MetadataManager.getMetadata();
-            md.createNewMetadata(md);
+            md.createNewMetadata(emd);
             emd=md.getEntityMetadata(entity,version);
             return parser.convert(emd).toString();
         } catch (Error e) {
@@ -198,10 +200,10 @@ public class MetadataResource {
             Metadata md=MetadataManager.getMetadata();
             EntityInfo ei=md.getEntityInfo(entity);
             if(ei==null)
-                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_NANE,entity);
+                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_NAME,entity);
 
             EntityMetadata emd=new EntityMetadata(ei,sch);
-            md.createNewSchema(md);
+            md.createNewSchema(emd);
             emd=md.getEntityMetadata(entity,version);
             return parser.convert(emd).toString();
         } catch (Error e) {
@@ -226,14 +228,9 @@ public class MetadataResource {
             EntityInfo ei=parser.parseEntityInfo(JsonUtils.json(info));
 
             Metadata md=MetadataManager.getMetadata();
-            EntityInfo ei=md.getEntityInfo(entity);
-            if(ei==null)
-                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_NANE,entity);
-
-            EntityMetadata emd=new EntityMetadata(ei,sch);
-            md.createNewSchema(md);
-            emd=md.getEntityMetadata(entity,version);
-            return parser.convert(emd).toString();
+            md.updateEntityInfo(ei);
+            ei=md.getEntityInfo(entity);
+            return parser.convert(ei).toString();
         } catch (Error e) {
             return e.toString();
         } catch (Exception e) {
