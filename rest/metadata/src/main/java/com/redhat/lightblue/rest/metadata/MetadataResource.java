@@ -47,6 +47,8 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 
+import com.redhat.lightblue.Response;
+
 /**
  * @author nmalik
  * @author bserdar
@@ -73,7 +75,21 @@ public class MetadataResource {
     @GET @Path("/{entity}/{version}/dependencies")
     public String getDepGraph(@PathParam("entity") String entity,@PathParam("version") String version) {
         LOGGER.debug("getDepGraph: entity: {}, version: {}",entity,version);
-        return "{\"not\":\"implemented\"}";
+        Error.reset();
+        Error.push("getDepGraph");
+        Error.push(entity);
+        Error.push(version);
+        try {
+            Response r=MetadataManager.getMetadata().getDependencies(entity,version);
+            return r.toJson().toString();
+        } catch (Error e) {
+            return e.toString();
+        } catch (Exception e) {
+            LOGGER.error("Failure: {}",e);
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
+        } finally {
+            Error.reset();
+        }
     }
 
     @GET @Path("/roles")
@@ -89,8 +105,22 @@ public class MetadataResource {
     @GET @Path("/{entity}/{version}/roles")
     public String getEntityRoles(@PathParam("entity") String entity,@PathParam("version") String version) {
         LOGGER.debug("getEntityRoles: entity: {}, version: {}",entity,version);
-        return "{\"not\":\"implemented\"}";
-    }
+        Error.reset();
+        Error.push("getEntityRoles");
+        Error.push(entity);
+        Error.push(version);
+         try {
+            Response r=MetadataManager.getMetadata().getAccess(entity,version);
+            return r.toJson().toString();
+        } catch (Error e) {
+            return e.toString();
+        } catch (Exception e) {
+            LOGGER.error("Failure: {}",e);
+            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
+         } finally {
+             Error.reset();
+        }
+   }
 
     @GET @Path("/")
     public String getEntityNames() {
@@ -173,6 +203,11 @@ public class MetadataResource {
         try {
             JSONMetadataParser parser=MetadataManager.getJSONParser();
             EntityMetadata emd=parser.parseEntityMetadata(JsonUtils.json(data));
+            if(!emd.getName().equals(entity))
+                throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH,entity);
+            if(!emd.getVersion().getValue().equals(version))
+                throw Error.get(RestMetadataConstants.ERR_NO_VERSION_MATCH,version);
+
             Metadata md=MetadataManager.getMetadata();
             md.createNewMetadata(emd);
             emd=md.getEntityMetadata(entity,version);
@@ -198,6 +233,10 @@ public class MetadataResource {
         try {
             JSONMetadataParser parser=MetadataManager.getJSONParser();
             EntitySchema sch=parser.parseEntitySchema(JsonUtils.json(schema));
+            if(!sch.getName().equals(entity))
+                throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH,entity);
+            if(!sch.getVersion().getValue().equals(version))
+                throw Error.get(RestMetadataConstants.ERR_NO_VERSION_MATCH,version);
 
             Metadata md=MetadataManager.getMetadata();
             EntityInfo ei=md.getEntityInfo(entity);
@@ -228,6 +267,8 @@ public class MetadataResource {
         try {
             JSONMetadataParser parser=MetadataManager.getJSONParser();
             EntityInfo ei=parser.parseEntityInfo(JsonUtils.json(info));
+            if(!ei.getName().equals(entity))
+                throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH,entity);
 
             Metadata md=MetadataManager.getMetadata();
             md.updateEntityInfo(ei);
