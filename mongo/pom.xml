@@ -95,6 +95,7 @@
         <module>crud</module>
         <module>metadata</module>
         <!--module>test</module-->
+        <module>hystrix</module>
         <module>config</module>
     </modules>
 </project>

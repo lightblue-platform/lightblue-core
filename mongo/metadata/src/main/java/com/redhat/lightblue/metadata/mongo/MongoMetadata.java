@@ -46,7 +46,6 @@ import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.PredefinedFields;
@@ -54,6 +53,12 @@ import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.mongo.hystrix.DistinctCommand;
+import com.redhat.lightblue.mongo.hystrix.FindCommand;
+import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
+import com.redhat.lightblue.mongo.hystrix.InsertCommand;
+import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
+import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import java.util.ArrayList;
@@ -63,20 +68,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MongoMetadata implements Metadata {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
-    
+
     private static final String LITERAL_ID = "_id";
     private static final String LITERAL_ENTITY_NAME = "entityName";
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
-    
+
     private final transient DBCollection collection;
-    
+
     private final transient BSONParser mdParser;
-    
+
     public MongoMetadata(DB db,
                          String metadataCollection,
                          Extensions<BSONObject> parserExtensions,
@@ -84,20 +89,20 @@ public class MongoMetadata implements Metadata {
         this.collection = db.getCollection(metadataCollection);
         this.mdParser = new BSONParser(parserExtensions, typeResolver);
     }
-    
+
     public MongoMetadata(DB db,
                          Extensions<BSONObject> parserExtensions,
                          TypeResolver typeResolver) {
         this(db, DEFAULT_METADATA_COLLECTION, parserExtensions, typeResolver);
     }
-    
+
     @Override
     public EntityMetadata getEntityMetadata(String entityName,
                                             String version) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
-        
+
         Error.push("getEntityMetadata(" + entityName + ":" + version + ")");
         try {
             EntityInfo info = getEntityInfo(entityName);
@@ -112,7 +117,7 @@ public class MongoMetadata implements Metadata {
             EntitySchema schema;
 
             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
-            DBObject es = collection.findOne(query);
+            DBObject es = new FindOneCommand(null, collection, query).execute();
             if (es != null) {
                 schema = mdParser.parseEntitySchema(es);
             } else {
@@ -123,16 +128,16 @@ public class MongoMetadata implements Metadata {
             Error.pop();
         }
     }
-    
+
     public EntityInfo getEntityInfo(String entityName) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
-        
+
         Error.push("getEntityInfo(" + entityName + ")");
         try {
             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
-            DBObject ei = collection.findOne(query);
+            DBObject ei = new FindOneCommand(null, collection, query).execute();
             if (ei != null) {
                 return mdParser.parseEntityInfo(ei);
             } else {
@@ -142,13 +147,13 @@ public class MongoMetadata implements Metadata {
             Error.pop();
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
     @Override
     public String[] getEntityNames() {
         Error.push("getEntityNames");
         try {
-            List l = collection.distinct(LITERAL_NAME);
+            List l = new DistinctCommand(null, collection, LITERAL_NAME).execute();
             String[] arr = new String[l.size()];
             int i = 0;
             for (Object x : l) {
@@ -159,7 +164,7 @@ public class MongoMetadata implements Metadata {
             Error.pop();
         }
     }
-    
+
     @Override
     public Version[] getEntityVersions(String entityName) {
         if (entityName == null || entityName.length() == 0) {
@@ -172,7 +177,7 @@ public class MongoMetadata implements Metadata {
                     .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
             BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
             project.append(LITERAL_ID, 0);
-            DBCursor cursor = collection.find(query, project);
+            DBCursor cursor = new FindCommand(null, collection, query, project).execute();
             int n = cursor.count();
             Version[] ret = new Version[n];
             int i = 0;
@@ -185,24 +190,24 @@ public class MongoMetadata implements Metadata {
             Error.pop();
         }
     }
-    
+
     @Override
     public void createNewMetadata(EntityMetadata md) {
-        
+
         checkMetadataHasName(md);
         checkMetadataHasFields(md);
         checkDataStoreIsValid(md);
         Version ver = checkVersionIsValid(md);
-        
+
         Error.push("createNewMetadata(" + md.getName() + ")");
 
         // write info and schema as separate docs!
         try {
-            
+
             if (md.getEntityInfo().getDefaultVersion() != null) {
                 if (!md.getEntityInfo().getDefaultVersion().contentEquals(ver.getValue())) {
                     BasicDBObject query = new BasicDBObject(LITERAL_ID, md.getEntityInfo().getName() + BSONParser.DELIMITER_ID + md.getEntityInfo().getDefaultVersion());
-                    DBObject es = collection.findOne(query);
+                    DBObject es = new FindOneCommand(null, collection, query).execute();
                     if (es == null) {
                         throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, md.getEntityInfo().getName() + ":" + md.getEntityInfo().getDefaultVersion());
                     }
@@ -213,11 +218,10 @@ public class MongoMetadata implements Metadata {
             PredefinedFields.ensurePredefinedFields(md);
             DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
             DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
-            
+
             Error.push("writeEntity");
             try {
-                WriteResult result = collection.insert(new DBObject[]{infoObj, schemaObj},
-                        WriteConcern.SAFE);
+                WriteResult result = new InsertCommand(null, collection, new DBObject[]{infoObj, schemaObj}, WriteConcern.SAFE).execute();
                 String error = result.getError();
                 if (error != null) {
                     cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
@@ -229,17 +233,17 @@ public class MongoMetadata implements Metadata {
             } finally {
                 Error.pop();
             }
-            
+
         } finally {
             Error.pop();
         }
     }
-    
+
     private void cleanup(Object... ids) {
         for (Object id : ids) {
             if (id != null) {
                 try {
-                    collection.remove(new BasicDBObject(LITERAL_ID, id));
+                    new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, id)).execute();
                 } catch (Exception e) {
                 }
             }
@@ -252,38 +256,38 @@ public class MongoMetadata implements Metadata {
      * @param md
      */
     public void createNewSchema(EntityMetadata md) {
-        
+
         checkMetadataHasName(md);
         checkMetadataHasFields(md);
         checkDataStoreIsValid(md);
         Version ver = checkVersionIsValid(md);
-        
+
         Error.push("createNewSchema(" + md.getName() + ")");
-        
+
         try {
             // verify entity info exists
             EntityInfo info = getEntityInfo(md.getName());
-            
+
             if (null == info) {
                 throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, md.getName());
             }
-            
+
             PredefinedFields.ensurePredefinedFields(md);
             DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
-            
-            WriteResult result = collection.insert(schemaObj, WriteConcern.SAFE);
+
+            WriteResult result = new InsertCommand(null, collection, schemaObj, WriteConcern.SAFE).execute();
             String error = result.getError();
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
-            
+
         } catch (MongoException.DuplicateKey dke) {
             throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
         } finally {
             Error.pop();
         }
     }
-    
+
     private Version checkVersionIsValid(EntityMetadata md) {
         Version ver = md.getVersion();
         if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
@@ -294,32 +298,32 @@ public class MongoMetadata implements Metadata {
         }
         return ver;
     }
-    
+
     private void checkDataStoreIsValid(EntityMetadata md) {
         DataStore store = md.getDataStore();
         if (!(store instanceof MongoDataStore)) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_DATASTORE);
         }
     }
-    
+
     private void checkMetadataHasName(EntityMetadata md) {
         if (md.getName() == null || md.getName().length() == 0) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_EMPTY_METADATA_NAME);
         }
     }
-    
+
     private void checkMetadataHasFields(EntityMetadata md) {
         if (md.getFields().getNumChildren() <= 0) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_METADATA_WITH_NO_FIELDS);
         }
     }
-    
+
     @Override
     public void setMetadataStatus(String entityName,
                                   String version,
                                   MetadataStatus newStatus,
                                   String comment) {
-        
+
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
@@ -332,16 +336,16 @@ public class MongoMetadata implements Metadata {
         BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
         Error.push("setMetadataStatus(" + entityName + ":" + version + ")");
         try {
-            DBObject md = collection.findOne(query);
+            DBObject md = new FindOneCommand(null, collection, query).execute();
             if (md == null) {
                 throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
-            
+
             EntityInfo info = getEntityInfo(entityName);
             if (info.getDefaultVersion() != null && info.getDefaultVersion().contentEquals(version) && newStatus == MetadataStatus.DISABLED) {
                 throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, entityName + ":" + version);
             }
-            
+
             EntitySchema schema = mdParser.parseEntitySchema(md);
             StatusChange newLog = new StatusChange();
             newLog.setDate(new Date());
@@ -349,10 +353,9 @@ public class MongoMetadata implements Metadata {
             newLog.setComment(comment);
             schema.getStatusChangeLog().add(newLog);
             schema.setStatus(newStatus);
-            
+
             query = new BasicDBObject(LITERAL_ID, md.get(LITERAL_ID));
-            WriteResult result = collection.
-                    update(query, (DBObject) mdParser.convert(schema), false, false);
+            WriteResult result = new UpdateCommand(null, collection, query, (DBObject) mdParser.convert(schema), false, false).execute();
             String error = result.getError();
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
@@ -361,19 +364,19 @@ public class MongoMetadata implements Metadata {
             Error.pop();
         }
     }
-    
+
     @Override
     public Response getDependencies(String entityName, String version) {
         // NOTE do not implement until entity references are moved from fields to entity info! (TS3)
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
     public Response getAccess(String entityName, String version) {
         List<String> entityNames = new ArrayList<>();
         // accessMap: <role, <operation, List<path>>>
         Map<String, Map<String, List<String>>> accessMap = new HashMap<>();
-        
+
         if (null != entityName && !entityName.isEmpty()) {
             entityNames.add(entityName);
         } else {
@@ -406,10 +409,9 @@ public class MongoMetadata implements Metadata {
                 // skip to next entity name
                 continue;
             }
-            
+
             EntityAccess ea = metadata.getAccess();
             Map<FieldAccess, Path> fa = new HashMap<>();
-            Fields fields = metadata.getFields();
             FieldCursor fc = metadata.getFieldCursor();
             // collect field access
             while (fc.next()) {
@@ -448,12 +450,12 @@ public class MongoMetadata implements Metadata {
             response.setEntityData(root);
             for (String role : accessMap.keySet()) {
                 Map<String, List<String>> opPathMap = accessMap.get(role);
-                
+
                 ObjectNode roleJson = new ObjectNode(JsonNodeFactory.instance);
                 root.add(roleJson);
-                
+
                 roleJson.put("role", role);
-                
+
                 for (String operation : opPathMap.keySet()) {
                     List<String> paths = opPathMap.get(operation);
                     ArrayNode pathNode = new ArrayNode(JsonNodeFactory.instance);
@@ -467,7 +469,7 @@ public class MongoMetadata implements Metadata {
             // nothing successful! set status to error
             response.setStatus(OperationStatus.ERROR);
         }
-        
+
         return response;
     }
 

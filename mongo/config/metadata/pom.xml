@@ -32,6 +32,11 @@
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-hystrix</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.mongo</groupId>
             <artifactId>mongo-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -39,6 +44,10 @@
             <groupId>com.redhat.lightblue.config</groupId>
             <artifactId>config-metadata</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
         </dependency>
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
