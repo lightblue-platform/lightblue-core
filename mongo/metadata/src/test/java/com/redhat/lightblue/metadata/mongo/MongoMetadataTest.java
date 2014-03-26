@@ -319,6 +319,46 @@ public class MongoMetadataTest {
     }
 
     @Test
+    public void updateEntityInfo() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+
+        EntityInfo ei=new EntityInfo("testEntity");
+        ei.setDataStore(new MongoDataStore(null,null,"somethingelse"));
+        md.updateEntityInfo(ei);
+    }
+
+    @Test
+    public void updateEntityInfo_noEntity() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+
+        EntityInfo ei=new EntityInfo("NottestEntity");
+        ei.setDataStore(new MongoDataStore(null,null,"somethingelse"));
+        try {
+            md.updateEntityInfo(ei);
+            Assert.fail();
+        } catch (Error ex) {
+            Assert.assertEquals(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO,ex.getErrorCode());
+        }
+    }
+
+
+    @Test
     public void invalidDefaultVersionTest() throws Exception {
         //with non-existant default.
         EntityMetadata eDefault = new EntityMetadata("testDefaultEntity");
