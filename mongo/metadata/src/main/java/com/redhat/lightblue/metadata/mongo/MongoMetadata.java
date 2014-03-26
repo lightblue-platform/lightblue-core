@@ -363,7 +363,7 @@ public class MongoMetadata implements Metadata {
     }
     
     @Override
-    public Response getDependnecies(String entityName, String version) {
+    public Response getDependencies(String entityName, String version) {
         // NOTE do not implement until entity references are moved from fields to entity info! (TS3)
         throw new UnsupportedOperationException("Not supported yet.");
     }

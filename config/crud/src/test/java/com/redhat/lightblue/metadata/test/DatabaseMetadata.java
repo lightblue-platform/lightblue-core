@@ -62,7 +62,7 @@ public class DatabaseMetadata implements Metadata {
     }
 
     @Override
-    public Response getDependnecies(String entityName, String version) {
+    public Response getDependencies(String entityName, String version) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

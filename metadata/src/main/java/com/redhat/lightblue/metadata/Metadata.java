@@ -33,7 +33,7 @@ public interface Metadata extends Serializable {
      *
      * @return Response with an array of Dependency object data.
      */
-    Response getDependnecies(String entityName, String version);
+    Response getDependencies(String entityName, String version);
 
     /**
      * Get all entity and field access for the given entity using the given version. If entity name is not specified all
