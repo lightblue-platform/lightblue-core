@@ -135,30 +135,6 @@ public class MetadataResource {
         }
     }
 
-    @GET @Path("/{entity}/{version}")
-    public String getMetadata(@PathParam("entity") String entity,@PathParam("version") String version) {
-        LOGGER.debug("getMetadata {} {}",entity,version);
-        Error.push("getMetadata");
-        // try {
-        //     EntityMetadata md=MetadataManager.getMetadata().getEntityVersions(entity);
-        //     ObjectNode node=NODE_FACTORY.objectNode();
-        //     ArrayNode arr=NODE_FACTORY.arrayNode();
-        //     node.put("versions",arr);
-        //     JSONMetadataParser parser=MetadataManager.getJSONParser();
-        //     for(Version x:versions)
-        //         arr.add(parser.convert(x));
-        //     return node.toString();
-        // } catch (Error e) {
-        //     return e.toString();
-        // } catch (Exception e) {
-        //     LOGGER.error("Failure: {}",e);
-        //     return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        // } finally {
-        //     Error.pop();
-        // }
-        return "";
-    }
-
     /* Commented just because it isn't implemented yet, so the old implementation will be uncommented just to keep the tests running
     @PUT @Path("/{entity}/{version}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -184,12 +160,10 @@ public class MetadataResource {
         return "";
     }
 
-    // @GET
-    // @Path("/{entity}/{version}/{forceVersion}")
     public static final String PATH_PARAM_ENTITY = "entity";
     public static final String PATH_PARAM_VERSION = "version";
-    public static final String PATH_PARAM_FORCEVERSION = "forceVersion";
-    public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion, @PathParam(PATH_PARAM_FORCEVERSION) boolean forceVersion) {
+    @GET @Path("/{entity}/{version}")
+    public String getMetadata(@PathParam(PATH_PARAM_ENTITY) String entityName, @PathParam(PATH_PARAM_VERSION) String entityVersion) {
          try {
              if (entityName == null) {
                  throw Error.get(RestMetadataConstants.ERR_REST_ERROR, RestMetadataConstants.ERR_NO_ENTITY_NAME);
@@ -199,7 +173,7 @@ public class MetadataResource {
              }
 
              // get the data
-             EntityMetadata em = MetadataManager.getMetadata().getEntityMetadata(entityName, entityVersion, forceVersion);
+             EntityMetadata em = MetadataManager.getMetadata().getEntityMetadata(entityName, entityVersion);
 
              // convert to json and return
              return MetadataManager.getJSONParser().convert(em).toString();
@@ -246,7 +220,7 @@ public class MetadataResource {
              MetadataManager.getMetadata().createNewMetadata(em);
 
              // if successful fetch the metadata back out of the database and return it (simply reuse the existing rest api to do it)
-             return getMetadata(entityName, entityVersion, true);
+             return getMetadata(entityName, entityVersion);
          } catch (Error e) {
              return e.toJson().toString();
          } catch (Exception e) {

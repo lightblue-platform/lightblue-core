@@ -45,10 +45,10 @@ public interface Metadata extends Serializable {
     Response getAccess(String entityName, String version);
 
     /**
-     * Returns a particular version of the entity metadata if forceVersion is true. Otherwise, it returns the default
-     * version if the specific version is disabled
+     * Returns a particular version of the entity metadata if a version is specified.
+     * Otherwise, it returns the default version
      */
-    EntityMetadata getEntityMetadata(String entityName, String version, boolean forceVersion);
+    EntityMetadata getEntityMetadata(String entityName, String version);
 
     /**
      * Returns the names of all entities
