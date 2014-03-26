@@ -192,6 +192,8 @@ public class CrudResource {
     }
 
     private void validateReq(Request req,String entity,String version) {
+        // If entity and/or version is not set in the request, this
+        // code below sets it from the uri
         if(req.getEntityVersion()==null)  {
             req.setEntityVersion(new EntityVersion());
         }
