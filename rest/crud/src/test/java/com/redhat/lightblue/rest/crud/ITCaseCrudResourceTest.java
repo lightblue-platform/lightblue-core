@@ -247,7 +247,7 @@ public class ITCaseCrudResourceTest {
 
 
         String expectedInserted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"iso3code\":\"CAN\",\"iso2code\":\"CA\",\"name\":\"Canad\",\"object_type\":\"country\"}}";
-        String resultInserted = cutCrudResource.insert(
+        String resultInserted = cutCrudResource.insert("country","1.0.0",
 "{\n" +
 "    \"entity\": \"country\",\n" +
 "    \"entityVersion\": \"1.0.0\",\n" +
@@ -269,7 +269,7 @@ public class ITCaseCrudResourceTest {
 
 
         String expectedUpdated = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"name\":\"Canada\"}}";
-        String resultUpdated = cutCrudResource.update(
+        String resultUpdated = cutCrudResource.update("country","1.0.0",
 "{\n" +
 "        \"entity\": \"country\",\n" +
 "        \"entityVersion\": \"1.0.0\",\n" +
@@ -296,7 +296,7 @@ public class ITCaseCrudResourceTest {
 
 
         String expectedFound = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":1,\"processed\":{\"iso3code\":\"CAN\",\"name\":\"Canada\"}}";
-        String resultFound = cutCrudResource.find(
+        String resultFound = cutCrudResource.find("country","1.0.0",
 "{\n" +
 "    \"entity\": \"country\",\n" +
 "    \"entityVersion\": \"1.0.0\",\n" +
@@ -321,7 +321,7 @@ public class ITCaseCrudResourceTest {
 
 
         String expectedDeleted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0}";
-        String resultDeleted = cutCrudResource.delete(
+        String resultDeleted = cutCrudResource.delete("country","1.0.0",
 "{\n" +
 "    \"entity\": \"country\",\n" +
 "    \"entityVersion\": \"1.0.0\",\n" +
@@ -346,7 +346,7 @@ public class ITCaseCrudResourceTest {
 
 
         String expectedFound2 = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":0,\"processed\":[]}";
-        String resultFound2 = cutCrudResource.find(
+        String resultFound2 = cutCrudResource.find("country","1.0.0",
 "{\n" +
 "    \"entity\": \"country\",\n" +
 "    \"entityVersion\": \"1.0.0\",\n" +
