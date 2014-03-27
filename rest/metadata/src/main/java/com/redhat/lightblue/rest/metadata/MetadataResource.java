@@ -30,24 +30,15 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntitySchema;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.Version;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonUtils;
-
-import com.redhat.lightblue.Response;
+import com.redhat.lightblue.rest.metadata.hystrix.CreateEntityMetadataCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.CreateEntitySchemaCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.GetDependenciesCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.GetEntityMetadataCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.GetEntityNamesCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.GetEntityRolesCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.GetEntityVersionsCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntityInfoCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntitySchemaStatusCommand;
 
 /**
  * @author nmalik
@@ -60,253 +51,86 @@ public class MetadataResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataResource.class);
 
-    private static final JsonNodeFactory NODE_FACTORY=JsonNodeFactory.withExactBigDecimals(true);
-
-    @GET @Path("/dependencies")
+    @GET
+    @Path("/dependencies")
     public String getDepGraph() {
-        return getDepGraph(null,null);
+        return getDepGraph(null, null);
     }
 
-    @GET @Path("/{entity}/dependencies")
+    @GET
+    @Path("/{entity}/dependencies")
     public String getDepGraph(@PathParam("entity") String entity) {
-        return getDepGraph(entity,null);
+        return getDepGraph(entity, null);
     }
 
-    @GET @Path("/{entity}/{version}/dependencies")
-    public String getDepGraph(@PathParam("entity") String entity,@PathParam("version") String version) {
-        LOGGER.debug("getDepGraph: entity: {}, version: {}",entity,version);
-        Error.reset();
-        Error.push("getDepGraph");
-        Error.push(entity);
-        Error.push(version);
-        try {
-            Response r=MetadataManager.getMetadata().getDependencies(entity,version);
-            return r.toJson().toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+    @GET
+    @Path("/{entity}/{version}/dependencies")
+    public String getDepGraph(@PathParam("entity") String entity, @PathParam("version") String version) {
+        return new GetDependenciesCommand(null, entity, version).execute();
     }
 
-    @GET @Path("/roles")
+    @GET
+    @Path("/roles")
     public String getEntityRoles() {
-        return getEntityRoles(null,null);
+        return getEntityRoles(null, null);
     }
 
-    @GET @Path("/{entity}/roles")
+    @GET
+    @Path("/{entity}/roles")
     public String getEntityRoles(@PathParam("entity") String entity) {
-        return getEntityRoles(entity,null);
+        return getEntityRoles(entity, null);
     }
 
-    @GET @Path("/{entity}/{version}/roles")
-    public String getEntityRoles(@PathParam("entity") String entity,@PathParam("version") String version) {
-        LOGGER.debug("getEntityRoles: entity: {}, version: {}",entity,version);
-        Error.reset();
-        Error.push("getEntityRoles");
-        Error.push(entity);
-        Error.push(version);
-         try {
-            Response r=MetadataManager.getMetadata().getAccess(entity,version);
-            return r.toJson().toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-         } finally {
-             Error.reset();
-        }
-   }
+    @GET
+    @Path("/{entity}/{version}/roles")
+    public String getEntityRoles(@PathParam("entity") String entity, @PathParam("version") String version) {
+        return new GetEntityRolesCommand(null, entity, version).execute();
+    }
 
-    @GET @Path("/")
+    @GET
+    @Path("/")
     public String getEntityNames() {
-        LOGGER.debug("getEntityNames:");
-        Error.reset();
-        Error.push("getEntityNames");
-        try {
-            String[] names=MetadataManager.getMetadata().getEntityNames();
-            ObjectNode node=NODE_FACTORY.objectNode();
-            ArrayNode arr=NODE_FACTORY.arrayNode();
-            node.put("entities",arr);
-            for(String x:names)
-                arr.add(NODE_FACTORY.textNode(x));
-            return node.toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+        return new GetEntityNamesCommand(null).execute();
     }
 
-    @GET @Path("/{entity}")
+    @GET
+    @Path("/{entity}")
     public String getEntityVersions(@PathParam("entity") String entity) {
-        LOGGER.debug("getEntityVersions: {}",entity);
-        Error.reset();
-        Error.push("getEntityVersions");
-        try {
-            Version[] versions=MetadataManager.getMetadata().getEntityVersions(entity);
-            ObjectNode node=NODE_FACTORY.objectNode();
-            ArrayNode arr=NODE_FACTORY.arrayNode();
-            node.put("versions",arr);
-            JSONMetadataParser parser=MetadataManager.getJSONParser();
-            for(Version x:versions)
-                arr.add(parser.convert(x));
-            return node.toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+        return new GetEntityVersionsCommand(null, entity).execute();
     }
 
-    @GET @Path("/{entity}/{version}")
-    public String getMetadata(@PathParam("entity") String entity,@PathParam("version") String version) {
-        LOGGER.debug("getMetadata {} {}",entity,version);
-        Error.reset();
-        Error.push("getMetadata");
-        if("default".equals(version))
-            version=null;
-        try {
-            EntityMetadata md=MetadataManager.getMetadata().getEntityMetadata(entity,version);
-            if(md!=null) {
-                JSONMetadataParser parser=MetadataManager.getJSONParser();
-                return parser.convert(md).toString();
-            } else
-                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_VERSION,entity+":"+version);
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+    @GET
+    @Path("/{entity}/{version}")
+    public String getMetadata(@PathParam("entity") String entity, @PathParam("version") String version) {
+        return new GetEntityMetadataCommand(null, entity, version).execute();
     }
 
-    @PUT @Path("/{entity}/{version}")
-    public String createMetadata(@PathParam("entity") String entity,@PathParam("version") String version,String data) {
-        LOGGER.debug("createMetadata {} {}",entity,version);
-        Error.reset();
-        Error.push("createMetadata");
-        Error.push(entity);
-        Error.push(version);
-        try {
-            JSONMetadataParser parser=MetadataManager.getJSONParser();
-            EntityMetadata emd=parser.parseEntityMetadata(JsonUtils.json(data));
-            if(!emd.getName().equals(entity))
-                throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH,entity);
-            if(!emd.getVersion().getValue().equals(version))
-                throw Error.get(RestMetadataConstants.ERR_NO_VERSION_MATCH,version);
-
-            Metadata md=MetadataManager.getMetadata();
-            md.createNewMetadata(emd);
-            emd=md.getEntityMetadata(entity,version);
-            return parser.convert(emd).toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+    @PUT
+    @Path("/{entity}/{version}")
+    public String createMetadata(@PathParam("entity") String entity, @PathParam("version") String version, String data) {
+        return new CreateEntityMetadataCommand(null, entity, version, data).execute();
     }
 
-    @PUT @Path("/{entity}/schema={version}")
+    @PUT
+    @Path("/{entity}/schema={version}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String createSchema(@PathParam("entity") String entity,@PathParam("version") String version,String schema) {
-        LOGGER.debug("createSchema {} {}",entity,version);
-        Error.reset();
-        Error.push("createSchema");
-        Error.push(entity);
-        Error.push(version);
-        try {
-            JSONMetadataParser parser=MetadataManager.getJSONParser();
-            EntitySchema sch=parser.parseEntitySchema(JsonUtils.json(schema));
-            if(!sch.getName().equals(entity))
-                throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH,entity);
-            if(!sch.getVersion().getValue().equals(version))
-                throw Error.get(RestMetadataConstants.ERR_NO_VERSION_MATCH,version);
-
-            Metadata md=MetadataManager.getMetadata();
-            EntityInfo ei=md.getEntityInfo(entity);
-            if(ei==null)
-                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_NAME,entity);
-
-            EntityMetadata emd=new EntityMetadata(ei,sch);
-            md.createNewSchema(emd);
-            emd=md.getEntityMetadata(entity,version);
-            return parser.convert(emd).toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
-     }
-
-    @PUT @Path("/{entity}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public String updateEntityInfo(@PathParam("entity") String entity,String info) {
-        LOGGER.debug("updateEntityInfo {}",entity);
-        Error.reset();
-        Error.push("updateEntityInfo");
-        Error.push(entity);
-        try {
-            JSONMetadataParser parser=MetadataManager.getJSONParser();
-            EntityInfo ei=parser.parseEntityInfo(JsonUtils.json(info));
-            if(!ei.getName().equals(entity))
-                throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH,entity);
-
-            Metadata md=MetadataManager.getMetadata();
-            md.updateEntityInfo(ei);
-            ei=md.getEntityInfo(entity);
-            return parser.convert(ei).toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+    public String createSchema(@PathParam("entity") String entity, @PathParam("version") String version, String schema) {
+        return new CreateEntitySchemaCommand(null, entity, version, schema).execute();
     }
 
+    @PUT
+    @Path("/{entity}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String updateEntityInfo(@PathParam("entity") String entity, String info) {
+        return new UpdateEntityInfoCommand(null, entity, info).execute();
+    }
 
-    @PUT @Path("/{entity}/{version}/{status}")
-    public String updateSchemaStatus(@PathParam("entity") String entity, 
-                                     @PathParam("version") String version, 
+    @PUT
+    @Path("/{entity}/{version}/{status}")
+    public String updateSchemaStatus(@PathParam("entity") String entity,
+                                     @PathParam("version") String version,
                                      @PathParam("status") String status,
                                      @QueryParam("comment") String comment) {
-        LOGGER.debug("updateSchemaStatus {} {} {}",entity,version,status);
-        Error.reset();
-        Error.push("updateSchemaStatus");
-        Error.push(entity);
-        Error.push(version);
-        try {
-            MetadataStatus st=MetadataParser.statusFromString(status);
-            Metadata md=MetadataManager.getMetadata();
-            md.setMetadataStatus(entity,version,st,comment);
-            return MetadataManager.getJSONParser().convert(md.getEntityMetadata(entity,version)).toString();
-        } catch (Error e) {
-            return e.toString();
-        } catch (Exception e) {
-            LOGGER.error("Failure: {}",e);
-            return Error.get(RestMetadataConstants.ERR_REST_ERROR,e.toString()).toString();
-        } finally {
-            Error.reset();
-        }
+        return new UpdateEntitySchemaStatusCommand(null, entity, version, status, comment).execute();
     }
 }
