@@ -7,6 +7,7 @@ package com.redhat.lightblue.rest.metadata.hystrix;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import org.slf4j.Logger;
@@ -20,7 +21,11 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetEntityRolesCommand.class);
 
     public GetEntityNamesCommand(String clientKey) {
-        super(GetEntityNamesCommand.class.getSimpleName(), GetEntityNamesCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null);
+    }
+
+    public GetEntityNamesCommand(String clientKey, Metadata metadata) {
+        super(GetEntityNamesCommand.class.getSimpleName(), GetEntityNamesCommand.class.getSimpleName(), clientKey, metadata);
     }
 
     @Override

@@ -8,6 +8,7 @@ package com.redhat.lightblue.rest.metadata.hystrix;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
@@ -25,7 +26,11 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
     private final String entity;
 
     public GetEntityVersionsCommand(String clientKey, String entity) {
-        super(GetEntityVersionsCommand.class.getSimpleName(), GetEntityVersionsCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity);
+    }
+
+    public GetEntityVersionsCommand(String clientKey, Metadata metadata, String entity) {
+        super(GetEntityVersionsCommand.class.getSimpleName(), GetEntityVersionsCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
     }
 

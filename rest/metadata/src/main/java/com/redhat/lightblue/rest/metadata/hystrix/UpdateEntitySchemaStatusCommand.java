@@ -26,7 +26,11 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
     private final String comment;
 
     public UpdateEntitySchemaStatusCommand(String clientKey, String entity, String version, String status, String comment) {
-        super(UpdateEntitySchemaStatusCommand.class.getSimpleName(), UpdateEntitySchemaStatusCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, status, comment);
+    }
+
+    public UpdateEntitySchemaStatusCommand(String clientKey, Metadata metadata, String entity, String version, String status, String comment) {
+        super(UpdateEntitySchemaStatusCommand.class.getSimpleName(), UpdateEntitySchemaStatusCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
         this.version = version;
         this.status = status;

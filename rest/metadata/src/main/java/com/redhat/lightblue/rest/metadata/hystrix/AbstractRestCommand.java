@@ -12,15 +12,17 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
+ * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
+ * object.
  *
  * @author nmalik
  */
 public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
+
+    private final Metadata metadata;
 
     /**
      *
@@ -28,14 +30,24 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @param commandKey OPTIONAL defaults to groupKey value
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey) {
+    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey, Metadata metadata) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey == null ? groupKey : commandKey))
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? groupKey : threadPoolKey)));
+        this.metadata = metadata;
     }
 
-    protected Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException, InstantiationException {
-        return MetadataManager.getMetadata();
+    /**
+     * Returns the metadata. If no metadata is set on the command uses MetadataManager#getMetadata() method.
+     *
+     * @return
+     * @throws Exception
+     */
+    protected Metadata getMetadata() throws Exception {
+        if (null != metadata) {
+            return metadata;
+        } else {
+            return MetadataManager.getMetadata();
+        }
     }
 }

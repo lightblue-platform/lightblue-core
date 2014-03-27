@@ -8,6 +8,7 @@ package com.redhat.lightblue.rest.metadata.hystrix;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,11 @@ public class GetDependenciesCommand extends AbstractRestCommand {
     private final String version;
 
     public GetDependenciesCommand(String clientKey, String entity, String version) {
-        super(GetDependenciesCommand.class.getSimpleName(), GetDependenciesCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version);
+    }
+
+    public GetDependenciesCommand(String clientKey, Metadata metadata, String entity, String version) {
+        super(GetDependenciesCommand.class.getSimpleName(), GetDependenciesCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
         this.version = version;
     }

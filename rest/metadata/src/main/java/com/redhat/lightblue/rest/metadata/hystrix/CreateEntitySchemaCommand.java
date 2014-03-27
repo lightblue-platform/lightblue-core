@@ -28,7 +28,11 @@ public class CreateEntitySchemaCommand extends AbstractRestCommand {
     private final String schema;
 
     public CreateEntitySchemaCommand(String clientKey, String entity, String version, String schema) {
-        super(CreateEntitySchemaCommand.class.getSimpleName(), CreateEntitySchemaCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, schema);
+    }
+
+    public CreateEntitySchemaCommand(String clientKey, Metadata metadata, String entity, String version, String schema) {
+        super(CreateEntitySchemaCommand.class.getSimpleName(), CreateEntitySchemaCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
         this.version = version;
         this.schema = schema;

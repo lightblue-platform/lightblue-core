@@ -27,10 +27,6 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
 
     private final Mediator mediator;
 
-    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey) {
-        this(groupKey, commandKey, threadPoolKey, null);
-    }
-
     /**
      *
      * @param groupKey REQUIRED
