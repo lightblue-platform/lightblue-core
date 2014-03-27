@@ -20,7 +20,6 @@ package com.redhat.lightblue.rest.metadata.hystrix;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class GetDependenciesCommand extends AbstractRestCommand {
         Error.push(entity);
         Error.push(version);
         try {
-            Response r = MetadataManager.getMetadata().getDependencies(entity, version);
+            Response r = getMetadata().getDependencies(entity, version);
             return r.toJson().toString();
         } catch (Error e) {
             return e.toString();

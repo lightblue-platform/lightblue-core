@@ -25,6 +25,7 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 
 /**
  * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
@@ -62,5 +63,9 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         } else {
             return MetadataManager.getMetadata();
         }
+    }
+    
+    protected JSONMetadataParser getJSONParser() throws Exception {
+        return MetadataManager.getJSONParser();
     }
 }

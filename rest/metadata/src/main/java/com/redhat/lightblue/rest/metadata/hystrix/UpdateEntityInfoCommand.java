@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -54,13 +53,13 @@ public class UpdateEntityInfoCommand extends AbstractRestCommand {
         Error.push("updateEntityInfo");
         Error.push(entity);
         try {
-            JSONMetadataParser parser = MetadataManager.getJSONParser();
+            JSONMetadataParser parser = getJSONParser();
             EntityInfo ei = parser.parseEntityInfo(JsonUtils.json(info));
             if (!ei.getName().equals(entity)) {
                 throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH, entity);
             }
 
-            Metadata md = MetadataManager.getMetadata();
+            Metadata md = getMetadata();
             md.updateEntityInfo(ei);
             ei = md.getEntityInfo(entity);
             return parser.convert(ei).toString();

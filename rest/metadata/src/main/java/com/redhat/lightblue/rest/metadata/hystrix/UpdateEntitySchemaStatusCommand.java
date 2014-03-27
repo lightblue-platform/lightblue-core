@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -59,9 +58,9 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
         Error.push(version);
         try {
             MetadataStatus st = MetadataParser.statusFromString(status);
-            Metadata md = MetadataManager.getMetadata();
+            Metadata md = getMetadata();
             md.setMetadataStatus(entity, version, st, comment);
-            return MetadataManager.getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
+            return getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
         } catch (Error e) {
             return e.toString();
         } catch (Exception e) {

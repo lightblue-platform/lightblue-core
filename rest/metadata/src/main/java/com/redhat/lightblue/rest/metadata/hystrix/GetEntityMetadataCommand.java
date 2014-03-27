@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -58,7 +57,7 @@ public class GetEntityMetadataCommand extends AbstractRestCommand {
         try {
             EntityMetadata md = getMetadata().getEntityMetadata(entity, version);
             if (md != null) {
-                JSONMetadataParser parser = MetadataManager.getJSONParser();
+                JSONMetadataParser parser = getJSONParser();
                 return parser.convert(md).toString();
             } else {
                 throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_VERSION, entity + ":" + version);

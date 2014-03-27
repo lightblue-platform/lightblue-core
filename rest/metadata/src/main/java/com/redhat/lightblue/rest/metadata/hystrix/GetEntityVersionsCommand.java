@@ -20,7 +20,6 @@ package com.redhat.lightblue.rest.metadata.hystrix;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -57,7 +56,7 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
             ObjectNode node = NODE_FACTORY.objectNode();
             ArrayNode arr = NODE_FACTORY.arrayNode();
             node.put("versions", arr);
-            JSONMetadataParser parser = MetadataManager.getJSONParser();
+            JSONMetadataParser parser = getJSONParser();
             for (Version x : versions) {
                 arr.add(parser.convert(x));
             }
