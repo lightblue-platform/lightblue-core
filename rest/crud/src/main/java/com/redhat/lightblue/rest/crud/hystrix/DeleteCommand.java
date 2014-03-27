@@ -44,7 +44,7 @@ public class DeleteCommand extends AbstractRestCommand {
     }
 
     public DeleteCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
-        super(DeleteCommand.class.getSimpleName(), DeleteCommand.class.getSimpleName(), clientKey, mediator);
+        super(DeleteCommand.class, clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;

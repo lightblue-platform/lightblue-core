@@ -44,7 +44,7 @@ public class UpdateCommand extends AbstractRestCommand {
     }
 
     public UpdateCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
-        super(UpdateCommand.class.getSimpleName(), UpdateCommand.class.getSimpleName(), clientKey, mediator);
+        super(UpdateCommand.class, clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;

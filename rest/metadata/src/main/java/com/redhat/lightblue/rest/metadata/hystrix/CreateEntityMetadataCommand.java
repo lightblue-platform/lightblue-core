@@ -42,7 +42,7 @@ public class CreateEntityMetadataCommand extends AbstractRestCommand {
     }
 
     public CreateEntityMetadataCommand(String clientKey, Metadata metadata, String entity, String version, String data) {
-        super(CreateEntityMetadataCommand.class.getSimpleName(), CreateEntityMetadataCommand.class.getSimpleName(), clientKey, metadata);
+        super(CreateEntityMetadataCommand.class, clientKey, metadata);
         this.entity = entity;
         this.version = version;
         this.data = data;

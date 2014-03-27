@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -38,16 +37,9 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
 
     private final Metadata metadata;
 
-    /**
-     *
-     * @param groupKey REQUIRED
-     * @param commandKey OPTIONAL defaults to groupKey value
-     * @param threadPoolKey OPTIONAL defaults to groupKey value
-     */
-    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey, Metadata metadata) {
-        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
-                .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey == null ? groupKey : commandKey))
-                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? groupKey : threadPoolKey)));
+    public AbstractRestCommand(Class commandClass, String clientKey, Metadata metadata) {
+        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
+                .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : (commandClass.getSimpleName() + "-" + clientKey))));
         this.metadata = metadata;
     }
 
@@ -64,7 +56,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
             return MetadataManager.getMetadata();
         }
     }
-    
+
     protected JSONMetadataParser getJSONParser() throws Exception {
         return MetadataManager.getJSONParser();
     }

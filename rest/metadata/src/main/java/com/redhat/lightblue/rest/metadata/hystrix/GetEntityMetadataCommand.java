@@ -40,7 +40,7 @@ public class GetEntityMetadataCommand extends AbstractRestCommand {
     }
 
     public GetEntityMetadataCommand(String clientKey, Metadata metadata, String entity, String version) {
-        super(GetEntityMetadataCommand.class.getSimpleName(), GetEntityMetadataCommand.class.getSimpleName(), clientKey, metadata);
+        super(GetEntityMetadataCommand.class, clientKey, metadata);
         this.entity = entity;
         if ("default".equals(version)) {
             this.version = null;

@@ -42,7 +42,7 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
     }
 
     public GetEntityVersionsCommand(String clientKey, Metadata metadata, String entity) {
-        super(GetEntityVersionsCommand.class.getSimpleName(), GetEntityVersionsCommand.class.getSimpleName(), clientKey, metadata);
+        super(GetEntityVersionsCommand.class, clientKey, metadata);
         this.entity = entity;
     }
 

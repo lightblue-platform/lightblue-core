@@ -44,7 +44,7 @@ public class SaveCommand extends AbstractRestCommand {
     }
 
     public SaveCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
-        super(SaveCommand.class.getSimpleName(), SaveCommand.class.getSimpleName(), clientKey, mediator);
+        super(SaveCommand.class, clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;

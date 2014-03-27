@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CrudManager;
@@ -46,10 +45,9 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @param commandKey OPTIONAL defaults to groupKey value
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey, Mediator mediator) {
-        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
-                .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey == null ? groupKey : commandKey))
-                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? groupKey : threadPoolKey)));
+    public AbstractRestCommand(Class commandClass, String clientKey, Mediator mediator) {
+        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
+                .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : (commandClass.getSimpleName() + "-" + clientKey))));
         this.mediator = mediator;
     }
 
