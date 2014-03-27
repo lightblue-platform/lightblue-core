@@ -1,0 +1,16 @@
+{
+    "entity": "country",
+    "entityVersion": "1.0.0",
+    "query": {
+        "field": "iso2code",
+        "op": "=",
+        "rvalue": "CA"
+    },
+    "returning": [{
+        "field": "name",
+        "include": true
+    }, {
+        "field": "iso3code",
+        "include": true
+    }]
+}
