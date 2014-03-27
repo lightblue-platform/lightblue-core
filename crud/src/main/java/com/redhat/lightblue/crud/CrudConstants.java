@@ -65,6 +65,7 @@ public final class CrudConstants {
     public static final String ERR_CONFIG_NOT_VALID = "crud:ConfigurationNotValid";
 
     public static final String ERR_CANNOT_LOAD_METADATA = "crud:CannotLoadMetadata";
+    public static final String ERR_DISABLED_METADATA = "crud:DisabledMetadataVersion";
     public static final String ERR_METADATA_APPEARS_TWICE = "crud:MetadataAppearsTwice";
 
     private CrudConstants() {

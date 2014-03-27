@@ -31,6 +31,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.util.JsonDoc;
 import java.util.HashMap;
@@ -154,8 +155,11 @@ public final class OperationContext extends CRUDOperationContext {
             }
         } else {
             x = metadata.getEntityMetadata(name, version);
-            if (x == null) {
+            if (x == null || x.getEntitySchema() == null) {
                 throw new IllegalArgumentException("Unknown entity:" + name + ":" + version);
+            }
+            if (x.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
+                throw new IllegalArgumentException(CrudConstants.ERR_DISABLED_METADATA + " " + name + " " + x.getEntitySchema().getVersion().getValue());
             }
             entityMetadata.put(x.getName(), x);
             FieldCursor c = x.getFieldCursor();

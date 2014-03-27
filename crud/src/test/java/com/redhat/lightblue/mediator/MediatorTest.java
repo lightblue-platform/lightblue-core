@@ -22,6 +22,7 @@ package com.redhat.lightblue.mediator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before;
+import static org.hamcrest.CoreMatchers.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -145,6 +146,23 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         factory.addCRUDController("mongo", mockCrudController);
         mdManager.md = getMd("./testMetadata.json");
         mediator = new Mediator(mdManager, factory);
+    }
+
+    @Test
+    public void disabledVersionTest() throws Exception {
+
+        mdManager.md.setStatus(MetadataStatus.DISABLED);
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setEntityData(loadJsonNode("./sample1.json"));
+        req.setReturnFields(null);
+
+        mdManager.md.getAccess().getInsert().setRoles("role1");
+        Response response = mediator.insert(req);
+
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertThat(response.getErrors().get(0).getMsg(), containsString(CrudConstants.ERR_DISABLED_METADATA+" test 1.0"));
+
     }
 
     @Test
