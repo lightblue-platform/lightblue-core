@@ -8,8 +8,8 @@ package com.redhat.lightblue.rest.crud.hystrix;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.crud.CrudManager;
 import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.JsonUtils;
 import org.slf4j.Logger;
@@ -27,7 +27,11 @@ public class InsertCommand extends AbstractRestCommand {
     private final String request;
 
     public InsertCommand(String clientKey, String entity, String version, String request) {
-        super(InsertCommand.class.getSimpleName(), InsertCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, request);
+    }
+
+    public InsertCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
+        super(InsertCommand.class.getSimpleName(), InsertCommand.class.getSimpleName(), clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;
@@ -42,7 +46,7 @@ public class InsertCommand extends AbstractRestCommand {
         try {
             InsertionRequest ireq = InsertionRequest.fromJson((ObjectNode) JsonUtils.json(request));
             validateReq(ireq, entity, version);
-            Response r = CrudManager.getMediator().insert(ireq);
+            Response r = getMediator().insert(ireq);
             return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("insert failure: {}", e);

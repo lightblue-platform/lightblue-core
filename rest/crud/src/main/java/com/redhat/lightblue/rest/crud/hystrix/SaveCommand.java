@@ -8,8 +8,8 @@ package com.redhat.lightblue.rest.crud.hystrix;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.crud.CrudManager;
 import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.JsonUtils;
 import org.slf4j.Logger;
@@ -27,7 +27,11 @@ public class SaveCommand extends AbstractRestCommand {
     private final String request;
 
     public SaveCommand(String clientKey, String entity, String version, String request) {
-        super(SaveCommand.class.getSimpleName(), SaveCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, request);
+    }
+
+    public SaveCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
+        super(SaveCommand.class.getSimpleName(), SaveCommand.class.getSimpleName(), clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;
@@ -42,7 +46,7 @@ public class SaveCommand extends AbstractRestCommand {
         try {
             SaveRequest ireq = SaveRequest.fromJson((ObjectNode) JsonUtils.json(request));
             validateReq(ireq, entity, version);
-            Response r = CrudManager.getMediator().save(ireq);
+            Response r = getMediator().save(ireq);
             return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("save failure: {}", e);

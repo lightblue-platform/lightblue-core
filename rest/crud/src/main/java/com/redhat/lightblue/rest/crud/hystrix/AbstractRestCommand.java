@@ -12,15 +12,24 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.Request;
+import com.redhat.lightblue.crud.CrudManager;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;
 
 /**
+ * Note that passing a Mediator in the constructor is optional. If not provided, it is fetched from CrudManager object.
  *
  * @author nmalik
  */
 public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
+
+    private final Mediator mediator;
+
+    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey) {
+        this(groupKey, commandKey, threadPoolKey, null);
+    }
 
     /**
      *
@@ -28,10 +37,25 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @param commandKey OPTIONAL defaults to groupKey value
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey) {
+    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey, Mediator mediator) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey == null ? groupKey : commandKey))
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? groupKey : threadPoolKey)));
+        this.mediator = mediator;
+    }
+
+    /**
+     * Returns the mediator. If no mediator is set on the command uses CrudManager#getMediator() method.
+     *
+     * @return
+     * @throws Exception
+     */
+    protected Mediator getMediator() throws Exception {
+        if (null != mediator) {
+            return mediator;
+        } else {
+            return CrudManager.getMediator();
+        }
     }
 
     protected void validateReq(Request req, String entity, String version) {

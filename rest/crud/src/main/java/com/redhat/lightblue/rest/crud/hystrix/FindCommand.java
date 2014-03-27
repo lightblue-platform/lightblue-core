@@ -8,8 +8,8 @@ package com.redhat.lightblue.rest.crud.hystrix;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.crud.CrudManager;
 import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.JsonUtils;
 import org.slf4j.Logger;
@@ -27,7 +27,11 @@ public class FindCommand extends AbstractRestCommand {
     private final String request;
 
     public FindCommand(String clientKey, String entity, String version, String request) {
-        super(FindCommand.class.getSimpleName(), FindCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, request);
+    }
+
+    public FindCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
+        super(FindCommand.class.getSimpleName(), FindCommand.class.getSimpleName(), clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;
@@ -42,7 +46,7 @@ public class FindCommand extends AbstractRestCommand {
         try {
             FindRequest ireq = FindRequest.fromJson((ObjectNode) JsonUtils.json(request));
             validateReq(ireq, entity, version);
-            Response r = CrudManager.getMediator().find(ireq);
+            Response r = getMediator().find(ireq);
             return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("find failure: {}", e);
