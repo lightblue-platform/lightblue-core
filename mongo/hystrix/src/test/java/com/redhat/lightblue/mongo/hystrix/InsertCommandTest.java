@@ -11,6 +11,7 @@ import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -18,6 +19,13 @@ import org.junit.Test;
  * @author nmalik
  */
 public class InsertCommandTest extends AbstractMongoTest {
+    @Before
+    @Override
+    public void setup() {
+        // override default behavior from abstract test setup
+        // don't want what is setup for the rest of tests extending from the abstract test class
+    }
+    
     @Test
     public void executeOne() {
         // doesn't support projection because there is no need at this time.
