@@ -56,6 +56,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -196,49 +199,16 @@ public class ITCaseCrudResourceTest {
     @Inject
     private CrudResource cutCrudResource; //class under test
 
+    private String readFile(String path) throws IOException, URISyntaxException {
+        return new String(Files.readAllBytes(Paths.get(this.getClass().getClassLoader().getResource(path).toURI()))).replaceAll("\\s","").replaceAll("\\r|\\n","");
+    }
     @Test
-    public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException {
         assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        String expectedCreated = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
-        String metadata =
-"{\n" +
-"   \"entityInfo\": { "+
-"        \"name\": \"country\",\n" +
-"        \"indexes\": [\n" +
-"            {\n" +
-"                \"unique\": true,\n" +
-"                \"fields\": [\"name\"]\n" +
-"            }\n" +
-"        ],\n" +
-"        \"datastore\": {\n" +
-"            \"mongo\": {\n" +
-"                  \"collection\": \"country\"\n" +
-"            }\n" +
-"        }"+
-"    },\n"+
-"    \"schema\": {\n" +
-"        \"name\": \"country\",\n"+
-"        \"version\": {\n"+
-"           \"value\": \"1.0.0\",\n"+
-"           \"changelog\": \"blahblah\"\n"+
-"       },\n"+
-"        \"status\": {\n"+
-"            \"value\": \"active\"\n"+
-"       },\n"+
-"        \"access\" : {\n" +
-"             \"insert\" : [\"anyone\"],\n" +
-"             \"update\" : [\"anyone\"],\n" +
-"             \"delete\" : [ \"anyone\" ] ,\n" +
-"             \"find\" : [ \"anyone\" ]\n" +
-"        },"+
-"        \"fields\": {\n"+
-"            \"name\": {\"type\": \"string\"},\n"+
-"            \"iso2code\": {\"type\": \"string\"},\n"+
-"            \"iso3code\": {\"type\": \"string\"}\n"+
-"        }\n" +
-"    }\n" +
-"}";
 
+
+        String expectedCreated = readFile("expectedCreated.json");
+        String metadata = readFile("metadata.json");
         EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
         MetadataManager.getMetadata().createNewMetadata(em);
         EntityMetadata em2 = MetadataManager.getMetadata().getEntityMetadata("country", "1.0.0");
@@ -246,127 +216,28 @@ public class ITCaseCrudResourceTest {
         assertEquals(expectedCreated,resultCreated);
 
 
-
-        String expectedInserted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"iso3code\":\"CAN\",\"iso2code\":\"CA\",\"name\":\"Canad\",\"object_type\":\"country\"}}";
-        String resultInserted = cutCrudResource.insert("country","1.0.0",
-"{\n" +
-"    \"entity\": \"country\",\n" +
-"    \"entityVersion\": \"1.0.0\",\n" +
-"    \"data\": [\n" +
-"        {\n" +
-"            \"name\": \"Canad\",\n" +
-"            \"iso2code\": \"CA\",\n" +
-"            \"iso3code\": \"CAN\"\n" +
-"        }\n" +
-"    ],\n" +
-"    \"returning\": [\n" +
-"        {\n" +
-"            \"field\": \"*\",\n" +
-"            \"include\": true\n" +
-"        }\n" +
-"    ]\n" +
-"}");
+        String expectedInserted = readFile("expectedInserted.json");
+        String resultInserted = cutCrudResource.insert("country","1.0.0",readFile("resultInserted.json"));
         assertEquals(expectedInserted,resultInserted);
 
 
-        String expectedUpdated = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0,\"processed\":{\"name\":\"Canada\"}}";
-        String resultUpdated = cutCrudResource.update("country","1.0.0",
-"{\n" +
-"        \"entity\": \"country\",\n" +
-"        \"entityVersion\": \"1.0.0\",\n" +
-"        \"query\": {\n" +
-"            \"field\": \"iso2code\",\n" +
-"                \"op\": \"=\",\n" +
-"            \"rvalue\": \"CA\"\n" +
-"        },\n" +
-"        \"returning\": [\n" +
-"            {\n" +
-"                \"field\": \"name\",\n" +
-"                \"include\": true\n" +
-"            }\n" +
-"        ],\n" +
-"        \"update\": {\n" +
-"            \"$set\": {\n" +
-"                \"name\": \"Canada\"\n" +
-"            }\n" +
-"        }\n" +
-"}");
+        String expectedUpdated = readFile("expectedUpdated.json");
+        String resultUpdated = cutCrudResource.update("country","1.0.0",readFile("resultUpdated.json"));
         assertEquals(expectedUpdated,resultUpdated);
 
 
-
-
-        String expectedFound = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":1,\"processed\":{\"iso3code\":\"CAN\",\"name\":\"Canada\"}}";
-        String resultFound = cutCrudResource.find("country","1.0.0",
-"{\n" +
-"    \"entity\": \"country\",\n" +
-"    \"entityVersion\": \"1.0.0\",\n" +
-"    \"query\": {\n" +
-"        \"field\": \"iso2code\",\n" +
-"        \"op\": \"=\",\n" +
-"        \"rvalue\": \"CA\"\n" +
-"    },\n" +
-"    \"returning\": [\n" +
-"        {\n" +
-"            \"field\": \"name\",\n" +
-"            \"include\": true\n" +
-"        },\n" +
-"        {\n" +
-"            \"field\": \"iso3code\",\n" +
-"            \"include\": true\n" +
-"        }\n" +
-"    ]\n" +
-                        "}");
+        String expectedFound = readFile("expectedFound.json");
+        String resultFound = cutCrudResource.find("country","1.0.0", readFile("resultFound.json"));
         assertEquals(expectedFound,resultFound);
 
 
-
-        String expectedDeleted = "{\"status\":\"COMPLETE\",\"modifiedCount\":1,\"matchCount\":0}";
-        String resultDeleted = cutCrudResource.delete("country","1.0.0",
-"{\n" +
-"    \"entity\": \"country\",\n" +
-"    \"entityVersion\": \"1.0.0\",\n" +
-"    \"query\": {\n" +
-"        \"field\": \"iso2code\",\n" +
-"        \"op\": \"=\",\n" +
-"        \"rvalue\": \"CA\"\n" +
-"    },\n" +
-"    \"project\": [\n" +
-"        {\n" +
-"            \"field\": \"name\",\n" +
-"            \"include\": true\n" +
-"        },\n" +
-"        {\n" +
-"            \"field\": \"iso3code\",\n" +
-"            \"include\": true\n" +
-"        }\n" +
-"    ]\n" +
-"}");
+        String expectedDeleted = readFile("expectedDeleted.json");
+        String resultDeleted = cutCrudResource.delete("country","1.0.0",readFile("resultDeleted.json"));
         assertEquals(expectedDeleted,resultDeleted);
 
 
-
-        String expectedFound2 = "{\"status\":\"COMPLETE\",\"modifiedCount\":0,\"matchCount\":0,\"processed\":[]}";
-        String resultFound2 = cutCrudResource.find("country","1.0.0",
-"{\n" +
-"    \"entity\": \"country\",\n" +
-"    \"entityVersion\": \"1.0.0\",\n" +
-"    \"query\": {\n" +
-"        \"field\": \"iso2code\",\n" +
-"        \"op\": \"=\",\n" +
-"        \"rvalue\": \"CA\"\n" +
-"    },\n" +
-"    \"returning\": [\n" +
-"        {\n" +
-"            \"field\": \"name\",\n" +
-"            \"include\": true\n" +
-"        },\n" +
-"        {\n" +
-"            \"field\": \"iso3code\",\n" +
-"            \"include\": true\n" +
-"        }\n" +
-"    ]\n" +
-"}");
+        String expectedFound2 = readFile("expectedFound2.json");
+        String resultFound2 = cutCrudResource.find("country","1.0.0", readFile("resultFound2.json"));
         assertEquals(expectedFound2,resultFound2);
     }
 }
