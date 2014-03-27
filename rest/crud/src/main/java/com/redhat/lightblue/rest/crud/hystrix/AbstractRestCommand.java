@@ -47,7 +47,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      */
     public AbstractRestCommand(Class commandClass, String clientKey, Mediator mediator) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
-                .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : (commandClass.getSimpleName() + "-" + clientKey))));
+                .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : clientKey)));
         this.mediator = mediator;
     }
 
