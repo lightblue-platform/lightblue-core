@@ -9,7 +9,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -17,25 +16,6 @@ import org.junit.Test;
  * @author nmalik
  */
 public class FindCommandTest extends AbstractMongoTest {
-    private final String key1 = "name";
-    private final String key2 = "foo";
-
-    @Before
-    public void setup() {
-        // setup data
-        int count = 0;
-        for (int i = 1; i < 5; i++) {
-            for (int x = 1; x < i + 1; x++) {
-                DBObject obj = new BasicDBObject(key1, "obj" + i);
-                obj.put(key2, "bar" + x);
-                coll.insert(obj);
-                count++;
-            }
-        }
-
-        Assert.assertEquals(count, coll.find().count());
-    }
-
     @Test
     public void executeWithoutProjection() {
         int expectedCount = 4;

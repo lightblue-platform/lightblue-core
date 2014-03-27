@@ -5,7 +5,6 @@
  */
 package com.redhat.lightblue.mongo.hystrix;
 
-import com.mongodb.BasicDBObject;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,20 +16,7 @@ import org.junit.Test;
 public class DistinctCommandTest extends AbstractMongoTest {
     @Test
     public void execute() {
-        String key = "name";
-        
-        // setup data
-        coll.insert(new BasicDBObject(key, "obj1"));
-        coll.insert(new BasicDBObject(key, "obj2"));
-        coll.insert(new BasicDBObject(key, "obj2"));
-        coll.insert(new BasicDBObject(key, "obj3"));
-        coll.insert(new BasicDBObject(key, "obj4"));
-        coll.insert(new BasicDBObject(key, "obj4"));
-        coll.insert(new BasicDBObject(key, "obj4"));
-        
-        Assert.assertEquals(7, coll.find().count());
-        
-        List values = new DistinctCommand(null, coll, key).execute();
+        List values = new DistinctCommand(null, coll, key1).execute();
         
         Assert.assertEquals(4, values.size());
         Assert.assertTrue(values.contains("obj1"));

@@ -7,7 +7,6 @@ package com.redhat.lightblue.mongo.hystrix;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 
 /**

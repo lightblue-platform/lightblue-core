@@ -19,8 +19,10 @@
 package com.redhat.lightblue.mongo.hystrix;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import de.flapdoodle.embed.mongo.Command;
@@ -39,6 +41,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
 import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 /**
  *
@@ -142,5 +146,24 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
                 throw new IllegalStateException(e);
             }
         }
+    }
+    
+    protected final String key1 = "name";
+    protected final String key2 = "foo";
+
+    @Before
+    public void setup() {
+        // setup data
+        int count = 0;
+        for (int i = 1; i < 5; i++) {
+            for (int x = 1; x < i + 1; x++) {
+                DBObject obj = new BasicDBObject(key1, "obj" + i);
+                obj.put(key2, "bar" + x);
+                coll.insert(obj);
+                count++;
+            }
+        }
+
+        Assert.assertEquals(count, coll.find().count());
     }
 }
