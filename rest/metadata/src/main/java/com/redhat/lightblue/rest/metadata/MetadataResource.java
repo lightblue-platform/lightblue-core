@@ -27,9 +27,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.redhat.lightblue.rest.metadata.hystrix.CreateEntityMetadataCommand;
 import com.redhat.lightblue.rest.metadata.hystrix.CreateEntitySchemaCommand;
 import com.redhat.lightblue.rest.metadata.hystrix.GetDependenciesCommand;
@@ -48,9 +45,6 @@ import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntitySchemaStatusComman
 @Path("/") // metadata/ prefix is the application context
 @Produces(MediaType.APPLICATION_JSON)
 public class MetadataResource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataResource.class);
-
     @GET
     @Path("/dependencies")
     public String getDepGraph() {
