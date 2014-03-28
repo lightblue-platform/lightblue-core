@@ -1,0 +1,126 @@
+{
+    "name" : "user",
+    "version": {
+        "value": "2.0",
+        "changelog": "Test version v2"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access" : {
+        "insert": ["anyone"],
+        "find":["anyone"],
+        "update":["anyone"],
+        "delete":["anyone"]
+    },
+    "fields": {
+        "_id": {"type": "string"},
+        "object_type": {"type": "string"},
+        "login": {
+            "type": "string",
+            "constraints": {
+                "maxLength": 64,
+                "minLength": 1,
+                "required": true
+            }
+        },
+        "password": {
+            "type": "object",
+            "fields": {
+                "hashed": {"type": "string"},
+                "salt": {"type": "string"}
+            }
+        },
+        "active" : {"type": "boolean" },
+        "contactPermissions" : {
+             "type":"object",
+             "fields" : { 
+                "allowEmailContact" : {"type":"boolean"},
+                "allowFaxContact" : {"type":"boolean"},
+                "allowMailContact" : {"type":"boolean"},
+                "allowPhoneContact" : {"type":"boolean"},
+                "allowThirdPartyContact" : {"type":"boolean"}
+              }
+         },
+        "personalInfo" : {
+             "type" : "object",
+             "fields" : {
+                 "company": {"type": "string"},
+                 "greeting": {"type": "string"},
+                 "firstName": {"type": "string"},
+                 "lastName": {"type": "string"},
+                 "suffix": {"type": "string"},
+                 "title": {"type": "string"},
+                 "email": {"type": "string"},
+                 "emailConfirmed": {"type": "boolean"},
+                 "phoneNumber": {"type": "string"},
+                 "faxNumber": {"type": "string"},
+                 "locale": {"type": "string"},
+                 "timezone": {"type": "string"},
+                 "department": {"type": "string"}
+              }
+        },
+        "sites" : {
+             "type":"array",
+             "items" : {
+                 "type":"object",
+                 "fields" : {
+                     "siteId" : { "type":"string" },
+                     "streetAddress" : {
+                         "type" : "object",
+                         "fields" : {
+                              "address1":{"type":"string"},
+                              "address2":{"type":"string"},
+                              "address3":{"type":"string"},
+                              "address4":{"type":"string"},
+                              "city":{"type":"string"},
+                              "state":{"type":"string"},
+                              "country":{"type":"string"},
+                              "countryCode":{"type":"string"},
+                              "postalCode":{"type":"string"},
+                              "poBox":{"type":"boolean"}
+                          }
+                     },
+                     "contactInfo": {
+                         "type" :"object",
+                         "fields": {
+                              "emailAddress":{"type":"string"},
+                              "faxNumber": {"type":"string"},
+                              "phoneNumber" : {"type":"string"},
+                              "url":{"type":"string"}
+                          }
+                     },
+                     "notes":{"type":"string"},
+                     "siteType":{
+                        "type":"string",
+                        "constraints": [
+                             {"enum":"site_type_enum"}
+                        ]
+                     },
+                     "firstName":{"type":"string"},
+                     "lastName":{"type":"string"},
+                     "description":{"type":"string"},
+                     "defaultSite":{"type":"boolean"},
+                     "active":{"type":"boolean"},
+                     "usages": {
+                         "type":"array",
+                         "items": {
+                             "type":"object",
+                             "fields": {
+                                 "usage":{
+                                     "type":"string",
+                                     "constraints": [
+                                         {"enum":"site_type_enum"}
+                                     ]
+                                 },
+                                 "lastUsedOn":{"type":"date"}
+                             }  
+                         }
+                     }
+                 }
+              }
+        },
+        "createdDate": {"type": "date"},
+        "updatedDate": {"type": "date"}
+       }
+ }

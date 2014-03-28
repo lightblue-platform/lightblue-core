@@ -1,0 +1,24 @@
+Get all entity names:
+  curl http://localhost:8080/metadata
+
+Get user versions:
+  curl http://localhost:8080/metadata/user
+
+Get user 0.1:
+  curl http://localhost:8080/metadata/user/0.1
+
+Create metadata:
+  curl -X PUT  -H Content-type:application/json -d @usermd.json http://localhost:8080/metadata/user/0.1
+
+Update entity info:
+  curl -X PUT -H Content-type:application/json -d@usermd-ei-index.json http://localhost:8080/metadata/user
+
+Create new schema:
+  curl -X PUT -H Content-type:application/json -d@usermd-2.0.json http://localhost:8080/metadata/user/schema=2.0
+
+Deprecate v0.1"
+  curl -X PUT http://localhost:8080/metadata/user/0.1/deprecated?comment=test
+
+Set v2 as default
+
+  curl -X POST http://localhost:8080/metadata/user/2.0/default

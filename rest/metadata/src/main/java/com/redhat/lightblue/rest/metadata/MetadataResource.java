@@ -20,6 +20,7 @@ package com.redhat.lightblue.rest.metadata;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -36,6 +37,7 @@ import com.redhat.lightblue.rest.metadata.hystrix.GetEntityRolesCommand;
 import com.redhat.lightblue.rest.metadata.hystrix.GetEntityVersionsCommand;
 import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntityInfoCommand;
 import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntitySchemaStatusCommand;
+import com.redhat.lightblue.rest.metadata.hystrix.SetDefaultVersionCommand;
 
 /**
  * @author nmalik
@@ -126,5 +128,12 @@ public class MetadataResource {
                                      @PathParam("status") String status,
                                      @QueryParam("comment") String comment) {
         return new UpdateEntitySchemaStatusCommand(null, entity, version, status, comment).execute();
+    }
+
+    @POST
+    @Path("/{entity}/{version}/default")
+    public String setDefaultVersion(@PathParam("entity") String entity,
+                                    @PathParam("version") String version) {
+        return new SetDefaultVersionCommand(null, entity, version).execute();
     }
 }
