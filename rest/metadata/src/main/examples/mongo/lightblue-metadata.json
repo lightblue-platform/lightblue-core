@@ -8,6 +8,9 @@
     "metadataClass": "com.redhat.lightblue.metadata.mongo.MongoMetadata",
     "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
     "metadataFactoryMethod": "create",
+    "dataStoreParserNames" : [
+       [ "mongo", "com.redhat.lightblue.metadata.mongo.MongoDataStoreParser" ]
+    ],
     "databaseConfiguration": {
         "name": "mongo",
         "servers": [
