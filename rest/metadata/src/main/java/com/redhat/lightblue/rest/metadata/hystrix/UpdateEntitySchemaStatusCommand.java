@@ -1,11 +1,23 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -26,7 +38,11 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
     private final String comment;
 
     public UpdateEntitySchemaStatusCommand(String clientKey, String entity, String version, String status, String comment) {
-        super(UpdateEntitySchemaStatusCommand.class.getSimpleName(), UpdateEntitySchemaStatusCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, status, comment);
+    }
+
+    public UpdateEntitySchemaStatusCommand(String clientKey, Metadata metadata, String entity, String version, String status, String comment) {
+        super(UpdateEntitySchemaStatusCommand.class.getSimpleName(), UpdateEntitySchemaStatusCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
         this.version = version;
         this.status = status;
@@ -42,9 +58,9 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
         Error.push(version);
         try {
             MetadataStatus st = MetadataParser.statusFromString(status);
-            Metadata md = MetadataManager.getMetadata();
+            Metadata md = getMetadata();
             md.setMetadataStatus(entity, version, st, comment);
-            return MetadataManager.getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
+            return getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
         } catch (Error e) {
             return e.toString();
         } catch (Exception e) {

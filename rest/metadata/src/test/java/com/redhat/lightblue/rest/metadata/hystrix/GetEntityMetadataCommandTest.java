@@ -16,26 +16,34 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo.hystrix;
+package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  *
  * @author nmalik
  */
-public class SaveCommand extends AbstractMongoCommand<WriteResult> {
-    private final DBObject data;
+public class GetEntityMetadataCommandTest extends AbstractRestCommandTest {
+    @Test
+    public void execute() {
+        GetEntityMetadataCommand command = new GetEntityMetadataCommand(null, metadata, null, null);
 
-    public SaveCommand(String clientKey, DBCollection collection, DBObject data) {
-        super(SaveCommand.class.getSimpleName(), SaveCommand.class.getSimpleName(), clientKey, collection);
-        this.data = data;
+        String output = command.execute();
+
+        Assert.assertNotNull(output);
     }
 
-    @Override
-    protected WriteResult run() throws Exception {
-        return getDBCollection().save(data);
+    @Test
+    public void executeDefault() {
+        GetEntityMetadataCommand command = new GetEntityMetadataCommand(null, metadata, "test", "default");
+
+        String output = command.execute();
+
+        Assert.assertNotNull(output);
+
+        // verify "default" version to translated to null
+        Assert.assertNull(metadata.args[1]);
     }
 }

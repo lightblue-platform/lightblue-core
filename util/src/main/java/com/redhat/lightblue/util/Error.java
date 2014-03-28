@@ -55,7 +55,11 @@ public final class Error extends RuntimeException {
      * Pushes the given context information to the current thread stack
      */
     public static void push(String context) {
-        THREAD_CONTEXT.get().addLast(context);
+        if (null != context) {
+            THREAD_CONTEXT.get().addLast(context);
+        } else {
+            THREAD_CONTEXT.get().addLast("null");
+        }
     }
 
     /**

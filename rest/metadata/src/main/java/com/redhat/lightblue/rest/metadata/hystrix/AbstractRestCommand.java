@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
@@ -12,15 +25,18 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.Metadata;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 
 /**
+ * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
+ * object.
  *
  * @author nmalik
  */
 public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
+
+    private final Metadata metadata;
 
     /**
      *
@@ -28,14 +44,28 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @param commandKey OPTIONAL defaults to groupKey value
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey) {
+    public AbstractRestCommand(String groupKey, String commandKey, String threadPoolKey, Metadata metadata) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey == null ? groupKey : commandKey))
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? groupKey : threadPoolKey)));
+        this.metadata = metadata;
     }
 
-    protected Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException, InstantiationException {
-        return MetadataManager.getMetadata();
+    /**
+     * Returns the metadata. If no metadata is set on the command uses MetadataManager#getMetadata() method.
+     *
+     * @return
+     * @throws Exception
+     */
+    protected Metadata getMetadata() throws Exception {
+        if (null != metadata) {
+            return metadata;
+        } else {
+            return MetadataManager.getMetadata();
+        }
+    }
+    
+    protected JSONMetadataParser getJSONParser() throws Exception {
+        return MetadataManager.getJSONParser();
     }
 }

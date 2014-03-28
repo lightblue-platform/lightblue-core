@@ -1,15 +1,28 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.redhat.lightblue.rest.crud.hystrix;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.crud.CrudManager;
 import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.JsonUtils;
 import org.slf4j.Logger;
@@ -27,7 +40,11 @@ public class DeleteCommand extends AbstractRestCommand {
     private final String request;
 
     public DeleteCommand(String clientKey, String entity, String version, String request) {
-        super(DeleteCommand.class.getSimpleName(), DeleteCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, request);
+    }
+
+    public DeleteCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
+        super(DeleteCommand.class.getSimpleName(), DeleteCommand.class.getSimpleName(), clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;
@@ -42,7 +59,7 @@ public class DeleteCommand extends AbstractRestCommand {
         try {
             DeleteRequest ireq = DeleteRequest.fromJson((ObjectNode) JsonUtils.json(request));
             validateReq(ireq, entity, version);
-            Response r = CrudManager.getMediator().delete(ireq);
+            Response r = getMediator().delete(ireq);
             return r.toJson().toString();
         } catch (Error e) {
             LOGGER.error("delete failure: {}", e);

@@ -1,11 +1,23 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -25,7 +37,11 @@ public class UpdateEntityInfoCommand extends AbstractRestCommand {
     private final String info;
 
     public UpdateEntityInfoCommand(String clientKey, String entity, String info) {
-        super(UpdateEntityInfoCommand.class.getSimpleName(), UpdateEntityInfoCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, info);
+    }
+
+    public UpdateEntityInfoCommand(String clientKey, Metadata metadata, String entity, String info) {
+        super(UpdateEntityInfoCommand.class.getSimpleName(), UpdateEntityInfoCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
         this.info = info;
     }
@@ -37,13 +53,13 @@ public class UpdateEntityInfoCommand extends AbstractRestCommand {
         Error.push("updateEntityInfo");
         Error.push(entity);
         try {
-            JSONMetadataParser parser = MetadataManager.getJSONParser();
+            JSONMetadataParser parser = getJSONParser();
             EntityInfo ei = parser.parseEntityInfo(JsonUtils.json(info));
             if (!ei.getName().equals(entity)) {
                 throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH, entity);
             }
 
-            Metadata md = MetadataManager.getMetadata();
+            Metadata md = getMetadata();
             md.updateEntityInfo(ei);
             ei = md.getEntityInfo(entity);
             return parser.convert(ei).toString();

@@ -16,26 +16,22 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo.hystrix;
+package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  *
  * @author nmalik
  */
-public class SaveCommand extends AbstractMongoCommand<WriteResult> {
-    private final DBObject data;
+public class UpdateEntityInfoCommandTest extends AbstractRestCommandTest {
+    @Test
+    public void execute() {
+        UpdateEntityInfoCommand command = new UpdateEntityInfoCommand(null, metadata, null, null);
 
-    public SaveCommand(String clientKey, DBCollection collection, DBObject data) {
-        super(SaveCommand.class.getSimpleName(), SaveCommand.class.getSimpleName(), clientKey, collection);
-        this.data = data;
-    }
+        String output = command.execute();
 
-    @Override
-    protected WriteResult run() throws Exception {
-        return getDBCollection().save(data);
+        Assert.assertNotNull(output);
     }
 }

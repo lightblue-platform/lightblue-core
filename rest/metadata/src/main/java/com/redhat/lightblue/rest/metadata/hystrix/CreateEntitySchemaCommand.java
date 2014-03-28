@@ -1,11 +1,23 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
@@ -28,7 +40,11 @@ public class CreateEntitySchemaCommand extends AbstractRestCommand {
     private final String schema;
 
     public CreateEntitySchemaCommand(String clientKey, String entity, String version, String schema) {
-        super(CreateEntitySchemaCommand.class.getSimpleName(), CreateEntitySchemaCommand.class.getSimpleName(), clientKey);
+        this(clientKey, null, entity, version, schema);
+    }
+
+    public CreateEntitySchemaCommand(String clientKey, Metadata metadata, String entity, String version, String schema) {
+        super(CreateEntitySchemaCommand.class.getSimpleName(), CreateEntitySchemaCommand.class.getSimpleName(), clientKey, metadata);
         this.entity = entity;
         this.version = version;
         this.schema = schema;
@@ -42,7 +58,7 @@ public class CreateEntitySchemaCommand extends AbstractRestCommand {
         Error.push(entity);
         Error.push(version);
         try {
-            JSONMetadataParser parser = MetadataManager.getJSONParser();
+            JSONMetadataParser parser = getJSONParser();
             EntitySchema sch = parser.parseEntitySchema(JsonUtils.json(schema));
             if (!sch.getName().equals(entity)) {
                 throw Error.get(RestMetadataConstants.ERR_NO_NAME_MATCH, entity);
@@ -51,7 +67,7 @@ public class CreateEntitySchemaCommand extends AbstractRestCommand {
                 throw Error.get(RestMetadataConstants.ERR_NO_VERSION_MATCH, version);
             }
 
-            Metadata md = MetadataManager.getMetadata();
+            Metadata md = getMetadata();
             EntityInfo ei = md.getEntityInfo(entity);
             if (ei == null) {
                 throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_NAME, entity);
