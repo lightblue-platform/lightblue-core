@@ -41,7 +41,7 @@ public class UpdateEntityInfoCommand extends AbstractRestCommand {
     }
 
     public UpdateEntityInfoCommand(String clientKey, Metadata metadata, String entity, String info) {
-        super(UpdateEntityInfoCommand.class.getSimpleName(), UpdateEntityInfoCommand.class.getSimpleName(), clientKey, metadata);
+        super(UpdateEntityInfoCommand.class, clientKey, metadata);
         this.entity = entity;
         this.info = info;
     }

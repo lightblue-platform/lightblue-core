@@ -40,7 +40,7 @@ public class GetEntityRolesCommand extends AbstractRestCommand {
     }
 
     public GetEntityRolesCommand(String clientKey, Metadata metadata, String entity, String version) {
-        super(GetEntityRolesCommand.class.getSimpleName(), GetEntityRolesCommand.class.getSimpleName(), clientKey, metadata);
+        super(GetEntityRolesCommand.class, clientKey, metadata);
         this.entity = entity;
         this.version = version;
     }

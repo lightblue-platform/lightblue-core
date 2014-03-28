@@ -38,7 +38,7 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
     }
 
     public GetEntityNamesCommand(String clientKey, Metadata metadata) {
-        super(GetEntityNamesCommand.class.getSimpleName(), GetEntityNamesCommand.class.getSimpleName(), clientKey, metadata);
+        super(GetEntityNamesCommand.class, clientKey, metadata);
     }
 
     @Override

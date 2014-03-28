@@ -44,7 +44,7 @@ public class FindCommand extends AbstractRestCommand {
     }
 
     public FindCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
-        super(FindCommand.class.getSimpleName(), FindCommand.class.getSimpleName(), clientKey, mediator);
+        super(FindCommand.class, clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;

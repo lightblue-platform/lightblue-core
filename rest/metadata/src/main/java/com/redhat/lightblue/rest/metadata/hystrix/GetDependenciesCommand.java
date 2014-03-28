@@ -40,7 +40,7 @@ public class GetDependenciesCommand extends AbstractRestCommand {
     }
 
     public GetDependenciesCommand(String clientKey, Metadata metadata, String entity, String version) {
-        super(GetDependenciesCommand.class.getSimpleName(), GetDependenciesCommand.class.getSimpleName(), clientKey, metadata);
+        super(GetDependenciesCommand.class, clientKey, metadata);
         this.entity = entity;
         this.version = version;
     }

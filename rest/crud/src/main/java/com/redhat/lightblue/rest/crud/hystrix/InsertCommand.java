@@ -44,7 +44,7 @@ public class InsertCommand extends AbstractRestCommand {
     }
 
     public InsertCommand(String clientKey, Mediator mediator, String entity, String version, String request) {
-        super(InsertCommand.class.getSimpleName(), InsertCommand.class.getSimpleName(), clientKey, mediator);
+        super(InsertCommand.class, clientKey, mediator);
         this.entity = entity;
         this.version = version;
         this.request = request;
