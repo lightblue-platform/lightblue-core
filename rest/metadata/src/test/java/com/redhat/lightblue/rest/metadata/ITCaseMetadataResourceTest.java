@@ -16,17 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.rest.crud;
+package com.redhat.lightblue.rest.metadata;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
-import com.redhat.lightblue.util.JsonUtils;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -54,7 +51,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 import static com.redhat.lightblue.util.test.FileUtil.readFile;
@@ -66,7 +62,7 @@ import static junit.framework.Assert.assertNotNull;
  * @author lcestari
  */
 @RunWith(Arquillian.class)
-public class ITCaseCrudResourceTest {
+public class ITCaseMetadataResourceTest {
 
     public static class FileStreamProcessor implements IStreamProcessor {
         private FileOutputStream outputStream;
@@ -94,7 +90,7 @@ public class ITCaseCrudResourceTest {
         }
 
     }
-    
+
     private static final String MONGO_HOST = "localhost";
     private static final int MONGO_PORT = 27777;
     private static final String IN_MEM_CONNECTION_URL = MONGO_HOST + ":" + MONGO_PORT;
@@ -147,7 +143,7 @@ public class ITCaseCrudResourceTest {
 
             });
         } catch (IOException e) {
-            throw new java.lang.Error(e);
+            throw new Error(e);
         }
     }
 
@@ -183,7 +179,7 @@ public class ITCaseCrudResourceTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/lightblue-crud.json"), MetadataConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
                 .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
 
         for (File file : libs) {
@@ -195,45 +191,61 @@ public class ITCaseCrudResourceTest {
     }
 
     @Inject
-    private CrudResource cutCrudResource; //class under test
-
+    private MetadataResource cutMetadataResource;
 
     @Test
-    public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException {
-        assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-
+    public void testFirstIntegrationTest() throws IOException, URISyntaxException {
+        assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
 
         String expectedCreated = readFile("expectedCreated.json");
-        String metadata = readFile("metadata.json");
-        EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
-        MetadataManager.getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = MetadataManager.getMetadata().getEntityMetadata("country", "1.0.0");
-        String resultCreated = MetadataManager.getJSONParser().convert(em2).toString();
+        String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));
         assertEquals(expectedCreated,resultCreated);
 
+        String expectedDepGraph = readFile("expectedDepGraph.json").replace("Notsupportedyet"," Not supported yet");
+        String resultDepGraph = cutMetadataResource.getDepGraph(); //Not implemented yet
+        assertEquals(expectedDepGraph,resultDepGraph);
 
-        String expectedInserted = readFile("expectedInserted.json");
-        String resultInserted = cutCrudResource.insert("country","1.0.0",readFile("resultInserted.json"));
-        assertEquals(expectedInserted,resultInserted);
+        String expectedDepGraph1 = readFile("expectedDepGraph1.json").replace("Notsupportedyet", " Not supported yet");
+        String resultDepGraph1 = cutMetadataResource.getDepGraph("country"); //Not implemented yet
+        assertEquals(expectedDepGraph1,resultDepGraph1);
 
+        String expectedDepGraph2 = readFile("expectedDepGraph2.json").replace("Notsupportedyet", " Not supported yet");
+        String resultDepGraph2 = cutMetadataResource.getDepGraph("country", "1.0.0"); //Not implemented yet
+        assertEquals(expectedDepGraph2,resultDepGraph2);
 
-        String expectedUpdated = readFile("expectedUpdated.json");
-        String resultUpdated = cutCrudResource.update("country","1.0.0",readFile("resultUpdated.json"));
-        assertEquals(expectedUpdated,resultUpdated);
+        String expectedEntityNames = "{\"entities\":[\"country\"]}";
+        String resultEntityNames = cutMetadataResource.getEntityNames();
+        assertEquals(expectedEntityNames,resultEntityNames);
 
+        //Following getEntityRoles calls shows some implementation problem, TODO to solve these problems
+        String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
+        String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand/country\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
 
-        String expectedFound = readFile("expectedFound.json");
-        String resultFound = cutCrudResource.find("country","1.0.0", readFile("resultFound.json"));
-        assertEquals(expectedFound,resultFound);
+        String resultEntityRoles = cutMetadataResource.getEntityRoles();
+        String resultEntityRoles1 = cutMetadataResource.getEntityRoles("country");
 
+        assertEquals(expectedEntityRoles,resultEntityRoles);
+        assertEquals(expectedEntityRoles1,resultEntityRoles1);
+        //////////////////
 
-        String expectedDeleted = readFile("expectedDeleted.json");
-        String resultDeleted = cutCrudResource.delete("country","1.0.0",readFile("resultDeleted.json"));
-        assertEquals(expectedDeleted,resultDeleted);
+        String expectedEntityRoles2 =  readFile("expectedEntityRoles2.json");
+        String resultEntityRoles2 = cutMetadataResource.getEntityRoles("country","1.0.0");
+        assertEquals(expectedEntityRoles2,resultEntityRoles2);
 
+        String expectedEntityVersions = "{\"versions\":[{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"}]}";
+        String resultEntityVersions = cutMetadataResource.getEntityVersions("country");
+        assertEquals(expectedEntityVersions,resultEntityVersions);
 
-        String expectedFound2 = readFile("expectedFound2.json");
-        String resultFound2 = cutCrudResource.find("country","1.0.0", readFile("resultFound2.json"));
-        assertEquals(expectedFound2,resultFound2);
+        String expectedGetMetadata = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String resultGetMetadata = cutMetadataResource.getMetadata("country","1.0.0");
+        assertEquals(expectedGetMetadata,resultGetMetadata);
+
+        //  TODO to solve these problems following calls
+        //System.out.println("x "+cutMetadataResource.createSchema("country","1.0.0",readFile("expectedCreateSchema.json")));
+        //System.out.println("y "+cutMetadataResource.updateEntityInfo("country",readFile("expectedCreateSchema.json")));
+
+        String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String resultUpdateSchemaStatus = cutMetadataResource.updateSchemaStatus("country","1.0.0","deprecated","No comment");
+        assertEquals(expectedUpdateSchemaStatus,resultUpdateSchemaStatus);
     }
 }

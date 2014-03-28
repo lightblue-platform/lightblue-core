@@ -5,10 +5,9 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
+import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +32,12 @@ public class GetEntityRolesCommand extends AbstractRestCommand {
         LOGGER.debug("run: entity={}, version={}", entity, version);
         Error.reset();
         Error.push(getClass().getSimpleName());
-        Error.push(entity);
-        Error.push(version);
+        if (entity != null) {
+            Error.push(entity);
+        }
+        if (version != null) {
+            Error.push(version);
+        }
         try {
             Response r = getMetadata().getAccess(entity, version);
             return r.toJson().toString();

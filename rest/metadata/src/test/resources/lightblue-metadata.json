@@ -1,0 +1,20 @@
+{
+    "metadataClass": "com.redhat.lightblue.metadata.mongo.MongoMetadata",
+    "metadataFactoryMethod": "create",
+    "controllers": [
+        {
+            "datastoreType": "mongo",
+            "className": "com.redhat.lightblue.crud.mongo.MongoCRUDController",
+            "factoryMethod": "create"
+        }
+    ],
+    "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.metadata.MongoConfiguration",
+    "databaseConfiguration": {
+        "name":"testmetadata",
+        "servers":[{"host":"localhost","port":27777}],
+        "ssl":false
+    },
+    "dataStoreParserNames": {
+        "mongo": "com.redhat.lightblue.metadata.mongo.MongoDataStoreParser"
+    }
+}

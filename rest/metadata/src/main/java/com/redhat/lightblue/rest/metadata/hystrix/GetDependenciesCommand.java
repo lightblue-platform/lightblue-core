@@ -33,8 +33,12 @@ public class GetDependenciesCommand extends AbstractRestCommand {
         LOGGER.debug("run: entity={}, version={}", entity, version);
         Error.reset();
         Error.push(getClass().getSimpleName());
-        Error.push(entity);
-        Error.push(version);
+        if (entity != null) {
+            Error.push(entity);
+        }
+        if (version != null) {
+            Error.push(version);
+        }
         try {
             Response r = MetadataManager.getMetadata().getDependencies(entity, version);
             return r.toJson().toString();
