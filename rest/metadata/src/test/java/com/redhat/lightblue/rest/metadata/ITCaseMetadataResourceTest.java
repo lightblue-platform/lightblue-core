@@ -202,15 +202,15 @@ public class ITCaseMetadataResourceTest {
         assertEquals(expectedCreated,resultCreated);
 
         String expectedDepGraph = readFile("expectedDepGraph.json").replace("Notsupportedyet"," Not supported yet");
-        String resultDepGraph = cutMetadataResource.getDepGraph(); //Not implemented yet
+        String resultDepGraph = cutMetadataResource.getDepGraph(); //TODO Not implemented yet
         assertEquals(expectedDepGraph,resultDepGraph);
 
         String expectedDepGraph1 = readFile("expectedDepGraph1.json").replace("Notsupportedyet", " Not supported yet");
-        String resultDepGraph1 = cutMetadataResource.getDepGraph("country"); //Not implemented yet
+        String resultDepGraph1 = cutMetadataResource.getDepGraph("country"); //TODO Not implemented yet
         assertEquals(expectedDepGraph1,resultDepGraph1);
 
         String expectedDepGraph2 = readFile("expectedDepGraph2.json").replace("Notsupportedyet", " Not supported yet");
-        String resultDepGraph2 = cutMetadataResource.getDepGraph("country", "1.0.0"); //Not implemented yet
+        String resultDepGraph2 = cutMetadataResource.getDepGraph("country", "1.0.0"); //TODO Not implemented yet
         assertEquals(expectedDepGraph2,resultDepGraph2);
 
         String expectedEntityNames = "{\"entities\":[\"country\"]}";

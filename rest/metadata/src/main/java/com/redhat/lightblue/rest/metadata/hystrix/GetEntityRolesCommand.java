@@ -19,6 +19,7 @@
 package com.redhat.lightblue.rest.metadata.hystrix;
 
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
