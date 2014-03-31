@@ -218,6 +218,7 @@ public class ITCaseMetadataResourceTest {
         assertEquals(expectedEntityNames,resultEntityNames);
 
 
+        // no default version
         String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
         String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand/country\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
         String resultEntityRoles = cutMetadataResource.getEntityRoles();
@@ -237,9 +238,13 @@ public class ITCaseMetadataResourceTest {
         String resultGetMetadata = cutMetadataResource.getMetadata("country","1.0.0");
         assertEquals(expectedGetMetadata,resultGetMetadata);
 
-        //  TODO to solve these problems following calls
-        System.out.println("x "+cutMetadataResource.createSchema("country","1.0.0",readFile("expectedCreateSchema.json")));
-        //System.out.println("y "+cutMetadataResource.updateEntityInfo("country",readFile("expectedCreateSchema.json")));
+        String expectedCreateSchema = readFile("expectedCreateSchema.json");
+        String resultCreateSchema = cutMetadataResource.createSchema("country","1.1.0",readFile("expectedCreateSchemaInput.json"));
+        assertEquals(expectedCreateSchema,resultCreateSchema);
+
+        String expectedUpdateEntityInfo = readFile("expectedUpdateEntityInfo.json");
+        String resultUpdateEntityInfo = cutMetadataResource.updateEntityInfo("country",readFile("expectedUpdateEntityInfoInput.json"));
+        assertEquals(expectedUpdateEntityInfo,resultUpdateEntityInfo);
 
         String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
         String resultUpdateSchemaStatus = cutMetadataResource.updateSchemaStatus("country","1.0.0","deprecated","No comment");
