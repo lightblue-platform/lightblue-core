@@ -28,7 +28,7 @@ import org.junit.Test;
 public class GetEntityRolesCommandTest extends AbstractRestCommandTest {
     @Test
     public void execute() {
-        GetEntityRolesCommand command = new GetEntityRolesCommand(null, metadata, "test", "1.0.0");
+        GetEntityRolesCommand command = new GetEntityRolesCommand(null, metadata, "test", "1.0.0",false);
 
         String output = command.execute();
 

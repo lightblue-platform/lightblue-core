@@ -42,7 +42,7 @@ public class DatabaseMetadata implements Metadata {
     }
 
     @Override
-    public EntityMetadata getEntityMetadata(String entityName, String version) {
+    public EntityMetadata getEntityMetadata(String entityName, String version, boolean all) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -88,7 +88,7 @@ public class DatabaseMetadata implements Metadata {
 
 
     @Override
-    public Response getAccess(String entityName, String version) {
+    public Response getAccess(String entityName, String version, boolean all) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -75,7 +75,7 @@ public class CreateEntitySchemaCommand extends AbstractRestCommand {
 
             EntityMetadata emd = new EntityMetadata(ei, sch);
             md.createNewSchema(emd);
-            emd = md.getEntityMetadata(entity, version);
+            emd = md.getEntityMetadata(entity, version, false);
             return parser.convert(emd).toString();
         } catch (Error e) {
             return e.toString();

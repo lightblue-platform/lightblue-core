@@ -27,9 +27,7 @@ import static org.hamcrest.CoreMatchers.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.PredefinedFields;
@@ -78,7 +76,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     private static final class TestMetadata extends DatabaseMetadata {
         EntityMetadata md;
        @Override
-       public EntityMetadata getEntityMetadata(String entityName, String version) {
+       public EntityMetadata getEntityMetadata(String entityName, String version, boolean all) {
            return md;
        }
     }

@@ -60,7 +60,7 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
             MetadataStatus st = MetadataParser.statusFromString(status);
             Metadata md = getMetadata();
             md.setMetadataStatus(entity, version, st, comment);
-            return getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
+            return getJSONParser().convert(md.getEntityMetadata(entity, version, false)).toString();
         } catch (Error e) {
             return e.toString();
         } catch (Exception e) {

@@ -18,42 +18,8 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-
-import com.redhat.lightblue.metadata.Access;
-import com.redhat.lightblue.metadata.ArrayElement;
-import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.DataStore;
-import com.redhat.lightblue.metadata.EntityAccess;
-import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntitySchema;
+import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.Enum;
-import com.redhat.lightblue.metadata.Enums;
-import com.redhat.lightblue.metadata.Hook;
-import com.redhat.lightblue.metadata.Field;
-import com.redhat.lightblue.metadata.FieldAccess;
-import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.Fields;
-import com.redhat.lightblue.metadata.Index;
-import com.redhat.lightblue.metadata.Indexes;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.ObjectArrayElement;
-import com.redhat.lightblue.metadata.ObjectField;
-import com.redhat.lightblue.metadata.ReferenceField;
-import com.redhat.lightblue.metadata.SimpleArrayElement;
-import com.redhat.lightblue.metadata.SimpleField;
-import com.redhat.lightblue.metadata.StatusChange;
-import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.ObjectType;
@@ -63,6 +29,12 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other formats represented as a tree.
@@ -322,14 +294,17 @@ public abstract class MetadataParser<T> {
      *
      * @throws ParseException
      */
-    public EntitySchema parseEntitySchema(T object) {
+    public EntitySchema parseEntitySchema(T object, boolean ignoreVersion) {
         Error.push("parseEntitySchema");
         try {
             String name = getRequiredStringProperty(object, STR_NAME);
 
             EntitySchema schema = new EntitySchema(name);
-            T version = getRequiredObjectProperty(object, STR_VERSION);
-            schema.setVersion(parseVersion(version));
+
+            if (!ignoreVersion) {
+                T version = getRequiredObjectProperty(object, STR_VERSION);
+                schema.setVersion(parseVersion(version));
+            }
 
             T status = getRequiredObjectProperty(object, STR_STATUS);
             parseStatus(schema, status);
@@ -350,6 +325,9 @@ public abstract class MetadataParser<T> {
         } finally {
             Error.pop();
         }
+    }
+    public EntitySchema parseEntitySchema(T object) {
+        return parseEntitySchema(object,false);
     }
 
     /**

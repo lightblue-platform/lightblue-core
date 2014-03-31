@@ -68,7 +68,7 @@ public class MetadataResource {
     @GET
     @Path("/roles")
     public String getEntityRoles() {
-        return getEntityRoles(null, null);
+        return new GetEntityRolesCommand(null, null, null, true).execute();
     }
 
     @GET

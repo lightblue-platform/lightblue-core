@@ -1,5 +1,6 @@
 {
-   "entityInfo": {         "name": "country",
+   "entityInfo": {
+        "name": "country",
         "indexes": [
             {
                 "unique": true,
@@ -10,7 +11,8 @@
             "mongo": {
                   "collection": "country"
             }
-        }    },
+        }
+   },
     "schema": {
         "name": "country",
         "version": {

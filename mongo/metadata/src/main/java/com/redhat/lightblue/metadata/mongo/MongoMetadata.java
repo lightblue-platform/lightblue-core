@@ -21,51 +21,18 @@ package com.redhat.lightblue.metadata.mongo;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.Date;
-import java.util.List;
-
-import org.bson.BSONObject;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteConcern;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
-import com.redhat.lightblue.metadata.DataStore;
-import com.redhat.lightblue.metadata.EntityAccess;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntitySchema;
-import com.redhat.lightblue.metadata.Field;
-import com.redhat.lightblue.metadata.FieldAccess;
-import com.redhat.lightblue.metadata.FieldCursor;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.StatusChange;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.mongo.hystrix.DistinctCommand;
-import com.redhat.lightblue.mongo.hystrix.FindCommand;
-import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
-import com.redhat.lightblue.mongo.hystrix.InsertCommand;
-import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
-import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
+import com.redhat.lightblue.mongo.hystrix.*;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import org.bson.BSONObject;
+
+import java.util.*;
 
 public class MongoMetadata implements Metadata {
 
@@ -98,7 +65,7 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public EntityMetadata getEntityMetadata(String entityName,
-                                            String version) {
+                                            String version, boolean all) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
@@ -107,19 +74,20 @@ public class MongoMetadata implements Metadata {
         try {
             EntityInfo info = getEntityInfo(entityName);
             if (version == null || version.length() == 0) {
-                if (info.getDefaultVersion() == null || info.getDefaultVersion().length() == 0) {
+                if (!all && (info.getDefaultVersion() == null || info.getDefaultVersion().length() == 0)) {
                     throw new IllegalArgumentException(LITERAL_VERSION);
-                } else {
+                } else if(all){
+                    version = "";
+                }else {
                     version = info.getDefaultVersion();
                 }
             }
 
             EntitySchema schema;
-
             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
             DBObject es = new FindOneCommand(null, collection, query).execute();
             if (es != null) {
-                schema = mdParser.parseEntitySchema(es);
+                schema = mdParser.parseEntitySchema(es,all);
             } else {
                 throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
@@ -421,7 +389,7 @@ public class MongoMetadata implements Metadata {
     }
 
     @Override
-    public Response getAccess(String entityName, String version) {
+    public Response getAccess(String entityName, String version, boolean all) {
         List<String> entityNames = new ArrayList<>();
         // accessMap: <role, <operation, List<path>>>
         Map<String, Map<String, List<String>>> accessMap = new HashMap<>();
@@ -442,7 +410,7 @@ public class MongoMetadata implements Metadata {
         for (String name : entityNames) {
             EntityMetadata metadata;
             try {
-                metadata = getEntityMetadata(name, version);
+                metadata = getEntityMetadata(name, version, all);
             } catch (Exception e) {
                 response.setStatus(OperationStatus.PARTIAL);
                 // construct error data

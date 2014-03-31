@@ -154,7 +154,7 @@ public final class OperationContext extends CRUDOperationContext {
                 throw new IllegalArgumentException(CrudConstants.ERR_METADATA_APPEARS_TWICE + name + " " + version + " and " + x.getVersion().getValue());
             }
         } else {
-            x = metadata.getEntityMetadata(name, version);
+            x = metadata.getEntityMetadata(name, version, all);
             if (x == null || x.getEntitySchema() == null) {
                 throw new IllegalArgumentException("Unknown entity:" + name + ":" + version);
             }

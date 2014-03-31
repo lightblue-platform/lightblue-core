@@ -207,7 +207,7 @@ public class ITCaseCrudResourceTest {
         String metadata = readFile("metadata.json");
         EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
         MetadataManager.getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = MetadataManager.getMetadata().getEntityMetadata("country", "1.0.0");
+        EntityMetadata em2 = MetadataManager.getMetadata().getEntityMetadata("country", "1.0.0", all);
         String resultCreated = MetadataManager.getJSONParser().convert(em2).toString();
         assertEquals(expectedCreated,resultCreated);
 

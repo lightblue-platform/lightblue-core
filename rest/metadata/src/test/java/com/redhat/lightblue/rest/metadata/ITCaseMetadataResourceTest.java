@@ -217,16 +217,13 @@ public class ITCaseMetadataResourceTest {
         String resultEntityNames = cutMetadataResource.getEntityNames();
         assertEquals(expectedEntityNames,resultEntityNames);
 
-        //Following getEntityRoles calls shows some implementation problem, TODO to solve these problems
-        String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
-        String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand/country\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
 
+        String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: {\\\\\\\"object_type\\\\\\\":\\\\\\\"error\\\\\\\",\\\\\\\"context\\\\\\\":\\\\\\\"GetEntityRolesCommand/getEntityMetadata(country:null)/parseEntitySchema/getRequiredObjectProperty/status\\\\\\\",\\\\\\\"errorCode\\\\\\\":\\\\\\\"metadata:ParseMissingElement\\\\\\\",\\\\\\\"msg\\\\\\\":\\\\\\\"status\\\\\\\"}\\\"}]}\"]}";
+        String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand/country\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
         String resultEntityRoles = cutMetadataResource.getEntityRoles();
         String resultEntityRoles1 = cutMetadataResource.getEntityRoles("country");
-
         assertEquals(expectedEntityRoles,resultEntityRoles);
         assertEquals(expectedEntityRoles1,resultEntityRoles1);
-        //////////////////
 
         String expectedEntityRoles2 =  readFile("expectedEntityRoles2.json");
         String resultEntityRoles2 = cutMetadataResource.getEntityRoles("country","1.0.0");
