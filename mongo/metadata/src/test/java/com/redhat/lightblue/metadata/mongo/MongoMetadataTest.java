@@ -21,44 +21,49 @@ package com.redhat.lightblue.metadata.mongo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.Mongo;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
-import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-import de.flapdoodle.embed.mongo.Command;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.Assert;
+
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
+import de.flapdoodle.embed.process.runtime.Network;
+
+import com.mongodb.Mongo;
+import com.mongodb.DB;
+import com.mongodb.BasicDBObject;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
+
+import org.bson.BSONObject;
+
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.mongo.MongoDataStore;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.metadata.mongo.MongoMetadataConstants;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.types.*;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
-import de.flapdoodle.embed.process.runtime.Network;
-import org.bson.BSONObject;
-import org.json.JSONException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import org.json.JSONException;
+import org.junit.Before;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 
 public class MongoMetadataTest {
@@ -185,7 +190,7 @@ public class MongoMetadataTest {
         e.getEntityInfo().setDefaultVersion("1.0");
         md.createNewMetadata(e);
 
-        EntityMetadata g = md.getEntityMetadata("testEntity", null, false);
+        EntityMetadata g = md.getEntityMetadata("testEntity", null);
         Assert.assertEquals("1.0", g.getVersion().getValue());
     }
 
@@ -200,7 +205,7 @@ public class MongoMetadataTest {
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0", false);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
         Assert.assertNotNull("Can't retrieve entity", g);
         Assert.assertEquals(e.getName(), g.getName());
         Assert.assertEquals(e.getVersion().getValue(), g.getVersion().getValue());
@@ -227,11 +232,11 @@ public class MongoMetadataTest {
         e2.setDataStore(new MongoDataStore(null, null, "testCollection"));
         e2.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e2);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1", false);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
         Assert.assertEquals(MetadataStatus.ACTIVE, g.getStatus());
 
         md.setMetadataStatus("testEntity", "1.1", MetadataStatus.DEPRECATED, "disable testEntity");
-        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1", false);
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1");
         Assert.assertEquals(e2.getVersion().getValue(), g1.getVersion().getValue());
         Assert.assertEquals(MetadataStatus.DEPRECATED, g1.getStatus());
     }
@@ -245,7 +250,7 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         e.getEntityInfo().setDefaultVersion("1.0");
         md.createNewMetadata(e);
-        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0", false);
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0");
         Assert.assertEquals(e.getVersion().getValue(), g1.getVersion().getValue());
         Assert.assertEquals(MetadataStatus.ACTIVE, g1.getStatus());
         try {
@@ -281,14 +286,14 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "", false);
+            EntityMetadata g = md.getEntityMetadata("testEntity", "");
             Assert.fail("expected " + IllegalArgumentException.class);
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals("version", ex.getMessage());
         }
 
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", null, false);
+            EntityMetadata g = md.getEntityMetadata("testEntity", null);
             Assert.fail("expected " + IllegalArgumentException.class);
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals("version", ex.getMessage());
@@ -305,7 +310,7 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "1.1", false);
+            EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
             Assert.fail("expected " + MongoMetadataConstants.ERR_UNKNOWN_VERSION);
         } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_UNKNOWN_VERSION, ex.getErrorCode());
@@ -381,7 +386,7 @@ public class MongoMetadataTest {
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0", false);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
         Assert.assertNotNull("Can't retrieve entity", g);
         Assert.assertEquals(e.getName(), g.getName());
         Assert.assertEquals(e.getVersion().getValue(), g.getVersion().getValue());
@@ -417,7 +422,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         // ready to test!
-        Response response = md.getAccess(e.getName(), e.getVersion().getValue(), false);
+        Response response = md.getAccess(e.getName(), e.getVersion().getValue());
 
         Assert.assertNotNull(response);
 
@@ -450,7 +455,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         // ready to test!
-        Response response = md.getAccess(e.getName(), null, false);
+        Response response = md.getAccess(e.getName(), null);
 
         Assert.assertNotNull(response);
 
@@ -486,7 +491,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         // ready to test!
-        Response response = md.getAccess(e.getName(), null, false);
+        Response response = md.getAccess(e.getName(), null);
 
         Assert.assertNotNull(response);
 
@@ -524,7 +529,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         // ready to test!
-        Response response = md.getAccess(null, null, false);
+        Response response = md.getAccess(null, null);
 
         Assert.assertNotNull(response);
 
@@ -567,7 +572,7 @@ public class MongoMetadataTest {
         }
 
         // ready to test!
-        Response response = md.getAccess(null, null, false);
+        Response response = md.getAccess(null, null);
 
         Assert.assertNotNull(response);
 

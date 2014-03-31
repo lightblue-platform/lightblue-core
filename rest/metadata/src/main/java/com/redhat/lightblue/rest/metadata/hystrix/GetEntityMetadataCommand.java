@@ -55,7 +55,7 @@ public class GetEntityMetadataCommand extends AbstractRestCommand {
         Error.reset();
         Error.push(getClass().getSimpleName());
         try {
-            EntityMetadata md = getMetadata().getEntityMetadata(entity, version, false);
+            EntityMetadata md = getMetadata().getEntityMetadata(entity, version);
             if (md != null) {
                 JSONMetadataParser parser = getJSONParser();
                 return parser.convert(md).toString();

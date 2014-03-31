@@ -34,21 +34,15 @@ public class GetEntityRolesCommand extends AbstractRestCommand {
 
     private final String entity;
     private final String version;
-    private final boolean all;
 
     public GetEntityRolesCommand(String clientKey, String entity, String version) {
-        this(clientKey, null, entity, version,false);
+        this(clientKey, null, entity, version);
     }
 
-    public GetEntityRolesCommand(String clientKey, String entity, String version, boolean all) {
-        this(clientKey, null, entity, version, all);
-    }
-
-    public GetEntityRolesCommand(String clientKey, Metadata metadata, String entity, String version, boolean all) {
+    public GetEntityRolesCommand(String clientKey, Metadata metadata, String entity, String version) {
         super(GetEntityRolesCommand.class, clientKey, metadata);
         this.entity = entity;
         this.version = version;
-        this.all = all;
     }
 
     @Override
@@ -63,7 +57,7 @@ public class GetEntityRolesCommand extends AbstractRestCommand {
             Error.push(version);
         }
         try {
-            Response r = getMetadata().getAccess(entity, version, all);
+            Response r = getMetadata().getAccess(entity, version);
             return r.toJson().toString();
         } catch (Error e) {
             return e.toString();

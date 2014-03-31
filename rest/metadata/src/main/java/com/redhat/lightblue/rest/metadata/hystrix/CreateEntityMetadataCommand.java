@@ -67,7 +67,7 @@ public class CreateEntityMetadataCommand extends AbstractRestCommand {
 
             Metadata md = getMetadata();
             md.createNewMetadata(emd);
-            emd = md.getEntityMetadata(entity, version, false);
+            emd = md.getEntityMetadata(entity, version);
             return parser.convert(emd).toString();
         } catch (Error e) {
             return e.toString();

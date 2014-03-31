@@ -40,13 +40,13 @@ public abstract class AbstractRestCommandTest {
         }
 
         @Override
-        public Response getAccess(String entityName, String version, boolean all) {
+        public Response getAccess(String entityName, String version) {
             args = new Object[]{entityName, version};
             return new Response();
         }
 
         @Override
-        public EntityMetadata getEntityMetadata(String entityName, String version, boolean all) {
+        public EntityMetadata getEntityMetadata(String entityName, String version) {
             args = new Object[]{entityName, version};
             return new EntityMetadata(entityName);
         }

@@ -42,13 +42,13 @@ public interface Metadata extends Serializable {
      *
      * @return Response with array of Map<String, MetadataAccess> data, where key is the entity name
      */
-    Response getAccess(String entityName, String version, boolean all);
+    Response getAccess(String entityName, String version);
 
     /**
      * Returns a particular version of the entity metadata if a version is specified.
      * Otherwise, it returns the default version
      */
-    EntityMetadata getEntityMetadata(String entityName, String version, boolean all);
+    EntityMetadata getEntityMetadata(String entityName, String version);
 
     /**
      * Returns the entity info for the given entity.

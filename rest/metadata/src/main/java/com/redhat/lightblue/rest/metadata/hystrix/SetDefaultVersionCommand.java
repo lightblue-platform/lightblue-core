@@ -51,7 +51,7 @@ public class SetDefaultVersionCommand extends AbstractRestCommand {
                 md.updateEntityInfo(ei);
             } else
                 throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_VERSION,entity+":"+version);
-            return getJSONParser().convert(md.getEntityMetadata(entity, version, false)).toString();
+            return getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
         } catch (Error e) {
             return e.toString();
         } catch (Exception e) {

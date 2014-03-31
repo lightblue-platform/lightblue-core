@@ -218,7 +218,7 @@ public class ITCaseMetadataResourceTest {
         assertEquals(expectedEntityNames,resultEntityNames);
 
 
-        String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: {\\\\\\\"object_type\\\\\\\":\\\\\\\"error\\\\\\\",\\\\\\\"context\\\\\\\":\\\\\\\"GetEntityRolesCommand/getEntityMetadata(country:null)/parseEntitySchema/getRequiredObjectProperty/status\\\\\\\",\\\\\\\"errorCode\\\\\\\":\\\\\\\"metadata:ParseMissingElement\\\\\\\",\\\\\\\"msg\\\\\\\":\\\\\\\"status\\\\\\\"}\\\"}]}\"]}";
+        String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
         String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand/country\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
         String resultEntityRoles = cutMetadataResource.getEntityRoles();
         String resultEntityRoles1 = cutMetadataResource.getEntityRoles("country");
@@ -238,7 +238,7 @@ public class ITCaseMetadataResourceTest {
         assertEquals(expectedGetMetadata,resultGetMetadata);
 
         //  TODO to solve these problems following calls
-        //System.out.println("x "+cutMetadataResource.createSchema("country","1.0.0",readFile("expectedCreateSchema.json")));
+        System.out.println("x "+cutMetadataResource.createSchema("country","1.0.0",readFile("expectedCreateSchema.json")));
         //System.out.println("y "+cutMetadataResource.updateEntityInfo("country",readFile("expectedCreateSchema.json")));
 
         String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[\"name\"]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
