@@ -19,7 +19,6 @@
 package com.redhat.lightblue.rest.metadata;
 
 public final class RestMetadataConstants {
-
     public static final String ERR_REST_ERROR = "rest-metadata:RestError";
     public static final String ERR_NO_ENTITY_NAME = "rest-metadata:NoEntityName";
     public static final String ERR_NO_ENTITY_VERSION = "rest-metadata:NoEntityVersion";
@@ -30,5 +29,4 @@ public final class RestMetadataConstants {
     private RestMetadataConstants() {
 
     }
-
 }
