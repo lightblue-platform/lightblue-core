@@ -24,7 +24,7 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.Request;
-import com.redhat.lightblue.crud.CrudManager;
+import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;

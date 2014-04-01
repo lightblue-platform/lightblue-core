@@ -52,10 +52,20 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.config</groupId>
-            <artifactId>config-metadata</artifactId>
+            <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-metadata</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-config</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
         </dependency>
     </dependencies>
     <build>

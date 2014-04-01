@@ -37,11 +37,6 @@
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-config-metadata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.redhat.lightblue.mongo</groupId>
             <artifactId>mongo-hystrix</artifactId>
             <version>${project.version}</version>
         </dependency>

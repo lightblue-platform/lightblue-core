@@ -8,6 +8,7 @@
         ],
         "datastore": {
             "mongo": {
+                  "database": "testmetadata",
                   "collection": "country"
             }
         }    },

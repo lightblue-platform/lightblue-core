@@ -21,6 +21,7 @@ package com.redhat.lightblue.rest.crud;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
+import com.redhat.lightblue.config.crud.CrudConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -183,7 +184,8 @@ public class ITCaseCrudResourceTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/lightblue-crud.json"), MetadataConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/lightblue-crud.json"), CrudConfiguration.FILENAME)
                 .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
 
         for (File file : libs) {

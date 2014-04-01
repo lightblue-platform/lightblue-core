@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.bson.BSONObject;
 
 import com.mongodb.BasicDBObject;
@@ -69,7 +72,7 @@ import java.util.Map;
 
 public class MongoMetadata implements Metadata {
 
-    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoMetadata.class);
 
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
 
@@ -194,11 +197,12 @@ public class MongoMetadata implements Metadata {
 
     @Override
     public void createNewMetadata(EntityMetadata md) {
-
+        LOGGER.debug("createNewMetadata: begin");
         checkMetadataHasName(md);
         checkMetadataHasFields(md);
         checkDataStoreIsValid(md);
         Version ver = checkVersionIsValid(md);
+        LOGGER.debug("createNewMetadata: version {}",ver);
 
         Error.push("createNewMetadata(" + md.getName() + ")");
 
@@ -213,6 +217,7 @@ public class MongoMetadata implements Metadata {
                     throw Error.get(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, md.getName() + ":" + md.getEntityInfo().getDefaultVersion());
                 }
             }
+            LOGGER.debug("createNewMetadata: Default version validated");
             PredefinedFields.ensurePredefinedFields(md);
             DBObject infoObj = (DBObject) mdParser.convert(md.getEntityInfo());
             DBObject schemaObj = (DBObject) mdParser.convert(md.getEntitySchema());
@@ -220,12 +225,15 @@ public class MongoMetadata implements Metadata {
             Error.push("writeEntity");
             try {
                 WriteResult result = new InsertCommand(null, collection, new DBObject[]{infoObj, schemaObj}, WriteConcern.SAFE).execute();
+                LOGGER.debug("createNewMetadata: insertion complete");
                 String error = result.getError();
                 if (error != null) {
                     cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
+                    LOGGER.error("createNewMetadata: error {}"+error);
                     throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
                 }
             } catch (MongoException.DuplicateKey dke) {
+                LOGGER.error("createNewMetadata: duplicateKey {}",dke);
                 cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
                 throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
             } finally {
@@ -235,6 +243,7 @@ public class MongoMetadata implements Metadata {
         } finally {
             Error.pop();
         }
+        LOGGER.debug("createNewMetadata: end");
     }
 
     private void cleanup(Object... ids) {

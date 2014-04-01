@@ -49,7 +49,6 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.mongo.MongoDataStore;
-import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
@@ -95,23 +94,6 @@ public class MongoCRUDController implements CRUDController {
 
     private final JsonNodeFactory nodeFactory;
     private final DBResolver dbResolver;
-
-    public static MongoCRUDController create(final MongoConfiguration config) {
-        DBResolver r = new DBResolver() {
-            @Override
-            public DB get(MongoDataStore store) {
-                try {
-                    // TODO this should really be something that comes from the metadata for the given entity
-                    // but we haven't thought about that enough.
-                    return config.getDB();
-                } catch (UnknownHostException ex) {
-                    throw Error.get(MongoCrudConstants.ERR_CONNECTION_ERROR, ex.getMessage());
-                }
-            }
-        };
-
-        return new MongoCRUDController(r);
-    }
 
     public MongoCRUDController(DBResolver dbResolver) {
         this(JsonNodeFactory.withExactBigDecimals(true), dbResolver);
@@ -211,6 +193,11 @@ public class MongoCRUDController implements CRUDController {
                     }
                 }
             }
+        } catch (Error e) {
+            throw e;
+        } catch (RuntimeException e) {
+            LOGGER.error("Error during insert: {}",e);
+            throw e;
         } finally {
             Error.pop();
         }
