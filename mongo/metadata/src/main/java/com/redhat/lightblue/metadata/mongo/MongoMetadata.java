@@ -494,8 +494,9 @@ public class MongoMetadata implements Metadata {
             helperAddRoles(ea.getUpdate().getRoles(), "update", name, accessMap);
 
             // collect field access
-            for (FieldAccess access : fa.keySet()) {
-                String pathString = name + "." + fa.get(access).toString();
+            for (Map.Entry<FieldAccess,Path> entry:fa.entrySet()) {
+                FieldAccess access=entry.getKey();
+                String pathString = name + "." + entry.getValue().toString();
                 helperAddRoles(access.getFind().getRoles(), "find", pathString, accessMap);
                 helperAddRoles(access.getInsert().getRoles(), "insert", pathString, accessMap);
                 helperAddRoles(access.getUpdate().getRoles(), "update", pathString, accessMap);
