@@ -179,7 +179,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public void putString(JsonNode object, String name, String value) {
-        ((ObjectNode) object).put(name, value);
+        putValue(object,name,value);
     }
 
     @Override
@@ -190,7 +190,9 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public void putValue(JsonNode object, String name, Object value) {
         ObjectNode o = (ObjectNode) object;
-        if (value instanceof Boolean) {
+        if(value==null) {
+            o.put(name,factory.nullNode());
+        } else if (value instanceof Boolean) {
             o.put(name, (Boolean) value);
         } else if (value instanceof BigDecimal) {
             o.put(name, (BigDecimal) value);
