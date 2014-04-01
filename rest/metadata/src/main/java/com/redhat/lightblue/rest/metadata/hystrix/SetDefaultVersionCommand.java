@@ -31,7 +31,11 @@ public class SetDefaultVersionCommand extends AbstractRestCommand {
     private final String version;
 
     public SetDefaultVersionCommand(String clientKey, String entity, String version) {
-        super(SetDefaultVersionCommand.class, clientKey, null);
+        this(clientKey, null, entity, version);
+    }
+
+    public SetDefaultVersionCommand(String clientKey, Metadata metadata, String entity, String version) {
+        super(SetDefaultVersionCommand.class, clientKey, metadata);
         this.entity = entity;
         this.version = version;
     }
@@ -45,12 +49,13 @@ public class SetDefaultVersionCommand extends AbstractRestCommand {
         Error.push(version);
         try {
             Metadata md = getMetadata();
-            EntityInfo ei=md.getEntityInfo(entity);
-            if(ei!=null) {
+            EntityInfo ei = md.getEntityInfo(entity);
+            if (ei != null) {
                 ei.setDefaultVersion(version);
                 md.updateEntityInfo(ei);
-            } else
-                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_VERSION,entity+":"+version);
+            } else {
+                throw Error.get(RestMetadataConstants.ERR_NO_ENTITY_VERSION, entity + ":" + version);
+            }
             return getJSONParser().convert(md.getEntityMetadata(entity, version)).toString();
         } catch (Error e) {
             return e.toString();
