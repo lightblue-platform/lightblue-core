@@ -548,7 +548,8 @@ public class MongoMetadata implements Metadata {
 
                 roleJson.put("role", role);
 
-                for (String operation : opPathMap.keySet()) {
+                for (Map.Entry<String, List<String>> operationMap : opPathMap.entrySet()) {
+                    String operation = operationMap.getKey();
                     List<String> paths = opPathMap.get(operation);
                     ArrayNode pathNode = new ArrayNode(JsonNodeFactory.instance);
                     for (String path : paths) {
