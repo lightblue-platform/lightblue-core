@@ -507,8 +507,9 @@ public class MongoMetadata implements Metadata {
         if (!accessMap.isEmpty()) {
             ArrayNode root = new ArrayNode(JsonNodeFactory.instance);
             response.setEntityData(root);
-            for (String role : accessMap.keySet()) {
-                Map<String, List<String>> opPathMap = accessMap.get(role);
+            for (Map.Entry<String,Map<String,List<String> > > entry:accessMap.entrySet()) {
+                String role=entry.getKey();
+                Map<String, List<String>> opPathMap = entry.getValue();
 
                 ObjectNode roleJson = new ObjectNode(JsonNodeFactory.instance);
                 root.add(roleJson);
