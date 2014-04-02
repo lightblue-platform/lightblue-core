@@ -34,6 +34,7 @@ public final class MongoMetadataConstants {
     public static final String ERR_METADATA_WITH_NO_FIELDS = "mongo-metadata:MetadataWithNoFields";
 
     public static final String ERR_NEW_STATUS_IS_NULL = "mongo-metadata:NewStatusIsNull";
+    public static final String ERR_ENTITY_INDEX_NOT_CREATED = "mongo-metadata:EntityIndexNotCreated";
 
     private MongoMetadataConstants() {
 

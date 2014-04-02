@@ -18,18 +18,23 @@
  */
 package com.redhat.lightblue.metadata.mongo;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.bson.BSONObject;
-
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -49,6 +54,8 @@ import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.Indexes;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.PredefinedFields;
@@ -64,11 +71,6 @@ import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MongoMetadata implements Metadata {
 
@@ -232,6 +234,7 @@ public class MongoMetadata implements Metadata {
                     LOGGER.error("createNewMetadata: error {}"+error);
                     throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
                 }
+                createUpdateEntityInfoIndexes(md.getEntityInfo());
             } catch (MongoException.DuplicateKey dke) {
                 LOGGER.error("createNewMetadata: duplicateKey {}",dke);
                 cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
@@ -239,11 +242,39 @@ public class MongoMetadata implements Metadata {
             } finally {
                 Error.pop();
             }
-
         } finally {
             Error.pop();
         }
         LOGGER.debug("createNewMetadata: end");
+    }
+
+    private void createUpdateEntityInfoIndexes(EntityInfo ei) {
+        LOGGER.debug("createUpdateEntityInfoIndexes: begin");
+        
+        MongoDataStore ds = (MongoDataStore) ei.getDataStore();
+        Indexes indexes = ei.getIndexes();
+        DBCollection entityCollection = collection.getDB().getCollection(ds.getCollectionName()); 
+        
+        Error.push("createUpdateIndex");
+        try {
+            for (Index index: indexes.getIndexes()) {
+                DBObject newIndex = new BasicDBObject();
+                for(Path p : index.getFields()) {
+                    newIndex.put(p.toString(), 1);    
+                }
+                
+                if(index.equals(newIndex)) {
+                    entityCollection.dropIndex(newIndex);
+                }
+                entityCollection.ensureIndex(newIndex, index.getName(), index.isUnique());
+            }            
+        } catch(MongoException me) {
+            LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
+        } finally {
+            Error.pop();
+        }
+        
+        LOGGER.debug("createUpdateEntityInfoIndexes: end");
     }
 
     private void cleanup(Object... ids) {
@@ -286,6 +317,7 @@ public class MongoMetadata implements Metadata {
         try {
             collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
                               (DBObject)mdParser.convert(ei));
+            createUpdateEntityInfoIndexes(ei);
         } catch (Exception e) {
             throw Error.get(MongoMetadataConstants.ERR_DB_ERROR,e.toString());
         }
@@ -322,7 +354,7 @@ public class MongoMetadata implements Metadata {
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
-
+            createUpdateEntityInfoIndexes(md.getEntityInfo());
         } catch (MongoException.DuplicateKey dke) {
             throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
         } finally {

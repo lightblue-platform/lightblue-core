@@ -18,52 +18,61 @@
  */
 package com.redhat.lightblue.metadata.mongo;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+import org.bson.BSONObject;
+import org.json.JSONException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.Assert;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
+import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.process.runtime.Network;
-
-import com.mongodb.Mongo;
-import com.mongodb.DB;
-import com.mongodb.BasicDBObject;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
-
-import org.bson.BSONObject;
-
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.metadata.mongo.MongoDataStore;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-import com.redhat.lightblue.metadata.mongo.MongoMetadata;
-import com.redhat.lightblue.metadata.mongo.MongoMetadataConstants;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.*;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import org.json.JSONException;
-import org.junit.Before;
-import org.skyscreamer.jsonassert.JSONAssert;
+import de.flapdoodle.embed.process.runtime.Network;
 
 
 public class MongoMetadataTest {
@@ -589,4 +598,92 @@ public class MongoMetadataTest {
         String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
+    
+    @Test
+    public void entityIndexCreationTest() throws Exception {
+
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollectionIndex1"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        e.getEntityInfo().setDefaultVersion("1.0");
+        Index index = new Index();
+        index.setName("testIndex");
+        index.setUnique(true);
+        List<Path> indexFields = new ArrayList<Path>();
+        indexFields.add(new Path("field1"));
+        index.setFields(indexFields);
+        Collection<Index> indexes = new LinkedHashSet<Index>();
+        indexes.add(index);
+        e.getEntityInfo().getIndexes().setIndexes(indexes);
+        md.createNewMetadata(e);
+                       
+        DBCollection entityCollection = db.getCollection("testCollectionIndex1");
+        
+        boolean foundIndex = false;
+        
+        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if("testIndex".equals(mongoIndex.get("name"))) {
+                if(mongoIndex.get("key").toString().contains("field1")) {
+                    foundIndex = true;
+                }
+            }
+        }
+        Assert.assertTrue(foundIndex);
+    }
+    
+    @Test
+    public void entityIndexUpdateTest() throws Exception {
+
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, "testCollectionIndex2"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        e.getEntityInfo().setDefaultVersion("1.0");
+        Index index = new Index();
+        index.setName("testIndex");
+        index.setUnique(true);
+        List<Path> indexFields = new ArrayList<Path>();
+        indexFields.add(new Path("field1"));
+        index.setFields(indexFields);
+        Collection<Index> indexes = new LinkedHashSet<Index>();
+        indexes.add(index);
+        e.getEntityInfo().getIndexes().setIndexes(indexes);
+        md.createNewMetadata(e);
+        
+        index = new Index();
+        index.setName("testIndex2");
+        index.setUnique(true);
+        indexFields = new ArrayList<Path>();
+        indexFields.clear();
+        indexFields.add(new Path("field2"));
+        index.setFields(indexFields);
+        indexes = new LinkedHashSet<Index>();
+        indexes.add(index);
+        e.getEntityInfo().getIndexes().setIndexes(indexes);
+        
+        md.updateEntityInfo(e.getEntityInfo());
+        
+        DBCollection entityCollection = db.getCollection("testCollectionIndex2");
+        
+        boolean foundIndex = false;
+        
+        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if("testIndex2".equals(mongoIndex.get("name"))) {
+                if(mongoIndex.get("key").toString().contains("field2")) {
+                    foundIndex = true;
+                }
+            }
+        }
+        Assert.assertTrue(foundIndex);
+    }
+
 }
