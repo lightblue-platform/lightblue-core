@@ -116,7 +116,7 @@ public class Translator {
 
         BINARY_COMPARISON_OPERATOR_MAP = new HashMap<>();
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._eq, "$eq");
-        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._neq, "$neq");
+        BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._neq, "$ne");
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lt, "$lt");
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._gt, "$gt");
         BINARY_COMPARISON_OPERATOR_MAP.put(BinaryComparisonOperator._lte, "$lte");
@@ -218,7 +218,7 @@ public class Translator {
         } finally {
             Error.pop();
         }
-        return new BasicDBObject("$sort", ret);
+        return ret;
     }
 
     /**
