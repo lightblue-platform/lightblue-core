@@ -22,3 +22,17 @@ Deprecate v0.1"
 Set v2 as default
 
   curl -X POST http://localhost:8080/metadata/user/2.0/default
+
+
+
+Create 100 users:
+
+  curl -X PUT -H Content-Type:application/json -d @create100Users.json http://localhost:8080/data/user/2.0
+
+Create 1 user
+
+  curl -X PUT -H Content-Type:application/json -d @create1user.json http://localhost:8080/data/user/2.0
+
+Update 1 user
+
+  curl -X POST -H Content-Type:application/json -d @update1user.json http://localhost:8080/data/update/user/2.0
