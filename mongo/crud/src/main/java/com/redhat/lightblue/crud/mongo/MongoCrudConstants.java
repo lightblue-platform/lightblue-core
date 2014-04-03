@@ -34,6 +34,9 @@ public final class MongoCrudConstants {
     public static final String ERR_NULL_QUERY = "mongo-crud:NullQuery";
     public static final String ERR_NULL_PROJECTION = "mongo-crud:NullProjection";
 
+    public static final String ERR_SAVE_CLOBBERS_HIDDEN_FIELDS = "mongo-crud:SaveClobblersHiddenFields";
+    public static final String ERR_TRANSLATION_ERROR = "mongo-crud:TranslationError";
+
     private MongoCrudConstants() {
 
     }

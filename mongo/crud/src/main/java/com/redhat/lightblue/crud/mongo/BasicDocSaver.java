@@ -92,6 +92,7 @@ public class BasicDocSaver implements DocSaver {
                     inputDoc.setOriginalDocument(oldDoc);
                     List<Path> paths = roleEval.getInaccessibleFields_Update(inputDoc, oldDoc);
                     if (paths == null || paths.isEmpty()) {
+                        translator.addInvisibleFields(oldDBObject,dbObject,md);
                         result = new UpdateCommand(null, collection, q, dbObject, upsert, upsert, WriteConcern.SAFE).execute();
                         inputDoc.setOperationPerformed(Operation.UPDATE);
                     } else {

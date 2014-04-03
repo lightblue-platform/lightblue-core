@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -78,6 +79,8 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.util.Util;
 
 /**
  * Translations between BSON and JSON. This class is thread-safe, and can be shared between threads
@@ -200,6 +203,92 @@ public class Translator {
             list.add(toJson(object));
         }
         return list;
+    }
+
+    private Map<Path,Object> getInvisibleFields(DBObject dbObject,EntityMetadata md) {
+        Map<Path,Object> invisibleFields=new HashMap<>();
+        MutablePath mp=new MutablePath();
+
+        getInvisibleFields_dbobj(invisibleFields,md,dbObject,mp);
+        return invisibleFields;
+    }
+
+    private void getInvisibleFields_obj(Map<Path,Object> invisibleFields,
+                                        EntityMetadata md,
+                                        Object dbObject,
+                                        MutablePath path) {
+        if(dbObject instanceof DBObject)
+            getInvisibleFields_dbobj(invisibleFields,md,(DBObject)dbObject,path);
+        else if(dbObject instanceof List) {
+            path.push(Path.ANY);
+            for(Object value:(List)dbObject) {
+                getInvisibleFields_obj(invisibleFields,md,value,path);
+            }
+            path.pop();
+        } 
+    }
+
+    private void getInvisibleFields_dbobj(Map<Path,Object> invisibleFields,
+                                          EntityMetadata md,
+                                          DBObject dbObject,
+                                          MutablePath path) {
+        Set<String> fields=dbObject.keySet();
+        for(String field:fields) {
+            path.push(field);
+            Object value=dbObject.get(field);
+            try {
+                md.resolve(path);
+                getInvisibleFields_obj(invisibleFields,md,value,path);
+            } catch (Error e) {
+                // Invisible field 
+                // If the invisible field is an array
+                // member, we can't update it we don't know if the
+                // caller changed anything with the array itself.  We
+                // have no information about which array member of the
+                // newObject matches which member of the oldObject
+                if(path.nAnys()>0) {
+                    throw Error.get(MongoCrudConstants.ERR_SAVE_CLOBBERS_HIDDEN_FIELDS,path.toString());
+                }
+                invisibleFields.put(path.immutableCopy(),value);
+            }
+                
+            path.pop();
+        }
+    }
+
+
+    /**
+     * Add any fields in the old object that are not in the metadata to the new object
+     */
+    public void addInvisibleFields(DBObject oldDBObject,DBObject newObject,EntityMetadata md) {
+        // Get all the invisible fields
+        Map<Path,Object> invisibleFields=getInvisibleFields(oldDBObject,md);
+        // Add the invisible fields to the new object
+        for(Map.Entry<Path,Object> entry:invisibleFields.entrySet()) {
+            Path field=entry.getKey();
+            Object value=entry.getValue();
+            DBObject parent=(DBObject)getDBObject(newObject,field.prefix(-1));
+            LOGGER.debug("Adding invisible field {}={}",field,value);
+            parent.put(field.tail(0),value);
+        }
+    }
+
+    public static Object getDBObject(DBObject start,Path p) {
+        int n=p.numSegments();
+        Object trc=start;
+        for(int seg=0;seg<n;seg++) {
+            String segment=p.head(seg);
+            if(segment.equals(Path.ANY))
+                throw Error.get(MongoCrudConstants.ERR_TRANSLATION_ERROR,p.toString());
+            else if(Util.isNumber(segment)) {
+                trc=((List)trc).get(Integer.valueOf(segment));
+            } else {
+                trc=((DBObject)trc).get(segment);
+            }
+            if(trc==null)
+                throw Error.get(MongoCrudConstants.ERR_TRANSLATION_ERROR,p.toString());
+        }
+        return trc;
     }
 
     /**

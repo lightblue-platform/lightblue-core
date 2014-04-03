@@ -29,6 +29,7 @@ import org.junit.Test;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
+import com.mongodb.DBCursor;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDInsertionResponse;
@@ -114,6 +115,53 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         Assert.assertEquals(readDoc.get(new Path("field1")).asText(), r2doc.get(new Path("field1")).asText());
         Assert.assertEquals(readDoc.get(new Path("field7.0.elemf1")).asText(), r2doc.get(new Path("field7.0.elemf1")).asText());
         Assert.assertEquals(ctx.getDocumentsWithoutErrors().size(), saveResponse.getNumSaved());
+    }
+
+    @Test
+    public void saveTestForInvisibleFields() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        TestCRUDOperationContext ctx = new TestCRUDOperationContext(Operation.INSERT);
+        ctx.add(md);
+        JsonDoc doc = new JsonDoc(loadJsonNode("./testdata1.json"));
+        Projection projection = projection("{'field':'_id'}");
+        ctx.addDocument(doc);
+        // Insert a doc
+        System.out.println("Write doc:" + doc);
+        CRUDInsertionResponse response = controller.insert(ctx, projection);
+        String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
+        System.out.println("Saved id:"+id);
+
+        DBCursor cursor=coll.find();
+        
+        // Read doc using mongo
+        DBObject dbdoc=coll.findOne(new BasicDBObject("_id",new ObjectId(id)));
+        Assert.assertNotNull(dbdoc);
+        // Add some fields
+        dbdoc.put("invisibleField","invisibleValue");
+        // Save doc back
+        coll.save(dbdoc);
+        System.out.println("Saved doc:"+dbdoc);
+
+        // Read the doc
+        ctx = new TestCRUDOperationContext(Operation.FIND);
+        ctx.add(md);
+        controller.find(ctx, query("{'field':'_id','op':'=','rvalue':'" + id + "'}"),
+                projection("{'field':'*','recursive':1}"), null, null, null);
+        JsonDoc readDoc = ctx.getDocuments().get(0);
+
+        // Now we save the doc, and expect that the invisible field is still there
+        readDoc.modify(new Path("field1"), nodeFactory.textNode("updated"), false);
+        System.out.println("To update:"+readDoc);
+        ctx=new TestCRUDOperationContext(Operation.SAVE);
+        ctx.add(md);
+        ctx.addDocument(readDoc);
+        controller.save(ctx,false,projection);
+
+        // Make sure doc is modified, and invisible field is there
+        dbdoc=coll.findOne(new BasicDBObject("_id",new ObjectId(id)));
+        System.out.println("Loaded doc:"+dbdoc);
+        Assert.assertEquals("updated",dbdoc.get("field1"));
+        Assert.assertEquals("invisibleValue",dbdoc.get("invisibleField"));
     }
 
     @Test
