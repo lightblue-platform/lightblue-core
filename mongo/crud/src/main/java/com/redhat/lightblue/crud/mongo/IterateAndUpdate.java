@@ -133,6 +133,7 @@ public class IterateAndUpdate implements DocUpdater {
                     if (!hasErrors) {
                         try {
                             DBObject updatedObject = translator.toBson(doc.getOutputDocument());
+                            translator.addInvisibleFields(document,updatedObject,md);
                             WriteResult result = new SaveCommand(null, collection, updatedObject).execute();
                             doc.setOperationPerformed(Operation.UPDATE);
                             LOGGER.debug("Number of rows affected : ", result.getN());
