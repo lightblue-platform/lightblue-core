@@ -638,7 +638,7 @@ public class MongoMetadataTest {
     
     @Test
     public void entityIndexUpdateTest() throws Exception {
-
+        
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
@@ -661,10 +661,10 @@ public class MongoMetadataTest {
         
         index = new Index();
         index.setName("testIndex2");
-        index.setUnique(true);
+        index.setUnique(false);
         indexFields = new ArrayList<Path>();
         indexFields.clear();
-        indexFields.add(new Path("field2"));
+        indexFields.add(new Path("field1"));
         index.setFields(indexFields);
         indexes = new LinkedHashSet<Index>();
         indexes.add(index);
@@ -678,7 +678,7 @@ public class MongoMetadataTest {
         
         for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
             if("testIndex2".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field2")) {
+                if(mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }

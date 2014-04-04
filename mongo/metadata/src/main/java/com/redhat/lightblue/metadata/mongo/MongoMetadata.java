@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -34,7 +35,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -263,18 +263,41 @@ public class MongoMetadata implements Metadata {
                     newIndex.put(p.toString(), 1);    
                 }
                 
-                if(index.equals(newIndex)) {
-                    entityCollection.dropIndex(newIndex);
+                for(DBObject existingIndex: entityCollection.getIndexInfo()) {
+                    if(indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
+                        entityCollection.dropIndex(existingIndex.get("name").toString());
+                    }
                 }
+                
                 entityCollection.ensureIndex(newIndex, index.getName(), index.isUnique());
             }            
         } catch(MongoException me) {
             LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
+            throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED);
         } finally {
             Error.pop();
         }
         
         LOGGER.debug("createUpdateEntityInfoIndexes: end");
+    }
+    
+    private boolean indexFieldsMatch(Index index, DBObject existingIndex) {
+        for(Path path : index.getFields()) {   
+            BasicDBObject keyObject = (BasicDBObject) existingIndex.get("key");
+            if(!keyObject.toMap().containsKey(path.toString())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
+        if(existingIndex.get("name").equals(index.getName())) {
+            if(existingIndex.get("unique").equals(index.isUnique())) {
+                return true;
+            }
+        }        
+        return false;
     }
 
     private void cleanup(Object... ids) {
