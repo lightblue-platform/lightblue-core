@@ -86,7 +86,12 @@
                         "description": "Fields that are part of the index.",
                         "minItems": 1,
                         "items": {
-                            "type": "string"
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                "enum": ["$asc", "$desc"]
+                                }
+                            }
                         }
                     }
                 },

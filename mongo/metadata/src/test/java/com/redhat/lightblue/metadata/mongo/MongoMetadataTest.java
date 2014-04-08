@@ -58,6 +58,7 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
@@ -614,8 +615,9 @@ public class MongoMetadataTest {
         Index index = new Index();
         index.setName("testIndex");
         index.setUnique(true);
-        List<Path> indexFields = new ArrayList<Path>();
-        indexFields.add(new Path("field1"));
+        List<SortKey> indexFields = new ArrayList<SortKey>();
+        //TODO actually parse $asc/$desc here
+        indexFields.add(new SortKey(new Path("field1"), true));
         index.setFields(indexFields);
         Collection<Index> indexes = new LinkedHashSet<Index>();
         indexes.add(index);
@@ -651,8 +653,8 @@ public class MongoMetadataTest {
         Index index = new Index();
         index.setName("testIndex");
         index.setUnique(true);
-        List<Path> indexFields = new ArrayList<Path>();
-        indexFields.add(new Path("field1"));
+        List<SortKey> indexFields = new ArrayList<SortKey>();
+        indexFields.add(new SortKey(new Path("field1"), true));
         index.setFields(indexFields);
         Collection<Index> indexes = new LinkedHashSet<Index>();
         indexes.add(index);
@@ -662,9 +664,9 @@ public class MongoMetadataTest {
         index = new Index();
         index.setName("testIndex2");
         index.setUnique(false);
-        indexFields = new ArrayList<Path>();
+        indexFields = new ArrayList<SortKey>();
         indexFields.clear();
-        indexFields.add(new Path("field1"));
+        indexFields.add(new SortKey(new Path("field1"), true));
         index.setFields(indexFields);
         indexes = new LinkedHashSet<Index>();
         indexes.add(index);

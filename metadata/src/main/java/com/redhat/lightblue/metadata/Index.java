@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Path;
 
 /**
@@ -33,7 +35,7 @@ public class Index implements Serializable {
 
     private String name;
     private boolean unique = false;
-    private final ArrayList<Path> fields = new ArrayList<>();
+    private final ArrayList<SortKey> fields = new ArrayList<>();
 
     /**
      * Default ctor
@@ -73,17 +75,18 @@ public class Index implements Serializable {
      * The fields such that the ordered combination of their values must be unique
      */
     @SuppressWarnings("unchecked")
-    public List<Path> getFields() {
-        return (ArrayList<Path>) fields.clone();
+    public List<SortKey> getFields() {
+        return (ArrayList<SortKey>) fields.clone();
     }
 
     /**
      * The fields such that the ordered combination of their values must be unique
      */
-    public void setFields(List<Path> f) {
+    public void setFields(List<SortKey> f) {
         fields.clear();
         if (f != null) {
             fields.addAll(f);
         }
     }
+    
 }

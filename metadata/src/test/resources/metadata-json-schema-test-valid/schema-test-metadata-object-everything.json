@@ -41,7 +41,7 @@
         "indexes": [
             {
                 "unique": true,
-                "fields": ["name"]
+                "fields": [{"name": "$asc"}]
             }
         ],
         "enums": [

@@ -24,11 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityConstraint;
@@ -37,13 +35,14 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.Enums;
-import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.metadata.Index;
 import com.redhat.lightblue.metadata.Indexes;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
@@ -61,8 +60,8 @@ import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.Path;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other formats represented as a tree.
@@ -227,8 +226,8 @@ public abstract class MetadataParser<T> {
 
                 String name = getStringProperty(object, STR_NAME);
                 Object unique = getValueProperty(object, STR_UNIQUE);
-                List<String> fields = getStringList(object, STR_FIELDS);
-
+                List<T> fields = getObjectList(object, STR_FIELDS);
+                
                 if (null != name) {
                     index.setName(name);
                 }
@@ -238,9 +237,12 @@ public abstract class MetadataParser<T> {
                 }
 
                 if (null != fields && !fields.isEmpty()) {
-                    List<Path> f = new ArrayList<>();
-                    for (String s : fields) {
-                        f.add(new Path(s));
+                    List<SortKey> f = new ArrayList<>();
+                    
+                    for (T s : fields) {
+                        Sort sort = parseSort(s);
+                        SortKey sk = (SortKey)sort;
+                        f.add(new SortKey(sk.getField(), sk.isDesc()));
                     }
                     index.setFields(f);
                 } else {
@@ -927,8 +929,10 @@ public abstract class MetadataParser<T> {
 
                     // for each field, add to a new fields array
                     Object indexObj = newArrayField(node, STR_FIELDS);
-                    for (Path p : i.getFields()) {
-                        addStringToArray(indexObj, p.toString());
+                    for (SortKey p : i.getFields()) {
+                        T node2 = newNode();
+                        putString(node2, p.getField().toString(), p.isDesc() ? "$desc" : "$asc");
+                        addObjectToArray(indexObj, node2);
                     }
                 }
             }

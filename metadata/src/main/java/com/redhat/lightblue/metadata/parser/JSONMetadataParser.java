@@ -18,20 +18,25 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.metadata.Index;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
@@ -239,7 +244,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     public QueryExpression parseQuery(JsonNode object) {
         return object == null ? null : QueryExpression.fromJson(object);
     }
-
+        
     @Override
     public Sort parseSort(JsonNode object) {
         return object == null ? null : Sort.fromJson(object);

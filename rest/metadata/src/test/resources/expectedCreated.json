@@ -4,7 +4,7 @@
         "indexes": [{
             "name": null,
             "unique": true,
-            "fields": ["name"]
+            "fields": [{"name": "$asc"}]
         }],
         "datastore": {
             "mongo": {

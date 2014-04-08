@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -69,6 +68,7 @@ import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
 import com.redhat.lightblue.mongo.hystrix.InsertCommand;
 import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
+import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
@@ -259,8 +259,8 @@ public class MongoMetadata implements Metadata {
         try {
             for (Index index: indexes.getIndexes()) {
                 DBObject newIndex = new BasicDBObject();
-                for(Path p : index.getFields()) {
-                    newIndex.put(p.toString(), 1);    
+                for(SortKey p : index.getFields()) {
+                    newIndex.put(p.toString(), p.isDesc() ? -1 : 1);    
                 }
                 
                 for(DBObject existingIndex: entityCollection.getIndexInfo()) {
@@ -282,7 +282,10 @@ public class MongoMetadata implements Metadata {
     }
     
     private boolean indexFieldsMatch(Index index, DBObject existingIndex) {
-        for(Path path : index.getFields()) {   
+        //TODO update this part
+        
+        
+        for(SortKey path : index.getFields()) {   
             BasicDBObject keyObject = (BasicDBObject) existingIndex.get("key");
             if(!keyObject.toMap().containsKey(path.toString())) {
                 return false;
