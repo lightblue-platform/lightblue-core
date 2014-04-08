@@ -196,7 +196,7 @@ public class MongoCRUDController implements CRUDController {
         } catch (Error e) {
             throw e;
         } catch (RuntimeException e) {
-            LOGGER.error("Error during insert: {}",e);
+            LOGGER.error("Error during insert: {}", e);
             throw e;
         } finally {
             Error.pop();
@@ -310,7 +310,7 @@ public class MongoCRUDController implements CRUDController {
                 ctx.setProperty(PROP_DELETER, deleter);
                 deleter.delete(ctx, coll, mongoQuery, response);
                 ctx.getHookManager().queueHooks(ctx);
-           } else {
+            } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "delete:" + ctx.getEntityName()));
             }
         } catch (Exception e) {
@@ -371,7 +371,7 @@ public class MongoCRUDController implements CRUDController {
                     document.setOutputDocument(projector.project(document, nodeFactory, qctx));
                 }
                 ctx.getHookManager().queueHooks(ctx);
-           } else {
+            } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "find:" + ctx.getEntityName()));
             }
         } finally {

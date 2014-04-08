@@ -129,18 +129,18 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         System.out.println("Write doc:" + doc);
         CRUDInsertionResponse response = controller.insert(ctx, projection);
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
-        System.out.println("Saved id:"+id);
+        System.out.println("Saved id:" + id);
 
-        DBCursor cursor=coll.find();
-        
+        DBCursor cursor = coll.find();
+
         // Read doc using mongo
-        DBObject dbdoc=coll.findOne(new BasicDBObject("_id",new ObjectId(id)));
+        DBObject dbdoc = coll.findOne(new BasicDBObject("_id", new ObjectId(id)));
         Assert.assertNotNull(dbdoc);
         // Add some fields
-        dbdoc.put("invisibleField","invisibleValue");
+        dbdoc.put("invisibleField", "invisibleValue");
         // Save doc back
         coll.save(dbdoc);
-        System.out.println("Saved doc:"+dbdoc);
+        System.out.println("Saved doc:" + dbdoc);
 
         // Read the doc
         ctx = new TestCRUDOperationContext(Operation.FIND);
@@ -151,17 +151,17 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
 
         // Now we save the doc, and expect that the invisible field is still there
         readDoc.modify(new Path("field1"), nodeFactory.textNode("updated"), false);
-        System.out.println("To update:"+readDoc);
-        ctx=new TestCRUDOperationContext(Operation.SAVE);
+        System.out.println("To update:" + readDoc);
+        ctx = new TestCRUDOperationContext(Operation.SAVE);
         ctx.add(md);
         ctx.addDocument(readDoc);
-        controller.save(ctx,false,projection);
+        controller.save(ctx, false, projection);
 
         // Make sure doc is modified, and invisible field is there
-        dbdoc=coll.findOne(new BasicDBObject("_id",new ObjectId(id)));
-        System.out.println("Loaded doc:"+dbdoc);
-        Assert.assertEquals("updated",dbdoc.get("field1"));
-        Assert.assertEquals("invisibleValue",dbdoc.get("invisibleField"));
+        dbdoc = coll.findOne(new BasicDBObject("_id", new ObjectId(id)));
+        System.out.println("Loaded doc:" + dbdoc);
+        Assert.assertEquals("updated", dbdoc.get("field1"));
+        Assert.assertEquals("invisibleValue", dbdoc.get("invisibleField"));
     }
 
     @Test

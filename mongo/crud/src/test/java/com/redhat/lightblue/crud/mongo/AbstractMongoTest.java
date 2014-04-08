@@ -103,7 +103,7 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
                 mongod = mongodExe.start();
             }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
-            db=mongo.getDB(DB_NAME);
+            db = mongo.getDB(DB_NAME);
 
             coll = db.createCollection(COLL_NAME, null);
 
