@@ -181,11 +181,13 @@ public final class PredefinedFields {
     }
 
     private static ParentNewChild ensureArraySize(EntityMetadata md, ArrayField arr) {
-        // Get the parent. The parent is either an object field, or the root
+        // Get the parent. The parent is either an object field, object element, or the root
         FieldTreeNode parent = arr.getParent();
         Fields fields;
         if (parent instanceof ObjectField) {
             fields = ((ObjectField) parent).getFields();
+        } else if (parent instanceof ObjectArrayElement) {
+            fields = ((ObjectArrayElement)parent).getFields();
         } else {
             fields = md.getFields();
         }

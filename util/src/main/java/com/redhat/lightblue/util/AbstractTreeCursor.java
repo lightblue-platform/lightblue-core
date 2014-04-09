@@ -110,6 +110,10 @@ public abstract class AbstractTreeCursor<N> {
             }
             return value;
         }
+
+        public String toString() {
+            return node.toString();
+        }
     }
 
     /**
@@ -193,9 +197,9 @@ public abstract class AbstractTreeCursor<N> {
      */
     public boolean parent() {
         if (stack.size() > 1) {
+            currentNode = stack.peekLast().node;
             stack.removeLast();
             currentPath.pop();
-            currentNode = stack.peekLast().node;
             return true;
         }
         return false;

@@ -2,7 +2,7 @@
     "name" : "user",
     "version": {
         "value": "2.0",
-        "changelog": "Test version v2"
+        "changelog": "Add last login date"
     },
     "status": {
         "value": "active"
@@ -121,6 +121,7 @@
               }
         },
         "createdDate": {"type": "date"},
-        "updatedDate": {"type": "date"}
+        "updatedDate": {"type": "date"},
+        "lastLoginDate": { "type":"date"}
        }
  }

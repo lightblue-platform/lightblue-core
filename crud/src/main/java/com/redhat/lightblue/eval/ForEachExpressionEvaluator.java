@@ -122,7 +122,8 @@ public class ForEachExpressionEvaluator extends Updater {
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
         // Get a reference to the array field, and iterate all elements in the array
-        ArrayNode arrayNode = (ArrayNode) doc.get(field);
+        ArrayNode arrayNode = (ArrayNode) doc.get(new Path(contextPath,field));
+        LOGGER.debug("Array node {}={}",field,arrayNode);
         ArrayElement elementMd = fieldMd.getElement();
         if (arrayNode != null) {
             int index = 0;
@@ -146,13 +147,16 @@ public class ForEachExpressionEvaluator extends Updater {
                 QueryEvaluationContext ctx = new QueryEvaluationContext(elementNode, elementPath);
                 if (queryEvaluator.evaluate(ctx)) {
                     LOGGER.debug("query matches {}", elementPath);
+                    LOGGER.debug("Calling updater {}",updater);
                     if (updater.update(doc, elementMd, elementPath)) {
+                        LOGGER.debug("Updater {} returns {}",updater,true);
                         ret = true;
                         // Removal shifts nodes down
                         if (updater instanceof RemoveEvaluator) {
                             index--;
                         }
-                    }
+                    } else
+                        LOGGER.debug("Updater {} return false",updater);
                 } else {
                     LOGGER.debug("query does not match {}", elementPath);
                 }

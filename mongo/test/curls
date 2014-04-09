@@ -36,3 +36,15 @@ Create 1 user
 Update 1 user
 
   curl -X POST -H Content-Type:application/json -d @update1user.json http://localhost:8080/data/update/user/2.0
+
+Update for loop:
+
+  curl -X POST -H Content-Type:application/json -d @updateSite.json http://localhost:8080/data/update/user/2.0
+
+Save 1 user
+
+  curl -X POST -H Content-Type:application/json -d @save1user.json http://localhost:8080/data/save/user/2.0
+
+find:
+
+  curl -X POST -H Content-Type:application/json -d @findUsers.json http://localhost:8080/data/find/user/2.0
