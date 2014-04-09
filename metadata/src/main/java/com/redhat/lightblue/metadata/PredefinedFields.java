@@ -96,13 +96,24 @@ public final class PredefinedFields {
             JsonNode value = field.getValue();
             if (value instanceof ArrayNode) {
                 sizes.put(field.getKey() + "#", factory.numberNode(((ArrayNode) value).size()));
-            } else if (value instanceof ObjectNode) {
-                updateArraySizes(factory, (ObjectNode) value);
-            }
+            } 
+            updateArraySizes(factory, value);
         }
         for (Map.Entry<String, JsonNode> entry : sizes.entrySet()) {
             node.set(entry.getKey(), entry.getValue());
         }
+    }
+
+    public static void updateArraySizes(JsonNodeFactory factory,ArrayNode node) {
+        for(Iterator<JsonNode> itr=node.elements();itr.hasNext();)
+            updateArraySizes(factory,itr.next());
+    }
+
+    public static void updateArraySizes(JsonNodeFactory factory,JsonNode node) {
+        if(node instanceof ArrayNode)
+            updateArraySizes(factory,(ArrayNode)node);
+        else if(node instanceof ObjectNode)
+            updateArraySizes(factory,(ObjectNode)node);
     }
 
     private static void ensureObjectType(EntityMetadata md) {
