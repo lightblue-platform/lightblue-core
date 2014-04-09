@@ -200,6 +200,7 @@ public class JsonNodeCursorTest {
         Assert.assertEquals("parent.text", c.getCurrentPath().toString());
         Assert.assertFalse(c.hasChildren(c.getCurrentNode()));
         Assert.assertTrue(c.parent());
+        Assert.assertTrue(c.parent());
         Assert.assertSame(node, c.getCurrentNode());
     }
 
@@ -215,6 +216,7 @@ public class JsonNodeCursorTest {
         Assert.assertEquals("parent.x", c.getCurrentPath().toString());
         Assert.assertTrue(c.hasChildren(c.getCurrentNode()));
         Assert.assertTrue(c.parent());
+        Assert.assertTrue(c.parent());
         Assert.assertSame(node, c.getCurrentNode());
     }
 
@@ -229,6 +231,7 @@ public class JsonNodeCursorTest {
         Assert.assertTrue(c.getCurrentNode() instanceof ArrayNode);
         Assert.assertEquals("parent.x", c.getCurrentPath().toString());
         Assert.assertTrue(c.hasChildren(c.getCurrentNode()));
+        Assert.assertTrue(c.parent());
         Assert.assertTrue(c.parent());
         Assert.assertSame(node, c.getCurrentNode());
     }

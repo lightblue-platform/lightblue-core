@@ -27,24 +27,24 @@ Set v2 as default
 
 Create 100 users:
 
-  curl -X PUT -H Content-Type:application/json -d @create100Users.json http://localhost:8080/data/user/2.0
+  curl -X PUT -H Content-Type:application/json -d @create100Users.json http://localhost:8080/data/user/2.0|tee out.json
 
 Create 1 user
 
-  curl -X PUT -H Content-Type:application/json -d @create1user.json http://localhost:8080/data/user/2.0
+  curl -X PUT -H Content-Type:application/json -d @create1user.json http://localhost:8080/data/user/2.0|tee out.json
 
 Update 1 user
 
-  curl -X POST -H Content-Type:application/json -d @update1user.json http://localhost:8080/data/update/user/2.0
+  curl -X POST -H Content-Type:application/json -d @update1user.json http://localhost:8080/data/update/user/2.0|tee out.json
 
 Update for loop:
 
-  curl -X POST -H Content-Type:application/json -d @updateSite.json http://localhost:8080/data/update/user/2.0
+  curl -X POST -H Content-Type:application/json -d @updateSite.json http://localhost:8080/data/update/user/2.0|tee out.json
 
 Save 1 user
 
-  curl -X POST -H Content-Type:application/json -d @save1user.json http://localhost:8080/data/save/user/2.0
+  curl -X POST -H Content-Type:application/json -d @save1user.json http://localhost:8080/data/save/user/2.0|tee out.json
 
 find:
 
-  curl -X POST -H Content-Type:application/json -d @findUsers.json http://localhost:8080/data/find/user/2.0
+  curl -X POST -H Content-Type:application/json -d @findUsers.json http://localhost:8080/data/find/user/2.0|tee out.json
