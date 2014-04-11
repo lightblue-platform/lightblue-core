@@ -678,6 +678,17 @@ public class MongoMetadataTest {
         
         boolean foundIndex = false;
         
+       for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if("testIndex".equals(mongoIndex.get("name"))) {
+                if(mongoIndex.get("key").toString().contains("field1")) {
+                    foundIndex = true;
+                }
+            }
+        }
+        Assert.assertTrue(foundIndex);
+
+        foundIndex = false;
+
         for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
             if("testIndex2".equals(mongoIndex.get("name"))) {
                 if(mongoIndex.get("key").toString().contains("field1")) {
@@ -685,7 +696,7 @@ public class MongoMetadataTest {
                 }
             }
         }
-        Assert.assertTrue(foundIndex);
+        Assert.assertTrue(!foundIndex);
     }
 
 }

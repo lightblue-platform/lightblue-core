@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -253,7 +254,10 @@ public class MongoMetadata implements Metadata {
         
         MongoDataStore ds = (MongoDataStore) ei.getDataStore();
         Indexes indexes = ei.getIndexes();
-        DBCollection entityCollection = collection.getDB().getCollection(ds.getCollectionName()); 
+        DBCollection entityCollection = collection.getDB().getCollection(ds.getCollectionName());  
+        // TODO: This is broken. It assumes entity collection is in the same DB as metadata. We have to:
+        //  1) Move DBResolver from crud to a more common place, possibly metadata
+        //  2) Pass an implementation of DBResolver to MongoMetadata to find the DB
         
         Error.push("createUpdateIndex");
         try {
@@ -266,6 +270,7 @@ public class MongoMetadata implements Metadata {
                 for(DBObject existingIndex: entityCollection.getIndexInfo()) {
                     if(indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
                         entityCollection.dropIndex(existingIndex.get("name").toString());
+                        break;
                     }
                 }
                 
@@ -280,26 +285,37 @@ public class MongoMetadata implements Metadata {
         
         LOGGER.debug("createUpdateEntityInfoIndexes: end");
     }
+
+    private boolean compareSortKeys(SortKey sortKey,String fieldName,Object dir) {
+        if(sortKey.getField().toString().equals(fieldName)) {
+            int direction=((Number)dir).intValue();
+            return sortKey.isDesc()==(direction<0);
+        }
+        return false;
+    }
     
     private boolean indexFieldsMatch(Index index, DBObject existingIndex) {
-        //TODO update this part
-        
-        
-        for(SortKey path : index.getFields()) {   
-            BasicDBObject keyObject = (BasicDBObject) existingIndex.get("key");
-            if(!keyObject.toMap().containsKey(path.toString())) {
-                return false;
+        BasicDBObject keys=(BasicDBObject)existingIndex.get("key");
+        if(keys!=null) {
+            List<SortKey> fields=index.getFields();
+            if(keys.size()==fields.size()) {
+                Iterator<SortKey> sortKeyItr=fields.iterator();
+                for(Map.Entry<String,Object> entry:keys.entrySet()) {
+                    SortKey sortKey=sortKeyItr.next();
+                    if(!compareSortKeys(sortKey,entry.getKey(),entry.getValue())) {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
         return true;
     }
 
     private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
-        if(existingIndex.get("name").equals(index.getName())) {
-            if(existingIndex.get("unique").equals(index.isUnique())) {
-                return true;
-            }
-        }        
+        if(existingIndex.get("unique").equals(index.isUnique())) {
+            return true;
+        }
         return false;
     }
 
@@ -380,7 +396,6 @@ public class MongoMetadata implements Metadata {
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
-            createUpdateEntityInfoIndexes(md.getEntityInfo());
         } catch (MongoException.DuplicateKey dke) {
             throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
         } finally {
