@@ -325,6 +325,7 @@ public class MongoMetadata implements Metadata {
                 try {
                     new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, id)).execute();
                 } catch (Exception e) {
+                    LOGGER.error("Cleanup error while removing IDs: {} error:{}",ids,e);
                 }
             }
         }
