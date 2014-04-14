@@ -57,7 +57,11 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <rpm.install.basedir>/usr/share/eap</rpm.install.basedir>
+    </properties>
     <build>
+        <finalName>${artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -71,6 +75,46 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12</version>
+            </plugin>
+            <!-- RPM packing -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.1-alpha-3</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>attached-rpm</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <copyright>Red Hat</copyright>
+                    <distribution>RHEL</distribution>
+                    <group>Lightblue Platform</group>
+                    <packager>${user.name}</packager>
+                    <defaultDirmode>500</defaultDirmode>
+                    <defaultFilemode>400</defaultFilemode>
+                    <defaultUsername>jboss</defaultUsername>
+                    <defaultGroupname>jboss</defaultGroupname>
+                    <!-- 
+                    <requires>
+                        <require>eap &gt;= 6.2</require>
+                    </requires>
+                    -->
+                    <mappings>
+                        <mapping>
+                            <directory>${rpm.install.basedir}/rest-crud</directory>
+                            <sources>
+                                <source>
+                                    <location>target/rest-metadata</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+                </configuration>
             </plugin>
         </plugins>
     </build>
