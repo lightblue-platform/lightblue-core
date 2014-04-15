@@ -18,15 +18,21 @@
  */
 package com.redhat.lightblue.mediator;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.redhat.lightblue.crud.DocRequest;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -34,11 +40,6 @@ import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.util.JsonDoc;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public final class OperationContext extends CRUDOperationContext {
 
@@ -74,20 +75,31 @@ public final class OperationContext extends CRUDOperationContext {
      * Constructs an operation context
      *
      * @param req The request
-     * @param md Metsdata manager
+     * @param md Metadata manager
      * @param factory The factory to get validators and controllers
      * @param op The operation in progress
      */
     public static OperationContext getInstance(Request req, Metadata md, Factory factory, JsonNodeFactory nodeFactory, Operation op) {
-        String[] callerRoles = req.getClientId() == null ? null : req.getClientId().getCallerRoles();
-        Set<String> roles = new HashSet<>();
-        if (callerRoles != null) {
-            for (String x : callerRoles) {
-                roles.add(x);
+
+        // get roles from MD
+        Set<String> metadataRoles = new HashSet<>();
+
+        EntityAccess ea = md.getEntityMetadata(req.getEntityVersion().getEntity(), req.getEntityVersion().getVersion()).getAccess();
+        metadataRoles.addAll(ea.getFind().getRoles());
+        metadataRoles.addAll(ea.getUpdate().getRoles());
+        metadataRoles.addAll(ea.getInsert().getRoles());
+        metadataRoles.addAll(ea.getDelete().getRoles());
+
+        Set<String> callerRoles = new HashSet<>();
+        if (!metadataRoles.isEmpty() && req.getClientId() != null) {
+            for (String metadataRole : metadataRoles) {
+                if (req.getClientId().isUserInRole(metadataRole)) {
+                    callerRoles.add(metadataRole);
+                }
             }
         }
         List<JsonDoc> docs = req instanceof DocRequest ? JsonDoc.docList(((DocRequest) req).getEntityData()) : null;
-        return new OperationContext(req, md, factory, nodeFactory, roles, docs, op);
+        return new OperationContext(req, md, factory, nodeFactory, callerRoles, docs, op);
     }
 
     /**

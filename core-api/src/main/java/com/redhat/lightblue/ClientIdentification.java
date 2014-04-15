@@ -30,5 +30,5 @@ public abstract class ClientIdentification extends JsonObject {
     /**
      * Return the roles the caller is in.
      */
-    public abstract String[] getCallerRoles();
+    public abstract boolean isUserInRole(String role);
 }
