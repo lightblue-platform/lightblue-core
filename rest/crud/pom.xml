@@ -67,7 +67,7 @@
         </dependency>
     </dependencies>
     <properties>
-        <rpm.install.basedir>/usr/share/eap</rpm.install.basedir>
+        <rpm.install.basedir>/usr/share/jboss/standalone/deployments</rpm.install.basedir>
     </properties>
     <build>
         <finalName>${artifactId}</finalName>
