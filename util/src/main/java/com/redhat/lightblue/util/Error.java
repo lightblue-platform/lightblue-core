@@ -80,7 +80,9 @@ public final class Error extends RuntimeException {
      */
     public static Error get(String ctx, String errorCode, String msg) {
         push(ctx);
-        return new Error(THREAD_CONTEXT.get(), errorCode, msg);
+        Error x=new Error(THREAD_CONTEXT.get(), errorCode, msg);
+	pop();
+	return x;
     }
 
     /**
