@@ -264,7 +264,7 @@ public class MongoMetadata implements Metadata {
             for (Index index: indexes.getIndexes()) {
                 DBObject newIndex = new BasicDBObject();
                 for(SortKey p : index.getFields()) {
-                    newIndex.put(p.toString(), p.isDesc() ? -1 : 1);    
+                    newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);    
                 }
                 
                 for(DBObject existingIndex: entityCollection.getIndexInfo()) {
