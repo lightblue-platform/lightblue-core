@@ -57,11 +57,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <properties>
-        <rpm.install.basedir>/usr/share/jboss/standalone/deployments</rpm.install.basedir>
-    </properties>
     <build>
-        <finalName>${artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -76,22 +72,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12</version>
               </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <version>1.7</version>
-              <executions>
-                <execution>
-                  <phase>process-resources</phase>
-                  <configuration>
-                    <target>
-                      <touch file="target/rest-metadata.dodeploy" />
-                    </target>
-                  </configuration>
-                  <goals><goal>run</goal></goals>
-                </execution>
-              </executions>
-            </plugin>
             <!-- RPM packing -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -122,18 +102,10 @@
                     -->
                     <mappings>
                         <mapping>
-                            <directory>${rpm.install.basedir}/rest-metadata</directory>
+                            <directory>${rpm.install.basedir}</directory>
                             <sources>
                                 <source>
-                                    <location>target/rest-metadata</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>${rpm.install.basedir}/</directory>
-                            <sources>
-                                <source>
-                                    <location>target/rest-metadata.dodeploy</location>
+                                    <location>target/${artifactId}-${version}.${packaging}</location>
                                 </source>
                             </sources>
                         </mapping>

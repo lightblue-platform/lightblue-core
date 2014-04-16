@@ -89,4 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>crud</module>
         <module>metadata</module>
     </modules>
+    <properties>
+        <rpm.install.basedir>/usr/share/jboss/standalone/deployments</rpm.install.basedir>
+    </properties>
 </project>

@@ -66,11 +66,7 @@
             <artifactId>slf4j-simple</artifactId>
         </dependency>
     </dependencies>
-    <properties>
-        <rpm.install.basedir>/usr/share/jboss/standalone/deployments</rpm.install.basedir>
-    </properties>
     <build>
-        <finalName>${artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -85,22 +81,6 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12</version>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <version>1.7</version>
-              <executions>
-                <execution>
-                  <phase>process-resources</phase>
-                  <configuration>
-                    <target>
-                      <touch file="target/rest-crud.dodeploy" />
-                    </target>
-                  </configuration>
-                  <goals><goal>run</goal></goals>
-                </execution>
-              </executions>
             </plugin>
             <!-- RPM packing -->
             <plugin>
@@ -132,18 +112,10 @@
                     -->
                     <mappings>
                         <mapping>
-                            <directory>${rpm.install.basedir}/rest-crud</directory>
+                            <directory>${rpm.install.basedir}</directory>
                             <sources>
                                 <source>
-                                    <location>target/rest-crud</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>${rpm.install.basedir}/</directory>
-                            <sources>
-                                <source>
-                                    <location>target/rest-crud.dodeploy</location>
+                                    <location>target/${artifactId}-${version}.${packaging}</location>
                                 </source>
                             </sources>
                         </mapping>
