@@ -240,9 +240,8 @@ public abstract class MetadataParser<T> {
                     List<SortKey> f = new ArrayList<>();
                     
                     for (T s : fields) {
-                        Sort sort = parseSort(s);
-                        SortKey sk = (SortKey)sort;
-                        f.add(new SortKey(sk.getField(), sk.isDesc()));
+                        SortKey sort = (SortKey)parseSort(s);
+                        f.add(sort);
                     }
                     index.setFields(f);
                 } else {
