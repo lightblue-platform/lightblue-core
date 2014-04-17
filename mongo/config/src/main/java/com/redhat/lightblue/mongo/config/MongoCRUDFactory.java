@@ -25,7 +25,8 @@ import com.redhat.lightblue.config.crud.ControllerConfiguration;
 import com.redhat.lightblue.crud.CRUDController;
 
 import com.redhat.lightblue.crud.mongo.MongoCRUDController;
-import com.redhat.lightblue.crud.mongo.DBResolver;
+
+import com.redhat.lightblue.common.mongo.DBResolver;
 
 public class MongoCRUDFactory implements ControllerFactory {
     @Override

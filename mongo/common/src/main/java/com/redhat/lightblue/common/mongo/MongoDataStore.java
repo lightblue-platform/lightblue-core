@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.mongo;
+package com.redhat.lightblue.common.mongo;
 
 import java.io.Serializable;
 
@@ -119,7 +119,9 @@ public class MongoDataStore implements DataStore, Serializable {
             if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return clientJndiNameEqual(mds.getClientJndiName()) && clientDatabaseNameEqual(mds.getDatabaseName()) && clientCollectionNameEqual(mds.getCollectionName());
+                    return strequals(clientJndiName,mds.getClientJndiName()) &&
+                        strequals(databaseName,mds.getDatabaseName()) && 
+                        strequals(collectionName,mds.getCollectionName());
                 } catch (ClassCastException e) {
                 }
             }
@@ -128,40 +130,9 @@ public class MongoDataStore implements DataStore, Serializable {
         return false;
     }
 
-    private boolean clientJndiNameEqual(String clientJndiName) {
-        if (this.clientJndiName == null && clientJndiName == null) {
-            return true;
-        } else {
-            if (this.clientJndiName != null && clientJndiName != null) {
-                return this.clientJndiName.equals(clientJndiName);
-            } else {
-                return false;
-            }
-        }
-    }
-
-    private boolean clientDatabaseNameEqual(String databaseName) {
-        if (this.databaseName == null && databaseName == null) {
-            return true;
-        } else {
-            if (this.databaseName != null && databaseName != null) {
-                return this.databaseName.equals(databaseName);
-            } else {
-                return false;
-            }
-        }
-    }
-
-    private boolean clientCollectionNameEqual(String collectionName) {
-        if (this.collectionName == null && collectionName == null) {
-            return true;
-        } else {
-            if (this.collectionName != null && collectionName != null) {
-                return this.collectionName.equals(collectionName);
-            } else {
-                return false;
-            }
-        }
+    private static boolean strequals(String s1,String s2) {
+        return (s1==null&&s2==null) ||
+            (s1!=null&&s2!=null&&s1.equals(s2));
     }
 
     @Override

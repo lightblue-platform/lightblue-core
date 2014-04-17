@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.MongoClient;
 import com.mongodb.DB;
 
-import com.redhat.lightblue.crud.mongo.DBResolver;
-import com.redhat.lightblue.metadata.mongo.MongoDataStore;
+import com.redhat.lightblue.common.mongo.DBResolver;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 
 public class MongoDBResolver implements DBResolver {
 
