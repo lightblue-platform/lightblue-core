@@ -660,6 +660,8 @@ public class MongoMetadataTest {
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
         md.createNewMetadata(e);
+
+        DBCollection entityCollection = db.getCollection("testCollectionIndex2");
         
         index = new Index();
         index.setName("testIndex2");
@@ -674,12 +676,11 @@ public class MongoMetadataTest {
         
         md.updateEntityInfo(e.getEntityInfo());
         
-        DBCollection entityCollection = db.getCollection("testCollectionIndex2");
         
         boolean foundIndex = false;
         
-       for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex".equals(mongoIndex.get("name"))) {
+        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if("testIndex2".equals(mongoIndex.get("name"))) {
                 if(mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
@@ -690,7 +691,7 @@ public class MongoMetadataTest {
         foundIndex = false;
 
         for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex2".equals(mongoIndex.get("name"))) {
+            if("testIndex".equals(mongoIndex.get("name"))) {
                 if(mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }

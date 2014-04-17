@@ -266,11 +266,22 @@ public class MongoMetadata implements Metadata {
                 for(SortKey p : index.getFields()) {
                     newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);    
                 }
-                
-                for(DBObject existingIndex: entityCollection.getIndexInfo()) {
+                List<DBObject> existingIndexes=entityCollection.getIndexInfo();
+
+                for(DBObject existingIndex: existingIndexes) {
                     if(indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
-                        entityCollection.dropIndex(existingIndex.get("name").toString());
-                        break;
+                        // There can be two indexes with different options, if that's the case, don't drop
+                        boolean found=false;
+                        for(Index trc:indexes.getIndexes())
+                            if(trc!=index&&
+                               indexFieldsMatch(trc,existingIndex)&&indexOptionsMatch(trc,existingIndex)) {
+                                found=true;
+                                break;
+                            }
+                        if(!found) {
+                            entityCollection.dropIndex(existingIndex.get("name").toString());
+                            break;
+                        }
                     }
                 }
                 
