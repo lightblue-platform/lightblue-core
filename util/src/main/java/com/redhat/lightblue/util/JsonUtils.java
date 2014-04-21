@@ -20,7 +20,13 @@ package com.redhat.lightblue.util;
 
 import java.util.Map;
 import java.util.Iterator;
+
+import java.nio.charset.Charset;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -48,6 +54,24 @@ public final class JsonUtils {
     public static JsonNode json(String s)
             throws IOException {
         return getObjectMapper().readTree(s);
+    }
+
+    /**
+     * Parses a JSON stream
+     */
+    public static JsonNode json(InputStream stream) throws IOException {
+        return json((Reader)new InputStreamReader(stream, Charset.defaultCharset()));
+    }
+
+    /**
+     * Parses a JSON stream
+     */
+    public static JsonNode json(Reader reader) throws IOException {
+        StringBuilder bld=new StringBuilder(512);
+        int c;
+        while( (c=reader.read()) >= 0 )
+            bld.append((char)c);
+        return json(bld.toString());
     }
 
     /**
