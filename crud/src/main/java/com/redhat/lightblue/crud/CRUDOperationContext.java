@@ -47,7 +47,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final Factory factory;
     private final JsonNodeFactory nodeFactory;
     private final String entityName;
-    private final Set<String> callerRoles;
+    protected final Set<String> callerRoles;
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();

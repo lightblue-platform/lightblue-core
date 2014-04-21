@@ -19,54 +19,53 @@
 package com.redhat.lightblue.mediator;
 
 
+import static org.hamcrest.CoreMatchers.containsString;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Assert;
-import org.junit.Test;
 import org.junit.Before;
-import static org.hamcrest.CoreMatchers.*;
+import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Version;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.PredefinedFields;
-
-import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.ClientIdentification;
+import com.redhat.lightblue.EntityVersion;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.CRUDInsertionResponse;
-import com.redhat.lightblue.crud.CRUDSaveResponse;
-import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
-
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.PredefinedFields;
+import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.Sort;
-
-import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.crud.DeleteRequest;
-import com.redhat.lightblue.crud.SaveRequest;
-import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.FindRequest;
-import com.redhat.lightblue.Response;
-import com.redhat.lightblue.EntityVersion;
-import com.redhat.lightblue.OperationStatus;
-
+import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
 public class MediatorTest extends AbstractJsonSchemaTest {
     private Mediator mediator;
@@ -125,6 +124,25 @@ public class MediatorTest extends AbstractJsonSchemaTest {
             return findResponse;
         }
     }
+    
+    private static final class RestClientIdentification extends ClientIdentification {
+        
+        private Set<String> clientRoles; 
+                
+        public RestClientIdentification(List<String> roles) {
+            clientRoles = new HashSet<>();
+            clientRoles.addAll(roles);
+        }
+                
+        public boolean isUserInRole(String role) {
+            return clientRoles.contains(role) ? true : false;
+        }
+
+        @Override
+        public JsonNode toJson() {
+            return null;
+        }  
+    }
 
     private EntityMetadata getMd(String fname) throws Exception {
         JsonNode node = loadJsonNode(fname);
@@ -165,6 +183,40 @@ public class MediatorTest extends AbstractJsonSchemaTest {
 
     }
 
+    @Test
+    public void insertRoleAccessTest() throws Exception {
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setEntityData(loadJsonNode("./sample1.json"));
+        req.setReturnFields(null);
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-insert","test-update")));      
+        
+        Response response = mediator.insert(req);
+
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
+    }
+
+    @Test
+    public void insertFieldAccessTest() throws Exception {
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setEntityData(loadJsonNode("./sample1.json"));
+        req.setReturnFields(null);
+        req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));      
+        
+        Response response = mediator.insert(req);
+
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
+    }
+    
     @Test
     public void insertRoleTest() throws Exception {
         InsertionRequest req = new InsertionRequest();
