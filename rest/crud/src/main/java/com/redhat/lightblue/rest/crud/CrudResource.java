@@ -116,61 +116,67 @@ public class CrudResource {
     public String simpleFind(@PathParam("entity") String entity, @PathParam("version") String version, @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
         // spec -> https://github.com/lightblue-platform/lightblue/wiki/Rest-Spec-Data#get-simple-find
         String sq = null;
-        List<String> queryList = Arrays.asList(q.split(";"));
-        if (queryList.size() > 1) {
-            StringBuilder sbq = new StringBuilder("{ \"$and\" : [" );
-            for (int i = 0; i < queryList.size(); i++) {
-                sbq.append(buildQueryFieldTemplate(queryList.get(i)));
-                if((i+1) < queryList.size()) {
-                    sbq.append(',');
+        if(q != null && !"".equals(q.trim())) {
+            List<String> queryList = Arrays.asList(q.split(";"));
+            if (queryList.size() > 1) {
+                StringBuilder sbq = new StringBuilder("{ \"$and\" : [");
+                for (int i = 0; i < queryList.size(); i++) {
+                    sbq.append(buildQueryFieldTemplate(queryList.get(i)));
+                    if ((i + 1) < queryList.size()) {
+                        sbq.append(',');
+                    }
                 }
-            }
-            sbq.append("]}");
-            sq=sbq.toString();
+                sbq.append("]}");
+                sq = sbq.toString();
 
-        } else {
-            sq = buildQueryFieldTemplate(queryList.get(0));
+            } else {
+                sq = buildQueryFieldTemplate(queryList.get(0));
+            }
         }
 
         String sp = null;
-        List<String> projectionList = Arrays.asList(p.split(","));
-        if (projectionList.size() > 1) {
-            StringBuilder sbp = new StringBuilder("[" );
-            for (int i = 0; i < projectionList.size(); i++) {
-                sbp.append(buildProjectionTemplate(projectionList.get(i)));
-                if((i+1) < projectionList.size()) {
-                    sbp.append(',');
+        if(p != null && !"".equals(p.trim())) {
+            List<String> projectionList = Arrays.asList(p.split(","));
+            if (projectionList.size() > 1) {
+                StringBuilder sbp = new StringBuilder("[");
+                for (int i = 0; i < projectionList.size(); i++) {
+                    sbp.append(buildProjectionTemplate(projectionList.get(i)));
+                    if ((i + 1) < projectionList.size()) {
+                        sbp.append(',');
+                    }
                 }
-            }
-            sbp.append("]");
-            sp=sbp.toString();
+                sbp.append("]");
+                sp = sbp.toString();
 
-        } else {
-            sp = buildProjectionTemplate(projectionList.get(0));
+            } else {
+                sp = buildProjectionTemplate(projectionList.get(0));
+            }
         }
 
         String ss = null;
-        List<String> sortList = Arrays.asList(s.split(","));
-        if (sortList.size() > 1) {
-            StringBuilder sbs = new StringBuilder("[" );
-            for (int i = 0; i < sortList.size(); i++) {
-                sbs.append(buildSortTemplate(sortList.get(i)));
-                if((i+1) < sortList.size()) {
-                    sbs.append(',');
+        if(s != null && !"".equals(s.trim())) {
+            List<String> sortList = Arrays.asList(s.split(","));
+            if (sortList.size() > 1) {
+                StringBuilder sbs = new StringBuilder("[" );
+                for (int i = 0; i < sortList.size(); i++) {
+                    sbs.append(buildSortTemplate(sortList.get(i)));
+                    if((i+1) < sortList.size()) {
+                        sbs.append(',');
+                    }
                 }
-            }
-            sbs.append("]");
-            ss=sbs.toString();
+                sbs.append("]");
+                ss=sbs.toString();
 
-        } else {
-            ss = buildSortTemplate(sortList.get(0));
+            } else {
+                ss = buildSortTemplate(sortList.get(0));
+            }
         }
 
         FindRequest findRequest = new FindRequest();
         findRequest.setEntityVersion(new EntityVersion(entity, version));
-        findRequest.setQuery(QueryExpression.fromJson(JsonUtils.json(sq)));
-        findRequest.setProjection(Projection.fromJson(JsonUtils.json(sp)));
-        findRequest.setSort(s == null ? null : Sort.fromJson(JsonUtils.json(ss)));
+        findRequest.setQuery(sq == null ? null : QueryExpression.fromJson(JsonUtils.json(sq)));
+        findRequest.setProjection(sp == null ? null : Projection.fromJson(JsonUtils.json(sp)));
+        findRequest.setSort(ss == null ? null : Sort.fromJson(JsonUtils.json(ss)));
         findRequest.setFrom(from);
         findRequest.setTo(to);
         String request = findRequest.toString();
