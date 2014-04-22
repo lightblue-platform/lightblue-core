@@ -18,19 +18,17 @@
  */
 package com.redhat.lightblue.rest.crud;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+import com.redhat.lightblue.EntityVersion;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.rest.crud.hystrix.*;
+import com.redhat.lightblue.util.JsonUtils;
 
-import com.redhat.lightblue.rest.crud.hystrix.DeleteCommand;
-import com.redhat.lightblue.rest.crud.hystrix.FindCommand;
-import com.redhat.lightblue.rest.crud.hystrix.InsertCommand;
-import com.redhat.lightblue.rest.crud.hystrix.SaveCommand;
-import com.redhat.lightblue.rest.crud.hystrix.UpdateCommand;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 
 /**
  *
@@ -100,4 +98,29 @@ public class CrudResource {
     public String find(@PathParam("entity") String entity, @PathParam("version") String version, String request) {
         return new FindCommand(null, entity, version, request).execute();
     }
+
+    @GET
+    @Path("/find/{entity}") //?Q&P&S&from&to
+    public String simpleFind(@PathParam("entity") String entity                                      , @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+        return simpleFind(entity, null, q, p, s, from, to);
+    }
+
+    @GET
+    @Path("/find/{entity}/{version}") //?Q&P&S&from&to
+    public String simpleFind(@PathParam("entity") String entity, @PathParam("version") String version, @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+        FindRequest findRequest = new FindRequest();
+        findRequest.setEntityVersion(new EntityVersion(entity, version));
+        findRequest.setQuery(QueryExpression.fromJson(JsonUtils.json(q)));
+        findRequest.setProjection(Projection.fromJson(JsonUtils.json(p)));
+        findRequest.setSort(s == null ? null : Sort.fromJson(JsonUtils.json(s)));
+        findRequest.setFrom(from);
+        findRequest.setTo(to);
+        String request = findRequest.toString();
+
+        return new FindCommand(null, entity, version, request).execute();
+    }
+
+
+
+
 }

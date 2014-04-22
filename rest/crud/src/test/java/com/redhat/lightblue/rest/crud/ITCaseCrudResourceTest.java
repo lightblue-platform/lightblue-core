@@ -228,6 +228,16 @@ public class ITCaseCrudResourceTest {
         String resultFound = cutCrudResource.find("country","1.0.0", readFile("resultFound.json"));
         assertEquals(expectedFound,resultFound);
 
+        String resultSimpleFound = cutCrudResource.simpleFind(    //?Q&P&S&from&to
+                "country",
+                "1.0.0",
+                "{\"field\": \"iso2code\", \"op\": \"=\",\"rvalue\": \"CA\"}",
+                "[{\"field\": \"name\",\"include\": true}, {\"field\": \"iso3code\",\"include\": true}]",
+                null,
+                0,
+                -1);
+        assertEquals(expectedFound,resultSimpleFound);
+
 
         String expectedDeleted = readFile("expectedDeleted.json");
         String resultDeleted = cutCrudResource.delete("country","1.0.0",readFile("resultDeleted.json"));
