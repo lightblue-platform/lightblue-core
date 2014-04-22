@@ -231,9 +231,9 @@ public class ITCaseCrudResourceTest {
         String resultSimpleFound = cutCrudResource.simpleFind(    //?Q&P&S&from&to
                 "country",
                 "1.0.0",
-                "{\"field\": \"iso2code\", \"op\": \"=\",\"rvalue\": \"CA\"}",
-                "[{\"field\": \"name\",\"include\": true}, {\"field\": \"iso3code\",\"include\": true}]",
-                null,
+                "iso2code:CA,QE;iso2code:CA;iso2code:CA,EN",
+                "name:1r,iso3code:1,iso2code:0r",
+                "name:a,iso3code:d,iso2code:d",
                 0,
                 -1);
         assertEquals(expectedFound,resultSimpleFound);
