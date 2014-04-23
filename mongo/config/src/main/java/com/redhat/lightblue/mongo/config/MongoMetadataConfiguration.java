@@ -52,7 +52,6 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
                                    JSONMetadataParser jsonParser) {
         DataSourceConfiguration cfg=datasources.getDataSourceConfiguration(datasource);
         if(cfg!=null) {
-            MongoConfiguration mcfg=(MongoConfiguration)cfg;
             DBResolver dbresolver=new MongoDBResolver(datasources);
             Extensions<BSONObject> parserExtensions = new Extensions<>();
             parserExtensions.addDefaultExtensions();

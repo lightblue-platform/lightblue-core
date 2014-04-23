@@ -48,7 +48,7 @@ import com.redhat.lightblue.util.JsonUtils;
  * @author nmalik
  */
 public final class CrudManager {
-    private Mediator mediator = null;
+    private volatile Mediator mediator = null;
     private final DataSourcesConfiguration datasources;
     private final MetadataManager metadataMgr;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);

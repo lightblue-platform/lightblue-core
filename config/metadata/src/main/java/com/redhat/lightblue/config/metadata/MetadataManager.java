@@ -55,8 +55,8 @@ public final class MetadataManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataManager.class);
 
-    private Metadata metadata = null;
-    private JSONMetadataParser parser = null;
+    private volatile Metadata metadata = null;
+    private volatile JSONMetadataParser parser = null;
     private MetadataConfiguration configuration = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
