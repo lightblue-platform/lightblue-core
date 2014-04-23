@@ -37,54 +37,39 @@ import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.util.JsonInitializable;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
- * instances created down to a reasonable level.
+ * Creates CRUD controllers based on configuration. There should be
+ * only one instance of this class for each application.
  *
  * @author nmalik
  */
 public final class CrudManager {
-    private static Mediator mediator = null;
-    private static JSONMetadataParser parser = null;
+    private Mediator mediator = null;
+    private final DataSourcesConfiguration datasources;
+    private final MetadataManager metadataMgr;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
-    private CrudManager() {
-
+    public CrudManager(DataSourcesConfiguration datasources,
+                       MetadataManager metadataMgr) {
+        this.datasources=datasources;
+        this.metadataMgr=metadataMgr;
     }
 
-    private static synchronized void initializeParser() {
-        if (parser != null) {
-            return;
-        }
-        Extensions<JsonNode> extensions = new Extensions<>();
-        extensions.addDefaultExtensions();
-
-        parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+   @SuppressWarnings({"unchecked", "rawtypes"})
+    private synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator != null) {
             // already initalized
             return;
         }
 
-        StringBuilder buff = new StringBuilder();
-
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME);
-                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
-                BufferedReader reader = new BufferedReader(isr)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buff.append(line).append("\n");
-            }
+        JsonNode root;
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
+                root = JsonUtils.json(is);
         }
-
-        // get the root json node so can throw subsets of the tree at Gson later
-        JsonNode root = JsonUtils.json(buff.toString());
 
         // convert root to Configuration object
         CrudConfiguration configuration=new CrudConfiguration();
@@ -100,25 +85,17 @@ public final class CrudManager {
 
         for (ControllerConfiguration x : configuration.getControllers()) {
             ControllerFactory cfactory=x.getControllerFactory().newInstance();
-            CRUDController controller = cfactory.createController(x);
+            CRUDController controller = cfactory.createController(x,datasources);
             factory.addCRUDController(x.getDatastoreType(), controller);
         }
-        mediator = new Mediator(MetadataManager.getMetadata(), factory);
+        mediator = new Mediator(metadataMgr.getMetadata(), factory);
     }
 
-    public static Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+    public Mediator getMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator == null) {
             initializeMediator();
         }
 
         return mediator;
-    }
-
-    public static JSONMetadataParser getJSONParser() {
-        if (parser == null) {
-            initializeParser();
-        }
-
-        return parser;
     }
 }

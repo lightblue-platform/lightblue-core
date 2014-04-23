@@ -22,9 +22,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+
+import com.redhat.lightblue.rest.metadata.RestApplication;
 
 /**
  * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
@@ -53,11 +55,11 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         if (null != metadata) {
             return metadata;
         } else {
-            return MetadataManager.getMetadata();
+            return RestApplication.metadataMgr.getMetadata();
         }
     }
 
     protected JSONMetadataParser getJSONParser() throws Exception {
-        return MetadataManager.getJSONParser();
+        return RestApplication.metadataMgr.getJSONParser();
     }
 }

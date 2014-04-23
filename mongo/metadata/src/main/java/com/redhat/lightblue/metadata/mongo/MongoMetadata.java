@@ -70,6 +70,7 @@ import com.redhat.lightblue.mongo.hystrix.InsertCommand;
 import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -85,22 +86,25 @@ public class MongoMetadata implements Metadata {
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
-    private final transient DBCollection collection;
-
-    private final transient BSONParser mdParser;
+    private final DBCollection collection;
+    private final DBResolver dbResolver;
+    private final BSONParser mdParser;
 
     public MongoMetadata(DB db,
                          String metadataCollection,
+                         DBResolver dbResolver,
                          Extensions<BSONObject> parserExtensions,
                          TypeResolver typeResolver) {
         this.collection = db.getCollection(metadataCollection);
         this.mdParser = new BSONParser(parserExtensions, typeResolver);
+        this.dbResolver = dbResolver;
     }
 
     public MongoMetadata(DB db,
+                         DBResolver dbResolver,
                          Extensions<BSONObject> parserExtensions,
                          TypeResolver typeResolver) {
-        this(db, DEFAULT_METADATA_COLLECTION, parserExtensions, typeResolver);
+        this(db, DEFAULT_METADATA_COLLECTION, dbResolver,parserExtensions, typeResolver);
     }
 
     @Override
@@ -253,12 +257,11 @@ public class MongoMetadata implements Metadata {
     private void createUpdateEntityInfoIndexes(EntityInfo ei) {
         LOGGER.debug("createUpdateEntityInfoIndexes: begin");
         
-        MongoDataStore ds = (MongoDataStore) ei.getDataStore();
         Indexes indexes = ei.getIndexes();
-        DBCollection entityCollection = collection.getDB().getCollection(ds.getCollectionName());  
-        // TODO: This is broken. It assumes entity collection is in the same DB as metadata. We have to:
-        //  1) Move DBResolver from crud to a more common place, possibly metadata
-        //  2) Pass an implementation of DBResolver to MongoMetadata to find the DB
+
+        MongoDataStore ds = (MongoDataStore) ei.getDataStore();
+        DB entityDB = dbResolver.get(ds);
+        DBCollection entityCollection = entityDB.getCollection(ds.getCollectionName());  
         
         Error.push("createUpdateIndex");
         try {

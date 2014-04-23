@@ -9,6 +9,7 @@
         ],
         "datastore": {
             "mongo": {
+                  "datasource" : "mongo",
                   "collection": "country"
             }
         }

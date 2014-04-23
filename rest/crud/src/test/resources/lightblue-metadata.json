@@ -1,25 +1,5 @@
 {
-    "documentation": [
-        "metadataClass - the class implementing Metadata interface",
-        "databaseConfigurationClass - pojo configuration class that is passed as single argument to metadata 'factory' method",
-        "dataStoreParserNames - array of 2-element arrays, first element gives data store name, second element gives the parser class",
-        "metadataFactoryMethod - static method that takes instance of database configuration as argument and returns an instance of Metadata",
-        "database - JSON object that is converted to database configuration pojo and used for Metadata creation"
-    ],
-    "metadataClass": "com.redhat.lightblue.metadata.mongo.MongoMetadata",
-    "databaseConfigurationClass": "com.redhat.lightblue.mongo.config.MongoMetadataConfiguration",
-    "metadataFactoryMethod": "create",
-    "dataStoreParserNames" : [
-       [ "mongo", "com.redhat.lightblue.metadata.mongo.MongoDataStoreParser" ]
-    ],
-    "databaseConfiguration": {
-        "name": "mongo",
-        "servers": [
-            {
-                "host": "localhost",
-                "port": "27777"
-            }
-        ],
-        "collection": "metadata"
-    }
+    "type" : "com.redhat.lightblue.mongo.config.MongoMetadataConfiguration",
+    "dataSource" : "mongo",
+    "collection": "metadata"
 }

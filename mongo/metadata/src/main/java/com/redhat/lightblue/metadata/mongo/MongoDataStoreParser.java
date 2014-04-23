@@ -40,6 +40,7 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         MongoDataStore ds = new MongoDataStore();
         ds.setClientJndiName(p.getStringProperty(node, "clientJndiName"));
         ds.setDatabaseName(p.getStringProperty(node, "database"));
+        ds.setDatasourceName(p.getStringProperty(node, "datasource"));
         ds.setCollectionName(p.getStringProperty(node, "collection"));
         if (ds.getCollectionName() == null
                 || ds.getCollectionName().length() == 0) {
@@ -56,6 +57,9 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         }
         if (ds.getDatabaseName() != null) {
             p.putString(emptyNode, "database", ds.getDatabaseName());
+        }
+        if(ds.getDatasourceName() != null) {
+            p.putString(emptyNode, "datasource", ds.getDatasourceName());
         }
         if (ds.getCollectionName() != null) {
             p.putString(emptyNode, "collection", ds.getCollectionName());

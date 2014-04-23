@@ -18,8 +18,10 @@
  */
 package com.redhat.lightblue.config.crud;
 
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.crud.CRUDController;
 
 public interface ControllerFactory {
-    CRUDController createController(ControllerConfiguration cfg);
+    CRUDController createController(ControllerConfiguration cfg,
+                                    DataSourcesConfiguration ds);
 }

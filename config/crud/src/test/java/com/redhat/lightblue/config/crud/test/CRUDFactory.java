@@ -18,13 +18,16 @@
  */
 package com.redhat.lightblue.config.crud.test;
 
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.crud.ControllerConfiguration;
 import com.redhat.lightblue.config.crud.ControllerFactory;
 import com.redhat.lightblue.config.crud.ControllerConfiguration;
 import com.redhat.lightblue.crud.CRUDController;
 
 public class CRUDFactory implements ControllerFactory {
     @Override
-    public CRUDController createController(ControllerConfiguration cfg) {
+    public CRUDController createController(ControllerConfiguration cfg,
+                                           DataSourcesConfiguration ds) {
         return new TestCRUDController();
     }
 }

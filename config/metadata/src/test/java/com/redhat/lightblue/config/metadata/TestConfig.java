@@ -16,44 +16,26 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.test;
+package com.redhat.lightblue.config.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+
 import com.redhat.lightblue.util.JsonInitializable;
 
-/**
- *
- * @author nmalik
- */
-public class DatabaseConfiguration implements JsonInitializable {
-    private String name;
-    private String hostname = "localhost";
-    private String port = "27017";
-    private String collection = "metadata";
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
-    public static final Metadata create(DatabaseConfiguration config) {
+public class TestConfig implements MetadataConfiguration {
+
+    public Metadata createMetadata(DataSourcesConfiguration ds,
+                                   JSONMetadataParser parser) {
         return new DatabaseMetadata();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public String getCollection() {
-        return collection;
-    }
-
-    @Override
     public void initializeFromJson(JsonNode node) {
-
     }
 }

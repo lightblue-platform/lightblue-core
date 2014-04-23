@@ -29,7 +29,9 @@ import com.mongodb.MongoClientOptions;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,13 +43,15 @@ import org.bson.BSONObject;
  *
  * @author nmalik
  */
-public class MongoConfiguration implements JsonInitializable {
+public class MongoConfiguration implements DataSourceConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoConfiguration.class);
 
     private final List<ServerAddress> servers = new ArrayList<>();
     private Integer connectionsPerHost;
+    private String database;
     private Boolean ssl = Boolean.FALSE;
+    private Class metadataDataStoreParser=MongoDataStoreParser.class;
 
     public void addServerAddress(String hostname, int port) throws UnknownHostException {
         this.servers.add(new ServerAddress(hostname, port));
@@ -66,6 +70,15 @@ public class MongoConfiguration implements JsonInitializable {
 
     public void clearServerAddresses() {
         this.servers.clear();
+    }
+    
+    @Override
+    public Class<DataStoreParser> getMetadataDataStoreParser() {
+        return metadataDataStoreParser;
+    }
+
+    public void setMetadataDataStoreParser(Class<DataStoreParser> clazz) {
+        metadataDataStoreParser=clazz;
     }
 
     /**
@@ -97,6 +110,20 @@ public class MongoConfiguration implements JsonInitializable {
     }
 
     /**
+     * The database name
+     */
+    public String getDatabase() {
+        return database;
+    }
+
+    /**
+     * The database name
+     */
+    public void setDatabase(String s) {
+        database=s;
+    }
+
+    /**
      * Returns an options object with defaults overriden where there is a valid override.
      *
      * @return
@@ -122,14 +149,15 @@ public class MongoConfiguration implements JsonInitializable {
         return new MongoClient(servers, options);
     }
 
-    public DB getDB(String name) throws UnknownHostException {
-        return getMongoClient().getDB(name);
+    public DB getDB() throws UnknownHostException {
+        return getMongoClient().getDB(database);
     }
 
     public String toString() {
         StringBuilder bld=new StringBuilder();
         bld.append("servers:").append(servers).append('\n').
             append("connectionsPerHost:").append(connectionsPerHost).append('\n').
+            append("database:").append(database).append('\n').
             append("ssl:").append(ssl);
         return bld.toString();
     }
@@ -143,6 +171,16 @@ public class MongoConfiguration implements JsonInitializable {
             x=node.get("ssl");
             if(x!=null)
                 ssl=x.asBoolean();
+            x=node.get("metadataDataStoreParser");
+            try {
+                if(x!=null)
+                    metadataDataStoreParser=Class.forName(x.asText());
+            } catch (Exception e) {
+                throw new IllegalArgumentException(node.toString()+":"+e);
+            }
+            x=node.get("database");
+            if(x!=null)
+                database=x.asText();
             JsonNode jsonNodeServers = node.get("servers");
             if (jsonNodeServers != null && jsonNodeServers.isArray()) {
                 Iterator<JsonNode> elements = jsonNodeServers.elements();

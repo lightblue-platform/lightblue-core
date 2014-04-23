@@ -16,39 +16,21 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.config.crud.test;
+package com.redhat.lightblue.config.common;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.util.JsonInitializable;
 
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+
 /**
- *
- * @author nmalik
+ * Base interface for datastore configuration
  */
-public class DatabaseConfiguration implements JsonInitializable {
-    private String name;
-    private String hostname = "localhost";
-    private String port = "27017";
-    private String collection = "metadata";
+public interface DataSourceConfiguration extends JsonInitializable {
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * Returns the metadata datastore parser class
+     */
+    public Class<DataStoreParser> getMetadataDataStoreParser();
 
-    public String getHostname() {
-        return hostname;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public String getCollection() {
-        return collection;
-    }
-
-    @Override
-    public void initializeFromJson(JsonNode node) {
-
-    }
 }
+

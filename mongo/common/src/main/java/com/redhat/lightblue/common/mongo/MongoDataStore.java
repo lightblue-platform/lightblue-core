@@ -27,6 +27,7 @@ public class MongoDataStore implements DataStore, Serializable {
     private static final long serialVersionUID = 1l;
 
     private String clientJndiName;
+    private String datasourceName;
     private String databaseName;
     private String collectionName;
 
@@ -35,9 +36,11 @@ public class MongoDataStore implements DataStore, Serializable {
 
     public MongoDataStore(String clientJndiName,
                           String databaseName,
+                          String datasourceName,
                           String collectionName) {
         this.clientJndiName = clientJndiName;
         this.databaseName = databaseName;
+        this.datasourceName = datasourceName;
         this.collectionName = collectionName;
     }
 
@@ -65,6 +68,24 @@ public class MongoDataStore implements DataStore, Serializable {
     }
 
     /**
+     * Gets the value of datasourceName
+     *
+     * @return the value of datasourceName
+     */
+    public String getDatasourceName() {
+        return this.datasourceName;
+    }
+
+    /**
+     * Sets the value of datasourceName
+     *
+     * @param argDatasourceName Value to assign to this.datasourceName
+     */
+    public void setDatasourceName(String argDatasourceName) {
+        this.datasourceName = argDatasourceName;
+    }
+
+    /**
      * Gets the value of databaseName
      *
      * @return the value of databaseName
@@ -81,6 +102,7 @@ public class MongoDataStore implements DataStore, Serializable {
     public void setDatabaseName(String argDatabaseName) {
         this.databaseName = argDatabaseName;
     }
+
 
     /**
      * Gets the value of collectionName
@@ -103,6 +125,9 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public String toString() {
         StringBuilder bld = new StringBuilder(64);
+        if (datasourceName != null) {
+            bld.append(datasourceName).append(':');
+        }
         if (databaseName != null) {
             bld.append(databaseName).append(':');
         }
@@ -120,6 +145,7 @@ public class MongoDataStore implements DataStore, Serializable {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
                     return strequals(clientJndiName,mds.getClientJndiName()) &&
+                        strequals(datasourceName,mds.getDatasourceName())&&
                         strequals(databaseName,mds.getDatabaseName()) && 
                         strequals(collectionName,mds.getCollectionName());
                 } catch (ClassCastException e) {
@@ -138,7 +164,8 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public int hashCode() {
         return (clientJndiName == null ? 1 : clientJndiName.hashCode())
-                * (databaseName == null ? 1 : databaseName.hashCode())
-                * (collectionName == null ? 1 : collectionName.hashCode());
+            * (databaseName == null ? 1 : databaseName.hashCode())
+            * (collectionName == null ? 1 : collectionName.hashCode())
+            * (datasourceName == null ? 1 : datasourceName.hashCode());
     }
 }

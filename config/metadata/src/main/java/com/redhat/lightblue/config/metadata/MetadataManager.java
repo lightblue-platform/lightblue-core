@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.google.gson.Gson;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
@@ -46,92 +47,66 @@ import java.util.Map;
  * Because rest resources are instantiated for every request this manager exists
  * to keep the number of Metadata instances created down to a reasonable level.
  *
+ * This class is expected to be a singleton.
+ *
  * @author nmalik
  */
 public final class MetadataManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataManager.class);
 
-    private static Metadata metadata = null;
-    private static JSONMetadataParser parser = null;
-    private static MetadataConfiguration configuration = null;
+    private Metadata metadata = null;
+    private JSONMetadataParser parser = null;
+    private MetadataConfiguration configuration = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
-    private MetadataManager() {
+    private final DataSourcesConfiguration datasources;
 
+    public MetadataManager(DataSourcesConfiguration datasources) {
+        this.datasources=datasources;
     }
 
-    private static synchronized void initializeParser() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
+    private synchronized void initializeParser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         if (parser != null) {
             return;
         }
-        initializeMetadata();
-
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        if(configuration != null && configuration.getDataStoreParserNames() != null) {
-            for (Map.Entry<String,String> entry : configuration.getDataStoreParserNames().entrySet()) {
-                Class<DataStoreParser> databaseConfigurationClass = (Class<DataStoreParser>) Class.forName(entry.getValue());
-                DataStoreParser i = databaseConfigurationClass.newInstance();
-                final String defaultName = entry.getKey() == null? i.getDefaultName() : entry.getKey();
-                extensions.registerDataStoreParser(defaultName, i);
-            }
+
+        Map<String,DataSourceConfiguration> ds=datasources.getDataSources();
+        for(Map.Entry<String,DataSourceConfiguration> entry:ds.entrySet()) {
+            Class<DataStoreParser> parser=entry.getValue().getMetadataDataStoreParser();
+            extensions.registerDataStoreParser(entry.getKey(),parser.newInstance());
         }
 
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
-
+    
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata != null) {
             // already initalized
             return;
         }
         LOGGER.debug("Initializing metadata");
-        StringBuilder buff = new StringBuilder();
 
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME);
-                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
-                BufferedReader reader = new BufferedReader(isr)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buff.append(line).append("\n");
-            }
+        JsonNode root;
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
+                root=JsonUtils.json(is);
         }
-
-        // get the root json node so can throw subsets of the tree at Gson later
-        JsonNode root = JsonUtils.json(buff.toString());
         LOGGER.debug("Config root:{}",root);
 
-        // convert root to Configuration object
-        // TODO swap out something other than Gson
-        Gson g = new Gson();
+        JsonNode cfgClass=root.get("type");
+        if(cfgClass==null)
+            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND +" - type");
 
-        configuration = g.fromJson(buff.toString(), MetadataConfiguration.class);
+        MetadataConfiguration cfg=(MetadataConfiguration)Class.forName(cfgClass.asText()).newInstance();
+        cfg.initializeFromJson(root);
 
-        if (null == configuration) {
-            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND +" - "+ MetadataConfiguration.FILENAME);
-        }
-        LOGGER.debug("Configuration:{}",configuration);
-
-        // instantiate the database specific configuration object
-        Class databaseConfigurationClass = Class.forName(configuration.getDatabaseConfigurationClass());
-        JsonNode dbNode = root.findValue("databaseConfiguration");
-        JsonInitializable databaseConfiguration = (JsonInitializable) databaseConfigurationClass.newInstance();
-        databaseConfiguration.initializeFromJson(dbNode);
-        configuration.setDatabaseConfiguration(databaseConfiguration);
-        LOGGER.debug("database configuration:{}",configuration.getDatabaseConfiguration());
-
-        // validate
-        if (!configuration.isValid()) {
-            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_VALID +" - "+ MetadataConfiguration.FILENAME);
-        }
-
-        Method m = databaseConfigurationClass.getDeclaredMethod(configuration.getMetadataFactoryMethod(), databaseConfigurationClass);
-
-        metadata = (Metadata) m.invoke(null, configuration.getDatabaseConfiguration());
+        metadata = cfg.createMetadata(datasources,getJSONParser());
     }
 
-    public static Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
             initializeMetadata();
         }
@@ -139,7 +114,7 @@ public final class MetadataManager {
         return metadata;
     }
 
-    public static JSONMetadataParser getJSONParser() throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public JSONMetadataParser getJSONParser() throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (parser == null) {
             initializeParser();
         }

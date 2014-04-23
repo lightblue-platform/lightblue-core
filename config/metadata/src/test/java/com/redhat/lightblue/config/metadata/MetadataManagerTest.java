@@ -19,9 +19,10 @@
 package com.redhat.lightblue.config.metadata;
 
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.test.DatabaseMetadata;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
 /**
  *
@@ -30,7 +31,8 @@ import org.junit.Test;
 public class MetadataManagerTest {
     @Test
     public void getMetadata() throws Exception {
-        Metadata m = MetadataManager.getMetadata();
+        MetadataManager mgr=new MetadataManager(new DataSourcesConfiguration());
+        Metadata m = mgr.getMetadata();
         Assert.assertNotNull(m);
         Assert.assertTrue(m instanceof DatabaseMetadata);
     }

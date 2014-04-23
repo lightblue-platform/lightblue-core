@@ -21,9 +21,12 @@ package com.redhat.lightblue.rest.metadata;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
+import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
+import com.redhat.lightblue.util.JsonUtils;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -180,7 +183,8 @@ public class ITCaseMetadataResourceTest {
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
-                .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
+                .addAsResource(new File("src/test/resources/datasources.json"), "datasources.json")
+               .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -196,6 +200,9 @@ public class ITCaseMetadataResourceTest {
     @Test
     public void testFirstIntegrationTest() throws IOException, URISyntaxException {
         assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
+
+        RestApplication.datasources=new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json")));
+        RestApplication.metadataMgr=new MetadataManager(RestApplication.datasources);
 
         String expectedCreated = readFile("expectedCreated.json");
         String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));
@@ -234,7 +241,7 @@ public class ITCaseMetadataResourceTest {
         String resultEntityVersions = cutMetadataResource.getEntityVersions("country");
         assertEquals(expectedEntityVersions,resultEntityVersions);
 
-        String expectedGetMetadata = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String expectedGetMetadata = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"datasource\":\"mongo\",\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
         String resultGetMetadata = cutMetadataResource.getMetadata("country","1.0.0");
         assertEquals(expectedGetMetadata,resultGetMetadata);
 
@@ -246,7 +253,7 @@ public class ITCaseMetadataResourceTest {
         String resultUpdateEntityInfo = cutMetadataResource.updateEntityInfo("country",readFile("expectedUpdateEntityInfoInput.json"));
         assertEquals(expectedUpdateEntityInfo,resultUpdateEntityInfo);
 
-        String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"datasource\":\"mongo\",\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
         String resultUpdateSchemaStatus = cutMetadataResource.updateSchemaStatus("country","1.0.0","deprecated","No comment");
         assertEquals(expectedUpdateSchemaStatus,resultUpdateSchemaStatus);
     }

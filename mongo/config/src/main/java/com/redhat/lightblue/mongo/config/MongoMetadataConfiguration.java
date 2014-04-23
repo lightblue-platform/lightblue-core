@@ -28,39 +28,58 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import org.bson.BSONObject;
+import com.redhat.lightblue.common.mongo.DBResolver;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.config.metadata.MetadataConfiguration;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
 
-public class MongoMetadataConfiguration extends MongoConfiguration {
+public class MongoMetadataConfiguration implements MetadataConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoMetadataConfiguration.class);
 
-    private String name;
+    private String datasource;
     private String collection;
 
-    public static MongoMetadata create(MongoMetadataConfiguration configuration) throws UnknownHostException {
-        DB db = configuration.getDB();
-        Extensions<BSONObject> parserExtensions = new Extensions<>();
-        parserExtensions.addDefaultExtensions();
-        parserExtensions.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
-        DefaultTypes typeResolver = new DefaultTypes();
-        return new MongoMetadata(db, parserExtensions, typeResolver);
+
+    public Metadata createMetadata(DataSourcesConfiguration datasources,
+                                   JSONMetadataParser jsonParser) {
+        DataSourceConfiguration cfg=datasources.getDataSourceConfiguration(datasource);
+        if(cfg!=null) {
+            MongoConfiguration mcfg=(MongoConfiguration)cfg;
+            DBResolver dbresolver=new MongoDBResolver(datasources);
+            Extensions<BSONObject> parserExtensions = new Extensions<>();
+            parserExtensions.addDefaultExtensions();
+            parserExtensions.registerDataStoreParser(datasource, new MongoDataStoreParser<BSONObject>());
+            DefaultTypes typeResolver = new DefaultTypes();
+            MongoDataStore mdstore=new MongoDataStore();
+            mdstore.setDatasourceName(datasource);
+            if(collection==null)
+                return new MongoMetadata(dbresolver.get(mdstore),dbresolver, parserExtensions, typeResolver);
+            else
+                return new MongoMetadata(dbresolver.get(mdstore),collection, dbresolver,parserExtensions,typeResolver);
+        } else
+            throw new IllegalArgumentException(datasource);
     }
 
     /**
-     * @return the name
+     * @return the datasource name
      */
-    public String getName() {
-        return name;
+    public String getDataSource() {
+        return datasource;
     }
 
     /**
-     * @param name the name to set
+     * @param name the datasource name to set
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setDataSource(String name) {
+        this.datasource = name;
     }
 
     /**
@@ -77,22 +96,16 @@ public class MongoMetadataConfiguration extends MongoConfiguration {
         this.collection = collection;
     }
 
-    public DB getDB() throws UnknownHostException {
-        return getDB(name);
-    }
-
     public String toString() {
-        return super.toString()+"\n"+
-            "collection:"+collection;
+        return "dataSource:"+datasource+" collection:"+collection;
     }
 
     @Override
     public void initializeFromJson(JsonNode node) {
-        super.initializeFromJson(node);
         if (node != null) {
-            JsonNode x=node.get("name");
+            JsonNode x=node.get("dataSource");
             if(x!=null)
-                name=x.asText();
+                datasource=x.asText();
             x=node.get("collection");
             if(x!=null)
                 collection=x.asText();

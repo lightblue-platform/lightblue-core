@@ -22,8 +22,10 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.config.crud.CrudConfiguration;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
@@ -107,6 +109,7 @@ public class ITCaseCrudResourceTest {
     private static Mongo mongo;
     private static DB db;
 
+
     private MongoMetadata md;
 
     static {
@@ -153,7 +156,7 @@ public class ITCaseCrudResourceTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
@@ -186,6 +189,7 @@ public class ITCaseCrudResourceTest {
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
                 .addAsResource(new File("src/test/resources/lightblue-crud.json"), CrudConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/datasources.json"), "datasources.json")
                 .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
 
         for (File file : libs) {
@@ -203,14 +207,17 @@ public class ITCaseCrudResourceTest {
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException {
         assertNotNull("CrudResource was not injected by the container", cutCrudResource);
+        RestApplication.datasources=new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json")));
+        RestApplication.metadataMgr=new MetadataManager(RestApplication.datasources);
+        RestApplication.crudMgr=new CrudManager(RestApplication.datasources,RestApplication.metadataMgr);
 
 
         String expectedCreated = readFile("expectedCreated.json");
         String metadata = readFile("metadata.json");
-        EntityMetadata em = MetadataManager.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
-        MetadataManager.getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = MetadataManager.getMetadata().getEntityMetadata("country", "1.0.0");
-        String resultCreated = MetadataManager.getJSONParser().convert(em2).toString();
+        EntityMetadata em = RestApplication.metadataMgr.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+        RestApplication.metadataMgr.getMetadata().createNewMetadata(em);
+        EntityMetadata em2 = RestApplication.metadataMgr.getMetadata().getEntityMetadata("country", "1.0.0");
+        String resultCreated = RestApplication.metadataMgr.getJSONParser().convert(em2).toString();
         assertEquals(expectedCreated,resultCreated);
 
 
