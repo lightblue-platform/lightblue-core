@@ -28,7 +28,7 @@ import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
-import com.redhat.lightblue.mongo.config.metadata.MongoConfiguration;
+import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.util.JsonUtils;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
@@ -135,8 +135,8 @@ public class ITCaseCrudResourceTest {
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
 
             MongoConfiguration config = new MongoConfiguration();
-            config.setName(DB_NAME);
             // disable ssl for test (enabled by default)
+            config.setDatabase(DB_NAME);
             config.setSsl(Boolean.FALSE);
             config.addServerAddress(MONGO_HOST, MONGO_PORT);
 
