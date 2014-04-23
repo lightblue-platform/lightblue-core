@@ -32,10 +32,10 @@ import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.TestDataStoreParser;
 
 import java.io.IOException;
 
@@ -89,7 +89,7 @@ public class QueryTest extends AbstractJsonNodeTest {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
         return parser.parseEntityMetadata(node);
