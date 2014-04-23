@@ -35,7 +35,7 @@ public class RestApplication extends Application {
 
     public RestApplication() {
         try {
-            datasources=new DataSourcesConfiguration(JsonUtils.json(getClass().getResourceAsStream("datasources.json")));
+            datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
         } catch (Exception e) {
             throw new RuntimeException("Cannot initialize:"+e);
         }

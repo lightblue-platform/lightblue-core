@@ -165,7 +165,8 @@ public class MongoMetadata implements Metadata {
     public String[] getEntityNames() {
         Error.push("getEntityNames");
         try {
-            List l = new DistinctCommand(null, collection, LITERAL_NAME).execute();
+            //List l = new DistinctCommand(null, collection, LITERAL_NAME).execute();
+            List l = collection.distinct(LITERAL_NAME);
             String[] arr = new String[l.size()];
             int i = 0;
             for (Object x : l) {
