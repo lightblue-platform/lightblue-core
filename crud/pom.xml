@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-config-metadata</artifactId>
+            <artifactId>mongo-config</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

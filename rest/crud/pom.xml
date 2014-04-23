@@ -106,7 +106,7 @@
                             <directory>${rpm.install.basedir}</directory>
                             <sources>
                                 <source>
-                                    <location>target/${artifactId}-${version}.${packaging}</location>
+                                    <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
                                 </source>
                             </sources>
                         </mapping>
