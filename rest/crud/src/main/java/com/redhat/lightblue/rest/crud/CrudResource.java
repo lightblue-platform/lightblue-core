@@ -45,6 +45,13 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CrudResource {
+
+    private static final String FIELD_Q_EQ_TMPL="{\"field\": \"${field}\", \"op\": \"=\",\"rvalue\": \"${value}\"}";
+    private static final String FIELD_Q_IN_TMPL= "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
+    private static final String PROJECTION_TMPL= "{\"field\":\"${field}\",\"include\": ${include}, \"recursive\": ${recursive}}";
+    private static final String SORT_TMPL= "{\"${field}\":\"${order}\"}";
+    private static final String DEFAULT_PROJECTION_TMPL="{\"*\",\"recursive\":true}";
+
     @PUT
     @Path("/{entity}")
     public String insert(@PathParam("entity") String entity, String request) {
@@ -134,7 +141,7 @@ public class CrudResource {
             }
         }
 
-        String sp = null;
+        String sp = DEFAULT_PROJECTION_TMPL;
         if(p != null && !"".equals(p.trim())) {
             List<String> projectionList = Arrays.asList(p.split(","));
             if (projectionList.size() > 1) {
@@ -180,15 +187,15 @@ public class CrudResource {
         findRequest.setFrom(from);
         findRequest.setTo(to);
         String request = findRequest.toString();
+        System.out.println("Req:"+request);
 
         return new FindCommand(null, entity, version, request).execute();
     }
 
+
     private String buildQueryFieldTemplate(String s1) {
         String sq;
         String template = null;
-        String templateString1 = "{\"field\": \"${field}\", \"op\": \"=\",\"rvalue\": \"${value}\"}";
-        String templateString2 = "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
 
         String[] split = s1.split(":");
 
@@ -198,10 +205,10 @@ public class CrudResource {
 
         String[] comma = split[1].split(",");
         if(comma.length > 1){
-            template = templateString2;
+            template = FIELD_Q_IN_TMPL;
             value = "\""+ StringUtils.join(comma, "\",\"")+"\"";
         }else{
-            template = templateString1;
+            template = FIELD_Q_EQ_TMPL;
             value = split[1];
         }
         map.put("value", value );
@@ -214,8 +221,6 @@ public class CrudResource {
 
     private String buildProjectionTemplate(String s1) {
         String sp;
-        String templateString = "{\"field\":\"${field}\",\"include\": ${include}, \"recursive\": ${recursive}}";
-
         String[] split = s1.split(":");
 
         Map<String,String> map = new HashMap<>();
@@ -225,13 +230,12 @@ public class CrudResource {
 
         StrSubstitutor sub = new StrSubstitutor(map);
 
-        sp=sub.replace(templateString);
+        sp=sub.replace(PROJECTION_TMPL);
         return sp;
     }
 
     private String buildSortTemplate(String s1) {
         String ss;
-        String templateString = "{\"${field}\":\"${order}\"}";
 
         String[] split = s1.split(":");
 
@@ -241,7 +245,7 @@ public class CrudResource {
 
         StrSubstitutor sub = new StrSubstitutor(map);
 
-        ss=sub.replace(templateString);
+        ss=sub.replace(SORT_TMPL);
         return ss;
     }
 }
