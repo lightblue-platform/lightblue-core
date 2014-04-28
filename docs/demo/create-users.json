@@ -1,0 +1,79 @@
+{
+  "object_type":"user",
+  "version":"2.0",
+  "returning": { "field":"_id"},
+  "data": {"$array" : { "length":100,
+                        "element":
+{
+        "object_type": "user",
+        "login": { "$str":{"minlength":3,"maxlength":64}},
+        "password" : { 
+            "hashed": { "$str": {"length":256,"charset":"0123456789ABCDEF"}},
+            "salt": { "$str": {"length":256,"charset":"0123456789ABCDEF"}}
+        },
+        "active":{"$choose":[true,false]},
+        "contactPermissions" : {
+                "allowEmailContact" : {"$choose":[true,false]},
+                "allowFaxContact" : {"$choose":[true,false]},
+                "allowMailContact" : {"$choose":[true,false]},
+                "allowPhoneContact" : {"$choose":[true,false]},
+                "allowThirdPartyContact" :{"$choose":[true,false]}
+         },   
+        "personalInfo" : {
+                 "company": "$str",
+                 "greeting": { "$choose" : [ "Mr.", "Mrs." ]},
+                 "firstName":"$str",
+                 "lastName":"$str",
+                 "suffix": { "$optional": { "value":"$str"}},
+                 "title": { "$optional": {"value": {"$str" : {}}}},
+                 "email":"$str",
+                 "emailConfirmed": {"$choose":[true,false]},
+                 "phoneNumber":"$str",
+                 "faxNumber":"$str", 
+                 "locale":"$str",
+                 "timezone": "$str", 
+                 "department":"$str"
+        },
+        "sites" : { "$array": { "minlength":2,"maxlength":16,
+                                "element": {
+                     "siteId" : "$str",
+                     "streetAddress" : {
+                              "address1": { "$str":{"minlength":10}},
+                              "address2": "$str",
+                              "address3": "$str",
+                              "address4": "$str",
+                              "city":"$str",
+                              "state": {"$propfile" : {"choose":"us.state-abbreviations"}},
+                              "country":"$str",
+                              "countryCode":{"$str":{"length":2}},
+                              "postalCode":{"$str":{"length":5,"charset":"0123456789"}},
+                              "poBox":{"$choose":[true,false]}
+                     },
+                     "contactInfo": {
+                             "emailAddress":"$str",
+                              "faxNumber":{"$str":{"length":10,"charset":"0123456789"}}, 
+                              "phoneNumber" : {"$str":{"length":10,"charset":"0123456789"}}, 
+                              "url":"$str"
+                     },
+                     "notes":"$str",
+                     "siteType":{"$choose":["billing","marketing","service","shipping"]},
+                     "firstName":"$str",
+                     "lastName":"$str",
+                     "description":"$str",
+                     "defaultSite":{"$choose":[true,false]},
+                     "active":{"$choose":[true,false]},
+                     "usages": { "$array":{"minlength":1,"maxlength":4,"element":{
+                            "usage": {"$choose":["billing","marketing","service","shipping"]},
+                            "lastUsedOn":{"$date":{"bck":"4y","format":"yyyyMMdd'T'HH:mm:ss.SSSZ"}}
+                          }
+                        } }
+                   } } } ,
+        "createdDate": { "$date":{"bck":"4y","format":"yyyyMMdd'T'HH:mm:ss.SSSZ"}},
+        "updatedDate": { "$date":{"bck":"1y","format":"yyyyMMdd'T'HH:mm:ss.SSSZ"}}
+ }
+
+
+                     }
+        }
+ 
+}
