@@ -50,7 +50,7 @@ public class CrudResource {
     private static final String FIELD_Q_IN_TMPL= "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
     private static final String PROJECTION_TMPL= "{\"field\":\"${field}\",\"include\": ${include}, \"recursive\": ${recursive}}";
     private static final String SORT_TMPL= "{\"${field}\":\"${order}\"}";
-    private static final String DEFAULT_PROJECTION_TMPL="{\"*\",\"recursive\":true}";
+    private static final String DEFAULT_PROJECTION_TMPL="{\"field\":\"*\",\"recursive\":true}";
 
     @PUT
     @Path("/{entity}")
