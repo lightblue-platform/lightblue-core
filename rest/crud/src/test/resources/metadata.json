@@ -8,7 +8,7 @@
         ],
         "datastore": {
             "mongo": {
-                  "database": "testmetadata",
+                  "datasource": "mongo",
                   "collection": "country"
             }
         }    },

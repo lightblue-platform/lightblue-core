@@ -26,16 +26,12 @@ public class ControllerConfiguration implements JsonInitializable {
 
     private String datastoreType;
     private Class<? extends ControllerFactory>  controllerFactory;
-    private Class databaseConfigurationClass;
-    private Object databaseConfiguration;
 
     public ControllerConfiguration() {}
 
     public ControllerConfiguration(ControllerConfiguration c) {
         datastoreType=c.datastoreType;
         controllerFactory=c.controllerFactory;
-        databaseConfigurationClass=c.databaseConfigurationClass;
-        databaseConfiguration=c.databaseConfiguration;
     }
 
     /**
@@ -65,22 +61,6 @@ public class ControllerConfiguration implements JsonInitializable {
     public void setControllerFactory(Class<? extends ControllerFactory>  clazz) {
         this.controllerFactory = clazz;
     }
-
-    public Class getDatabaseConfigurationClass() {
-        return databaseConfigurationClass;
-    }
-
-    public void setDatabaseConfigurationClass(Class clazz) {
-        this.databaseConfigurationClass=clazz;
-    }
-
-    public Object getDatabaseConfiguration() {
-        return databaseConfiguration;
-    }
-
-    public void setDatabaseConfiguration(Object cfg) {
-        databaseConfiguration=cfg;
-    }
     
     @Override
     public void initializeFromJson(JsonNode node) {
@@ -92,14 +72,6 @@ public class ControllerConfiguration implements JsonInitializable {
                 x=node.get("controllerFactory");
                 if(x!=null) 
                     controllerFactory=(Class<ControllerFactory>)Class.forName(x.asText());
-                x=node.get("databaseConfigurationClass");
-                if(x!=null)
-                    databaseConfigurationClass=Class.forName(x.asText());
-                x=node.get("databaseConfiguration");
-                if(x!=null) {
-                    databaseConfiguration=databaseConfigurationClass.newInstance();
-                    ((JsonInitializable)databaseConfiguration).initializeFromJson(x);
-                }
             }
         } catch (RuntimeException e) {
             throw e;

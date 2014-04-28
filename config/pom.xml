@@ -30,6 +30,7 @@
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <modules>
+        <module>common</module>
         <module>metadata</module>
         <module>crud</module>
     </modules>

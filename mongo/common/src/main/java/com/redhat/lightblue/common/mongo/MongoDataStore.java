@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.mongo;
+package com.redhat.lightblue.common.mongo;
 
 import java.io.Serializable;
 
@@ -27,6 +27,7 @@ public class MongoDataStore implements DataStore, Serializable {
     private static final long serialVersionUID = 1l;
 
     private String clientJndiName;
+    private String datasourceName;
     private String databaseName;
     private String collectionName;
 
@@ -35,9 +36,11 @@ public class MongoDataStore implements DataStore, Serializable {
 
     public MongoDataStore(String clientJndiName,
                           String databaseName,
+                          String datasourceName,
                           String collectionName) {
         this.clientJndiName = clientJndiName;
         this.databaseName = databaseName;
+        this.datasourceName = datasourceName;
         this.collectionName = collectionName;
     }
 
@@ -65,6 +68,24 @@ public class MongoDataStore implements DataStore, Serializable {
     }
 
     /**
+     * Gets the value of datasourceName
+     *
+     * @return the value of datasourceName
+     */
+    public String getDatasourceName() {
+        return this.datasourceName;
+    }
+
+    /**
+     * Sets the value of datasourceName
+     *
+     * @param argDatasourceName Value to assign to this.datasourceName
+     */
+    public void setDatasourceName(String argDatasourceName) {
+        this.datasourceName = argDatasourceName;
+    }
+
+    /**
      * Gets the value of databaseName
      *
      * @return the value of databaseName
@@ -81,6 +102,7 @@ public class MongoDataStore implements DataStore, Serializable {
     public void setDatabaseName(String argDatabaseName) {
         this.databaseName = argDatabaseName;
     }
+
 
     /**
      * Gets the value of collectionName
@@ -103,6 +125,9 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public String toString() {
         StringBuilder bld = new StringBuilder(64);
+        if (datasourceName != null) {
+            bld.append(datasourceName).append(':');
+        }
         if (databaseName != null) {
             bld.append(databaseName).append(':');
         }
@@ -119,7 +144,10 @@ public class MongoDataStore implements DataStore, Serializable {
             if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return clientJndiNameEqual(mds.getClientJndiName()) && clientDatabaseNameEqual(mds.getDatabaseName()) && clientCollectionNameEqual(mds.getCollectionName());
+                    return strequals(clientJndiName,mds.getClientJndiName()) &&
+                        strequals(datasourceName,mds.getDatasourceName())&&
+                        strequals(databaseName,mds.getDatabaseName()) && 
+                        strequals(collectionName,mds.getCollectionName());
                 } catch (ClassCastException e) {
                 }
             }
@@ -128,46 +156,16 @@ public class MongoDataStore implements DataStore, Serializable {
         return false;
     }
 
-    private boolean clientJndiNameEqual(String clientJndiName) {
-        if (this.clientJndiName == null && clientJndiName == null) {
-            return true;
-        } else {
-            if (this.clientJndiName != null && clientJndiName != null) {
-                return this.clientJndiName.equals(clientJndiName);
-            } else {
-                return false;
-            }
-        }
-    }
-
-    private boolean clientDatabaseNameEqual(String databaseName) {
-        if (this.databaseName == null && databaseName == null) {
-            return true;
-        } else {
-            if (this.databaseName != null && databaseName != null) {
-                return this.databaseName.equals(databaseName);
-            } else {
-                return false;
-            }
-        }
-    }
-
-    private boolean clientCollectionNameEqual(String collectionName) {
-        if (this.collectionName == null && collectionName == null) {
-            return true;
-        } else {
-            if (this.collectionName != null && collectionName != null) {
-                return this.collectionName.equals(collectionName);
-            } else {
-                return false;
-            }
-        }
+    private static boolean strequals(String s1,String s2) {
+        return (s1==null&&s2==null) ||
+            (s1!=null&&s2!=null&&s1.equals(s2));
     }
 
     @Override
     public int hashCode() {
         return (clientJndiName == null ? 1 : clientJndiName.hashCode())
-                * (databaseName == null ? 1 : databaseName.hashCode())
-                * (collectionName == null ? 1 : collectionName.hashCode());
+            * (databaseName == null ? 1 : databaseName.hashCode())
+            * (collectionName == null ? 1 : collectionName.hashCode())
+            * (datasourceName == null ? 1 : datasourceName.hashCode());
     }
 }

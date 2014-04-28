@@ -16,18 +16,21 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud.mongo;
+package com.redhat.lightblue.config.common;
 
-import com.mongodb.DB;
+import com.redhat.lightblue.util.JsonInitializable;
 
-import com.redhat.lightblue.metadata.mongo.MongoDataStore;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
 /**
- * Returns a DB object based on the MongoDataStore.
+ * Base interface for datastore configuration
  */
-public interface DBResolver {
+public interface DataSourceConfiguration extends JsonInitializable {
+
     /**
-     * Returns a DB object based on the datastore definition
+     * Returns the metadata datastore parser class
      */
-    DB get(MongoDataStore store);
+    public Class<DataStoreParser> getMetadataDataStoreParser();
+
 }
+

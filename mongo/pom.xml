@@ -97,5 +97,6 @@
         <!--module>test</module-->
         <module>hystrix</module>
         <module>config</module>
+        <module>common</module>
     </modules>
 </project>

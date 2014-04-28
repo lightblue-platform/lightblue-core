@@ -24,7 +24,25 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.metadata.MetadataManager;
+
 public class RestApplication extends Application {
+
+    public static DataSourcesConfiguration datasources;
+    public static MetadataManager metadataMgr;
+
+    public RestApplication() {
+        try {
+            datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot initialize:"+e);
+        }
+        metadataMgr=new MetadataManager(datasources);
+    }
+
+
     @Override
     public Set<Class<?>> getClasses() {
         return new HashSet<Class<?>>(Arrays.asList(MetadataResource.class));

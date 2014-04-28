@@ -40,6 +40,8 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
+import com.redhat.lightblue.TestDataStoreParser;
+
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.FieldProjection;
 
@@ -47,8 +49,6 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
-
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -166,7 +166,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
         TypeResolver typeResolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, typeResolver, nodeFactory);
         EntityMetadata md = parser.parseEntityMetadata(node);

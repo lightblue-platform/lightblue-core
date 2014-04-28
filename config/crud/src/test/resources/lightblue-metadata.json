@@ -1,17 +1,9 @@
 {
     "documentation": [
-        "metadataClass - the class implementing Metadata interface",
-        "databaseConfigurationClass - pojo configuration class that is passed as single argument to metadata 'factory' method",
-        "metadataFactoryMethod - static method that takes instance of database configuration as argument and returns an instance of Metadata",
-        "database - JSON object that is converted to database configuration pojo and used for Metadata creation"
+        "type - the class implementing MetadataConfiguration interface",
+        "The remainder of the file is parsed by the implementation class"
     ],
-    "metadataClass": "com.redhat.lightblue.metadata.test.DatabaseMetadata",
-    "databaseConfigurationClass": "com.redhat.lightblue.metadata.test.DatabaseConfiguration",
-    "metadataFactoryMethod": "create",
-    "databaseConfiguration": {
-        "name": "mongo",
-        "host": "whatever",
-        "port": 1234,
-        "collection": "metadata"
-    }
+    "type" : "com.redhat.lightblue.config.metadata.TestConfig",
+    "dataSource" : "mongo",
+    "collection": "metadata"
 }

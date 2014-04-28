@@ -1,0 +1,41 @@
+
+Create user metadata v1.0:
+ 
+ curl -X PUT  -H Content-type:application/json -d @usermd-v1.0.json http://localhost:8080/metadata/user/1.0|tee out.json
+
+Get all entity names:
+  curl http://localhost:8080/metadata|tee out.json
+
+Get user versions:
+  curl http://localhost:8080/metadata/user|tee out.json
+
+Get user 1.0
+  curl http://localhost:8080/metadata/user/1.0|tee out.json
+
+No index in user 1.0, add unique index:
+
+  curl -X PUT -H Content-type:application/json -d@usermd-ei-index.json http://localhost:8080/metadata/user|tee out.json
+
+Get user 1.0
+  curl http://localhost:8080/metadata/user/1.0|tee out.json
+
+
+Create new user schema v2.0, add new field lastLoginDate:
+
+  curl -X PUT -H Content-type:application/json -d@usermd-v2.0.json http://localhost:8080/metadata/user/schema=2.0|tee out.json
+
+Get user versions:
+  curl http://localhost:8080/metadata/user|tee out.json
+
+Get user 2.0
+  curl http://localhost:8080/metadata/user/2.0|tee out.json
+
+
+Set v2 as default
+
+  curl -X POST http://localhost:8080/metadata/user/2.0/default|tee out.json
+
+
+
+
+

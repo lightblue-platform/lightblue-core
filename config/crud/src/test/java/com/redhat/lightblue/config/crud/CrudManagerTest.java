@@ -19,8 +19,10 @@
 package com.redhat.lightblue.config.crud;
 
 import com.redhat.lightblue.mediator.Mediator;
+import com.redhat.lightblue.config.metadata.MetadataManager;
 import org.junit.Assert;
 import org.junit.Test;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 
 /**
  *
@@ -29,7 +31,10 @@ import org.junit.Test;
 public class CrudManagerTest {
     @Test
     public void getMediator() throws Exception {
-        Mediator m = CrudManager.getMediator();
+        DataSourcesConfiguration ds=new DataSourcesConfiguration();
+        CrudManager mgr=new CrudManager(ds,new MetadataManager(ds));
+                                                             
+        Mediator m = mgr.getMediator();
         Assert.assertNotNull(m);
     }
 }

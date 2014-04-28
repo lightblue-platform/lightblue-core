@@ -20,20 +20,21 @@ package com.redhat.lightblue.mongo.config;
 
 import com.mongodb.MongoClient;
 
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.crud.ControllerFactory;
 import com.redhat.lightblue.config.crud.ControllerConfiguration;
 import com.redhat.lightblue.crud.CRUDController;
 
 import com.redhat.lightblue.crud.mongo.MongoCRUDController;
-import com.redhat.lightblue.crud.mongo.DBResolver;
+
+import com.redhat.lightblue.common.mongo.DBResolver;
 
 public class MongoCRUDFactory implements ControllerFactory {
     @Override
-    public CRUDController createController(ControllerConfiguration cfg) {
+    public CRUDController createController(ControllerConfiguration cfg,
+                                           DataSourcesConfiguration ds) {
         try {
-            MongoConfiguration dbConfig=(MongoConfiguration)cfg.getDatabaseConfiguration();
-            MongoClient client=dbConfig.getMongoClient();
-            DBResolver resolver=new MongoDBResolver(client);
+            DBResolver resolver=new MongoDBResolver(ds);
             return new MongoCRUDController(resolver);
         } catch (RuntimeException e) {
             throw e;

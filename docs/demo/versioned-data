@@ -1,0 +1,39 @@
+
+Get user 1.0
+  curl http://localhost:8080/metadata/user/1.0|tee out.json
+
+Get user 2.0
+  curl http://localhost:8080/metadata/user/2.0|tee out.json
+
+Create v1 user:
+
+  curl -X PUT -H Content-Type:application/json -d @create-v1-user.json http://localhost:8080/data/user/1.0
+
+Find v1 user:
+
+  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar'|tee out.json
+
+Update v1 user with v2 schema:
+  curl -X POST -H Content-Type:application/json -d '{
+"object_type":"user",
+"returning": { "field":"*","recursive":1},
+"query" : { "field":"login","op":"$eq","rvalue":"bserdar" },
+"update" : { "$set":{"lastLoginDate": "20140425T00:00:00.000-0600"}}
+}' http://localhost:8080/data/update/user/2.0|tee out.json
+
+Find v1 user:
+
+  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar'|tee out.json
+
+Find v2 user:
+
+  curl -X GET 'http://localhost:8080/data/find/user/2.0?Q=login:bserdar'|tee out.json
+
+(fields not visible to a version won't be modified)
+v2 user saves:
+
+  curl -X POST -H Content-Type:application/json -d @save-v2-user.json http://localhost:8080/data/save/user/2.0
+
+v1 user saves:
+
+curl -X POST -H Content-Type:application/json -d @save-v1-user.json http://localhost:8080/data/save/user/1.0

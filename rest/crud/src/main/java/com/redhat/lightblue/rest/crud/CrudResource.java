@@ -18,19 +18,23 @@
  */
 package com.redhat.lightblue.rest.crud;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+import com.redhat.lightblue.EntityVersion;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.rest.crud.hystrix.*;
+import com.redhat.lightblue.util.JsonUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 
-import com.redhat.lightblue.rest.crud.hystrix.DeleteCommand;
-import com.redhat.lightblue.rest.crud.hystrix.FindCommand;
-import com.redhat.lightblue.rest.crud.hystrix.InsertCommand;
-import com.redhat.lightblue.rest.crud.hystrix.SaveCommand;
-import com.redhat.lightblue.rest.crud.hystrix.UpdateCommand;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -41,6 +45,13 @@ import com.redhat.lightblue.rest.crud.hystrix.UpdateCommand;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CrudResource {
+
+    private static final String FIELD_Q_EQ_TMPL="{\"field\": \"${field}\", \"op\": \"=\",\"rvalue\": \"${value}\"}";
+    private static final String FIELD_Q_IN_TMPL= "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
+    private static final String PROJECTION_TMPL= "{\"field\":\"${field}\",\"include\": ${include}, \"recursive\": ${recursive}}";
+    private static final String SORT_TMPL= "{\"${field}\":\"${order}\"}";
+    private static final String DEFAULT_PROJECTION_TMPL="{\"field\":\"*\",\"recursive\":true}";
+
     @PUT
     @Path("/{entity}")
     public String insert(@PathParam("entity") String entity, String request) {
@@ -99,5 +110,142 @@ public class CrudResource {
     @Path("/find/{entity}/{version}")
     public String find(@PathParam("entity") String entity, @PathParam("version") String version, String request) {
         return new FindCommand(null, entity, version, request).execute();
+    }
+
+    @GET
+    @Path("/find/{entity}") //?Q&P&S&from&to
+    public String simpleFind(@PathParam("entity") String entity                                      , @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+        return simpleFind(entity, null, q, p, s, from, to);
+    }
+
+    @GET
+    @Path("/find/{entity}/{version}") //?Q&P&S&from&to
+    public String simpleFind(@PathParam("entity") String entity, @PathParam("version") String version, @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+        // spec -> https://github.com/lightblue-platform/lightblue/wiki/Rest-Spec-Data#get-simple-find
+        String sq = null;
+        if(q != null && !"".equals(q.trim())) {
+            List<String> queryList = Arrays.asList(q.split(";"));
+            if (queryList.size() > 1) {
+                StringBuilder sbq = new StringBuilder("{ \"$and\" : [");
+                for (int i = 0; i < queryList.size(); i++) {
+                    sbq.append(buildQueryFieldTemplate(queryList.get(i)));
+                    if ((i + 1) < queryList.size()) {
+                        sbq.append(',');
+                    }
+                }
+                sbq.append("]}");
+                sq = sbq.toString();
+
+            } else {
+                sq = buildQueryFieldTemplate(queryList.get(0));
+            }
+        }
+
+        String sp = DEFAULT_PROJECTION_TMPL;
+        if(p != null && !"".equals(p.trim())) {
+            List<String> projectionList = Arrays.asList(p.split(","));
+            if (projectionList.size() > 1) {
+                StringBuilder sbp = new StringBuilder("[");
+                for (int i = 0; i < projectionList.size(); i++) {
+                    sbp.append(buildProjectionTemplate(projectionList.get(i)));
+                    if ((i + 1) < projectionList.size()) {
+                        sbp.append(',');
+                    }
+                }
+                sbp.append("]");
+                sp = sbp.toString();
+
+            } else {
+                sp = buildProjectionTemplate(projectionList.get(0));
+            }
+        }
+
+        String ss = null;
+        if(s != null && !"".equals(s.trim())) {
+            List<String> sortList = Arrays.asList(s.split(","));
+            if (sortList.size() > 1) {
+                StringBuilder sbs = new StringBuilder("[" );
+                for (int i = 0; i < sortList.size(); i++) {
+                    sbs.append(buildSortTemplate(sortList.get(i)));
+                    if((i+1) < sortList.size()) {
+                        sbs.append(',');
+                    }
+                }
+                sbs.append("]");
+                ss=sbs.toString();
+
+            } else {
+                ss = buildSortTemplate(sortList.get(0));
+            }
+        }
+
+        FindRequest findRequest = new FindRequest();
+        findRequest.setEntityVersion(new EntityVersion(entity, version));
+        findRequest.setQuery(sq == null ? null : QueryExpression.fromJson(JsonUtils.json(sq)));
+        findRequest.setProjection(sp == null ? null : Projection.fromJson(JsonUtils.json(sp)));
+        findRequest.setSort(ss == null ? null : Sort.fromJson(JsonUtils.json(ss)));
+        findRequest.setFrom(from);
+        findRequest.setTo(to);
+        String request = findRequest.toString();
+        System.out.println("Req:"+request);
+
+        return new FindCommand(null, entity, version, request).execute();
+    }
+
+
+    private String buildQueryFieldTemplate(String s1) {
+        String sq;
+        String template = null;
+
+        String[] split = s1.split(":");
+
+        Map<String,String> map = new HashMap<>();
+        map.put("field", split[0]);
+        String value = null;
+
+        String[] comma = split[1].split(",");
+        if(comma.length > 1){
+            template = FIELD_Q_IN_TMPL;
+            value = "\""+ StringUtils.join(comma, "\",\"")+"\"";
+        }else{
+            template = FIELD_Q_EQ_TMPL;
+            value = split[1];
+        }
+        map.put("value", value );
+
+        StrSubstitutor sub = new StrSubstitutor(map);
+
+        sq=sub.replace(template);
+        return sq;
+    }
+
+    private String buildProjectionTemplate(String s1) {
+        String sp;
+        String[] split = s1.split(":");
+
+        Map<String,String> map = new HashMap<>();
+        map.put("field", split[0]);
+        map.put("include", split[1].charAt(0)=='1' ? "true" : "false");
+        map.put("recursive", split[1].length()<2 ? "false" : (split[1].charAt(1)=='r' ? "true" : "false") );
+
+        StrSubstitutor sub = new StrSubstitutor(map);
+
+        sp=sub.replace(PROJECTION_TMPL);
+        return sp;
+    }
+
+    private String buildSortTemplate(String s1) {
+        String ss;
+
+        String[] split = s1.split(":");
+
+        Map<String,String> map = new HashMap<>();
+        map.put("field", split[0]);
+        map.put("order", split[1].charAt(0)=='d' ? "$desc" : "$asc");
+
+        StrSubstitutor sub = new StrSubstitutor(map);
+
+        ss=sub.replace(SORT_TMPL);
+        return ss;
     }
 }

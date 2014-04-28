@@ -16,39 +16,16 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.config.crud.test;
+package com.redhat.lightblue.common.mongo;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.util.JsonInitializable;
+import com.mongodb.DB;
 
 /**
- *
- * @author nmalik
+ * Returns a DB object based on the MongoDataStore.
  */
-public class DatabaseConfiguration implements JsonInitializable {
-    private String name;
-    private String hostname = "localhost";
-    private String port = "27017";
-    private String collection = "metadata";
-
-    public String getName() {
-        return name;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public String getCollection() {
-        return collection;
-    }
-
-    @Override
-    public void initializeFromJson(JsonNode node) {
-
-    }
+public interface DBResolver {
+    /**
+     * Returns a DB object based on the datastore definition
+     */
+    DB get(MongoDataStore store);
 }

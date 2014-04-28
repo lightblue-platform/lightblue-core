@@ -22,6 +22,9 @@ import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+
+import com.redhat.lightblue.common.mongo.MongoDataStore;
+
 import com.redhat.lightblue.util.Error;
 
 public class MongoDataStoreParser<T> implements DataStoreParser<T> {
@@ -37,6 +40,7 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         MongoDataStore ds = new MongoDataStore();
         ds.setClientJndiName(p.getStringProperty(node, "clientJndiName"));
         ds.setDatabaseName(p.getStringProperty(node, "database"));
+        ds.setDatasourceName(p.getStringProperty(node, "datasource"));
         ds.setCollectionName(p.getStringProperty(node, "collection"));
         if (ds.getCollectionName() == null
                 || ds.getCollectionName().length() == 0) {
@@ -53,6 +57,9 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         }
         if (ds.getDatabaseName() != null) {
             p.putString(emptyNode, "database", ds.getDatabaseName());
+        }
+        if(ds.getDatasourceName() != null) {
+            p.putString(emptyNode, "datasource", ds.getDatasourceName());
         }
         if (ds.getCollectionName() != null) {
             p.putString(emptyNode, "collection", ds.getCollectionName());

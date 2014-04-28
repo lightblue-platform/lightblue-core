@@ -32,17 +32,16 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 
-public class MongoMetadataConfigurationTest {
+public class MongoConfigurationTest {
 
-    MongoMetadataConfiguration config;
+    MongoConfiguration config;
     List<ServerAddress> servers;
     ServerAddress serverAddress;
 
     @Before
     public void setUp() throws Exception {
-        config = new MongoMetadataConfiguration();
-        config.setName("name");
-        config.setCollection("collection");
+        config = new MongoConfiguration();
+        config.setDatabase("database");
         config.setConnectionsPerHost(10);
         serverAddress = new ServerAddress("localhost", 27017);
         servers = new ArrayList<>();
@@ -56,27 +55,15 @@ public class MongoMetadataConfigurationTest {
     }
 
     @Test
-    public void testGetName() {
-        Assert.assertEquals("name", config.getName());
+    public void testGetDatabase() {
+        Assert.assertEquals("database", config.getDatabase());
     }
 
     @Test
-    public void testSetName() {
-        config.setName("newName");
+    public void testSetDatabase() {
+        config.setDatabase("newDatabase");
 
-        Assert.assertEquals("newName", config.getName());
-    }
-
-    @Test
-    public void testGetCollection() {
-        Assert.assertEquals("collection", config.getCollection());
-    }
-
-    @Test
-    public void testSetCollection() {
-        config.setCollection("newCollecton");
-
-        Assert.assertEquals("newCollecton", config.getCollection());
+        Assert.assertEquals("newDatabase", config.getDatabase());
     }
 
     @Test
@@ -138,6 +125,6 @@ public class MongoMetadataConfigurationTest {
 
         MongoClient client = new MongoClient(addresses, config.getMongoClientOptions());
 
-        Assert.assertEquals(config.getDB().toString(), client.getDB("name").toString());
+        Assert.assertEquals(config.getDB().toString(), client.getDB("database").toString());
     }
 }

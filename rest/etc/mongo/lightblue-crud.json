@@ -2,17 +2,7 @@
    "controllers" : [
       {
         "datastoreType" : "mongo",
-        "controllerFactory" : "com.redhat.lightblue.mongo.config.MongoCRUDFactory",
-        "databaseConfigurationClass" : "com.redhat.lightblue.mongo.config.MongoConfiguration",
-        "databaseConfiguration" : {
-            "name": "mongo",
-            "servers": [
-               {
-                  "host": "localhost",
-                  "port": "27017"
-               }
-            ]
-         }
+        "controllerFactory" : "com.redhat.lightblue.mongo.config.MongoCRUDFactory"
       }
    ]
 }

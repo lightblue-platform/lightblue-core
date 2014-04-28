@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.mongo;
+package com.redhat.lightblue.common.mongo;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ public class MongoDataStoreTest {
 
     @Before
     public void setUp() throws Exception {
-        dataStore = new MongoDataStore("jndiName", "databaseName", "collectionName");
+        dataStore = new MongoDataStore("jndiName", "databaseName", "datasourceName", "collectionName");
     }
 
     @After
@@ -84,7 +84,7 @@ public class MongoDataStoreTest {
 
     @Test
     public void testToString() {
-        Assert.assertEquals("databaseName:collectionName@jndiName", dataStore.toString());
+        Assert.assertEquals("datasourceName:databaseName:collectionName@jndiName", dataStore.toString());
     }
 
     @Test
@@ -93,6 +93,7 @@ public class MongoDataStoreTest {
         dataStore2.setClientJndiName("jndiName");
         dataStore2.setCollectionName("collectionName");
         dataStore2.setDatabaseName("databaseName");
+        dataStore2.setDatasourceName("datasourceName");
 
         Assert.assertEquals(dataStore2, dataStore);
     }

@@ -18,119 +18,28 @@
  */
 package com.redhat.lightblue.config.metadata;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.fasterxml.jackson.databind.JsonNode;
 
-/**
- * JSON based configuration file.
- *
- * @author nmalik
- */
-public class MetadataConfiguration {
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+
+import com.redhat.lightblue.util.JsonInitializable;
+
+public interface MetadataConfiguration extends JsonInitializable {
     /**
      * The file on classpath that this configuration is loaded from.
      */
-    public static final transient String FILENAME = "lightblue-metadata.json";
-
-    private String metadataClass;
-    private String metadataFactoryMethod;
-    private String databaseConfigurationClass;
-    private Object databaseConfiguration;
-    private LinkedTreeMap<String, Object> properties;
-    private LinkedTreeMap<String, String> dataStoreParserNames;
+    public static final String FILENAME = "lightblue-metadata.json";
 
     /**
-     * Validate that the configuration has all data needed.
+     * Creates an instance of metadata
+     * 
+     * @param ds Datasources
+     * @param parser The JSON parser instance for metadata
+     * @param configuration The metadata configuration object
      */
-    public boolean isValid() {
-        return (getMetadataClass() != null && !metadataClass.isEmpty() && getDatabaseConfiguration() != null);
-    }
-
-    /**
-     * @return the metadataClass
-     */
-    public String getMetadataClass() {
-        return metadataClass;
-    }
-
-    /**
-     * @param metadataClass the metadataClass to set
-     */
-    public void setMetadataClass(String metadataClass) {
-        this.metadataClass = metadataClass;
-    }
-
-    /**
-     * @return the metadataFactoryMethod
-     */
-    public String getMetadataFactoryMethod() {
-        return metadataFactoryMethod;
-    }
-
-    /**
-     * @param metadataFactoryMethod the metadataFactoryMethod to set
-     */
-    public void setMetadataFactoryMethod(String metadataFactoryMethod) {
-        this.metadataFactoryMethod = metadataFactoryMethod;
-    }
-
-    /**
-     * @return the databaseConfigurationClass
-     */
-    public String getDatabaseConfigurationClass() {
-        return databaseConfigurationClass;
-    }
-
-    /**
-     * @param databaseConfigurationClass the databaseConfigurationClass to set
-     */
-    public void setDatabaseConfigurationClass(String databaseConfigurationClass) {
-        this.databaseConfigurationClass = databaseConfigurationClass;
-    }
-
-    /**
-     * @return the databaseConfiguration
-     */
-    public Object getDatabaseConfiguration() {
-        return databaseConfiguration;
-    }
-
-    /**
-     * @param databaseConfiguration the databaseConfiguration to set
-     */
-    public void setDatabaseConfiguration(Object databaseConfiguration) {
-        this.databaseConfiguration = databaseConfiguration;
-    }
-
-    /**
-     * @return the properties
-     */
-    public LinkedTreeMap<String, Object> getProperties() {
-        return properties;
-    }
-
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(LinkedTreeMap<String, Object> properties) {
-        this.properties = properties;
-    }
-
-    public LinkedTreeMap<String, String> getDataStoreParserNames() {
-        return dataStoreParserNames;
-    }
-
-    public void setDataStoreParserNames(LinkedTreeMap<String, String>  dataStoreParserNames) {
-        this.dataStoreParserNames = dataStoreParserNames;
-    }
-
-    public String toString() {
-        StringBuilder bld=new StringBuilder();
-        bld.append("metadataClass:").append(metadataClass).append('\n').
-            append("metadataFactoryMethod:").append(metadataFactoryMethod).append('\n').
-            append("databaseConfigurationClass:").append(databaseConfigurationClass).append('\n').
-            append("databaseConfiguration:").append(databaseConfiguration).append('\n').
-            append("properties:").append(properties).append('\n').
-            append("dataStoreParserNames:").append(dataStoreParserNames);
-        return bld.toString();
-    }
+    public Metadata createMetadata(DataSourcesConfiguration ds,
+                                   JSONMetadataParser parser);
 }

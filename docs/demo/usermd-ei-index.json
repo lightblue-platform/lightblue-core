@@ -1,0 +1,22 @@
+{
+    "name": "user",
+    "enums" : [
+       {
+          "name":"site_type_enum",
+          "values": [ "billing", "marketing", "service", "shipping" ]
+       }
+    ],
+  "indexes" : [
+      { 
+        "name":"login_ix",
+        "unique": true,
+        "fields": [ { "login":"$asc" } ]
+      }
+    ],
+    "datastore": {
+        "mongo": {
+            "datasource": "mongo",
+            "collection": "user"
+        }
+    }
+}

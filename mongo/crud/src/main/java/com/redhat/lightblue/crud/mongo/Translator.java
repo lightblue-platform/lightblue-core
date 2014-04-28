@@ -147,6 +147,27 @@ public class Translator {
     }
 
     /**
+     * Translate a path to a mongo path
+     *
+     * Any * in the path is removed. Array indexes remain intact.
+     */
+    public static String translatePath(Path p) {
+        StringBuilder str=new StringBuilder();
+        int n=p.numSegments();
+        for(int i=0;i<n;i++) {
+            String s=p.head(i);
+            if(!s.equals(Path.ANY)) {
+                if(i>0) {
+                    str.append('.');
+                }
+                str.append(s);
+            }
+        }
+        return str.toString();
+    }
+
+
+    /**
      * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
      */
     public DBObject[] toBson(List<? extends JsonDoc> docs) {
@@ -364,7 +385,7 @@ public class Translator {
                 if (field.equals(ID_PATH)) {
                     valueObject = new ObjectId(valueObject.toString());
                 }
-                obj.put(field.toString(), valueObject);
+                obj.put(translatePath(field), valueObject);
             } else {
                 throw new CannotTranslateException(expr);
             }
@@ -384,7 +405,7 @@ public class Translator {
             if (hasArray(root, field)) {
                 throw new CannotTranslateException(expr);
             }
-            obj.put(field.toString(), "");
+            obj.put(translatePath(field), "");
         }
     }
 
@@ -409,7 +430,7 @@ public class Translator {
     }
 
     private DBObject translateSortKey(SortKey sort) {
-        return new BasicDBObject(sort.getField().toString(), sort.isDesc() ? -1 : 1);
+        return new BasicDBObject(translatePath(sort.getField()), sort.isDesc() ? -1 : 1);
     }
 
     private DBObject translateCompositeSortKey(CompositeSortKey sort) {
@@ -418,7 +439,7 @@ public class Translator {
             if (ret == null) {
                 ret = translateSortKey(key);
             } else {
-                ret.put(key.getField().toString(), key.isDesc() ? -1 : 1);
+                ret.put(translatePath(key.getField()), key.isDesc() ? -1 : 1);
             }
         }
         return ret;
@@ -489,9 +510,9 @@ public class Translator {
             valueObject = new ObjectId(valueObject.toString());
         }
         if (expr.getOp() == BinaryComparisonOperator._eq) {
-            return new BasicDBObject(expr.getField().toString(), valueObject);
+            return new BasicDBObject(translatePath(expr.getField()), valueObject);
         } else {
-            return new BasicDBObject(expr.getField().toString(),
+            return new BasicDBObject(translatePath(expr.getField()),
                     new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()), valueObject));
         }
     }
@@ -515,14 +536,14 @@ public class Translator {
         if (opStr.length() > 0) {
             regex.append("$options", opStr);
         }
-        return new BasicDBObject(expr.getField().toString(), regex);
+        return new BasicDBObject(translatePath(expr.getField()), regex);
     }
 
     private DBObject translateNaryRelationalExpression(FieldTreeNode context, NaryRelationalExpression expr) {
         Type t = resolve(context, expr.getField()).getType();
         if (t.supportsEq()) {
             List<Object> values = translateValueList(t, expr.getValues());
-            return new BasicDBObject(expr.getField().toString(),
+            return new BasicDBObject(translatePath(expr.getField()),
                     new BasicDBObject(NARY_RELATIONAL_OPERATOR_MAP.get(expr.getOp()),
                             values));
         } else {
@@ -546,10 +567,10 @@ public class Translator {
     private DBObject translateFieldComparison(FieldComparisonExpression expr) {
         StringBuilder str = new StringBuilder(64);
         str.append("this.").
-                append(expr.getField().toString()).
-                append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
-                append("this.").
-                append(expr.getRfield().toString());
+            append(translatePath(expr.getField())).
+            append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+            append("this.").
+            append(translatePath(expr.getRfield()));
         return new BasicDBObject("$where", str.toString());
     }
 
@@ -558,7 +579,7 @@ public class Translator {
         if (arrayNode instanceof ArrayField) {
             ArrayElement el = ((ArrayField) arrayNode).getElement();
             if (el instanceof ObjectArrayElement) {
-                return new BasicDBObject(expr.getArray().toString(),
+                return new BasicDBObject(translatePath(expr.getArray()),
                         translate(el, expr.getElemMatch()));
             }
         }
@@ -593,7 +614,7 @@ public class Translator {
      * </pre>
      */
     private DBObject translateArrayContainsAll(Type t, Path array, List<Value> values) {
-        return new BasicDBObject(array.toString(),
+        return new BasicDBObject(translatePath(array),
                 new BasicDBObject("$all",
                         translateValueList(t, values)));
     }
@@ -606,7 +627,7 @@ public class Translator {
     private DBObject translateArrayContainsAny(Type t, Path array, List<Value> values) {
         List<BasicDBObject> l = new ArrayList<>(values.size());
         for (Value x : values) {
-            l.add(new BasicDBObject(array.toString(), x == null ? null
+            l.add(new BasicDBObject(translatePath(array), x == null ? null
                     : x.getValue() == null ? null : t.cast(x.getValue())));
         }
         return new BasicDBObject("$or", l);
@@ -848,5 +869,6 @@ public class Translator {
         }
         return l;
     }
+
 
 }
