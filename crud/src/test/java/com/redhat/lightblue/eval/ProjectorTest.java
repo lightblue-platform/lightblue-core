@@ -142,6 +142,18 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals("elvalue2_2", pdoc.get(new Path("field7.1.elemf2")).asText());
         Assert.assertEquals("elvalue3_1", pdoc.get(new Path("field7.2.elemf1")).asText());
         Assert.assertEquals("elvalue3_2", pdoc.get(new Path("field7.2.elemf2")).asText());
+
+    }
+    @Test
+    public void fieldProjectorTest_include_then_exclude() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("[{'field':'field6.*'},{'field':'field6.nf3','include':false}]");
+        Projector projector = Projector.getInstance(p, md);
+        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        Assert.assertNotNull(pdoc.get(new Path("field6")));
+        Assert.assertEquals("nvalue1",pdoc.get(new Path("field6.nf1")).asText());
+        Assert.assertEquals("nvalue2",pdoc.get(new Path("field6.nf2")).asText());
+        Assert.assertNull(pdoc.get(new Path("field6.nf3")));
     }
 
 }
