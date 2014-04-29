@@ -166,6 +166,30 @@ public class Translator {
         return str.toString();
     }
 
+    /**
+     * Translate a path to a javascript path
+     *
+     * Path cannot have *. Indexes are put into brackets
+     */
+    public static String translateJsPath(Path p) {
+        StringBuilder str=new StringBuilder();
+        int n=p.numSegments();
+        for(int i=0;i<n;i++) {
+            String s=p.head(i);
+            if(s.equals(Path.ANY))
+                throw Error.get(MongoCrudConstants.ERR_TRANSLATION_ERROR,p.toString());
+            else if(p.isIndex(i)) {
+                str.append('[').append(s).append(']');
+            } else {
+                if(i>0) {
+                    str.append('.');
+                }
+                str.append(s);
+            }
+        }
+        return str.toString();
+    }
+
 
     /**
      * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
@@ -567,10 +591,10 @@ public class Translator {
     private DBObject translateFieldComparison(FieldComparisonExpression expr) {
         StringBuilder str = new StringBuilder(64);
         str.append("this.").
-            append(translatePath(expr.getField())).
+            append(translateJsPath(expr.getField())).
             append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
             append("this.").
-            append(translatePath(expr.getRfield()));
+            append(translateJsPath(expr.getRfield()));
         return new BasicDBObject("$where", str.toString());
     }
 
