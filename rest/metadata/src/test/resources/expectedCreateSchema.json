@@ -29,6 +29,9 @@
             "delete": ["anyone"]
         },
         "fields": {
+            "iso3code": {
+                "type": "string"
+            },
             "object_type": {
                 "type": "string",
                 "access": {
@@ -40,16 +43,13 @@
                     "required": true
                 }
             },
-            "elementx": {
+            "name": {
                 "type": "string"
             },
             "iso2code": {
                 "type": "string"
             },
-            "iso3code": {
-                "type": "string"
-            },
-            "name": {
+            "elementx": {
                 "type": "string"
             }
         }

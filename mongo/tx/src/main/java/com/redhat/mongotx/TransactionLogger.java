@@ -142,7 +142,7 @@ public class TransactionLogger {
      * Checks if the transaction exists with active status, and
      * updates the timestamp. Adds the collection to the collections
      * set.
-     */
+
     public void touch(String txId,DBCollection collection) 
         throws InvalidTransactionException {
         BasicDBObject q=new BasicDBObject().
@@ -160,7 +160,7 @@ public class TransactionLogger {
 
     /**
      * Returns a list of lock ids given document ids and a collection
-     */
+
     private List<String> getLockIds(DBCollection collection,List<String> docIds) {
         String prefix=collection.getName()+":";
         List<String> ids=new ArrayList<>(docIds.size());
@@ -171,7 +171,7 @@ public class TransactionLogger {
 
     /**
      * Returns a list of IDs of the documents
-     */
+
     private List<String> getIds(List<DBObject> docs) {
         List<String> list=new ArrayList<>(docs.size());
         for(DBObject doc:docs) {
@@ -184,7 +184,7 @@ public class TransactionLogger {
      * Either locks all docs, or none of them. Lock data is saved into
      * the transaction collection, with id=collection:docId, txId:
      * transactionId, and lock:w
-     */
+
     public void lock(String txId,DBCollection collection,List<String> docIds,LockOp op) 
         throws LockException, InvalidTransactionException {
         // Try to lock the document by inserting lock data
@@ -272,8 +272,8 @@ public class TransactionLogger {
 
     /**
      * Assumes all docs are already locked
-     */
-    public void delete(String txId,DBCollection collection,List<String> docIds),
+
+    public void delete(String txId,DBCollection collection,List<String> docIds)
         throws LockException, InvalidTransactionException {
         List<String> lockIds=getLockIds(collection,docIds);
         // Mark locks as deleted
@@ -297,7 +297,7 @@ public class TransactionLogger {
 
     /**
      * Assumes docs are already locked
-     */
+
     public void update(String txId,DBCollection collection,List<DBObject> docs) {
         touch(txId,collection);
         // Make sure all docs are locked, and not deleted
@@ -580,4 +580,5 @@ public class TransactionLogger {
     private static String arg(String argName, String[] args) {
         return arg(argName, args, false);
     }
+     **/
 }

@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonObject;
-import sun.misc.Sort;
 
 public class JsonNodeBuilder {
 
@@ -53,7 +52,7 @@ public class JsonNodeBuilder {
 
     }
 
-    public JsonNodeBuilder add(String key, Sort value) {
+    public JsonNodeBuilder add(String key, java.util.Comparator value) {
         if (include(value)) {
             root.put(key, value.toString());
         }

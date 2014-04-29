@@ -32,7 +32,7 @@ import de.flapdoodle.embed.process.runtime.Network;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;/*
 import com.redhat.lightblue.DeleteRequest;
 import com.redhat.lightblue.FindRequest;
 import com.redhat.lightblue.InsertionRequest;
@@ -60,8 +60,9 @@ import java.io.IOException;
 
 /**
  * Simple test front-end for metadata and mediator that works with one DB
- */
+ **/
 public class FrontEnd {
+    /**
     private final DB db;
 
     private static final String MONGO_HOST = "localhost";
@@ -238,5 +239,5 @@ public class FrontEnd {
         } else {
             return JsonUtils.json(arg);
         }
-    }
+    }**/
 }
