@@ -580,7 +580,8 @@ public class Translator {
             ArrayElement el = ((ArrayField) arrayNode).getElement();
             if (el instanceof ObjectArrayElement) {
                 return new BasicDBObject(translatePath(expr.getArray()),
-                        translate(el, expr.getElemMatch()));
+                                         new BasicDBObject("$elemMatch",
+                                                           translate(el, expr.getElemMatch())));
             }
         }
         throw Error.get(ERR_INVALID_FIELD, expr.toString());
