@@ -44,10 +44,13 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -198,7 +201,7 @@ public class ITCaseMetadataResourceTest {
     private MetadataResource cutMetadataResource;
 
     @Test
-    public void testFirstIntegrationTest() throws IOException, URISyntaxException {
+    public void testFirstIntegrationTest() throws IOException, URISyntaxException, JSONException {
         assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
 
         RestApplication.datasources=new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json")));
@@ -206,23 +209,23 @@ public class ITCaseMetadataResourceTest {
 
         String expectedCreated = readFile("expectedCreated.json");
         String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));
-        assertEquals(expectedCreated,resultCreated);
+        JSONAssert.assertEquals(expectedCreated,resultCreated,false);
 
         String expectedDepGraph = readFile("expectedDepGraph.json").replace("Notsupportedyet"," Not supported yet");
         String resultDepGraph = cutMetadataResource.getDepGraph(); //TODO Not implemented yet
-        assertEquals(expectedDepGraph,resultDepGraph);
+        JSONAssert.assertEquals(expectedDepGraph,resultDepGraph,false);
 
         String expectedDepGraph1 = readFile("expectedDepGraph1.json").replace("Notsupportedyet", " Not supported yet");
         String resultDepGraph1 = cutMetadataResource.getDepGraph("country"); //TODO Not implemented yet
-        assertEquals(expectedDepGraph1,resultDepGraph1);
+        JSONAssert.assertEquals(expectedDepGraph1,resultDepGraph1,false);
 
         String expectedDepGraph2 = readFile("expectedDepGraph2.json").replace("Notsupportedyet", " Not supported yet");
         String resultDepGraph2 = cutMetadataResource.getDepGraph("country", "1.0.0"); //TODO Not implemented yet
-        assertEquals(expectedDepGraph2,resultDepGraph2);
+        JSONAssert.assertEquals(expectedDepGraph2,resultDepGraph2,false);
 
         String expectedEntityNames = "{\"entities\":[\"country\"]}";
         String resultEntityNames = cutMetadataResource.getEntityNames();
-        assertEquals(expectedEntityNames,resultEntityNames);
+        JSONAssert.assertEquals(expectedEntityNames,resultEntityNames,false);
 
 
         // no default version
@@ -230,31 +233,31 @@ public class ITCaseMetadataResourceTest {
         String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[\"{\\\"data\\\":{\\\"name\\\":\\\"country\\\"},\\\"errors\\\":[{\\\"object_type\\\":\\\"error\\\",\\\"context\\\":\\\"GetEntityRolesCommand/country\\\",\\\"errorCode\\\":\\\"ERR_NO_METADATA\\\",\\\"msg\\\":\\\"Could not get metadata for given input. Error message: version\\\"}]}\"]}";
         String resultEntityRoles = cutMetadataResource.getEntityRoles();
         String resultEntityRoles1 = cutMetadataResource.getEntityRoles("country");
-        assertEquals(expectedEntityRoles,resultEntityRoles);
-        assertEquals(expectedEntityRoles1,resultEntityRoles1);
+        JSONAssert.assertEquals(expectedEntityRoles,resultEntityRoles,false);
+        JSONAssert.assertEquals(expectedEntityRoles1,resultEntityRoles1,false);
 
         String expectedEntityRoles2 =  readFile("expectedEntityRoles2.json");
         String resultEntityRoles2 = cutMetadataResource.getEntityRoles("country","1.0.0");
-        assertEquals(expectedEntityRoles2,resultEntityRoles2);
+        JSONAssert.assertEquals(expectedEntityRoles2,resultEntityRoles2,false);
 
         String expectedEntityVersions = "{\"versions\":[{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"}]}";
         String resultEntityVersions = cutMetadataResource.getEntityVersions("country");
-        assertEquals(expectedEntityVersions,resultEntityVersions);
+        JSONAssert.assertEquals(expectedEntityVersions,resultEntityVersions,false);
 
         String expectedGetMetadata = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"datasource\":\"mongo\",\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
         String resultGetMetadata = cutMetadataResource.getMetadata("country","1.0.0");
-        assertEquals(expectedGetMetadata,resultGetMetadata);
+        JSONAssert.assertEquals(expectedGetMetadata,resultGetMetadata,false);
 
         String expectedCreateSchema = readFile("expectedCreateSchema.json");
         String resultCreateSchema = cutMetadataResource.createSchema("country","1.1.0",readFile("expectedCreateSchemaInput.json"));
-        assertEquals(expectedCreateSchema,resultCreateSchema);
+        JSONAssert.assertEquals(expectedCreateSchema,resultCreateSchema,false);
 
         String expectedUpdateEntityInfo = readFile("expectedUpdateEntityInfo.json");
         String resultUpdateEntityInfo = cutMetadataResource.updateEntityInfo("country",readFile("expectedUpdateEntityInfoInput.json"));
-        assertEquals(expectedUpdateEntityInfo,resultUpdateEntityInfo);
+        JSONAssert.assertEquals(expectedUpdateEntityInfo,resultUpdateEntityInfo,false);
 
         String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"datasource\":\"mongo\",\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
         String resultUpdateSchemaStatus = cutMetadataResource.updateSchemaStatus("country","1.0.0","deprecated","No comment");
-        assertEquals(expectedUpdateSchemaStatus,resultUpdateSchemaStatus);
+        JSONAssert.assertEquals(expectedUpdateSchemaStatus,resultUpdateSchemaStatus,false);
     }
 }
