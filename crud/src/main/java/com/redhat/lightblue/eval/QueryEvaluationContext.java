@@ -25,6 +25,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
 
@@ -61,6 +62,10 @@ public class QueryEvaluationContext {
 
     public JsonNode getNode(Path relativePath) {
         return JsonDoc.get(contextRoot, relativePath);
+    }
+
+    public KeyValueCursor<Path,JsonNode> getNodes(Path relativePath) {
+        return new JsonDoc(contextRoot).getAllNodes(new Path(relativePath));
     }
 
     public Path getPath() {

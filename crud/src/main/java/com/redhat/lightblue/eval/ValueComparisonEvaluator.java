@@ -27,6 +27,7 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 public class ValueComparisonEvaluator extends QueryEvaluator {
 
@@ -57,17 +58,23 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
-        JsonNode valueNode = ctx.getNode(field);
-        Object docValue;
-        if (valueNode != null) {
-            docValue = fieldMd.getType().fromJson(valueNode);
-        } else {
-            docValue = null;
+        KeyValueCursor<Path,JsonNode> cursor=ctx.getNodes(field);
+        while(cursor.hasNext()) {
+            cursor.next();
+            JsonNode valueNode = cursor.getCurrentValue();
+            Object docValue;
+            if (valueNode != null) {
+                docValue = fieldMd.getType().fromJson(valueNode);
+            } else {
+                docValue = null;
+            }
+            LOGGER.debug(" value={}", valueNode);
+            int result = fieldMd.getType().compare(docValue, value);
+            LOGGER.debug(" result={}", result);
+            ctx.setResult(operator.apply(result));
+            if(ctx.getResult())
+                break;
         }
-        LOGGER.debug(" value={}", valueNode);
-        int result = fieldMd.getType().compare(docValue, value);
-        LOGGER.debug(" result={}", result);
-        ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }
 }

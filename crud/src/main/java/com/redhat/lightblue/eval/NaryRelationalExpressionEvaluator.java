@@ -31,6 +31,7 @@ import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
 
@@ -61,28 +62,37 @@ public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", field, operator, values);
-        JsonNode valueNode = ctx.getNode(field);
-        Object docValue;
-        if (valueNode != null) {
-            docValue = fieldMd.getType().fromJson(valueNode);
-        } else {
-            docValue = null;
-        }
-        LOGGER.debug(" value={}", valueNode);
-        boolean in = false;
-        for (Object x : values) {
-            if (docValue == null) {
-                if (x == null) {
+        KeyValueCursor<Path,JsonNode> cursor=ctx.getNodes(field);
+        boolean ret=false;
+        while(cursor.hasNext()) {
+            cursor.next();
+            JsonNode valueNode = cursor.getCurrentValue();
+            Object docValue;
+            if (valueNode != null) {
+                docValue = fieldMd.getType().fromJson(valueNode);
+            } else {
+                docValue = null;
+            }
+            LOGGER.debug(" value={}", valueNode);
+            boolean in = false;
+            for (Object x : values) {
+                if (docValue == null) {
+                    if (x == null) {
+                        in = true;
+                        break;
+                    }
+                } else if (x != null && fieldMd.getType().compare(docValue, x) == 0) {
                     in = true;
                     break;
                 }
-            } else if (x != null && fieldMd.getType().compare(docValue, x) == 0) {
-                in = true;
+            }
+            LOGGER.debug(" result={}", in);
+            if(in) {
+                ret=true;
                 break;
             }
         }
-        LOGGER.debug(" result={}", in);
-        ctx.setResult(operator.apply(in));
+        ctx.setResult(operator.apply(ret));
         return ctx.getResult();
     }
 }

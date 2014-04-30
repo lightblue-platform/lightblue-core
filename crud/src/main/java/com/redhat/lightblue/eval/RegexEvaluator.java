@@ -28,6 +28,7 @@ import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.RegexMatchExpression;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 public class RegexEvaluator extends QueryEvaluator {
 
@@ -70,17 +71,23 @@ public class RegexEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {}", relativePath, regex);
-        JsonNode valueNode = ctx.getNode(relativePath);
-        Object docValue;
-        if (valueNode != null) {
-            docValue = fieldMd.getType().fromJson(valueNode);
-        } else {
-            docValue = null;
-        }
-        LOGGER.debug(" value={}", valueNode);
-        ctx.setResult(false);
-        if (docValue != null) {
-            ctx.setResult(regex.matcher(docValue.toString()).matches());
+        KeyValueCursor<Path,JsonNode> cursor=ctx.getNodes(relativePath);
+        while(cursor.hasNext()) {
+            cursor.next();
+            JsonNode valueNode = cursor.getCurrentValue();
+            Object docValue;
+            if (valueNode != null) {
+                docValue = fieldMd.getType().fromJson(valueNode);
+            } else {
+                docValue = null;
+            }
+            LOGGER.debug(" value={}", valueNode);
+            ctx.setResult(false);
+            if (docValue != null) {
+                ctx.setResult(regex.matcher(docValue.toString()).matches());
+            }
+            if(ctx.getResult())
+                break;
         }
         return ctx.getResult();
     }
