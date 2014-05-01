@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
@@ -46,6 +49,8 @@ import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.util.JsonDoc;
 
 public final class OperationContext extends CRUDOperationContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationContext.class);
 
     private final Request request;
     private final Metadata metadata;
@@ -74,7 +79,9 @@ public final class OperationContext extends CRUDOperationContext {
         this.request = request;
         this.metadata = metadata;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
+        LOGGER.debug("All roles in {}:{}",request.getEntityVersion(),metadataRoles);
         super.callerRoles.addAll(getCallerRoles(metadataRoles, request.getClientId()));
+        LOGGER.debug("Caller roles:{}",getCallerRoles());
     }
     
     /**
