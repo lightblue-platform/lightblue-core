@@ -1,56 +1,56 @@
 
 Create v1 user:
 
-  curl -X PUT -H Content-Type:application/json -d @create-v1-user.json http://localhost:8080/data/user/1.0
+  curl -u user3:123qweasd!   -X PUT -H Content-Type:application/json -d @create-v1-user.json http://localhost:8080/data/user/1.0
 
 Simple find v1 user:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar'|tee out.json
+  curl  -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar'|tee out.json
 
 Simple find with projection, login and sites:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites:1'|tee out.json
+  curl  -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites:1'|tee out.json
 
 
 Projection examples:
 
 All site elements:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*:1'|tee out.json
+  curl  -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*:1'|tee out.json
 
 All site elements and first level content:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.*:1'|tee out.json
+  curl -u user3:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.*:1'|tee out.json
 
 All sites, recursively:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*:1r'|tee out.json
+  curl -u user3:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*:1r'|tee out.json
 
 All site usages:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.usages.*:1r'|tee out.json
+  curl  -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.usages.*:1r'|tee out.json
 
 Usages of the first site:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.0.usages.*:1r'|tee out.json
+  curl -u user3:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.0.usages.*:1r'|tee out.json
 
 First usages of all sites:
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.usages.0.*:1r'|tee out.json
+  curl -u user3:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.usages.0.*:1r'|tee out.json
 
 Sorting:
 All NC users, sorted by login, asc:
 
-####  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.*.streetAddress.state:NC&P=login:1&S=login:a'|tee out.json
+curl -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.*.streetAddress.state:NC&P=login:1&S=login:a'|tee out.json
 
-curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:a'|tee out.json
-curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:d'|tee out.json
+curl  -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:a'|tee out.json
+curl  -u user3:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:d'|tee out.json
 
 POST queries:
 
 login:bserdar
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
@@ -62,7 +62,7 @@ Logical operations:
 
 login:bserdar and site.0.streetAddress.state:CO
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
@@ -74,7 +74,7 @@ login:bserdar and site.0.streetAddress.state:CO
 
 login=bserdar or login!=bserdar
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
@@ -85,7 +85,7 @@ login=bserdar or login!=bserdar
 
 Regex search:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
@@ -93,7 +93,7 @@ Regex search:
   "range" : [0,10]
 }'  http://localhost:8080/data/find/user/1.0|tee out.json
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
@@ -103,22 +103,22 @@ Regex search:
 
 Field as rvalue, not supported directly by mongo:
 
-personalInfo.firstName!=login
+personalInfo.firstName!=sites.0.firstName
 
-curl -X POST -H Content-Type:application/json -d '{
+curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
-  "query":  { "field":"personalInfo.firstName", "op":"$neq", "rfield":"login"},
+  "query":  { "field":"personalInfo.firstName", "op":"$neq", "rfield":"sites.0.firstName"},
   "range" : [0,10]
 }'  http://localhost:8080/data/find/user/1.0|tee out.json
 
 
-Array search:
+Array search: users with active sites, list only active sites
 
-#### curl -X POST -H Content-Type:application/json -d '{
+curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
-  "returning": [ { "field":"login"}, {"field":"_id"} ],
+  "returning": [ { "field":"login"}, {"field":"_id"}, {"field":"sites","project":{"field":"*"}} ],
   "query":  { "array":"sites","elemMatch":{"field":"active","op":"$eq","rvalue":1} },
   "range" : [0,10]
 }'  http://localhost:8080/data/find/user/1.0|tee out.json
@@ -128,7 +128,7 @@ More involved projections:
 
 Return a few fields:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"}],
   "sort" : { "login":"$asc"},
@@ -138,7 +138,7 @@ Return a few fields:
 
 Exclude some of "personalInfo":
 
-###  curl -X POST -H Content-Type:application/json -d '{
+curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"},{"field":"personalInfo.email","include":false}],
   "sort" : { "login":"$asc"},
@@ -148,7 +148,7 @@ Exclude some of "personalInfo":
 
 Exclude sites:
 
-curl -X POST -H Content-Type:application/json -d '{
+curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"*","recursive":1}, {"field":"sites","include":false} ],
   "sort" : { "login":"$asc"},
@@ -160,7 +160,7 @@ Array projections:
 
 Sites[0,1]:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"sites", "range":[0,1] } ],
   "sort" : { "login":"$asc"},
@@ -171,7 +171,7 @@ Sites[0,1]:
 
 Get only active sites:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"sites", "match":{ "field":"active", "op":"=","rvalue":true }, "project":{"field":"*","recursive":1} } ],
   "sort" : { "login":"$asc"},
@@ -181,7 +181,7 @@ Get only active sites:
 
 Get only default sites, project description:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"sites", "match":{ "field":"defaultSite", "op":"=","rvalue":true }, "project":{"field":"description"} } ],
   "sort" : { "login":"$asc"},
@@ -195,11 +195,11 @@ Updates:
 
 Save user:
 
-   curl -X POST -H Content-Type:application/json -d @save-v1-user.json http://localhost:8080/data/save/user/1.0|tee out.json
+   curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d @save-v1-user.json http://localhost:8080/data/save/user/1.0|tee out.json
 
 Update some fields of user:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
 "object_type":"user",
 "returning": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
@@ -209,7 +209,7 @@ Update some fields of user:
 
 Remove an array element (sites[0])
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
 "object_type":"user",
 "returning": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
@@ -219,7 +219,7 @@ Remove an array element (sites[0])
 
 Inactivate non-default site:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
 "object_type":"user",
 "returning": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
@@ -231,7 +231,7 @@ Inactivate non-default site:
 
 Delete inactive sites:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl  -u user3:123qweasd! -X POST -H Content-Type:application/json -d '{
 "object_type":"user",
 "returning": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
@@ -242,7 +242,7 @@ Delete inactive sites:
 
 Add a new empty site:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
 "object_type":"user",
 "returning": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
@@ -253,7 +253,7 @@ Add a new empty site:
 
 Delete:
 
-  curl -X POST -H Content-Type:application/json -d '{
+  curl -u user3:123qweasd!  -X POST -H Content-Type:application/json -d '{
 "object_type":"user",
 "query":  { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] }

@@ -119,32 +119,6 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void fieldProjectorTest_arr_me() throws Exception {
-        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','project':{'field':'*'}}");
-        Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
-        ctx.addExcludedArrayElement(new Path("field7"), 1);
-
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
-        Assert.assertNull(pdoc.get(new Path("field1")));
-        Assert.assertNull(pdoc.get(new Path("field2")));
-        Assert.assertNull(pdoc.get(new Path("field3")));
-        Assert.assertNull(pdoc.get(new Path("field4")));
-        Assert.assertNull(pdoc.get(new Path("field5")));
-        Assert.assertNull(pdoc.get(new Path("field6")));
-        Assert.assertEquals(3, pdoc.get(new Path("field7")).size());
-        Assert.assertEquals(3, pdoc.get(new Path("field7.0.elemf3")).asInt());
-        Assert.assertEquals(5, pdoc.get(new Path("field7.1.elemf3")).asInt());
-        Assert.assertEquals(6, pdoc.get(new Path("field7.2.elemf3")).asInt());
-        Assert.assertEquals("elvalue0_1", pdoc.get(new Path("field7.0.elemf1")).asText());
-        Assert.assertEquals("elvalue0_2", pdoc.get(new Path("field7.0.elemf2")).asText());
-        Assert.assertEquals("elvalue2_1", pdoc.get(new Path("field7.1.elemf1")).asText());
-        Assert.assertEquals("elvalue2_2", pdoc.get(new Path("field7.1.elemf2")).asText());
-        Assert.assertEquals("elvalue3_1", pdoc.get(new Path("field7.2.elemf1")).asText());
-        Assert.assertEquals("elvalue3_2", pdoc.get(new Path("field7.2.elemf2")).asText());
-
-    }
-    @Test
     public void fieldProjectorTest_include_then_exclude() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field6.*'},{'field':'field6.nf3','include':false}]");
         Projector projector = Projector.getInstance(p, md);

@@ -71,7 +71,6 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             ContainsOperator op = expr.getOp();
             Type t = elem.getType();
             int numElementsContained = 0;
-            List<Integer> nonmatchingIndexes = new ArrayList<>();
             int index = 0;
             for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
                 boolean match = false;
@@ -84,15 +83,9 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
                         break;
                     }
                 }
-                if (!match) {
-                    nonmatchingIndexes.add(index);
-                }
                 index++;
             }
             ret = evaluateContainsOperator(op, numElementsContained, values);
-            if (ret) {
-                ctx.addExcludedArrayElements(expr.getArray(), nonmatchingIndexes);
-            }
         }
         ctx.setResult(ret);
         return ret;

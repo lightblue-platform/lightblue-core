@@ -64,7 +64,6 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
         if (node instanceof ArrayNode) {
             ArrayNode array = (ArrayNode) node;
             int index = 0;
-            ArrayList<Integer> indexList = new ArrayList<>(array.size());
             QueryEvaluationContext nestedCtx = null;
             for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
                 JsonNode arrayElem = itr.next();
@@ -75,13 +74,8 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
                 }
                 if (ev.evaluate(nestedCtx)) {
                     ret = true;
-                } else {
-                    indexList.add(index);
-                }
+                } 
                 index++;
-            }
-            if (ret) {
-                ctx.addExcludedArrayElements(field, indexList);
             }
         }
         ctx.setResult(ret);

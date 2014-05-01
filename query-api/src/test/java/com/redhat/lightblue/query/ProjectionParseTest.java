@@ -30,7 +30,6 @@ public class ProjectionParseTest {
     final String doc2 = "{\"field\":\"field.y.x\",\"include\": false, \"recursive\": true}";
     final String doc3 = "{\"field\":\"field.z\"}";
     final String doc4 = "{\"field\":\"field.x\",\"include\":true,\"match\":{\"field\":\"field.x\",\"op\":\"$eq\",\"rvalue\":1},\"project\":{\"field\":\"member\"}}";
-    final String doc5 = "{\"field\":\"field.x\",\"include\":true,\"project\":{\"field\":\"member\"}}";
     final String doc6 = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,4],\"project\":{\"field\":\"member\"}}";
     final String doc7 = "[" + doc1 + "," + doc2 + "," + doc3 + "]";
 
@@ -93,18 +92,6 @@ public class ProjectionParseTest {
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
     }
 
-    @Test
-    public void doc5Test() throws Exception {
-        Projection p = Projection.fromJson(JsonUtils.json(doc5));
-        Assert.assertTrue(p instanceof ArrayMatchingElementsProjection);
-        ArrayMatchingElementsProjection x = (ArrayMatchingElementsProjection) p;
-        Assert.assertEquals("field.x", x.getField().toString());
-        Assert.assertTrue(x.isInclude());
-        Assert.assertTrue(x.getProject() instanceof FieldProjection);
-        Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
-        Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
-        Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-    }
 
     @Test
     public void doc6Test() throws Exception {
@@ -138,7 +125,6 @@ public class ProjectionParseTest {
         JSONAssert.assertEquals(doc2, Projection.fromJson(JsonUtils.json(doc2)).toString(), false);
         JSONAssert.assertEquals(doc3, Projection.fromJson(JsonUtils.json(doc3)).toString(), false);
         JSONAssert.assertEquals(doc4, Projection.fromJson(JsonUtils.json(doc4)).toString(), false);
-        JSONAssert.assertEquals(doc5, Projection.fromJson(JsonUtils.json(doc5)).toString(), false);
         JSONAssert.assertEquals(doc6, Projection.fromJson(JsonUtils.json(doc6)).toString(), false);
         JSONAssert.assertEquals(doc7, Projection.fromJson(JsonUtils.json(doc7)).toString(), false);
     }

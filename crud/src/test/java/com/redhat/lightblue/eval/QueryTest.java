@@ -46,20 +46,18 @@ public class QueryTest extends AbstractJsonNodeTest {
     private static class QTestCase {
         final QueryExpression query;
         final boolean match;
-        final Path[] matching;
 
-        public QTestCase(QueryExpression query, boolean match, Path... matching) {
+        public QTestCase(QueryExpression query, boolean match) {
             this.query = query;
             this.match = match;
-            this.matching = matching;
         }
 
-        public QTestCase(JsonNode query, boolean match, Path... matching) {
-            this(QueryExpression.fromJson(query), match, matching);
+        public QTestCase(JsonNode query, boolean match) {
+            this(QueryExpression.fromJson(query), match);
         }
 
-        public QTestCase(String query, boolean match, Path... matching) {
-            this(json(query), match, matching);
+        public QTestCase(String query, boolean match) {
+            this(json(query), match);
         }
 
     }
@@ -140,13 +138,13 @@ public class QueryTest extends AbstractJsonNodeTest {
     }
 
     private static final QTestCase[] arrayTests = new QTestCase[]{
-        new QTestCase("{'array':'field6.nf6','contains':'$any','values':['zero','one']}", true, path("field6.nf6.0")),
+        new QTestCase("{'array':'field6.nf6','contains':'$any','values':['zero','one']}", true),
         new QTestCase("{'array':'field6.nf6','contains':'$any','values':['zero','blah']}", false),
         new QTestCase("{'array':'field6.nf6','contains':'$all','values':['zero','one']}", false),
-        new QTestCase("{'array':'field6.nf6','contains':'$all','values':['three','one']}", true, path("field6.nf6.0", "field6.nf6.2")),
+        new QTestCase("{'array':'field6.nf6','contains':'$all','values':['three','one']}", true),
         new QTestCase("{'array':'field6.nf6','contains':'$none','values':['zero','one']}", false),
         new QTestCase("{'array':'field6.nf6','contains':'$none','values':['zero','blah']}", true),
-        new QTestCase("{'array':'field7','elemMatch': { 'field':'elemf1','op':'$eq','rvalue':'elvalue1_1' }}", true, path("field7.1")),};
+        new QTestCase("{'array':'field7','elemMatch': { 'field':'elemf1','op':'$eq','rvalue':'elvalue1_1' }}", true)};
 
     @Test
     public void arrayFieldTests() throws Exception {
@@ -156,12 +154,6 @@ public class QueryTest extends AbstractJsonNodeTest {
             System.out.println(t.query);
             QueryEvaluationContext ctx = runQuery(md, doc, t.query);
             Assert.assertEquals(t.query.toString(), t.match, ctx.getResult());
-            if (t.matching != null) {
-                System.out.println("Excluded elements:" + ctx.getExcludedArrayElements());
-                for (Path x : t.matching) {
-                    Assert.assertTrue(t.query.toString() + " expect match " + x, ctx.isMatchingElement(x));
-                }
-            }
         }
     }
 }

@@ -32,7 +32,6 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
-import com.redhat.lightblue.query.ArrayMatchingElementsProjection;
 import com.redhat.lightblue.query.ArrayQueryMatchProjection;
 import com.redhat.lightblue.query.ArrayRangeProjection;
 import com.redhat.lightblue.query.FieldProjection;
@@ -89,8 +88,6 @@ public abstract class Projector {
             return new FieldProjector((FieldProjection) projection, ctxPath, ctx);
         } else if (projection instanceof ProjectionList) {
             return new ListProjector((ProjectionList) projection, ctxPath, ctx);
-        } else if (projection instanceof ArrayMatchingElementsProjection) {
-            return new ArrayMatchingElementsProjector((ArrayMatchingElementsProjection) projection, ctxPath, ctx);
         } else if (projection instanceof ArrayRangeProjection) {
             return new ArrayRangeProjector((ArrayRangeProjection) projection, ctxPath, ctx);
         } else {
