@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author nmalik
  */
-public class ServoGraphiteSetup {
+public final class ServoGraphiteSetup {
     private static boolean initialized = false;
 
     private ServoGraphiteSetup() {

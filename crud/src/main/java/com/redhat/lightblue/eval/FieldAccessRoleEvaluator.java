@@ -186,8 +186,9 @@ public final class FieldAccessRoleEvaluator {
                 if(trc!=null) {
                     if(trc instanceof Field) {
                         access=acc.getFieldAccess(((Field)trc).getAccess());
-                        if(!access.isEmpty())
+                        if(!access.isEmpty()) {
                             break;
+                        }
                     }
                 }
             }  while(trc!=null);

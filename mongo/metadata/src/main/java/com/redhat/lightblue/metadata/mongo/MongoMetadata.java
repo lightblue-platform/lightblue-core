@@ -77,6 +77,8 @@ import com.redhat.lightblue.util.Path;
 
 public class MongoMetadata implements Metadata {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoMetadata.class);
 
     public static final String DEFAULT_METADATA_COLLECTION = "metadata";
@@ -86,8 +88,8 @@ public class MongoMetadata implements Metadata {
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
-    private final DBCollection collection;
-    private final DBResolver dbResolver;
+    private transient final DBCollection collection;
+    private transient final DBResolver dbResolver;
     private transient final BSONParser mdParser;
 
     public MongoMetadata(DB db,
