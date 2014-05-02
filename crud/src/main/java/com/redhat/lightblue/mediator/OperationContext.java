@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
@@ -37,6 +40,7 @@ import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Metadata;
@@ -46,11 +50,13 @@ import com.redhat.lightblue.util.JsonDoc;
 
 public final class OperationContext extends CRUDOperationContext {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationContext.class);
+
     private final Request request;
     private final Metadata metadata;
     private final Map<String, EntityMetadata> entityMetadata = new HashMap<>();
     private OperationStatus status = OperationStatus.COMPLETE;
-    private Set<String> metadataRoles;
+    private final Set<String> metadataRoles=new HashSet<>();
 
     /**
      * Construct operation context
@@ -73,7 +79,9 @@ public final class OperationContext extends CRUDOperationContext {
         this.request = request;
         this.metadata = metadata;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
+        LOGGER.debug("All roles in {}:{}",request.getEntityVersion(),metadataRoles);
         super.callerRoles.addAll(getCallerRoles(metadataRoles, request.getClientId()));
+        LOGGER.debug("Caller roles:{}",getCallerRoles());
     }
     
     /**
@@ -146,35 +154,22 @@ public final class OperationContext extends CRUDOperationContext {
         this.status = status;
     }
 
-    private Set<String> metadataRoles() {
-        if (null == metadataRoles) {
-            metadataRoles = new HashSet<String>(1);
-        }
-        return metadataRoles;
+    private void addMetadataRoles(Set<String> roles,EntityMetadata em) {
+        EntityAccess a=em.getAccess();
+        a.getFind().addRolesTo(roles);
+        a.getUpdate().addRolesTo(roles);
+        a.getInsert().addRolesTo(roles);
+        a.getDelete().addRolesTo(roles);
     }
     
-    private Set<String> getMetadataRoles(EntityMetadata em) {
-        Set<String> metadataRoles = new HashSet<>();
-        
-        metadataRoles.addAll(em.getAccess().getFind().getRoles());
-        metadataRoles.addAll(em.getAccess().getUpdate().getRoles());
-        metadataRoles.addAll(em.getAccess().getInsert().getRoles());
-        metadataRoles.addAll(em.getAccess().getDelete().getRoles());
-        
-        return metadataRoles;
-    }
-    
-    private Set<String> getFieldRoles(FieldTreeNode node) {
-        Set<String> metadataRoles = new HashSet<>();
-        
-        if(!(node instanceof ArrayElement)) {
+    private void addFieldRoles(Set<String> roles,FieldTreeNode node) {
+        if(node instanceof Field) {
             Field field = (Field)node;
-            metadataRoles.addAll(field.getAccess().getFind().getRoles());
-            metadataRoles.addAll(field.getAccess().getInsert().getRoles());
-            metadataRoles.addAll(field.getAccess().getUpdate().getRoles());    
-        }
-        
-        return metadataRoles;
+            FieldAccess a=field.getAccess();
+            a.getFind().addRolesTo(roles);
+            a.getInsert().addRolesTo(roles);
+            a.getUpdate().addRolesTo(roles);    
+        }        
     }
     
     private Set<String> getCallerRoles(Set<String> metadataRoles, ClientIdentification id) {
@@ -205,13 +200,13 @@ public final class OperationContext extends CRUDOperationContext {
             }
             entityMetadata.put(x.getName(), x);
             
-            metadataRoles().addAll(getMetadataRoles(x));
+            addMetadataRoles(metadataRoles,x);
 
             FieldCursor c = x.getFieldCursor();
             while (c.next()) {
                 FieldTreeNode node = c.getCurrentNode();
                 
-                metadataRoles().addAll(getFieldRoles(node));
+                addFieldRoles(metadataRoles,node);
                 
                 if (node instanceof ReferenceField) {
                     String refName = ((ReferenceField) node).getEntityName();

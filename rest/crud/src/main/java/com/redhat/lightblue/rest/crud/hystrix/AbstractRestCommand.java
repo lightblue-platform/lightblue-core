@@ -18,12 +18,15 @@
  */
 package com.redhat.lightblue.rest.crud.hystrix;
 
+import javax.servlet.http.HttpServletRequest;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.Request;
+import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;
@@ -38,6 +41,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Mediator mediator;
+    protected final HttpServletRequest httpServletRequest;
 
     /**
      *
@@ -49,6 +53,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : clientKey)));
         this.mediator = mediator;
+        this.httpServletRequest=ResteasyProviderFactory.getContextData(HttpServletRequest.class);
     }
 
     /**
@@ -83,5 +88,14 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         if (!req.getEntityVersion().getVersion().equals(version)) {
             throw Error.get(RestCrudConstants.ERR_NO_VERSION_MATCH, version);
         }
+    }
+
+    protected void addCallerId(Request req) {
+        req.setClientId(new ClientIdentification() {
+                public boolean isUserInRole(String role) {
+                    return httpServletRequest==null?false:httpServletRequest.isUserInRole(role);
+                }
+
+            });
     }
 }

@@ -332,6 +332,33 @@ public class Path implements Comparable<Path>, Serializable {
         return new Path(this, p);
     }
 
+    /**
+     * Returns a path with all $parent and $this references removed. This must be called on absolute paths
+     */
+    public Path normalize() {
+        int n=data.size();
+        boolean parentThisPresent=false;
+        for(int i=0;i<n;i++) {
+            String s=data.get(i);
+            if(PARENT.equals(s)||THIS.equals(s)) {
+                parentThisPresent=true;
+                break;
+            }
+        }
+        if(parentThisPresent) {
+            MutablePath p=new MutablePath();
+            for(int i=0;i<n;i++) {
+                String s=data.get(i);
+                if(PARENT.equals(s))
+                    p.pop();
+                else if(!THIS.equals(s))
+                    p.push(s);
+            }
+            return p.immutableCopy();
+        } else
+            return this;
+    }
+
     @Override
     public boolean equals(Object x) {
         if (x instanceof Path) {

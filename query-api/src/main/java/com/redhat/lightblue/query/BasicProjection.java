@@ -81,9 +81,6 @@ public abstract class BasicProjection extends Projection {
                     projection,
                     QueryExpression.fromJson(x));
         }
-        if (projection != null) {
-            return new ArrayMatchingElementsProjection(path, include, projection);
-        }
         x = node.get("recursive");
         return new FieldProjection(path, include,
                 x == null ? false : x.asBoolean());

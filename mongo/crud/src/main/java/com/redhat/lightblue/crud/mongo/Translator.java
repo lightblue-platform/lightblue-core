@@ -166,6 +166,30 @@ public class Translator {
         return str.toString();
     }
 
+    /**
+     * Translate a path to a javascript path
+     *
+     * Path cannot have *. Indexes are put into brackets
+     */
+    public static String translateJsPath(Path p) {
+        StringBuilder str=new StringBuilder();
+        int n=p.numSegments();
+        for(int i=0;i<n;i++) {
+            String s=p.head(i);
+            if(s.equals(Path.ANY))
+                throw Error.get(MongoCrudConstants.ERR_TRANSLATION_ERROR,p.toString());
+            else if(p.isIndex(i)) {
+                str.append('[').append(s).append(']');
+            } else {
+                if(i>0) {
+                    str.append('.');
+                }
+                str.append(s);
+            }
+        }
+        return str.toString();
+    }
+
 
     /**
      * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
@@ -564,13 +588,64 @@ public class Translator {
         return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()), list);
     }
 
+    private String writeJSForLoop(StringBuilder bld,Path p,String varPrefix) {
+        StringBuilder arr=new StringBuilder();
+        int n=p.numSegments();
+        int j=0;
+        for(int i=0;i<n;i++) {
+            String seg=p.head(i);
+            if(Path.ANY.equals(seg)) {
+                bld.append(String.format("for(var %s%d=0;%s%d<this.%s.length;%s%d++) {",varPrefix,j,varPrefix,j,arr.toString(),varPrefix,j));
+                arr.append('[').append(varPrefix).append(j).append(']');
+                j++;
+            } else if(p.isIndex(i)) {
+                arr.append('[').append(seg).append(']');
+            } else {
+                if(i>0)
+                    arr.append('.');
+                arr.append(seg);
+            }
+        }
+        return arr.toString();
+    }
+    
     private DBObject translateFieldComparison(FieldComparisonExpression expr) {
-        StringBuilder str = new StringBuilder(64);
-        str.append("this.").
-            append(translatePath(expr.getField())).
-            append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
-            append("this.").
-            append(translatePath(expr.getRfield()));
+        StringBuilder str = new StringBuilder(128);
+        // We have to deal with array references here
+        Path rField=expr.getRfield();
+        Path lField=expr.getField();
+        int rn=rField.nAnys();
+        int ln=lField.nAnys();
+        if(rn>0 &&ln>0) {
+            // Write a function with nested for loops
+            str.append("function() {");
+            String rJSField=writeJSForLoop(str,rField,"r");
+            String lJSField=writeJSForLoop(str,lField,"l");
+            str.append("if(this.").append(lJSField).
+                append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+                append("this.").append(rJSField).append(") { return true; }");
+            for(int i=0;i<rn+ln;i++)
+                str.append('}');
+            str.append("return false;}");
+        } else if( rn>0 || ln>0 ) {
+            // Only one of them has ANY, write a single for loop
+            str.append("function() {");
+            String jsField=writeJSForLoop(str,rn>0?rField:lField,"i");
+            str.append("if(this.").append(ln>0?jsField:translateJsPath(lField)).
+                append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+                append("this.").append(rn>0?jsField:translateJsPath(rField)).append(") {return true;}");
+            for(int i=0;i<rn+ln;i++)
+                str.append('}');
+            str.append("return false;}");
+        } else {
+            // No ANYs, direct comparison
+            str.append("this.").
+                append(translateJsPath(expr.getField())).
+                append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+                append("this.").
+                append(translateJsPath(expr.getRfield()));
+        }
+            
         return new BasicDBObject("$where", str.toString());
     }
 
@@ -580,7 +655,8 @@ public class Translator {
             ArrayElement el = ((ArrayField) arrayNode).getElement();
             if (el instanceof ObjectArrayElement) {
                 return new BasicDBObject(translatePath(expr.getArray()),
-                        translate(el, expr.getElemMatch()));
+                                         new BasicDBObject("$elemMatch",
+                                                           translate(el, expr.getElemMatch())));
             }
         }
         throw Error.get(ERR_INVALID_FIELD, expr.toString());

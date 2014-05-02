@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.util.JsonObject;
 
 /**
@@ -31,4 +33,11 @@ public abstract class ClientIdentification extends JsonObject {
      * Return the roles the caller is in.
      */
     public abstract boolean isUserInRole(String role);
+
+    /**
+     * Default implementation of toJson() returns an empty object node
+     */
+    public JsonNode toJson() {
+        return getFactory().objectNode();
+    }
 }

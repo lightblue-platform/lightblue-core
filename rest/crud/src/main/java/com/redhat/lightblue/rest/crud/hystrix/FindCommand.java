@@ -59,6 +59,7 @@ public class FindCommand extends AbstractRestCommand {
         try {
             FindRequest ireq = FindRequest.fromJson((ObjectNode) JsonUtils.json(request));
             validateReq(ireq, entity, version);
+            addCallerId(ireq);
             Response r = getMediator().find(ireq);
             return r.toJson().toString();
         } catch (Error e) {

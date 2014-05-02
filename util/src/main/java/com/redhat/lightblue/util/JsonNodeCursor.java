@@ -62,7 +62,7 @@ public final class JsonNodeCursor extends AbstractTreeCursor<JsonNode> {
     }
 
     public JsonNodeCursor(Path p, JsonNode start) {
-        super(p, start);
+        super(p.normalize(), start);
     }
 
     @Override

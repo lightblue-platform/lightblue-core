@@ -47,6 +47,8 @@ public class RestApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return new HashSet<Class<?>>(Arrays.asList(CrudResource.class));
+        HashSet<Class<?>> set=new HashSet<>();
+        set.add(CrudResource.class);
+        return set;
     }
 }

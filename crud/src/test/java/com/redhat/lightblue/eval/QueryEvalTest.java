@@ -113,15 +113,4 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
         Assert.assertTrue(ctx.getResult());
     }
 
-    @Test
-    public void q_arr_match() throws Exception {
-        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'array':'field7','elemMatch':{'field':'elemf3','op':'>','rvalue':3}}");
-        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
-        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
-        Assert.assertTrue(ctx.getResult());
-        Assert.assertTrue(!ctx.isMatchingElement(new Path("field7.0")));
-        Assert.assertTrue(ctx.isMatchingElement(new Path("field7.1")));
-        Assert.assertTrue(ctx.isMatchingElement(new Path("field7.2")));
-        Assert.assertTrue(ctx.isMatchingElement(new Path("field7.3")));
-    }
 }

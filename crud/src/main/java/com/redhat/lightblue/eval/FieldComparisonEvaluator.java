@@ -27,6 +27,7 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 public class FieldComparisonEvaluator extends QueryEvaluator {
 
@@ -63,24 +64,42 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
-        JsonNode lvalueNode = ctx.getNode(relativePath);
-        Object ldocValue;
-        if (lvalueNode != null) {
-            ldocValue = fieldMd.getType().fromJson(lvalueNode);
-        } else {
-            ldocValue = null;
+        KeyValueCursor<Path,JsonNode>  lcursor=ctx.getNodes(relativePath);
+        if(lcursor!=null) {
+            while(lcursor.hasNext()) {
+                lcursor.next();
+                JsonNode lvalueNode = lcursor.getCurrentValue();
+                Object ldocValue;
+                if (lvalueNode != null) {
+                    ldocValue = fieldMd.getType().fromJson(lvalueNode);
+                } else {
+                    ldocValue = null;
+                }
+
+                KeyValueCursor<Path,JsonNode> rcursor=ctx.getNodes(rfieldRelativePath);
+                if(rcursor!=null) {
+                    while(rcursor.hasNext()) {
+                        rcursor.next();
+                        JsonNode rvalueNode = rcursor.getCurrentValue();
+                        Object rdocValue;
+                        if (rvalueNode != null) {
+                            rdocValue = rfieldMd.getType().fromJson(rvalueNode);
+                        } else {
+                            rdocValue = null;
+                        }
+                        LOGGER.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
+                        int result = fieldMd.getType().compare(ldocValue, rdocValue);
+                        LOGGER.debug(" result={}", result);
+                        boolean ret=operator.apply(result);
+                        if(ret) {
+                            ctx.setResult(ret);
+                            return ret;
+                        }
+                   }
+                }
+                
+            }
         }
-        JsonNode rvalueNode = ctx.getNode(rfieldRelativePath);
-        Object rdocValue;
-        if (rvalueNode != null) {
-            rdocValue = rfieldMd.getType().fromJson(rvalueNode);
-        } else {
-            rdocValue = null;
-        }
-        LOGGER.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
-        int result = fieldMd.getType().compare(ldocValue, rdocValue);
-        LOGGER.debug(" result={}", result);
-        ctx.setResult(operator.apply(result));
         return ctx.getResult();
     }
 }

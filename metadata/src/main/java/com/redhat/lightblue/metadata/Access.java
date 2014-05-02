@@ -61,6 +61,13 @@ public class Access implements Serializable {
     }
 
     /**
+     * Adds all the roles to the destination set
+     */
+    public void addRolesTo(Set<String> dest) {
+        dest.addAll(values);
+    }
+
+    /**
      * Retrieves the roles. A copy of the internal storage is returned.
      */
     @SuppressWarnings("unchecked")

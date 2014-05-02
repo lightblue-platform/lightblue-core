@@ -19,12 +19,12 @@
 package com.redhat.lightblue.eval;
 
 import java.util.Set;
-import java.util.HashSet;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
 
@@ -32,10 +32,10 @@ import com.redhat.lightblue.util.MutablePath;
  * An instance of the query evaluation context is passed to query evaluation logic, mainly too keep track of the context
  * for nested queries, and remember what elements of arrays matched the query, if any, once the evaluation is complete.
  */
-public class QueryEvaluationContext {
+public class QueryEvaluationContext {    
+
     private JsonNode contextRoot;
     private final MutablePath contextPath;
-    private final Set<Path> excludedArrayElements;
     private boolean result;
 
     public QueryEvaluationContext(JsonNode root) {
@@ -45,14 +45,12 @@ public class QueryEvaluationContext {
     public QueryEvaluationContext(JsonNode root, Path p) {
         this.contextRoot = root;
         this.contextPath = p.mutableCopy();
-        excludedArrayElements = new HashSet<>();
     }
 
     private QueryEvaluationContext(QueryEvaluationContext ctx, JsonNode root, Path relativePath) {
         this.contextRoot = root;
         this.contextPath = new MutablePath(ctx.contextPath);
         this.contextPath.push(relativePath);
-        this.excludedArrayElements = ctx.excludedArrayElements;
     }
 
     public JsonNode getNode() {
@@ -61,6 +59,10 @@ public class QueryEvaluationContext {
 
     public JsonNode getNode(Path relativePath) {
         return JsonDoc.get(contextRoot, relativePath);
+    }
+
+    public KeyValueCursor<Path,JsonNode> getNodes(Path relativePath) {
+        return new JsonDoc(contextRoot).getAllNodes(new Path(relativePath));
     }
 
     public Path getPath() {
@@ -91,34 +93,6 @@ public class QueryEvaluationContext {
             return p.immutableCopy();
         } else {
             return new Path(contextPath, p);
-        }
-    }
-
-    public Set<Path> getExcludedArrayElements() {
-        return excludedArrayElements;
-    }
-
-    public boolean isMatchingElement(Path p) {
-        return !excludedArrayElements.contains(p);
-    }
-
-    /**
-     * Adds an excluded array element index for the given field.
-     */
-    public void addExcludedArrayElement(Path relativePath, int index) {
-        MutablePath p = new MutablePath(contextPath);
-        p.push(relativePath);
-        p.push(index);
-        excludedArrayElements.add(p.immutableCopy());
-    }
-
-    public void addExcludedArrayElements(Path relativePath, List<Integer> indexes) {
-        MutablePath p = new MutablePath(contextPath);
-        p.push(relativePath);
-        p.push(0);
-        for (Integer x : indexes) {
-            p.setLast(x);
-            excludedArrayElements.add(p.immutableCopy());
         }
     }
 
