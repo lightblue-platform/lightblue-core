@@ -38,6 +38,10 @@ import java.util.concurrent.TimeUnit;
 public class ServoGraphiteSetup {
     private static boolean initialized = false;
 
+    private ServoGraphiteSetup() {
+        
+    }
+    
     public static final void initialize() {
         if (!initialized) {
             doInitialize();

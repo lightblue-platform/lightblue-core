@@ -29,6 +29,8 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.rest.metadata.RestApplication;
+import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
@@ -55,12 +57,18 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @return
      * @throws Exception
      */
-    protected Metadata getMetadata() throws Exception {
-        if (null != metadata) {
-            return metadata;
-        } else {
-            return RestApplication.getMetadataMgr().getMetadata();
+    protected Metadata getMetadata() {
+        Metadata m = null;
+        try {
+            if (null != metadata) {
+                m = metadata;
+            } else {
+                m = RestApplication.getMetadataMgr().getMetadata();
+            }
+        } catch (Exception e) {
+            Error.get(RestMetadataConstants.ERR_CANT_GET_METADATA);
         }
+        return m;
     }
 
     protected JSONMetadataParser getJSONParser() throws Exception {

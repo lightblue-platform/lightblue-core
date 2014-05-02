@@ -25,6 +25,8 @@ public final class RestMetadataConstants {
     public static final String ERR_NO_ENTITY_STATUS = "rest-metadata:NoEntityStatus";
     public static final String ERR_NO_NAME_MATCH = "rest-metadata:NoNameMatch";
     public static final String ERR_NO_VERSION_MATCH = "rest-metadata:NoVersionMatch";
+    
+    public static final String ERR_CANT_GET_METADATA = "rest-metadata:CantGetMetadata";
 
     private RestMetadataConstants() {
 

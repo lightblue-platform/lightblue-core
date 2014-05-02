@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -87,7 +88,7 @@ public class MongoMetadata implements Metadata {
 
     private final DBCollection collection;
     private final DBResolver dbResolver;
-    private final BSONParser mdParser;
+    private transient final BSONParser mdParser;
 
     public MongoMetadata(DB db,
                          String metadataCollection,
@@ -273,16 +274,17 @@ public class MongoMetadata implements Metadata {
                 List<DBObject> existingIndexes=entityCollection.getIndexInfo();
 
                 for(DBObject existingIndex: existingIndexes) {
-                    if(indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
-                        // There can be two indexes with different options, if that's the case, don't drop
-                        boolean found=false;
-                        for(Index trc:indexes.getIndexes())
-                            if(trc!=index&&
-                               indexFieldsMatch(trc,existingIndex)&&indexOptionsMatch(trc,existingIndex)) {
-                                found=true;
+                    if (indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
+                        // There can be two indexes with different options, if
+                        // that's the case, don't drop
+                        boolean found = false;
+                        for (Index trc : indexes.getIndexes()) {
+                            if (trc != index && indexFieldsMatch(trc, existingIndex) && indexOptionsMatch(trc, existingIndex)) {
+                                found = true;
                                 break;
                             }
-                        if(!found) {
+                        }
+                        if (!found) {
                             entityCollection.dropIndex(existingIndex.get("name").toString());
                             break;
                         }
@@ -367,9 +369,7 @@ public class MongoMetadata implements Metadata {
         if (null == old) {
             throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ei.getName());
         }
-        if( (old.getDefaultVersion()==null&&ei.getDefaultVersion()!=null) ||
-            (old.getDefaultVersion()!=null&&ei.getDefaultVersion()!=null&&
-             !old.getDefaultVersion().equals(ei.getDefaultVersion())) )
+        if(! Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion()) )
             validateDefaultVersion(ei);
 
         try {

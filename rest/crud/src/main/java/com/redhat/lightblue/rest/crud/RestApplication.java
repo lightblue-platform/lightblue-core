@@ -29,7 +29,7 @@ import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.util.JsonUtils;
 
-
+@ApplicationPath(value="/data")
 public class RestApplication extends Application {
 
     private static DataSourcesConfiguration datasources;

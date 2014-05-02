@@ -70,19 +70,15 @@ public class ArrayContainsEvaluator extends QueryEvaluator {
             ContainsOperator op = expr.getOp();
             Type t = elem.getType();
             int numElementsContained = 0;
-            int index = 0;
             for (Iterator<JsonNode> itr = array.elements(); itr.hasNext();) {
-                boolean match = false;
                 JsonNode valueNode = itr.next();
                 for (Value value : values) {
                     Object v = value.getValue();
                     if (isValueInNode(valueNode, v, t)) {
-                        match = true;
                         numElementsContained++;
                         break;
                     }
                 }
-                index++;
             }
             ret = evaluateContainsOperator(op, numElementsContained, values);
         }

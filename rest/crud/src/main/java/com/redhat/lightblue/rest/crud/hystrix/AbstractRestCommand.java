@@ -64,12 +64,19 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @return
      * @throws Exception
      */
-    protected Mediator getMediator() throws Exception {
-        if (null != mediator) {
-            return mediator;
-        } else {
-            return RestApplication.getCrudMgr().getMediator();
+    protected Mediator getMediator() {
+        Mediator m = null;
+        try {
+            if (null != mediator) {
+                m = mediator;
+            } else {
+                m = RestApplication.getCrudMgr().getMediator();
+            }    
+        } catch (Exception e) {
+            Error.get(RestCrudConstants.ERR_CANT_GET_MEDIATOR);
         }
+        
+        return m;
     }
 
     protected void validateReq(Request req, String entity, String version) {
