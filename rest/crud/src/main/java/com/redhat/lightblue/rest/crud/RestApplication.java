@@ -21,6 +21,7 @@ package com.redhat.lightblue.rest.crud;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
@@ -28,11 +29,36 @@ import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.util.JsonUtils;
 
+
 public class RestApplication extends Application {
 
-    public static DataSourcesConfiguration datasources;
-    public static MetadataManager metadataMgr;
-    public static CrudManager crudMgr;
+    private static DataSourcesConfiguration datasources;
+    private static MetadataManager metadataMgr;
+    private static CrudManager crudMgr;
+
+    public static DataSourcesConfiguration getDatasources() {
+        return datasources;
+    }
+
+    public static void setDatasources(DataSourcesConfiguration datasources) {
+        RestApplication.datasources = datasources;
+    }
+
+    public static MetadataManager getMetadataMgr() {
+        return metadataMgr;
+    }
+
+    public static void setMetadataMgr(MetadataManager metadataMgr) {
+        RestApplication.metadataMgr = metadataMgr;
+    }
+
+    public static CrudManager getCrudMgr() {
+        return crudMgr;
+    }
+
+    public static void setCrudMgr(CrudManager crudMgr) {
+        RestApplication.crudMgr = crudMgr;
+    }
 
     static {
         try {

@@ -43,7 +43,7 @@ public class FindCommand extends AbstractMongoCommand<DBCursor> {
     }
 
     @Override
-    protected DBCursor run() throws Exception {
+    protected DBCursor run() {
         return getDBCollection().find(query, projection);
     }
 }

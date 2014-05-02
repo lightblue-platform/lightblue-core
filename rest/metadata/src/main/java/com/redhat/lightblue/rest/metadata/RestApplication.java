@@ -30,8 +30,24 @@ import com.redhat.lightblue.util.JsonUtils;
 
 public class RestApplication extends Application {
 
-    public static DataSourcesConfiguration datasources;
-    public static MetadataManager metadataMgr;
+    private static DataSourcesConfiguration datasources;
+    private static MetadataManager metadataMgr;
+
+    public static DataSourcesConfiguration getDatasources() {
+        return datasources;
+    }
+
+    public static void setDatasources(DataSourcesConfiguration datasources) {
+        RestApplication.datasources = datasources;
+    }
+
+    public static MetadataManager getMetadataMgr() {
+        return metadataMgr;
+    }
+
+    public static void setMetadataMgr(MetadataManager metadataMgr) {
+        RestApplication.metadataMgr = metadataMgr;
+    }
 
     static {
         try {

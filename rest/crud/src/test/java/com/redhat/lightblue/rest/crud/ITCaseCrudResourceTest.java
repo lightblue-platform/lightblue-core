@@ -18,18 +18,44 @@
  */
 package com.redhat.lightblue.rest.crud;
 
+import static com.redhat.lightblue.util.test.FileUtil.readFile;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+
+import javax.inject.Inject;
+
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.json.JSONException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONAssert;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.redhat.lightblue.config.crud.CrudConfiguration;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.crud.CrudConfiguration;
+import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.util.JsonUtils;
+
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -41,30 +67,6 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.json.JSONException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-
-import static com.redhat.lightblue.util.test.FileUtil.readFile;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 
 /**
  *
@@ -208,18 +210,18 @@ public class ITCaseCrudResourceTest {
 
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
-        assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        RestApplication.datasources=new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json")));
-        RestApplication.metadataMgr=new MetadataManager(RestApplication.datasources);
-        RestApplication.crudMgr=new CrudManager(RestApplication.datasources,RestApplication.metadataMgr);
+        Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
+        RestApplication.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        RestApplication.setMetadataMgr(new MetadataManager(RestApplication.getDatasources()));
+        RestApplication.setCrudMgr(new CrudManager(RestApplication.getDatasources(),RestApplication.getMetadataMgr()));
 
 
         String expectedCreated = readFile("expectedCreated.json");
         String metadata = readFile("metadata.json");
-        EntityMetadata em = RestApplication.metadataMgr.getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
-        RestApplication.metadataMgr.getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = RestApplication.metadataMgr.getMetadata().getEntityMetadata("country", "1.0.0");
-        String resultCreated = RestApplication.metadataMgr.getJSONParser().convert(em2).toString();
+        EntityMetadata em = RestApplication.getMetadataMgr().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+        RestApplication.getMetadataMgr().getMetadata().createNewMetadata(em);
+        EntityMetadata em2 = RestApplication.getMetadataMgr().getMetadata().getEntityMetadata("country", "1.0.0");
+        String resultCreated = RestApplication.getMetadataMgr().getJSONParser().convert(em2).toString();
         JSONAssert.assertEquals(expectedCreated, resultCreated, false);
 
 

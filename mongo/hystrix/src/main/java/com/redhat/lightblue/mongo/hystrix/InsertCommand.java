@@ -42,7 +42,7 @@ public class InsertCommand extends AbstractMongoCommand<WriteResult> {
     }
 
     @Override
-    protected WriteResult run() throws Exception {
+    protected WriteResult run() {
         return getDBCollection().insert(data, concern);
     }
 }

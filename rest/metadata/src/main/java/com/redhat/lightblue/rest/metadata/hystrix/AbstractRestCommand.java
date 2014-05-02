@@ -19,15 +19,15 @@
 package com.redhat.lightblue.rest.metadata.hystrix;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-
 import com.redhat.lightblue.rest.metadata.RestApplication;
 
 /**
@@ -59,11 +59,11 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         if (null != metadata) {
             return metadata;
         } else {
-            return RestApplication.metadataMgr.getMetadata();
+            return RestApplication.getMetadataMgr().getMetadata();
         }
     }
 
     protected JSONMetadataParser getJSONParser() throws Exception {
-        return RestApplication.metadataMgr.getJSONParser();
+        return RestApplication.getMetadataMgr().getJSONParser();
     }
 }

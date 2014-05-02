@@ -19,18 +19,20 @@
 package com.redhat.lightblue.rest.crud.hystrix;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.Request;
-import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.mediator.Mediator;
+import com.redhat.lightblue.rest.crud.RestApplication;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.rest.crud.RestApplication;
 
 /**
  * Note that passing a Mediator in the constructor is optional. If not provided, it is fetched from CrudManager object.
@@ -66,7 +68,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         if (null != mediator) {
             return mediator;
         } else {
-            return RestApplication.crudMgr.getMediator();
+            return RestApplication.getCrudMgr().getMediator();
         }
     }
 

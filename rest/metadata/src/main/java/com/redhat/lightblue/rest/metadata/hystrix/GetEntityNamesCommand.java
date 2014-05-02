@@ -42,7 +42,7 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
     }
 
     @Override
-    protected String run() throws Exception {
+    protected String run() {
         LOGGER.debug("run:");
         Error.reset();
         Error.push(getClass().getSimpleName());
