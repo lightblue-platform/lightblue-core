@@ -1,0 +1,61 @@
+Setup:
+
+Roles:
+  lightblue-user : All users must have this one
+  user-admin : Admin rights for user
+  readonly   : Generic read-only role
+  updater    : Generic insert/update rights
+
+Users:
+  lbadmin : lightblue-user, user-admin, readonly, updater
+  ro      : lightblue-user, readonly
+  rw      : lightblue-user, readonly, updater
+
+
+Create user v3 with roles:
+
+  curl -X PUT -H Content-type:application/json -d@usermd-v3.0.json http://localhost:8080/metadata/user/schema=3.0|tee /tmp/out.json
+
+Retrieve user as admin:
+
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/3.0?Q=login:bserdar'|tee /tmp/out.json
+
+Retrieve user as ro (no pwd):
+
+  curl  -u ro:123qweasd! -X GET 'http://localhost:8080/data/find/user/3.0?Q=login:bserdar'|tee /tmp/out.json
+
+Retrieve user as rw (no pwd):
+
+  curl  -u rw:123qweasd! -X GET 'http://localhost:8080/data/find/user/3.0?Q=login:bserdar'|tee /tmp/out.json
+
+ro tries to create user:
+
+  curl -u ro:123qweasd! -X PUT -H Content-Type:application/json -d @create-v3-user.json http://localhost:8080/data/user/3.0|tee /tmp/out.json 
+
+rw tries to create user:
+
+  curl -u rw:123qweasd! -X PUT -H Content-Type:application/json -d @create-v3-user.json http://localhost:8080/data/user/3.0|tee /tmp/out.json 
+
+rw tries to update password:
+
+  curl -u rw:123qweasd! -X POST -H Content-Type:application/json -d '{
+"object_type":"user",
+"returning": { "field":"_id"},
+"query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"}, 
+                      {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
+ "update": [ {"$set": {"password.hashed":"blah"} } ]
+}' http://localhost:8080/data/update/user/3.0|tee /tmp/out.json
+
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/3.0?Q=login:bserdar2'|tee /tmp/out.json
+
+admin tries to update password:
+
+  curl -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+"object_type":"user",
+"returning": { "field":"_id"},
+"query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"}, 
+                      {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
+ "update": [ {"$set": {"password.hashed":"blah-admin"} } ]
+}' http://localhost:8080/data/update/user/3.0|tee /tmp/out.json
+
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/3.0?Q=login:bserdar2'|tee /tmp/out.json
