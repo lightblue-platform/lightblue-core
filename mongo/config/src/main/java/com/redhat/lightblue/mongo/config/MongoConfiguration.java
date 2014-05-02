@@ -40,14 +40,14 @@ import javax.net.ssl.SSLSocketFactory;
 import org.bson.BSONObject;
 
 /**
- * Mongo client makes a distinction between contructing using a list
- * of ServerAddress objects, and a single ServerAddress object. If you
- * contruct with a List, it wants access to all the nodes in the
- * replica set. If you construct with a single ServerAddress, it only
- * talks to that server. So, we make a distinction between array of
- * server addresses and a single server address.
- *
- *
+ * Mongo client makes a distinction between contructing using a list of
+ * ServerAddress objects, and a single ServerAddress object. If you contruct
+ * with a List, it wants access to all the nodes in the replica set. If you
+ * construct with a single ServerAddress, it only talks to that server. So, we
+ * make a distinction between array of server addresses and a single server
+ * address.
+ * 
+ * 
  * @author nmalik
  */
 public class MongoConfiguration implements DataSourceConfiguration {
@@ -55,12 +55,12 @@ public class MongoConfiguration implements DataSourceConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoConfiguration.class);
 
     private final List<ServerAddress> servers = new ArrayList<>();
-    private ServerAddress theServer=null;
+    private ServerAddress theServer = null;
 
     private Integer connectionsPerHost;
     private String database;
     private Boolean ssl = Boolean.FALSE;
-    private Class metadataDataStoreParser=MongoDataStoreParser.class;
+    private Class metadataDataStoreParser = MongoDataStoreParser.class;
 
     public void addServerAddress(String hostname, int port) throws UnknownHostException {
         this.servers.add(new ServerAddress(hostname, port));
@@ -70,12 +70,12 @@ public class MongoConfiguration implements DataSourceConfiguration {
         this.servers.add(new ServerAddress(hostname));
     }
 
-    public void setServer(String hostname,int port) throws UnknownHostException {
-        theServer=new ServerAddress(hostname,port);
+    public void setServer(String hostname, int port) throws UnknownHostException {
+        theServer = new ServerAddress(hostname, port);
     }
 
     public void setServer(String hostname) throws UnknownHostException {
-        theServer=new ServerAddress(hostname);
+        theServer = new ServerAddress(hostname);
     }
 
     /**
@@ -92,14 +92,14 @@ public class MongoConfiguration implements DataSourceConfiguration {
     public ServerAddress getServer() {
         return theServer;
     }
-    
+
     @Override
     public Class<DataStoreParser> getMetadataDataStoreParser() {
         return metadataDataStoreParser;
     }
 
     public void setMetadataDataStoreParser(Class<DataStoreParser> clazz) {
-        metadataDataStoreParser=clazz;
+        metadataDataStoreParser = clazz;
     }
 
     /**
@@ -110,7 +110,8 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     /**
-     * @param connectionsPerHost the connectionsPerHost to set
+     * @param connectionsPerHost
+     *            the connectionsPerHost to set
      */
     public void setConnectionsPerHost(Integer connectionsPerHost) {
         this.connectionsPerHost = connectionsPerHost;
@@ -141,12 +142,13 @@ public class MongoConfiguration implements DataSourceConfiguration {
      * The database name
      */
     public void setDatabase(String s) {
-        database=s;
+        database = s;
     }
 
     /**
-     * Returns an options object with defaults overriden where there is a valid override.
-     *
+     * Returns an options object with defaults overriden where there is a valid
+     * override.
+     * 
      * @return
      */
     public MongoClientOptions getMongoClientOptions() {
@@ -157,7 +159,8 @@ public class MongoConfiguration implements DataSourceConfiguration {
         }
 
         if (ssl != null && ssl) {
-            // taken from MongoClientURI, written this way so we don't have to construct a URI to connect
+            // taken from MongoClientURI, written this way so we don't have to
+            // construct a URI to connect
             builder.socketFactory(SSLSocketFactory.getDefault());
         }
 
@@ -165,10 +168,10 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     public MongoClient getMongoClient() throws UnknownHostException {
-        MongoClientOptions options=getMongoClientOptions();
-        LOGGER.debug("getMongoClient with servers:{} and options:{}",servers,options);
-        if(theServer!=null)
-            return new MongoClient(theServer,options);
+        MongoClientOptions options = getMongoClientOptions();
+        LOGGER.debug("getMongoClient with servers:{} and options:{}", servers, options);
+        if (theServer != null)
+            return new MongoClient(theServer, options);
         else
             return new MongoClient(servers, options);
     }
@@ -178,73 +181,75 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     public String toString() {
-        StringBuilder bld=new StringBuilder();
-        if(theServer!=null)
+        StringBuilder bld = new StringBuilder();
+        if (theServer != null)
             bld.append("server").append(theServer).append('\n');
         else
             bld.append("servers:").append(servers).append('\n');
-        bld.append("connectionsPerHost:").append(connectionsPerHost).append('\n').
-            append("database:").append(database).append('\n').
-            append("ssl:").append(ssl);
+        bld.append("connectionsPerHost:").append(connectionsPerHost).append('\n').append("database:").append(database).append('\n').append("ssl:").append(ssl);
         return bld.toString();
     }
 
     @Override
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
-            JsonNode x=node.get("connectionsPerHost");
-            if(x!=null)
-                connectionsPerHost=x.asInt();
-            x=node.get("ssl");
-            if(x!=null)
-                ssl=x.asBoolean();
-            x=node.get("metadataDataStoreParser");
+            JsonNode x = node.get("connectionsPerHost");
+            if (x != null)
+                connectionsPerHost = x.asInt();
+            x = node.get("ssl");
+            if (x != null)
+                ssl = x.asBoolean();
+            x = node.get("metadataDataStoreParser");
             try {
-                if(x!=null)
-                    metadataDataStoreParser=Class.forName(x.asText());
+                if (x != null)
+                    metadataDataStoreParser = Class.forName(x.asText());
             } catch (Exception e) {
-                throw new IllegalArgumentException(node.toString()+":"+e);
+                throw new IllegalArgumentException(node.toString() + ":" + e);
             }
-            x=node.get("database");
-            if(x!=null)
-                database=x.asText();
+            x = node.get("database");
+            if (x != null)
+                database = x.asText();
             JsonNode jsonNodeServers = node.get("servers");
             if (jsonNodeServers != null && jsonNodeServers.isArray()) {
                 Iterator<JsonNode> elements = jsonNodeServers.elements();
                 while (elements.hasNext()) {
-                    JsonNode next =  elements.next();
+                    JsonNode next = elements.next();
                     try {
                         String host;
-                        int port;
-                        x=next.get("host");
-                        if(x!=null)
-                            host=x.asText();
-                        else
-                            host=null;
-                        x=next.get("port");
-                        if(x!=null)
-                            addServerAddress(host,x.asInt());
-                        else
+                        x = next.get("host");
+                        if (x != null) {
+                            host = x.asText();
+                        } else {
+                            host = null;
+                        }
+
+                        x = next.get("port");
+                        if (x != null) {
+                            addServerAddress(host, x.asInt());
+                        } else {
                             addServerAddress(host);
+                        }
                     } catch (UnknownHostException e) {
                         throw new IllegalStateException(e);
                     }
                 }
 
             } else {
-                JsonNode server=node.get("server");
-                if(server!=null) {
+                JsonNode server = node.get("server");
+                if (server != null) {
                     try {
-                        x=server.get("host");
-                        if(x!=null) {
-                            String host=x.asText();
-                            x=server.get("port");
-                            if(x!=null)
-                                setServer(host,x.asInt());
-                            else
+                        x = server.get("host");
+                        if (x != null) {
+                            String host = x.asText();
+                            x = server.get("port");
+                            if (x != null) {
+                                setServer(host, x.asInt());
+                            } else {
                                 setServer(host);
-                        } else
+                            }
+                        } else {
                             throw new IllegalStateException("host is required in server");
+                        }
                     } catch (RuntimeException e) {
                         throw e;
                     } catch (Exception e) {

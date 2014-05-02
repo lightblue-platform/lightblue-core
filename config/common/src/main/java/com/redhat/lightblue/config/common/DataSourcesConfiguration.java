@@ -69,7 +69,7 @@ public class DataSourcesConfiguration implements JsonInitializable {
      * configuration is delegated to the implementation,
      */
     public DataSourcesConfiguration(JsonNode node) {
-        initializeFromJson(node);
+        this.initializeFromJson(node);
     }
    
     /**
@@ -92,8 +92,9 @@ public class DataSourcesConfiguration implements JsonInitializable {
     public Map<String,DataSourceConfiguration> getDataSourcesByType(Class<?> clazz) {
         Map<String,DataSourceConfiguration> map=new HashMap<>();
         for(Map.Entry<String,DataSourceConfiguration> entry:datasources.entrySet())
-            if(clazz.isAssignableFrom(entry.getValue().getClass()))
+            if(clazz.isAssignableFrom(entry.getValue().getClass())) {
                 map.put(entry.getKey(),entry.getValue());
+            }
         return map;
     }
 
@@ -116,8 +117,9 @@ public class DataSourcesConfiguration implements JsonInitializable {
                 JsonNode dsNode=field.getValue();
                 LOGGER.debug("Parsing {}",name);
                 JsonNode typeNode=dsNode.get("type");
-                if(typeNode==null)
+                if(typeNode==null){
                     throw new IllegalArgumentException("type expected in "+name);
+                }
                 String type=typeNode.asText();
                 LOGGER.debug("{} is a {}",name,type);
                 try {
@@ -129,8 +131,9 @@ public class DataSourcesConfiguration implements JsonInitializable {
                     throw new IllegalArgumentException(dsNode+":"+e);
                 }
             }
-        } else
+        } else {
             throw new IllegalArgumentException(node.toString());
+        }
     }    
 }
 

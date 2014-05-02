@@ -54,7 +54,8 @@ public class ServoGraphiteSetup {
 
         // try to get name from openshift.  assume it's scaleable app.
         // format: <app name>.  <namespace>.<gear dns>
-        String prefix = System.getenv("HOSTNAME"); // default
+        // default
+        String prefix = System.getenv("HOSTNAME"); 
 
         if (System.getenv("OPENSHIFT_APP_NAME") != null) {
             prefix = String.format(
