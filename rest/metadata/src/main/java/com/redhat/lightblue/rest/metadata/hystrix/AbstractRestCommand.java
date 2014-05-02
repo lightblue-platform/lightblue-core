@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
+import javax.servlet.http.HttpServletRequest;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
@@ -38,11 +40,13 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Metadata metadata;
+    protected final HttpServletRequest httpServletRequest;
 
     public AbstractRestCommand(Class commandClass, String clientKey, Metadata metadata) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : clientKey)));
         this.metadata = metadata;
+        this.httpServletRequest=ResteasyProviderFactory.getContextData(HttpServletRequest.class);
     }
 
     /**
