@@ -18,16 +18,15 @@
  */
 package com.redhat.lightblue.rest.crud;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.config.crud.CrudManager;
+import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class RestApplication extends Application {
 
@@ -35,7 +34,7 @@ public class RestApplication extends Application {
     public static MetadataManager metadataMgr;
     public static CrudManager crudMgr;
 
-    public RestApplication() {
+    static {
         try {
             datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
         } catch (Exception e) {
@@ -44,7 +43,7 @@ public class RestApplication extends Application {
         metadataMgr=new MetadataManager(datasources);
         crudMgr=new CrudManager(datasources,metadataMgr);
     }
-
+    
     @Override
     public Set<Class<?>> getClasses() {
         HashSet<Class<?>> set=new HashSet<>();

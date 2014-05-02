@@ -24,16 +24,16 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class RestApplication extends Application {
 
     public static DataSourcesConfiguration datasources;
     public static MetadataManager metadataMgr;
 
-    public RestApplication() {
+    static {
         try {
             datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
         } catch (Exception e) {
@@ -41,8 +41,7 @@ public class RestApplication extends Application {
         }
         metadataMgr=new MetadataManager(datasources);
     }
-
-
+    
     @Override
     public Set<Class<?>> getClasses() {
         return new HashSet<Class<?>>(Arrays.asList(MetadataResource.class));
