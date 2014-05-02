@@ -47,6 +47,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <version>3.0.2.Final</version>
             <type>pom</type>
             <scope>import</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xalan</artifactId>
+                    <groupId>xalan</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
        <dependency>
            <groupId>org.jboss.resteasy</groupId>
