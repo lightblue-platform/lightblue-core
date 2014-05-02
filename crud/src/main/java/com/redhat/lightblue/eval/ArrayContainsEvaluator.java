@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.eval;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 

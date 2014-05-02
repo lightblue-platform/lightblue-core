@@ -108,7 +108,7 @@ public class DataSourcesConfiguration implements JsonInitializable {
     }
 
     @Override
-    public void initializeFromJson(JsonNode node) {
+    public final void initializeFromJson(JsonNode node) {
         // Node must be an object node
         if(node instanceof ObjectNode) {
             for(Iterator<Map.Entry<String,JsonNode>> fieldItr=node.fields();fieldItr.hasNext();) {
