@@ -39,7 +39,7 @@ public class RestApplication extends Application {
         try {
             datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
         } catch (Exception e) {
-            throw new RuntimeException("Cannot initialize:"+e);
+            throw new RuntimeException("Cannot initialize datasources.",e);
         }
         metadataMgr=new MetadataManager(datasources);
         crudMgr=new CrudManager(datasources,metadataMgr);
