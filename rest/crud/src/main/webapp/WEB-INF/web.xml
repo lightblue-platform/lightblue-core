@@ -7,7 +7,7 @@
        <url-pattern>/*</url-pattern>
     </servlet-mapping>
     
-    <security-constraint>
+    <!--security-constraint>
         <web-resource-collection>
             <web-resource-name>HtmlAuth</web-resource-name>
             <description>application security constraints
@@ -21,13 +21,10 @@
         <auth-constraint>
             <role-name>lightblue-user</role-name>
         </auth-constraint>
-    </security-constraint>
-    <login-config>
+    </security-constraint-->
+    <!--login-config>
         <auth-method>BASIC</auth-method>
         <realm-name>ApplicationRealm</realm-name>
-    </login-config>
-    <security-role>
-        <role-name>lightblue-user</role-name>
-    </security-role> 
+    </login-config-->
     
 </web-app>
