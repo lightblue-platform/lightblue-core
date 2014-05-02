@@ -59,6 +59,7 @@ public class InsertCommand extends AbstractRestCommand {
         try {
             InsertionRequest ireq = InsertionRequest.fromJson((ObjectNode) JsonUtils.json(request));
             validateReq(ireq, entity, version);
+            addCallerId(ireq);
             Response r = getMediator().insert(ireq);
             return r.toJson().toString();
         } catch (Error e) {

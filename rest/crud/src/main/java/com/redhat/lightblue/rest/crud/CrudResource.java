@@ -54,73 +54,99 @@ public class CrudResource {
 
     @PUT
     @Path("/{entity}")
-    public String insert(@PathParam("entity") String entity, String request) {
+    public String insert(@PathParam("entity") String entity, 
+                         String request) {
         return insert(entity, null, request);
     }
 
     @PUT
     @Path("/{entity}/{version}")
-    public String insert(@PathParam("entity") String entity, @PathParam("version") String version, String request) {
+    public String insert(@PathParam("entity") String entity, 
+                         @PathParam("version") String version, 
+                         String request) {
         return new InsertCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/save/{entity}")
-    public String save(@PathParam("entity") String entity, String request) {
+    public String save(@PathParam("entity") String entity, 
+                       String request) {
         return save(entity, null, request);
     }
 
     @POST
     @Path("/save/{entity}/{version}")
-    public String save(@PathParam("entity") String entity, @PathParam("version") String version, String request) {
+    public String save(@PathParam("entity") String entity, 
+                       @PathParam("version") String version, 
+                       String request) {
         return new SaveCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/update/{entity}")
-    public String update(@PathParam("entity") String entity, String request) {
+    public String update(@PathParam("entity") String entity, 
+                         String request) {
         return update(entity, null, request);
     }
 
     @POST
     @Path("/update/{entity}/{version}")
-    public String update(@PathParam("entity") String entity, @PathParam("version") String version, String request) {
+    public String update(@PathParam("entity") String entity, 
+                         @PathParam("version") String version, 
+                         String request) {
         return new UpdateCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/delete/{entity}")
-    public String delete(@PathParam("entity") String entity, String request) {
+    public String delete(@PathParam("entity") String entity, 
+                         String request) {
         return delete(entity, null, request);
     }
 
     @POST
     @Path("/delete/{entity}/{version}")
-    public String delete(@PathParam("entity") String entity, @PathParam("version") String version, String req) {
+    public String delete(@PathParam("entity") String entity, 
+                         @PathParam("version") String version, 
+                         String req) {
         return new DeleteCommand(null, entity, version, req).execute();
     }
 
     @POST
     @Path("/find/{entity}")
-    public String find(@PathParam("entity") String entity, String request) {
+    public String find(@PathParam("entity") String entity, 
+                       String request) {
         return find(entity, null, request);
     }
 
     @POST
     @Path("/find/{entity}/{version}")
-    public String find(@PathParam("entity") String entity, @PathParam("version") String version, String request) {
+    public String find(@PathParam("entity") String entity, 
+                       @PathParam("version") String version, 
+                       String request) {
         return new FindCommand(null, entity, version, request).execute();
     }
 
     @GET
     @Path("/find/{entity}") //?Q&P&S&from&to
-    public String simpleFind(@PathParam("entity") String entity                                      , @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+    public String simpleFind(@PathParam("entity") String entity, 
+                             @QueryParam("Q") String q, 
+                             @QueryParam("P") String p, 
+                             @QueryParam("S") String s, 
+                             @DefaultValue("0") @QueryParam("from") long from, 
+                             @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
         return simpleFind(entity, null, q, p, s, from, to);
     }
 
     @GET
     @Path("/find/{entity}/{version}") //?Q&P&S&from&to
-    public String simpleFind(@PathParam("entity") String entity, @PathParam("version") String version, @QueryParam("Q") String q, @QueryParam("P") String p, @QueryParam("S") String s, @DefaultValue("0") @QueryParam("from") long from, @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+    public String simpleFind(@PathParam("entity") String entity, 
+                             @PathParam("version") String version, 
+                             @QueryParam("Q") String q, 
+                             @QueryParam("P") String p, 
+                             @QueryParam("S") String s, 
+                             @DefaultValue("0") @QueryParam("from") long from, 
+                             @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
         // spec -> https://github.com/lightblue-platform/lightblue/wiki/Rest-Spec-Data#get-simple-find
         String sq = null;
         if(q != null && !"".equals(q.trim())) {
@@ -187,7 +213,6 @@ public class CrudResource {
         findRequest.setFrom(from);
         findRequest.setTo(to);
         String request = findRequest.toString();
-        System.out.println("Req:"+request);
 
         return new FindCommand(null, entity, version, request).execute();
     }

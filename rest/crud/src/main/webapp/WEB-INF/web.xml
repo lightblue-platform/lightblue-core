@@ -28,6 +28,9 @@
     </login-config>
     <security-role>
         <role-name>lightblue-user</role-name>
+        <role-name>user-admin</role-name>
+        <role-name>readonly</role-name>
+        <role-name>updater</role-name>
     </security-role> 
     
 </web-app>
