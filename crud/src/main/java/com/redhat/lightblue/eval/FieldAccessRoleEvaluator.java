@@ -186,14 +186,16 @@ public final class FieldAccessRoleEvaluator {
                 if(trc!=null) {
                     if(trc instanceof Field) {
                         access=acc.getFieldAccess(((Field)trc).getAccess());
-                        if(!access.isEmpty())
+                        if(!access.isEmpty()) {
                             break;
+                        }
                     }
                 }
             }  while(trc!=null);
         }
-        if(access.isEmpty())
-            return access=entityAccess;
+        if(access.isEmpty()) {
+            access=entityAccess;
+        }
         return access;
     }
                 
@@ -201,7 +203,6 @@ public final class FieldAccessRoleEvaluator {
         
 
     private boolean hasAccess(Field f, Operation op) {
-        FieldAccess faccess = f.getAccess();
         EntityAccess eaccess = md.getAccess();
         switch (op) {
         case insert:

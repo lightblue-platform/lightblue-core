@@ -71,7 +71,13 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         return m;
     }
 
-    protected JSONMetadataParser getJSONParser() throws Exception {
-        return RestApplication.getMetadataMgr().getJSONParser();
+    protected JSONMetadataParser getJSONParser() {
+        JSONMetadataParser parser = null;
+        try {
+            parser = RestApplication.getMetadataMgr().getJSONParser();
+        } catch (Exception e) {
+            Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
+        }
+        return parser;
     }
 }

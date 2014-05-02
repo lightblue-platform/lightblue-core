@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 /**
  * Created by lcestari on 3/27/14.
  */
-public class FileUtil {
+public final class FileUtil {
     
     private FileUtil() {
         
