@@ -31,7 +31,7 @@ import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 public class MetadataManagerTest {
     @Test
     public void getMetadata() throws Exception {
-        MetadataManager mgr=new MetadataManager(new DataSourcesConfiguration());
+        MetadataManager mgr = new MetadataManager(new DataSourcesConfiguration());
         Metadata m = mgr.getMetadata();
         Assert.assertNotNull(m);
         Assert.assertTrue(m instanceof DatabaseMetadata);

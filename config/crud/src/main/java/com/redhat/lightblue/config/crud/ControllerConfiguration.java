@@ -25,13 +25,14 @@ import com.redhat.lightblue.util.JsonInitializable;
 public class ControllerConfiguration implements JsonInitializable {
 
     private String datastoreType;
-    private Class<? extends ControllerFactory>  controllerFactory;
+    private Class<? extends ControllerFactory> controllerFactory;
 
-    public ControllerConfiguration() {}
+    public ControllerConfiguration() {
+    }
 
     public ControllerConfiguration(ControllerConfiguration c) {
-        datastoreType=c.datastoreType;
-        controllerFactory=c.controllerFactory;
+        datastoreType = c.datastoreType;
+        controllerFactory = c.controllerFactory;
     }
 
     /**
@@ -40,42 +41,44 @@ public class ControllerConfiguration implements JsonInitializable {
     public String getDatastoreType() {
         return datastoreType;
     }
-    
+
     /**
      * @param datastoreType the datastoreType to set
      */
     public void setDatastoreType(String datastoreType) {
         this.datastoreType = datastoreType;
     }
-    
+
     /**
      * @return the controller factory class
      */
-    public Class<? extends ControllerFactory>  getControllerFactory() {
+    public Class<? extends ControllerFactory> getControllerFactory() {
         return controllerFactory;
     }
-    
+
     /**
      * @param clazz the class to set
      */
-    public void setControllerFactory(Class<? extends ControllerFactory>  clazz) {
+    public void setControllerFactory(Class<? extends ControllerFactory> clazz) {
         this.controllerFactory = clazz;
     }
-    
+
     @Override
     public void initializeFromJson(JsonNode node) {
         try {
-            if(node!=null) {
-                JsonNode x=node.get("datastoreType");
-                if(x!=null)
-                    datastoreType=x.asText();
-                x=node.get("controllerFactory");
-                if(x!=null) 
-                    controllerFactory=(Class<ControllerFactory>)Class.forName(x.asText());
+            if (node != null) {
+                JsonNode x = node.get("datastoreType");
+                if (x != null) {
+                    datastoreType = x.asText();
+                }
+                x = node.get("controllerFactory");
+                if (x != null) {
+                    controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
+                }
             }
         } catch (RuntimeException e) {
             throw e;
-        } catch (Exception e ){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

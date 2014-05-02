@@ -36,7 +36,6 @@ import com.redhat.lightblue.query.UpdateExpression;
  */
 public class TestCRUDController implements CRUDController {
 
-
     public TestCRUDController() {
 
     }

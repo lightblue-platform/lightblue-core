@@ -33,4 +33,3 @@ public interface DataSourceConfiguration extends JsonInitializable {
     public Class<DataStoreParser> getMetadataDataStoreParser();
 
 }
-

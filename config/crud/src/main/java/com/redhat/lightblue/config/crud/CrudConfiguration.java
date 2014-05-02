@@ -57,7 +57,7 @@ public class CrudConfiguration implements JsonInitializable {
     private ControllerConfiguration[] copyControllerArray(ControllerConfiguration[] source) {
         ControllerConfiguration[] theCopy = new ControllerConfiguration[source.length];
         for (int i = 0; i < source.length; i++) {
-            theCopy[i]=new ControllerConfiguration(source[i]);
+            theCopy[i] = new ControllerConfiguration(source[i]);
         }
         return theCopy;
     }
@@ -66,22 +66,22 @@ public class CrudConfiguration implements JsonInitializable {
      * Validate that the configuration has all data needed.
      */
     public boolean isValid() {
-        return (controllers != null && controllers.length>0);
+        return (controllers != null && controllers.length > 0);
     }
 
     @Override
     public void initializeFromJson(JsonNode node) {
-        if(node!=null) {
-            JsonNode x=node.get("controllers");
-            if(x instanceof ArrayNode) {
-                List<ControllerConfiguration> list=new ArrayList<>(x.size());
-                for(Iterator<JsonNode> itr=((ArrayNode)x).elements();itr.hasNext();) {
-                    JsonNode controllerNode=itr.next();
-                    ControllerConfiguration controller=new ControllerConfiguration();
+        if (node != null) {
+            JsonNode x = node.get("controllers");
+            if (x instanceof ArrayNode) {
+                List<ControllerConfiguration> list = new ArrayList<>(x.size());
+                for (Iterator<JsonNode> itr = ((ArrayNode) x).elements(); itr.hasNext();) {
+                    JsonNode controllerNode = itr.next();
+                    ControllerConfiguration controller = new ControllerConfiguration();
                     controller.initializeFromJson(controllerNode);
                     list.add(controller);
                 }
-                controllers=list.toArray(new ControllerConfiguration[list.size()]);
+                controllers = list.toArray(new ControllerConfiguration[list.size()]);
             }
         }
     }

@@ -44,8 +44,8 @@ import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
- * Because rest resources are instantiated for every request this manager exists
- * to keep the number of Metadata instances created down to a reasonable level.
+ * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
+ * instances created down to a reasonable level.
  *
  * This class is expected to be a singleton.
  *
@@ -63,7 +63,7 @@ public final class MetadataManager {
     private final DataSourcesConfiguration datasources;
 
     public MetadataManager(DataSourcesConfiguration datasources) {
-        this.datasources=datasources;
+        this.datasources = datasources;
     }
 
     private synchronized void initializeParser() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
@@ -73,15 +73,15 @@ public final class MetadataManager {
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
 
-        Map<String,DataSourceConfiguration> ds=datasources.getDataSources();
-        for(Map.Entry<String,DataSourceConfiguration> entry:ds.entrySet()) {
-            Class<DataStoreParser> parser=entry.getValue().getMetadataDataStoreParser();
-            extensions.registerDataStoreParser(entry.getKey(),parser.newInstance());
+        Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
+        for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
+            Class<DataStoreParser> parser = entry.getValue().getMetadataDataStoreParser();
+            extensions.registerDataStoreParser(entry.getKey(), parser.newInstance());
         }
 
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
-    
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     private synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata != null) {
@@ -92,18 +92,19 @@ public final class MetadataManager {
 
         JsonNode root;
         try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
-                root=JsonUtils.json(is);
+            root = JsonUtils.json(is);
         }
-        LOGGER.debug("Config root:{}",root);
+        LOGGER.debug("Config root:{}", root);
 
-        JsonNode cfgClass=root.get("type");
-        if(cfgClass==null)
-            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND +" - type");
+        JsonNode cfgClass = root.get("type");
+        if (cfgClass == null) {
+            throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
+        }
 
-        MetadataConfiguration cfg=(MetadataConfiguration)Class.forName(cfgClass.asText()).newInstance();
+        MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
         cfg.initializeFromJson(root);
 
-        metadata = cfg.createMetadata(datasources,getJSONParser());
+        metadata = cfg.createMetadata(datasources, getJSONParser());
     }
 
     public Metadata getMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {

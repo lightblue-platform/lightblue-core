@@ -42,8 +42,8 @@ import com.redhat.lightblue.util.JsonInitializable;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Creates CRUD controllers based on configuration. There should be
- * only one instance of this class for each application.
+ * Creates CRUD controllers based on configuration. There should be only one instance of this class for each
+ * application.
  *
  * @author nmalik
  */
@@ -55,11 +55,11 @@ public final class CrudManager {
 
     public CrudManager(DataSourcesConfiguration datasources,
                        MetadataManager metadataMgr) {
-        this.datasources=datasources;
-        this.metadataMgr=metadataMgr;
+        this.datasources = datasources;
+        this.metadataMgr = metadataMgr;
     }
 
-   @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator != null) {
             // already initalized
@@ -68,11 +68,11 @@ public final class CrudManager {
 
         JsonNode root;
         try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
-                root = JsonUtils.json(is);
+            root = JsonUtils.json(is);
         }
 
         // convert root to Configuration object
-        CrudConfiguration configuration=new CrudConfiguration();
+        CrudConfiguration configuration = new CrudConfiguration();
         configuration.initializeFromJson(root);
 
         Factory factory = new Factory();
@@ -84,8 +84,8 @@ public final class CrudManager {
         }
 
         for (ControllerConfiguration x : configuration.getControllers()) {
-            ControllerFactory cfactory=x.getControllerFactory().newInstance();
-            CRUDController controller = cfactory.createController(x,datasources);
+            ControllerFactory cfactory = x.getControllerFactory().newInstance();
+            CRUDController controller = cfactory.createController(x, datasources);
             factory.addCRUDController(x.getDatastoreType(), controller);
         }
         mediator = new Mediator(metadataMgr.getMetadata(), factory);

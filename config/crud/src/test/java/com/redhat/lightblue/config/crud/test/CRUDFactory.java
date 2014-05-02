@@ -31,4 +31,3 @@ public class CRUDFactory implements ControllerFactory {
         return new TestCRUDController();
     }
 }
-
