@@ -31,6 +31,7 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.Access;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.ProjectionList;
@@ -153,19 +154,65 @@ public final class FieldAccessRoleEvaluator {
         return ret;
     }
 
+    private static abstract class AccAccessor {
+        public abstract Access getFieldAccess(FieldAccess f);
+    }
+
+    private static final AccAccessor INS_ACC=new AccAccessor() {
+            public Access getFieldAccess(FieldAccess f) {
+                return f.getInsert();
+            }
+        };
+
+    private static final AccAccessor UPD_ACC=new AccAccessor() {
+            public Access getFieldAccess(FieldAccess f) {
+                return f.getUpdate();
+            }
+        };
+
+    private static final AccAccessor FIND_ACC=new AccAccessor() {
+            public Access getFieldAccess(FieldAccess f) {
+                return f.getFind();
+            }
+        };
+
+
+    private Access getEffAccess(Field f,AccAccessor acc,Access entityAccess) {
+        Access access=acc.getFieldAccess(f.getAccess());
+        if(access.isEmpty()) {
+            FieldTreeNode trc=f;
+            do {
+                trc=trc.getParent();
+                if(trc!=null) {
+                    if(trc instanceof Field) {
+                        access=acc.getFieldAccess(((Field)trc).getAccess());
+                        if(!access.isEmpty())
+                            break;
+                    }
+                }
+            }  while(trc!=null);
+        }
+        if(access.isEmpty())
+            return access=entityAccess;
+        return access;
+    }
+                
+                
+        
+
     private boolean hasAccess(Field f, Operation op) {
         FieldAccess faccess = f.getAccess();
         EntityAccess eaccess = md.getAccess();
         switch (op) {
-            case insert:
-                return (faccess.getInsert().isEmpty() ? eaccess.getInsert() : faccess.getInsert()).hasAccess(roles);
-            case update:
-                return (faccess.getUpdate().isEmpty() ? eaccess.getUpdate() : faccess.getUpdate()).hasAccess(roles);
-            case insert_and_update:
-                return (faccess.getInsert().isEmpty() ? eaccess.getInsert() : faccess.getInsert()).hasAccess(roles)
-                        && (faccess.getUpdate().isEmpty() ? eaccess.getUpdate() : faccess.getUpdate()).hasAccess(roles);
-            case find:
-                return (faccess.getFind().isEmpty() ? eaccess.getFind() : faccess.getFind()).hasAccess(roles);
+        case insert:
+            return getEffAccess(f,INS_ACC,eaccess.getInsert()).hasAccess(roles);
+        case update:
+            return getEffAccess(f,UPD_ACC,eaccess.getUpdate()).hasAccess(roles);
+        case insert_and_update:
+            return getEffAccess(f,INS_ACC,eaccess.getInsert()).hasAccess(roles)
+                && getEffAccess(f,UPD_ACC,eaccess.getUpdate()).hasAccess(roles);
+        case find:
+            return getEffAccess(f,FIND_ACC,eaccess.getFind()).hasAccess(roles);
         }
         return false;
     }
