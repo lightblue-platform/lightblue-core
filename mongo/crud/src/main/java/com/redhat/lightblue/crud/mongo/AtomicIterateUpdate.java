@@ -23,28 +23,22 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoException;
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Operation;
-
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluationContext;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.mongo.hystrix.FindAndModifyCommand;
 import com.redhat.lightblue.mongo.hystrix.FindCommand;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
@@ -105,7 +99,6 @@ public class AtomicIterateUpdate implements DocUpdater {
                     // Add the doc to context
                     DocCtx doc = ctx.addDocument(translator.toJson(document));
                     try {
-                        QueryEvaluationContext qctx = new QueryEvaluationContext(doc.getRoot());
                         Object id = document.get("_id");
                         LOGGER.debug("Retrieved doc {} id={}", docIndex, id);
                         // Update doc
@@ -119,7 +112,7 @@ public class AtomicIterateUpdate implements DocUpdater {
                                 false).execute();
                         if (projector != null) {
                             LOGGER.debug("Projecting document {}", docIndex);
-                            doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory, qctx));
+                            doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory));
                             doc.setOperationPerformed(Operation.UPDATE);
                         }
                         numUpdated++;

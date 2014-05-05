@@ -40,7 +40,7 @@ public class FindOneCommand extends AbstractMongoCommand<DBObject> {
     }
 
     @Override
-    protected DBObject run() throws Exception {
+    protected DBObject run() {
         return getDBCollection().findOne(query);
     }
 }

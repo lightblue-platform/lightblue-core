@@ -18,16 +18,15 @@
  */
 package com.redhat.lightblue.config.common;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.JsonInitializable;
 
 /**
@@ -66,7 +65,7 @@ public class DataSourcesConfiguration implements JsonInitializable {
      * implementation,
      */
     public DataSourcesConfiguration(JsonNode node) {
-        initializeFromJson(node);
+        this.initializeFromJson(node);
     }
 
     /**
@@ -86,11 +85,11 @@ public class DataSourcesConfiguration implements JsonInitializable {
     /**
      * Returns all datasources that extend the given class
      */
-    public Map<String, DataSourceConfiguration> getDataSourcesByType(Class<?> clazz) {
-        Map<String, DataSourceConfiguration> map = new HashMap<>();
-        for (Map.Entry<String, DataSourceConfiguration> entry : datasources.entrySet()) {
-            if (clazz.isAssignableFrom(entry.getValue().getClass())) {
-                map.put(entry.getKey(), entry.getValue());
+    public Map<String,DataSourceConfiguration> getDataSourcesByType(Class<?> clazz) {
+        Map<String,DataSourceConfiguration> map=new HashMap<>();
+        for(Map.Entry<String,DataSourceConfiguration> entry:datasources.entrySet()) {
+            if(clazz.isAssignableFrom(entry.getValue().getClass())) {
+                map.put(entry.getKey(),entry.getValue());
             }
         }
         return map;
@@ -108,18 +107,18 @@ public class DataSourcesConfiguration implements JsonInitializable {
     @Override
     public final void initializeFromJson(JsonNode node) {
         // Node must be an object node
-        if (node instanceof ObjectNode) {
-            for (Iterator<Map.Entry<String, JsonNode>> fieldItr = node.fields(); fieldItr.hasNext();) {
-                Map.Entry<String, JsonNode> field = fieldItr.next();
-                String name = field.getKey();
-                JsonNode dsNode = field.getValue();
-                LOGGER.debug("Parsing {}", name);
-                JsonNode typeNode = dsNode.get("type");
-                if (typeNode == null) {
-                    throw new IllegalArgumentException("type expected for name: " + name);
+        if(node instanceof ObjectNode) {
+            for(Iterator<Map.Entry<String,JsonNode>> fieldItr=node.fields();fieldItr.hasNext();) {
+                Map.Entry<String,JsonNode> field=fieldItr.next();
+                String name=field.getKey();
+                JsonNode dsNode=field.getValue();
+                LOGGER.debug("Parsing {}",name);
+                JsonNode typeNode=dsNode.get("type");
+                if(typeNode==null){
+                    throw new IllegalArgumentException("type expected in "+name);
                 }
-                String type = typeNode.asText();
-                LOGGER.debug("{} is a {}", name, type);
+                String type=typeNode.asText();
+                LOGGER.debug("{} is a {}",name,type);
                 try {
                     Class clazz = Class.forName(type);
                     DataSourceConfiguration ds = (DataSourceConfiguration) clazz.newInstance();

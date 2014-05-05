@@ -66,19 +66,17 @@ public class ControllerConfiguration implements JsonInitializable {
     @Override
     public void initializeFromJson(JsonNode node) {
         try {
-            if (node != null) {
-                JsonNode x = node.get("datastoreType");
-                if (x != null) {
-                    datastoreType = x.asText();
+            if(node!=null) {
+                JsonNode x=node.get("datastoreType");
+                if(x!=null) {
+                    datastoreType=x.asText();
                 }
-                x = node.get("controllerFactory");
-                if (x != null) {
-                    controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
+                x=node.get("controllerFactory");
+                if(x!=null) {
+                    controllerFactory=(Class<ControllerFactory>)Class.forName(x.asText());
                 }
             }
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (Exception e ){
             throw new RuntimeException(e);
         }
     }

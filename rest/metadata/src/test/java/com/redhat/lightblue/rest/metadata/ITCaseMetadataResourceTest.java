@@ -18,6 +18,30 @@
  */
 package com.redhat.lightblue.rest.metadata;
 
+import static com.redhat.lightblue.util.test.FileUtil.readFile;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import javax.inject.Inject;
+
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.json.JSONException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONAssert;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
@@ -27,6 +51,7 @@ import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.util.JsonUtils;
+
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -38,29 +63,6 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.json.JSONException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import static com.redhat.lightblue.util.test.FileUtil.readFile;
-import static junit.framework.Assert.assertNotNull;
 
 /**
  *
@@ -106,8 +108,6 @@ public class ITCaseMetadataResourceTest {
     private static MongodProcess mongod;
     private static Mongo mongo;
     private static DB db;
-
-    private MongoMetadata md;
 
     static {
         try {
@@ -201,10 +201,10 @@ public class ITCaseMetadataResourceTest {
 
     @Test
     public void testFirstIntegrationTest() throws IOException, URISyntaxException, JSONException {
-        assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
+        Assert.assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
 
-        RestApplication.datasources=new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json")));
-        RestApplication.metadataMgr=new MetadataManager(RestApplication.datasources);
+        RestApplication.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        RestApplication.setMetadataMgr(new MetadataManager(RestApplication.getDatasources()));
 
         String expectedCreated = readFile("expectedCreated.json");
         String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));

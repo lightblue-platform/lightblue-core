@@ -86,8 +86,9 @@ public class RegexEvaluator extends QueryEvaluator {
             if (docValue != null) {
                 ctx.setResult(regex.matcher(docValue.toString()).matches());
             }
-            if(ctx.getResult())
+            if(ctx.getResult()){
                 break;
+            }
         }
         return ctx.getResult();
     }

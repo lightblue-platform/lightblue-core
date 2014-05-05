@@ -47,7 +47,7 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
     }
 
     @Override
-    protected String run() throws Exception {
+    protected String run() {
         LOGGER.debug("run: entity={}", entity);
         Error.reset();
         Error.push(getClass().getSimpleName());

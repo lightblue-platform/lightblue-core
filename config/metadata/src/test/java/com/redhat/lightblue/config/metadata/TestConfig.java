@@ -19,7 +19,6 @@
 package com.redhat.lightblue.config.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;

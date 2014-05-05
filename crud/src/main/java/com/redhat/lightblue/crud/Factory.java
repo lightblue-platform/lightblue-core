@@ -41,7 +41,7 @@ public class Factory implements Serializable {
 
     private final transient DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
 
-    private HookResolver hookResolver;
+    private transient HookResolver hookResolver;
 
     /**
      * Adds a field constraint validator

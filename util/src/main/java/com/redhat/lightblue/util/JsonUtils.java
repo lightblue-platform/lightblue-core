@@ -69,8 +69,9 @@ public final class JsonUtils {
     public static JsonNode json(Reader reader) throws IOException {
         StringBuilder bld=new StringBuilder(512);
         int c;
-        while( (c=reader.read()) >= 0 )
+        while( (c=reader.read()) >= 0 ) {
             bld.append((char)c);
+        }
         return json(bld.toString());
     }
 

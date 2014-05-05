@@ -18,16 +18,17 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
-import com.github.fge.jsonschema.exceptions.ProcessingException;
-import com.mongodb.DBObject;
-import com.redhat.lightblue.crud.Operation;
-import static com.redhat.lightblue.crud.mongo.AbstractMongoTest.nodeFactory;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.query.UpdateExpression;
 import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.fge.jsonschema.exceptions.ProcessingException;
+import com.mongodb.DBObject;
+import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.query.UpdateExpression;
 
 /**
  *
@@ -76,16 +77,11 @@ public class TranslatorTest extends AbstractMongoTest {
         Assert.assertNotNull(mongoUpdateExpr);
     }
 
-    @Test
+    @Test(expected=CannotTranslateException.class)
     public void translateUpdateUnsetNestedArrayElement() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-unset-nested-array-element.json");
         UpdateExpression ue = update(updateQueryJson);
-        try {
-            DBObject mongoUpdateExpr = translator.translate(md, ue);
-            Assert.fail("Expected CannotTranslateException");
-        } catch (CannotTranslateException e) {
-            // expected
-        }
+        translator.translate(md, ue);
     }
 
     @Test
@@ -105,64 +101,39 @@ public class TranslatorTest extends AbstractMongoTest {
      $update : foreach_update_expression } }
      */
 
-    @Test
+    @Test(expected=CannotTranslateException.class)
     public void translateUpdateAppendValue() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-append-value.json");
         UpdateExpression ue = update(updateQueryJson);
-        try {
-            DBObject mongoUpdateExpr = translator.translate(md, ue);
-            Assert.fail("Expected CannotTranslateException");
-        } catch (CannotTranslateException e) {
-            // expected
-        }
+        translator.translate(md, ue);
     }
 
-    @Test
+    @Test(expected=CannotTranslateException.class)
     public void translateUpdateAppendValues() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-append-values.json");
         UpdateExpression ue = update(updateQueryJson);
-        try {
-            DBObject mongoUpdateExpr = translator.translate(md, ue);
-            Assert.fail("Expected CannotTranslateException");
-        } catch (CannotTranslateException e) {
-            // expected
-        }
+        translator.translate(md, ue);
     }
 
-    @Test
+    @Test(expected=CannotTranslateException.class)
     public void translateUpdateInsertValue() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-insert-value.json");
         UpdateExpression ue = update(updateQueryJson);
-        try {
-            DBObject mongoUpdateExpr = translator.translate(md, ue);
-            Assert.fail("Expected CannotTranslateException");
-        } catch (CannotTranslateException e) {
-            // expected
-        }
+        translator.translate(md, ue);
     }
 
-    @Test
+    @Test(expected=CannotTranslateException.class)
     public void translateUpdateInsertValues() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-insert-values.json");
         UpdateExpression ue = update(updateQueryJson);
-        try {
-            DBObject mongoUpdateExpr = translator.translate(md, ue);
-            Assert.fail("Expected CannotTranslateException");
-        } catch (CannotTranslateException e) {
-            // expected
-        }
+        translator.translate(md, ue);
     }
 
-    @Test
+    @Test(expected=CannotTranslateException.class)
     public void translateUpdateForeachSimple() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-foreach-simple.json");
         UpdateExpression ue = update(updateQueryJson);
-        try {
-            DBObject mongoUpdateExpr = translator.translate(md, ue);
-            Assert.fail("Expected CannotTranslateException");
-        } catch (CannotTranslateException e) {
-            // expected
-        }
+        translator.translate(md, ue);
     }
 
     @Test

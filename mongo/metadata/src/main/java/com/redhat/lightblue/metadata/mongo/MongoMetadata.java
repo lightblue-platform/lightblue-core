@@ -23,9 +23,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
+import java.util.Objects;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -45,6 +46,8 @@ import com.mongodb.WriteResult;
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.common.mongo.DBResolver;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityInfo;
@@ -63,19 +66,18 @@ import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.mongo.hystrix.DistinctCommand;
 import com.redhat.lightblue.mongo.hystrix.FindCommand;
 import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
 import com.redhat.lightblue.mongo.hystrix.InsertCommand;
 import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
-import com.redhat.lightblue.common.mongo.MongoDataStore;
-import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
 public class MongoMetadata implements Metadata {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoMetadata.class);
 
@@ -86,9 +88,9 @@ public class MongoMetadata implements Metadata {
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
-    private final DBCollection collection;
-    private final DBResolver dbResolver;
-    private final BSONParser mdParser;
+    private final transient DBCollection collection;
+    private final transient DBResolver dbResolver;
+    private final transient BSONParser mdParser;
 
     public MongoMetadata(DB db,
                          String metadataCollection,
@@ -274,16 +276,17 @@ public class MongoMetadata implements Metadata {
                 List<DBObject> existingIndexes=entityCollection.getIndexInfo();
 
                 for(DBObject existingIndex: existingIndexes) {
-                    if(indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
-                        // There can be two indexes with different options, if that's the case, don't drop
-                        boolean found=false;
-                        for(Index trc:indexes.getIndexes())
-                            if(trc!=index&&
-                               indexFieldsMatch(trc,existingIndex)&&indexOptionsMatch(trc,existingIndex)) {
-                                found=true;
+                    if (indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
+                        // There can be two indexes with different options, if
+                        // that's the case, don't drop
+                        boolean found = false;
+                        for (Index trc : indexes.getIndexes()) {
+                            if (trc != index && indexFieldsMatch(trc, existingIndex) && indexOptionsMatch(trc, existingIndex)) {
+                                found = true;
                                 break;
                             }
-                        if(!found) {
+                        }
+                        if (!found) {
                             entityCollection.dropIndex(existingIndex.get("name").toString());
                             break;
                         }
@@ -368,11 +371,10 @@ public class MongoMetadata implements Metadata {
         if (null == old) {
             throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ei.getName());
         }
-        if( (old.getDefaultVersion()==null&&ei.getDefaultVersion()!=null) ||
-            (old.getDefaultVersion()!=null&&ei.getDefaultVersion()!=null&&
-             !old.getDefaultVersion().equals(ei.getDefaultVersion())) )
+        if (!Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion())) {
             validateDefaultVersion(ei);
-
+        }
+        
         try {
             collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
                               (DBObject)mdParser.convert(ei));

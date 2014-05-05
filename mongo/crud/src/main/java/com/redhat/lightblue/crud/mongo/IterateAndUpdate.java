@@ -103,7 +103,6 @@ public class IterateAndUpdate implements DocUpdater {
                 DocCtx doc = ctx.addDocument(translator.toJson(document));
                 doc.setOutputDocument(doc.copy());
                 // From now on: doc contains the old copy, and doc.getOutputDocument contains the new copy
-                QueryEvaluationContext qctx = new QueryEvaluationContext(doc.getRoot());
                 if (updater.update(doc.getOutputDocument(), md.getFieldTreeRoot(), Path.EMPTY)) {
                     LOGGER.debug("Document {} modified, updating", docIndex);
                     PredefinedFields.updateArraySizes(nodeFactory, doc.getOutputDocument());
@@ -149,11 +148,11 @@ public class IterateAndUpdate implements DocUpdater {
                 if (hasErrors) {
                     LOGGER.debug("Document {} has errors", docIndex);
                     numFailed++;
-                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(), nodeFactory, qctx));
+                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(), nodeFactory));
                 } else {
                     if (projector != null) {
                         LOGGER.debug("Projecting document {}", docIndex);
-                        doc.setOutputDocument(projector.project(doc.getOutputDocument(), nodeFactory, qctx));
+                        doc.setOutputDocument(projector.project(doc.getOutputDocument(), nodeFactory));
                     }
                 }
                 docIndex++;

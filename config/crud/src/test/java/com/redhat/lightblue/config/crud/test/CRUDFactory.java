@@ -20,7 +20,6 @@ package com.redhat.lightblue.config.crud.test;
 
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.crud.ControllerFactory;
-import com.redhat.lightblue.config.crud.ControllerConfiguration;
 import com.redhat.lightblue.crud.CRUDController;
 
 public class CRUDFactory implements ControllerFactory {

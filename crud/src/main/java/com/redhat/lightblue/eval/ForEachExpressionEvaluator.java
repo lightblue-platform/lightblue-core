@@ -155,8 +155,9 @@ public class ForEachExpressionEvaluator extends Updater {
                         if (updater instanceof RemoveEvaluator) {
                             index--;
                         }
-                    } else
+                    } else {
                         LOGGER.debug("Updater {} return false",updater);
+                    }
                 } else {
                     LOGGER.debug("query does not match {}", elementPath);
                 }

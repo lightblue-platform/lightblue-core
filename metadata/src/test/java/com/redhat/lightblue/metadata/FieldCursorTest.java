@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.util.Path;
 
 public class FieldCursorTest {
 

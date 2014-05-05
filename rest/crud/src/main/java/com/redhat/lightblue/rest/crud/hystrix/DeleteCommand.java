@@ -51,7 +51,7 @@ public class DeleteCommand extends AbstractRestCommand {
     }
 
     @Override
-    protected String run() throws Exception {
+    protected String run() {
         LOGGER.debug("run: entity={}, version={}", entity, version);
         Error.reset();
         Error.push(getClass().getSimpleName());

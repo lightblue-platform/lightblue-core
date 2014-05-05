@@ -1026,7 +1026,7 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    static public String toString(MetadataStatus status) {
+    public static String toString(MetadataStatus status) {
         switch (status) {
             case ACTIVE:
                 return STR_ACTIVE;
@@ -1038,7 +1038,7 @@ public abstract class MetadataParser<T> {
         return null;
     }
 
-    static public MetadataStatus statusFromString(String status) {
+    public static MetadataStatus statusFromString(String status) {
         switch (status) {
             case STR_ACTIVE:
                 return MetadataStatus.ACTIVE;

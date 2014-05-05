@@ -18,31 +18,22 @@
  */
 package com.redhat.lightblue.mongo.config;
 
-import java.net.UnknownHostException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.util.JsonInitializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.ServerAddress;
 import org.bson.BSONObject;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.metadata.MetadataConfiguration;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
-import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.config.metadata.MetadataConfiguration;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.common.DataSourceConfiguration;
 
 public class MongoMetadataConfiguration implements MetadataConfiguration {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MongoMetadataConfiguration.class);
 
     private String datasource;
     private String collection;
@@ -59,12 +50,14 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
             DefaultTypes typeResolver = new DefaultTypes();
             MongoDataStore mdstore=new MongoDataStore();
             mdstore.setDatasourceName(datasource);
-            if(collection==null)
+            if(collection==null){
                 return new MongoMetadata(dbresolver.get(mdstore),dbresolver, parserExtensions, typeResolver);
-            else
+            } else {
                 return new MongoMetadata(dbresolver.get(mdstore),collection, dbresolver,parserExtensions,typeResolver);
-        } else
+            }  
+        } else {
             throw new IllegalArgumentException(datasource);
+        }
     }
 
     /**
@@ -103,11 +96,13 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
             JsonNode x=node.get("dataSource");
-            if(x!=null)
+            if(x!=null){
                 datasource=x.asText();
+            }
             x=node.get("collection");
-            if(x!=null)
+            if(x!=null){
                 collection=x.asText();
+            }
         }
     }
 }

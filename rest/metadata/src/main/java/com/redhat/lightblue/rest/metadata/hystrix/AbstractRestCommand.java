@@ -18,15 +18,19 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-
 import com.redhat.lightblue.rest.metadata.RestApplication;
+import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
@@ -38,11 +42,13 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Metadata metadata;
+    private final HttpServletRequest httpServletRequest;
 
     public AbstractRestCommand(Class commandClass, String clientKey, Metadata metadata) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : clientKey)));
         this.metadata = metadata;
+        this.httpServletRequest=ResteasyProviderFactory.getContextData(HttpServletRequest.class);
     }
 
     /**
@@ -51,15 +57,27 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
      * @return
      * @throws Exception
      */
-    protected Metadata getMetadata() throws Exception {
-        if (null != metadata) {
-            return metadata;
-        } else {
-            return RestApplication.metadataMgr.getMetadata();
+    protected Metadata getMetadata() {
+        Metadata m = null;
+        try {
+            if (null != metadata) {
+                m = metadata;
+            } else {
+                m = RestApplication.getMetadataMgr().getMetadata();
+            }
+        } catch (Exception e) {
+            Error.get(RestMetadataConstants.ERR_CANT_GET_METADATA);
         }
+        return m;
     }
 
-    protected JSONMetadataParser getJSONParser() throws Exception {
-        return RestApplication.metadataMgr.getJSONParser();
+    protected JSONMetadataParser getJSONParser() {
+        JSONMetadataParser parser = null;
+        try {
+            parser = RestApplication.getMetadataMgr().getJSONParser();
+        } catch (Exception e) {
+            Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
+        }
+        return parser;
     }
 }

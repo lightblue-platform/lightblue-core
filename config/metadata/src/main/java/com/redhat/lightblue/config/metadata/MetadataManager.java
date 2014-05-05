@@ -18,14 +18,18 @@
  */
 package com.redhat.lightblue.config.metadata;
 
-import com.redhat.lightblue.util.JsonInitializable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.common.DataSourceConfiguration;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
@@ -34,21 +38,12 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
-import java.util.Map;
-
 /**
- * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
- * instances created down to a reasonable level.
- *
+ * Because rest resources are instantiated for every request this manager exists
+ * to keep the number of Metadata instances created down to a reasonable level.
+ * 
  * This class is expected to be a singleton.
- *
+ * 
  * @author nmalik
  */
 public final class MetadataManager {
@@ -57,7 +52,6 @@ public final class MetadataManager {
 
     private volatile Metadata metadata = null;
     private volatile JSONMetadataParser parser = null;
-    private MetadataConfiguration configuration = null;
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final DataSourcesConfiguration datasources;
@@ -75,14 +69,13 @@ public final class MetadataManager {
 
         Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
         for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
-            Class<DataStoreParser> parser = entry.getValue().getMetadataDataStoreParser();
-            extensions.registerDataStoreParser(entry.getKey(), parser.newInstance());
+            Class<DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
+            extensions.registerDataStoreParser(entry.getKey(), tempParser.newInstance());
         }
 
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata != null) {
             // already initalized
@@ -100,7 +93,7 @@ public final class MetadataManager {
         if (cfgClass == null) {
             throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
         }
-
+        
         MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
         cfg.initializeFromJson(root);
 

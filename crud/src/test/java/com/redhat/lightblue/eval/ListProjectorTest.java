@@ -84,7 +84,7 @@ public class ListProjectorTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'', '\"'));
 
-        JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc = projector.project(doc, factory);
 
         Assert.assertEquals(expectedNode.toString(), newDoc.toString());
     }
@@ -95,7 +95,7 @@ public class ListProjectorTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'', '\"'));
 
-        JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc = projector.project(doc, factory);
 
         Assert.assertEquals(expectedNode.toString(), newDoc.toString());
     }
@@ -106,7 +106,7 @@ public class ListProjectorTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'', '\"'));
 
-        JsonDoc newDoc = projector.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
+        JsonDoc newDoc = projector.project(doc, factory);
 
         Assert.assertEquals(expectedNode.toString(), newDoc.toString());
     }

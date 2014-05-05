@@ -90,9 +90,9 @@ public abstract class AbstractTreeCursor<N> {
     private KeyValueCursor<String,N> currentCursor;
 
     private static final class SingleElemCursor<T> implements KeyValueCursor<String,T> {
-        final T value;
-        final String key;
-        boolean fetched=false;
+        private T value;
+        private final String key;
+        private boolean fetched=false;
 
         SingleElemCursor(String key,T value) {
             this.key=key;
@@ -144,8 +144,9 @@ public abstract class AbstractTreeCursor<N> {
     public AbstractTreeCursor(Path p, N start) {
         currentPath = new MutablePath(p);
         currentNode = start;
-        if(!hasChildren(start))
+        if(!hasChildren(start)) {
             throw new IllegalArgumentException("Not iterable");
+        }
         currentCursor=new SingleElemCursor("",start);
         currentCursor.next();
     }

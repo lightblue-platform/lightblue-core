@@ -23,35 +23,31 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Creates CRUD controllers based on configuration. There should be only one instance of this class for each
- * application.
- *
+ * Creates CRUD controllers based on configuration. There should be only one
+ * instance of this class for each application.
+ * 
  * @author nmalik
  */
 public final class CrudManager {
     private volatile Mediator mediator = null;
     private final DataSourcesConfiguration datasources;
     private final MetadataManager metadataMgr;
-    private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
-    public CrudManager(DataSourcesConfiguration datasources,
-                       MetadataManager metadataMgr) {
+    public CrudManager(DataSourcesConfiguration datasources, MetadataManager metadataMgr) {
         this.datasources = datasources;
         this.metadataMgr = metadataMgr;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private synchronized void initializeMediator() throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator != null) {
             // already initalized
