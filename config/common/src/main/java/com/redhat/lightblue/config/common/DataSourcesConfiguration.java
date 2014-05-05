@@ -116,7 +116,7 @@ public class DataSourcesConfiguration implements JsonInitializable {
                 LOGGER.debug("Parsing {}", name);
                 JsonNode typeNode = dsNode.get("type");
                 if (typeNode == null) {
-                    throw new IllegalArgumentException("type expected in " + name);
+                    throw new IllegalArgumentException("type expected for name: " + name);
                 }
                 String type = typeNode.asText();
                 LOGGER.debug("{} is a {}", name, type);
@@ -130,7 +130,7 @@ public class DataSourcesConfiguration implements JsonInitializable {
                 }
             }
         } else {
-            throw new IllegalArgumentException(node.toString());
+            throw new IllegalArgumentException("node must be instanceof ObjectNode: " + node.toString());
         }
     }
 }

@@ -64,5 +64,4 @@ public class TestCRUDController implements CRUDController {
     public CRUDFindResponse find(CRUDOperationContext ctx, QueryExpression query, Projection projection, Sort sort, Long from, Long to) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 }

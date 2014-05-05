@@ -82,6 +82,8 @@ public class CrudConfiguration implements JsonInitializable {
                     list.add(controller);
                 }
                 controllers = list.toArray(new ControllerConfiguration[list.size()]);
+            } else {
+                throw new IllegalArgumentException("'controllers' must be instanceof ArrayNode: " + node.toString());
             }
         }
     }
