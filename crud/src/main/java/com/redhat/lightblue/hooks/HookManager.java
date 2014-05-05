@@ -99,10 +99,10 @@ public class HookManager {
     }
 
     private static final class HookDocs {
-        final Hook hook;
-        final CRUDHook crudHook;
-        final EntityMetadata md;
-        final List<HookDoc> docs = new ArrayList<>();
+        private final Hook hook;
+        private final CRUDHook crudHook;
+        private final EntityMetadata md;
+        private final List<HookDoc> docs = new ArrayList<>();
 
         public HookDocs(Hook hook, CRUDHook crudHook, EntityMetadata md) {
             this.hook = hook;
