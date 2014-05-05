@@ -105,7 +105,6 @@ public class AtomicIterateUpdate implements DocUpdater {
                     // Add the doc to context
                     DocCtx doc = ctx.addDocument(translator.toJson(document));
                     try {
-                        QueryEvaluationContext qctx = new QueryEvaluationContext(doc.getRoot());
                         Object id = document.get("_id");
                         LOGGER.debug("Retrieved doc {} id={}", docIndex, id);
                         // Update doc
@@ -119,7 +118,7 @@ public class AtomicIterateUpdate implements DocUpdater {
                                 false).execute();
                         if (projector != null) {
                             LOGGER.debug("Projecting document {}", docIndex);
-                            doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory, qctx));
+                            doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory));
                             doc.setOperationPerformed(Operation.UPDATE);
                         }
                         numUpdated++;

@@ -99,8 +99,7 @@ public abstract class Projector {
      * Projects a document
      */
     public JsonDoc project(JsonDoc doc,
-                           JsonNodeFactory factory,
-                           QueryEvaluationContext ctx) {
+                           JsonNodeFactory factory) {
         JsonNodeCursor cursor = doc.cursor();
         cursor.firstChild();
 
@@ -109,7 +108,7 @@ public abstract class Projector {
                 rootMdNode,
                 rootMdPath,
                 cursor,
-                ctx == null ? new QueryEvaluationContext(doc.getRoot()) : ctx);
+                new QueryEvaluationContext(doc.getRoot()));
         return new JsonDoc(root);
     }
 

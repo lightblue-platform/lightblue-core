@@ -43,10 +43,9 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
     public void array_range_projection_with_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,2],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[{'elemf3':4},{'elemf3':5}]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -55,10 +54,9 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
     public void array_range_projection_with_no_match_returns_empty_node() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[5,6],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -67,10 +65,9 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
     public void one_$parent_array_range_projection_with_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.$parent.field7','range':[1,2],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[{'elemf3':4},{'elemf3':5}]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -79,10 +76,9 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
     public void one_$parent_array_range_projection_with_no_match_returns_empty_node() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.$parent.field7','range':[5,6],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -91,10 +87,9 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
     public void two_$parent_array_range_projection_with_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.nf7.$parent.$parent.field7','range':[1,2],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[{'elemf3':4},{'elemf3':5}]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
@@ -103,10 +98,9 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
     public void two_$parent_array_range_projection_with_no_match_returns_empty_node() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.nf7.$parent.$parent.field7','range':[5,6],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
         JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
 
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }

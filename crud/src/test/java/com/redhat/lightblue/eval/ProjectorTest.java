@@ -42,8 +42,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     public void fieldProjectorTest_nonrecursive() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*'}]");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertEquals("value2", pdoc.get(new Path("field2")).asText());
         Assert.assertNull(pdoc.get(new Path("field3")));
@@ -60,8 +59,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     public void fieldProjectorTest_recursive() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field2'},{'field':'field6.*','recursive':true}]");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertEquals("value2", pdoc.get(new Path("field2")).asText());
         Assert.assertNull(pdoc.get(new Path("field3")));
@@ -78,8 +76,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     public void fieldProjectorTest_arr_range() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,2],'project':{'field':'elemf3'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertNull(pdoc.get(new Path("field2")));
         Assert.assertNull(pdoc.get(new Path("field3")));
@@ -100,8 +97,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     public void fieldProjectorTest_arr_query() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','match':{'field':'elemf3','op':'>','rvalue':4},'project':{'field':'*'}}");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
         Assert.assertNull(pdoc.get(new Path("field1")));
         Assert.assertNull(pdoc.get(new Path("field2")));
         Assert.assertNull(pdoc.get(new Path("field3")));
@@ -122,8 +118,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     public void fieldProjectorTest_include_then_exclude() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("[{'field':'field6.*'},{'field':'field6.nf3','include':false}]");
         Projector projector = Projector.getInstance(p, md);
-        QueryEvaluationContext ctx = new QueryEvaluationContext(jsonDoc.getRoot());
-        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY, ctx);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
         Assert.assertNotNull(pdoc.get(new Path("field6")));
         Assert.assertEquals("nvalue1",pdoc.get(new Path("field6.nf1")).asText());
         Assert.assertEquals("nvalue2",pdoc.get(new Path("field6.nf2")).asText());

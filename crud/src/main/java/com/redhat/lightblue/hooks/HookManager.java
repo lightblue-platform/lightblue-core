@@ -269,7 +269,7 @@ public class HookManager {
         if (doc == null) {
             return null;
         } else {
-            return p.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
+            return p.project(doc, factory);
         }
     }
 }

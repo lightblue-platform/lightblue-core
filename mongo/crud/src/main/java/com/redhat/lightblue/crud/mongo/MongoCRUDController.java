@@ -181,7 +181,7 @@ public class MongoCRUDController implements CRUDController {
                     if (projector != null) {
                         JsonDoc jsonDoc = translator.toJson(dbObject);
                         LOGGER.debug("Translated doc: {}", jsonDoc);
-                        inputDoc.setOutputDocument(projector.project(jsonDoc, nodeFactory, null));
+                        inputDoc.setOutputDocument(projector.project(jsonDoc, nodeFactory));
                     } else {
                         inputDoc.setOutputDocument(null);
                     }
@@ -363,8 +363,7 @@ public class MongoCRUDController implements CRUDController {
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
                 for (DocCtx document : ctx.getDocuments()) {
-                    QueryEvaluationContext qctx = qeval.evaluate(document);
-                    document.setOutputDocument(projector.project(document, nodeFactory, qctx));
+                    document.setOutputDocument(projector.project(document, nodeFactory));
                 }
                 ctx.getHookManager().queueHooks(ctx);
             } else {
