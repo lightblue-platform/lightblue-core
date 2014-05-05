@@ -176,8 +176,9 @@ public class Translator {
         int n=p.numSegments();
         for(int i=0;i<n;i++) {
             String s=p.head(i);
-            if(s.equals(Path.ANY))
+            if(s.equals(Path.ANY)){
                 throw Error.get(MongoCrudConstants.ERR_TRANSLATION_ERROR,p.toString());
+            }
             else if(p.isIndex(i)) {
                 str.append('[').append(s).append(']');
             } else {
@@ -624,8 +625,9 @@ public class Translator {
             str.append("if(this.").append(lJSField).
                 append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
                 append("this.").append(rJSField).append(") { return true; }");
-            for(int i=0;i<rn+ln;i++)
+            for(int i=0;i<rn+ln;i++){
                 str.append('}');
+            }
             str.append("return false;}");
         } else if( rn>0 || ln>0 ) {
             // Only one of them has ANY, write a single for loop
@@ -634,8 +636,9 @@ public class Translator {
             str.append("if(this.").append(ln>0?jsField:translateJsPath(lField)).
                 append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
                 append("this.").append(rn>0?jsField:translateJsPath(rField)).append(") {return true;}");
-            for(int i=0;i<rn+ln;i++)
+            for(int i=0;i<rn+ln;i++){
                 str.append('}');
+            }
             str.append("return false;}");
         } else {
             // No ANYs, direct comparison

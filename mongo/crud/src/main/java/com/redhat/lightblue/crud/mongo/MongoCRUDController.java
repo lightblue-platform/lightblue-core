@@ -194,8 +194,6 @@ public class MongoCRUDController implements CRUDController {
                     }
                 }
             }
-        } catch (Error e) {
-            throw e;
         } catch (RuntimeException e) {
             LOGGER.error("Error during insert: {}", e);
             throw e;

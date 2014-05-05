@@ -154,7 +154,7 @@ public final class FieldAccessRoleEvaluator {
         return ret;
     }
 
-    private static abstract class AccAccessor {
+    private abstract static class AccAccessor {
         public abstract Access getFieldAccess(FieldAccess f);
     }
 
@@ -183,18 +183,17 @@ public final class FieldAccessRoleEvaluator {
             FieldTreeNode trc=f;
             do {
                 trc=trc.getParent();
-                if(trc!=null) {
-                    if(trc instanceof Field) {
-                        access=acc.getFieldAccess(((Field)trc).getAccess());
-                        if(!access.isEmpty()) {
-                            break;
-                        }
+                if(trc!=null && trc instanceof Field) {
+                    access=acc.getFieldAccess(((Field)trc).getAccess());
+                    if(!access.isEmpty()) {
+                        break;
                     }
                 }
             }  while(trc!=null);
         }
-        if(access.isEmpty())
+        if(access.isEmpty()) {
             access=entityAccess;
+        }
         return access;
     }
                 

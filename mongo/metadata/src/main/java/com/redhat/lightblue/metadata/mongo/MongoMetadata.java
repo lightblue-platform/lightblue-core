@@ -88,9 +88,9 @@ public class MongoMetadata implements Metadata {
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_NAME = "name";
 
-    private transient final DBCollection collection;
-    private transient final DBResolver dbResolver;
-    private transient final BSONParser mdParser;
+    private final transient DBCollection collection;
+    private final transient DBResolver dbResolver;
+    private final transient BSONParser mdParser;
 
     public MongoMetadata(DB db,
                          String metadataCollection,
@@ -371,9 +371,10 @@ public class MongoMetadata implements Metadata {
         if (null == old) {
             throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ei.getName());
         }
-        if(! Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion()) )
+        if (!Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion())) {
             validateDefaultVersion(ei);
-
+        }
+        
         try {
             collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
                               (DBObject)mdParser.convert(ei));

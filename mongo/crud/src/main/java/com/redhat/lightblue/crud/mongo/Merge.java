@@ -108,8 +108,9 @@ public final class Merge {
         for(IField ifield:invisibleFields) {
             Path p=ifield.getPath();
             DBObject parent=findMergeParent(oldCopy,newCopy,p);
-            if(parent==null)
+            if(parent==null) {
                 throw Error.get(MongoCrudConstants.ERR_SAVE_CLOBBERS_HIDDEN_FIELDS,p.toString());
+            }
             ((DBObject)parent).put(p.tail(0),ifield.getValue());
         }
     }
@@ -132,8 +133,9 @@ public final class Merge {
             for(int segment=0;segment<parentLevel;segment++) {
                 if(field.isIndex(segment)) {
                     // This is an array
+                    // Fail: cannot merge
                     fail=true;
-                    break; // Fail: cannot merge
+                    break; 
                 } else {
                     if(parent instanceof DBObject) {
                         String seg=field.head(segment);
@@ -142,21 +144,24 @@ public final class Merge {
                         // If the nested object is removed in the new copy,
                         // merging results in data loss, so we fail
                         if(x==null) {
+                            // Fail: cannot merge
                             fail=true;
-                            break; // Fail: cannot merge
+                            break; 
                         }
                         parent=x;
                         // The following is guaranteed to succeed. We
                         // built the path from oldCopy.
                         oldParent=((DBObject)oldParent).get(seg);
                     } else {
+                        // Fail: cannot merge
                         fail=true;
-                        break; // Fail: cannot merge
+                        break; 
                     }
                 }
             }
-            if(!fail)
+            if(!fail){
                 ret=(DBObject)parent;
+            }
         } else {
             ret=newCopy;
         }

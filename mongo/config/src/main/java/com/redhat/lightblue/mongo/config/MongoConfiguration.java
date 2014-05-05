@@ -170,10 +170,12 @@ public class MongoConfiguration implements DataSourceConfiguration {
     public MongoClient getMongoClient() throws UnknownHostException {
         MongoClientOptions options = getMongoClientOptions();
         LOGGER.debug("getMongoClient with servers:{} and options:{}", servers, options);
-        if (theServer != null)
+        if (theServer != null){
             return new MongoClient(theServer, options);
-        else
+        }
+        else {
             return new MongoClient(servers, options);
+        }
     }
 
     public DB getDB() throws UnknownHostException {
@@ -182,10 +184,11 @@ public class MongoConfiguration implements DataSourceConfiguration {
 
     public String toString() {
         StringBuilder bld = new StringBuilder();
-        if (theServer != null)
+        if (theServer != null) {
             bld.append("server").append(theServer).append('\n');
-        else
+        } else {
             bld.append("servers:").append(servers).append('\n');
+        }
         bld.append("connectionsPerHost:").append(connectionsPerHost).append('\n').append("database:").append(database).append('\n').append("ssl:").append(ssl);
         return bld.toString();
     }
@@ -194,21 +197,25 @@ public class MongoConfiguration implements DataSourceConfiguration {
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
             JsonNode x = node.get("connectionsPerHost");
-            if (x != null)
+            if (x != null){
                 connectionsPerHost = x.asInt();
+            }
             x = node.get("ssl");
-            if (x != null)
+            if (x != null) {
                 ssl = x.asBoolean();
+            }
             x = node.get("metadataDataStoreParser");
             try {
-                if (x != null)
+                if (x != null){
                     metadataDataStoreParser = Class.forName(x.asText());
+                }
             } catch (Exception e) {
                 throw new IllegalArgumentException(node.toString() + ":" + e);
             }
             x = node.get("database");
-            if (x != null)
+            if (x != null) {
                 database = x.asText();
+            }
             JsonNode jsonNodeServers = node.get("servers");
             if (jsonNodeServers != null && jsonNodeServers.isArray()) {
                 Iterator<JsonNode> elements = jsonNodeServers.elements();

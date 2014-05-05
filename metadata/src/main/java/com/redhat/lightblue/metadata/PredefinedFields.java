@@ -105,15 +105,17 @@ public final class PredefinedFields {
     }
 
     public static void updateArraySizes(JsonNodeFactory factory,ArrayNode node) {
-        for(Iterator<JsonNode> itr=node.elements();itr.hasNext();)
+        for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
             updateArraySizes(factory,itr.next());
+        }
     }
 
     public static void updateArraySizes(JsonNodeFactory factory,JsonNode node) {
-        if(node instanceof ArrayNode)
+        if(node instanceof ArrayNode){
             updateArraySizes(factory,(ArrayNode)node);
-        else if(node instanceof ObjectNode)
+        } else if(node instanceof ObjectNode) {
             updateArraySizes(factory,(ObjectNode)node);
+        }       
     }
 
     private static void ensureObjectType(EntityMetadata md) {
