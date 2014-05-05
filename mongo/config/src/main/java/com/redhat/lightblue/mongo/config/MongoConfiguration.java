@@ -257,8 +257,6 @@ public class MongoConfiguration implements DataSourceConfiguration {
                         } else {
                             throw new IllegalStateException("host is required in server");
                         }
-                    } catch (RuntimeException e) {
-                        throw e;
                     } catch (Exception e) {
                         throw new IllegalStateException(e);
                     }

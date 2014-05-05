@@ -144,8 +144,9 @@ public abstract class AbstractTreeCursor<N> {
     public AbstractTreeCursor(Path p, N start) {
         currentPath = new MutablePath(p);
         currentNode = start;
-        if(!hasChildren(start))
+        if(!hasChildren(start)) {
             throw new IllegalArgumentException("Not iterable");
+        }
         currentCursor=new SingleElemCursor("",start);
         currentCursor.next();
     }

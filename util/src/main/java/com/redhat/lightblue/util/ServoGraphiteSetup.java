@@ -42,7 +42,7 @@ public final class ServoGraphiteSetup {
         
     }
     
-    public static final void initialize() {
+    public static void initialize() {
         if (!initialized) {
             doInitialize();
         }

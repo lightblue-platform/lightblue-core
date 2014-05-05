@@ -95,9 +95,10 @@ public final class MetadataManager {
         LOGGER.debug("Config root:{}", root);
 
         JsonNode cfgClass = root.get("type");
-        if (cfgClass == null)
+        if (cfgClass == null) {
             throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
-
+        }
+        
         MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
         cfg.initializeFromJson(root);
 

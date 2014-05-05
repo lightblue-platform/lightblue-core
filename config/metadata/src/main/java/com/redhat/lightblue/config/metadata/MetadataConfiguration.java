@@ -27,7 +27,7 @@ public interface MetadataConfiguration extends JsonInitializable {
     /**
      * The file on classpath that this configuration is loaded from.
      */
-    static final String FILENAME = "lightblue-metadata.json";
+    final String FILENAME = "lightblue-metadata.json";
 
     /**
      * Creates an instance of metadata
