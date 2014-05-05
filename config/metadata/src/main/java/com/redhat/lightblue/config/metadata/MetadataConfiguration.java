@@ -36,6 +36,5 @@ public interface MetadataConfiguration extends JsonInitializable {
      * @param parser The JSON parser instance for metadata
      * @param configuration The metadata configuration object
      */
-    Metadata createMetadata(DataSourcesConfiguration ds,
-                                   JSONMetadataParser parser);
+    Metadata createMetadata(DataSourcesConfiguration ds, JSONMetadataParser parser);
 }
