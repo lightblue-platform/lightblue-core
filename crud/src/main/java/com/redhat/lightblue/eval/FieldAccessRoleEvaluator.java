@@ -183,7 +183,7 @@ public final class FieldAccessRoleEvaluator {
             FieldTreeNode trc=f;
             do {
                 trc=trc.getParent();
-                if(trc!=null && trc instanceof Field) {
+                if(trc instanceof Field) {
                     access=acc.getFieldAccess(((Field)trc).getAccess());
                     if(!access.isEmpty()) {
                         break;

@@ -67,14 +67,14 @@ public class ControllerConfiguration implements JsonInitializable {
         try {
             if(node!=null) {
                 JsonNode x=node.get("datastoreType");
-                if(x!=null)
+                if(x!=null) {
                     datastoreType=x.asText();
+                }
                 x=node.get("controllerFactory");
-                if(x!=null) 
+                if(x!=null) {
                     controllerFactory=(Class<ControllerFactory>)Class.forName(x.asText());
+                }
             }
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e ){
             throw new RuntimeException(e);
         }

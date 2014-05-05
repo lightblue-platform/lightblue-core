@@ -30,7 +30,7 @@ public interface DataSourceConfiguration extends JsonInitializable {
     /**
      * Returns the metadata datastore parser class
      */
-    public Class<DataStoreParser> getMetadataDataStoreParser();
+    Class<DataStoreParser> getMetadataDataStoreParser();
 
 }
 

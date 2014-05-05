@@ -602,8 +602,9 @@ public class Translator {
             } else if(p.isIndex(i)) {
                 arr.append('[').append(seg).append(']');
             } else {
-                if(i>0)
+                if(i>0){
                     arr.append('.');
+                }
                 arr.append(seg);
             }
         }

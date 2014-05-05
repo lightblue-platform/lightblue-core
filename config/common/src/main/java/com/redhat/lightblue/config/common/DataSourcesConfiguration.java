@@ -91,10 +91,11 @@ public class DataSourcesConfiguration implements JsonInitializable {
      */
     public Map<String,DataSourceConfiguration> getDataSourcesByType(Class<?> clazz) {
         Map<String,DataSourceConfiguration> map=new HashMap<>();
-        for(Map.Entry<String,DataSourceConfiguration> entry:datasources.entrySet())
+        for(Map.Entry<String,DataSourceConfiguration> entry:datasources.entrySet()) {
             if(clazz.isAssignableFrom(entry.getValue().getClass())) {
                 map.put(entry.getKey(),entry.getValue());
             }
+        }
         return map;
     }
 
