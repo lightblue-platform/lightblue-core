@@ -22,9 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.query.SortKey;
-import com.redhat.lightblue.util.Path;
 
 /**
  * Specifies that the combined value of one or more fields must be unique

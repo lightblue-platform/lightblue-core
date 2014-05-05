@@ -43,7 +43,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Mediator mediator;
-    protected final HttpServletRequest httpServletRequest;
+    private final HttpServletRequest httpServletRequest;
 
     /**
      *

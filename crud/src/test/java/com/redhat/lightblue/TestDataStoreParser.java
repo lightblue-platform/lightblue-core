@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue;
 
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;

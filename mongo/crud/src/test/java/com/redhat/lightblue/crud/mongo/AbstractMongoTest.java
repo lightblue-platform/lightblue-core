@@ -18,6 +18,15 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.ref.ReferenceQueue;
+
+import org.junit.After;
+import org.junit.BeforeClass;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.github.fge.jsonschema.exceptions.ProcessingException;
@@ -39,8 +48,8 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonUtils;
-import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -51,13 +60,6 @@ import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ref.ReferenceQueue;
-import org.junit.After;
-import org.junit.BeforeClass;
 
 /**
  *

@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
 public class QueryEvalTest extends AbstractJsonNodeTest {

@@ -42,7 +42,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Metadata metadata;
-    protected final HttpServletRequest httpServletRequest;
+    private final HttpServletRequest httpServletRequest;
 
     public AbstractRestCommand(Class commandClass, String clientKey, Metadata metadata) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))

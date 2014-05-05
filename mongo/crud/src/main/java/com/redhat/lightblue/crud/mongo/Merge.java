@@ -19,21 +19,17 @@
 package com.redhat.lightblue.crud.mongo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.DBObject;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.util.Path;
 
 /**
  * During a save operation, the document provided by the client

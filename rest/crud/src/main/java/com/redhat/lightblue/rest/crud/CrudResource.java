@@ -129,7 +129,8 @@ public class CrudResource {
     }
 
     @GET
-    @Path("/find/{entity}") //?Q&P&S&from&to
+    @Path("/find/{entity}")
+    //?Q&P&S&from&to
     public String simpleFind(@PathParam("entity") String entity, 
                              @QueryParam("Q") String q, 
                              @QueryParam("P") String p, 
@@ -140,7 +141,8 @@ public class CrudResource {
     }
 
     @GET
-    @Path("/find/{entity}/{version}") //?Q&P&S&from&to
+    @Path("/find/{entity}/{version}") 
+    //?Q&P&S&from&to
     public String simpleFind(@PathParam("entity") String entity, 
                              @PathParam("version") String version, 
                              @QueryParam("Q") String q, 

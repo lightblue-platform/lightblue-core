@@ -18,17 +18,21 @@
  */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.Path;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import com.redhat.lightblue.util.Error;
 import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 
 /**
  *
@@ -49,7 +53,6 @@ public class PrimitiveUpdateExpressionTest {
         fav.setField(Path.EMPTY);
         fav.setRValue(new RValueExpression(Path.EMPTY));
         list.add(fav);
-        SetExpression instance = null;
 
         PrimitiveUpdateExpression expResult = new SetExpression(UpdateOperator._set, list);
         PrimitiveUpdateExpression result = PrimitiveUpdateExpression.fromJson((ObjectNode) JsonUtils.json("{\"$set\":{\"\":{\"$valueof\":\"\"}}}"));

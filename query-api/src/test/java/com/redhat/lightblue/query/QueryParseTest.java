@@ -18,22 +18,17 @@
  */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.List;
-
-import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.redhat.lightblue.util.JsonUtils;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.Path;
-import java.lang.reflect.Method;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class QueryParseTest {
 
@@ -355,7 +350,6 @@ public class QueryParseTest {
     private void testUnaryQuery(String q, NestedTest t) throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof UnaryLogicalExpression);
-        UnaryLogicalExpression x = (UnaryLogicalExpression) query;
         JSONAssert.assertEquals(q, QueryExpression.fromJson(JsonUtils.json(q)).toString(), false);
     }
 

@@ -18,18 +18,16 @@
  */
 package com.redhat.lightblue.config.common;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.JsonInitializable;
-import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * Keeps all datasource configurations

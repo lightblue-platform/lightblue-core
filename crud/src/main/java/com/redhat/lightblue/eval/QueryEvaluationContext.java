@@ -18,15 +18,11 @@
  */
 package com.redhat.lightblue.eval;
 
-import java.util.Set;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.KeyValueCursor;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.util.Path;
 
 /**
  * An instance of the query evaluation context is passed to query evaluation logic, mainly too keep track of the context

@@ -20,16 +20,14 @@ package com.redhat.lightblue.crud.mongo;
 
 import java.util.List;
 
-import org.junit.Test;
 import org.junit.Assert;
 import org.junit.Before;
-
-import com.mongodb.DBObject;
+import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.metadata.EntityMetadata;
+import com.mongodb.DBObject;
+import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.TypeResolver;
@@ -37,14 +35,10 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-
-import com.redhat.lightblue.crud.MetadataResolver;
-
+import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
 public class MergeTest extends AbstractJsonSchemaTest {
     

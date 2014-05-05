@@ -302,14 +302,14 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "");
+            md.getEntityMetadata("testEntity", "");
             Assert.fail("expected " + IllegalArgumentException.class);
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals("version", ex.getMessage());
         }
 
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", null);
+            md.getEntityMetadata("testEntity", null);
             Assert.fail("expected " + IllegalArgumentException.class);
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals("version", ex.getMessage());
@@ -326,7 +326,7 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
+            md.getEntityMetadata("testEntity", "1.1");
             Assert.fail("expected " + MongoMetadataConstants.ERR_UNKNOWN_VERSION);
         } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_UNKNOWN_VERSION, ex.getErrorCode());

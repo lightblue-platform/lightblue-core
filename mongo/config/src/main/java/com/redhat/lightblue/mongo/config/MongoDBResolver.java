@@ -18,20 +18,17 @@
  */
 package com.redhat.lightblue.mongo.config;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mongodb.MongoClient;
 import com.mongodb.DB;
-
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.common.DataSourceConfiguration;
-
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 
 public class MongoDBResolver implements DBResolver {
 

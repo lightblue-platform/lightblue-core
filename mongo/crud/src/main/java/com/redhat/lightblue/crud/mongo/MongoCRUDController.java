@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Set;
 
@@ -26,11 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-
+import com.redhat.lightblue.common.mongo.DBResolver;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -38,18 +37,16 @@ import com.redhat.lightblue.crud.CRUDInsertionResponse;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Updater;
-import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.common.mongo.MongoDataStore;
-import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;

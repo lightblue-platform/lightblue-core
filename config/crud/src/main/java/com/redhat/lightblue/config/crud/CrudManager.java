@@ -18,27 +18,18 @@
  */
 package com.redhat.lightblue.config.crud;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.util.JsonInitializable;
+import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.crud.CRUDController;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**

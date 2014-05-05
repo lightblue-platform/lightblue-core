@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -51,35 +50,34 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ArrayMatchExpression;
+import com.redhat.lightblue.query.ArrayUpdateExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.CompositeSortKey;
+import com.redhat.lightblue.query.FieldAndRValue;
 import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
+import com.redhat.lightblue.query.PartialUpdateExpression;
+import com.redhat.lightblue.query.PrimitiveUpdateExpression;
 import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.RegexMatchExpression;
+import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.query.UnsetExpression;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.UpdateExpressionList;
-import com.redhat.lightblue.query.ArrayUpdateExpression;
-import com.redhat.lightblue.query.FieldAndRValue;
-import com.redhat.lightblue.query.RValueExpression;
-import com.redhat.lightblue.query.PrimitiveUpdateExpression;
-import com.redhat.lightblue.query.PartialUpdateExpression;
-import com.redhat.lightblue.query.SetExpression;
-import com.redhat.lightblue.query.UnsetExpression;
+import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Util;
 
 /**

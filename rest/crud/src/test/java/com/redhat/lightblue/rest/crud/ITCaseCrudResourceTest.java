@@ -113,9 +113,6 @@ public class ITCaseCrudResourceTest {
     private static Mongo mongo;
     private static DB db;
 
-
-    private MongoMetadata md;
-
     static {
         try {
             IStreamProcessor mongodOutput = Processors.named("[mongod>]",

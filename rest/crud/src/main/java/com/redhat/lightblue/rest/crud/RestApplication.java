@@ -21,7 +21,6 @@ package com.redhat.lightblue.rest.crud;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
@@ -29,7 +28,6 @@ import com.redhat.lightblue.config.crud.CrudManager;
 import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.util.JsonUtils;
 
-@ApplicationPath(value="/data")
 public class RestApplication extends Application {
 
     private static DataSourcesConfiguration datasources;

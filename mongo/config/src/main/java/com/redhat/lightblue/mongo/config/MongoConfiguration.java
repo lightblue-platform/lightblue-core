@@ -18,26 +18,24 @@
  */
 package com.redhat.lightblue.mongo.config;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.util.JsonInitializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
-import com.mongodb.MongoClientOptions;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-import com.redhat.lightblue.metadata.mongo.MongoMetadata;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.net.ssl.SSLSocketFactory;
-import org.bson.BSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
 /**
  * Mongo client makes a distinction between contructing using a list of
