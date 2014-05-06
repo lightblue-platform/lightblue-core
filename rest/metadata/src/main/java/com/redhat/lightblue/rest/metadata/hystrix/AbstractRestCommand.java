@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import com.redhat.lightblue.ClientIdentification;
+import com.redhat.lightblue.Request;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.rest.metadata.RestApplication;
@@ -79,5 +81,14 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
             Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
         }
         return parser;
+    }
+    
+    protected void addCallerId(Request req) {
+        req.setClientId(new ClientIdentification() {
+                public boolean isUserInRole(String role) {
+                    return httpServletRequest==null?false:httpServletRequest.isUserInRole(role);
+                }
+
+            });
     }
 }

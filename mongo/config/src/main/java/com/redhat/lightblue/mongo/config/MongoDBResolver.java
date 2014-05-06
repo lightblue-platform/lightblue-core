@@ -54,14 +54,16 @@ public class MongoDBResolver implements DBResolver {
                     if(cfg==null) {
                         throw new IllegalArgumentException("No datasources for "+store.getDatasourceName());
                     }
-                    dsMap.put(store.getDatasourceName(),db=cfg.getDB());
+                    db = cfg.getDB();
+                    dsMap.put(store.getDatasourceName(), db);
                 }
             } else if(store.getDatabaseName()!=null) {
                 db=dbMap.get(store.getDatabaseName());
                 if(db==null) {
                     for(DataSourceConfiguration cfg:datasources.values()) {
                         if( ((MongoConfiguration)cfg).getDatabase().equals(store.getDatabaseName())) {
-                            dbMap.put(store.getDatabaseName(),db=((MongoConfiguration)cfg).getDB());
+                            db = ((MongoConfiguration) cfg).getDB();
+                            dbMap.put(store.getDatabaseName(), db);
                             break;
                         }
                     }

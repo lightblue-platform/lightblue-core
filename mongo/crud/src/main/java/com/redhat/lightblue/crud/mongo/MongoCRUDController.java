@@ -41,8 +41,6 @@ import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluationContext;
-import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Updater;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
@@ -361,7 +359,6 @@ public class MongoCRUDController implements CRUDController {
                 response.setSize(finder.find(ctx, coll, mongoQuery, mongoSort, from, to));
                 // Project results
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
-                QueryEvaluator qeval = QueryEvaluator.getInstance(query, md);
                 for (DocCtx document : ctx.getDocuments()) {
                     document.setOutputDocument(projector.project(document, nodeFactory));
                 }
