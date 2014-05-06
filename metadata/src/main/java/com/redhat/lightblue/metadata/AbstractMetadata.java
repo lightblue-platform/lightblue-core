@@ -16,9 +16,29 @@ import java.util.Map;
  * @author nmalik
  */
 public abstract class AbstractMetadata implements Metadata {
-    protected abstract void validateDefaultVersion(EntityInfo ei);
+    /**
+     * Checks that the given version exists, raises an error if it does not.
+     *
+     * @param version
+     * @return true if the version exists
+     */
+    protected abstract boolean checkVersionExists(String entityName, String version);
 
     protected abstract void checkDataStoreIsValid(EntityInfo md);
+
+    /**
+     * Checks that the default version on the EntityInfo exists. If no default version is set then has no side effect.
+     * If the default version does not exist an error is raised.
+     *
+     * @param ei
+     */
+    protected final void validateDefaultVersion(EntityInfo ei) {
+        if (ei.getDefaultVersion() != null) {
+            if (!checkVersionExists(ei.getName(), ei.getDefaultVersion())) {
+                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_INVALID_DEFAULT_VERSION, ei.getName() + ":" + ei.getDefaultVersion());
+            }
+        }
+    }
 
     protected final Version checkVersionIsValid(EntityMetadata md) {
         return checkVersionIsValid(md.getEntitySchema());

@@ -60,6 +60,7 @@ import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.common.mongo.DBResolver;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -385,9 +386,9 @@ public class MongoMetadataTest {
         eDefault.getEntityInfo().setDefaultVersion("blah");
         try {
             md.createNewMetadata(eDefault);
-            Assert.fail("expected " + MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
+            Assert.fail("expected " + MetadataConstants.ERR_INVALID_DEFAULT_VERSION);
         } catch (Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
+            Assert.assertEquals(MetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
         }
     }
 

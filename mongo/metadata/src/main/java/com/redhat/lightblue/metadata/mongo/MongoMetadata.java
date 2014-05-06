@@ -346,14 +346,10 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     @Override
-    protected void validateDefaultVersion(EntityInfo ei) {
-        if (ei.getDefaultVersion() != null) {
-            BasicDBObject query = new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID + ei.getDefaultVersion());
-            DBObject es = collection.findOne(query);
-            if (es == null) {
-                throw Error.get(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ei.getName() + ":" + ei.getDefaultVersion());
-            }
-        }
+    protected boolean checkVersionExists(String entityName, String version) {
+        BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
+        DBObject es = collection.findOne(query);
+        return (es != null);
     }
 
     @Override

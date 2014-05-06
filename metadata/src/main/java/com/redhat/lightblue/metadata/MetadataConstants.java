@@ -63,6 +63,7 @@ public final class MetadataConstants {
     public static final String ERR_INVALID_VERSION_NUMBER = "metadata:InvalidVersionNumber";
     public static final String ERR_EMPTY_METADATA_NAME = "metadata:EmptyMetadataName";
     public static final String ERR_METADATA_WITH_NO_FIELDS = "metadata:MetadataWithNoFields";
+    public static final String ERR_INVALID_DEFAULT_VERSION = "metadata:InvalidDefaultVersion";
 
     private MetadataConstants() {
     }
