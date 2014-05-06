@@ -86,5 +86,5 @@ public class Index implements Serializable {
             fields.addAll(f);
         }
     }
-    
+
 }

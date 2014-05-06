@@ -96,7 +96,7 @@ public final class PredefinedFields {
             JsonNode value = field.getValue();
             if (value instanceof ArrayNode) {
                 sizes.put(field.getKey() + "#", factory.numberNode(((ArrayNode) value).size()));
-            } 
+            }
             updateArraySizes(factory, value);
         }
         for (Map.Entry<String, JsonNode> entry : sizes.entrySet()) {
@@ -104,18 +104,18 @@ public final class PredefinedFields {
         }
     }
 
-    public static void updateArraySizes(JsonNodeFactory factory,ArrayNode node) {
-        for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
-            updateArraySizes(factory,itr.next());
+    public static void updateArraySizes(JsonNodeFactory factory, ArrayNode node) {
+        for (Iterator<JsonNode> itr = node.elements(); itr.hasNext();) {
+            updateArraySizes(factory, itr.next());
         }
     }
 
-    public static void updateArraySizes(JsonNodeFactory factory,JsonNode node) {
-        if(node instanceof ArrayNode){
-            updateArraySizes(factory,(ArrayNode)node);
-        } else if(node instanceof ObjectNode) {
-            updateArraySizes(factory,(ObjectNode)node);
-        }       
+    public static void updateArraySizes(JsonNodeFactory factory, JsonNode node) {
+        if (node instanceof ArrayNode) {
+            updateArraySizes(factory, (ArrayNode) node);
+        } else if (node instanceof ObjectNode) {
+            updateArraySizes(factory, (ObjectNode) node);
+        }
     }
 
     private static void ensureObjectType(EntityMetadata md) {
@@ -200,7 +200,7 @@ public final class PredefinedFields {
         if (parent instanceof ObjectField) {
             fields = ((ObjectField) parent).getFields();
         } else if (parent instanceof ObjectArrayElement) {
-            fields = ((ObjectArrayElement)parent).getFields();
+            fields = ((ObjectArrayElement) parent).getFields();
         } else {
             fields = md.getFields();
         }

@@ -68,13 +68,11 @@ public class FieldCursorTest {
     //     cursor.nextSibling();
     //     cursor.nextSibling();
     //     Assert.assertEquals("obj1.nested.objArr",cursor.getCurrentPath().toString());
-        
     // }
-
     @Test
     public void backtrackTest() {
-        EntityMetadata md=getMD1();
-        FieldCursor cursor=md.getFieldCursor();
+        EntityMetadata md = getMD1();
+        FieldCursor cursor = md.getFieldCursor();
         cursor.firstChild();
         cursor.nextSibling();
         cursor.nextSibling();
@@ -84,16 +82,16 @@ public class FieldCursorTest {
         cursor.firstChild();
         cursor.nextSibling();
         cursor.nextSibling();
-        Assert.assertEquals("obj1.nested.objArr",cursor.getCurrentPath().toString());
+        Assert.assertEquals("obj1.nested.objArr", cursor.getCurrentPath().toString());
         cursor.firstChild();
-        Assert.assertEquals("obj1.nested.objArr.*",cursor.getCurrentPath().toString());
+        Assert.assertEquals("obj1.nested.objArr.*", cursor.getCurrentPath().toString());
         cursor.firstChild();
-        Assert.assertEquals("obj1.nested.objArr.*.nestedArrObjString1",cursor.getCurrentPath().toString());
+        Assert.assertEquals("obj1.nested.objArr.*.nestedArrObjString1", cursor.getCurrentPath().toString());
         cursor.nextSibling();
         cursor.parent();
-        Assert.assertEquals("obj1.nested.objArr.*",cursor.getCurrentPath().toString());
+        Assert.assertEquals("obj1.nested.objArr.*", cursor.getCurrentPath().toString());
         cursor.firstChild();
-        Assert.assertEquals("obj1.nested.objArr.*.nestedArrObjString1",cursor.getCurrentPath().toString());
-      
+        Assert.assertEquals("obj1.nested.objArr.*.nestedArrObjString1", cursor.getCurrentPath().toString());
+
     }
 }

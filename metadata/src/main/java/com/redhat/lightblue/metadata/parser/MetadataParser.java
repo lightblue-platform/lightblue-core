@@ -227,7 +227,7 @@ public abstract class MetadataParser<T> {
                 String name = getStringProperty(object, STR_NAME);
                 Object unique = getValueProperty(object, STR_UNIQUE);
                 List<T> fields = getObjectList(object, STR_FIELDS);
-                
+
                 if (null != name) {
                     index.setName(name);
                 }
@@ -238,9 +238,9 @@ public abstract class MetadataParser<T> {
 
                 if (null != fields && !fields.isEmpty()) {
                     List<SortKey> f = new ArrayList<>();
-                    
+
                     for (T s : fields) {
-                        SortKey sort = (SortKey)parseSort(s);
+                        SortKey sort = (SortKey) parseSort(s);
                         f.add(sort);
                     }
                     index.setFields(f);

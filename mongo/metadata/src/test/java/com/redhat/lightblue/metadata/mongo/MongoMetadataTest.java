@@ -78,7 +78,6 @@ import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
 
-
 public class MongoMetadataTest {
 
     public static class FileStreamProcessor implements IStreamProcessor {
@@ -143,7 +142,7 @@ public class MongoMetadataTest {
                 mongod = mongodExe.start();
             }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
-            db=mongo.getDB(DB_NAME);
+            db = mongo.getDB(DB_NAME);
 
             db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
 
@@ -166,10 +165,10 @@ public class MongoMetadataTest {
         x.addDefaultExtensions();
         x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
         md = new MongoMetadata(db, new DBResolver() {
-                public DB get(MongoDataStore ds) {
-                    return db;
-                }
-            },x, new DefaultTypes());
+            public DB get(MongoDataStore ds) {
+                return db;
+            }
+        }, x, new DefaultTypes());
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
@@ -347,8 +346,8 @@ public class MongoMetadataTest {
         e.getFields().put(o);
         md.createNewMetadata(e);
 
-        EntityInfo ei=new EntityInfo("testEntity");
-        ei.setDataStore(new MongoDataStore(null,null,null, "somethingelse"));
+        EntityInfo ei = new EntityInfo("testEntity");
+        ei.setDataStore(new MongoDataStore(null, null, null, "somethingelse"));
         md.updateEntityInfo(ei);
     }
 
@@ -364,16 +363,15 @@ public class MongoMetadataTest {
         e.getFields().put(o);
         md.createNewMetadata(e);
 
-        EntityInfo ei=new EntityInfo("NottestEntity");
-        ei.setDataStore(new MongoDataStore(null,null,null, "somethingelse"));
+        EntityInfo ei = new EntityInfo("NottestEntity");
+        ei.setDataStore(new MongoDataStore(null, null, null, "somethingelse"));
         try {
             md.updateEntityInfo(ei);
             Assert.fail();
         } catch (Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO,ex.getErrorCode());
+            Assert.assertEquals(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ex.getErrorCode());
         }
     }
-
 
     @Test
     public void invalidDefaultVersionTest() throws Exception {
@@ -606,7 +604,7 @@ public class MongoMetadataTest {
         String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
-    
+
     @Test
     public void entityIndexCreationTest() throws Exception {
 
@@ -630,24 +628,24 @@ public class MongoMetadataTest {
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
         md.createNewMetadata(e);
-                       
+
         DBCollection entityCollection = db.getCollection("testCollectionIndex1");
-        
+
         boolean foundIndex = false;
-        
-        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field1")) {
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }
         }
         Assert.assertTrue(foundIndex);
     }
-    
+
     @Test
     public void entityIndexUpdateTest() throws Exception {
-        
+
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
@@ -669,7 +667,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         DBCollection entityCollection = db.getCollection("testCollectionIndex2");
-        
+
         index = new Index();
         index.setName("testIndex2");
         index.setUnique(false);
@@ -680,15 +678,14 @@ public class MongoMetadataTest {
         indexes = new LinkedHashSet<Index>();
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
-        
+
         md.updateEntityInfo(e.getEntityInfo());
-        
-        
+
         boolean foundIndex = false;
-        
-        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex2".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field1")) {
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex2".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }
@@ -697,9 +694,9 @@ public class MongoMetadataTest {
 
         foundIndex = false;
 
-        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field1")) {
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }
