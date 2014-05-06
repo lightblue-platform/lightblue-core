@@ -41,7 +41,6 @@ import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Updater;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;

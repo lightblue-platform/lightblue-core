@@ -195,8 +195,6 @@ public class BSONParser extends MetadataParser<BSONObject> {
         Error.push("convert[info|bson]");
         try {
             BSONObject doc = super.convert(schema);
-
-            // schema._id = {schema.name}|{schema.version.value}
             putValue(doc, "_id", getStringProperty(doc, "name") + DELIMITER_ID + getStringProperty(getObjectProperty(doc, "version"), "value"));
 
             return doc;

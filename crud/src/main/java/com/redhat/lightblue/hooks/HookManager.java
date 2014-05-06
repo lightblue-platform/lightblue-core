@@ -254,7 +254,8 @@ public class HookManager {
                 for (Map.Entry<Hook, CRUDHook> hook : dh.hooks.entrySet()) {
                     HookDocs hd = hookCache.get(hook.getKey());
                     if (hd == null) {
-                        hookCache.put(hook.getKey(), hd = new HookDocs(hook.getKey(), hook.getValue(), md));
+                        hd = new HookDocs(hook.getKey(), hook.getValue(), md);
+                        hookCache.put(hook.getKey(), hd);
                     }
                     hd.docs.add(new HookDoc(dh.pre, dh.post, dh.op));
                 }
