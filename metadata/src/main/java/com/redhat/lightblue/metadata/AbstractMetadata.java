@@ -16,6 +16,8 @@ import java.util.Map;
  * @author nmalik
  */
 public abstract class AbstractMetadata implements Metadata {
+    public static final String SEMVER_REGEX = "^\\d+\\.\\d+\\.\\d+(-.*)?$";
+
     /**
      * Checks that the given version exists, raises an error if it does not.
      *
@@ -41,16 +43,20 @@ public abstract class AbstractMetadata implements Metadata {
     }
 
     protected final Version checkVersionIsValid(EntityMetadata md) {
-        return checkVersionIsValid(md.getEntitySchema());
+        return checkVersionIsValid(md.getEntitySchema().getVersion());
     }
 
     protected final Version checkVersionIsValid(EntitySchema md) {
-        Version ver = md.getVersion();
+        return checkVersionIsValid(md.getVersion());
+    }
+
+    protected final Version checkVersionIsValid(Version ver) {
         if (ver == null || ver.getValue() == null || ver.getValue().length() == 0) {
             throw new IllegalArgumentException(MetadataConstants.ERR_INVALID_VERSION);
         }
-        if (ver.getValue().indexOf(' ') != -1) {
-            throw new IllegalArgumentException(MetadataConstants.ERR_INVALID_VERSION_NUMBER);
+        String value = ver.getValue();
+        if (!value.matches(SEMVER_REGEX)) {
+            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_INVALID_VERSION_NUMBER, ver.getValue());
         }
         return ver;
     }
