@@ -20,6 +20,9 @@ package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
@@ -30,6 +33,7 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     private Type type;
 
     private FieldTreeNode parent = null;
+    private final Map<String,Object> properties=new HashMap<String,Object>();
 
     public ArrayElement() {
     }
@@ -81,6 +85,10 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
         parent.getFullPath(mp);
         mp.push(Path.ANY);
         return mp;
+    }
+
+    public Map<String,Object> getProperties() {
+        return properties;
     }
 
     @Override

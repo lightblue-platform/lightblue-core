@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.MutablePath;
@@ -46,6 +48,7 @@ public class EntitySchema implements Serializable {
     private final ArrayList<EntityConstraint> constraints = new ArrayList<>();
     private final Fields fields;
     private final FieldTreeNode fieldRoot;
+    private final Map<String,Object> properties=new HashMap<>();
 
     private class RootNode implements FieldTreeNode, Serializable {
 
@@ -226,5 +229,9 @@ public class EntitySchema implements Serializable {
         } finally {
             Error.pop();
         }
+    }
+
+    public Map<String,Object> getProperties() {
+        return properties;
     }
 }
