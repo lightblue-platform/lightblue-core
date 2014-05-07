@@ -196,24 +196,24 @@ public class MongoMetadataTest {
     public void defaultVersionTest() throws Exception {
 
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
-        e.getEntityInfo().setDefaultVersion("1.0");
+        e.getEntityInfo().setDefaultVersion("1.0.0");
         md.createNewMetadata(e);
 
         EntityMetadata g = md.getEntityMetadata("testEntity", null);
-        Assert.assertEquals("1.0", g.getVersion().getValue());
+        Assert.assertEquals("1.0.0", g.getVersion().getValue());
     }
 
     @Test
     public void createMdTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
@@ -221,7 +221,7 @@ public class MongoMetadataTest {
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0.0");
         Assert.assertNotNull("Can't retrieve entity", g);
         Assert.assertEquals(e.getName(), g.getName());
         Assert.assertEquals(e.getVersion().getValue(), g.getVersion().getValue());
@@ -233,7 +233,7 @@ public class MongoMetadataTest {
                 ((SimpleField) g.resolve(new Path("field2.x"))).getType());
         Version[] v = md.getEntityVersions("testEntity");
         Assert.assertEquals(1, v.length);
-        Assert.assertEquals("1.0", v[0].getValue());
+        Assert.assertEquals("1.0.0", v[0].getValue());
 
         String[] names = md.getEntityNames();
         Assert.assertEquals(1, names.length);
@@ -243,16 +243,16 @@ public class MongoMetadataTest {
     @Test
     public void updateStatusTest() throws Exception {
         EntityMetadata e2 = new EntityMetadata("testEntity");
-        e2.setVersion(new Version("1.1", null, "some text blah blah"));
+        e2.setVersion(new Version("1.1.0", null, "some text blah blah"));
         e2.setStatus(MetadataStatus.ACTIVE);
         e2.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e2.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e2);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.1.0");
         Assert.assertEquals(MetadataStatus.ACTIVE, g.getStatus());
 
-        md.setMetadataStatus("testEntity", "1.1", MetadataStatus.DEPRECATED, "disable testEntity");
-        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1");
+        md.setMetadataStatus("testEntity", "1.1.0", MetadataStatus.DEPRECATED, "disable testEntity");
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.1.0");
         Assert.assertEquals(e2.getVersion().getValue(), g1.getVersion().getValue());
         Assert.assertEquals(MetadataStatus.DEPRECATED, g1.getStatus());
     }
@@ -260,17 +260,17 @@ public class MongoMetadataTest {
     @Test
     public void disabledDefaultUpdateTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
-        e.getEntityInfo().setDefaultVersion("1.0");
+        e.getEntityInfo().setDefaultVersion("1.0.0");
         md.createNewMetadata(e);
-        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0");
+        EntityMetadata g1 = md.getEntityMetadata("testEntity", "1.0.0");
         Assert.assertEquals(e.getVersion().getValue(), g1.getVersion().getValue());
         Assert.assertEquals(MetadataStatus.ACTIVE, g1.getStatus());
         try {
-            md.setMetadataStatus("testEntity", "1.0", MetadataStatus.DISABLED, "disabling the default version");
+            md.setMetadataStatus("testEntity", "1.0.0", MetadataStatus.DISABLED, "disabling the default version");
             Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION);
         } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION, ex.getErrorCode());
@@ -280,11 +280,11 @@ public class MongoMetadataTest {
     @Test
     public void disabledDefaultCreationTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.DISABLED);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
-        e.getEntityInfo().setDefaultVersion("1.0");
+        e.getEntityInfo().setDefaultVersion("1.0.0");
         try {
             md.createNewMetadata(e);
             Assert.fail("expected " + MongoMetadataConstants.ERR_DISABLED_DEFAULT_VERSION);
@@ -296,7 +296,7 @@ public class MongoMetadataTest {
     @Test
     public void illegalArgumentTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
@@ -320,13 +320,13 @@ public class MongoMetadataTest {
     @Test
     public void unknownVersionTest() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            md.getEntityMetadata("testEntity", "1.1");
+            md.getEntityMetadata("testEntity", "1.1.0");
             Assert.fail("expected " + MongoMetadataConstants.ERR_UNKNOWN_VERSION);
         } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_UNKNOWN_VERSION, ex.getErrorCode());
@@ -337,7 +337,7 @@ public class MongoMetadataTest {
     @Test
     public void updateEntityInfo() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
@@ -354,7 +354,7 @@ public class MongoMetadataTest {
     @Test
     public void updateEntityInfo_noEntity() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
@@ -377,7 +377,7 @@ public class MongoMetadataTest {
     public void invalidDefaultVersionTest() throws Exception {
         //with non-existant default.
         EntityMetadata eDefault = new EntityMetadata("testDefaultEntity");
-        eDefault.setVersion(new Version("1.0", null, "some text blah blah"));
+        eDefault.setVersion(new Version("1.0.0", null, "some text blah blah"));
         eDefault.setStatus(MetadataStatus.DISABLED);
         eDefault.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         eDefault.getFields().put(new SimpleField("field1", StringType.TYPE));
@@ -393,7 +393,7 @@ public class MongoMetadataTest {
     @Test
     public void multipleVersions() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
@@ -401,14 +401,14 @@ public class MongoMetadataTest {
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
         md.createNewMetadata(e);
-        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0");
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0.0");
         Assert.assertNotNull("Can't retrieve entity", g);
         Assert.assertEquals(e.getName(), g.getName());
         Assert.assertEquals(e.getVersion().getValue(), g.getVersion().getValue());
         Version[] v = md.getEntityVersions("testEntity");
         Assert.assertEquals(1, v.length);
-        Assert.assertEquals("1.0", v[0].getValue());
-        e.setVersion(new Version("2.0", null, "blahblahyadayada"));
+        Assert.assertEquals("1.0.0", v[0].getValue());
+        e.setVersion(new Version("2.0.0", null, "blahblahyadayada"));
         md.createNewSchema(e);
         v = md.getEntityVersions("testEntity");
         Assert.assertEquals(2, v.length);
@@ -609,22 +609,22 @@ public class MongoMetadataTest {
     public void entityIndexCreationTest() throws Exception {
 
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex1"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
-        e.getEntityInfo().setDefaultVersion("1.0");
+        e.getEntityInfo().setDefaultVersion("1.0.0");
         Index index = new Index();
         index.setName("testIndex");
         index.setUnique(true);
-        List<SortKey> indexFields = new ArrayList<SortKey>();
+        List<SortKey> indexFields = new ArrayList<>();
         //TODO actually parse $asc/$desc here
         indexFields.add(new SortKey(new Path("field1"), true));
         index.setFields(indexFields);
-        Collection<Index> indexes = new LinkedHashSet<Index>();
+        Collection<Index> indexes = new LinkedHashSet<>();
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
         md.createNewMetadata(e);
@@ -647,21 +647,21 @@ public class MongoMetadataTest {
     public void entityIndexUpdateTest() throws Exception {
 
         EntityMetadata e = new EntityMetadata("testEntity");
-        e.setVersion(new Version("1.0", null, "some text blah blah"));
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
         e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex2"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
-        e.getEntityInfo().setDefaultVersion("1.0");
+        e.getEntityInfo().setDefaultVersion("1.0.0");
         Index index = new Index();
         index.setName("testIndex");
         index.setUnique(true);
-        List<SortKey> indexFields = new ArrayList<SortKey>();
+        List<SortKey> indexFields = new ArrayList<>();
         indexFields.add(new SortKey(new Path("field1"), true));
         index.setFields(indexFields);
-        Collection<Index> indexes = new LinkedHashSet<Index>();
+        Collection<Index> indexes = new LinkedHashSet<>();
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
         md.createNewMetadata(e);
@@ -671,11 +671,11 @@ public class MongoMetadataTest {
         index = new Index();
         index.setName("testIndex2");
         index.setUnique(false);
-        indexFields = new ArrayList<SortKey>();
+        indexFields = new ArrayList<>();
         indexFields.clear();
         indexFields.add(new SortKey(new Path("field1"), true));
         index.setFields(indexFields);
-        indexes = new LinkedHashSet<Index>();
+        indexes = new LinkedHashSet<>();
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
 

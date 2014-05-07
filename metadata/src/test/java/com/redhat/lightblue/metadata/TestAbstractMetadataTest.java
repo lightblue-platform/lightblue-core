@@ -121,6 +121,8 @@ public class TestAbstractMetadataTest {
             try {
                 metadata.checkVersionIsValid(new Version(value, null, null));
                 Assert.fail("Expected version to be invalid: " + value);
+            } catch (UnsupportedOperationException e) {
+                throw e;
             } catch (Exception e) {
                 // expected
             }
