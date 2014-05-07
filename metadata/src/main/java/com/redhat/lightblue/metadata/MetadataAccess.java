@@ -25,5 +25,5 @@ package com.redhat.lightblue.metadata;
  * @author nmalik
  */
 public interface MetadataAccess {
-    
+
 }

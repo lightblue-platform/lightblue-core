@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.crud.mongo;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -51,35 +50,34 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ArrayMatchExpression;
+import com.redhat.lightblue.query.ArrayUpdateExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.CompositeSortKey;
+import com.redhat.lightblue.query.FieldAndRValue;
 import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
+import com.redhat.lightblue.query.PartialUpdateExpression;
+import com.redhat.lightblue.query.PrimitiveUpdateExpression;
 import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.RegexMatchExpression;
+import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.query.UnsetExpression;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.query.UpdateExpressionList;
-import com.redhat.lightblue.query.ArrayUpdateExpression;
-import com.redhat.lightblue.query.FieldAndRValue;
-import com.redhat.lightblue.query.RValueExpression;
-import com.redhat.lightblue.query.PrimitiveUpdateExpression;
-import com.redhat.lightblue.query.PartialUpdateExpression;
-import com.redhat.lightblue.query.SetExpression;
-import com.redhat.lightblue.query.UnsetExpression;
+import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Util;
 
 /**
@@ -176,8 +174,9 @@ public class Translator {
         int n=p.numSegments();
         for(int i=0;i<n;i++) {
             String s=p.head(i);
-            if(s.equals(Path.ANY))
+            if(s.equals(Path.ANY)){
                 throw Error.get(MongoCrudConstants.ERR_TRANSLATION_ERROR,p.toString());
+            }
             else if(p.isIndex(i)) {
                 str.append('[').append(s).append(']');
             } else {
@@ -601,8 +600,9 @@ public class Translator {
             } else if(p.isIndex(i)) {
                 arr.append('[').append(seg).append(']');
             } else {
-                if(i>0)
+                if(i>0){
                     arr.append('.');
+                }
                 arr.append(seg);
             }
         }
@@ -624,8 +624,9 @@ public class Translator {
             str.append("if(this.").append(lJSField).
                 append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
                 append("this.").append(rJSField).append(") { return true; }");
-            for(int i=0;i<rn+ln;i++)
+            for(int i=0;i<rn+ln;i++){
                 str.append('}');
+            }
             str.append("return false;}");
         } else if( rn>0 || ln>0 ) {
             // Only one of them has ANY, write a single for loop
@@ -634,8 +635,9 @@ public class Translator {
             str.append("if(this.").append(ln>0?jsField:translateJsPath(lField)).
                 append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
                 append("this.").append(rn>0?jsField:translateJsPath(rField)).append(") {return true;}");
-            for(int i=0;i<rn+ln;i++)
+            for(int i=0;i<rn+ln;i++){
                 str.append('}');
+            }
             str.append("return false;}");
         } else {
             // No ANYs, direct comparison

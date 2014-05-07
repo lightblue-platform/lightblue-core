@@ -18,20 +18,17 @@
  */
 package com.redhat.lightblue.mongo.config;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mongodb.MongoClient;
 import com.mongodb.DB;
-
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.common.DataSourceConfiguration;
-
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.config.common.DataSourceConfiguration;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 
 public class MongoDBResolver implements DBResolver {
 
@@ -54,16 +51,19 @@ public class MongoDBResolver implements DBResolver {
                 db=dsMap.get(store.getDatasourceName());
                 if(db==null) {
                     MongoConfiguration cfg=(MongoConfiguration)datasources.get(store.getDatasourceName());
-                    if(cfg==null)
+                    if(cfg==null) {
                         throw new IllegalArgumentException("No datasources for "+store.getDatasourceName());
-                    dsMap.put(store.getDatasourceName(),db=cfg.getDB());
+                    }
+                    db = cfg.getDB();
+                    dsMap.put(store.getDatasourceName(), db);
                 }
             } else if(store.getDatabaseName()!=null) {
                 db=dbMap.get(store.getDatabaseName());
                 if(db==null) {
                     for(DataSourceConfiguration cfg:datasources.values()) {
                         if( ((MongoConfiguration)cfg).getDatabase().equals(store.getDatabaseName())) {
-                            dbMap.put(store.getDatabaseName(),db=((MongoConfiguration)cfg).getDB());
+                            db = ((MongoConfiguration) cfg).getDB();
+                            dbMap.put(store.getDatabaseName(), db);
                             break;
                         }
                     }
@@ -76,8 +76,9 @@ public class MongoDBResolver implements DBResolver {
             LOGGER.error("Cannot get {}:{}",store,e);
             throw new IllegalArgumentException(e);
         }
-        if(db==null)
+        if(db==null) {
             throw new IllegalArgumentException("Cannot find DB for  "+store);
+        }
         return db;
     }
 }

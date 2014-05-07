@@ -18,27 +18,22 @@
  */
 package com.redhat.lightblue.hooks;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Hook;
-
-import com.redhat.lightblue.crud.Operation;
-import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
-
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluationContext;
-
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -99,15 +94,20 @@ public class HookManager {
     }
 
     private static final class HookDocs {
-        final Hook hook;
-        final CRUDHook crudHook;
-        final EntityMetadata md;
-        final List<HookDoc> docs = new ArrayList<>();
+        private final Hook hook;
+        private final CRUDHook crudHook;
+        private final EntityMetadata md;
+        private final List<HookDoc> docs = new ArrayList<>();
 
         public HookDocs(Hook hook, CRUDHook crudHook, EntityMetadata md) {
             this.hook = hook;
             this.crudHook = crudHook;
             this.md = md;
+        }
+        
+        @Override
+        public String toString() {
+            return "HookDocs [hook=" + hook + ", crudHook=" + crudHook + ", md=" + md + ", docs=" + docs + "]";
         }
     }
 
@@ -254,7 +254,8 @@ public class HookManager {
                 for (Map.Entry<Hook, CRUDHook> hook : dh.hooks.entrySet()) {
                     HookDocs hd = hookCache.get(hook.getKey());
                     if (hd == null) {
-                        hookCache.put(hook.getKey(), hd = new HookDocs(hook.getKey(), hook.getValue(), md));
+                        hd = new HookDocs(hook.getKey(), hook.getValue(), md);
+                        hookCache.put(hook.getKey(), hd);
                     }
                     hd.docs.add(new HookDoc(dh.pre, dh.post, dh.op));
                 }
@@ -269,7 +270,7 @@ public class HookManager {
         if (doc == null) {
             return null;
         } else {
-            return p.project(doc, factory, new QueryEvaluationContext(doc.getRoot()));
+            return p.project(doc, factory);
         }
     }
 }

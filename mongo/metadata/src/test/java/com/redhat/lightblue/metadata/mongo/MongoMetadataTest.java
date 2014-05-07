@@ -60,6 +60,7 @@ import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.common.mongo.DBResolver;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -76,7 +77,6 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
-
 
 public class MongoMetadataTest {
 
@@ -142,7 +142,7 @@ public class MongoMetadataTest {
                 mongod = mongodExe.start();
             }
             mongo = new Mongo(IN_MEM_CONNECTION_URL);
-            db=mongo.getDB(DB_NAME);
+            db = mongo.getDB(DB_NAME);
 
             db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
 
@@ -165,10 +165,10 @@ public class MongoMetadataTest {
         x.addDefaultExtensions();
         x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
         md = new MongoMetadata(db, new DBResolver() {
-                public DB get(MongoDataStore ds) {
-                    return db;
-                }
-            },x, new DefaultTypes());
+            public DB get(MongoDataStore ds) {
+                return db;
+            }
+        }, x, new DefaultTypes());
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
@@ -302,14 +302,14 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "");
+            md.getEntityMetadata("testEntity", "");
             Assert.fail("expected " + IllegalArgumentException.class);
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals("version", ex.getMessage());
         }
 
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", null);
+            md.getEntityMetadata("testEntity", null);
             Assert.fail("expected " + IllegalArgumentException.class);
         } catch (IllegalArgumentException ex) {
             Assert.assertEquals("version", ex.getMessage());
@@ -326,7 +326,7 @@ public class MongoMetadataTest {
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
-            EntityMetadata g = md.getEntityMetadata("testEntity", "1.1");
+            md.getEntityMetadata("testEntity", "1.1");
             Assert.fail("expected " + MongoMetadataConstants.ERR_UNKNOWN_VERSION);
         } catch (Error ex) {
             Assert.assertEquals(MongoMetadataConstants.ERR_UNKNOWN_VERSION, ex.getErrorCode());
@@ -346,8 +346,8 @@ public class MongoMetadataTest {
         e.getFields().put(o);
         md.createNewMetadata(e);
 
-        EntityInfo ei=new EntityInfo("testEntity");
-        ei.setDataStore(new MongoDataStore(null,null,null, "somethingelse"));
+        EntityInfo ei = new EntityInfo("testEntity");
+        ei.setDataStore(new MongoDataStore(null, null, null, "somethingelse"));
         md.updateEntityInfo(ei);
     }
 
@@ -363,16 +363,15 @@ public class MongoMetadataTest {
         e.getFields().put(o);
         md.createNewMetadata(e);
 
-        EntityInfo ei=new EntityInfo("NottestEntity");
-        ei.setDataStore(new MongoDataStore(null,null,null, "somethingelse"));
+        EntityInfo ei = new EntityInfo("NottestEntity");
+        ei.setDataStore(new MongoDataStore(null, null, null, "somethingelse"));
         try {
             md.updateEntityInfo(ei);
             Assert.fail();
         } catch (Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO,ex.getErrorCode());
+            Assert.assertEquals(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ex.getErrorCode());
         }
     }
-
 
     @Test
     public void invalidDefaultVersionTest() throws Exception {
@@ -385,9 +384,9 @@ public class MongoMetadataTest {
         eDefault.getEntityInfo().setDefaultVersion("blah");
         try {
             md.createNewMetadata(eDefault);
-            Assert.fail("expected " + MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION);
+            Assert.fail("expected " + MetadataConstants.ERR_INVALID_DEFAULT_VERSION);
         } catch (Error ex) {
-            Assert.assertEquals(MongoMetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
+            Assert.assertEquals(MetadataConstants.ERR_INVALID_DEFAULT_VERSION, ex.getErrorCode());
         }
     }
 
@@ -605,7 +604,7 @@ public class MongoMetadataTest {
         String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
-    
+
     @Test
     public void entityIndexCreationTest() throws Exception {
 
@@ -629,24 +628,24 @@ public class MongoMetadataTest {
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
         md.createNewMetadata(e);
-                       
+
         DBCollection entityCollection = db.getCollection("testCollectionIndex1");
-        
+
         boolean foundIndex = false;
-        
-        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field1")) {
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }
         }
         Assert.assertTrue(foundIndex);
     }
-    
+
     @Test
     public void entityIndexUpdateTest() throws Exception {
-        
+
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
@@ -668,7 +667,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         DBCollection entityCollection = db.getCollection("testCollectionIndex2");
-        
+
         index = new Index();
         index.setName("testIndex2");
         index.setUnique(false);
@@ -679,15 +678,14 @@ public class MongoMetadataTest {
         indexes = new LinkedHashSet<Index>();
         indexes.add(index);
         e.getEntityInfo().getIndexes().setIndexes(indexes);
-        
+
         md.updateEntityInfo(e.getEntityInfo());
-        
-        
+
         boolean foundIndex = false;
-        
-        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex2".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field1")) {
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex2".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }
@@ -696,9 +694,9 @@ public class MongoMetadataTest {
 
         foundIndex = false;
 
-        for(DBObject mongoIndex : entityCollection.getIndexInfo()) {
-            if("testIndex".equals(mongoIndex.get("name"))) {
-                if(mongoIndex.get("key").toString().contains("field1")) {
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
                     foundIndex = true;
                 }
             }

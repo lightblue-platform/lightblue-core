@@ -58,7 +58,7 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         if (ds.getDatabaseName() != null) {
             p.putString(emptyNode, "database", ds.getDatabaseName());
         }
-        if(ds.getDatasourceName() != null) {
+        if (ds.getDatasourceName() != null) {
             p.putString(emptyNode, "datasource", ds.getDatasourceName());
         }
         if (ds.getCollectionName() != null) {

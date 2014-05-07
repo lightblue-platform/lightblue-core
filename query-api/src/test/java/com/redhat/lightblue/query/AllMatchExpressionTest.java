@@ -18,9 +18,9 @@
  */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

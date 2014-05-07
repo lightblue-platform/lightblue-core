@@ -19,22 +19,18 @@
 package com.redhat.lightblue.crud;
 
 import java.io.Serializable;
-
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.hooks.HookManager;
-
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.DataError;
+import com.redhat.lightblue.hooks.HookManager;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  * An implementation of this class is passed into CRUD operation implementations. It contains information about the
@@ -45,9 +41,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private static final long serialVersionUID = 1l;
 
     private final Factory factory;
-    private final JsonNodeFactory nodeFactory;
     private final String entityName;
-    protected final Set<String> callerRoles;
+    private Set<String> callerRoles;
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
@@ -63,9 +58,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.operation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.nodeFactory=nf;
         this.callerRoles = callerRoles;
-        this.hookManager=new HookManager(factory.getHookResolver(),nodeFactory);
+        this.hookManager=new HookManager(factory.getHookResolver(),nf);
         if (docs != null) {
             documents = new ArrayList<>(docs.size());
             for (JsonDoc doc : docs) {
@@ -90,6 +84,13 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         return factory;
     }
 
+    /**
+     * Sets the caller roles
+     */
+    protected void setCallerRoles(Set<String> roles) {
+        this.callerRoles.addAll(roles);
+    }
+    
     /**
      * Returns the roles the caller is in
      */

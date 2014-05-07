@@ -349,14 +349,16 @@ public class Path implements Comparable<Path>, Serializable {
             MutablePath p=new MutablePath();
             for(int i=0;i<n;i++) {
                 String s=data.get(i);
-                if(PARENT.equals(s))
+                if(PARENT.equals(s)){
                     p.pop();
-                else if(!THIS.equals(s))
+                } else if(!THIS.equals(s)) {
                     p.push(s);
+                }
             }
             return p.immutableCopy();
-        } else
+        } else {
             return this;
+        }
     }
 
     @Override

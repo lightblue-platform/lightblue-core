@@ -44,7 +44,8 @@ import com.redhat.lightblue.rest.metadata.hystrix.SetDefaultVersionCommand;
  * @author bserdar
  * @see https://github.com/bserdar/lightblue/wiki/Rest-Spec-Metadata#rest-spec-metadata
  */
-@Path("/") // metadata/ prefix is the application context
+//metadata/ prefix is the application context
+@Path("/") 
 @Produces(MediaType.APPLICATION_JSON)
 public class MetadataResource {
     @GET

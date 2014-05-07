@@ -18,28 +18,23 @@
  */
 package com.redhat.lightblue.config.metadata;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-
 import com.redhat.lightblue.util.JsonInitializable;
 
 public interface MetadataConfiguration extends JsonInitializable {
     /**
      * The file on classpath that this configuration is loaded from.
      */
-    public static final String FILENAME = "lightblue-metadata.json";
+    String FILENAME = "lightblue-metadata.json";
 
     /**
      * Creates an instance of metadata
-     * 
+     *
      * @param ds Datasources
      * @param parser The JSON parser instance for metadata
      * @param configuration The metadata configuration object
      */
-    public Metadata createMetadata(DataSourcesConfiguration ds,
-                                   JSONMetadataParser parser);
+    Metadata createMetadata(DataSourcesConfiguration ds, JSONMetadataParser parser);
 }

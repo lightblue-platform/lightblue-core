@@ -35,10 +35,14 @@ import java.util.concurrent.TimeUnit;
  *
  * @author nmalik
  */
-public class ServoGraphiteSetup {
+public final class ServoGraphiteSetup {
     private static boolean initialized = false;
 
-    public static final void initialize() {
+    private ServoGraphiteSetup() {
+        
+    }
+    
+    public static void initialize() {
         if (!initialized) {
             doInitialize();
         }
@@ -54,7 +58,8 @@ public class ServoGraphiteSetup {
 
         // try to get name from openshift.  assume it's scaleable app.
         // format: <app name>.  <namespace>.<gear dns>
-        String prefix = System.getenv("HOSTNAME"); // default
+        // default
+        String prefix = System.getenv("HOSTNAME"); 
 
         if (System.getenv("OPENSHIFT_APP_NAME") != null) {
             prefix = String.format(

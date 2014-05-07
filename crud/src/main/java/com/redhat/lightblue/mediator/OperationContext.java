@@ -36,7 +36,6 @@ import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
-import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
@@ -80,7 +79,7 @@ public final class OperationContext extends CRUDOperationContext {
         this.metadata = metadata;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
         LOGGER.debug("All roles in {}:{}",request.getEntityVersion(),metadataRoles);
-        super.callerRoles.addAll(getCallerRoles(metadataRoles, request.getClientId()));
+        super.setCallerRoles(getCallerRoles(metadataRoles, request.getClientId()));
         LOGGER.debug("Caller roles:{}",getCallerRoles());
     }
     

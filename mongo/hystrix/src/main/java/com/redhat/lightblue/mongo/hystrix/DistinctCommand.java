@@ -34,7 +34,7 @@ public class DistinctCommand extends AbstractMongoCommand<List> {
     }
 
     @Override
-    protected List run() throws Exception {
+    protected List run() {
         return getDBCollection().distinct(key);
     }
 }

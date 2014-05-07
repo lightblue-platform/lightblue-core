@@ -31,9 +31,9 @@ import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 public class CrudManagerTest {
     @Test
     public void getMediator() throws Exception {
-        DataSourcesConfiguration ds=new DataSourcesConfiguration();
-        CrudManager mgr=new CrudManager(ds,new MetadataManager(ds));
-                                                             
+        DataSourcesConfiguration ds = new DataSourcesConfiguration();
+        CrudManager mgr = new CrudManager(ds, new MetadataManager(ds));
+
         Mediator m = mgr.getMediator();
         Assert.assertNotNull(m);
     }

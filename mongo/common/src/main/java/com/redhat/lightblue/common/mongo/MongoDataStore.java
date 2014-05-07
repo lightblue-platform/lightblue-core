@@ -19,6 +19,7 @@
 package com.redhat.lightblue.common.mongo;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import com.redhat.lightblue.metadata.DataStore;
 
@@ -144,21 +145,16 @@ public class MongoDataStore implements DataStore, Serializable {
             if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return strequals(clientJndiName,mds.getClientJndiName()) &&
-                        strequals(datasourceName,mds.getDatasourceName())&&
-                        strequals(databaseName,mds.getDatabaseName()) && 
-                        strequals(collectionName,mds.getCollectionName());
+                    return Objects.equals(clientJndiName,mds.getClientJndiName()) &&
+                           Objects.equals(datasourceName,mds.getDatasourceName())&&
+                           Objects.equals(databaseName,mds.getDatabaseName()) && 
+                           Objects.equals(collectionName,mds.getCollectionName());
                 } catch (ClassCastException e) {
                 }
             }
         } catch (Exception e) {
         }
         return false;
-    }
-
-    private static boolean strequals(String s1,String s2) {
-        return (s1==null&&s2==null) ||
-            (s1!=null&&s2!=null&&s1.equals(s2));
     }
 
     @Override

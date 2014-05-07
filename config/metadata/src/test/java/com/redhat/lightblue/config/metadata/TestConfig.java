@@ -19,23 +19,23 @@
 package com.redhat.lightblue.config.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-
-import com.redhat.lightblue.util.JsonInitializable;
-
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
+/**
+ * Test metadata configuration implementation, referenced by configuration files.
+ */
 public class TestConfig implements MetadataConfiguration {
 
+    @Override
     public Metadata createMetadata(DataSourcesConfiguration ds,
                                    JSONMetadataParser parser) {
         return new DatabaseMetadata();
     }
 
+    @Override
     public void initializeFromJson(JsonNode node) {
     }
 }

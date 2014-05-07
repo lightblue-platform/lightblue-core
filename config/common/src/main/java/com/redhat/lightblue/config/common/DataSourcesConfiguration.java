@@ -18,40 +18,38 @@
  */
 package com.redhat.lightblue.config.common;
 
-import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.JsonInitializable;
-import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * Keeps all datasource configurations
  */
 public class DataSourcesConfiguration implements JsonInitializable {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(DataSourcesConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataSourcesConfiguration.class);
 
-    private final Map<String,DataSourceConfiguration> datasources=new HashMap<>();
+    private final Map<String, DataSourceConfiguration> datasources = new HashMap<>();
 
     /**
      * Initalize an empty datasource configuration
      */
-    public DataSourcesConfiguration() {}
+    public DataSourcesConfiguration() {
+    }
 
     /**
      * initialize datasource configuration from the given json document
      *
      * @param node Json document
      *
-     * The document has the following format:
-     * <pre>
+     * The document has the following format:      <pre>
      * {
      *    "datasourceName" : {
      *         "type" : datasourceType,
@@ -60,18 +58,16 @@ public class DataSourcesConfiguration implements JsonInitializable {
      *    ...
      * }
      * </pre>
-     * 
-     * Each datasource is defined by a field in a Json object. For
-     * each datasource definition, the 'type' field gives the class
-     * name of a a JsonInitializable object. When Json object is
-     * processed, an instance of 'type' is instantiated for each
-     * datasource, and processing of the actual datasource
-     * configuration is delegated to the implementation,
+     *
+     * Each datasource is defined by a field in a Json object. For each datasource definition, the 'type' field gives
+     * the class name of a a JsonInitializable object. When Json object is processed, an instance of 'type' is
+     * instantiated for each datasource, and processing of the actual datasource configuration is delegated to the
+     * implementation,
      */
     public DataSourcesConfiguration(JsonNode node) {
-        initializeFromJson(node);
+        this.initializeFromJson(node);
     }
-   
+
     /**
      * Returns a datasource configuration by name
      */
@@ -82,32 +78,34 @@ public class DataSourcesConfiguration implements JsonInitializable {
     /**
      * Adds a new datasource
      */
-    public void add(String name,DataSourceConfiguration datasource) {
-        datasources.put(name,datasource);
+    public void add(String name, DataSourceConfiguration datasource) {
+        datasources.put(name, datasource);
     }
-    
+
     /**
      * Returns all datasources that extend the given class
      */
     public Map<String,DataSourceConfiguration> getDataSourcesByType(Class<?> clazz) {
         Map<String,DataSourceConfiguration> map=new HashMap<>();
-        for(Map.Entry<String,DataSourceConfiguration> entry:datasources.entrySet())
-            if(clazz.isAssignableFrom(entry.getValue().getClass()))
+        for(Map.Entry<String,DataSourceConfiguration> entry:datasources.entrySet()) {
+            if(clazz.isAssignableFrom(entry.getValue().getClass())) {
                 map.put(entry.getKey(),entry.getValue());
+            }
+        }
         return map;
     }
 
     /**
      * Returns all datasources
      */
-    public Map<String,DataSourceConfiguration> getDataSources() {
-        Map<String,DataSourceConfiguration> map=new HashMap<>();
+    public Map<String, DataSourceConfiguration> getDataSources() {
+        Map<String, DataSourceConfiguration> map = new HashMap<>();
         map.putAll(datasources);
         return map;
     }
 
     @Override
-    public void initializeFromJson(JsonNode node) {
+    public final void initializeFromJson(JsonNode node) {
         // Node must be an object node
         if(node instanceof ObjectNode) {
             for(Iterator<Map.Entry<String,JsonNode>> fieldItr=node.fields();fieldItr.hasNext();) {
@@ -116,21 +114,22 @@ public class DataSourcesConfiguration implements JsonInitializable {
                 JsonNode dsNode=field.getValue();
                 LOGGER.debug("Parsing {}",name);
                 JsonNode typeNode=dsNode.get("type");
-                if(typeNode==null)
+                if(typeNode==null){
                     throw new IllegalArgumentException("type expected in "+name);
+                }
                 String type=typeNode.asText();
                 LOGGER.debug("{} is a {}",name,type);
                 try {
-                    Class clazz=Class.forName(type);
-                    DataSourceConfiguration ds=(DataSourceConfiguration)clazz.newInstance();
+                    Class clazz = Class.forName(type);
+                    DataSourceConfiguration ds = (DataSourceConfiguration) clazz.newInstance();
                     ds.initializeFromJson(dsNode);
-                    datasources.put(name,ds);
+                    datasources.put(name, ds);
                 } catch (Exception e) {
-                    throw new IllegalArgumentException(dsNode+":"+e);
+                    throw new IllegalArgumentException(dsNode + ":" + e);
                 }
             }
-        } else
-            throw new IllegalArgumentException(node.toString());
-    }    
+        } else {
+            throw new IllegalArgumentException("node must be instanceof ObjectNode: " + node.toString());
+        }
+    }
 }
-

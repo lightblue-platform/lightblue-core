@@ -128,11 +128,11 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         ctx.addDocument(doc);
         // Insert a doc
         System.out.println("Write doc:" + doc);
-        CRUDInsertionResponse response = controller.insert(ctx, projection);
+        controller.insert(ctx, projection);
         String id = ctx.getDocuments().get(0).getOutputDocument().get(new Path("_id")).asText();
         System.out.println("Saved id:" + id);
 
-        DBCursor cursor = coll.find();
+        coll.find();
 
         // Read doc using mongo
         DBObject dbdoc = coll.findOne(new BasicDBObject("_id", new ObjectId(id)));
@@ -288,7 +288,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
 
         ctx = new TestCRUDOperationContext(Operation.FIND);
         ctx.add(md);
-        CRUDFindResponse response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
+        controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
                 projection("{'field':'*','recursive':1}"),
                 sort("{'field3':'$desc'}"), null, null);
         Assert.assertEquals(numDocs, ctx.getDocuments().size());
@@ -303,7 +303,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         for (int k = 0; k < 15; k++) {
             ctx = new TestCRUDOperationContext(Operation.FIND);
             ctx.add(md);
-            response = controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
+            controller.find(ctx, query("{'field':'field3','op':'>=','rvalue':0}"),
                     projection("{'field':'*','recursive':1}"),
                     sort("{'field3':'$asc'}"), new Long(k), new Long(k + 5));
 

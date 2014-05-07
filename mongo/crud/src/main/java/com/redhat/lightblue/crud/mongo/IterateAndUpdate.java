@@ -23,30 +23,24 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
-import com.mongodb.WriteResult;
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.crud.ConstraintValidator;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Operation;
-
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
-import com.redhat.lightblue.eval.Updater;
 import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.eval.QueryEvaluationContext;
-
+import com.redhat.lightblue.eval.Updater;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.mongo.hystrix.FindCommand;
 import com.redhat.lightblue.mongo.hystrix.SaveCommand;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
@@ -103,7 +97,6 @@ public class IterateAndUpdate implements DocUpdater {
                 DocCtx doc = ctx.addDocument(translator.toJson(document));
                 doc.setOutputDocument(doc.copy());
                 // From now on: doc contains the old copy, and doc.getOutputDocument contains the new copy
-                QueryEvaluationContext qctx = new QueryEvaluationContext(doc.getRoot());
                 if (updater.update(doc.getOutputDocument(), md.getFieldTreeRoot(), Path.EMPTY)) {
                     LOGGER.debug("Document {} modified, updating", docIndex);
                     PredefinedFields.updateArraySizes(nodeFactory, doc.getOutputDocument());
@@ -149,11 +142,11 @@ public class IterateAndUpdate implements DocUpdater {
                 if (hasErrors) {
                     LOGGER.debug("Document {} has errors", docIndex);
                     numFailed++;
-                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(), nodeFactory, qctx));
+                    doc.setOutputDocument(errorProjector.project(doc.getOutputDocument(), nodeFactory));
                 } else {
                     if (projector != null) {
                         LOGGER.debug("Projecting document {}", docIndex);
-                        doc.setOutputDocument(projector.project(doc.getOutputDocument(), nodeFactory, qctx));
+                        doc.setOutputDocument(projector.project(doc.getOutputDocument(), nodeFactory));
                     }
                 }
                 docIndex++;

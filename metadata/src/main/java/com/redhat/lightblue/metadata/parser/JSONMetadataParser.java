@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.metadata.Index;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.query.Projection;
@@ -57,7 +56,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             if (x != null) {
                 if (x.isContainerNode()) {
                     throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
-                } else if (x instanceof com.fasterxml.jackson.databind.node.NullNode ) {
+                } else if (x instanceof com.fasterxml.jackson.databind.node.NullNode) {
                     return null;
                 } else {
                     return x.asText();
@@ -184,7 +183,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public void putString(JsonNode object, String name, String value) {
-        putValue(object,name,value);
+        putValue(object, name, value);
     }
 
     @Override
@@ -195,8 +194,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public void putValue(JsonNode object, String name, Object value) {
         ObjectNode o = (ObjectNode) object;
-        if(value==null) {
-            o.put(name,factory.nullNode());
+        if (value == null) {
+            o.put(name, factory.nullNode());
         } else if (value instanceof Boolean) {
             o.put(name, (Boolean) value);
         } else if (value instanceof BigDecimal) {
@@ -244,7 +243,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     public QueryExpression parseQuery(JsonNode object) {
         return object == null ? null : QueryExpression.fromJson(object);
     }
-        
+
     @Override
     public Sort parseSort(JsonNode object) {
         return object == null ? null : Sort.fromJson(object);

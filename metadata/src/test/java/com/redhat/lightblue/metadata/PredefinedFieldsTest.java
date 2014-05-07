@@ -24,17 +24,13 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.metadata.types.DateType;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-
-import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 
 public class PredefinedFieldsTest {
 
