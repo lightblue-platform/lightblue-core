@@ -18,17 +18,30 @@
  */
 package com.redhat.lightblue.rest.crud;
 
-import static com.redhat.lightblue.util.test.FileUtil.readFile;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-
-import javax.inject.Inject;
-
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.Mongo;
+import com.redhat.lightblue.config.common.DataSourcesConfiguration;
+import com.redhat.lightblue.config.crud.CrudConfiguration;
+import com.redhat.lightblue.config.crud.CrudManager;
+import com.redhat.lightblue.config.metadata.MetadataConfiguration;
+import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.mongo.MongoMetadata;
+import com.redhat.lightblue.mongo.config.MongoConfiguration;
+import com.redhat.lightblue.util.JsonUtils;
+import de.flapdoodle.embed.mongo.Command;
+import de.flapdoodle.embed.mongo.MongodExecutable;
+import de.flapdoodle.embed.mongo.MongodProcess;
+import de.flapdoodle.embed.mongo.MongodStarter;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import de.flapdoodle.embed.process.config.io.ProcessOutput;
+import de.flapdoodle.embed.process.io.IStreamProcessor;
+import de.flapdoodle.embed.process.io.Processors;
+import de.flapdoodle.embed.process.runtime.Network;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -43,30 +56,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.Mongo;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.crud.CrudConfiguration;
-import com.redhat.lightblue.config.crud.CrudManager;
-import com.redhat.lightblue.config.metadata.MetadataConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataManager;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.mongo.MongoMetadata;
-import com.redhat.lightblue.mongo.config.MongoConfiguration;
-import com.redhat.lightblue.util.JsonUtils;
+import javax.inject.Inject;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 
-import de.flapdoodle.embed.mongo.Command;
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
-import de.flapdoodle.embed.process.config.IRuntimeConfig;
-import de.flapdoodle.embed.process.config.io.ProcessOutput;
-import de.flapdoodle.embed.process.io.IStreamProcessor;
-import de.flapdoodle.embed.process.io.Processors;
-import de.flapdoodle.embed.process.runtime.Network;
+import static com.redhat.lightblue.util.test.FileUtil.readFile;
 
 /**
  *
@@ -126,7 +124,12 @@ public class ITCaseCrudResourceTest {
                     .build();
 
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
-            mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
+            mongodExe = runtime.prepare(
+                    new MongodConfigBuilder()
+                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                            .net(new Net(MONGO_PORT,Network.localhostIsIPv6()))
+                            .build()
+            );
             try {
                 mongod = mongodExe.start();
             } catch (Throwable t) {

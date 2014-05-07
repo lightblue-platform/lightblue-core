@@ -116,7 +116,7 @@ public class FrontEnd {
                 db = client.getDB(dbName);
             } else {
                 MongodStarter runtime = MongodStarter.getDefaultInstance();
-                MongodExecutable mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT,
+                MongodExecutable mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0, MONGO_PORT,
                         Network.localhostIsIPv6()));
                 try {
                     mongod = mongodExe.start();

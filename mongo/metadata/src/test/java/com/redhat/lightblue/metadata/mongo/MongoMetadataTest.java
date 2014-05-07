@@ -70,13 +70,14 @@ import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
 
 public class MongoMetadataTest {
 
@@ -134,7 +135,12 @@ public class MongoMetadataTest {
                     .build();
 
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
-            mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_0_5, MONGO_PORT, Network.localhostIsIPv6()));
+            mongodExe = runtime.prepare(
+                    new MongodConfigBuilder()
+                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                            .net(new Net(MONGO_PORT,Network.localhostIsIPv6()))
+                            .build()
+            );
             try {
                 mongod = mongodExe.start();
             } catch (Throwable t) {

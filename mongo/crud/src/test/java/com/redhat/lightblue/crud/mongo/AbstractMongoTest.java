@@ -24,6 +24,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
 
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.After;
 import org.junit.BeforeClass;
 
@@ -54,7 +57,6 @@ import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
@@ -97,7 +99,13 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
                     .build();
 
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
-            mongodExe = runtime.prepare(new MongodConfig(de.flapdoodle.embed.mongo.distribution.Version.V2_4_3, MONGO_PORT, false));
+            mongodExe = runtime.prepare(
+                    new MongodConfigBuilder()
+                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                            .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                            .build()
+            );
+
             try {
                 mongod = mongodExe.start();
             } catch (Throwable t) {
