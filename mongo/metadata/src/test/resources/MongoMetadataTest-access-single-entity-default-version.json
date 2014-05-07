@@ -1,7 +1,7 @@
 {
     "entityInfo": {
         "name": "test",
-        "defaultVersion": "1.0",
+        "defaultVersion": "1.0.0",
         "datastore": {
             "mongo": {
                 "collection":"test"
@@ -11,7 +11,7 @@
     "schema": {
         "name": "test",
         "version": {
-            "value": "1.0",
+            "value": "1.0.0",
             "changelog": "Initial version"
         },
         "status": {
