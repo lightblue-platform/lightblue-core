@@ -30,7 +30,6 @@ public class ReferenceTest {
 
     public static String ENTITY_FIELD_VALUE = "entityField";
     public static String ENTITY_NAME_VALUE = "entityName";
-    public static String THIS_FIELD_VALUE = "thisField";
     public static String VERSION_VALUE = "versionValue";
 
     @Before
@@ -38,7 +37,6 @@ public class ReferenceTest {
         reference = new Reference();
         reference.setEntityField(ENTITY_FIELD_VALUE);
         reference.setEntityName(ENTITY_NAME_VALUE);
-        reference.setThisField(THIS_FIELD_VALUE);
         reference.setVersionValue(VERSION_VALUE);
     }
 
@@ -66,17 +64,6 @@ public class ReferenceTest {
     public void testSetVersionValue() {
         reference.setVersionValue(VERSION_VALUE + 1);
         assertTrue(reference.getVersionValue().equals(VERSION_VALUE + 1));
-    }
-
-    @Test
-    public void testGetThisField() {
-        assertTrue(reference.getThisField().equals(THIS_FIELD_VALUE));
-    }
-
-    @Test
-    public void testSetThisField() {
-        reference.setThisField(THIS_FIELD_VALUE + 1);
-        assertTrue(reference.getThisField().equals(THIS_FIELD_VALUE + 1));
     }
 
     @Test

@@ -26,7 +26,6 @@ public final class Reference implements Serializable {
 
     private String entityName;
     private String versionValue;
-    private String thisField;
     private String entityField;
 
     /**
@@ -63,24 +62,6 @@ public final class Reference implements Serializable {
      */
     public void setVersionValue(String argVersionValue) {
         this.versionValue = argVersionValue;
-    }
-
-    /**
-     * Gets the value of thisField
-     *
-     * @return the value of thisField
-     */
-    public String getThisField() {
-        return this.thisField;
-    }
-
-    /**
-     * Sets the value of thisField
-     *
-     * @param argThisField Value to assign to this.thisField
-     */
-    public void setThisField(String argThisField) {
-        this.thisField = argThisField;
     }
 
     /**

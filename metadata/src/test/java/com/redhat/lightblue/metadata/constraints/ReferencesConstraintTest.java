@@ -29,7 +29,6 @@ import org.junit.Test;
 public class ReferencesConstraintTest {
 
     ReferencesConstraint constraint;
-    ArrayList<Reference> references;
 
     @Before
     public void setUp() throws Exception {
@@ -37,11 +36,8 @@ public class ReferencesConstraintTest {
         Reference reference = new Reference();
         reference.setEntityField(ReferenceTest.ENTITY_FIELD_VALUE);
         reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE);
-        reference.setThisField(ReferenceTest.THIS_FIELD_VALUE);
         reference.setVersionValue(ReferenceTest.VERSION_VALUE);
-        references = new ArrayList<>();
-        references.add(reference);
-        constraint.setReferences(references);
+        constraint.setReference(reference);
     }
 
     @After
@@ -53,28 +49,15 @@ public class ReferencesConstraintTest {
         assertTrue(constraint.getType().equals(ReferencesConstraint.REFERENCES));
     }
 
-    @Test
-    public void testGetReferences() {
-        assertTrue(constraint.getReferences().equals(references));
-    }
 
     @Test
-    public void testSetReferences() {
+    public void testSetReference() {
         Reference reference = new Reference();
         reference.setEntityField(ReferenceTest.ENTITY_FIELD_VALUE + 1);
         reference.setEntityName(ReferenceTest.ENTITY_NAME_VALUE + 1);
-        reference.setThisField(ReferenceTest.THIS_FIELD_VALUE + 1);
         reference.setVersionValue(ReferenceTest.VERSION_VALUE + 1);
-        references = new ArrayList<>();
-        references.add(reference);
-        constraint.setReferences(references);
-        assertTrue(constraint.getReferences().equals(references));
+        constraint.setReference(reference);
+        assertTrue(constraint.getReference().equals(reference));
     }
 
-    @Test
-    public void testSetReferencesNull() {
-        constraint.setReferences(null);
-        references.clear();
-        assertTrue(constraint.getReferences().equals(references));
-    }
 }

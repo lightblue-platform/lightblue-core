@@ -31,6 +31,5 @@ public class DefaultEntityConstraintParsers<N>
         extends DefaultResolver<String, Parser<N, EntityConstraint>> {
 
     public DefaultEntityConstraintParsers() {
-        addValue(ReferencesConstraint.REFERENCES, new ReferencesConstraintParser<N>());
     }
 }

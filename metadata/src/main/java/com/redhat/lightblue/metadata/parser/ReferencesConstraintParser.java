@@ -22,60 +22,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.constraints.Reference;
 import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.util.Error;
 
-public class ReferencesConstraintParser<T> implements EntityConstraintParser<T> {
+public class ReferencesConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
-    public EntityConstraint parse(String name, MetadataParser<T> p, T node) {
+    public FieldConstraint parse(String name, MetadataParser<T> p, T node) {
         if (!ReferencesConstraint.REFERENCES.equals(name)) {
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
-        List<T> list = p.getObjectList(node, ReferencesConstraint.REFERENCES);
+        T item = p.getObjectProperty(node, ReferencesConstraint.REFERENCES);
         ReferencesConstraint ret = new ReferencesConstraint();
-        ArrayList<Reference> dest = new ArrayList<>();
-
-        for (T item : list) {
-            Reference ref = new Reference();
-            ref.setEntityName(p.getStringProperty(item, "entityName"));
-            ref.setVersionValue(p.getStringProperty(item, "versionValue"));
-            ref.setThisField(p.getStringProperty(item, "thisField"));
-            ref.setEntityField(p.getStringProperty(item, "entityField"));
-            if (ref.getEntityName() == null) {
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "references.entityName");
-            }
-            if (ref.getVersionValue() == null) {
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "references.versionValue");
-            }
-            dest.add(ref);
+        Reference ref = new Reference();
+        ref.setEntityName(p.getStringProperty(item, "entityName"));
+        ref.setVersionValue(p.getStringProperty(item, "versionValue"));
+        ref.setEntityField(p.getStringProperty(item, "entityField"));
+        if (ref.getEntityName() == null) {
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "references.entityName");
         }
-        ret.setReferences(dest);
+        if (ref.getVersionValue() == null) {
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "references.versionValue");
+        }
+        ret.setReference(ref);
         return ret;
     }
 
     @Override
-    public void convert(MetadataParser<T> p, T emptyNode, EntityConstraint object) {
-        Object arr = p.newArrayField(emptyNode, ReferencesConstraint.REFERENCES);
-        for (Reference ref : ((ReferencesConstraint) object).getReferences()) {
-            T node = p.newNode();
-            if (ref.getEntityName() != null) {
-                p.putString(node, "entityName", ref.getEntityName());
-            }
-            if (ref.getVersionValue() != null) {
-                p.putString(node, "versionValue", ref.getVersionValue());
-            }
-            if (ref.getThisField() != null) {
-                p.putString(node, "thisField", ref.getThisField());
-            }
-            if (ref.getEntityField() != null) {
-                p.putString(node, "entityField", ref.getEntityField());
-            }
-            p.addObjectToArray(arr, node);
+    public void convert(MetadataParser<T> p, T emptyNode, FieldConstraint object) {
+        T node=p.newNode();
+        Reference ref=((ReferencesConstraint)object).getReference();
+        if (ref.getEntityName() != null) {
+            p.putString(node, "entityName", ref.getEntityName());
         }
+        if (ref.getVersionValue() != null) {
+            p.putString(node, "versionValue", ref.getVersionValue());
+        }
+        if (ref.getEntityField() != null) {
+            p.putString(node, "entityField", ref.getEntityField());
+        }
+        p.putObject(emptyNode,ReferencesConstraint.REFERENCES,node);
     }
 
 }

@@ -22,29 +22,34 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.Type;
 
-public class ReferencesConstraint implements EntityConstraint, Serializable {
+import com.redhat.lightblue.metadata.FieldConstraint;
+
+public class ReferencesConstraint implements FieldConstraint, Serializable {
 
     private static final long serialVersionUID = 1l;
 
     public static final String REFERENCES = "references";
 
-    private final ArrayList<Reference> references = new ArrayList<>();
+    private Reference reference;
 
+    @Override
     public String getType() {
         return REFERENCES;
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Reference> getReferences() {
-        return (ArrayList<Reference>) references.clone();
+    @Override
+    public boolean isValidForFieldType(Type fieldType) {
+        return true;
     }
 
-    public void setReferences(List<Reference> f) {
-        references.clear();
-        if (f != null) {
-            references.addAll(f);
-        }
+    @SuppressWarnings("unchecked")
+    public Reference getReference() {
+        return reference;
+    }
+
+    public void setReference(Reference r) {
+        reference=r;
     }
 }
