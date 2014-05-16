@@ -95,6 +95,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>metadata</module>
     </modules>
     <properties>
-        <rpm.install.basedir>/usr/share/jboss/standalone/deployments</rpm.install.basedir>
+        <rpm.install.basedir>/usr/share/jbossas/standalone/deployments</rpm.install.basedir>
     </properties>
 </project>
