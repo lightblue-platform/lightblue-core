@@ -2204,18 +2204,19 @@ Email: nmalik@redhat.com</content>
     </folder>
     <folder name="Deployable" id="a06110ff">
       <element xsi:type="archimate:SketchModel" id="03679ec2" name="Overview" background="0">
-        <child xsi:type="archimate:SketchModelActor" id="f7966ece" name="IT User">
+        <child xsi:type="archimate:SketchModelActor" id="f7966ece" name="Metadata User">
           <bounds x="60" y="36" width="97" height="100"/>
           <sourceConnection id="a70640f3" source="f7966ece" target="53816462" type="1"/>
           <sourceConnection id="36eec46f" source="f7966ece" target="171a851c" type="5"/>
         </child>
         <child xsi:type="archimate:SketchModelSticky" id="8af8703f" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="558188b2" fillColor="#ffffb5">
           <bounds x="384" y="396" width="121" height="65"/>
-          <content>MongoDB: Data</content>
+          <content>Data 
+Datastore</content>
         </child>
         <child xsi:type="archimate:SketchModelSticky" id="10b51497" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="5be6914e" fillColor="#ffffb5">
           <bounds x="49" y="398" width="119" height="61"/>
-          <content>MongoDB: Metadata</content>
+          <content>Metadata Datastore</content>
         </child>
         <child xsi:type="archimate:SketchModelActor" id="b0ba7b1f" name="Data User">
           <bounds x="396" y="36" width="98" height="100"/>

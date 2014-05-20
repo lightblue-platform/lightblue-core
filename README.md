@@ -5,7 +5,10 @@ Project lightblue is designed to enable faster time to market on strategic busin
 
 # Documentation
 
-See the [Wiki](https://github.com/bserdar/lightblue/wiki) for all documentation for lightblue.
+See the [Wiki](https://github.com/lightblue-platform/lightblue/wiki) for all documentation for lightblue.
+Some documents to focus on for getting started:
+* [Overview](https://github.com/lightblue-platform/lightblue/wiki/Home)
+* [Manual](https://github.com/lightblue-platform/lightblue/wiki/TFM)
 
 # License
 
