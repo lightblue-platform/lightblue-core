@@ -1,1 +1,0 @@
-{"status":"ERROR","modifiedCount":0,"matchCount":0,"errors":["{\"object_type\":\"error\",\"context\":\"InsertCommand/user/insert(user:3.0)\",\"errorCode\":\"crud:NoAccess\",\"msg\":\"insert user\"}"]}

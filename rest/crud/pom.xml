@@ -92,10 +92,9 @@
                     <distribution>RHEL</distribution>
                     <group>Lightblue Platform</group>
                     <packager>${user.name}</packager>
-                    <defaultDirmode>500</defaultDirmode>
-                    <defaultFilemode>400</defaultFilemode>
-                    <defaultUsername>jboss-as</defaultUsername>
-                    <defaultGroupname>jboss-as</defaultGroupname>
+                    <defaultFilemode>744</defaultFilemode>
+                    <defaultUsername>jboss</defaultUsername>
+                    <defaultGroupname>jboss</defaultGroupname>
                     <!-- 
                     <requires>
                         <require>eap &gt;= 6.2</require>
