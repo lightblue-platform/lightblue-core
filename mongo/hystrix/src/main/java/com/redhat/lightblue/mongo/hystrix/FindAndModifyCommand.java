@@ -47,7 +47,7 @@ public class FindAndModifyCommand extends AbstractMongoCommand<DBObject> {
     }
 
     @Override
-    protected DBObject run() {
+    protected DBObject runMongoCommand() {
         return getDBCollection().findAndModify(query, fields, sort, remove, update, returnNew, upsert);
     }
 }

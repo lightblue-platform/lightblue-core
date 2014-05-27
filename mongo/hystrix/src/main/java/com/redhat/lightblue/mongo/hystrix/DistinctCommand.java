@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.mongo.hystrix;
 
+
 import com.mongodb.DBCollection;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class DistinctCommand extends AbstractMongoCommand<List> {
     }
 
     @Override
-    protected List run() {
+    protected List runMongoCommand() {
         return getDBCollection().distinct(key);
     }
 }

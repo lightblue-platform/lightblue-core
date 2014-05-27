@@ -35,7 +35,7 @@ public class SaveCommand extends AbstractMongoCommand<WriteResult> {
     }
 
     @Override
-    protected WriteResult run() {
+    protected WriteResult runMongoCommand() {
         return getDBCollection().save(data);
     }
 }

@@ -19,10 +19,12 @@
 package com.redhat.lightblue.mongo.hystrix;
 
 import com.mongodb.DBCollection;
+import com.mongodb.MongoSocketException;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.exception.HystrixBadRequestException;
 
 /**
  *
@@ -48,4 +50,31 @@ public abstract class AbstractMongoCommand<T> extends HystrixCommand<T> {
     protected DBCollection getDBCollection() {
         return collection;
     }
+
+    /**
+     * Unwrap hystrix exception
+     */
+    @Override
+    public T execute() {
+        try {
+            return super.execute();
+        } catch (HystrixBadRequestException br) {
+            throw (RuntimeException)br.getCause();
+        } catch (RuntimeException x) {
+            throw x;
+        }
+    }
+
+    @Override
+    protected T run() {
+        try {
+            return runMongoCommand();
+        } catch (MongoSocketException mse) {
+            throw mse;
+        } catch (RuntimeException x) {
+            throw new HystrixBadRequestException("in "+getClass().getName(),x);
+        }
+    }
+
+    protected abstract T runMongoCommand();
 }

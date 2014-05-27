@@ -42,7 +42,7 @@ public class RemoveCommand extends AbstractMongoCommand<WriteResult> {
     }
 
     @Override
-    protected WriteResult run() {
+    protected WriteResult runMongoCommand() {
         if (concern != null) {
             return getDBCollection().remove(data, concern);
         } else {

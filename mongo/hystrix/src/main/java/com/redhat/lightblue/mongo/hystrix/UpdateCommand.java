@@ -48,7 +48,7 @@ public class UpdateCommand extends AbstractMongoCommand<WriteResult> {
     }
 
     @Override
-    protected WriteResult run() {
+    protected WriteResult runMongoCommand() {
         if (concern != null) {
             return getDBCollection().update(query, update, upsert, multi, concern);
         } else {
