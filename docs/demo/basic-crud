@@ -1,50 +1,50 @@
 
 Create v1 user:
 
-  curl -u lbadmin:123qweasd!   -X PUT -H Content-Type:application/json -d @create-v1-user.json http://localhost:8080/data/user/1.0
+  curl -u lbadmin:123qweasd!   -X PUT -H Content-Type:application/json -d @create-v1-user.json http://localhost:8080/data/user/1.0.0
 
 Simple find v1 user:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar'|tee /tmp/out.json
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar'|tee /tmp/out.json
 
 Simple find with projection, login and sites:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites:1'|tee /tmp/out.json
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites:1'|tee /tmp/out.json
 
 
 Projection examples:
 
 All site elements:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*:1'|tee /tmp/out.json
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*:1'|tee /tmp/out.json
 
 All site elements and first level content:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.*:1'|tee /tmp/out.json
+  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.*:1'|tee /tmp/out.json
 
 All sites, recursively:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*:1r'|tee /tmp/out.json
+  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*:1r'|tee /tmp/out.json
 
 All site usages:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.usages.*:1r'|tee /tmp/out.json
+  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.usages.*:1r'|tee /tmp/out.json
 
 Usages of the first site:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.0.usages.*:1r'|tee /tmp/out.json
+  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.0.usages.*:1r'|tee /tmp/out.json
 
 First usages of all sites:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar&P=login:1,sites.*.usages.0.*:1r'|tee /tmp/out.json
+  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.usages.0.*:1r'|tee /tmp/out.json
 
 Sorting:
 All NC users, sorted by login, asc:
 
-curl -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.*.streetAddress.state:NC&P=login:1&S=login:a'|tee /tmp/out.json
+curl -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=sites.*.streetAddress.state:NC&P=login:1&S=login:a'|tee /tmp/out.json
 
-curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:a'|tee /tmp/out.json
-curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:d'|tee /tmp/out.json
+curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:a'|tee /tmp/out.json
+curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:d'|tee /tmp/out.json
 
 POST queries:
 
@@ -56,7 +56,7 @@ login:bserdar
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 Logical operations:
 
@@ -68,7 +68,7 @@ login:bserdar and site.0.streetAddress.state:CO
   "sort" : { "login":"$asc"},
   "query":  { "$and" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"sites.0.streetAddress.state","op":"$eq","rvalue":"CO"} ] },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
   curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar,sites.0.streetAddress.state:CO'|tee /tmp/out.json
 
@@ -80,7 +80,7 @@ login=bserdar or login!=bserdar
   "sort" : { "login":"$asc"},
   "query":  { "$or" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"login","op":"$neq","rvalue":"bserdar"} ] },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 
 Regex search:
@@ -91,7 +91,7 @@ Regex search:
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*"},
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
   curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
   "object_type":"user",
@@ -99,7 +99,7 @@ Regex search:
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "case_insensitive":1},
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 Field as rvalue, not supported directly by mongo:
 
@@ -111,7 +111,7 @@ curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "op":"$neq", "rfield":"sites.0.firstName"},
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 
 Array search: users with active sites, list only active sites
@@ -121,7 +121,7 @@ curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "returning": [ { "field":"login"}, {"field":"_id"}, {"field":"sites","project":{"field":"*"}} ],
   "query":  { "array":"sites","elemMatch":{"field":"active","op":"$eq","rvalue":1} },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 
 More involved projections:
@@ -134,7 +134,7 @@ Return a few fields:
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 Exclude some of "personalInfo":
 
@@ -144,7 +144,7 @@ curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 Exclude sites:
 
@@ -154,7 +154,7 @@ curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 Array projections:
 
@@ -166,7 +166,7 @@ Sites[0,1]:
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 
 Get only active sites:
@@ -177,7 +177,7 @@ Get only active sites:
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 Get only default sites, project description:
 
@@ -187,7 +187,7 @@ Get only default sites, project description:
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
 
 
 
@@ -195,7 +195,7 @@ Updates:
 
 Save user:
 
-   curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d @save-v1-user.json http://localhost:8080/data/save/user/1.0|tee /tmp/out.json
+   curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d @save-v1-user.json http://localhost:8080/data/save/user/1.0.0|tee /tmp/out.json
 
 Update some fields of user:
 
@@ -205,7 +205,7 @@ Update some fields of user:
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": [ {"$set": {"contactPermissions.allowEmailContact":true} } ]
-}' http://localhost:8080/data/update/user/1.0|tee /tmp/out.json
+}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
 
 Remove an array element (sites[0])
 
@@ -215,7 +215,7 @@ Remove an array element (sites[0])
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": [ {"$unset": "sites.0" } ]
-}' http://localhost:8080/data/update/user/1.0|tee /tmp/out.json
+}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
 
 Inactivate non-default site:
 
@@ -226,7 +226,7 @@ Inactivate non-default site:
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": { "$foreach" : { "sites" : { "field":"defaultSite","op":"=","rvalue":0 },
                             "$update" : { "$set" : {"active":0}} } }
-}' http://localhost:8080/data/update/user/1.0|tee /tmp/out.json
+}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
 
 
 Delete inactive sites:
@@ -238,7 +238,7 @@ Delete inactive sites:
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": { "$foreach" : { "sites" : { "field":"active","op":"=","rvalue":0 },
                             "$update" : "$remove" }}
-}' http://localhost:8080/data/update/user/1.0|tee /tmp/out.json
+}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
 
 Add a new empty site:
 
@@ -248,7 +248,7 @@ Add a new empty site:
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
 "update": { "$append" : {"sites":{ } } }
-}' http://localhost:8080/data/update/user/1.0|tee /tmp/out.json
+}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
 
 
 Delete:
@@ -257,4 +257,4 @@ Delete:
 "object_type":"user",
 "query":  { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] }
-}'  http://localhost:8080/data/delete/user/1.0|tee /tmp/out.json
+}'  http://localhost:8080/data/delete/user/1.0.0|tee /tmp/out.json
