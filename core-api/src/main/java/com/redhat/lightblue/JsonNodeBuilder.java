@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonObject;
+import com.redhat.lightblue.util.Error;
 
 public class JsonNodeBuilder {
 
@@ -80,30 +81,9 @@ public class JsonNodeBuilder {
         return this;
     }
 
-    public JsonNodeBuilder add(String key, EntityVersion value) {
+    public JsonNodeBuilder add(String key, JsonObject value) {
         if (include(value)) {
-            root.put(key, value.toString());
-        }
-        return this;
-    }
-
-    public JsonNodeBuilder add(String key, ClientIdentification value) {
-        if (include(value)) {
-            root.put(key, value.toString());
-        }
-        return this;
-    }
-
-    public JsonNodeBuilder add(String key, ExecutionOptions value) {
-        if (include(value)) {
-            root.put(key, value.toString());
-        }
-        return this;
-    }
-
-    public JsonNodeBuilder add(String key, SessionInfo value) {
-        if (include(value)) {
-            root.put(key, value.toString());
+            root.put(key, value.toJson());
         }
         return this;
     }
@@ -114,6 +94,28 @@ public class JsonNodeBuilder {
             root.set(key, arr);
             for (Object err : values) {
                 arr.add(err.toString());
+            }
+        }
+        return this;
+    }
+
+    public <T> JsonNodeBuilder addJsonObjectsList(String key, List<? extends JsonObject> values) {
+        if (includes(values)) {
+            ArrayNode arr = JsonObject.getFactory().arrayNode();
+            root.set(key, arr);
+            for (JsonObject err : values) {
+                arr.add(err.toJson());
+            }
+        }
+        return this;
+    }
+
+    public <T> JsonNodeBuilder addErrorsList(String key, List<Error> values) {
+        if (includes(values)) {
+            ArrayNode arr = JsonObject.getFactory().arrayNode();
+            root.set(key, arr);
+            for (Error err : values) {
+                arr.add(err.toJson());
             }
         }
         return this;

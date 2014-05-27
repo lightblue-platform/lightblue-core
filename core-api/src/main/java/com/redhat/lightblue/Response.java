@@ -183,8 +183,8 @@ public class Response extends JsonObject {
         builder.add(PROPERTY_TASK_HANDLE, taskHandle);
         builder.add(PROPERTY_SESSION, session);
         builder.add(PROPERTY_PROCESSED, entityData);
-        builder.add(PROPERTY_DATA_ERRORS, dataErrors);
-        builder.add(PROPERTY_ERRORS, errors);
+        builder.addJsonObjectsList(PROPERTY_DATA_ERRORS, dataErrors);
+        builder.addErrorsList(PROPERTY_ERRORS, errors);
         return builder.build();
     }
 
