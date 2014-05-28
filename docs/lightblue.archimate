@@ -2928,7 +2928,6 @@ Email: nmalik@redhat.com</content>
       <child xsi:type="archimate:DiagramObject" id="eae8352c" textAlignment="2" targetConnections="25100605" archimateElement="ef8e894b">
         <bounds x="1452" y="84"/>
         <sourceConnection xsi:type="archimate:Connection" id="e7b5ed7b" source="eae8352c" target="126d601d" relationship="3d788713"/>
-        <sourceConnection xsi:type="archimate:Connection" id="3a3323da" source="eae8352c" target="92915493" relationship="d1d92c7b"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="c487fb71" textAlignment="2" targetConnections="c1121021" archimateElement="df4b210a">
         <bounds x="1632" y="531" width="145" height="181"/>
@@ -2954,30 +2953,8 @@ Email: nmalik@redhat.com</content>
           <bendpoint startY="328" endX="77" endY="-56"/>
         </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="92915493" textAlignment="2" targetConnections="3a3323da" archimateElement="50ff25cd">
-        <bounds x="1608" y="168" width="144" height="67"/>
-        <sourceConnection xsi:type="archimate:Connection" id="d2bb0f45" source="92915493" target="74fa34da" relationship="6cb5d7c8"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="74fa34da" textAlignment="2" targetConnections="d2bb0f45" archimateElement="500f0f64">
-        <bounds x="1608" y="264"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="a5143ec2" textAlignment="2" archimateElement="6e87ac49">
-        <bounds x="847" y="264"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="71f37661" textAlignment="2" archimateElement="d842e7f0">
-        <bounds x="835" y="324"/>
-      </child>
       <child xsi:type="archimate:DiagramObject" id="945a9a9a" textAlignment="2" archimateElement="b0ac34eb">
         <bounds x="911" y="468"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="1e0faa7c" textAlignment="2" archimateElement="61fa96d7">
-        <bounds x="847" y="138"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="bd5ceddc" textAlignment="2" archimateElement="e47cceeb">
-        <bounds x="888" y="72"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="04c2662c" textAlignment="2" archimateElement="e8363f77">
-        <bounds x="611" y="894"/>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" id="d8076c08" name="Master: Motivation" viewpoint="22">
