@@ -1,193 +1,195 @@
+export host=<hostname>
+export unamepwd=lbadmin:123qweasd!
 
 Create v1 user:
 
-  curl -u lbadmin:123qweasd!   -X PUT -H Content-Type:application/json -d @create-v1-user.json http://localhost:8080/data/user/1.0.0
+ ./callb.sh   -X PUT  -d @create-v1-user.json ${host}/data/user/1.0.0
 
 Simple find v1 user:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar'|tee /tmp/out.json
+ ./callb.sh -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar'
 
 Simple find with projection, login and sites:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites:1'|tee /tmp/out.json
+ ./callb.sh -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites:1'
 
 
 Projection examples:
 
 All site elements:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*:1'|tee /tmp/out.json
+ ./callb.sh -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*:1'
 
 All site elements and first level content:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.*:1'|tee /tmp/out.json
+ ./callb.sh  -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.*:1'
 
 All sites, recursively:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*:1r'|tee /tmp/out.json
+ ./callb.sh  -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*:1r'
 
 All site usages:
 
-  curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.usages.*:1r'|tee /tmp/out.json
+ ./callb.sh -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.usages.*:1r'
 
 Usages of the first site:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.0.usages.*:1r'|tee /tmp/out.json
+ ./callb.sh  -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.0.usages.*:1r'
 
 First usages of all sites:
 
-  curl -u lbadmin:123qweasd!  -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.usages.0.*:1r'|tee /tmp/out.json
+ ./callb.sh  -X GET '${host}/data/find/user/1.0.0?Q=login:bserdar&P=login:1,sites.*.usages.0.*:1r'
 
 Sorting:
 All NC users, sorted by login, asc:
 
-curl -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=sites.*.streetAddress.state:NC&P=login:1&S=login:a'|tee /tmp/out.json
+ ./callb.sh -X GET '${host}/data/find/user/1.0.0?Q=sites.*.streetAddress.state:NC&P=login:1&S=login:a'
 
-curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:a'|tee /tmp/out.json
-curl  -u lbadmin:123qweasd! -X GET 'http://localhost:8080/data/find/user/1.0.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:d'|tee /tmp/out.json
+ ./callb.sh  -X GET '${host}/data/find/user/1.0.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:a'
+ ./callb.sh -X GET '${host}/data/find/user/1.0.0?Q=sites.0.streetAddress.state:NC&P=login:1&S=login:d'
 
 POST queries:
 
 login:bserdar
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
   "object_type":"user",
   "returning": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 Logical operations:
 
 login:bserdar and site.0.streetAddress.state:CO
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
   "object_type":"user",
   "returning": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
   "query":  { "$and" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"sites.0.streetAddress.state","op":"$eq","rvalue":"CO"} ] },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
-  curl -X GET 'http://localhost:8080/data/find/user/1.0?Q=login:bserdar,sites.0.streetAddress.state:CO'|tee /tmp/out.json
+  ./callb.sh -X GET '${host}/data/find/user/1.0?Q=login:bserdar,sites.0.streetAddress.state:CO'
 
 login=bserdar or login!=bserdar
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "$or" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"login","op":"$neq","rvalue":"bserdar"} ] },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 
 Regex search:
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*"},
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+  ./callb.sh -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "case_insensitive":1},
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 Field as rvalue, not supported directly by mongo:
 
 personalInfo.firstName!=sites.0.firstName
 
-curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "op":"$neq", "rfield":"sites.0.firstName"},
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 
 Array search: users with active sites, list only active sites
 
-curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"_id"}, {"field":"sites","project":{"field":"*"}} ],
   "query":  { "array":"sites","elemMatch":{"field":"active","op":"$eq","rvalue":1} },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 
 More involved projections:
 
 Return a few fields:
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"}],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 Exclude some of "personalInfo":
 
-curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"},{"field":"personalInfo.email","include":false}],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 Exclude sites:
 
-curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"*","recursive":1}, {"field":"sites","include":false} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 Array projections:
 
 Sites[0,1]:
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+  ./callb.sh -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"sites", "range":[0,1] } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 
 Get only active sites:
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"sites", "match":{ "field":"active", "op":"=","rvalue":true }, "project":{"field":"*","recursive":1} } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 Get only default sites, project description:
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
   "object_type":"user",
   "returning": [ { "field":"login"}, {"field":"sites", "match":{ "field":"defaultSite", "op":"=","rvalue":true }, "project":{"field":"description"} } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10]
-}'  http://localhost:8080/data/find/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/find/user/1.0.0
 
 
 
@@ -195,66 +197,66 @@ Updates:
 
 Save user:
 
-   curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d @save-v1-user.json http://localhost:8080/data/save/user/1.0.0|tee /tmp/out.json
+  ./callb.sh -X POST  -d @save-v1-user.json ${host}/data/save/user/1.0.0
 
 Update some fields of user:
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": [ {"$set": {"contactPermissions.allowEmailContact":true} } ]
-}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
+}' ${host}/data/update/user/1.0.0
 
 Remove an array element (sites[0])
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": [ {"$unset": "sites.0" } ]
-}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
+}' ${host}/data/update/user/1.0.0
 
 Inactivate non-default site:
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": { "$foreach" : { "sites" : { "field":"defaultSite","op":"=","rvalue":0 },
                             "$update" : { "$set" : {"active":0}} } }
-}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
+}' ${host}/data/update/user/1.0.0
 
 
 Delete inactive sites:
 
-  curl  -u lbadmin:123qweasd! -X POST -H Content-Type:application/json -d '{
+ ./callb.sh -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": { "$foreach" : { "sites" : { "field":"active","op":"=","rvalue":0 },
                             "$update" : "$remove" }}
-}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
+}' ${host}/data/update/user/1.0.0
 
 Add a new empty site:
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
 "update": { "$append" : {"sites":{ } } }
-}' http://localhost:8080/data/update/user/1.0.0|tee /tmp/out.json
+}' ${host}/data/update/user/1.0.0
 
 
 Delete:
 
-  curl -u lbadmin:123qweasd!  -X POST -H Content-Type:application/json -d '{
+ ./callb.sh  -X POST  -d '{
 "object_type":"user",
 "query":  { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] }
-}'  http://localhost:8080/data/delete/user/1.0.0|tee /tmp/out.json
+}'  ${host}/data/delete/user/1.0.0

@@ -1,39 +1,40 @@
+export host=<hostname>
 
 Create user metadata v1.0.0:
  
- curl -X PUT  -H Content-type:application/json -d @usermd-v1.0.0.json http://localhost:8080/metadata/user/1.0.0|tee out.json
+ ./callb.sh -X PUT   -d @usermd-v1.0.0.json ${host}/metadata/user/1.0.0
 
 Get all entity names:
-  curl http://localhost:8080/metadata|tee out.json
+  ./callb.sh ${host}/metadata
 
 Get user versions:
-  curl http://localhost:8080/metadata/user|tee out.json
+  ./callb.sh ${host}/metadata/user
 
 Get user 1.0.0
-  curl http://localhost:8080/metadata/user/1.0.0|tee out.json
+  ./callb.sh ${host}/metadata/user/1.0.0
 
 No index in user 1.0.0, add unique index:
 
-  curl -X PUT -H Content-type:application/json -d@usermd-ei-index.json http://localhost:8080/metadata/user|tee out.json
+  ./callb.sh -X PUT  -d@usermd-ei-index.json ${host}/metadata/user
 
 Get user 1.0.0
-  curl http://localhost:8080/metadata/user/1.0.0|tee out.json
+  ./callb.sh ${host}/metadata/user/1.0.0
 
 
 Create new user schema v2.0.0, add new field lastLoginDate:
 
-  curl -X PUT -H Content-type:application/json -d@usermd-v2.0.0.json http://localhost:8080/metadata/user/schema=2.0.0|tee out.json
+  ./callb.sh -X PUT  -d@usermd-v2.0.0.json ${host}/metadata/user/schema=2.0.0
 
 Get user versions:
-  curl http://localhost:8080/metadata/user|tee out.json
+  ./callb.sh ${host}/metadata/user
 
 Get user 2.0
-  curl http://localhost:8080/metadata/user/2.0.0|tee out.json
+  ./callb.sh ${host}/metadata/user/2.0.0
 
 
 Set v2 as default
 
-  curl -X POST http://localhost:8080/metadata/user/2.0.0/default|tee out.json
+  ./callb.sh -X POST ${host}/metadata/user/2.0.0/default
 
 
 
