@@ -19,8 +19,6 @@
 package com.redhat.lightblue.metadata.constraints;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.redhat.lightblue.metadata.Type;
 
@@ -50,6 +48,6 @@ public class ReferencesConstraint implements FieldConstraint, Serializable {
     }
 
     public void setReference(Reference r) {
-        reference=r;
+        reference = r;
     }
 }

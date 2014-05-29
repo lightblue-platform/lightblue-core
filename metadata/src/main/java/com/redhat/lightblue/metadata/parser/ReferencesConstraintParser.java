@@ -18,9 +18,6 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.constraints.Reference;
@@ -53,8 +50,8 @@ public class ReferencesConstraintParser<T> implements FieldConstraintParser<T> {
 
     @Override
     public void convert(MetadataParser<T> p, T emptyNode, FieldConstraint object) {
-        T node=p.newNode();
-        Reference ref=((ReferencesConstraint)object).getReference();
+        T node = p.newNode();
+        Reference ref = ((ReferencesConstraint) object).getReference();
         if (ref.getEntityName() != null) {
             p.putString(node, "entityName", ref.getEntityName());
         }
@@ -64,7 +61,7 @@ public class ReferencesConstraintParser<T> implements FieldConstraintParser<T> {
         if (ref.getEntityField() != null) {
             p.putString(node, "entityField", ref.getEntityField());
         }
-        p.putObject(emptyNode,ReferencesConstraint.REFERENCES,node);
+        p.putObject(emptyNode, ReferencesConstraint.REFERENCES, node);
     }
 
 }

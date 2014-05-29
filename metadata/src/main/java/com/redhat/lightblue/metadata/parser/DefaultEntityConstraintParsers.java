@@ -22,8 +22,6 @@ import com.redhat.lightblue.util.DefaultResolver;
 
 import com.redhat.lightblue.metadata.EntityConstraint;
 
-import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
-
 /**
  * Convenience class to register all predefined constraint parsers to MetadataParser
  */

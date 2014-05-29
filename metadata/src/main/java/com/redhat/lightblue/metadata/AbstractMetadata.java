@@ -35,10 +35,8 @@ public abstract class AbstractMetadata implements Metadata {
      * @param ei
      */
     protected final void validateDefaultVersion(EntityInfo ei) {
-        if (ei.getDefaultVersion() != null) {
-            if (!checkVersionExists(ei.getName(), ei.getDefaultVersion())) {
-                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_INVALID_DEFAULT_VERSION, ei.getName() + ":" + ei.getDefaultVersion());
-            }
+        if (ei.getDefaultVersion() != null && !checkVersionExists(ei.getName(), ei.getDefaultVersion())) {
+            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_INVALID_DEFAULT_VERSION, ei.getName() + ":" + ei.getDefaultVersion());
         }
     }
 
