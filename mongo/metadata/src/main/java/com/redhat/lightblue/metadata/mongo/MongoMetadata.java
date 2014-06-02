@@ -298,13 +298,14 @@ public class MongoMetadata extends AbstractMetadata {
                 }
                 if(createIx) {
                     BasicDBObject options=new BasicDBObject("unique",index.isUnique());
-                    options.append("name",index.getName());
+                    if(index.getName()!=null&&index.getName().trim().length()>0)
+                        options.append("name",index.getName().trim());
                     entityCollection.createIndex(newIndex, options);
                 }
             }
         } catch (MongoException me) {
             LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
-            throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED);
+            throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED,me.getMessage());
         } finally {
             Error.pop();
         }
