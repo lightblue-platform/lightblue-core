@@ -263,7 +263,7 @@ public class MongoMetadata extends AbstractMetadata {
         MongoDataStore ds = (MongoDataStore) ei.getDataStore();
         DB entityDB = dbResolver.get(ds);
         DBCollection entityCollection = entityDB.getCollection(ds.getCollectionName());
-
+        boolean createIx=true;
         Error.push("createUpdateIndex");
         try {
             for (Index index : indexes.getIndexes()) {
@@ -274,24 +274,33 @@ public class MongoMetadata extends AbstractMetadata {
                 List<DBObject> existingIndexes = entityCollection.getIndexInfo();
 
                 for (DBObject existingIndex : existingIndexes) {
-                    if (indexFieldsMatch(index, existingIndex) && !indexOptionsMatch(index, existingIndex)) {
-                        // There can be two indexes with different options, if
-                        // that's the case, don't drop
-                        boolean found = false;
-                        for (Index trc : indexes.getIndexes()) {
-                            if (trc != index && indexFieldsMatch(trc, existingIndex) && indexOptionsMatch(trc, existingIndex)) {
-                                found = true;
-                                break;
+                    if (indexFieldsMatch(index, existingIndex)) {
+                        if(!indexOptionsMatch(index, existingIndex)) {
+                            // There can be two indexes with different options, if
+                            // that's the case, don't drop
+                            boolean found = false;
+                            for (Index trc : indexes.getIndexes()) {
+                                if (trc != index && indexFieldsMatch(trc, existingIndex) && indexOptionsMatch(trc, existingIndex)) {
+                                    found = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (!found) {
-                            entityCollection.dropIndex(existingIndex.get("name").toString());
-                            break;
+                            if (!found) {
+                                // Changing index options, drop the index using its name, recreate with new options
+                                entityCollection.dropIndex(existingIndex.get("name").toString());
+                                break;
+                            } 
+                        } else {
+                            // Identical index found, don't create a new one
+                            createIx=false;
                         }
                     }
                 }
-
-                entityCollection.ensureIndex(newIndex, index.getName(), index.isUnique());
+                if(createIx) {
+                    BasicDBObject options=new BasicDBObject("unique",index.isUnique());
+                    options.append("name",index.getName());
+                    entityCollection.createIndex(newIndex, options);
+                }
             }
         } catch (MongoException me) {
             LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
