@@ -23,7 +23,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +62,8 @@ public class MongoConfiguration implements DataSourceConfiguration {
 
     private Integer connectionsPerHost;
     private String database;
-    private Boolean ssl = Boolean.FALSE;
+    private boolean ssl = Boolean.FALSE;
+    private boolean noCertValidation = Boolean.FALSE;
     private Class metadataDataStoreParser = MongoDataStoreParser.class;
 
     public void addServerAddress(String hostname, int port) throws UnknownHostException {
@@ -118,15 +124,29 @@ public class MongoConfiguration implements DataSourceConfiguration {
     /**
      * @return the ssl
      */
-    public Boolean getSsl() {
+    public boolean isSsl() {
         return ssl;
     }
 
     /**
      * @param ssl the ssl to set
      */
-    public void setSsl(Boolean ssl) {
+    public void setSsl(boolean ssl) {
         this.ssl = ssl;
+    }
+
+    /**
+     * If true, ssl certs are not validated
+     */
+    public boolean isNoCertValidation() {
+        return noCertValidation;
+    }
+
+    /**
+     * If true, ssl certs are not validated
+     */
+    public void setNoCertValidation(boolean b) {
+        noCertValidation=b;
     }
 
     /**
@@ -141,6 +161,36 @@ public class MongoConfiguration implements DataSourceConfiguration {
      */
     public void setDatabase(String s) {
         database = s;
+    }
+
+    private static TrustManager[] trustAllCerts = new TrustManager[] { 
+        new X509TrustManager() {     
+            public X509Certificate[] getAcceptedIssuers() { 
+                return null;
+            } 
+            public void checkClientTrusted(X509Certificate[] certs, 
+                                           String authType) {
+            } 
+            public void checkServerTrusted(X509Certificate[] certs, 
+                                           String authType) {
+            }
+        } 
+    }; 
+
+
+    private SocketFactory getSocketFactory() {
+        try {
+            if(noCertValidation!=null&&noCertValidation) {
+                LOGGER.warn("Certificate validation is off, don't use this in production");
+                SSLContext sc = SSLContext.getInstance("SSL"); 
+                sc.init(null, trustAllCerts, new java.security.SecureRandom()); 
+                return sc.getSocketFactory();
+            } else {
+                return SSLSocketFactory.getDefault();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -159,7 +209,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
         if (ssl != null && ssl) {
             // taken from MongoClientURI, written this way so we don't have to
             // construct a URI to connect
-            builder.socketFactory(SSLSocketFactory.getDefault());
+            builder.socketFactory(getSocketFactory());
         }
 
         return builder.build();
@@ -187,7 +237,10 @@ public class MongoConfiguration implements DataSourceConfiguration {
         } else {
             bld.append("servers:").append(servers).append('\n');
         }
-        bld.append("connectionsPerHost:").append(connectionsPerHost).append('\n').append("database:").append(database).append('\n').append("ssl:").append(ssl);
+        bld.append("connectionsPerHost:").append(connectionsPerHost).append('\n').
+            append("database:").append(database).append('\n').
+            append("ssl:").append(ssl).append('\n').
+            append("noCertValidation:").append(noCertValidation);
         return bld.toString();
     }
 
@@ -201,6 +254,10 @@ public class MongoConfiguration implements DataSourceConfiguration {
             x = node.get("ssl");
             if (x != null) {
                 ssl = x.asBoolean();
+            }
+            x = node.get("noCertValidation");
+            if(x!=null) {
+                noValidateCerts = x.asBoolean();
             }
             x = node.get("metadataDataStoreParser");
             try {
