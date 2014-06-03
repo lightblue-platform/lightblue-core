@@ -80,7 +80,6 @@ public class MongoConfigurationTest {
 
     @Test
     public void testGetMongoClientOptions() {
-        config.setSsl(null);
         MongoClientOptions.Builder builder = MongoClientOptions.builder();
         builder.connectionsPerHost(10);
 
@@ -90,7 +89,6 @@ public class MongoConfigurationTest {
     @Test
     public void testGetMongoClientOptionsConnectionsPerHostNull() {
         config.setConnectionsPerHost(null);
-        config.setSsl(null);
         MongoClientOptions.Builder builder = MongoClientOptions.builder();
 
         Assert.assertEquals(builder.build(), config.getMongoClientOptions());

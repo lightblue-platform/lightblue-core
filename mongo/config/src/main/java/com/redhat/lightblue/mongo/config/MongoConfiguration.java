@@ -180,7 +180,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
 
     private SocketFactory getSocketFactory() {
         try {
-            if(noCertValidation!=null&&noCertValidation) {
+            if(noCertValidation) {
                 LOGGER.warn("Certificate validation is off, don't use this in production");
                 SSLContext sc = SSLContext.getInstance("SSL"); 
                 sc.init(null, trustAllCerts, new java.security.SecureRandom()); 
@@ -206,7 +206,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
             builder.connectionsPerHost(connectionsPerHost);
         }
 
-        if (ssl != null && ssl) {
+        if (ssl) {
             // taken from MongoClientURI, written this way so we don't have to
             // construct a URI to connect
             builder.socketFactory(getSocketFactory());
@@ -257,7 +257,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
             }
             x = node.get("noCertValidation");
             if(x!=null) {
-                noValidateCerts = x.asBoolean();
+                noCertValidation = x.asBoolean();
             }
             x = node.get("metadataDataStoreParser");
             try {
