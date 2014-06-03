@@ -246,6 +246,28 @@ public class MongoMetadataTest {
         Assert.assertEquals("testEntity", names[0]);
     }
 
+    /**
+     * Issue #13: if you create it twice, the error thrown for the second one cleans up the first
+     */
+    @Test
+    public void createMd2Test() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+        Assert.assertNotNull(md.getEntityMetadata("testEntity", "1.0.0"));
+        try {
+            md.createNewMetadata(e);
+            Assert.fail();
+        } catch (Exception x) {}
+        Assert.assertNotNull(md.getEntityMetadata("testEntity", "1.0.0"));
+    }
+
     @Test
     public void updateStatusTest() throws Exception {
         EntityMetadata e2 = new EntityMetadata("testEntity");
