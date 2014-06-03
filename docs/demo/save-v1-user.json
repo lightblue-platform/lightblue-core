@@ -1,11 +1,11 @@
 {
 "object_type":"user",
-"version":"1.0",
+"version":"1.0.0",
 "returning":{
   "field":"_id"
   },
 "data":[{
-    "_id": "123",
+    "_id": "1234",
     "object_type":"user",
     "login":"bserdar",
     "password":{

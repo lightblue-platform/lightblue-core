@@ -1,0 +1,19 @@
+# Tests of metadata service.
+---
+- config:
+    - testset: "Metadata Test"
+- test: # verify getting entity name list
+    - url: "/metadata" 
+    - group: "metadata"
+    - method: "GET"
+    - expected_status: 200
+    - validators: # operator is applied as: <actual> <operator> <expected>
+        - {type: "json", query: "entities", operator: "gt", expected: 0}
+        - {type: "json", query: "entities", operator: "contains", expected: "user"}
+- test: # verify get verisons for valid entity
+    - url: "/metadata/user"
+    - group: "metadata"
+- test: # verify get verisons for invalid entity
+    - url: "/metadata/userX" 
+    - group: "metadata"
+
