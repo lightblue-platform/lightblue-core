@@ -233,21 +233,30 @@ public class MongoMetadata extends AbstractMetadata {
 
             Error.push("writeEntity");
             try {
-                WriteResult result = new InsertCommand(null, collection, new DBObject[]{infoObj, schemaObj}, WriteConcern.SAFE).execute();
-                LOGGER.debug("createNewMetadata: insertion complete");
+                WriteResult result = new InsertCommand(null, collection, infoObj, WriteConcern.SAFE).execute();
+                LOGGER.debug("Inserted entityInfo");
                 String error = result.getError();
                 if (error != null) {
-                    cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
-                    LOGGER.error("createNewMetadata: error {}" + error);
+                    LOGGER.error("createNewMetadata: error in createInfo: {}" + error);
+                    throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+                }
+            } catch (MongoException.DuplicateKey dke) {
+                LOGGER.error("createNewMetadata: duplicateKey {}", dke);
+                throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
+            }
+            try {
+                WriteResult result = new InsertCommand(null, collection, schemaObj, WriteConcern.SAFE).execute();
+                String error = result.getError();
+                if (error != null) {
+                    LOGGER.error("createNewMetadata: error in createSchema: {}" + error);
+                    new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
                     throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
                 }
                 createUpdateEntityInfoIndexes(md.getEntityInfo());
             } catch (MongoException.DuplicateKey dke) {
                 LOGGER.error("createNewMetadata: duplicateKey {}", dke);
-                cleanup(infoObj.get(LITERAL_ID), schemaObj.get(LITERAL_ID));
+                new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
                 throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
-            } finally {
-                Error.pop();
             }
         } finally {
             Error.pop();
@@ -341,18 +350,6 @@ public class MongoMetadata extends AbstractMetadata {
 
     private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
         return existingIndex.get("unique").equals(index.isUnique());
-    }
-
-    private void cleanup(Object... ids) {
-        for (Object id : ids) {
-            if (id != null) {
-                try {
-                    new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, id)).execute();
-                } catch (Exception e) {
-                    LOGGER.error("Cleanup error while removing IDs: {} error:{}", ids, e);
-                }
-            }
-        }
     }
 
     @Override
