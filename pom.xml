@@ -174,7 +174,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>query-api</module>
         <module>crud</module>
         <module>metadata</module>
-        <module>mongo</module>
+        <module>lightblue-mongo</module>
         <module>util</module>
         <module>lightblue-rest</module>
         <module>config</module>
