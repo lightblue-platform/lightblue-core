@@ -62,7 +62,7 @@
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
-        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty"}
+        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty", expected: ""}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "active"}
 
@@ -98,7 +98,7 @@
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
-        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty"}
+        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty", expected: ""}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "active"}
 - test: # verify get specific version (v2 exists and is active)
@@ -107,7 +107,7 @@
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
-        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty"}
+        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty", expected: ""}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_2}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "active"}
 
@@ -134,7 +134,7 @@
     - method: "GET"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
-        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty"}
+        - {type: "json", query: "entityInfo/defaultVersion", operator: "empty", expected: ""}
         - {type: "json", query: "entityInfo/indexes", count: 1}
 
 # Test default functionality
@@ -147,9 +147,9 @@
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_2}"}
-        - {type: "json", query: "entityInfo/defaultVersion", operator: "eq", value: "${ENTITY_VERSION_2}"}
+        - {type: "json", query: "entityInfo/defaultVersion", operator: "eq", expected: "${ENTITY_VERSION_2}"}
 
-# Deprecated v1.
+# Deprecate v1.
 
 - test: # do deprecation
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/deprecated?comment=testing+deprecation"
@@ -169,4 +169,25 @@
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "deprecated"}
         - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing deprecation"}
+
+# Disable v1.
+
+- test: # do disabling
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/disabled?comment=testing+disabled"
+    - group: "metadata/update"
+    - method: "PUT"
+    - validators: # operator is applied as: <actual> <operator> <expected>
+        - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
+        - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
+        - {type: "json", query: "schema/status/value", operator: "eq", expected: "disabled"}
+        - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing disabled"}
+- test: # verify find gets same disabled version
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
+    - group: "metadata/find"
+    - method: "GET"
+    - validators: # operator is applied as: <actual> <operator> <expected>
+        - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
+        - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
+        - {type: "json", query: "schema/status/value", operator: "eq", expected: "disabled"}
+        - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing disabled"}
 
