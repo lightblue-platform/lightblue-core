@@ -1,0 +1,5 @@
+{
+    "field": "login",
+    "op": "$in",
+    "values": ["1", "asdf"]
+}

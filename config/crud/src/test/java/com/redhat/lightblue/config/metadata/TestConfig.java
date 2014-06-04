@@ -1,0 +1,1 @@
+../../../../../../../../../metadata/src/test/java/com/redhat/lightblue/config/metadata/TestConfig.java

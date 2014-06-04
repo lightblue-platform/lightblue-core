@@ -1,0 +1,101 @@
+{
+    "$any": [
+        {
+            "field": "login",
+            "op": "$eq",
+            "rfield": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$neq",
+            "rfield": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$lt",
+            "rfield": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$gt",
+            "rfield": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$lte",
+            "rfield": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$gte",
+            "rfield": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$eq",
+            "rvalue": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$neq",
+            "rvalue": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$lt",
+            "rvalue": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$gt",
+            "rvalue": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$lte",
+            "rvalue": "someuser"
+        },
+        {
+            "field": "login",
+            "op": "$gte",
+            "rvalue": "someuser"
+        },
+        {
+            "field": "login",
+            "regex": "something",
+            "case_insensitive": true
+        },
+        {
+            "array": "email",
+            "contains": "$any",
+            "values": [
+                "1",
+                "2"
+            ]
+        },
+        {
+            "array": "email",
+            "contains": "$all",
+            "values": [
+                "1",
+                "2"
+            ]
+        },
+        {
+            "array": "email",
+            "contains": "$none",
+            "values": [
+                "1",
+                "2"
+            ]
+        },
+        {
+            "array": "email",
+            "elemMatch": {
+                "field": "secondaryEmail",
+                "op": "$neq",
+                "rfield": "email"
+            }
+        }
+    ]
+}

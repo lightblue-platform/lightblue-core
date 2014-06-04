@@ -1,0 +1,43 @@
+{
+    "entityInfo": {
+        "name": "test",
+        "defaultVersion": {
+            "invalid": "1.0"
+        },
+        "indexes": [
+            {
+                "unique": true,
+                "fields": ["name"]
+            }
+        ],
+        "datastore": {
+            "empty": {
+            }
+        }
+    },
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "Initial version"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": ["admin"],
+            "find": ["admin", "all"],
+            "update": ["admin"],
+            "delete": ["admin"]
+        },
+        "fields": {
+            "name": {
+                "type": "string"
+            },
+            "counter": {
+                "type": "integer"
+            }
+        }
+    }
+}
+

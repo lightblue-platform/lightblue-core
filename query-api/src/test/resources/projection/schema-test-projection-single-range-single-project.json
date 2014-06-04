@@ -1,0 +1,13 @@
+{
+    "field": "address.*",
+    "include": true,
+    "range": [
+        0,
+        4
+    ],
+    "project": {
+        "field": ".*",
+        "include": true,
+        "recursive": true
+    }
+}

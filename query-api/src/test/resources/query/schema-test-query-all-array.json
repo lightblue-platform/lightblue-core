@@ -1,0 +1,14 @@
+{
+    "$all": [
+        {
+            "field": "age",
+            "op": "$gte",
+            "rfield": "18"
+        },
+        {
+            "field": "login",
+            "op": "$eq",
+            "rfield": "someuser"
+        }
+    ]
+}

@@ -1,0 +1,36 @@
+{
+    "date": "20131108 1120000000",
+    "clientId": "asdf",
+    "request": {
+        "find": {
+            "object_type": "some_entity",
+            "clientId": "1",
+            "execution": {
+                "timeLimit": 5000,
+                "asynchronous": 4500
+            },
+            "returning": {
+                "field": "firstname",
+                "include": true,
+                "recursive": true
+            },
+            "query": {
+                "field": "login",
+                "op": "$eq",
+                "rfield": "someuser"
+            },
+            "range": [
+                0,
+                10
+            ],
+            "sort": {
+                "login": "$asc"
+            }
+        }
+    },
+    "response": {
+        "object_type": "some_entity",
+        "login": "asdf",
+        "somefield": "asdf"
+    }
+}

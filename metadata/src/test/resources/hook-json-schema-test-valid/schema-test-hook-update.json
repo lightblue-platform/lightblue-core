@@ -1,0 +1,39 @@
+{
+    "date": "20131108 1120000000",
+    "clientId": "asdf",
+    "request": {
+        "update": {
+            "object_type": "some_entity",
+            "clientId": "asdf",
+            "execution": {
+                "timeLimit": 5000,
+                "asynchronous": 4500
+            },
+            "returning": {
+                "field": "firstname",
+                "include": true,
+                "recursive": true
+            },
+            "query": {
+                "field": "login",
+                "op": "$eq",
+                "rfield": "someuser"
+            },
+            "update": {
+                "$set": {
+                    "firstName": "new name"
+                }
+            }
+        }
+    },
+    "response": {
+        "object_type": "some_entity",
+        "firstname": "new name"
+    },
+    "before": {
+        "firstname": "old name"
+    },
+    "after": {
+        "firstname": "new name"
+    }
+}
