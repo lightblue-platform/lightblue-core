@@ -18,26 +18,10 @@
  */
 package com.redhat.lightblue.rest.metadata;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+import com.redhat.lightblue.rest.metadata.hystrix.*;
 
-import com.redhat.lightblue.rest.metadata.hystrix.CreateEntityMetadataCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.CreateEntitySchemaCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.GetDependenciesCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.GetEntityMetadataCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.GetEntityNamesCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.GetEntityRolesCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.GetEntityVersionsCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntityInfoCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.UpdateEntitySchemaStatusCommand;
-import com.redhat.lightblue.rest.metadata.hystrix.SetDefaultVersionCommand;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author nmalik
