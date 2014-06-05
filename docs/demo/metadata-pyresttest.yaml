@@ -7,13 +7,13 @@
 ---
 - config:
     - testset: "Metadata Test"
-    - headers: {Content-Type: application/json}
 
 # Tests that do not require any specific state.
 
 - test: # verify get verisons for invalid entity
     - name: "Invalid Entity"
     - url: "/metadata/ThisEntityDoesNotExist" 
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "versions", count: 0}
@@ -23,6 +23,7 @@
 - test: # verify initial state, should not have any versions for the entity being tested
     - name: "Initial State"
     - url: "/metadata/${ENTITY_NAME}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators:
         - {type: "json", query: "entities", count: 0}
@@ -32,6 +33,7 @@
 - test: # create entity
     - name: "Create Metadata"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/insert"
     - method: "PUT"
     - body: {file: "test-metadata-insert.json"}
@@ -43,6 +45,7 @@
 - test: # verify getting entity name list
     - name: "Verify Create: /metadata"
     - url: "/metadata" 
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - method: "GET"
     - expected_status: 200
@@ -52,12 +55,14 @@
 - test: # verify get verisons for valid entity
     - name: "Verify Create: /metadata/entity"
     - url: "/metadata/${ENTITY_NAME}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "versions", count: 1}
 - test: # verify get specific version
     - name: "Verify Create: /metadata/entity/v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
@@ -70,6 +75,7 @@
 - test: # create schema
     - name: "Create Schema"
     - url: "/metadata/${ENTITY_NAME}/schema=${ENTITY_VERSION_2}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/insert"
     - method: "PUT"
     - body: {file: "test-metadata-update-v2.json"}
@@ -81,6 +87,7 @@
 - test: # verify getting entity name list
     - name: "Verify Schema: /metadata"
     - url: "/metadata" 
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - method: "GET"
     - expected_status: 200
@@ -90,12 +97,14 @@
 - test: # verify get verisons for valid entity
     - name: "Verify Schema: /metadata/entity"
     - url: "/metadata/${ENTITY_NAME}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
-        - {type: "json", query: "versions", operator: "eq", expected: 2}
+        - {type: "json", query: "versions", count: 2}
 - test: # verify get specific version (v1 is still active)
     - name: "Verify Schema: /metadata/entity/v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
@@ -105,6 +114,7 @@
 - test: # verify get specific version (v2 exists and is active)
     - name: "Verify Schema: /metadata/entity/v2"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
@@ -117,20 +127,23 @@
 - test: # verify has no index initially
     - name: "Verify Index Missing"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - method: "GET"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
-        - {type: "json", query: "entityInfo/indexes", count: 0}
+        - {type: "json", query: "entityInfo/indexes", operator: "empty", expected: ""}
 - test: # add index
     - name: "Add Index"
     - url: "/metadata/${ENTITY_NAME}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "PUT"
     - body: {file: "test-metadata-update-index.json"}
 - test: # verify has index after update
     - name: "Verify Index Added"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - method: "GET"
     - validators: # operator is applied as: <actual> <operator> <expected>
@@ -143,7 +156,8 @@
 
 - test: # make v2 default
     - name: "Update Default: v2"
-    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/default"
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}/default"
+    - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "POST"
     - validators: # operator is applied as: <actual> <operator> <expected>
@@ -155,45 +169,51 @@
 
 - test: # do deprecation
     - name: "Deprecate: v1"
-    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/deprecated?comment=testing+deprecation"
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/deprecated"
+    - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "PUT"
+    - body: "testing deprecation"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "deprecated"}
-        - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing deprecation"}
+#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing deprecation"}
 - test: # verify find gets same deprecated version
     - name: "Verify Deprecation: v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - method: "GET"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "deprecated"}
-        - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing deprecation"}
+#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing deprecation"}
 
 # Disable v1.
 
 - test: # do disabling
     - name: "Disable: v1"
-    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/disabled?comment=testing+disabled"
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/disabled"
+    - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "PUT"
+    - body: "testing disabled"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "disabled"}
-        - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing disabled"}
+#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing disabled"}
 - test: # verify find gets same disabled version
     - name: "Verify Disabled: v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
+    - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - method: "GET"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "disabled"}
-        - {type: "json", query: "schema/status/changelog", operator: "eq", expected: "testing disabled"}
+#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing disabled"}
 
