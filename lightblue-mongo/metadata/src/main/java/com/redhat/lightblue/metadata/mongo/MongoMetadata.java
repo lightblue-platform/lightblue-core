@@ -64,7 +64,9 @@ import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.VersionInfo;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.mongo.hystrix.FindCommand;
 import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
 import com.redhat.lightblue.mongo.hystrix.InsertCommand;
@@ -85,6 +87,7 @@ public class MongoMetadata extends AbstractMetadata {
     private static final String LITERAL_ID = "_id";
     private static final String LITERAL_ENTITY_NAME = "entityName";
     private static final String LITERAL_VERSION = "version";
+    private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_NAME = "name";
 
     private final transient DBCollection collection;
@@ -180,24 +183,38 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     @Override
-    public Version[] getEntityVersions(String entityName) {
+    public VersionInfo[] getEntityVersions(String entityName) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
         Error.push("getEntityVersions(" + entityName + ")");
         try {
+            // Get the default version
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
+            DBObject ei = new FindOneCommand(null, collection, query).execute();
+            String defaultVersion = ei==null?null:(String)ei.get("defaultVersion");
+
             // query by name but only return documents that have a version
-            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName)
+            query = new BasicDBObject(LITERAL_NAME, entityName)
                     .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
-            BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
-            project.append(LITERAL_ID, 0);
+            DBObject project = new BasicDBObject(LITERAL_VERSION, 1).
+                append(LITERAL_STATUS, 1).
+                append(LITERAL_ID, 0);
             DBCursor cursor = new FindCommand(null, collection, query, project).execute();
             int n = cursor.count();
-            Version[] ret = new Version[n];
+            VersionInfo[] ret = new VersionInfo[n];
             int i = 0;
             while (cursor.hasNext()) {
                 DBObject object = cursor.next();
-                ret[i++] = mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
+                ret[i]=new VersionInfo();
+                Version v=mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
+                ret[i].setValue(v.getValue());
+                ret[i].setExtendsVersions(v.getExtendsVersions());
+                ret[i].setChangelog(v.getChangelog());
+                ret[i].setStatus(MetadataParser.statusFromString((String)((DBObject)object.get(LITERAL_STATUS)).get("value")));
+                if(defaultVersion!=null&&defaultVersion.equals(ret[i].getValue()))
+                    ret[i].setDefault(true);
+                i++;
             }
             return ret;
         } finally {

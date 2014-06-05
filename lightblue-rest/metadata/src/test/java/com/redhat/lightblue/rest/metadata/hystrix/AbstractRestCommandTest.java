@@ -23,7 +23,7 @@ import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.VersionInfo;
 
 /**
  *
@@ -64,9 +64,9 @@ public abstract class AbstractRestCommandTest {
         }
 
         @Override
-        public Version[] getEntityVersions(String entityName) {
+        public VersionInfo[] getEntityVersions(String entityName) {
             args = new Object[]{entityName};
-            return new Version[]{};
+            return new VersionInfo[]{};
         }
 
         @Override

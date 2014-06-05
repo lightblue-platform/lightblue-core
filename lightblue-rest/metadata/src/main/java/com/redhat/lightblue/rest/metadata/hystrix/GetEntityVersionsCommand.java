@@ -21,7 +21,8 @@ package com.redhat.lightblue.rest.metadata.hystrix;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.VersionInfo;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import com.redhat.lightblue.util.Error;
@@ -52,15 +53,25 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
         Error.reset();
         Error.push(getClass().getSimpleName());
         try {
-            Version[] versions = getMetadata().getEntityVersions(entity);
-            ObjectNode node = NODE_FACTORY.objectNode();
+            VersionInfo[] versions = getMetadata().getEntityVersions(entity);
             ArrayNode arr = NODE_FACTORY.arrayNode();
-            node.put("versions", arr);
+
             JSONMetadataParser parser = getJSONParser();
-            for (Version x : versions) {
-                arr.add(parser.convert(x));
+            for (VersionInfo x : versions) {
+                ObjectNode obj=NODE_FACTORY.objectNode();
+                obj.put("version",x.getValue());
+                obj.put("changelog",x.getChangelog());
+                ArrayNode ev=NODE_FACTORY.arrayNode();
+                if(x.getExtendsVersions()!=null) {
+                    for(String v:x.getExtendsVersions())
+                        ev.add(NODE_FACTORY.textNode(v));
+                }
+                obj.set("extendsVersions",ev);
+                obj.put("status",MetadataParser.toString(x.getStatus()));
+                obj.put("defaultVersion",x.isDefault());
+                arr.add(obj);
             }
-            return node.toString();
+            return arr.toString();
         } catch (Error e) {
             return e.toString();
         } catch (Exception e) {
