@@ -54,7 +54,7 @@
     - url: "/metadata/${ENTITY_NAME}"
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
-        - {type: "json", query: "versions", operator: "eq", expected: 1}
+        - {type: "json", query: "versions", count: 1}
 - test: # verify get specific version
     - name: "Verify Create: /metadata/entity/v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
@@ -69,7 +69,7 @@
 
 - test: # create schema
     - name: "Create Schema"
-    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
+    - url: "/metadata/${ENTITY_NAME}/schema=${ENTITY_VERSION_2}"
     - group: "metadata/insert"
     - method: "PUT"
     - body: {file: "test-metadata-update-v2.json"}
