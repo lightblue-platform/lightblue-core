@@ -4,10 +4,6 @@
 #   if supply expected can optionally specify operator
 #   operator defaults to "eq", available values are: abs contains eq ge gt index inv invert le lt ne neg not pos truth
 #   operator is applied as: <actual> <operator> <expected>
-# Priority:
-#   basically indicates order of execution
-#   same priority means can be executed in parallel
-#   lower number is more important and gets executed first
 ---
 - config:
     - testset: "Metadata Test"
@@ -15,7 +11,6 @@
 # Tests that do not require any specific state.
 
 - test: # verify get verisons for invalid entity
-    - priority: 0
     - url: "/metadata/ThisEntityDoesNotExist" 
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
@@ -24,7 +19,6 @@
 # Verify initial state.
 
 - test: # verify initial state, should not have any versions for the entity being tested
-    - priority: 0
     - url: "/metadata/${ENTITY_NAME}"
     - group: "metadata/find"
     - validators:
@@ -33,7 +27,6 @@
 # Create v1 of the entity.
 
 - test: # create entity
-    - priority: 10
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
     - group: "metadata/insert"
     - method: "PUT"
@@ -42,7 +35,6 @@
 # Verify v1.
 
 - test: # verify getting entity name list
-    - priority: 20
     - url: "/metadata" 
     - group: "metadata/find"
     - method: "GET"
@@ -51,13 +43,11 @@
         - {type: "json", query: "entities", operator: "gt", expected: 0}
         - {type: "json", query: "entities", operator: "contains", expected: "${ENTITY_NAME}"}
 - test: # verify get verisons for valid entity
-    - priority: 20
     - url: "/metadata/${ENTITY_NAME}"
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "versions", operator: "eq", expected: 1}
 - test: # verify get specific version
-    - priority: 20
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
@@ -69,7 +59,6 @@
 # Create v2 of the entity.
 
 - test: # create entity
-    - priority: 30
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
     - group: "metadata/insert"
     - method: "PUT"
@@ -78,7 +67,6 @@
 # Verify v2.
 
 - test: # verify getting entity name list
-    - priority: 40
     - url: "/metadata" 
     - group: "metadata/find"
     - method: "GET"
@@ -87,13 +75,11 @@
         - {type: "json", query: "entities", operator: "gt", expected: 0}
         - {type: "json", query: "entities", operator: "contains", expected: "${ENTITY_NAME}"}
 - test: # verify get verisons for valid entity
-    - priority: 40
     - url: "/metadata/${ENTITY_NAME}"
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "versions", operator: "eq", expected: 2}
 - test: # verify get specific version (v1 is still active)
-    - priority: 40
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
@@ -102,7 +88,6 @@
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "active"}
 - test: # verify get specific version (v2 exists and is active)
-    - priority: 40
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
@@ -114,7 +99,6 @@
 # Update entity info, add an index.
 
 - test: # verify has no index initially
-    - priority: 50
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
     - group: "metadata/find"
     - method: "GET"
@@ -122,13 +106,11 @@
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "entityInfo/indexes", count: 0}
 - test: # add index
-    - priority: 60
     - url: "/metadata/${ENTITY_NAME}"
     - group: "metadata/update"
     - method: "PUT"
     - body: {file: "test-metadata-update-index.json"}
 - test: # verify has index after update
-    - priority: 50
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
     - group: "metadata/find"
     - method: "GET"
