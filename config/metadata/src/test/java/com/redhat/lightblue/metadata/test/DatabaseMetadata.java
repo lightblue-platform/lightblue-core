@@ -23,7 +23,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.VersionInfo;
 
 /**
  *
@@ -48,7 +48,7 @@ public class DatabaseMetadata implements Metadata {
     }
 
     @Override
-    public Version[] getEntityVersions(String entityName) {
+    public VersionInfo[] getEntityVersions(String entityName) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -60,7 +60,7 @@ public class TestAbstractMetadataTest {
             }
 
             @Override
-            public Version[] getEntityVersions(String entityName) {
+            public VersionInfo[] getEntityVersions(String entityName) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 

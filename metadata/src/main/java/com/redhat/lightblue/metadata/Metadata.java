@@ -63,7 +63,7 @@ public interface Metadata extends Serializable {
     /**
      * Returns all versions of an entity
      */
-    Version[] getEntityVersions(String entityName);
+    VersionInfo[] getEntityVersions(String entityName);
 
     /**
      * Creates a new entity metadata
