@@ -9,9 +9,12 @@ export ENTITY_VERSION_2="2.0.0"
 
 echo "Running tests for new entity: $ENTITY_NAME"
 
-python -c "import resttest; resttest.main('http://b09.cos.redhat.com:8080', 'metadata-pyresttest.yaml', '$LOGGING_LEVEL')"
-echo $?
+if [ "x$1" != "x" ]; then
+    LOGGING_LEVEL=$1
+fi
 
-unset ENTITY_NAME
-unset ENTITY_VERSION_1
-unset ENTITY_VERSION_2
+python -c "import resttest; resttest.main('http://b09.cos.redhat.com:8080', 'metadata-pyresttest.yaml', '$LOGGING_LEVEL')" 2>&1 | tee metadata.log
+
+#unset ENTITY_NAME
+#unset ENTITY_VERSION_1
+#unset ENTITY_VERSION_2
