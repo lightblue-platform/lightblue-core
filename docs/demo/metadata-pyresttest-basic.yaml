@@ -14,6 +14,6 @@
     - group: "metadata/insert"
     - method: "PUT"
     - body: {file: "test-metadata-insert.json"}
+    - headers: {Content-Type: application/json}
     - validators:
-        - {type: "json", query: "object_type", operator: "ne", expected: "error"}
-
+        - {type: "json", query: "object_type", operator: "empty", expected: ""}
