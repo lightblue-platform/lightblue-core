@@ -14,48 +14,48 @@ Users:
 
 Create user v3 with roles:
 
-  ./callb.sh -X PUT -H Content-type:application/json -d@usermd-v3.0.0.json ${host}/metadata/user/schema=3.0.0
+  curl -H Content-Type:application/json -X PUT -H Content-type:application/json -d@usermd-v3.0.0.json ${host}/metadata/user/schema=3.0.0|tee /tmp/out.json
 
 Retrieve user as admin:
 
-  ./callb.sh  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar'
+  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar'|tee /tmp/out.json
 
 Retrieve user as ro (no pwd):
 
-  ./callb.sh  -u ro:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar'
+  curl -H Content-Type:application/json  -u ro:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar'|tee /tmp/out.json
 
 Retrieve user as rw (no pwd):
 
-  ./callb.sh  -u rw:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar'
+  curl -H Content-Type:application/json  -u rw:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar'|tee /tmp/out.json
 
 ro tries to create user:
 
-  ./callb.sh -u ro:123qweasd! -X PUT  -d @create-v3-user.json ${host}/data/user/3.0.0 
+  curl -H Content-Type:application/json -u ro:123qweasd! -X PUT  -d @create-v3-user.json ${host}/data/user/3.0.0 |tee /tmp/out.json
 
 rw tries to create user:
 
-  ./callb.sh -u rw:123qweasd! -X PUT  -d @create-v3-user.json ${host}/data/user/3.0.0 
+  curl -H Content-Type:application/json -u rw:123qweasd! -X PUT  -d @create-v3-user.json ${host}/data/user/3.0.0 |tee /tmp/out.json
 
 rw tries to update password:
 
-  ./callb.sh -u rw:123qweasd! -X POST  -d '{
+  curl -H Content-Type:application/json -u rw:123qweasd! -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
  "update": [ {"$set": {"password.hashed":"blah"} } ]
-}' ${host}/data/update/user/3.0.0
+}' ${host}/data/update/user/3.0.0|tee /tmp/out.json
 
-  ./callb.sh  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar2'
+  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar2'|tee /tmp/out.json
 
 admin tries to update password:
 
-  ./callb.sh -u lbadmin:123qweasd! -X POST  -d '{
+  curl -H Content-Type:application/json -u lbadmin:123qweasd! -X POST  -d '{
 "object_type":"user",
 "returning": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
  "update": [ {"$set": {"password.hashed":"blah-admin"} } ]
-}' ${host}/data/update/user/3.0.0
+}' ${host}/data/update/user/3.0.0|tee /tmp/out.json
 
-  ./callb.sh  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar2'
+  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar2'|tee /tmp/out.json

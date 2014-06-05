@@ -245,7 +245,7 @@ public class ITCaseMetadataResourceTest {
         String resultEntityRoles2 = cutMetadataResource.getEntityRoles("country","1.0.0");
         JSONAssert.assertEquals(expectedEntityRoles2,resultEntityRoles2,false);
 
-        String expectedEntityVersions = "{\"versions\":[{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"}]}";
+        String expectedEntityVersions = "[{\"version\":\"1.0.0\",\"changelog\":\"blahblah\"}]";
         String resultEntityVersions = cutMetadataResource.getEntityVersions("country");
         JSONAssert.assertEquals(expectedEntityVersions,resultEntityVersions,false);
 

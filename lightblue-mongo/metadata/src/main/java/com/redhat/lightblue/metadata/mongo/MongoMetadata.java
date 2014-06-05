@@ -64,7 +64,9 @@ import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.VersionInfo;
 import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.mongo.hystrix.FindCommand;
 import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
 import com.redhat.lightblue.mongo.hystrix.InsertCommand;
@@ -85,6 +87,7 @@ public class MongoMetadata extends AbstractMetadata {
     private static final String LITERAL_ID = "_id";
     private static final String LITERAL_ENTITY_NAME = "entityName";
     private static final String LITERAL_VERSION = "version";
+    private static final String LITERAL_STATUS = "status";
     private static final String LITERAL_NAME = "name";
 
     private final transient DBCollection collection;
@@ -180,24 +183,38 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     @Override
-    public Version[] getEntityVersions(String entityName) {
+    public VersionInfo[] getEntityVersions(String entityName) {
         if (entityName == null || entityName.length() == 0) {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
         Error.push("getEntityVersions(" + entityName + ")");
         try {
+            // Get the default version
+            BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
+            DBObject ei = new FindOneCommand(null, collection, query).execute();
+            String defaultVersion = ei==null?null:(String)ei.get("defaultVersion");
+
             // query by name but only return documents that have a version
-            BasicDBObject query = new BasicDBObject(LITERAL_NAME, entityName)
+            query = new BasicDBObject(LITERAL_NAME, entityName)
                     .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
-            BasicDBObject project = new BasicDBObject(LITERAL_VERSION, 1);
-            project.append(LITERAL_ID, 0);
+            DBObject project = new BasicDBObject(LITERAL_VERSION, 1).
+                append(LITERAL_STATUS, 1).
+                append(LITERAL_ID, 0);
             DBCursor cursor = new FindCommand(null, collection, query, project).execute();
             int n = cursor.count();
-            Version[] ret = new Version[n];
+            VersionInfo[] ret = new VersionInfo[n];
             int i = 0;
             while (cursor.hasNext()) {
                 DBObject object = cursor.next();
-                ret[i++] = mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
+                ret[i]=new VersionInfo();
+                Version v=mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
+                ret[i].setValue(v.getValue());
+                ret[i].setExtendsVersions(v.getExtendsVersions());
+                ret[i].setChangelog(v.getChangelog());
+                ret[i].setStatus(MetadataParser.statusFromString((String)((DBObject)object.get(LITERAL_STATUS)).get("value")));
+                if(defaultVersion!=null&&defaultVersion.equals(ret[i].getValue()))
+                    ret[i].setDefault(true);
+                i++;
             }
             return ret;
         } finally {
@@ -258,6 +275,9 @@ public class MongoMetadata extends AbstractMetadata {
                 new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
                 throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
             }
+        } catch (RuntimeException e) {
+            LOGGER.error("createNewMetadata",e);
+            throw e;
         } finally {
             Error.pop();
         }
@@ -272,43 +292,43 @@ public class MongoMetadata extends AbstractMetadata {
         MongoDataStore ds = (MongoDataStore) ei.getDataStore();
         DB entityDB = dbResolver.get(ds);
         DBCollection entityCollection = entityDB.getCollection(ds.getCollectionName());
-        boolean createIx=true;
         Error.push("createUpdateIndex");
         try {
+            List<DBObject> existingIndexes = entityCollection.getIndexInfo();
+            LOGGER.debug("Existing indexes: {}",existingIndexes);
             for (Index index : indexes.getIndexes()) {
-                DBObject newIndex = new BasicDBObject();
-                for (SortKey p : index.getFields()) {
-                    newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);
-                }
-                List<DBObject> existingIndexes = entityCollection.getIndexInfo();
+                boolean createIx=true;
+                LOGGER.debug("Processing index {}",index);
 
                 for (DBObject existingIndex : existingIndexes) {
-                    if (indexFieldsMatch(index, existingIndex)) {
-                        if(!indexOptionsMatch(index, existingIndex)) {
-                            // There can be two indexes with different options, if
-                            // that's the case, don't drop
-                            boolean found = false;
-                            for (Index trc : indexes.getIndexes()) {
-                                if (trc != index && indexFieldsMatch(trc, existingIndex) && indexOptionsMatch(trc, existingIndex)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                // Changing index options, drop the index using its name, recreate with new options
-                                entityCollection.dropIndex(existingIndex.get("name").toString());
-                                break;
-                            } 
-                        } else {
-                            // Identical index found, don't create a new one
-                            createIx=false;
+                    if (indexFieldsMatch(index, existingIndex)&&
+                        indexOptionsMatch(index, existingIndex)) {
+                        LOGGER.debug("Same index exists, not creating");
+                        createIx=false;
+                        break;
+                    }
+                }
+
+                if(createIx) {
+                    for (DBObject existingIndex : existingIndexes) {
+                        if (indexFieldsMatch(index, existingIndex)&&
+                            !indexOptionsMatch(index, existingIndex)) {
+                            LOGGER.debug("Same index exists with different options, dropping index:{}",existingIndex);
+                            // Changing index options, drop the index using its name, recreate with new options
+                            entityCollection.dropIndex(existingIndex.get("name").toString());
                         }
                     }
                 }
+
                 if(createIx) {
+                    DBObject newIndex = new BasicDBObject();
+                    for (SortKey p : index.getFields()) {
+                        newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);
+                    }
                     BasicDBObject options=new BasicDBObject("unique",index.isUnique());
                     if(index.getName()!=null&&index.getName().trim().length()>0)
                         options.append("name",index.getName().trim());
+                    LOGGER.debug("Creating index {} with options {}",newIndex,options);
                     entityCollection.createIndex(newIndex, options);
                 }
             }
@@ -349,7 +369,16 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
-        return existingIndex.get("unique").equals(index.isUnique());
+        Boolean unique=(Boolean)existingIndex.get("unique");
+        if(unique!=null) {
+            if( (unique&&index.isUnique()) ||
+                (!unique&&!index.isUnique()) )
+                return true;
+        } else {
+            if(!index.isUnique())
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -379,6 +408,7 @@ public class MongoMetadata extends AbstractMetadata {
                     (DBObject) mdParser.convert(ei));
             createUpdateEntityInfoIndexes(ei);
         } catch (Exception e) {
+            LOGGER.error("updateEntityInfo",e);
             throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
         }
     }

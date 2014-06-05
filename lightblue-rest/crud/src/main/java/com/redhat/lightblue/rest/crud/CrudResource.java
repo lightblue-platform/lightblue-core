@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.rest.crud;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.query.Projection;
@@ -46,6 +49,8 @@ import java.util.Map;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CrudResource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrudResource.class);
 
     private static final String FIELD_Q_EQ_TMPL="{\"field\": \"${field}\", \"op\": \"=\",\"rvalue\": \"${value}\"}";
     private static final String FIELD_Q_IN_TMPL= "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
@@ -169,6 +174,7 @@ public class CrudResource {
                 sq = buildQueryFieldTemplate(queryList.get(0));
             }
         }
+        LOGGER.debug("query: {} -> {}",q,sq);
 
         String sp = DEFAULT_PROJECTION_TMPL;
         if(p != null && !"".equals(p.trim())) {
@@ -188,6 +194,7 @@ public class CrudResource {
                 sp = buildProjectionTemplate(projectionList.get(0));
             }
         }
+        LOGGER.debug("projection: {} -> {}",p, sp);
 
         String ss = null;
         if(s != null && !"".equals(s.trim())) {
@@ -207,6 +214,7 @@ public class CrudResource {
                 ss = buildSortTemplate(sortList.get(0));
             }
         }
+        LOGGER.debug("sort:{} -> {}",s,ss);
 
         FindRequest findRequest = new FindRequest();
         findRequest.setEntityVersion(new EntityVersion(entity, version));
