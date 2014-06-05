@@ -1,0 +1,21 @@
+{
+   "mongo" : {
+     "documentation" : [
+       "MongoDB makes a distinction between servers (a list) and server (a single address), ",
+       "even though servers contains a single address. If servers exists, then it assumes ",
+       "it is talking to a replica set, and want access to all the nodes. If instead server ",
+       "exists, it only talks to that server."
+     ],
+     "type" : "com.redhat.lightblue.mongo.config.MongoConfiguration",
+     "metadataDataStoreParser" : "com.redhat.lightblue.metadata.mongo.MongoDataStoreParser",
+     "ssl" : false,
+     "noCertValidation" : true,
+     "database" : "mongo",
+     "server" : 
+        { 
+           "host" : "localhost",
+           "port" : "27017"
+        }
+     
+   }
+}
