@@ -258,6 +258,9 @@ public class MongoMetadata extends AbstractMetadata {
                 new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
                 throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
             }
+        } catch (RuntimeException e) {
+            LOGGER.error("createNewMetadata",e);
+            throw e;
         } finally {
             Error.pop();
         }
@@ -272,43 +275,43 @@ public class MongoMetadata extends AbstractMetadata {
         MongoDataStore ds = (MongoDataStore) ei.getDataStore();
         DB entityDB = dbResolver.get(ds);
         DBCollection entityCollection = entityDB.getCollection(ds.getCollectionName());
-        boolean createIx=true;
         Error.push("createUpdateIndex");
         try {
+            List<DBObject> existingIndexes = entityCollection.getIndexInfo();
+            LOGGER.debug("Existing indexes: {}",existingIndexes);
             for (Index index : indexes.getIndexes()) {
-                DBObject newIndex = new BasicDBObject();
-                for (SortKey p : index.getFields()) {
-                    newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);
-                }
-                List<DBObject> existingIndexes = entityCollection.getIndexInfo();
+                boolean createIx=true;
+                LOGGER.debug("Processing index {}",index);
 
                 for (DBObject existingIndex : existingIndexes) {
-                    if (indexFieldsMatch(index, existingIndex)) {
-                        if(!indexOptionsMatch(index, existingIndex)) {
-                            // There can be two indexes with different options, if
-                            // that's the case, don't drop
-                            boolean found = false;
-                            for (Index trc : indexes.getIndexes()) {
-                                if (trc != index && indexFieldsMatch(trc, existingIndex) && indexOptionsMatch(trc, existingIndex)) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                // Changing index options, drop the index using its name, recreate with new options
-                                entityCollection.dropIndex(existingIndex.get("name").toString());
-                                break;
-                            } 
-                        } else {
-                            // Identical index found, don't create a new one
-                            createIx=false;
+                    if (indexFieldsMatch(index, existingIndex)&&
+                        indexOptionsMatch(index, existingIndex)) {
+                        LOGGER.debug("Same index exists, not creating");
+                        createIx=false;
+                        break;
+                    }
+                }
+
+                if(createIx) {
+                    for (DBObject existingIndex : existingIndexes) {
+                        if (indexFieldsMatch(index, existingIndex)&&
+                            !indexOptionsMatch(index, existingIndex)) {
+                            LOGGER.debug("Same index exists with different options, dropping index:{}",existingIndex);
+                            // Changing index options, drop the index using its name, recreate with new options
+                            entityCollection.dropIndex(existingIndex.get("name").toString());
                         }
                     }
                 }
+
                 if(createIx) {
+                    DBObject newIndex = new BasicDBObject();
+                    for (SortKey p : index.getFields()) {
+                        newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);
+                    }
                     BasicDBObject options=new BasicDBObject("unique",index.isUnique());
                     if(index.getName()!=null&&index.getName().trim().length()>0)
                         options.append("name",index.getName().trim());
+                    LOGGER.debug("Creating index {} with options {}",newIndex,options);
                     entityCollection.createIndex(newIndex, options);
                 }
             }
@@ -349,7 +352,16 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
-        return existingIndex.get("unique").equals(index.isUnique());
+        Boolean unique=(Boolean)existingIndex.get("unique");
+        if(unique!=null) {
+            if( (unique&&index.isUnique()) ||
+                (!unique&&!index.isUnique()) )
+                return true;
+        } else {
+            if(!index.isUnique())
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -379,6 +391,7 @@ public class MongoMetadata extends AbstractMetadata {
                     (DBObject) mdParser.convert(ei));
             createUpdateEntityInfoIndexes(ei);
         } catch (Exception e) {
+            LOGGER.error("updateEntityInfo",e);
             throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
         }
     }
