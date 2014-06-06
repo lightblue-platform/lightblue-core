@@ -38,6 +38,7 @@
     - group: "metadata/insert"
     - method: "PUT"
     - body: {file: "test-metadata-insert.json"}
+    - stop_on_failure: True
     - validators:
         - {type: "json", query: "object_type", operator: "empty", expected: ""}
 
@@ -80,6 +81,7 @@
     - group: "metadata/insert"
     - method: "PUT"
     - body: {file: "test-metadata-update-v2.json"}
+    - stop_on_failure: True
     - validators:
         - {type: "json", query: "object_type", operator: "empty", expected: ""}
 
@@ -141,6 +143,7 @@
     - group: "metadata/update"
     - method: "PUT"
     - body: {file: "test-metadata-update-index.json"}
+    - stop_on_failure: True
 - test: # verify has index after update
     - name: "Verify Index Added"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_2}"
@@ -161,6 +164,7 @@
     - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "POST"
+    - stop_on_failure: True
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_2}"}
@@ -175,6 +179,7 @@
     - group: "metadata/update"
     - method: "PUT"
     - body: "testing deprecation"
+    - stop_on_failure: True
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
@@ -201,6 +206,7 @@
     - group: "metadata/update"
     - method: "PUT"
     - body: "testing disabled"
+    - stop_on_failure: True
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}

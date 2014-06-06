@@ -86,7 +86,7 @@
         - {type: "json", query: "processed/contactPermissions", operator: "empty", expected: ""}
         - {type: "json", query: "processed/personalInfo", operator: "empty", expected: ""}
         - {type: "json", query: "processed/sites", operator: "exists", expected: ""}
-        - {type: "json", query: "processed/sites/0/streetAddress", operator: "exists", expected: ""}
-        - {type: "json", query: "processed/sites/0/contactInfo", operator: "exists", expected: ""}
-        - {type: "json", query: "processed/sites/0/usages", operator: "exists", expected: ""}
+        - {type: "json", query: "processed/sites/0/streetAddress", operator: "empty", expected: ""}
+        - {type: "json", query: "processed/sites/0/contactInfo", operator: "empty", expected: ""}
+        - {type: "json", query: "processed/sites/0/usages", operator: "empty", expected: ""}
 
