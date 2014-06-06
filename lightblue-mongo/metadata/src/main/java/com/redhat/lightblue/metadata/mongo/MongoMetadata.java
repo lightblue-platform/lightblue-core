@@ -491,7 +491,9 @@ public class MongoMetadata extends AbstractMetadata {
             newLog.setDate(new Date());
             newLog.setStatus(schema.getStatus());
             newLog.setComment(comment);
-            schema.getStatusChangeLog().add(newLog);
+            List<StatusChange> slog=schema.getStatusChangeLog();
+            slog.add(newLog);
+            schema.setStatusChangeLog(slog);
             schema.setStatus(newStatus);
 
             query = new BasicDBObject(LITERAL_ID, md.get(LITERAL_ID));
