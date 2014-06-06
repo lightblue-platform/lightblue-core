@@ -17,7 +17,7 @@
     - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
-        - {type: "json", query: "versions", count: 0}
+        - {type: "json", query: "versions", operator: "count", expected: 0}
 
 # Verify initial state.
 
@@ -27,7 +27,7 @@
     - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators:
-        - {type: "json", query: "entities", count: 0}
+        - {type: "json", query: "entities", operator: "count", expected: 0}
 
 # Create v1 of the entity.
 
@@ -59,7 +59,7 @@
     - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
-        - {type: "json", query: "versions", count: 1}
+        - {type: "json", query: "versions", operator: "count", expected: 1}
 - test: # verify get specific version
     - name: "Verify Create: /metadata/entity/v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
@@ -101,7 +101,7 @@
     - headers: {Content-Type: application/json}
     - group: "metadata/find"
     - validators: # operator is applied as: <actual> <operator> <expected>
-        - {type: "json", query: "versions", count: 2}
+        - {type: "json", query: "versions", operator: "count", expected: 2}
 - test: # verify get specific version (v1 is still active)
     - name: "Verify Schema: /metadata/entity/v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
@@ -150,7 +150,7 @@
     - validators: # operator is applied as: <actual> <operator> <expected>
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "entityInfo/defaultVersion", operator: "empty", expected: ""}
-        - {type: "json", query: "entityInfo/indexes", count: 1}
+        - {type: "json", query: "entityInfo/indexes", operator: "count", expected: 1}
 
 # Test default functionality
 # NOTE previous tests must have verified that each version is NOT default
@@ -170,7 +170,7 @@
 
 - test: # do deprecation
     - name: "Deprecate: v1"
-    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/deprecated"
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/deprecated?comment=testing+deprecation"
     - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "PUT"
@@ -179,7 +179,7 @@
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "deprecated"}
-#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing deprecation"}
+        - {type: "json", query: "schema/status/log/0/comment", operator: "eq", expected: "testing deprecation"}
 - test: # verify find gets same deprecated version
     - name: "Verify Deprecation: v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
@@ -190,13 +190,13 @@
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "deprecated"}
-#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing deprecation"}
+        - {type: "json", query: "schema/status/log/0/comment", operator: "eq", expected: "testing deprecation"}
 
 # Disable v1.
 
 - test: # do disabling
     - name: "Disable: v1"
-    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/disabled"
+    - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}/disabled?comment=testing+disabled"
     - headers: {Content-Type: application/json}
     - group: "metadata/update"
     - method: "PUT"
@@ -205,7 +205,8 @@
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "disabled"}
-#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing disabled"}
+        - {type: "json", query: "schema/status/log/0/comment", operator: "eq", expected: "testing deprecation"}
+        - {type: "json", query: "schema/status/log/1/comment", operator: "eq", expected: "testing disabled"}
 - test: # verify find gets same disabled version
     - name: "Verify Disabled: v1"
     - url: "/metadata/${ENTITY_NAME}/${ENTITY_VERSION_1}"
@@ -216,5 +217,6 @@
         - {type: "json", query: "entityInfo/name", operator: "eq", expected: "${ENTITY_NAME}"}
         - {type: "json", query: "schema/version/value", operator: "eq", expected: "${ENTITY_VERSION_1}"}
         - {type: "json", query: "schema/status/value", operator: "eq", expected: "disabled"}
-#        - {type: "json", query: "schema/version/changelog", operator: "eq", expected: "testing disabled"}
+        - {type: "json", query: "schema/status/log/0/comment", operator: "eq", expected: "testing deprecation"}
+        - {type: "json", query: "schema/status/log/1/comment", operator: "eq", expected: "testing disabled"}
 
