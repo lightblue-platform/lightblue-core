@@ -1,0 +1,26 @@
+#!/bin/bash
+
+url=$1
+
+body=""
+if [ "$#" -ge 2 ]; then
+  body=$2
+  if [ "${body:0:1}" != "@" ]; then
+    tmp=`mktemp`
+    echo $2 > /$tmp
+    body="@${tmp}"
+  fi
+fi
+
+if [ "$#" == 3 ]; then
+  upwd=$3
+else
+  upwd=${unamepwd}
+fi
+
+if [ -z "$body" ] ; then
+  curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url|tee /tmp/out.json
+else
+  curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url -d $body|tee /tmp/out.json
+fi
+

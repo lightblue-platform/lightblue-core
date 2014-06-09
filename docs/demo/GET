@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ "$#" == 2 ]; then
+  upwd=$2
+else
+  upwd=${unamepwd}
+fi
+
+curl -H  Content-Type:application/json  -u ${upwd} -X GET $1|tee /tmp/out.json
+
+
