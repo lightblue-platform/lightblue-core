@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
@@ -73,6 +75,7 @@ import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
 import com.redhat.lightblue.mongo.hystrix.InsertCommand;
 import com.redhat.lightblue.mongo.hystrix.RemoveCommand;
 import com.redhat.lightblue.mongo.hystrix.UpdateCommand;
+import com.redhat.lightblue.mongo.hystrix.DistinctCommand;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -168,17 +171,39 @@ public class MongoMetadata extends AbstractMetadata {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public String[] getEntityNames() {
+    public String[] getEntityNames(MetadataStatus... statuses) {
+        LOGGER.debug("getEntityNames({})",statuses);
         Error.push("getEntityNames");
+        Set<MetadataStatus> statusSet=new HashSet<>();
+        for(MetadataStatus x:statuses)
+            if(x!=null)
+                statusSet.add(x);
         try {
-            //List l = new DistinctCommand(null, collection, LITERAL_NAME).execute();
-            List l = collection.distinct(LITERAL_NAME);
-            String[] arr = new String[l.size()];
-            int i = 0;
-            for (Object x : l) {
-                arr[i++] = x.toString();
-            }
-            return arr;
+            if(statusSet.isEmpty()||
+               (statusSet.contains(MetadataStatus.ACTIVE)&&
+                statusSet.contains(MetadataStatus.DEPRECATED)&&
+                statusSet.contains(MetadataStatus.DISABLED)) ) {
+                List l = new DistinctCommand(null, collection, LITERAL_NAME).execute();
+                String[] arr = new String[l.size()];
+                int i = 0;
+                for (Object x : l) {
+                    arr[i++] = x.toString();
+                }
+                return arr;
+            } else {
+                LOGGER.debug("Requested statuses:{}",statusSet);
+                List<String> list=new ArrayList<>(statusSet.size());
+                for(MetadataStatus x:statusSet)
+                    list.add(MetadataParser.toString(x));
+                BasicDBObject query=new BasicDBObject(LITERAL_STATUS_VALUE,new BasicDBObject("$in",list));
+                List l = new DistinctCommand(null, collection, LITERAL_NAME, query).execute();
+                String[] arr = new String[l.size()];
+                int i = 0;
+                for (Object x : l) {
+                    arr[i++] = x.toString();
+                }
+                return arr;
+           }
         } finally {
             Error.pop();
         }

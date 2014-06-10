@@ -18,9 +18,12 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
+import java.util.HashSet;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import org.slf4j.Logger;
@@ -33,12 +36,15 @@ import org.slf4j.LoggerFactory;
 public class GetEntityNamesCommand extends AbstractRestCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetEntityRolesCommand.class);
 
-    public GetEntityNamesCommand(String clientKey) {
-        this(clientKey, null);
+    private final String[] statuses;
+
+    public GetEntityNamesCommand(String clientKey,String[] statuses) {
+        this(clientKey, null,statuses);
     }
 
-    public GetEntityNamesCommand(String clientKey, Metadata metadata) {
+    public GetEntityNamesCommand(String clientKey, Metadata metadata,String[] statuses) {
         super(GetEntityNamesCommand.class, clientKey, metadata);
+        this.statuses=statuses;
     }
 
     @Override
@@ -47,7 +53,11 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
         Error.reset();
         Error.push(getClass().getSimpleName());
         try {
-            String[] names = getMetadata().getEntityNames();
+            HashSet<MetadataStatus> statusSet=new HashSet<MetadataStatus>();
+            for(String x:statuses) {
+                statusSet.add(MetadataParser.statusFromString(x));
+            }
+            String[] names = getMetadata().getEntityNames(statusSet.toArray(new MetadataStatus[statusSet.size()]));
             ObjectNode node = NODE_FACTORY.objectNode();
             ArrayNode arr = NODE_FACTORY.arrayNode();
             node.put("entities", arr);

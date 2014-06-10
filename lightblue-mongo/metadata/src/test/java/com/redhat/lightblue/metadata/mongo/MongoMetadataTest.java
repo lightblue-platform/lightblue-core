@@ -447,6 +447,54 @@ public class MongoMetadataTest {
         }
     }
 
+    @Test
+    public void getWithStatus() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0.0");
+        e.setVersion(new Version("2.0.0", null, "blahblahyadayada"));
+        md.createNewSchema(e);
+
+        e = new EntityMetadata("testEntity2");
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+        g = md.getEntityMetadata("testEntity2", "1.0.0");
+        e.setVersion(new Version("2.0.0", null, "sfr"));
+        md.createNewSchema(e);
+        
+        Assert.assertEquals(2,md.getEntityNames().length);
+        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(0,md.getEntityNames(MetadataStatus.DEPRECATED).length);
+
+        md.setMetadataStatus("testEntity","1.0.0",MetadataStatus.DEPRECATED,"x");
+        Assert.assertEquals(2,md.getEntityNames().length);
+        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE).length);
+
+        md.setMetadataStatus("testEntity2","1.0.0",MetadataStatus.DEPRECATED,"x");
+        Assert.assertEquals(2,md.getEntityNames().length);
+        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE,MetadataStatus.DEPRECATED).length);
+
+        md.setMetadataStatus("testEntity2","2.0.0",MetadataStatus.DEPRECATED,"x");
+        Assert.assertEquals(2,md.getEntityNames().length);
+        Assert.assertEquals(1,md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE,MetadataStatus.DEPRECATED).length);
+
+    }
+
      @Test
      public void removal() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");

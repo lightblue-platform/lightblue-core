@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.rest.metadata;
 
+import java.util.StringTokenizer;
+
 import com.redhat.lightblue.rest.metadata.hystrix.*;
 
 import javax.ws.rs.*;
@@ -71,7 +73,18 @@ public class MetadataResource {
     @GET
     @Path("/")
     public String getEntityNames() {
-        return new GetEntityNamesCommand(null).execute();
+        return new GetEntityNamesCommand(null,new String[0]).execute();
+    }
+
+    @GET
+    @Path("/s={statuses}")
+    public String getEntityNames(@PathParam("statuses") String statuses) {
+        StringTokenizer tok=new StringTokenizer(" ,;:.");
+        String[] s=new String[tok.countTokens()];
+        int i=0;
+        while(tok.hasMoreTokens())
+            s[i++]=tok.nextToken();
+        return new GetEntityNamesCommand(null,s).execute();
     }
 
     @GET
@@ -120,5 +133,11 @@ public class MetadataResource {
     public String setDefaultVersion(@PathParam("entity") String entity,
                                     @PathParam("version") String version) {
         return new SetDefaultVersionCommand(null, entity, version).execute();
+    }
+
+    @DELETE
+    @Path("/{entity}")
+    public String removeEntity(@PathParam("entity") String entity) {
+        return new RemoveEntityCommand(null,entity).execute();
     }
 }

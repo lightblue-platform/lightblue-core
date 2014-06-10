@@ -58,7 +58,7 @@ public abstract class AbstractRestCommandTest {
         }
 
         @Override
-        public String[] getEntityNames() {
+        public String[] getEntityNames(MetadataStatus...statuses) {
             args = new Object[]{};
             return new String[]{};
         }
