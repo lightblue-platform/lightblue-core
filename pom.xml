@@ -86,6 +86,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>lightblue-core</module>
         <module>lightblue-mongo</module>
         <module>lightblue-rest</module>
-        <module>lightblue-rdbms</module>
     </modules>
 </project>
