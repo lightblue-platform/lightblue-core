@@ -59,3 +59,53 @@ admin tries to update password:
 }' ${host}/data/update/user/3.0.0|tee /tmp/out.json
 
   curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X GET '${host}/data/find/user/3.0.0?Q=login:bserdar2'|tee /tmp/out.json
+
+
+
+
+
+
+
+Create user v3 with roles:
+  ./PUT ${host}/metadata/user/schema=3.0.0 @usermd-v3.0.0.json
+
+Retrieve user as admin:
+  ./GET ${host}/data/find/user/3.0.0?Q=login:bserdar lbadmin:123qweasd! 
+
+Retrieve user as ro (no pwd):
+  ./GET ${host}/data/find/user/3.0.0?Q=login:bserdar ro:123qweasd! 
+
+Retrieve user as rw (no pwd):
+  ./GET ${host}/data/find/user/3.0.0?Q=login:bserdar rw:123qweasd!
+
+
+ro tries to create user:
+  ./PUT ${host}/data/user/3.0.0 @create-v3-user.json ro:123qweasd! 
+
+rw tries to create user:
+  ./PUT ${host}/data/user/3.0.0 @create-v3-user.json rw:123qweasd! 
+
+rw tries to update password:
+  ./POST  ${host}/data/update/user/3.0.0 '{
+"object_type":"user",
+"returning": { "field":"_id"},
+"query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"},
+                      {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
+ "update": [ {"$set": {"password.hashed":"blah"} } ]
+}' rw:123qweasd! 
+
+  ./GET ${host}/data/find/user/3.0.0?Q=login:bserdar2 lbadmin:123qweasd! 
+
+
+admin tries to update password:
+   ./POST ${host}/data/update/user/3.0.0 '{
+"object_type":"user",
+"returning": { "field":"_id"},
+"query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"},
+                      {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
+ "update": [ {"$set": {"password.hashed":"blah-admin"} } ]
+}' lbadmin:123qweasd!
+
+  ./GET ${host}/data/find/user/3.0.0?Q=login:bserdar2 lbadmin:123qweasd!
+
+

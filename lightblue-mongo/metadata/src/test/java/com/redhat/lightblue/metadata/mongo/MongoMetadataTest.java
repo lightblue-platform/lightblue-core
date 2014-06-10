@@ -447,7 +447,44 @@ public class MongoMetadataTest {
         }
     }
 
-    @Test
+     @Test
+     public void removal() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        md.createNewMetadata(e);
+        EntityMetadata g = md.getEntityMetadata("testEntity", "1.0.0");
+        e.setVersion(new Version("2.0.0", null, "blahblahyadayada"));
+        md.createNewSchema(e);
+
+        try {
+            md.removeEntity("testEntity");
+            Assert.fail();
+        } catch (Exception x) {}
+
+        md.setMetadataStatus("testEntity","1.0.0",MetadataStatus.DEPRECATED,"x");
+         try {
+            md.removeEntity("testEntity");
+            Assert.fail();
+        } catch (Exception x) {}
+
+        md.setMetadataStatus("testEntity","2.0.0",MetadataStatus.DISABLED,"x");
+         try {
+            md.removeEntity("testEntity");
+            Assert.fail();
+        } catch (Exception x) {}
+         md.setMetadataStatus("testEntity","1.0.0",MetadataStatus.DISABLED,"x");
+         md.removeEntity("testEntity");
+         Assert.assertNull(md.getEntityInfo("testEntity"));
+    }
+
+
+   @Test
     public void getAccessEntityVersion() throws IOException, JSONException {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();

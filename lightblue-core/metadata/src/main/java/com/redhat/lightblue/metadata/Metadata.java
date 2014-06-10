@@ -90,4 +90,9 @@ public interface Metadata extends Serializable {
                            MetadataStatus newStatus,
                            String comment);
 
+    /**
+     * Remove all entity records only if all versions of the entity are disabled
+     */
+    void removeEntity(String entityName);
+
 }

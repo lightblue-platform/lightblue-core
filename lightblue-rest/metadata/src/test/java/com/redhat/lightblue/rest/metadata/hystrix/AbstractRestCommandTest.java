@@ -88,7 +88,11 @@ public abstract class AbstractRestCommandTest {
         public void setMetadataStatus(String entityName, String version, MetadataStatus newStatus, String comment) {
             args = new Object[]{entityName, version, newStatus, comment};
         }
-    }
+         @Override
+        public void removeEntity(String entityName) {
+            args = new Object[]{entityName};
+        }
+   }
 
     protected TestMetadata metadata = new TestMetadata();
 }

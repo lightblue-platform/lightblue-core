@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.slf4j.Logger;
@@ -88,6 +89,7 @@ public class MongoMetadata extends AbstractMetadata {
     private static final String LITERAL_ENTITY_NAME = "entityName";
     private static final String LITERAL_VERSION = "version";
     private static final String LITERAL_STATUS = "status";
+    private static final String LITERAL_STATUS_VALUE = "status.value";
     private static final String LITERAL_NAME = "name";
 
     private final transient DBCollection collection;
@@ -250,30 +252,34 @@ public class MongoMetadata extends AbstractMetadata {
 
             Error.push("writeEntity");
             try {
-                WriteResult result = new InsertCommand(null, collection, infoObj, WriteConcern.SAFE).execute();
-                LOGGER.debug("Inserted entityInfo");
-                String error = result.getError();
-                if (error != null) {
-                    LOGGER.error("createNewMetadata: error in createInfo: {}" + error);
-                    throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+                try {
+                    WriteResult result = new InsertCommand(null, collection, infoObj, WriteConcern.SAFE).execute();
+                    LOGGER.debug("Inserted entityInfo");
+                    String error = result.getError();
+                    if (error != null) {
+                        LOGGER.error("createNewMetadata: error in createInfo: {}" + error);
+                        throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+                    }
+                } catch (MongoException.DuplicateKey dke) {
+                    LOGGER.error("createNewMetadata: duplicateKey {}", dke);
+                    throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
                 }
-            } catch (MongoException.DuplicateKey dke) {
-                LOGGER.error("createNewMetadata: duplicateKey {}", dke);
-                throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
-            }
-            try {
-                WriteResult result = new InsertCommand(null, collection, schemaObj, WriteConcern.SAFE).execute();
-                String error = result.getError();
-                if (error != null) {
-                    LOGGER.error("createNewMetadata: error in createSchema: {}" + error);
+                try {
+                    WriteResult result = new InsertCommand(null, collection, schemaObj, WriteConcern.SAFE).execute();
+                    String error = result.getError();
+                    if (error != null) {
+                        LOGGER.error("createNewMetadata: error in createSchema: {}" + error);
+                        new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
+                        throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+                    }
+                    createUpdateEntityInfoIndexes(md.getEntityInfo());
+                } catch (MongoException.DuplicateKey dke) {
+                    LOGGER.error("createNewMetadata: duplicateKey {}", dke);
                     new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
-                    throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+                    throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
                 }
-                createUpdateEntityInfoIndexes(md.getEntityInfo());
-            } catch (MongoException.DuplicateKey dke) {
-                LOGGER.error("createNewMetadata: duplicateKey {}", dke);
-                new RemoveCommand(null, collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
-                throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
+            } finally {
+                Error.pop();
             }
         } catch (RuntimeException e) {
             LOGGER.error("createNewMetadata",e);
@@ -393,23 +399,26 @@ public class MongoMetadata extends AbstractMetadata {
         checkMetadataHasName(ei);
         checkDataStoreIsValid(ei);
         Error.push("updateEntityInfo(" + ei.getName() + ")");
-
-        // Verify entity info exists
-        EntityInfo old = getEntityInfo(ei.getName());
-        if (null == old) {
-            throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ei.getName());
-        }
-        if (!Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion())) {
-            validateDefaultVersion(ei);
-        }
-
         try {
-            collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
-                    (DBObject) mdParser.convert(ei));
-            createUpdateEntityInfoIndexes(ei);
-        } catch (Exception e) {
-            LOGGER.error("updateEntityInfo",e);
-            throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
+            // Verify entity info exists
+            EntityInfo old = getEntityInfo(ei.getName());
+            if (null == old) {
+                throw Error.get(MongoMetadataConstants.ERR_MISSING_ENTITY_INFO, ei.getName());
+            }
+            if (!Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion())) {
+                validateDefaultVersion(ei);
+            }
+            
+            try {
+                collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
+                                  (DBObject) mdParser.convert(ei));
+                createUpdateEntityInfoIndexes(ei);
+            } catch (Exception e) {
+                LOGGER.error("updateEntityInfo",e);
+                throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
+            }
+        } finally {
+            Error.pop();
         }
     }
 
@@ -506,6 +515,42 @@ public class MongoMetadata extends AbstractMetadata {
             Error.pop();
         }
     }
+
+    @Override
+    public void removeEntity(String entityName) {
+        if (entityName == null || entityName.length() == 0) {
+            throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
+        }
+        // All versions must be disabled. Search for a schema that is not disabled
+        DBObject query=new BasicDBObject(LITERAL_NAME, entityName).
+            append(LITERAL_VERSION, new BasicDBObject("$exists", 1)).
+            append(LITERAL_STATUS_VALUE,  new BasicDBObject("$ne",MetadataParser.toString(MetadataStatus.DISABLED)));
+        LOGGER.debug("Checking if there are entity versions that are not disabled: {}",query);
+                   
+        DBObject result=new FindOneCommand(null,collection,query).execute();
+        if(result!=null) {
+            LOGGER.debug("There is at least one enabled version {}",result);
+            throw Error.get(MongoMetadataConstants.ERR_CANNOT_DELETE,entityName);
+        }
+
+        LOGGER.warn("All versions of {} are disabled, deleting {}", entityName,entityName);
+        query=new BasicDBObject(LITERAL_ID,Pattern.compile(entityName+"\\"+BSONParser.DELIMITER_ID+".*"));
+        LOGGER.debug("Removal query:{}",query);
+        try {
+            WriteResult r=new RemoveCommand(null,collection,query).execute();
+            LOGGER.debug("Removal result:{}",r);
+            String error = r.getError();
+            if (error != null) {
+                throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
+            }
+        } catch (Error x) {
+            throw x;
+        } catch (Exception e) {
+            LOGGER.error("Error during delete",e);
+            throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
+        }
+    }
+
 
     @Override
     public Response getDependencies(String entityName, String version) {
