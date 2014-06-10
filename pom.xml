@@ -113,7 +113,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <groupId>org.skyscreamer</groupId>
                 <artifactId>jsonassert</artifactId>
                 <version>1.2.1</version>
-            </dependency>       
+            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -175,6 +175,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <module>crud</module>
         <module>metadata</module>
         <module>mongo</module>
+        <module>oracle</module>
         <module>util</module>
         <module>rest</module>
         <module>config</module>
