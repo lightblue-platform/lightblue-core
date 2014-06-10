@@ -55,7 +55,7 @@ public class TestAbstractMetadataTest {
             }
 
             @Override
-            public String[] getEntityNames() {
+            public String[] getEntityNames(MetadataStatus...statuses) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
