@@ -202,6 +202,10 @@ public class ITCaseMetadataResourceTest {
 
     }
 
+    private String esc(String s) {
+        return s.replace("'","\"");
+    }
+
     @Inject
     private MetadataResource cutMetadataResource;
 
@@ -234,8 +238,8 @@ public class ITCaseMetadataResourceTest {
 
 
         // no default version
-        String expectedEntityRoles = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[{\"data\":{\"name\":\"country\"},\"errors\":[{\"object_type\":\"error\",\"context\":\"GetEntityRolesCommand\",\"errorCode\":\"ERR_NO_METADATA\",\"msg\":\"Could not get metadata for given input. Error message: version\"}]}]}";
-        String expectedEntityRoles1 = "{\"status\":\"ERROR\",\"modifiedCount\":0,\"matchCount\":0,\"dataErrors\":[{\"data\":{\"name\":\"country\"},\"errors\":[{\"object_type\":\"error\",\"context\":\"GetEntityRolesCommand/country\",\"errorCode\":\"ERR_NO_METADATA\",\"msg\":\"Could not get metadata for given input. Error message: version\"}]}]}";
+        String expectedEntityRoles = esc("{'status':'ERROR','modifiedCount':0,'matchCount':0,'dataErrors':[{'data':{'name':'country'},'errors':[{'object_type':'error','context':'GetEntityRolesCommand','errorCode':'ERR_NO_METADATA','msg':'Could not get metadata for given input. Error message: version'}]}]}");
+        String expectedEntityRoles1 = esc("{'status':'ERROR','modifiedCount':0,'matchCount':0,'dataErrors':[{'data':{'name':'country'},'errors':[{'object_type':'error','context':'GetEntityRolesCommand/country','errorCode':'ERR_NO_METADATA','msg':'Could not get metadata for given input. Error message: version'}]}]}");
         String resultEntityRoles = cutMetadataResource.getEntityRoles();
         String resultEntityRoles1 = cutMetadataResource.getEntityRoles("country");
         JSONAssert.assertEquals(expectedEntityRoles,resultEntityRoles,false);
@@ -245,11 +249,11 @@ public class ITCaseMetadataResourceTest {
         String resultEntityRoles2 = cutMetadataResource.getEntityRoles("country","1.0.0");
         JSONAssert.assertEquals(expectedEntityRoles2,resultEntityRoles2,false);
 
-        String expectedEntityVersions = "[{\"version\":\"1.0.0\",\"changelog\":\"blahblah\"}]";
+        String expectedEntityVersions = esc("[{'version':'1.0.0','changelog':'blahblah'}]");
         String resultEntityVersions = cutMetadataResource.getEntityVersions("country");
         JSONAssert.assertEquals(expectedEntityVersions,resultEntityVersions,false);
 
-        String expectedGetMetadata = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"datasource\":\"mongo\",\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"active\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String expectedGetMetadata = esc("{'entityInfo':{'name':'country','indexes':[{'name':null,'unique':true,'fields':[{'name':'$asc'}]}],'datastore':{'mongo':{'datasource':'mongo','collection':'country'}}},'schema':{'name':'country','version':{'value':'1.0.0','changelog':'blahblah'},'status':{'value':'active'},'access':{'insert':['anyone'],'update':['anyone'],'find':['anyone'],'delete':['anyone']},'fields':{'iso3code':{'type':'string'},'name':{'type':'string'},'iso2code':{'type':'string'},'object_type':{'type':'string','access':{'find':['anyone'],'update':['noone']},'constraints':{'required':true,'minLength':1}}}}}");
         String resultGetMetadata = cutMetadataResource.getMetadata("country","1.0.0");
         JSONAssert.assertEquals(expectedGetMetadata,resultGetMetadata,false);
 
@@ -261,8 +265,19 @@ public class ITCaseMetadataResourceTest {
         String resultUpdateEntityInfo = cutMetadataResource.updateEntityInfo("country",readFile("expectedUpdateEntityInfoInput.json"));
         JSONAssert.assertEquals(expectedUpdateEntityInfo,resultUpdateEntityInfo,false);
 
-        String expectedUpdateSchemaStatus = "{\"entityInfo\":{\"name\":\"country\",\"indexes\":[{\"name\":null,\"unique\":true,\"fields\":[{\"name\":\"$asc\"}]}],\"datastore\":{\"mongo\":{\"datasource\":\"mongo\",\"collection\":\"country\"}}},\"schema\":{\"name\":\"country\",\"version\":{\"value\":\"1.0.0\",\"changelog\":\"blahblah\"},\"status\":{\"value\":\"deprecated\"},\"access\":{\"insert\":[\"anyone\"],\"update\":[\"anyone\"],\"find\":[\"anyone\"],\"delete\":[\"anyone\"]},\"fields\":{\"iso3code\":{\"type\":\"string\"},\"name\":{\"type\":\"string\"},\"iso2code\":{\"type\":\"string\"},\"object_type\":{\"type\":\"string\",\"access\":{\"find\":[\"anyone\"],\"update\":[\"noone\"]},\"constraints\":{\"required\":true,\"minLength\":1}}}}}";
+        String x=cutMetadataResource.setDefaultVersion("country","1.0.0");
+        String expected = esc("{'entityInfo':{'name':'country','defaultVersion':'1.0.0','indexes':[{'name':null,'unique':true,'fields':[{'name':'$asc'}]}],'datastore':{'mongo':{'datasource':'mongo','collection':'country'}}},'schema':{'name':'country','version':{'value':'1.0.0','changelog':'blahblah'},'status':{'value':'active'},'access':{'insert':['anyone'],'update':['anyone'],'find':['anyone'],'delete':['anyone']},'fields':{'iso3code':{'type':'string'},'name':{'type':'string'},'iso2code':{'type':'string'},'object_type':{'type':'string','access':{'find':['anyone'],'update':['noone']},'constraints':{'required':true,'minLength':1}}}}}");
+        JSONAssert.assertEquals(expected,x,false);
+
+        x=cutMetadataResource.clearDefaultVersion("country");
+        System.out.println(x);
+        expected = esc("{'name':'country','indexes':[{'name':null,'unique':true,'fields':[{'name':'$asc'}]}],'datastore':{'mongo':{'datasource':'mongo','collection':'country'}}}");
+        JSONAssert.assertEquals(expected,x,false);
+
+
+        String expectedUpdateSchemaStatus = esc("{'entityInfo':{'name':'country','indexes':[{'name':null,'unique':true,'fields':[{'name':'$asc'}]}],'datastore':{'mongo':{'datasource':'mongo','collection':'country'}}},'schema':{'name':'country','version':{'value':'1.0.0','changelog':'blahblah'},'status':{'value':'deprecated'},'access':{'insert':['anyone'],'update':['anyone'],'find':['anyone'],'delete':['anyone']},'fields':{'iso3code':{'type':'string'},'name':{'type':'string'},'iso2code':{'type':'string'},'object_type':{'type':'string','access':{'find':['anyone'],'update':['noone']},'constraints':{'required':true,'minLength':1}}}}}");
         String resultUpdateSchemaStatus = cutMetadataResource.updateSchemaStatus("country","1.0.0","deprecated","No comment");
         JSONAssert.assertEquals(expectedUpdateSchemaStatus,resultUpdateSchemaStatus,false);
+
     }
 }

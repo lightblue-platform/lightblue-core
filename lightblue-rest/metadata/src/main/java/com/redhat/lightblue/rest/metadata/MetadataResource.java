@@ -140,4 +140,10 @@ public class MetadataResource {
     public String removeEntity(@PathParam("entity") String entity) {
         return new RemoveEntityCommand(null,entity).execute();
     }
+
+    @DELETE
+    @Path("/{entity}/default")
+    public String clearDefaultVersion(@PathParam("entity") String entity) {
+        return new SetDefaultVersionCommand(null, entity, null).execute();
+    }
 }
