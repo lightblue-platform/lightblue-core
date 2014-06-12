@@ -34,9 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
@@ -51,6 +54,7 @@ import com.redhat.lightblue.metadata.parser.DataStoreParser;
  * address.
  * 
  * 
+ * @author bserdar
  * @author nmalik
  */
 public class MongoConfiguration implements DataSourceConfiguration {
@@ -62,6 +66,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
 
     private Integer connectionsPerHost;
     private String database;
+    private List<MongoCredential> credentials;
     private boolean ssl = Boolean.FALSE;
     private boolean noCertValidation = Boolean.FALSE;
     private Class metadataDataStoreParser = MongoDataStoreParser.class;
@@ -104,6 +109,14 @@ public class MongoConfiguration implements DataSourceConfiguration {
 
     public void setMetadataDataStoreParser(Class<DataStoreParser> clazz) {
         metadataDataStoreParser = clazz;
+    }
+
+    public List<MongoCredential> getCredentials() {
+        return credentials;
+    }
+
+    public void setCredentials(List<MongoCredential> l) {
+        credentials=l;
     }
 
     /**
@@ -219,10 +232,10 @@ public class MongoConfiguration implements DataSourceConfiguration {
         MongoClientOptions options = getMongoClientOptions();
         LOGGER.debug("getMongoClient with servers:{} and options:{}", servers, options);
         if (theServer != null){
-            return new MongoClient(theServer, options);
+            return new MongoClient(theServer, credentials, options);
         }
         else {
-            return new MongoClient(servers, options);
+            return new MongoClient(servers, credentials, options);
         }
     }
 
@@ -241,6 +254,81 @@ public class MongoConfiguration implements DataSourceConfiguration {
             append("database:").append(database).append('\n').
             append("ssl:").append(ssl).append('\n').
             append("noCertValidation:").append(noCertValidation);
+        bld.append("credentials:");
+        boolean first=true;
+        for(MongoCredential c:credentials) {
+            if(first)
+                first=false;
+            else
+                bld.append(',');
+            bld.append(toString(c));
+        }
+        return bld.toString();
+    }
+
+    public static MongoCredential credentialFromJson(ObjectNode node) {
+        String userName=null;
+        String password=null;
+        String source=null;
+
+        JsonNode xnode=node.get("mechanism");
+        if(xnode==null)
+            throw new IllegalArgumentException("mechanism is required in credentials");
+        String mech=xnode.asText();
+        xnode=node.get("userName");
+        if(xnode!=null)
+            userName=xnode.asText();
+        xnode=node.get("password");
+        if(xnode!=null)
+            password=xnode.asText();
+        xnode=node.get("source");
+        if(xnode!=null)
+            source=xnode.asText();
+
+        MongoCredential cr;
+        if("GSSAPI_MECHANISM".equals(mech))
+            cr=MongoCredential.createGSSAPICredential(userName);
+        else if("MONGODB_CR_MECHANISM".equals(mech))
+            cr=MongoCredential.createMongoCRCredential(userName,source,
+                                                       password==null?null:password.toCharArray());
+        else if("MONGODB_X509_MECHANISM".equals(mech))
+            cr=MongoCredential.createMongoX509Credential(userName);
+        else if("PLAIN_MECHANISM".equals(mech))
+            cr=MongoCredential.createPlainCredential(userName,source,
+                                                     password==null?null:password.toCharArray());
+        else
+            throw new IllegalArgumentException("invalid mechanism:"+mech+", must be one of "+
+                                               "GSSAPI_MECHANISM, MONGODB_CR_MECHANISM, "+
+                                               "MONGODB_X5090_MECHANISM, or PLAIN_MECHANISM");
+        return cr;
+    }
+
+    public static List<MongoCredential> credentialsFromJson(JsonNode node) {
+        List<MongoCredential> list=new ArrayList<>();
+        try {
+            if(node instanceof ArrayNode) {
+                for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
+                    list.add(credentialFromJson((ObjectNode)itr.next()));
+                }
+            } else if(node!=null) { 
+                list.add(credentialFromJson((ObjectNode)node));
+            } 
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("Invalid credentials node:"+node);
+        }
+        return list;
+    }
+
+    public static String toString(MongoCredential cr) {
+        StringBuilder bld=new StringBuilder();
+        bld.append("{mechanism:").append(cr.getMechanism());
+        if(cr.getUserName()!=null)
+            bld.append(" userName:").append(cr.getUserName());
+        if(cr.getPassword()!=null)
+            bld.append(" password:").append(cr.getPassword());
+        if(cr.getSource()!=null)
+            bld.append(" source:").append(cr.getSource());
+        bld.append('}');
         return bld.toString();
     }
 
@@ -259,6 +347,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
             if(x!=null) {
                 noCertValidation = x.asBoolean();
             }
+            credentials=credentialsFromJson(node.get("credentials"));
             x = node.get("metadataDataStoreParser");
             try {
                 if (x != null){
