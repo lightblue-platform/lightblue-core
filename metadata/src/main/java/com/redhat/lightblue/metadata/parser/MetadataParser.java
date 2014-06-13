@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
@@ -107,6 +110,8 @@ public abstract class MetadataParser<T> {
     private static final String STR_DEPRECATED = "deprecated";
     private static final String STR_DISABLED = "disabled";
     private static final String STR_CONFIGURATION = "configuration";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataParser.class);
 
     private final Extensions<T> extensions;
     private final TypeResolver typeResolver;
@@ -547,8 +552,11 @@ public abstract class MetadataParser<T> {
      */
     public DataStore parseDataStore(T object) {
         if (object != null) {
+            LOGGER.debug("parseDataStore {}",object);
             String name = getSingleFieldName(object, MetadataConstants.ERR_INVALID_DATASTORE);
+            LOGGER.debug("Field:{}",name);
             DataStoreParser<T> p = getDataStoreParser(name);
+            LOGGER.debug("parser: {}",p);
             if (p == null) {
                 throw Error.get(MetadataConstants.ERR_UNKNOWN_DATASTORE, name);
             }

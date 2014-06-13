@@ -70,7 +70,8 @@ public final class MetadataManager {
         Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
         for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
             Class<DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
-            extensions.registerDataStoreParser(entry.getKey(), tempParser.newInstance());
+            DataStoreParser parser=tempParser.newInstance();
+            extensions.registerDataStoreParser(parser.getDefaultName(), parser);
         }
 
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
