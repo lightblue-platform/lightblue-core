@@ -46,7 +46,7 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
             DBResolver dbresolver=new MongoDBResolver(datasources);
             Extensions<BSONObject> parserExtensions = new Extensions<>();
             parserExtensions.addDefaultExtensions();
-            parserExtensions.registerDataStoreParser(datasource, new MongoDataStoreParser<BSONObject>());
+            parserExtensions.registerDataStoreParser(MongoDataStoreParser.NAME, new MongoDataStoreParser<BSONObject>());
             DefaultTypes typeResolver = new DefaultTypes();
             MongoDataStore mdstore=new MongoDataStore();
             mdstore.setDatasourceName(datasource);

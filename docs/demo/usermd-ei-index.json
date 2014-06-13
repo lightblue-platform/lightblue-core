@@ -15,7 +15,7 @@
     ],
     "datastore": {
         "mongo": {
-            "datasource": "mongo",
+            "datasource": "mongodata",
             "collection": "user"
         }
     }
