@@ -18,11 +18,11 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.Backend;
+import com.redhat.lightblue.metadata.DataStore;
 
 /**
- * Interface for backend parsers
+ * Interface for datastore parsers
  */
-public interface BackendParser<NodeType> extends Parser<NodeType, Backend> {
+public interface DataStoreParser<NodeType> extends Parser<NodeType, DataStore> {
     String getDefaultName();
 }

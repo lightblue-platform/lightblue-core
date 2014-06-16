@@ -31,7 +31,7 @@ import com.redhat.lightblue.crud.MetadataResolver;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.mongo.MongoBackendParser;
+import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -63,7 +63,7 @@ public class MergeTest extends AbstractJsonSchemaTest {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerBackendParser("mongo", new MongoBackendParser<JsonNode>());
+        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
         EntityMetadata md = parser.parseEntityMetadata(node);

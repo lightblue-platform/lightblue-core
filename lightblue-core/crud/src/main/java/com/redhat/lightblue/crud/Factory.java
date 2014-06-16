@@ -111,7 +111,7 @@ public class Factory implements Serializable {
      * Returns a CRUD controller for the given entity
      */
     public CRUDController getCRUDController(EntityMetadata md) {
-        return getCRUDController(md.getBackend().getType());
+        return getCRUDController(md.getDataStore().getBackend());
     }
 
     /**

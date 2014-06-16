@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
 import com.redhat.lightblue.common.mongo.DBResolver;
-import com.redhat.lightblue.common.mongo.MongoBackend;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 
@@ -43,7 +43,7 @@ public class MongoDBResolver implements DBResolver {
     }
 
     @Override
-    public DB get(MongoBackend store) {
+    public DB get(MongoDataStore store) {
         LOGGER.debug("Returning DB for {}", store);
         DB db = null;
         try {

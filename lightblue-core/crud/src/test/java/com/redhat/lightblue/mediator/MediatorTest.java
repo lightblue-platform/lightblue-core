@@ -59,7 +59,7 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.TestBackendParser;
+import com.redhat.lightblue.TestDataStoreParser;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -148,7 +148,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerBackendParser("mongo", new TestBackendParser<JsonNode>());
+        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
         EntityMetadata md = parser.parseEntityMetadata(node);

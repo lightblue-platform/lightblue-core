@@ -19,27 +19,27 @@
 package com.redhat.lightblue.metadata.mongo;
 
 import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.Backend;
-import com.redhat.lightblue.metadata.parser.BackendParser;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-import com.redhat.lightblue.common.mongo.MongoBackend;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 
 import com.redhat.lightblue.util.Error;
 
-public class MongoBackendParser<T> implements BackendParser<T> {
+public class MongoDataStoreParser<T> implements DataStoreParser<T> {
 
     public static final String COLLECTION_REQUIRED = "COLLECTION_REQUIRED";
 
     public static final String NAME = "mongo";
 
     @Override
-    public Backend parse(String name, MetadataParser<T> p, T node) {
+    public DataStore parse(String name, MetadataParser<T> p, T node) {
         if (!NAME.equals(name)) {
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
 
-        MongoBackend ds = new MongoBackend();
+        MongoDataStore ds = new MongoDataStore();
         ds.setClientJndiName(p.getStringProperty(node, "clientJndiName"));
         ds.setDatabaseName(p.getStringProperty(node, "database"));
         ds.setDatasourceName(p.getStringProperty(node, "datasource"));
@@ -52,8 +52,8 @@ public class MongoBackendParser<T> implements BackendParser<T> {
     }
 
     @Override
-    public void convert(MetadataParser<T> p, T emptyNode, Backend object) {
-        MongoBackend ds = (MongoBackend) object;
+    public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
+        MongoDataStore ds = (MongoDataStore) object;
         if (ds.getClientJndiName() != null) {
             p.putString(emptyNode, "clientJndiName", ds.getClientJndiName());
         }

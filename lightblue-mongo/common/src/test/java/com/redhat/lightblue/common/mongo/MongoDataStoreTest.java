@@ -23,13 +23,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MongoBackendTest {
+public class MongoDataStoreTest {
 
-    MongoBackend dataStore;
+    MongoDataStore dataStore;
 
     @Before
     public void setUp() throws Exception {
-        dataStore = new MongoBackend("jndiName", "databaseName", "datasourceName", "collectionName");
+        dataStore = new MongoDataStore("jndiName", "databaseName", "datasourceName", "collectionName");
     }
 
     @After
@@ -42,8 +42,8 @@ public class MongoBackendTest {
     }
 
     @Test
-    public void testGetType() {
-        Assert.assertEquals("mongo", dataStore.getType());
+    public void testGetBackend() {
+        Assert.assertEquals("mongo", dataStore.getBackend());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MongoBackendTest {
 
     @Test
     public void testEqualsObject() {
-        MongoBackend dataStore2 = new MongoBackend();
+        MongoDataStore dataStore2 = new MongoDataStore();
         dataStore2.setClientJndiName("jndiName");
         dataStore2.setCollectionName("collectionName");
         dataStore2.setDatabaseName("databaseName");

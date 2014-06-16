@@ -13,9 +13,8 @@
                 "values": ["person", "organization"]
             }
         ],
-        "backend": {
-            "empty": {
-            }
+        "datastore": {
+            "backend":"empty"
         }
     },
     "schema": {

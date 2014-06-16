@@ -1,10 +1,9 @@
 {
     "entityInfo": {
         "name": "test",
-        "backend": {
-            "mongo": {
-                "collection":"test"
-            }
+        "datastore": {
+            "backend":"mongo",
+            "collection":"test"
         }
     },
     "schema": {

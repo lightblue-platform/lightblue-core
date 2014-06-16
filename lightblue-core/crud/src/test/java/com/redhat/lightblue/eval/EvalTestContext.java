@@ -32,7 +32,7 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-import com.redhat.lightblue.TestBackendParser;
+import com.redhat.lightblue.TestDataStoreParser;
 
 public class EvalTestContext extends AbstractJsonNodeTest {
 
@@ -49,7 +49,7 @@ public class EvalTestContext extends AbstractJsonNodeTest {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerBackendParser("mongo", new TestBackendParser<JsonNode>());
+        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
         EntityMetadata md = parser.parseEntityMetadata(node);

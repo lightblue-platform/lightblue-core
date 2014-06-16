@@ -3,10 +3,9 @@
         "entityInfo": {
             "name": "test1",
             "defaultVersion": "1.0.0",
-            "backend": {
-                "mongo": {
-                    "collection": "test1"
-                }
+            "datastore": {
+                "backend":"mongo",
+                "collection": "test1"
             }
         },
         "schema": {
@@ -42,10 +41,9 @@
     {
         "entityInfo": {
             "name": "test2",
-            "backend": {
-                "mongo": {
-                    "collection": "test2"
-                }
+            "datastore": {
+                "backend":"mongo",
+                "collection": "test2"
             }
         },
         "schema": {
@@ -82,10 +80,9 @@
         "entityInfo": {
             "name": "test3",
             "defaultVersion": "1.0.0",
-            "backend": {
-                "mongo": {
-                    "collection": "test3"
-                }
+            "datastore": {
+                "backend":"mongo",
+                "collection": "test3"
             }
         },
         "schema": {

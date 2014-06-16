@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.Backend;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.EntityInfo;
@@ -92,6 +92,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_ENUMS = "enums";
     private static final String STR_ENTITY_INFO = "entityInfo";
     private static final String STR_SCHEMA = "schema";
+    private static final String STR_DATASTORE = "datastore";
     private static final String STR_BACKEND = "backend";
     private static final String STR_EXTEND_VERSIONS = "extendVersions";
     private static final String STR_CHANGELOG = "changelog";
@@ -146,8 +147,8 @@ public abstract class MetadataParser<T> {
         this.typeResolver = typeResolver;
     }
 
-    public BackendParser<T> getBackendParser(String backendName) {
-        return extensions.getBackendParser(backendName);
+    public DataStoreParser<T> getDataStoreParser(String backendName) {
+        return extensions.getDataStoreParser(backendName);
     }
 
     public EntityConstraintParser<T> getEntityConstraintParser(String constraintName) {
@@ -194,8 +195,8 @@ public abstract class MetadataParser<T> {
             info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS), parseEnum));
             info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS), parseHook));
 
-            T backend = getRequiredObjectProperty(object, STR_BACKEND);
-            info.setBackend(parseBackend(backend));
+            T backend = getRequiredObjectProperty(object, STR_DATASTORE);
+            info.setDataStore(parseDataStore(backend));
             return info;
         } finally {
             Error.pop();
@@ -550,17 +551,17 @@ public abstract class MetadataParser<T> {
      *
      * @return The parsed backend. Returns null if object is null.
      */
-    public Backend parseBackend(T object) {
+    public DataStore parseDataStore(T object) {
         if (object != null) {
-            LOGGER.debug("parseBackend {}", object);
-            String name = getSingleFieldName(object, MetadataConstants.ERR_INVALID_BACKEND);
-            LOGGER.debug("Field:{}", name);
-            BackendParser<T> p = getBackendParser(name);
+            LOGGER.debug("parseDataStore {}", object);
+            String name = getRequiredStringProperty(object, STR_BACKEND);
+            LOGGER.debug("Backend:{}", name);
+            DataStoreParser<T> p = getDataStoreParser(name);
             LOGGER.debug("parser: {}", p);
             if (p == null) {
                 throw Error.get(MetadataConstants.ERR_UNKNOWN_BACKEND, name);
             }
-            return p.parse(name, this, getObjectProperty(object, name));
+            return p.parse(name, this, object);
         } else {
             return null;
         }
@@ -701,10 +702,10 @@ public abstract class MetadataParser<T> {
                 // enumsis an array directly on the entity info, so do not create a new node ere, let conversion handle it
                 convertEnums(ret, info.getEnums());
             }
-            if (info.getBackend() != null) {
-                T backendNode = newNode();
-                convertBackend(backendNode, info.getBackend());
-                putObject(ret, STR_BACKEND, backendNode);
+            if (info.getDataStore() != null) {
+                T dsNode = newNode();
+                convertDataStore(dsNode, info.getDataStore());
+                putObject(ret, STR_DATASTORE, dsNode);
             }
             return ret;
         } finally {
@@ -976,17 +977,16 @@ public abstract class MetadataParser<T> {
     /**
      * Adds the description of backend to parent as a field named by the type of the backend
      */
-    public void convertBackend(T parent, Backend store) {
-        Error.push("convertBackend");
+    public void convertDataStore(T dsNode, DataStore store) {
+        Error.push("convertDataStore");
         try {
-            String type = store.getType();
-            BackendParser<T> parser = getBackendParser(type);
+            String type = store.getBackend();
+            DataStoreParser<T> parser = getDataStoreParser(type);
             if (parser == null) {
                 throw Error.get(MetadataConstants.ERR_UNKNOWN_BACKEND, type);
             }
-            T dsNode = newNode();
             parser.convert(this, dsNode, store);
-            putObject(parent, type, dsNode);
+            putString(dsNode, STR_BACKEND, type);
         } finally {
             Error.pop();
         }

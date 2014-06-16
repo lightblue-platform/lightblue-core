@@ -1,9 +1,8 @@
 {
     "entityInfo": {
         "name": "test",
-        "backend": {
-            "empty": {
-            }
+        "datastore": {
+            "backend":"empty"
         }
     },
     "schema": {
