@@ -91,27 +91,27 @@ public class Factory implements Serializable {
     }
 
     /**
-     * Adds a CRUD controller for the given datastore type
+     * Adds a CRUD controller for the given backend type
      *
-     * @param datastoreType Type of the datastore for which a controller is being added
+     * @param backendType Type of the backend for which a controller is being added
      * @param controller The controller
      */
-    public synchronized void addCRUDController(String datastoreType, CRUDController controller) {
-        crudControllers.add(datastoreType, controller);
+    public synchronized void addCRUDController(String backendType, CRUDController controller) {
+        crudControllers.add(backendType, controller);
     }
 
     /**
-     * Returns a CRUD controller for the given datastore type
+     * Returns a CRUD controller for the given backend type
      */
-    public CRUDController getCRUDController(String datastoreType) {
-        return crudControllers.find(datastoreType);
+    public CRUDController getCRUDController(String backendType) {
+        return crudControllers.find(backendType);
     }
 
     /**
      * Returns a CRUD controller for the given entity
      */
     public CRUDController getCRUDController(EntityMetadata md) {
-        return getCRUDController(md.getDataStore().getType());
+        return getCRUDController(md.getBackend().getType());
     }
 
     /**

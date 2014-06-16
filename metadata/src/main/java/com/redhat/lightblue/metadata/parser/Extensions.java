@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.Backend;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.HookConfiguration;
@@ -28,7 +28,7 @@ import com.redhat.lightblue.metadata.HookConfiguration;
  */
 public class Extensions<T> {
 
-    private final ParserRegistry<T, DataStore> dataStoreParsers = new ParserRegistry<>();
+    private final ParserRegistry<T, Backend> backendParsers = new ParserRegistry<>();
 
     private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
 
@@ -45,24 +45,24 @@ public class Extensions<T> {
     }
 
     /**
-     * Adds a parser that parses DataStore
+     * Adds a parser that parses Backend
      *
-     * @param name Name of the datastore type (such as 'mongo')
-     * @param parser The parser that parses datastores of the given type
+     * @param name Name of the backend type (such as 'mongo')
+     * @param parser The parser that parses backend of the given type
      */
-    public void registerDataStoreParser(String name, DataStoreParser<T> parser) {
-        dataStoreParsers.add(name, parser);
+    public void registerBackendParser(String name, BackendParser<T> parser) {
+        backendParsers.add(name, parser);
     }
 
     /**
-     * Gets a datastore parser
+     * Gets a backend parser
      *
-     * @param dataStoreName Name of the datastore (such as 'mongo')
+     * @param backendName Name of the backend (such as 'mongo')
      *
-     * @return The parser for the datastore, or null if it does not exist
+     * @return The parser for the backend, or null if it does not exist
      */
-    public DataStoreParser<T> getDataStoreParser(String dataStoreName) {
-        return (DataStoreParser<T>) dataStoreParsers.find(dataStoreName);
+    public BackendParser<T> getBackendParser(String backendName) {
+        return (BackendParser<T>) backendParsers.find(backendName);
     }
 
     /**
@@ -132,7 +132,7 @@ public class Extensions<T> {
 
     @Override
     public String toString() {
-        return dataStoreParsers.toString() + "\n"
+        return backendParsers.toString() + "\n"
                 + entityConstraintParsers.toString() + "\n"
                 + fieldConstraintParsers.toString() + "\n"
                 + hookConfigurationParsers.toString();

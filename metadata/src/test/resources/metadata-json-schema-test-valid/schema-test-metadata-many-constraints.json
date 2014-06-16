@@ -11,7 +11,7 @@
                 "fields": [{"counter": "$asc"}]
             }
         ],
-        "datastore": {
+        "backend": {
             "empty": {
             }
         }

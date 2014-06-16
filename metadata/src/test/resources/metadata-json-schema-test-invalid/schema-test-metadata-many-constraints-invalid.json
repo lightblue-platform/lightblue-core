@@ -1,7 +1,7 @@
 {
     "entityInfo": {
         "name": "test",
-        "datastore": {
+        "backend": {
             "empty": {
             }
         }

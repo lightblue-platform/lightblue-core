@@ -39,7 +39,7 @@ public abstract class AbstractMetadata implements Metadata {
      */
     protected abstract boolean checkVersionExists(String entityName, String version);
 
-    protected abstract void checkDataStoreIsValid(EntityInfo md);
+    protected abstract void checkBackendIsValid(EntityInfo md);
 
     /**
      * Checks that the default version on the EntityInfo exists. If no default version is set then has no side effect.
@@ -86,8 +86,8 @@ public abstract class AbstractMetadata implements Metadata {
         checkMetadataHasFields(md.getEntitySchema());
     }
 
-    protected final void checkDataStoreIsValid(EntityMetadata md) {
-        checkDataStoreIsValid(md.getEntityInfo());
+    protected final void checkBackendIsValid(EntityMetadata md) {
+        checkBackendIsValid(md.getEntityInfo());
     }
 
     protected final void checkMetadataHasFields(EntitySchema md) {

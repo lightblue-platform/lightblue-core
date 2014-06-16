@@ -24,29 +24,29 @@ import com.redhat.lightblue.util.JsonInitializable;
 
 public class ControllerConfiguration implements JsonInitializable {
 
-    private String datastoreType;
+    private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
 
     public ControllerConfiguration() {
     }
 
     public ControllerConfiguration(ControllerConfiguration c) {
-        datastoreType = c.datastoreType;
+        backend = c.backend;
         controllerFactory = c.controllerFactory;
     }
 
     /**
-     * @return the datastoreType
+     * @return the backend
      */
-    public String getDatastoreType() {
-        return datastoreType;
+    public String getBackend() {
+        return backend;
     }
 
     /**
-     * @param datastoreType the datastoreType to set
+     * @param backend the backend to set
      */
-    public void setDatastoreType(String datastoreType) {
-        this.datastoreType = datastoreType;
+    public void setBackend(String backend) {
+        this.backend = backend;
     }
 
     /**
@@ -67,9 +67,9 @@ public class ControllerConfiguration implements JsonInitializable {
     public void initializeFromJson(JsonNode node) {
         try {
             if (node != null) {
-                JsonNode x = node.get("datastoreType");
+                JsonNode x = node.get("backend");
                 if (x != null) {
-                    datastoreType = x.asText();
+                    backend = x.asText();
                 }
                 x = node.get("controllerFactory");
                 if (x != null) {

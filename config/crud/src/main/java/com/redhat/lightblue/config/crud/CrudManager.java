@@ -74,7 +74,7 @@ public final class CrudManager {
         for (ControllerConfiguration x : configuration.getControllers()) {
             ControllerFactory cfactory = x.getControllerFactory().newInstance();
             CRUDController controller = cfactory.createController(x, datasources);
-            factory.addCRUDController(x.getDatastoreType(), controller);
+            factory.addCRUDController(x.getBackend(), controller);
         }
         mediator = new Mediator(metadataMgr.getMetadata(), factory);
     }
