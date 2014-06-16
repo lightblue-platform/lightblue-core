@@ -71,8 +71,8 @@ public class RegexEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {}", relativePath, regex);
-        KeyValueCursor<Path,JsonNode> cursor=ctx.getNodes(relativePath);
-        while(cursor.hasNext()) {
+        KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(relativePath);
+        while (cursor.hasNext()) {
             cursor.next();
             JsonNode valueNode = cursor.getCurrentValue();
             Object docValue;
@@ -86,7 +86,7 @@ public class RegexEvaluator extends QueryEvaluator {
             if (docValue != null) {
                 ctx.setResult(regex.matcher(docValue.toString()).matches());
             }
-            if(ctx.getResult()){
+            if (ctx.getResult()) {
                 break;
             }
         }

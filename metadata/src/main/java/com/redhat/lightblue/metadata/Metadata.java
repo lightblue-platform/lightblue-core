@@ -58,9 +58,8 @@ public interface Metadata extends Serializable {
     /**
      * Returns the names of all entities
      *
-     * @param statuses If empty, all entity names are
-     * returned. Otherwise, only those entities that have schema with
-     * the given statuses are returned
+     * @param statuses If empty, all entity names are returned. Otherwise, only those entities that have schema with the
+     * given statuses are returned
      */
     String[] getEntityNames(MetadataStatus... statuses);
 

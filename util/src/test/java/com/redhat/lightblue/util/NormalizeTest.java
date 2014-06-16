@@ -25,12 +25,12 @@ public class NormalizeTest {
 
     @Test
     public void parentTest() {
-        Assert.assertEquals("zero.three.four",new Path("zero.one.$parent.three.four").normalize().toString());
+        Assert.assertEquals("zero.three.four", new Path("zero.one.$parent.three.four").normalize().toString());
     }
 
     @Test
     public void parentParentTest() {
-        Assert.assertEquals("three.four",new Path("zero.one.$parent.$parent.three.four").normalize().toString());
+        Assert.assertEquals("three.four", new Path("zero.one.$parent.$parent.three.four").normalize().toString());
     }
 
     @Test
@@ -38,21 +38,22 @@ public class NormalizeTest {
         try {
             new Path("zero.one.$parent.$parent.$parent.three.four").normalize();
             Assert.fail();
-        } catch(Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     @Test
     public void parent_parentTest() {
-        Assert.assertEquals("zero.four",new Path("zero.one.$parent.three.$parent.four").normalize().toString());
+        Assert.assertEquals("zero.four", new Path("zero.one.$parent.three.$parent.four").normalize().toString());
     }
 
     @Test
     public void thisTest() {
-        Assert.assertEquals("zero.one.two.three.four",new Path("zero.one.two.$this.three.$this.four").normalize().toString());
+        Assert.assertEquals("zero.one.two.three.four", new Path("zero.one.two.$this.three.$this.four").normalize().toString());
     }
 
     @Test
     public void thisTest2() {
-        Assert.assertEquals("zero.one.two.three.four",new Path("$this.zero.one.two.$this.three.$this.four").normalize().toString());
+        Assert.assertEquals("zero.one.two.three.four", new Path("$this.zero.one.two.$this.three.$this.four").normalize().toString());
     }
 }

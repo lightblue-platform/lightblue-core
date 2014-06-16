@@ -148,6 +148,5 @@ public class SetExpression extends PrimitiveUpdateExpression {
         }
         return true;
     }
-    
-    
+
 }

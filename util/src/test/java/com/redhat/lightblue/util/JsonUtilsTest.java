@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.util;
 
 import static org.junit.Assert.assertEquals;
@@ -75,14 +74,14 @@ public class JsonUtilsTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
     @Test
     public void testJsonWithNoInput() throws Exception {
-        JsonUtils.json((String)null);
+        JsonUtils.json((String) null);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
     @Test
     public void testJsonWithInvalidJSONInput() throws Exception {
         JsonUtils.json("a");

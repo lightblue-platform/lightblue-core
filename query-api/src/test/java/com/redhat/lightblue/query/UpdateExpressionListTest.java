@@ -118,12 +118,12 @@ public class UpdateExpressionListTest {
 
         ArrayNode arrayNode = JsonObject.getFactory().arrayNode();
         assertEquals(arrayNode.add(elem.toJson()), instance.toJson());
-        
-        instance = new UpdateExpressionList((PartialUpdateExpression)null);
+
+        instance = new UpdateExpressionList((PartialUpdateExpression) null);
         arrayNode = JsonObject.getFactory().arrayNode();
         assertEquals(arrayNode, instance.toJson());
-        
-        instance = new UpdateExpressionList((List)null);
+
+        instance = new UpdateExpressionList((List) null);
         arrayNode = JsonObject.getFactory().arrayNode();
         assertEquals(arrayNode, instance.toJson());
     }
@@ -143,12 +143,12 @@ public class UpdateExpressionListTest {
         assertEquals(1, result.getList().size());
         assertNotNull(result.getList().get(0));
         assertEquals("The element using the constructor is different", expResult.toJson(), result.toJson());
-        
+
         arrayNode = JsonObject.getFactory().arrayNode();
         result = UpdateExpressionList.fromJson(arrayNode);
-        expResult = new UpdateExpressionList((PartialUpdateExpression)null);
+        expResult = new UpdateExpressionList((PartialUpdateExpression) null);
         assertEquals("The element using the constructor is different", expResult.toJson(), result.toJson());
-        
+
     }
 
     private static class PartialUpdateExpressionImpl extends PartialUpdateExpression {

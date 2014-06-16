@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.query;
 
 import com.redhat.lightblue.util.Path;
@@ -28,7 +27,7 @@ import static org.junit.Assert.*;
  * @author lcestari
  */
 public class FieldAndRValueTest {
-    
+
     public FieldAndRValueTest() {
     }
 
@@ -41,7 +40,7 @@ public class FieldAndRValueTest {
         Path expResult = null;
         Path result = instance.getField();
         assertEquals(expResult, result);
-        
+
         expResult = new Path("Test");
         instance = new FieldAndRValue(expResult, null);
         result = instance.getField();
@@ -58,7 +57,7 @@ public class FieldAndRValueTest {
         instance.setField(expResult);
         Path result = instance.getField();
         assertEquals(expResult, result);
-        
+
         expResult = new Path("Test");
         instance.setField(expResult);
         result = instance.getField();
@@ -70,7 +69,7 @@ public class FieldAndRValueTest {
      */
     @Test
     public void testGetRValue() {
-            FieldAndRValue instance = new FieldAndRValue();
+        FieldAndRValue instance = new FieldAndRValue();
         RValueExpression expResult = null;
         RValueExpression result = instance.getRValue();
         assertEquals(expResult, result);
@@ -79,7 +78,7 @@ public class FieldAndRValueTest {
         instance = new FieldAndRValue(null, expResult);
         result = instance.getRValue();
         assertEquals(expResult, result);
-    
+
     }
 
     /**
@@ -92,7 +91,7 @@ public class FieldAndRValueTest {
         instance.setRValue(expResult);
         RValueExpression result = instance.getRValue();
         assertEquals(expResult, result);
-        
+
         expResult = new RValueExpression(RValueExpression.RValueType._emptyObject);
         instance.setRValue(expResult);
         result = instance.getRValue();
@@ -108,13 +107,13 @@ public class FieldAndRValueTest {
         String expResult = "null:null";
         String result = instance.toString();
         assertEquals(expResult, result);
-        
+
         Path p = new Path("ToString");
         RValueExpression rve = new RValueExpression(p);
-        instance=  new FieldAndRValue(p, rve);
+        instance = new FieldAndRValue(p, rve);
         expResult = "ToString:{\"$valueof\":\"ToString\"}";
         result = instance.toString();
         assertEquals(expResult, result);
     }
-    
+
 }

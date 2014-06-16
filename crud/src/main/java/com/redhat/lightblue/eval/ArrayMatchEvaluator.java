@@ -73,7 +73,7 @@ public class ArrayMatchEvaluator extends QueryEvaluator {
                 }
                 if (ev.evaluate(nestedCtx)) {
                     ret = true;
-                } 
+                }
                 index++;
             }
         }

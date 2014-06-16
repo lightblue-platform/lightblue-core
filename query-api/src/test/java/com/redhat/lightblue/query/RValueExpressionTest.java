@@ -63,8 +63,7 @@ public class RValueExpressionTest {
         rExpResult = RValueExpression.RValueType._value;
         rResult = instance.getType();
         assertEquals(rExpResult, rResult);
-        
-        
+
         //public RValueExpression(Path p) {
         instance = new RValueExpression(Path.ANYPATH);
         expResult = null;
@@ -78,7 +77,7 @@ public class RValueExpressionTest {
         rExpResult = RValueExpression.RValueType._dereference;
         rResult = instance.getType();
         assertEquals(rExpResult, rResult);
-        
+
         //public RValueExpression(RValueType type) {
         instance = new RValueExpression(RValueExpression.RValueType._null);
         expResult = null;

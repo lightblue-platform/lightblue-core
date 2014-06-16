@@ -58,8 +58,8 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
-        KeyValueCursor<Path,JsonNode> cursor=ctx.getNodes(field);
-        while(cursor.hasNext()) {
+        KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
+        while (cursor.hasNext()) {
             cursor.next();
             JsonNode valueNode = cursor.getCurrentValue();
             Object docValue;
@@ -72,7 +72,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
             int result = fieldMd.getType().compare(docValue, value);
             LOGGER.debug(" result={}", result);
             ctx.setResult(operator.apply(result));
-            if(ctx.getResult()){
+            if (ctx.getResult()) {
                 break;
             }
         }

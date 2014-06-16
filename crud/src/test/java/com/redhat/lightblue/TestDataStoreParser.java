@@ -32,7 +32,7 @@ public class TestDataStoreParser<T> implements DataStoreParser<T> {
             }
         };
     }
-    
+
     @Override
     public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
     }

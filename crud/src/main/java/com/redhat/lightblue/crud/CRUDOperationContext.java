@@ -59,7 +59,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.entityName = entityName;
         this.factory = f;
         this.callerRoles = callerRoles;
-        this.hookManager=new HookManager(factory.getHookResolver(),nf);
+        this.hookManager = new HookManager(factory.getHookResolver(), nf);
         if (docs != null) {
             documents = new ArrayList<>(docs.size());
             for (JsonDoc doc : docs) {
@@ -90,7 +90,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     protected void setCallerRoles(Set<String> roles) {
         this.callerRoles.addAll(roles);
     }
-    
+
     /**
      * Returns the roles the caller is in
      */

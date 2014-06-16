@@ -39,9 +39,9 @@ public final class ServoGraphiteSetup {
     private static boolean initialized = false;
 
     private ServoGraphiteSetup() {
-        
+
     }
-    
+
     public static void initialize() {
         if (!initialized) {
             doInitialize();
@@ -59,7 +59,7 @@ public final class ServoGraphiteSetup {
         // try to get name from openshift.  assume it's scaleable app.
         // format: <app name>.  <namespace>.<gear dns>
         // default
-        String prefix = System.getenv("HOSTNAME"); 
+        String prefix = System.getenv("HOSTNAME");
 
         if (System.getenv("OPENSHIFT_APP_NAME") != null) {
             prefix = String.format(

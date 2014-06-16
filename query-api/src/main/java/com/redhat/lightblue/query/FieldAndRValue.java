@@ -105,6 +105,5 @@ public class FieldAndRValue implements Serializable {
         }
         return true;
     }
-    
-    
+
 }

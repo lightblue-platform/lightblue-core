@@ -60,17 +60,17 @@ public final class JsonUtils {
      * Parses a JSON stream
      */
     public static JsonNode json(InputStream stream) throws IOException {
-        return json((Reader)new InputStreamReader(stream, Charset.defaultCharset()));
+        return json((Reader) new InputStreamReader(stream, Charset.defaultCharset()));
     }
 
     /**
      * Parses a JSON stream
      */
     public static JsonNode json(Reader reader) throws IOException {
-        StringBuilder bld=new StringBuilder(512);
+        StringBuilder bld = new StringBuilder(512);
         int c;
-        while( (c=reader.read()) >= 0 ) {
-            bld.append((char)c);
+        while ((c = reader.read()) >= 0) {
+            bld.append((char) c);
         }
         return json(bld.toString());
     }

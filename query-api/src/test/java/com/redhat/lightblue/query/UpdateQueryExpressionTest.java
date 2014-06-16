@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.query;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ import com.redhat.lightblue.util.JsonUtils;
  * @author lcestari
  */
 public class UpdateQueryExpressionTest {
-    
+
     public UpdateQueryExpressionTest() {
     }
 
@@ -46,16 +45,16 @@ public class UpdateQueryExpressionTest {
         JsonNode node = null;
         QueryExpression expResult = null;
         QueryExpression result = null;
-        
+
         node = JsonUtils.json("\"$all\"");
-        
+
         result = UpdateQueryExpression.fromJson(node);
         expResult = new AllMatchExpression();
         assertEquals(expResult, result);
-        
+
         result = UpdateQueryExpression.fromJson(JsonUtils.json("{\"field\":\"field6.nf1\",\"regex\":\"Nvalue.*\"}"));
         assertNotEquals(expResult, result);
-        
+
     }
-    
+
 }

@@ -91,7 +91,7 @@ public class SetExpressionTest {
         SetExpression instance = null;
 
         instance = new SetExpression(UpdateOperator._set, list);
-        
+
         JsonNode result = instance.toJson();
         assertEquals("{\"$set\":{\"\":{\"$valueof\":\"\"}}}", result.toString());
     }
@@ -107,7 +107,7 @@ public class SetExpressionTest {
         fav.setRValue(new RValueExpression(Path.EMPTY));
         list.add(fav);
         SetExpression expResult = new SetExpression(UpdateOperator._set, list);
-        SetExpression result = SetExpression.fromJson((ObjectNode)JsonUtils.json("{\"$set\":{\"\":{\"$valueof\":\"\"}}}"));
+        SetExpression result = SetExpression.fromJson((ObjectNode) JsonUtils.json("{\"$set\":{\"\":{\"$valueof\":\"\"}}}"));
         assertEquals(expResult, result);
     }
 

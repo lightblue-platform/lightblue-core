@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.mediator;
 
-
 import static org.hamcrest.CoreMatchers.containsString;
 
 import java.util.Arrays;
@@ -76,10 +75,11 @@ public class MediatorTest extends AbstractJsonSchemaTest {
 
     private static final class TestMetadata extends DatabaseMetadata {
         EntityMetadata md;
-       @Override
-       public EntityMetadata getEntityMetadata(String entityName, String version) {
-           return md;
-       }
+
+        @Override
+        public EntityMetadata getEntityMetadata(String entityName, String version) {
+            return md;
+        }
     }
 
     private static final class MockCrudController implements CRUDController {
@@ -124,16 +124,16 @@ public class MediatorTest extends AbstractJsonSchemaTest {
             return findResponse;
         }
     }
-    
+
     private static final class RestClientIdentification extends ClientIdentification {
-        
-        private Set<String> clientRoles; 
-                
+
+        private Set<String> clientRoles;
+
         public RestClientIdentification(List<String> roles) {
             clientRoles = new HashSet<>();
             clientRoles.addAll(roles);
         }
-                
+
         public boolean isUserInRole(String role) {
             return clientRoles.contains(role) ? true : false;
         }
@@ -141,7 +141,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         @Override
         public JsonNode toJson() {
             return null;
-        }  
+        }
     }
 
     private EntityMetadata getMd(String fname) throws Exception {
@@ -179,7 +179,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
-        Assert.assertThat(response.getErrors().get(0).getMsg(), containsString(CrudConstants.ERR_DISABLED_METADATA+" test 1.0"));
+        Assert.assertThat(response.getErrors().get(0).getMsg(), containsString(CrudConstants.ERR_DISABLED_METADATA + " test 1.0"));
 
     }
 
@@ -189,8 +189,8 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
-        req.setClientId(new RestClientIdentification(Arrays.asList("test-insert","test-update")));      
-        
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -206,8 +206,8 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         req.setEntityVersion(new EntityVersion("test", "1.0"));
         req.setEntityData(loadJsonNode("./sample1.json"));
         req.setReturnFields(null);
-        req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));      
-        
+        req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));
+
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
@@ -216,7 +216,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
     }
-    
+
     @Test
     public void insertRoleTest() throws Exception {
         InsertionRequest req = new InsertionRequest();

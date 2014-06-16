@@ -37,7 +37,7 @@ public class EntityInfo implements Serializable {
     private final Indexes indexes = new Indexes();
     private final Enums enums = new Enums();
     private DataStore dataStore;
-    private final Map<String,Object> properties=new HashMap<>();
+    private final Map<String, Object> properties = new HashMap<>();
 
     public EntityInfo(String name) {
         this.name = name;
@@ -90,7 +90,7 @@ public class EntityInfo implements Serializable {
         this.dataStore = argDataStore;
     }
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 }

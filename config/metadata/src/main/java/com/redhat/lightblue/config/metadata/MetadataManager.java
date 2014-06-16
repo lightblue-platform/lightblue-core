@@ -39,11 +39,11 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Because rest resources are instantiated for every request this manager exists
- * to keep the number of Metadata instances created down to a reasonable level.
- * 
+ * Because rest resources are instantiated for every request this manager exists to keep the number of Metadata
+ * instances created down to a reasonable level.
+ *
  * This class is expected to be a singleton.
- * 
+ *
  * @author nmalik
  */
 public final class MetadataManager {
@@ -70,7 +70,7 @@ public final class MetadataManager {
         Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
         for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
             Class<DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
-            DataStoreParser datastoreParser=tempParser.newInstance();
+            DataStoreParser datastoreParser = tempParser.newInstance();
             extensions.registerDataStoreParser(datastoreParser.getDefaultName(), datastoreParser);
         }
 
@@ -94,7 +94,7 @@ public final class MetadataManager {
         if (cfgClass == null) {
             throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
         }
-        
+
         MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
         cfg.initializeFromJson(root);
 

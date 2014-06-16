@@ -28,7 +28,7 @@ public class VersionInfo extends Version {
     }
 
     public void setStatus(MetadataStatus st) {
-        status=st;
+        status = st;
     }
 
     public boolean isDefault() {
@@ -36,6 +36,6 @@ public class VersionInfo extends Version {
     }
 
     public void setDefault(boolean d) {
-        defaultFlag=d;
+        defaultFlag = d;
     }
 }

@@ -36,7 +36,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
     private Type type;
     private final FieldAccess access = new FieldAccess();
     private final List<FieldConstraint> constraints = new ArrayList<>();
-    private final Map<String,Object> properties = new HashMap<String,Object>();
+    private final Map<String, Object> properties = new HashMap<String, Object>();
 
     private FieldTreeNode parent;
 
@@ -103,7 +103,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return getFullPath(new MutablePath()).immutableCopy();
     }
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
