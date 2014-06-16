@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.VersionInfo;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
@@ -56,19 +55,19 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
             VersionInfo[] versions = getMetadata().getEntityVersions(entity);
             ArrayNode arr = NODE_FACTORY.arrayNode();
 
-            JSONMetadataParser parser = getJSONParser();
             for (VersionInfo x : versions) {
-                ObjectNode obj=NODE_FACTORY.objectNode();
-                obj.put("version",x.getValue());
-                obj.put("changelog",x.getChangelog());
-                ArrayNode ev=NODE_FACTORY.arrayNode();
-                if(x.getExtendsVersions()!=null) {
-                    for(String v:x.getExtendsVersions())
+                ObjectNode obj = NODE_FACTORY.objectNode();
+                obj.put("version", x.getValue());
+                obj.put("changelog", x.getChangelog());
+                ArrayNode ev = NODE_FACTORY.arrayNode();
+                if (x.getExtendsVersions() != null) {
+                    for (String v : x.getExtendsVersions()) {
                         ev.add(NODE_FACTORY.textNode(v));
+                    }
                 }
-                obj.set("extendsVersions",ev);
-                obj.put("status",MetadataParser.toString(x.getStatus()));
-                obj.put("defaultVersion",x.isDefault());
+                obj.set("extendsVersions", ev);
+                obj.put("status", MetadataParser.toString(x.getStatus()));
+                obj.put("defaultVersion", x.isDefault());
                 arr.add(obj);
             }
             return arr.toString();
