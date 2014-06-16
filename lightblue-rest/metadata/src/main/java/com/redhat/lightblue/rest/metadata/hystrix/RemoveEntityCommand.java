@@ -18,8 +18,6 @@
  */
 package com.redhat.lightblue.rest.metadata.hystrix;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
