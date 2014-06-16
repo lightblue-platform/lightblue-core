@@ -18,10 +18,12 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.io.Serializable;
+
 /**
  * Defines a constraint that applies to the entity
  */
-public interface EntityConstraint {
+public interface EntityConstraint extends Serializable {
 
     /**
      * Returns the constraint type
