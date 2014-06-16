@@ -82,19 +82,19 @@ public class TranslatorUpdateTest extends AbstractMongoTest {
         Assert.assertNotNull(((DBObject) obj.get("$unset")).get("field4"));
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void arrTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
         translator.translate(md, update("{ '$set': { 'field7.0.elemf1': 'blah'} }"));
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void arrTest2() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
         translator.translate(md, update("{ '$set': { 'field7': '$null'} }"));
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void objTest() throws Exception {
         EntityMetadata md = getMd("./testMetadata.json");
         translator.translate(md, update("{ '$set': { 'field6': '$null'} }"));

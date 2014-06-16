@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.mongo.hystrix;
 
-
 import com.mongodb.DBCollection;
 import java.util.List;
 import com.mongodb.DBObject;
@@ -32,10 +31,10 @@ public class DistinctCommand extends AbstractMongoCommand<List> {
     private final DBObject query;
 
     public DistinctCommand(String clientKey, DBCollection collection, String key) {
-        this(clientKey,collection,key,null);
+        this(clientKey, collection, key, null);
     }
 
-    public DistinctCommand(String clientKey, DBCollection collection, String key,DBObject query) {
+    public DistinctCommand(String clientKey, DBCollection collection, String key, DBObject query) {
         super(DistinctCommand.class.getSimpleName(), DistinctCommand.class.getSimpleName(), clientKey, collection);
         this.key = key;
         this.query = query;
@@ -43,9 +42,10 @@ public class DistinctCommand extends AbstractMongoCommand<List> {
 
     @Override
     protected List runMongoCommand() {
-        if(query==null)
+        if (query == null) {
             return getDBCollection().distinct(key);
-        else
-            return getDBCollection().distinct(key,query);
+        } else {
+            return getDBCollection().distinct(key, query);
+        }
     }
 }

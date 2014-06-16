@@ -60,17 +60,17 @@ public class RestApplication extends Application {
 
     static {
         try {
-            datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
+            datasources = new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
         } catch (Exception e) {
-            throw new RuntimeException("Cannot initialize datasources.",e);
+            throw new RuntimeException("Cannot initialize datasources.", e);
         }
-        metadataMgr=new MetadataManager(datasources);
-        crudMgr=new CrudManager(datasources,metadataMgr);
+        metadataMgr = new MetadataManager(datasources);
+        crudMgr = new CrudManager(datasources, metadataMgr);
     }
-    
+
     @Override
     public Set<Class<?>> getClasses() {
-        HashSet<Class<?>> set=new HashSet<>();
+        HashSet<Class<?>> set = new HashSet<>();
         set.add(CrudResource.class);
         return set;
     }

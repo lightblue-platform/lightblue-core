@@ -28,7 +28,7 @@ import org.junit.Test;
 public class GetEntityNamesCommandTest extends AbstractRestCommandTest {
     @Test
     public void execute() {
-        GetEntityNamesCommand command = new GetEntityNamesCommand(null, metadata,new String[0]);
+        GetEntityNamesCommand command = new GetEntityNamesCommand(null, metadata, new String[0]);
 
         String output = command.execute();
 

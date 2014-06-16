@@ -155,6 +155,5 @@ public class ArrayAddExpression extends ArrayUpdateExpression {
         }
         return true;
     }
-    
-    
+
 }

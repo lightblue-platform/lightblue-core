@@ -35,7 +35,7 @@ public class Fields implements Serializable {
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final List<Field> fields = new ArrayList<>();
     private final FieldTreeNode parent;
-    private final Map<String,Object> properties=new HashMap<>();
+    private final Map<String, Object> properties = new HashMap<>();
 
     public Fields(FieldTreeNode parent) {
         this.parent = parent;
@@ -97,7 +97,7 @@ public class Fields implements Serializable {
         return resolve(p, 0);
     }
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 

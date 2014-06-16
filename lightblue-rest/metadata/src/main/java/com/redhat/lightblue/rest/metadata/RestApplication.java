@@ -51,13 +51,13 @@ public class RestApplication extends Application {
 
     static {
         try {
-            datasources=new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
+            datasources = new DataSourcesConfiguration(JsonUtils.json(Thread.currentThread().getContextClassLoader().getResourceAsStream("datasources.json")));
         } catch (Exception e) {
-            throw new RuntimeException("Cannot initialize:"+e);
+            throw new RuntimeException("Cannot initialize:" + e);
         }
-        metadataMgr=new MetadataManager(datasources);
+        metadataMgr = new MetadataManager(datasources);
     }
-    
+
     @Override
     public Set<Class<?>> getClasses() {
         return new HashSet<Class<?>>(Arrays.asList(MetadataResource.class));

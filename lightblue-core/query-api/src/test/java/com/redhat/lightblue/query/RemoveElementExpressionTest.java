@@ -32,6 +32,7 @@ public class RemoveElementExpressionTest {
 
     /**
      * Test of toJson method, of class RemoveElementExpression.
+     *
      * @throws java.io.IOException
      */
     @Test

@@ -55,7 +55,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : clientKey)));
         this.mediator = mediator;
-        this.httpServletRequest=ResteasyProviderFactory.getContextData(HttpServletRequest.class);
+        this.httpServletRequest = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
     }
 
     /**
@@ -71,11 +71,11 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
                 m = mediator;
             } else {
                 m = RestApplication.getCrudMgr().getMediator();
-            }    
+            }
         } catch (Exception e) {
             Error.get(RestCrudConstants.ERR_CANT_GET_MEDIATOR);
         }
-        
+
         return m;
     }
 
@@ -101,10 +101,10 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
 
     protected void addCallerId(Request req) {
         req.setClientId(new ClientIdentification() {
-                public boolean isUserInRole(String role) {
-                    return httpServletRequest==null?false:httpServletRequest.isUserInRole(role);
-                }
+            public boolean isUserInRole(String role) {
+                return httpServletRequest == null ? false : httpServletRequest.isUserInRole(role);
+            }
 
-            });
+        });
     }
 }

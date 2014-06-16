@@ -33,9 +33,9 @@ import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Creates CRUD controllers based on configuration. There should be only one
- * instance of this class for each application.
- * 
+ * Creates CRUD controllers based on configuration. There should be only one instance of this class for each
+ * application.
+ *
  * @author nmalik
  */
 public final class CrudManager {

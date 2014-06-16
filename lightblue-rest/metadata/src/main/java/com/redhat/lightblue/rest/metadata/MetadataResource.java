@@ -31,7 +31,7 @@ import javax.ws.rs.core.MediaType;
  * @see https://github.com/bserdar/lightblue/wiki/Rest-Spec-Metadata#rest-spec-metadata
  */
 //metadata/ prefix is the application context
-@Path("/") 
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class MetadataResource {
     @GET
@@ -73,18 +73,19 @@ public class MetadataResource {
     @GET
     @Path("/")
     public String getEntityNames() {
-        return new GetEntityNamesCommand(null,new String[0]).execute();
+        return new GetEntityNamesCommand(null, new String[0]).execute();
     }
 
     @GET
     @Path("/s={statuses}")
     public String getEntityNames(@PathParam("statuses") String statuses) {
-        StringTokenizer tok=new StringTokenizer(" ,;:.");
-        String[] s=new String[tok.countTokens()];
-        int i=0;
-        while(tok.hasMoreTokens())
-            s[i++]=tok.nextToken();
-        return new GetEntityNamesCommand(null,s).execute();
+        StringTokenizer tok = new StringTokenizer(" ,;:.");
+        String[] s = new String[tok.countTokens()];
+        int i = 0;
+        while (tok.hasMoreTokens()) {
+            s[i++] = tok.nextToken();
+        }
+        return new GetEntityNamesCommand(null, s).execute();
     }
 
     @GET
@@ -138,7 +139,7 @@ public class MetadataResource {
     @DELETE
     @Path("/{entity}")
     public String removeEntity(@PathParam("entity") String entity) {
-        return new RemoveEntityCommand(null,entity).execute();
+        return new RemoveEntityCommand(null, entity).execute();
     }
 
     @DELETE

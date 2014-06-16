@@ -49,7 +49,6 @@ public class ReferencesConstraintTest {
         assertTrue(constraint.getType().equals(ReferencesConstraint.REFERENCES));
     }
 
-
     @Test
     public void testSetReference() {
         Reference reference = new Reference();

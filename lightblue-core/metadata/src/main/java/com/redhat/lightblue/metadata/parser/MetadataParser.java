@@ -552,11 +552,11 @@ public abstract class MetadataParser<T> {
      */
     public DataStore parseDataStore(T object) {
         if (object != null) {
-            LOGGER.debug("parseDataStore {}",object);
+            LOGGER.debug("parseDataStore {}", object);
             String name = getSingleFieldName(object, MetadataConstants.ERR_INVALID_DATASTORE);
-            LOGGER.debug("Field:{}",name);
+            LOGGER.debug("Field:{}", name);
             DataStoreParser<T> p = getDataStoreParser(name);
-            LOGGER.debug("parser: {}",p);
+            LOGGER.debug("parser: {}", p);
             if (p == null) {
                 throw Error.get(MetadataConstants.ERR_UNKNOWN_DATASTORE, name);
             }

@@ -175,7 +175,7 @@ public class JsonNodeCursorTest {
         Assert.assertEquals("x", c.getCurrentPath().toString());
         Assert.assertTrue(c.hasChildren(c.getCurrentNode()));
     }
-    
+
     @Test
     public void hasChildren_ArrayNodeEmpty() throws IOException {
         String jsonString = "{\"x\":[]}";
@@ -187,7 +187,7 @@ public class JsonNodeCursorTest {
         Assert.assertEquals("x", c.getCurrentPath().toString());
         Assert.assertFalse(c.hasChildren(c.getCurrentNode()));
     }
-    
+
     @Test
     public void parent_TextNode() throws IOException {
         String jsonString = "{\"parent\":{\"text\":\"value\"}}";

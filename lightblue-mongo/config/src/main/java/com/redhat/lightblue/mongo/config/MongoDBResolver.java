@@ -34,34 +34,34 @@ public class MongoDBResolver implements DBResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBResolver.class);
 
-    private final Map<String,DataSourceConfiguration> datasources;
-    private final Map<String,DB> dbMap=new HashMap<>();
-    private final Map<String,DB> dsMap=new HashMap<>();
+    private final Map<String, DataSourceConfiguration> datasources;
+    private final Map<String, DB> dbMap = new HashMap<>();
+    private final Map<String, DB> dsMap = new HashMap<>();
 
     public MongoDBResolver(DataSourcesConfiguration ds) {
-        datasources=ds.getDataSourcesByType(MongoConfiguration.class);
+        datasources = ds.getDataSourcesByType(MongoConfiguration.class);
     }
 
     @Override
     public DB get(MongoDataStore store) {
-        LOGGER.debug("Returning DB for {}",store);
-        DB db=null;
+        LOGGER.debug("Returning DB for {}", store);
+        DB db = null;
         try {
-            if(store.getDatasourceName()!=null) {
-                db=dsMap.get(store.getDatasourceName());
-                if(db==null) {
-                    MongoConfiguration cfg=(MongoConfiguration)datasources.get(store.getDatasourceName());
-                    if(cfg==null) {
-                        throw new IllegalArgumentException("No datasources for "+store.getDatasourceName());
+            if (store.getDatasourceName() != null) {
+                db = dsMap.get(store.getDatasourceName());
+                if (db == null) {
+                    MongoConfiguration cfg = (MongoConfiguration) datasources.get(store.getDatasourceName());
+                    if (cfg == null) {
+                        throw new IllegalArgumentException("No datasources for " + store.getDatasourceName());
                     }
                     db = cfg.getDB();
                     dsMap.put(store.getDatasourceName(), db);
                 }
-            } else if(store.getDatabaseName()!=null) {
-                db=dbMap.get(store.getDatabaseName());
-                if(db==null) {
-                    for(DataSourceConfiguration cfg:datasources.values()) {
-                        if( ((MongoConfiguration)cfg).getDatabase().equals(store.getDatabaseName())) {
+            } else if (store.getDatabaseName() != null) {
+                db = dbMap.get(store.getDatabaseName());
+                if (db == null) {
+                    for (DataSourceConfiguration cfg : datasources.values()) {
+                        if (((MongoConfiguration) cfg).getDatabase().equals(store.getDatabaseName())) {
                             db = ((MongoConfiguration) cfg).getDB();
                             dbMap.put(store.getDatabaseName(), db);
                             break;
@@ -70,14 +70,14 @@ public class MongoDBResolver implements DBResolver {
                 }
             }
         } catch (RuntimeException re) {
-            LOGGER.error("Cannot get {}:{}",store,re);
+            LOGGER.error("Cannot get {}:{}", store, re);
             throw re;
         } catch (Exception e) {
-            LOGGER.error("Cannot get {}:{}",store,e);
+            LOGGER.error("Cannot get {}:{}", store, e);
             throw new IllegalArgumentException(e);
         }
-        if(db==null) {
-            throw new IllegalArgumentException("Cannot find DB for  "+store);
+        if (db == null) {
+            throw new IllegalArgumentException("Cannot find DB for  " + store);
         }
         return db;
     }

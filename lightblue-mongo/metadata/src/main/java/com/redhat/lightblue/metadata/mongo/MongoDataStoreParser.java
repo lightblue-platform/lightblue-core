@@ -31,7 +31,7 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
 
     public static final String COLLECTION_REQUIRED = "COLLECTION_REQUIRED";
 
-    public static final String NAME="mongo";
+    public static final String NAME = "mongo";
 
     @Override
     public DataStore parse(String name, MetadataParser<T> p, T node) {

@@ -36,7 +36,7 @@ public class JsonNodeBuilder {
     protected ObjectNode getRoot() {
         return root;
     }
-    
+
     public boolean includeNulls() {
         return includeNulls;
     }

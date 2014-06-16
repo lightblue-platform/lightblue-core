@@ -38,7 +38,7 @@ public class InsertCommandTest extends AbstractMongoTest {
         // override default behavior from abstract test setup
         // don't want what is setup for the rest of tests extending from the abstract test class
     }
-    
+
     @Test
     public void executeOne() {
         // doesn't support projection because there is no need at this time.
@@ -58,7 +58,7 @@ public class InsertCommandTest extends AbstractMongoTest {
         Assert.assertNotNull(obj);
         Assert.assertEquals("obj", obj.get("name"));
     }
-    
+
     @Test
     public void executeMany() {
         // doesn't support projection because there is no need at this time.

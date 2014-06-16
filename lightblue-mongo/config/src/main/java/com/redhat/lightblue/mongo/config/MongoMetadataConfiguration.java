@@ -38,23 +38,22 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
     private String datasource;
     private String collection;
 
-
     public Metadata createMetadata(DataSourcesConfiguration datasources,
                                    JSONMetadataParser jsonParser) {
-        DataSourceConfiguration cfg=datasources.getDataSourceConfiguration(datasource);
-        if(cfg!=null) {
-            DBResolver dbresolver=new MongoDBResolver(datasources);
+        DataSourceConfiguration cfg = datasources.getDataSourceConfiguration(datasource);
+        if (cfg != null) {
+            DBResolver dbresolver = new MongoDBResolver(datasources);
             Extensions<BSONObject> parserExtensions = new Extensions<>();
             parserExtensions.addDefaultExtensions();
             parserExtensions.registerDataStoreParser(MongoDataStoreParser.NAME, new MongoDataStoreParser<BSONObject>());
             DefaultTypes typeResolver = new DefaultTypes();
-            MongoDataStore mdstore=new MongoDataStore();
+            MongoDataStore mdstore = new MongoDataStore();
             mdstore.setDatasourceName(datasource);
-            if(collection==null){
-                return new MongoMetadata(dbresolver.get(mdstore),dbresolver, parserExtensions, typeResolver);
+            if (collection == null) {
+                return new MongoMetadata(dbresolver.get(mdstore), dbresolver, parserExtensions, typeResolver);
             } else {
-                return new MongoMetadata(dbresolver.get(mdstore),collection, dbresolver,parserExtensions,typeResolver);
-            }  
+                return new MongoMetadata(dbresolver.get(mdstore), collection, dbresolver, parserExtensions, typeResolver);
+            }
         } else {
             throw new IllegalArgumentException(datasource);
         }
@@ -89,19 +88,19 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
     }
 
     public String toString() {
-        return "dataSource:"+datasource+" collection:"+collection;
+        return "dataSource:" + datasource + " collection:" + collection;
     }
 
     @Override
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
-            JsonNode x=node.get("dataSource");
-            if(x!=null){
-                datasource=x.asText();
+            JsonNode x = node.get("dataSource");
+            if (x != null) {
+                datasource = x.asText();
             }
-            x=node.get("collection");
-            if(x!=null){
-                collection=x.asText();
+            x = node.get("collection");
+            if (x != null) {
+                collection = x.asText();
             }
         }
     }

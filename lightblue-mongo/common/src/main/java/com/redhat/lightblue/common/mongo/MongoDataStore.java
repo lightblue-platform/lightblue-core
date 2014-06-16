@@ -104,7 +104,6 @@ public class MongoDataStore implements DataStore, Serializable {
         this.databaseName = argDatabaseName;
     }
 
-
     /**
      * Gets the value of collectionName
      *
@@ -145,10 +144,10 @@ public class MongoDataStore implements DataStore, Serializable {
             if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return Objects.equals(clientJndiName,mds.getClientJndiName()) &&
-                           Objects.equals(datasourceName,mds.getDatasourceName())&&
-                           Objects.equals(databaseName,mds.getDatabaseName()) && 
-                           Objects.equals(collectionName,mds.getCollectionName());
+                    return Objects.equals(clientJndiName, mds.getClientJndiName())
+                            && Objects.equals(datasourceName, mds.getDatasourceName())
+                            && Objects.equals(databaseName, mds.getDatabaseName())
+                            && Objects.equals(collectionName, mds.getCollectionName());
                 } catch (ClassCastException e) {
                 }
             }
@@ -160,8 +159,8 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public int hashCode() {
         return (clientJndiName == null ? 1 : clientJndiName.hashCode())
-            * (databaseName == null ? 1 : databaseName.hashCode())
-            * (collectionName == null ? 1 : collectionName.hashCode())
-            * (datasourceName == null ? 1 : datasourceName.hashCode());
+                * (databaseName == null ? 1 : databaseName.hashCode())
+                * (collectionName == null ? 1 : collectionName.hashCode())
+                * (datasourceName == null ? 1 : datasourceName.hashCode());
     }
 }

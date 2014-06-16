@@ -172,17 +172,19 @@ public class MongoMetadata extends AbstractMetadata {
     @SuppressWarnings("rawtypes")
     @Override
     public String[] getEntityNames(MetadataStatus... statuses) {
-        LOGGER.debug("getEntityNames({})",statuses);
+        LOGGER.debug("getEntityNames({})", statuses);
         Error.push("getEntityNames");
-        Set<MetadataStatus> statusSet=new HashSet<>();
-        for(MetadataStatus x:statuses)
-            if(x!=null)
+        Set<MetadataStatus> statusSet = new HashSet<>();
+        for (MetadataStatus x : statuses) {
+            if (x != null) {
                 statusSet.add(x);
+            }
+        }
         try {
-            if(statusSet.isEmpty()||
-               (statusSet.contains(MetadataStatus.ACTIVE)&&
-                statusSet.contains(MetadataStatus.DEPRECATED)&&
-                statusSet.contains(MetadataStatus.DISABLED)) ) {
+            if (statusSet.isEmpty()
+                    || (statusSet.contains(MetadataStatus.ACTIVE)
+                    && statusSet.contains(MetadataStatus.DEPRECATED)
+                    && statusSet.contains(MetadataStatus.DISABLED))) {
                 List l = new DistinctCommand(null, collection, LITERAL_NAME).execute();
                 String[] arr = new String[l.size()];
                 int i = 0;
@@ -191,11 +193,12 @@ public class MongoMetadata extends AbstractMetadata {
                 }
                 return arr;
             } else {
-                LOGGER.debug("Requested statuses:{}",statusSet);
-                List<String> list=new ArrayList<>(statusSet.size());
-                for(MetadataStatus x:statusSet)
+                LOGGER.debug("Requested statuses:{}", statusSet);
+                List<String> list = new ArrayList<>(statusSet.size());
+                for (MetadataStatus x : statusSet) {
                     list.add(MetadataParser.toString(x));
-                BasicDBObject query=new BasicDBObject(LITERAL_STATUS_VALUE,new BasicDBObject("$in",list));
+                }
+                BasicDBObject query = new BasicDBObject(LITERAL_STATUS_VALUE, new BasicDBObject("$in", list));
                 List l = new DistinctCommand(null, collection, LITERAL_NAME, query).execute();
                 String[] arr = new String[l.size()];
                 int i = 0;
@@ -203,7 +206,7 @@ public class MongoMetadata extends AbstractMetadata {
                     arr[i++] = x.toString();
                 }
                 return arr;
-           }
+            }
         } finally {
             Error.pop();
         }
@@ -219,28 +222,29 @@ public class MongoMetadata extends AbstractMetadata {
             // Get the default version
             BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID);
             DBObject ei = new FindOneCommand(null, collection, query).execute();
-            String defaultVersion = ei==null?null:(String)ei.get("defaultVersion");
+            String defaultVersion = ei == null ? null : (String) ei.get("defaultVersion");
 
             // query by name but only return documents that have a version
             query = new BasicDBObject(LITERAL_NAME, entityName)
                     .append(LITERAL_VERSION, new BasicDBObject("$exists", 1));
             DBObject project = new BasicDBObject(LITERAL_VERSION, 1).
-                append(LITERAL_STATUS, 1).
-                append(LITERAL_ID, 0);
+                    append(LITERAL_STATUS, 1).
+                    append(LITERAL_ID, 0);
             DBCursor cursor = new FindCommand(null, collection, query, project).execute();
             int n = cursor.count();
             VersionInfo[] ret = new VersionInfo[n];
             int i = 0;
             while (cursor.hasNext()) {
                 DBObject object = cursor.next();
-                ret[i]=new VersionInfo();
-                Version v=mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
+                ret[i] = new VersionInfo();
+                Version v = mdParser.parseVersion((BSONObject) object.get(LITERAL_VERSION));
                 ret[i].setValue(v.getValue());
                 ret[i].setExtendsVersions(v.getExtendsVersions());
                 ret[i].setChangelog(v.getChangelog());
-                ret[i].setStatus(MetadataParser.statusFromString((String)((DBObject)object.get(LITERAL_STATUS)).get("value")));
-                if(defaultVersion!=null&&defaultVersion.equals(ret[i].getValue()))
+                ret[i].setStatus(MetadataParser.statusFromString((String) ((DBObject) object.get(LITERAL_STATUS)).get("value")));
+                if (defaultVersion != null && defaultVersion.equals(ret[i].getValue())) {
                     ret[i].setDefault(true);
+                }
                 i++;
             }
             return ret;
@@ -307,7 +311,7 @@ public class MongoMetadata extends AbstractMetadata {
                 Error.pop();
             }
         } catch (RuntimeException e) {
-            LOGGER.error("createNewMetadata",e);
+            LOGGER.error("createNewMetadata", e);
             throw e;
         } finally {
             Error.pop();
@@ -326,46 +330,47 @@ public class MongoMetadata extends AbstractMetadata {
         Error.push("createUpdateIndex");
         try {
             List<DBObject> existingIndexes = entityCollection.getIndexInfo();
-            LOGGER.debug("Existing indexes: {}",existingIndexes);
+            LOGGER.debug("Existing indexes: {}", existingIndexes);
             for (Index index : indexes.getIndexes()) {
-                boolean createIx=true;
-                LOGGER.debug("Processing index {}",index);
+                boolean createIx = true;
+                LOGGER.debug("Processing index {}", index);
 
                 for (DBObject existingIndex : existingIndexes) {
-                    if (indexFieldsMatch(index, existingIndex)&&
-                        indexOptionsMatch(index, existingIndex)) {
+                    if (indexFieldsMatch(index, existingIndex)
+                            && indexOptionsMatch(index, existingIndex)) {
                         LOGGER.debug("Same index exists, not creating");
-                        createIx=false;
+                        createIx = false;
                         break;
                     }
                 }
 
-                if(createIx) {
+                if (createIx) {
                     for (DBObject existingIndex : existingIndexes) {
-                        if (indexFieldsMatch(index, existingIndex)&&
-                            !indexOptionsMatch(index, existingIndex)) {
-                            LOGGER.debug("Same index exists with different options, dropping index:{}",existingIndex);
+                        if (indexFieldsMatch(index, existingIndex)
+                                && !indexOptionsMatch(index, existingIndex)) {
+                            LOGGER.debug("Same index exists with different options, dropping index:{}", existingIndex);
                             // Changing index options, drop the index using its name, recreate with new options
                             entityCollection.dropIndex(existingIndex.get("name").toString());
                         }
                     }
                 }
 
-                if(createIx) {
+                if (createIx) {
                     DBObject newIndex = new BasicDBObject();
                     for (SortKey p : index.getFields()) {
                         newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);
                     }
-                    BasicDBObject options=new BasicDBObject("unique",index.isUnique());
-                    if(index.getName()!=null&&index.getName().trim().length()>0)
-                        options.append("name",index.getName().trim());
-                    LOGGER.debug("Creating index {} with options {}",newIndex,options);
+                    BasicDBObject options = new BasicDBObject("unique", index.isUnique());
+                    if (index.getName() != null && index.getName().trim().length() > 0) {
+                        options.append("name", index.getName().trim());
+                    }
+                    LOGGER.debug("Creating index {} with options {}", newIndex, options);
                     entityCollection.createIndex(newIndex, options);
                 }
             }
         } catch (MongoException me) {
             LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
-            throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED,me.getMessage());
+            throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED, me.getMessage());
         } finally {
             Error.pop();
         }
@@ -400,14 +405,16 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
-        Boolean unique=(Boolean)existingIndex.get("unique");
-        if(unique!=null) {
-            if( (unique&&index.isUnique()) ||
-                (!unique&&!index.isUnique()) )
+        Boolean unique = (Boolean) existingIndex.get("unique");
+        if (unique != null) {
+            if ((unique && index.isUnique())
+                    || (!unique && !index.isUnique())) {
                 return true;
+            }
         } else {
-            if(!index.isUnique())
+            if (!index.isUnique()) {
                 return true;
+            }
         }
         return false;
     }
@@ -433,13 +440,13 @@ public class MongoMetadata extends AbstractMetadata {
             if (!Objects.equals(old.getDefaultVersion(), ei.getDefaultVersion())) {
                 validateDefaultVersion(ei);
             }
-            
+
             try {
                 collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
-                                  (DBObject) mdParser.convert(ei));
+                        (DBObject) mdParser.convert(ei));
                 createUpdateEntityInfoIndexes(ei);
             } catch (Exception e) {
-                LOGGER.error("updateEntityInfo",e);
+                LOGGER.error("updateEntityInfo", e);
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
             }
         } finally {
@@ -525,7 +532,7 @@ public class MongoMetadata extends AbstractMetadata {
             newLog.setDate(new Date());
             newLog.setStatus(schema.getStatus());
             newLog.setComment(comment);
-            List<StatusChange> slog=schema.getStatusChangeLog();
+            List<StatusChange> slog = schema.getStatusChangeLog();
             slog.add(newLog);
             schema.setStatusChangeLog(slog);
             schema.setStatus(newStatus);
@@ -547,23 +554,23 @@ public class MongoMetadata extends AbstractMetadata {
             throw new IllegalArgumentException(LITERAL_ENTITY_NAME);
         }
         // All versions must be disabled. Search for a schema that is not disabled
-        DBObject query=new BasicDBObject(LITERAL_NAME, entityName).
-            append(LITERAL_VERSION, new BasicDBObject("$exists", 1)).
-            append(LITERAL_STATUS_VALUE,  new BasicDBObject("$ne",MetadataParser.toString(MetadataStatus.DISABLED)));
-        LOGGER.debug("Checking if there are entity versions that are not disabled: {}",query);
-                   
-        DBObject result=new FindOneCommand(null,collection,query).execute();
-        if(result!=null) {
-            LOGGER.debug("There is at least one enabled version {}",result);
-            throw Error.get(MongoMetadataConstants.ERR_CANNOT_DELETE,entityName);
+        DBObject query = new BasicDBObject(LITERAL_NAME, entityName).
+                append(LITERAL_VERSION, new BasicDBObject("$exists", 1)).
+                append(LITERAL_STATUS_VALUE, new BasicDBObject("$ne", MetadataParser.toString(MetadataStatus.DISABLED)));
+        LOGGER.debug("Checking if there are entity versions that are not disabled: {}", query);
+
+        DBObject result = new FindOneCommand(null, collection, query).execute();
+        if (result != null) {
+            LOGGER.debug("There is at least one enabled version {}", result);
+            throw Error.get(MongoMetadataConstants.ERR_CANNOT_DELETE, entityName);
         }
 
-        LOGGER.warn("All versions of {} are disabled, deleting {}", entityName,entityName);
-        query=new BasicDBObject(LITERAL_ID,Pattern.compile(entityName+"\\"+BSONParser.DELIMITER_ID+".*"));
-        LOGGER.debug("Removal query:{}",query);
+        LOGGER.warn("All versions of {} are disabled, deleting {}", entityName, entityName);
+        query = new BasicDBObject(LITERAL_ID, Pattern.compile(entityName + "\\" + BSONParser.DELIMITER_ID + ".*"));
+        LOGGER.debug("Removal query:{}", query);
         try {
-            WriteResult r=new RemoveCommand(null,collection,query).execute();
-            LOGGER.debug("Removal result:{}",r);
+            WriteResult r = new RemoveCommand(null, collection, query).execute();
+            LOGGER.debug("Removal result:{}", r);
             String error = r.getError();
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
@@ -571,11 +578,10 @@ public class MongoMetadata extends AbstractMetadata {
         } catch (Error x) {
             throw x;
         } catch (Exception e) {
-            LOGGER.error("Error during delete",e);
+            LOGGER.error("Error during delete", e);
             throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
         }
     }
-
 
     @Override
     public Response getDependencies(String entityName, String version) {

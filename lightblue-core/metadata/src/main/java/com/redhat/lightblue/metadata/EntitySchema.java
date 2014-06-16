@@ -48,7 +48,7 @@ public class EntitySchema implements Serializable {
     private final ArrayList<EntityConstraint> constraints = new ArrayList<>();
     private final Fields fields;
     private final FieldTreeNode fieldRoot;
-    private final Map<String,Object> properties=new HashMap<>();
+    private final Map<String, Object> properties = new HashMap<>();
 
     private class RootNode implements FieldTreeNode, Serializable {
 
@@ -231,7 +231,7 @@ public class EntitySchema implements Serializable {
         }
     }
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 }

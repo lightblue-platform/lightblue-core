@@ -64,9 +64,9 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
-        KeyValueCursor<Path,JsonNode>  lcursor=ctx.getNodes(relativePath);
-        if(lcursor!=null) {
-            while(lcursor.hasNext()) {
+        KeyValueCursor<Path, JsonNode> lcursor = ctx.getNodes(relativePath);
+        if (lcursor != null) {
+            while (lcursor.hasNext()) {
                 lcursor.next();
                 JsonNode lvalueNode = lcursor.getCurrentValue();
                 Object ldocValue;
@@ -76,9 +76,9 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                     ldocValue = null;
                 }
 
-                KeyValueCursor<Path,JsonNode> rcursor=ctx.getNodes(rfieldRelativePath);
-                if(rcursor!=null) {
-                    while(rcursor.hasNext()) {
+                KeyValueCursor<Path, JsonNode> rcursor = ctx.getNodes(rfieldRelativePath);
+                if (rcursor != null) {
+                    while (rcursor.hasNext()) {
                         rcursor.next();
                         JsonNode rvalueNode = rcursor.getCurrentValue();
                         Object rdocValue;
@@ -90,14 +90,14 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                         LOGGER.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
                         int result = fieldMd.getType().compare(ldocValue, rdocValue);
                         LOGGER.debug(" result={}", result);
-                        boolean ret=operator.apply(result);
-                        if(ret) {
+                        boolean ret = operator.apply(result);
+                        if (ret) {
                             ctx.setResult(ret);
                             return ret;
                         }
-                   }
+                    }
                 }
-                
+
             }
         }
         return ctx.getResult();

@@ -137,9 +137,9 @@ public class MongoMetadataTest {
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(
                     new MongodConfigBuilder()
-                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
-                            .net(new Net(MONGO_PORT,Network.localhostIsIPv6()))
-                            .build()
+                    .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                    .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                    .build()
             );
             try {
                 mongod = mongodExe.start();
@@ -264,7 +264,8 @@ public class MongoMetadataTest {
         try {
             md.createNewMetadata(e);
             Assert.fail();
-        } catch (Exception x) {}
+        } catch (Exception x) {
+        }
         Assert.assertNotNull(md.getEntityMetadata("testEntity", "1.0.0"));
     }
 
@@ -474,29 +475,29 @@ public class MongoMetadataTest {
         g = md.getEntityMetadata("testEntity2", "1.0.0");
         e.setVersion(new Version("2.0.0", null, "sfr"));
         md.createNewSchema(e);
-        
-        Assert.assertEquals(2,md.getEntityNames().length);
-        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE).length);
-        Assert.assertEquals(0,md.getEntityNames(MetadataStatus.DEPRECATED).length);
 
-        md.setMetadataStatus("testEntity","1.0.0",MetadataStatus.DEPRECATED,"x");
-        Assert.assertEquals(2,md.getEntityNames().length);
-        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(2, md.getEntityNames().length);
+        Assert.assertEquals(2, md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(0, md.getEntityNames(MetadataStatus.DEPRECATED).length);
 
-        md.setMetadataStatus("testEntity2","1.0.0",MetadataStatus.DEPRECATED,"x");
-        Assert.assertEquals(2,md.getEntityNames().length);
-        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE).length);
-        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE,MetadataStatus.DEPRECATED).length);
+        md.setMetadataStatus("testEntity", "1.0.0", MetadataStatus.DEPRECATED, "x");
+        Assert.assertEquals(2, md.getEntityNames().length);
+        Assert.assertEquals(2, md.getEntityNames(MetadataStatus.ACTIVE).length);
 
-        md.setMetadataStatus("testEntity2","2.0.0",MetadataStatus.DEPRECATED,"x");
-        Assert.assertEquals(2,md.getEntityNames().length);
-        Assert.assertEquals(1,md.getEntityNames(MetadataStatus.ACTIVE).length);
-        Assert.assertEquals(2,md.getEntityNames(MetadataStatus.ACTIVE,MetadataStatus.DEPRECATED).length);
+        md.setMetadataStatus("testEntity2", "1.0.0", MetadataStatus.DEPRECATED, "x");
+        Assert.assertEquals(2, md.getEntityNames().length);
+        Assert.assertEquals(2, md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(2, md.getEntityNames(MetadataStatus.ACTIVE, MetadataStatus.DEPRECATED).length);
+
+        md.setMetadataStatus("testEntity2", "2.0.0", MetadataStatus.DEPRECATED, "x");
+        Assert.assertEquals(2, md.getEntityNames().length);
+        Assert.assertEquals(1, md.getEntityNames(MetadataStatus.ACTIVE).length);
+        Assert.assertEquals(2, md.getEntityNames(MetadataStatus.ACTIVE, MetadataStatus.DEPRECATED).length);
 
     }
 
-     @Test
-     public void removal() throws Exception {
+    @Test
+    public void removal() throws Exception {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
@@ -513,26 +514,28 @@ public class MongoMetadataTest {
         try {
             md.removeEntity("testEntity");
             Assert.fail();
-        } catch (Exception x) {}
+        } catch (Exception x) {
+        }
 
-        md.setMetadataStatus("testEntity","1.0.0",MetadataStatus.DEPRECATED,"x");
-         try {
+        md.setMetadataStatus("testEntity", "1.0.0", MetadataStatus.DEPRECATED, "x");
+        try {
             md.removeEntity("testEntity");
             Assert.fail();
-        } catch (Exception x) {}
+        } catch (Exception x) {
+        }
 
-        md.setMetadataStatus("testEntity","2.0.0",MetadataStatus.DISABLED,"x");
-         try {
+        md.setMetadataStatus("testEntity", "2.0.0", MetadataStatus.DISABLED, "x");
+        try {
             md.removeEntity("testEntity");
             Assert.fail();
-        } catch (Exception x) {}
-         md.setMetadataStatus("testEntity","1.0.0",MetadataStatus.DISABLED,"x");
-         md.removeEntity("testEntity");
-         Assert.assertNull(md.getEntityInfo("testEntity"));
+        } catch (Exception x) {
+        }
+        md.setMetadataStatus("testEntity", "1.0.0", MetadataStatus.DISABLED, "x");
+        md.removeEntity("testEntity");
+        Assert.assertNull(md.getEntityInfo("testEntity"));
     }
 
-
-   @Test
+    @Test
     public void getAccessEntityVersion() throws IOException, JSONException {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();

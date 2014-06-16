@@ -30,7 +30,7 @@ public class MongoCRUDFactory implements ControllerFactory {
     public CRUDController createController(ControllerConfiguration cfg,
                                            DataSourcesConfiguration ds) {
         try {
-            DBResolver resolver=new MongoDBResolver(ds);
+            DBResolver resolver = new MongoDBResolver(ds);
             return new MongoCRUDController(resolver);
         } catch (Exception e) {
             throw new RuntimeException(e);

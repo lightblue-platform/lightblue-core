@@ -58,7 +58,7 @@ public class ArrayUpdateExpressionTest {
             node = (ObjectNode) JsonUtils.json("{ \"$missing\" : { \"path\" : { \"path\" : \"rvalue_expression\" } }}");
             result = ArrayUpdateExpression.fromJson(node);
         } catch (Error e) {
-            error=true;
+            error = true;
             assertEquals(Error.get(QueryConstants.ERR_INVALID_ARRAY_UPDATE_EXPRESSION, node.toString()).toString(), e.toString());
         }
         assertTrue("It didn't thrown an expection as it was expected", error);

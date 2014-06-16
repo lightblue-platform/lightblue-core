@@ -87,26 +87,28 @@ public abstract class AbstractTreeCursor<N> {
     /**
      * Current cursor we're using to iterate the level. Never null.
      */
-    private KeyValueCursor<String,N> currentCursor;
+    private KeyValueCursor<String, N> currentCursor;
 
-    private static final class SingleElemCursor<T> implements KeyValueCursor<String,T> {
+    private static final class SingleElemCursor<T> implements KeyValueCursor<String, T> {
         private T value;
         private final String key;
-        private boolean fetched=false;
+        private boolean fetched = false;
 
-        SingleElemCursor(String key,T value) {
-            this.key=key;
-            this.value=value;
+        SingleElemCursor(String key, T value) {
+            this.key = key;
+            this.value = value;
         }
 
         @Override
         public boolean hasNext() {
             return !fetched;
         }
+
         @Override
-        public  void next() {
-            fetched=true;
+        public void next() {
+            fetched = true;
         }
+
         @Override
         public T getCurrentValue() {
             return value;
@@ -144,10 +146,10 @@ public abstract class AbstractTreeCursor<N> {
     public AbstractTreeCursor(Path p, N start) {
         currentPath = new MutablePath(p);
         currentNode = start;
-        if(!hasChildren(start)) {
+        if (!hasChildren(start)) {
             throw new IllegalArgumentException("Not iterable");
         }
-        currentCursor=new SingleElemCursor("",start);
+        currentCursor = new SingleElemCursor("", start);
         currentCursor.next();
     }
 
@@ -176,9 +178,9 @@ public abstract class AbstractTreeCursor<N> {
         // push current state to stack, and get the first child of TOS
         if (hasChildren(currentNode)) {
             push();
-            currentCursor=getCursor(currentNode);
+            currentCursor = getCursor(currentNode);
             currentCursor.next();
-            currentNode=currentCursor.getCurrentValue();
+            currentNode = currentCursor.getCurrentValue();
             currentPath.push(currentCursor.getCurrentKey());
             return true;
         } else {
@@ -193,9 +195,9 @@ public abstract class AbstractTreeCursor<N> {
      * same node. Otherwise, cursor points to the next sibling and true is returned.
      */
     public boolean nextSibling() {
-        if(currentCursor.hasNext()) {
+        if (currentCursor.hasNext()) {
             currentCursor.next();
-            currentNode=currentCursor.getCurrentValue();
+            currentNode = currentCursor.getCurrentValue();
             currentPath.setLast(currentCursor.getCurrentKey());
             return true;
         } else {
@@ -261,13 +263,13 @@ public abstract class AbstractTreeCursor<N> {
     protected abstract boolean hasChildren(N node);
 
     private void push() {
-        stack.addLast(new LevelState<N>(currentNode,currentCursor));
+        stack.addLast(new LevelState<N>(currentNode, currentCursor));
     }
 
     private void pop() {
-        LevelState<N> last=stack.removeLast();
-        currentNode=last.node;
-        currentCursor=last.cursor;
+        LevelState<N> last = stack.removeLast();
+        currentNode = last.node;
+        currentCursor = last.cursor;
     }
 
 }

@@ -253,7 +253,7 @@ public class JsonDoc implements Serializable {
         private final Path path;
         private final MutablePath mpath;
         private final CursorResolver resolver = new CursorResolver();
-        
+
         private JsonNode nextNode;
         private boolean ended = false;
         private boolean nextFound = false;
@@ -362,11 +362,11 @@ public class JsonDoc implements Serializable {
     }
 
     public JsonNodeCursor cursor(Path p) {
-        return cursor(docRoot,p);
+        return cursor(docRoot, p);
     }
 
-    public static JsonNodeCursor cursor(JsonNode root,Path p) {
-        return new JsonNodeCursor(p,root);
+    public static JsonNodeCursor cursor(JsonNode root, Path p) {
+        return new JsonNodeCursor(p, root);
     }
 
     /**

@@ -41,18 +41,18 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
 public class MergeTest extends AbstractJsonSchemaTest {
-    
+
     private EntityMetadata md;
     private Merge merge;
-    private static JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
+    private static JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     private class Resolver implements MetadataResolver {
         EntityMetadata md;
 
         public Resolver(EntityMetadata md) {
-            this.md=md;
+            this.md = md;
         }
-        
+
         @Override
         public EntityMetadata getEntityMetadata(String entityName) {
             return md;
@@ -73,79 +73,81 @@ public class MergeTest extends AbstractJsonSchemaTest {
 
     @Before
     public void init() throws Exception {
-        md=getMd("./testMetadata.json");
-        merge=new Merge(md);
+        md = getMd("./testMetadata.json");
+        merge = new Merge(md);
     }
 
     @Test
     public void invisibleFieldsTest_nothing() throws Exception {
-        JsonNode node=loadJsonNode("./testdata1.json");
-        Translator t=new Translator(new Resolver(md),nodeFactory);
-        DBObject doc=t.toBson(new JsonDoc(node));
+        JsonNode node = loadJsonNode("./testdata1.json");
+        Translator t = new Translator(new Resolver(md), nodeFactory);
+        DBObject doc = t.toBson(new JsonDoc(node));
         merge.findInvisibleFields(doc);
         Assert.assertTrue(merge.getInvisibleFields().isEmpty());
     }
 
     @Test
     public void invisibleFieldsTest_nonarray() throws Exception {
-        JsonNode node=loadJsonNode("./testdata1.json");
-        Translator t=new Translator(new Resolver(md),nodeFactory);
-        DBObject doc=t.toBson(new JsonDoc(node));
-        doc.put("inv1","val1");
-        ((DBObject)doc.get("field6")).put("inv2","val2");
+        JsonNode node = loadJsonNode("./testdata1.json");
+        Translator t = new Translator(new Resolver(md), nodeFactory);
+        DBObject doc = t.toBson(new JsonDoc(node));
+        doc.put("inv1", "val1");
+        ((DBObject) doc.get("field6")).put("inv2", "val2");
         merge.findInvisibleFields(doc);
-        Assert.assertEquals(2,merge.getInvisibleFields().size());
-        Assert.assertEquals("val1",get(merge.getInvisibleFields(),"inv1"));
-        Assert.assertEquals("val2",get(merge.getInvisibleFields(),"field6.inv2"));
+        Assert.assertEquals(2, merge.getInvisibleFields().size());
+        Assert.assertEquals("val1", get(merge.getInvisibleFields(), "inv1"));
+        Assert.assertEquals("val2", get(merge.getInvisibleFields(), "field6.inv2"));
     }
 
     @Test
     public void invisibleFieldsTest_array() throws Exception {
-        JsonNode node=loadJsonNode("./testdata1.json");
-        Translator t=new Translator(new Resolver(md),nodeFactory);
-        DBObject doc=t.toBson(new JsonDoc(node));
-        ((DBObject)((List)doc.get("field7")).get(1)).put("inv1","val1");
+        JsonNode node = loadJsonNode("./testdata1.json");
+        Translator t = new Translator(new Resolver(md), nodeFactory);
+        DBObject doc = t.toBson(new JsonDoc(node));
+        ((DBObject) ((List) doc.get("field7")).get(1)).put("inv1", "val1");
         merge.findInvisibleFields(doc);
-        Assert.assertEquals(1,merge.getInvisibleFields().size());
-        Assert.assertEquals("val1",get(merge.getInvisibleFields(),"field7.1.inv1"));
+        Assert.assertEquals(1, merge.getInvisibleFields().size());
+        Assert.assertEquals("val1", get(merge.getInvisibleFields(), "field7.1.inv1"));
     }
 
     @Test
     public void merge_simple() throws Exception {
-        JsonNode node=loadJsonNode("./testdata1.json");
-        Translator t=new Translator(new Resolver(md),nodeFactory);
-        DBObject oldDoc=t.toBson(new JsonDoc(node));
-        DBObject newDoc=t.toBson(new JsonDoc(node));
-        oldDoc.put("inv1","val1");
-        ((DBObject)oldDoc.get("field6")).put("inv2","val2");
+        JsonNode node = loadJsonNode("./testdata1.json");
+        Translator t = new Translator(new Resolver(md), nodeFactory);
+        DBObject oldDoc = t.toBson(new JsonDoc(node));
+        DBObject newDoc = t.toBson(new JsonDoc(node));
+        oldDoc.put("inv1", "val1");
+        ((DBObject) oldDoc.get("field6")).put("inv2", "val2");
         Assert.assertNull(newDoc.get("inv1"));
-        Assert.assertNull(((DBObject)newDoc.get("field6")).get("inv2"));
-        merge.merge(oldDoc,newDoc);
-        Assert.assertEquals(oldDoc.get("inv1"),newDoc.get("inv1"));
-        Assert.assertEquals(((DBObject)oldDoc.get("field6")).get("inv2"),((DBObject)newDoc.get("field6")).get("inv2"));
+        Assert.assertNull(((DBObject) newDoc.get("field6")).get("inv2"));
+        merge.merge(oldDoc, newDoc);
+        Assert.assertEquals(oldDoc.get("inv1"), newDoc.get("inv1"));
+        Assert.assertEquals(((DBObject) oldDoc.get("field6")).get("inv2"), ((DBObject) newDoc.get("field6")).get("inv2"));
     }
 
     @Test
     public void merge_fail_simple() throws Exception {
-        JsonNode node=loadJsonNode("./testdata1.json");
-        Translator t=new Translator(new Resolver(md),nodeFactory);
-        DBObject oldDoc=t.toBson(new JsonDoc(node));
-        DBObject newDoc=t.toBson(new JsonDoc(node));
-        oldDoc.put("inv1","val1");
-        ((DBObject)oldDoc.get("field6")).put("inv2","val2");
+        JsonNode node = loadJsonNode("./testdata1.json");
+        Translator t = new Translator(new Resolver(md), nodeFactory);
+        DBObject oldDoc = t.toBson(new JsonDoc(node));
+        DBObject newDoc = t.toBson(new JsonDoc(node));
+        oldDoc.put("inv1", "val1");
+        ((DBObject) oldDoc.get("field6")).put("inv2", "val2");
         newDoc.removeField("field6");
         try {
-            merge.merge(oldDoc,newDoc);
+            merge.merge(oldDoc, newDoc);
             Assert.fail();
         } catch (Error e) {
         }
     }
 
-    private Object get(List<Merge.IField> list,String path) {
-        Path p=new Path(path);
-        for(Merge.IField f:list)
-            if(f.getPath().equals(p))
+    private Object get(List<Merge.IField> list, String path) {
+        Path p = new Path(path);
+        for (Merge.IField f : list) {
+            if (f.getPath().equals(p)) {
                 return f.getValue();
+            }
+        }
         return null;
     }
 }

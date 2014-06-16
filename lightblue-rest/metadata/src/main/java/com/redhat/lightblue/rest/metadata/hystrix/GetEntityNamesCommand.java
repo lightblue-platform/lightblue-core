@@ -38,13 +38,13 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
 
     private final String[] statuses;
 
-    public GetEntityNamesCommand(String clientKey,String[] statuses) {
-        this(clientKey, null,statuses);
+    public GetEntityNamesCommand(String clientKey, String[] statuses) {
+        this(clientKey, null, statuses);
     }
 
-    public GetEntityNamesCommand(String clientKey, Metadata metadata,String[] statuses) {
+    public GetEntityNamesCommand(String clientKey, Metadata metadata, String[] statuses) {
         super(GetEntityNamesCommand.class, clientKey, metadata);
-        this.statuses=statuses;
+        this.statuses = statuses;
     }
 
     @Override
@@ -53,8 +53,8 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
         Error.reset();
         Error.push(getClass().getSimpleName());
         try {
-            HashSet<MetadataStatus> statusSet=new HashSet<MetadataStatus>();
-            for(String x:statuses) {
+            HashSet<MetadataStatus> statusSet = new HashSet<MetadataStatus>();
+            for (String x : statuses) {
                 statusSet.add(MetadataParser.statusFromString(x));
             }
             String[] names = getMetadata().getEntityNames(statusSet.toArray(new MetadataStatus[statusSet.size()]));

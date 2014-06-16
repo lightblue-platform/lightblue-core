@@ -32,14 +32,10 @@ import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 /**
- * During a save operation, the document provided by the client
- * replaces the copy in the database. If the client has a more limited
- * view of data than is already present (i.e. client using an earlier
- * version of metadata), then there may be some invisible fields,
- * fields that are in the document, but not in the metadata used by
- * the client. To prevent overwriting those fields, we perform a merge
- * operation: all invisible fields are preserved in the updated
- * document.
+ * During a save operation, the document provided by the client replaces the copy in the database. If the client has a
+ * more limited view of data than is already present (i.e. client using an earlier version of metadata), then there may
+ * be some invisible fields, fields that are in the document, but not in the metadata used by the client. To prevent
+ * overwriting those fields, we perform a merge operation: all invisible fields are preserved in the updated document.
  */
 public final class Merge {
 
@@ -51,9 +47,9 @@ public final class Merge {
         private final Path path;
         private final Object value;
 
-        public IField(Path p,Object value) {
-            path=p;
-            this.value=value;
+        public IField(Path p, Object value) {
+            path = p;
+            this.value = value;
         }
 
         public Path getPath() {
@@ -65,14 +61,14 @@ public final class Merge {
         }
 
         public String toString() {
-            return path.toString()+":"+value;
+            return path.toString() + ":" + value;
         }
     }
 
-    private final List<IField> invisibleFields=new ArrayList<>();
+    private final List<IField> invisibleFields = new ArrayList<>();
 
     public Merge(EntityMetadata md) {
-        this.md=md;
+        this.md = md;
     }
 
     /**
@@ -82,131 +78,126 @@ public final class Merge {
         invisibleFields.clear();
     }
 
-    
     /**
-     * Attempts to copy the invisible fields in oldCopy into
-     * newCopy. If the attemp is unsucessful, Error is thrown.
+     * Attempts to copy the invisible fields in oldCopy into newCopy. If the attemp is unsucessful, Error is thrown.
      */
-    public void merge(DBObject oldCopy,DBObject newCopy) {
+    public void merge(DBObject oldCopy, DBObject newCopy) {
         reset();
         findInvisibleFields(oldCopy);
-        if(!invisibleFields.isEmpty()) {
-            mergeIn(oldCopy,newCopy);
+        if (!invisibleFields.isEmpty()) {
+            mergeIn(oldCopy, newCopy);
         }
     }
 
     public List<IField> getInvisibleFields() {
-        return (List<IField>)((ArrayList)invisibleFields).clone();
+        return (List<IField>) ((ArrayList) invisibleFields).clone();
     }
 
-    private void mergeIn(DBObject oldCopy,DBObject newCopy) {
+    private void mergeIn(DBObject oldCopy, DBObject newCopy) {
         // Process invisible fields one by one
-        for(IField ifield:invisibleFields) {
-            Path p=ifield.getPath();
-            DBObject parent=findMergeParent(oldCopy,newCopy,p);
-            if(parent==null) {
-                throw Error.get(MongoCrudConstants.ERR_SAVE_CLOBBERS_HIDDEN_FIELDS,p.toString());
+        for (IField ifield : invisibleFields) {
+            Path p = ifield.getPath();
+            DBObject parent = findMergeParent(oldCopy, newCopy, p);
+            if (parent == null) {
+                throw Error.get(MongoCrudConstants.ERR_SAVE_CLOBBERS_HIDDEN_FIELDS, p.toString());
             }
-            ((DBObject)parent).put(p.tail(0),ifield.getValue());
+            ((DBObject) parent).put(p.tail(0), ifield.getValue());
         }
     }
 
     /**
-     * Tries to locate the parent DBObject object that will be the
-     * parent of the field that needs to be added to tbe newCopy to
-     * preverse the field
+     * Tries to locate the parent DBObject object that will be the parent of the field that needs to be added to tbe
+     * newCopy to preverse the field
      */
-    private DBObject findMergeParent(DBObject oldCopy,DBObject newCopy,Path field) {
-        LOGGER.debug("Attempting to merge in {}",field);
+    private DBObject findMergeParent(DBObject oldCopy, DBObject newCopy, Path field) {
+        LOGGER.debug("Attempting to merge in {}", field);
         // Descend all the way to the parent of the field. Descend on both the oldCopy and the newCopy
-        int n=field.numSegments();
-        DBObject ret=null;
-        if(n>1) {
-            int parentLevel=n-1;
-            Object parent=newCopy;
-            Object oldParent=oldCopy;
-            boolean fail=false;
-            for(int segment=0;segment<parentLevel;segment++) {
-                if(field.isIndex(segment)) {
+        int n = field.numSegments();
+        DBObject ret = null;
+        if (n > 1) {
+            int parentLevel = n - 1;
+            Object parent = newCopy;
+            Object oldParent = oldCopy;
+            boolean fail = false;
+            for (int segment = 0; segment < parentLevel; segment++) {
+                if (field.isIndex(segment)) {
                     // This is an array
                     // Fail: cannot merge
-                    fail=true;
-                    break; 
+                    fail = true;
+                    break;
                 } else {
-                    if(parent instanceof DBObject) {
-                        String seg=field.head(segment);
+                    if (parent instanceof DBObject) {
+                        String seg = field.head(segment);
                         // This is a nested object
-                        Object x=((DBObject)parent).get(seg);
+                        Object x = ((DBObject) parent).get(seg);
                         // If the nested object is removed in the new copy,
                         // merging results in data loss, so we fail
-                        if(x==null) {
+                        if (x == null) {
                             // Fail: cannot merge
-                            fail=true;
-                            break; 
+                            fail = true;
+                            break;
                         }
-                        parent=x;
+                        parent = x;
                         // The following is guaranteed to succeed. We
                         // built the path from oldCopy.
-                        oldParent=((DBObject)oldParent).get(seg);
+                        oldParent = ((DBObject) oldParent).get(seg);
                     } else {
                         // Fail: cannot merge
-                        fail=true;
-                        break; 
+                        fail = true;
+                        break;
                     }
                 }
             }
-            if(!fail){
-                ret=(DBObject)parent;
+            if (!fail) {
+                ret = (DBObject) parent;
             }
         } else {
-            ret=newCopy;
+            ret = newCopy;
         }
         return ret;
     }
 
     /**
-     * Construct the initial state of Merge by going through all the
-     * fields in the DBObject, and checking if they exist in
-     * metadata. Those fields that don't exist in metadata will be
-     * store in the invisibleFields list.
+     * Construct the initial state of Merge by going through all the fields in the DBObject, and checking if they exist
+     * in metadata. Those fields that don't exist in metadata will be store in the invisibleFields list.
      */
-     public void findInvisibleFields(DBObject dbObject) {
-        MutablePath mp=new MutablePath();
-        findInvisibleFields_dbobj(dbObject,mp);
-        LOGGER.debug("Invisible fields: {} ",invisibleFields);
+    public void findInvisibleFields(DBObject dbObject) {
+        MutablePath mp = new MutablePath();
+        findInvisibleFields_dbobj(dbObject, mp);
+        LOGGER.debug("Invisible fields: {} ", invisibleFields);
     }
 
     private void findInvisibleFields_obj(Object object,
                                          MutablePath path) {
-        if(object instanceof DBObject) {
-            findInvisibleFields_dbobj((DBObject)object,path);
-        } else if(object instanceof List) {
+        if (object instanceof DBObject) {
+            findInvisibleFields_dbobj((DBObject) object, path);
+        } else if (object instanceof List) {
             path.push(0);
-            int index=0;
-            for(Object value:(List)object) {
+            int index = 0;
+            for (Object value : (List) object) {
                 path.setLast(index);
-                findInvisibleFields_obj(value,path);
+                findInvisibleFields_obj(value, path);
                 index++;
             }
             path.pop();
-        } 
+        }
     }
 
     private void findInvisibleFields_dbobj(DBObject dbObject,
                                            MutablePath path) {
-        Set<String> fields=dbObject.keySet();
-        for(String field:fields) {
+        Set<String> fields = dbObject.keySet();
+        for (String field : fields) {
             path.push(field);
-            LOGGER.debug("Processing {}",path);
-            Object value=dbObject.get(field);
+            LOGGER.debug("Processing {}", path);
+            Object value = dbObject.get(field);
             try {
                 md.resolve(path);
-                findInvisibleFields_obj(value,path);
+                findInvisibleFields_obj(value, path);
             } catch (Error e) {
                 // Invisible field 
-                LOGGER.debug("Invisible field {}",path);
-                invisibleFields.add(new IField(path.immutableCopy(),value));
-            }                
+                LOGGER.debug("Invisible field {}", path);
+                invisibleFields.add(new IField(path.immutableCopy(), value));
+            }
             path.pop();
         }
     }

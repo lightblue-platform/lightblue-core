@@ -99,7 +99,7 @@ public class ITCaseCrudResourceTest {
         }
 
     }
-    
+
     private static final String MONGO_HOST = "localhost";
     private static final int MONGO_PORT = 27777;
     private static final String IN_MEM_CONNECTION_URL = MONGO_HOST + ":" + MONGO_PORT;
@@ -126,9 +126,9 @@ public class ITCaseCrudResourceTest {
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(
                     new MongodConfigBuilder()
-                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
-                            .net(new Net(MONGO_PORT,Network.localhostIsIPv6()))
-                            .build()
+                    .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                    .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                    .build()
             );
             try {
                 mongod = mongodExe.start();
@@ -207,14 +207,12 @@ public class ITCaseCrudResourceTest {
     @Inject
     private CrudResource cutCrudResource; //class under test
 
-
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
         Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
         RestApplication.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
         RestApplication.setMetadataMgr(new MetadataManager(RestApplication.getDatasources()));
-        RestApplication.setCrudMgr(new CrudManager(RestApplication.getDatasources(),RestApplication.getMetadataMgr()));
-
+        RestApplication.setCrudMgr(new CrudManager(RestApplication.getDatasources(), RestApplication.getMetadataMgr()));
 
         String expectedCreated = readFile("expectedCreated.json");
         String metadata = readFile("metadata.json");
@@ -224,22 +222,19 @@ public class ITCaseCrudResourceTest {
         String resultCreated = RestApplication.getMetadataMgr().getJSONParser().convert(em2).toString();
         JSONAssert.assertEquals(expectedCreated, resultCreated, false);
 
-
         String expectedInserted = readFile("expectedInserted.json");
-        String resultInserted = cutCrudResource.insert("country","1.0.0",readFile("resultInserted.json"));
-        JSONAssert.assertEquals(expectedInserted,resultInserted,false);
-
+        String resultInserted = cutCrudResource.insert("country", "1.0.0", readFile("resultInserted.json"));
+        JSONAssert.assertEquals(expectedInserted, resultInserted, false);
 
         String expectedUpdated = readFile("expectedUpdated.json");
-        String resultUpdated = cutCrudResource.update("country","1.0.0",readFile("resultUpdated.json"));
-        JSONAssert.assertEquals(expectedUpdated,resultUpdated,false);
-
+        String resultUpdated = cutCrudResource.update("country", "1.0.0", readFile("resultUpdated.json"));
+        JSONAssert.assertEquals(expectedUpdated, resultUpdated, false);
 
         String expectedFound = readFile("expectedFound.json");
-        String resultFound = cutCrudResource.find("country","1.0.0", readFile("resultFound.json"));
-        JSONAssert.assertEquals(expectedFound,resultFound,false);
+        String resultFound = cutCrudResource.find("country", "1.0.0", readFile("resultFound.json"));
+        JSONAssert.assertEquals(expectedFound, resultFound, false);
 
-        String resultSimpleFound = cutCrudResource.simpleFind(    //?Q&P&S&from&to
+        String resultSimpleFound = cutCrudResource.simpleFind( //?Q&P&S&from&to
                 "country",
                 "1.0.0",
                 "iso2code:CA,QE;iso2code:CA;iso2code:CA,EN",
@@ -247,16 +242,14 @@ public class ITCaseCrudResourceTest {
                 "name:a,iso3code:d,iso2code:d",
                 0,
                 -1);
-        JSONAssert.assertEquals(expectedFound,resultSimpleFound,false);
-
+        JSONAssert.assertEquals(expectedFound, resultSimpleFound, false);
 
         String expectedDeleted = readFile("expectedDeleted.json");
-        String resultDeleted = cutCrudResource.delete("country","1.0.0",readFile("resultDeleted.json"));
-        JSONAssert.assertEquals(expectedDeleted,resultDeleted,false);
-
+        String resultDeleted = cutCrudResource.delete("country", "1.0.0", readFile("resultDeleted.json"));
+        JSONAssert.assertEquals(expectedDeleted, resultDeleted, false);
 
         String expectedFound2 = readFile("expectedFound2.json");
-        String resultFound2 = cutCrudResource.find("country","1.0.0", readFile("resultFound2.json"));
-        JSONAssert.assertEquals(expectedFound2,resultFound2,false);
+        String resultFound2 = cutCrudResource.find("country", "1.0.0", readFile("resultFound2.json"));
+        JSONAssert.assertEquals(expectedFound2, resultFound2, false);
     }
 }

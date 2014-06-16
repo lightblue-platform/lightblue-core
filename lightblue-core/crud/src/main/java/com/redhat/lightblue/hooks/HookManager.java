@@ -104,7 +104,7 @@ public class HookManager {
             this.crudHook = crudHook;
             this.md = md;
         }
-        
+
         @Override
         public String toString() {
             return "HookDocs [hook=" + hook + ", crudHook=" + crudHook + ", md=" + md + ", docs=" + docs + "]";

@@ -35,13 +35,13 @@ public class RemoveEntityCommand extends AbstractRestCommand {
 
     private final String entity;
 
-    public RemoveEntityCommand(String clientKey,String entity) {
-        this(clientKey, null,entity);
+    public RemoveEntityCommand(String clientKey, String entity) {
+        this(clientKey, null, entity);
     }
 
-    public RemoveEntityCommand(String clientKey, Metadata metadata,String entity) {
-        super(RemoveEntityCommand.class, clientKey,metadata);
-        this.entity=entity;
+    public RemoveEntityCommand(String clientKey, Metadata metadata, String entity) {
+        super(RemoveEntityCommand.class, clientKey, metadata);
+        this.entity = entity;
     }
 
     @Override

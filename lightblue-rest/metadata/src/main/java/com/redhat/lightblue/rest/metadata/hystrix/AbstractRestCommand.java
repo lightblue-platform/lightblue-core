@@ -50,7 +50,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandClass.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(clientKey == null ? commandClass.getSimpleName() : clientKey)));
         this.metadata = metadata;
-        this.httpServletRequest=ResteasyProviderFactory.getContextData(HttpServletRequest.class);
+        this.httpServletRequest = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
     }
 
     /**
@@ -82,13 +82,13 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         }
         return parser;
     }
-    
+
     protected void addCallerId(Request req) {
         req.setClientId(new ClientIdentification() {
-                public boolean isUserInRole(String role) {
-                    return httpServletRequest==null?false:httpServletRequest.isUserInRole(role);
-                }
+            public boolean isUserInRole(String role) {
+                return httpServletRequest == null ? false : httpServletRequest.isUserInRole(role);
+            }
 
-            });
+        });
     }
 }

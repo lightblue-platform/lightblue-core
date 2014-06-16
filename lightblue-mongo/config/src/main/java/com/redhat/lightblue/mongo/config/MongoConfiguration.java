@@ -46,14 +46,12 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
 /**
- * Mongo client makes a distinction between contructing using a list of
- * ServerAddress objects, and a single ServerAddress object. If you contruct
- * with a List, it wants access to all the nodes in the replica set. If you
- * construct with a single ServerAddress, it only talks to that server. So, we
- * make a distinction between array of server addresses and a single server
- * address.
- * 
- * 
+ * Mongo client makes a distinction between contructing using a list of ServerAddress objects, and a single
+ * ServerAddress object. If you contruct with a List, it wants access to all the nodes in the replica set. If you
+ * construct with a single ServerAddress, it only talks to that server. So, we make a distinction between array of
+ * server addresses and a single server address.
+ *
+ *
  * @author bserdar
  * @author nmalik
  */
@@ -116,7 +114,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     public void setCredentials(List<MongoCredential> l) {
-        credentials=l;
+        credentials = l;
     }
 
     /**
@@ -127,8 +125,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     /**
-     * @param connectionsPerHost
-     *            the connectionsPerHost to set
+     * @param connectionsPerHost the connectionsPerHost to set
      */
     public void setConnectionsPerHost(Integer connectionsPerHost) {
         this.connectionsPerHost = connectionsPerHost;
@@ -159,7 +156,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
      * If true, ssl certs are not validated
      */
     public void setNoCertValidation(boolean b) {
-        noCertValidation=b;
+        noCertValidation = b;
     }
 
     /**
@@ -176,27 +173,28 @@ public class MongoConfiguration implements DataSourceConfiguration {
         database = s;
     }
 
-    private static TrustManager[] trustAllCerts = new TrustManager[] { 
-        new X509TrustManager() {     
-            public X509Certificate[] getAcceptedIssuers() { 
+    private static TrustManager[] trustAllCerts = new TrustManager[]{
+        new X509TrustManager() {
+            public X509Certificate[] getAcceptedIssuers() {
                 return null;
-            } 
-            public void checkClientTrusted(X509Certificate[] certs, 
-                                           String authType) {
-            } 
-            public void checkServerTrusted(X509Certificate[] certs, 
+            }
+
+            public void checkClientTrusted(X509Certificate[] certs,
                                            String authType) {
             }
-        } 
-    }; 
 
+            public void checkServerTrusted(X509Certificate[] certs,
+                                           String authType) {
+            }
+        }
+    };
 
     private SocketFactory getSocketFactory() {
         try {
-            if(noCertValidation) {
+            if (noCertValidation) {
                 LOGGER.warn("Certificate validation is off, don't use this in production");
-                SSLContext sc = SSLContext.getInstance("SSL"); 
-                sc.init(null, trustAllCerts, new java.security.SecureRandom()); 
+                SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 return sc.getSocketFactory();
             } else {
                 return SSLSocketFactory.getDefault();
@@ -207,9 +205,8 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     /**
-     * Returns an options object with defaults overriden where there is a valid
-     * override.
-     * 
+     * Returns an options object with defaults overriden where there is a valid override.
+     *
      * @return
      */
     public MongoClientOptions getMongoClientOptions() {
@@ -231,10 +228,9 @@ public class MongoConfiguration implements DataSourceConfiguration {
     public MongoClient getMongoClient() throws UnknownHostException {
         MongoClientOptions options = getMongoClientOptions();
         LOGGER.debug("getMongoClient with servers:{} and options:{}", servers, options);
-        if (theServer != null){
+        if (theServer != null) {
             return new MongoClient(theServer, credentials, options);
-        }
-        else {
+        } else {
             return new MongoClient(servers, credentials, options);
         }
     }
@@ -251,83 +247,92 @@ public class MongoConfiguration implements DataSourceConfiguration {
             bld.append("servers:").append(servers).append('\n');
         }
         bld.append("connectionsPerHost:").append(connectionsPerHost).append('\n').
-            append("database:").append(database).append('\n').
-            append("ssl:").append(ssl).append('\n').
-            append("noCertValidation:").append(noCertValidation);
+                append("database:").append(database).append('\n').
+                append("ssl:").append(ssl).append('\n').
+                append("noCertValidation:").append(noCertValidation);
         bld.append("credentials:");
-        boolean first=true;
-        for(MongoCredential c:credentials) {
-            if(first)
-                first=false;
-            else
+        boolean first = true;
+        for (MongoCredential c : credentials) {
+            if (first) {
+                first = false;
+            } else {
                 bld.append(',');
+            }
             bld.append(toString(c));
         }
         return bld.toString();
     }
 
     public static MongoCredential credentialFromJson(ObjectNode node) {
-        String userName=null;
-        String password=null;
-        String source=null;
+        String userName = null;
+        String password = null;
+        String source = null;
 
-        JsonNode xnode=node.get("mechanism");
-        if(xnode==null)
+        JsonNode xnode = node.get("mechanism");
+        if (xnode == null) {
             throw new IllegalArgumentException("mechanism is required in credentials");
-        String mech=xnode.asText();
-        xnode=node.get("userName");
-        if(xnode!=null)
-            userName=xnode.asText();
-        xnode=node.get("password");
-        if(xnode!=null)
-            password=xnode.asText();
-        xnode=node.get("source");
-        if(xnode!=null)
-            source=xnode.asText();
+        }
+        String mech = xnode.asText();
+        xnode = node.get("userName");
+        if (xnode != null) {
+            userName = xnode.asText();
+        }
+        xnode = node.get("password");
+        if (xnode != null) {
+            password = xnode.asText();
+        }
+        xnode = node.get("source");
+        if (xnode != null) {
+            source = xnode.asText();
+        }
 
         MongoCredential cr;
-        if("GSSAPI_MECHANISM".equals(mech))
-            cr=MongoCredential.createGSSAPICredential(userName);
-        else if("MONGODB_CR_MECHANISM".equals(mech))
-            cr=MongoCredential.createMongoCRCredential(userName,source,
-                                                       password==null?null:password.toCharArray());
-        else if("MONGODB_X509_MECHANISM".equals(mech))
-            cr=MongoCredential.createMongoX509Credential(userName);
-        else if("PLAIN_MECHANISM".equals(mech))
-            cr=MongoCredential.createPlainCredential(userName,source,
-                                                     password==null?null:password.toCharArray());
-        else
-            throw new IllegalArgumentException("invalid mechanism:"+mech+", must be one of "+
-                                               "GSSAPI_MECHANISM, MONGODB_CR_MECHANISM, "+
-                                               "MONGODB_X5090_MECHANISM, or PLAIN_MECHANISM");
+        if ("GSSAPI_MECHANISM".equals(mech)) {
+            cr = MongoCredential.createGSSAPICredential(userName);
+        } else if ("MONGODB_CR_MECHANISM".equals(mech)) {
+            cr = MongoCredential.createMongoCRCredential(userName, source,
+                    password == null ? null : password.toCharArray());
+        } else if ("MONGODB_X509_MECHANISM".equals(mech)) {
+            cr = MongoCredential.createMongoX509Credential(userName);
+        } else if ("PLAIN_MECHANISM".equals(mech)) {
+            cr = MongoCredential.createPlainCredential(userName, source,
+                    password == null ? null : password.toCharArray());
+        } else {
+            throw new IllegalArgumentException("invalid mechanism:" + mech + ", must be one of "
+                    + "GSSAPI_MECHANISM, MONGODB_CR_MECHANISM, "
+                    + "MONGODB_X5090_MECHANISM, or PLAIN_MECHANISM");
+        }
         return cr;
     }
 
     public static List<MongoCredential> credentialsFromJson(JsonNode node) {
-        List<MongoCredential> list=new ArrayList<>();
+        List<MongoCredential> list = new ArrayList<>();
         try {
-            if(node instanceof ArrayNode) {
-                for(Iterator<JsonNode> itr=node.elements();itr.hasNext();) {
-                    list.add(credentialFromJson((ObjectNode)itr.next()));
+            if (node instanceof ArrayNode) {
+                for (Iterator<JsonNode> itr = node.elements(); itr.hasNext();) {
+                    list.add(credentialFromJson((ObjectNode) itr.next()));
                 }
-            } else if(node!=null) { 
-                list.add(credentialFromJson((ObjectNode)node));
-            } 
+            } else if (node != null) {
+                list.add(credentialFromJson((ObjectNode) node));
+            }
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Invalid credentials node:"+node);
+            throw new IllegalArgumentException("Invalid credentials node:" + node);
         }
         return list;
     }
 
     public static String toString(MongoCredential cr) {
-        StringBuilder bld=new StringBuilder();
+        StringBuilder bld = new StringBuilder();
         bld.append("{mechanism:").append(cr.getMechanism());
-        if(cr.getUserName()!=null)
+        if (cr.getUserName() != null) {
             bld.append(" userName:").append(cr.getUserName());
-        if(cr.getPassword()!=null)
+        }
+        if (cr.getPassword() != null) {
             bld.append(" password:").append(cr.getPassword());
-        if(cr.getSource()!=null)
+        }
+        if (cr.getSource() != null) {
             bld.append(" source:").append(cr.getSource());
+        }
         bld.append('}');
         return bld.toString();
     }
@@ -336,7 +341,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
             JsonNode x = node.get("connectionsPerHost");
-            if (x != null){
+            if (x != null) {
                 connectionsPerHost = x.asInt();
             }
             x = node.get("ssl");
@@ -344,13 +349,13 @@ public class MongoConfiguration implements DataSourceConfiguration {
                 ssl = x.asBoolean();
             }
             x = node.get("noCertValidation");
-            if(x!=null) {
+            if (x != null) {
                 noCertValidation = x.asBoolean();
             }
-            credentials=credentialsFromJson(node.get("credentials"));
+            credentials = credentialsFromJson(node.get("credentials"));
             x = node.get("metadataDataStoreParser");
             try {
-                if (x != null){
+                if (x != null) {
                     metadataDataStoreParser = Class.forName(x.asText());
                 }
             } catch (Exception e) {

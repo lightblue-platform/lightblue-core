@@ -45,90 +45,90 @@ import java.util.Map;
  * @author bserdar
  */
 //metadata/ prefix is the application context
-@Path("/") 
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CrudResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CrudResource.class);
 
-    private static final String FIELD_Q_EQ_TMPL="{\"field\": \"${field}\", \"op\": \"=\",\"rvalue\": \"${value}\"}";
-    private static final String FIELD_Q_IN_TMPL= "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
-    private static final String PROJECTION_TMPL= "{\"field\":\"${field}\",\"include\": ${include}, \"recursive\": ${recursive}}";
-    private static final String SORT_TMPL= "{\"${field}\":\"${order}\"}";
-    private static final String DEFAULT_PROJECTION_TMPL="{\"field\":\"*\",\"recursive\":true}";
+    private static final String FIELD_Q_EQ_TMPL = "{\"field\": \"${field}\", \"op\": \"=\",\"rvalue\": \"${value}\"}";
+    private static final String FIELD_Q_IN_TMPL = "{\"field\":\"${field}\", \"op\":\"$in\", \"values\":[${value}]}";
+    private static final String PROJECTION_TMPL = "{\"field\":\"${field}\",\"include\": ${include}, \"recursive\": ${recursive}}";
+    private static final String SORT_TMPL = "{\"${field}\":\"${order}\"}";
+    private static final String DEFAULT_PROJECTION_TMPL = "{\"field\":\"*\",\"recursive\":true}";
 
     @PUT
     @Path("/{entity}")
-    public String insert(@PathParam("entity") String entity, 
+    public String insert(@PathParam("entity") String entity,
                          String request) {
         return insert(entity, null, request);
     }
 
     @PUT
     @Path("/{entity}/{version}")
-    public String insert(@PathParam("entity") String entity, 
-                         @PathParam("version") String version, 
+    public String insert(@PathParam("entity") String entity,
+                         @PathParam("version") String version,
                          String request) {
         return new InsertCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/save/{entity}")
-    public String save(@PathParam("entity") String entity, 
+    public String save(@PathParam("entity") String entity,
                        String request) {
         return save(entity, null, request);
     }
 
     @POST
     @Path("/save/{entity}/{version}")
-    public String save(@PathParam("entity") String entity, 
-                       @PathParam("version") String version, 
+    public String save(@PathParam("entity") String entity,
+                       @PathParam("version") String version,
                        String request) {
         return new SaveCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/update/{entity}")
-    public String update(@PathParam("entity") String entity, 
+    public String update(@PathParam("entity") String entity,
                          String request) {
         return update(entity, null, request);
     }
 
     @POST
     @Path("/update/{entity}/{version}")
-    public String update(@PathParam("entity") String entity, 
-                         @PathParam("version") String version, 
+    public String update(@PathParam("entity") String entity,
+                         @PathParam("version") String version,
                          String request) {
         return new UpdateCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/delete/{entity}")
-    public String delete(@PathParam("entity") String entity, 
+    public String delete(@PathParam("entity") String entity,
                          String request) {
         return delete(entity, null, request);
     }
 
     @POST
     @Path("/delete/{entity}/{version}")
-    public String delete(@PathParam("entity") String entity, 
-                         @PathParam("version") String version, 
+    public String delete(@PathParam("entity") String entity,
+                         @PathParam("version") String version,
                          String req) {
         return new DeleteCommand(null, entity, version, req).execute();
     }
 
     @POST
     @Path("/find/{entity}")
-    public String find(@PathParam("entity") String entity, 
+    public String find(@PathParam("entity") String entity,
                        String request) {
         return find(entity, null, request);
     }
 
     @POST
     @Path("/find/{entity}/{version}")
-    public String find(@PathParam("entity") String entity, 
-                       @PathParam("version") String version, 
+    public String find(@PathParam("entity") String entity,
+                       @PathParam("version") String version,
                        String request) {
         return new FindCommand(null, entity, version, request).execute();
     }
@@ -136,28 +136,28 @@ public class CrudResource {
     @GET
     @Path("/find/{entity}")
     //?Q&P&S&from&to
-    public String simpleFind(@PathParam("entity") String entity, 
-                             @QueryParam("Q") String q, 
-                             @QueryParam("P") String p, 
-                             @QueryParam("S") String s, 
-                             @DefaultValue("0") @QueryParam("from") long from, 
-                             @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+    public String simpleFind(@PathParam("entity") String entity,
+                             @QueryParam("Q") String q,
+                             @QueryParam("P") String p,
+                             @QueryParam("S") String s,
+                             @DefaultValue("0") @QueryParam("from") long from,
+                             @DefaultValue("-1") @QueryParam("to") long to) throws IOException {
         return simpleFind(entity, null, q, p, s, from, to);
     }
 
     @GET
-    @Path("/find/{entity}/{version}") 
+    @Path("/find/{entity}/{version}")
     //?Q&P&S&from&to
-    public String simpleFind(@PathParam("entity") String entity, 
-                             @PathParam("version") String version, 
-                             @QueryParam("Q") String q, 
-                             @QueryParam("P") String p, 
-                             @QueryParam("S") String s, 
-                             @DefaultValue("0") @QueryParam("from") long from, 
-                             @DefaultValue("-1") @QueryParam("to") long to ) throws IOException {
+    public String simpleFind(@PathParam("entity") String entity,
+                             @PathParam("version") String version,
+                             @QueryParam("Q") String q,
+                             @QueryParam("P") String p,
+                             @QueryParam("S") String s,
+                             @DefaultValue("0") @QueryParam("from") long from,
+                             @DefaultValue("-1") @QueryParam("to") long to) throws IOException {
         // spec -> https://github.com/lightblue-platform/lightblue/wiki/Rest-Spec-Data#get-simple-find
         String sq = null;
-        if(q != null && !"".equals(q.trim())) {
+        if (q != null && !"".equals(q.trim())) {
             List<String> queryList = Arrays.asList(q.split(";"));
             if (queryList.size() > 1) {
                 StringBuilder sbq = new StringBuilder("{ \"$and\" : [");
@@ -174,10 +174,10 @@ public class CrudResource {
                 sq = buildQueryFieldTemplate(queryList.get(0));
             }
         }
-        LOGGER.debug("query: {} -> {}",q,sq);
+        LOGGER.debug("query: {} -> {}", q, sq);
 
         String sp = DEFAULT_PROJECTION_TMPL;
-        if(p != null && !"".equals(p.trim())) {
+        if (p != null && !"".equals(p.trim())) {
             List<String> projectionList = Arrays.asList(p.split(","));
             if (projectionList.size() > 1) {
                 StringBuilder sbp = new StringBuilder("[");
@@ -194,27 +194,27 @@ public class CrudResource {
                 sp = buildProjectionTemplate(projectionList.get(0));
             }
         }
-        LOGGER.debug("projection: {} -> {}",p, sp);
+        LOGGER.debug("projection: {} -> {}", p, sp);
 
         String ss = null;
-        if(s != null && !"".equals(s.trim())) {
+        if (s != null && !"".equals(s.trim())) {
             List<String> sortList = Arrays.asList(s.split(","));
             if (sortList.size() > 1) {
-                StringBuilder sbs = new StringBuilder("[" );
+                StringBuilder sbs = new StringBuilder("[");
                 for (int i = 0; i < sortList.size(); i++) {
                     sbs.append(buildSortTemplate(sortList.get(i)));
-                    if((i+1) < sortList.size()) {
+                    if ((i + 1) < sortList.size()) {
                         sbs.append(',');
                     }
                 }
                 sbs.append("]");
-                ss=sbs.toString();
+                ss = sbs.toString();
 
             } else {
                 ss = buildSortTemplate(sortList.get(0));
             }
         }
-        LOGGER.debug("sort:{} -> {}",s,ss);
+        LOGGER.debug("sort:{} -> {}", s, ss);
 
         FindRequest findRequest = new FindRequest();
         findRequest.setEntityVersion(new EntityVersion(entity, version));
@@ -228,30 +228,29 @@ public class CrudResource {
         return new FindCommand(null, entity, version, request).execute();
     }
 
-
     private String buildQueryFieldTemplate(String s1) {
         String sq;
         String template = null;
 
         String[] split = s1.split(":");
 
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("field", split[0]);
         String value = null;
 
         String[] comma = split[1].split(",");
-        if(comma.length > 1){
+        if (comma.length > 1) {
             template = FIELD_Q_IN_TMPL;
-            value = "\""+ StringUtils.join(comma, "\",\"")+"\"";
-        }else{
+            value = "\"" + StringUtils.join(comma, "\",\"") + "\"";
+        } else {
             template = FIELD_Q_EQ_TMPL;
             value = split[1];
         }
-        map.put("value", value );
+        map.put("value", value);
 
         StrSubstitutor sub = new StrSubstitutor(map);
 
-        sq=sub.replace(template);
+        sq = sub.replace(template);
         return sq;
     }
 
@@ -259,14 +258,14 @@ public class CrudResource {
         String sp;
         String[] split = s1.split(":");
 
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("field", split[0]);
-        map.put("include", split[1].charAt(0)=='1' ? "true" : "false");
-        map.put("recursive", split[1].length()<2 ? "false" : (split[1].charAt(1)=='r' ? "true" : "false") );
+        map.put("include", split[1].charAt(0) == '1' ? "true" : "false");
+        map.put("recursive", split[1].length() < 2 ? "false" : (split[1].charAt(1) == 'r' ? "true" : "false"));
 
         StrSubstitutor sub = new StrSubstitutor(map);
 
-        sp=sub.replace(PROJECTION_TMPL);
+        sp = sub.replace(PROJECTION_TMPL);
         return sp;
     }
 
@@ -275,13 +274,13 @@ public class CrudResource {
 
         String[] split = s1.split(":");
 
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         map.put("field", split[0]);
-        map.put("order", split[1].charAt(0)=='d' ? "$desc" : "$asc");
+        map.put("order", split[1].charAt(0) == 'd' ? "$desc" : "$asc");
 
         StrSubstitutor sub = new StrSubstitutor(map);
 
-        ss=sub.replace(SORT_TMPL);
+        ss = sub.replace(SORT_TMPL);
         return ss;
     }
 }

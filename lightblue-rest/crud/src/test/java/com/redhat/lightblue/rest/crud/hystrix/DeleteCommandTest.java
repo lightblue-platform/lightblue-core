@@ -33,7 +33,7 @@ public class DeleteCommandTest extends AbstractRestCommandTest {
         String output = command.execute();
 
         Assert.assertNotNull(output);
-        
+
         Assert.assertEquals("delete", mediator.methodCalled);
     }
 }

@@ -77,7 +77,7 @@ public class TranslatorTest extends AbstractMongoTest {
         Assert.assertNotNull(mongoUpdateExpr);
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void translateUpdateUnsetNestedArrayElement() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-unset-nested-array-element.json");
         UpdateExpression ue = update(updateQueryJson);
@@ -101,35 +101,35 @@ public class TranslatorTest extends AbstractMongoTest {
      $update : foreach_update_expression } }
      */
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void translateUpdateAppendValue() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-append-value.json");
         UpdateExpression ue = update(updateQueryJson);
         translator.translate(md, ue);
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void translateUpdateAppendValues() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-append-values.json");
         UpdateExpression ue = update(updateQueryJson);
         translator.translate(md, ue);
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void translateUpdateInsertValue() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-insert-value.json");
         UpdateExpression ue = update(updateQueryJson);
         translator.translate(md, ue);
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void translateUpdateInsertValues() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-insert-values.json");
         UpdateExpression ue = update(updateQueryJson);
         translator.translate(md, ue);
     }
 
-    @Test(expected=CannotTranslateException.class)
+    @Test(expected = CannotTranslateException.class)
     public void translateUpdateForeachSimple() throws Exception {
         String updateQueryJson = loadResource(getClass().getSimpleName() + "-update-foreach-simple.json");
         UpdateExpression ue = update(updateQueryJson);
@@ -146,15 +146,15 @@ public class TranslatorTest extends AbstractMongoTest {
     }
 
     @Test
-    public void transalteJS() throws Exception  {
-        DBObject obj=translator.translate(md,query("{'field':'field7.*.elemf1','op':'=','rfield':'field7.*.elemf2'}"));
-        Assert.assertEquals("function() {for(var r0=0;r0<this.field7.length;r0++) {"+
-                            "for(var l0=0;l0<this.field7.length;l0++) {if(this.field7[l0].elemf1==this.field7[r0].elemf2) { return true; }}}return false;}",
-                            obj.get("$where").toString());
+    public void transalteJS() throws Exception {
+        DBObject obj = translator.translate(md, query("{'field':'field7.*.elemf1','op':'=','rfield':'field7.*.elemf2'}"));
+        Assert.assertEquals("function() {for(var r0=0;r0<this.field7.length;r0++) {"
+                + "for(var l0=0;l0<this.field7.length;l0++) {if(this.field7[l0].elemf1==this.field7[r0].elemf2) { return true; }}}return false;}",
+                obj.get("$where").toString());
 
-        obj=translator.translate(md,query("{'field':'field7.0.elemf1','op':'=','rfield':'field7.*.elemf2'}"));
-        Assert.assertEquals("function() {for(var i0=0;i0<this.field7.length;i0++) {"+
-                            "if(this.field7[0].elemf1==this.field7[i0].elemf2) {return true;}}return false;}",
-                            obj.get("$where").toString());
+        obj = translator.translate(md, query("{'field':'field7.0.elemf1','op':'=','rfield':'field7.*.elemf2'}"));
+        Assert.assertEquals("function() {for(var i0=0;i0<this.field7.length;i0++) {"
+                + "if(this.field7[0].elemf1==this.field7[i0].elemf2) {return true;}}return false;}",
+                obj.get("$where").toString());
     }
 }

@@ -33,7 +33,7 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     private Type type;
 
     private FieldTreeNode parent = null;
-    private final Map<String,Object> properties=new HashMap<String,Object>();
+    private final Map<String, Object> properties = new HashMap<String, Object>();
 
     public ArrayElement() {
     }
@@ -87,7 +87,7 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
         return mp;
     }
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 

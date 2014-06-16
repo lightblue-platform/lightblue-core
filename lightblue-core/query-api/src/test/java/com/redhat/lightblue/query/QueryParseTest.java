@@ -166,17 +166,14 @@ public class QueryParseTest {
     }
 
     /**
-     * Check the behavior of RegexMatchExpression in case of bad formated input.
-     * In this scenario, 'regex' is missing, expecting the system to raise a
-     * Error Exception
+     * Check the behavior of RegexMatchExpression in case of bad formated input. In this scenario, 'regex' is missing,
+     * expecting the system to raise a Error Exception
      *
-     * PS1:RegexMatchExpression (and other classes that extends QueryExpression)
-     * hide their fromJson (shadowing), due it is static method and it can't
-     * override (so this can lead to a problem when someone expects to rely in
-     * the polymorphism using instance). But the shadowing methods use to change
-     * the return type and the method's parameter type as well. PS2:The Error
-     * exception is not reachable so far because the previous validations made
-     * in the chain of fromJson calls , maybe removed in a future.
+     * PS1:RegexMatchExpression (and other classes that extends QueryExpression) hide their fromJson (shadowing), due it
+     * is static method and it can't override (so this can lead to a problem when someone expects to rely in the
+     * polymorphism using instance). But the shadowing methods use to change the return type and the method's parameter
+     * type as well. PS2:The Error exception is not reachable so far because the previous validations made in the chain
+     * of fromJson calls , maybe removed in a future.
      *
      * @throws Exception
      */
@@ -187,17 +184,14 @@ public class QueryParseTest {
     }
 
     /**
-     * Check the behavior of RegexMatchExpression in case of bad formated input.
-     * In this scenario, 'regex' is missing, expecting the system to raise a
-     * Error Exception
+     * Check the behavior of RegexMatchExpression in case of bad formated input. In this scenario, 'regex' is missing,
+     * expecting the system to raise a Error Exception
      *
-     * PS1:RegexMatchExpression (and other classes that extends QueryExpression)
-     * hide their fromJson (shadowing), due it is static method and it can't
-     * override (so this can lead to a problem when someone expects to rely in
-     * the polymorphism using instance). But the shadowing methods use to change
-     * the return type and the method's parameter type as well. PS2:The Error
-     * exception is not reachable so far because the previous validations made
-     * in the chain of fromJson calls , maybe removed in a future.
+     * PS1:RegexMatchExpression (and other classes that extends QueryExpression) hide their fromJson (shadowing), due it
+     * is static method and it can't override (so this can lead to a problem when someone expects to rely in the
+     * polymorphism using instance). But the shadowing methods use to change the return type and the method's parameter
+     * type as well. PS2:The Error exception is not reachable so far because the previous validations made in the chain
+     * of fromJson calls , maybe removed in a future.
      *
      * @throws Exception
      */

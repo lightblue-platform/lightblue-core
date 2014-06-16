@@ -45,9 +45,9 @@ public class FieldProjector extends Projector {
     @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
         if (p.matchingPrefix(field)) {
-            if(include) {
+            if (include) {
                 return Boolean.TRUE;
-            } else if(p.equals(field)) {
+            } else if (p.equals(field)) {
                 return Boolean.FALSE;
             }
         } else if (recursive && p.numSegments() > field.numSegments() && p.prefix(field.numSegments()).matches(field)) {

@@ -120,8 +120,8 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Projector projector = Projector.getInstance(p, md);
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
         Assert.assertNotNull(pdoc.get(new Path("field6")));
-        Assert.assertEquals("nvalue1",pdoc.get(new Path("field6.nf1")).asText());
-        Assert.assertEquals("nvalue2",pdoc.get(new Path("field6.nf2")).asText());
+        Assert.assertEquals("nvalue1", pdoc.get(new Path("field6.nf1")).asText());
+        Assert.assertEquals("nvalue2", pdoc.get(new Path("field6.nf2")).asText());
         Assert.assertNull(pdoc.get(new Path("field6.nf3")));
     }
 

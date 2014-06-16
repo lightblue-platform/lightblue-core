@@ -30,7 +30,7 @@ public final class RestCrudConstants {
     public static final String ERR_NO_VERSION_MATCH = "rest-crud:NoVersionMatch";
 
     public static final String ERR_CANT_GET_MEDIATOR = "rest-crud:CantGetMediator";
-    
+
     private RestCrudConstants() {
 
     }

@@ -92,7 +92,6 @@ public class ProjectionParseTest {
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
     }
 
-
     @Test
     public void doc6Test() throws Exception {
         Projection p = Projection.fromJson(JsonUtils.json(doc6));
@@ -144,28 +143,29 @@ public class ProjectionParseTest {
         Assert.assertTrue(x.isInclude());
         Assert.assertTrue(!x.isRecursive());
     }
+
     @Test
     public void testAdd() throws Exception {
         Assert.assertNull(Projection.add(null, null));
         Projection p1 = Projection.fromJson(JsonUtils.json("{\"field\":\"x.y." + Path.PARENT + ".field.z\"}"));
         Projection p2 = Projection.fromJson(JsonUtils.json("{\"field\":\"" + Path.THIS + ".field.z\"}"));
-        ProjectionList l = (ProjectionList) Projection.add(p1,p2);
-        Assert.assertTrue(l.getItems().size()==2);
-        
-        Assert.assertEquals("x.field.z", ((FieldProjection)l.getItems().get(0)).getField().toString());
-        Assert.assertTrue(((FieldProjection)l.getItems().get(0)).isInclude());
-        Assert.assertTrue(!((FieldProjection)l.getItems().get(0)).isRecursive());
-        
-        Assert.assertEquals("field.z", ((FieldProjection)l.getItems().get(1)).getField().toString());
-        Assert.assertTrue(((FieldProjection)l.getItems().get(1)).isInclude());
-        Assert.assertTrue(!((FieldProjection)l.getItems().get(1)).isRecursive());
-        
-        ProjectionList newL = (ProjectionList) Projection.add(l,l);
-        Assert.assertTrue(newL.getItems().size()==4);
-        
+        ProjectionList l = (ProjectionList) Projection.add(p1, p2);
+        Assert.assertTrue(l.getItems().size() == 2);
+
+        Assert.assertEquals("x.field.z", ((FieldProjection) l.getItems().get(0)).getField().toString());
+        Assert.assertTrue(((FieldProjection) l.getItems().get(0)).isInclude());
+        Assert.assertTrue(!((FieldProjection) l.getItems().get(0)).isRecursive());
+
+        Assert.assertEquals("field.z", ((FieldProjection) l.getItems().get(1)).getField().toString());
+        Assert.assertTrue(((FieldProjection) l.getItems().get(1)).isInclude());
+        Assert.assertTrue(!((FieldProjection) l.getItems().get(1)).isRecursive());
+
+        ProjectionList newL = (ProjectionList) Projection.add(l, l);
+        Assert.assertTrue(newL.getItems().size() == 4);
+
         //just checking the first item
-        Assert.assertEquals("x.field.z", ((FieldProjection)newL.getItems().get(0)).getField().toString());
-        Assert.assertTrue(((FieldProjection)newL.getItems().get(0)).isInclude());
-        Assert.assertTrue(!((FieldProjection)newL.getItems().get(0)).isRecursive());
+        Assert.assertEquals("x.field.z", ((FieldProjection) newL.getItems().get(0)).getField().toString());
+        Assert.assertTrue(((FieldProjection) newL.getItems().get(0)).isInclude());
+        Assert.assertTrue(!((FieldProjection) newL.getItems().get(0)).isRecursive());
     }
 }

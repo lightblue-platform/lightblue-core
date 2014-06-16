@@ -158,60 +158,56 @@ public final class FieldAccessRoleEvaluator {
         public abstract Access getFieldAccess(FieldAccess f);
     }
 
-    private static final AccAccessor INS_ACC=new AccAccessor() {
-            public Access getFieldAccess(FieldAccess f) {
-                return f.getInsert();
-            }
-        };
+    private static final AccAccessor INS_ACC = new AccAccessor() {
+        public Access getFieldAccess(FieldAccess f) {
+            return f.getInsert();
+        }
+    };
 
-    private static final AccAccessor UPD_ACC=new AccAccessor() {
-            public Access getFieldAccess(FieldAccess f) {
-                return f.getUpdate();
-            }
-        };
+    private static final AccAccessor UPD_ACC = new AccAccessor() {
+        public Access getFieldAccess(FieldAccess f) {
+            return f.getUpdate();
+        }
+    };
 
-    private static final AccAccessor FIND_ACC=new AccAccessor() {
-            public Access getFieldAccess(FieldAccess f) {
-                return f.getFind();
-            }
-        };
+    private static final AccAccessor FIND_ACC = new AccAccessor() {
+        public Access getFieldAccess(FieldAccess f) {
+            return f.getFind();
+        }
+    };
 
-
-    private Access getEffAccess(Field f,AccAccessor acc,Access entityAccess) {
-        Access access=acc.getFieldAccess(f.getAccess());
-        if(access.isEmpty()) {
-            FieldTreeNode trc=f;
+    private Access getEffAccess(Field f, AccAccessor acc, Access entityAccess) {
+        Access access = acc.getFieldAccess(f.getAccess());
+        if (access.isEmpty()) {
+            FieldTreeNode trc = f;
             do {
-                trc=trc.getParent();
-                if(trc instanceof Field) {
-                    access=acc.getFieldAccess(((Field)trc).getAccess());
-                    if(!access.isEmpty()) {
+                trc = trc.getParent();
+                if (trc instanceof Field) {
+                    access = acc.getFieldAccess(((Field) trc).getAccess());
+                    if (!access.isEmpty()) {
                         break;
                     }
                 }
-            }  while(trc!=null);
+            } while (trc != null);
         }
-        if(access.isEmpty()) {
-            access=entityAccess;
+        if (access.isEmpty()) {
+            access = entityAccess;
         }
         return access;
     }
-                
-                
-        
 
     private boolean hasAccess(Field f, Operation op) {
         EntityAccess eaccess = md.getAccess();
         switch (op) {
-        case insert:
-            return getEffAccess(f,INS_ACC,eaccess.getInsert()).hasAccess(roles);
-        case update:
-            return getEffAccess(f,UPD_ACC,eaccess.getUpdate()).hasAccess(roles);
-        case insert_and_update:
-            return getEffAccess(f,INS_ACC,eaccess.getInsert()).hasAccess(roles)
-                && getEffAccess(f,UPD_ACC,eaccess.getUpdate()).hasAccess(roles);
-        case find:
-            return getEffAccess(f,FIND_ACC,eaccess.getFind()).hasAccess(roles);
+            case insert:
+                return getEffAccess(f, INS_ACC, eaccess.getInsert()).hasAccess(roles);
+            case update:
+                return getEffAccess(f, UPD_ACC, eaccess.getUpdate()).hasAccess(roles);
+            case insert_and_update:
+                return getEffAccess(f, INS_ACC, eaccess.getInsert()).hasAccess(roles)
+                        && getEffAccess(f, UPD_ACC, eaccess.getUpdate()).hasAccess(roles);
+            case find:
+                return getEffAccess(f, FIND_ACC, eaccess.getFind()).hasAccess(roles);
         }
         return false;
     }

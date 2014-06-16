@@ -101,9 +101,9 @@ public abstract class AbstractMongoTest extends AbstractJsonSchemaTest {
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(
                     new MongodConfigBuilder()
-                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
-                            .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
-                            .build()
+                    .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                    .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                    .build()
             );
 
             try {

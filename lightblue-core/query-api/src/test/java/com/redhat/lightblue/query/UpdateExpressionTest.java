@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,7 +29,7 @@ import org.junit.Ignore;
  */
 @Ignore
 public class UpdateExpressionTest {
-    
+
     /**
      * Test of fromJson method, of class UpdateExpression.
      */
@@ -44,5 +43,5 @@ public class UpdateExpressionTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-    
+
 }

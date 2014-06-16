@@ -55,7 +55,7 @@ public class TestAbstractMetadataTest {
             }
 
             @Override
-            public String[] getEntityNames(MetadataStatus...statuses) {
+            public String[] getEntityNames(MetadataStatus... statuses) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
@@ -83,9 +83,10 @@ public class TestAbstractMetadataTest {
             public void setMetadataStatus(String entityName, String version, MetadataStatus newStatus, String comment) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
-            @Override  
+
+            @Override
             public void removeEntity(String entityName) {
-                throw new UnsupportedOperationException("Not supported yet."); 
+                throw new UnsupportedOperationException("Not supported yet.");
             }
         };
 

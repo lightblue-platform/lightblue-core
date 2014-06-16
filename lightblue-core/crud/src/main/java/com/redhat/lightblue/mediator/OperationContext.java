@@ -55,7 +55,7 @@ public final class OperationContext extends CRUDOperationContext {
     private final Metadata metadata;
     private final Map<String, EntityMetadata> entityMetadata = new HashMap<>();
     private OperationStatus status = OperationStatus.COMPLETE;
-    private final Set<String> metadataRoles=new HashSet<>();
+    private final Set<String> metadataRoles = new HashSet<>();
 
     /**
      * Construct operation context
@@ -74,15 +74,15 @@ public final class OperationContext extends CRUDOperationContext {
                              Set<String> roles,
                              List<JsonDoc> docs,
                              Operation operation) {
-        super(operation,request.getEntityVersion().getEntity(), factory, nodeFactory, roles, docs);
+        super(operation, request.getEntityVersion().getEntity(), factory, nodeFactory, roles, docs);
         this.request = request;
         this.metadata = metadata;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
-        LOGGER.debug("All roles in {}:{}",request.getEntityVersion(),metadataRoles);
+        LOGGER.debug("All roles in {}:{}", request.getEntityVersion(), metadataRoles);
         super.setCallerRoles(getCallerRoles(metadataRoles, request.getClientId()));
-        LOGGER.debug("Caller roles:{}",getCallerRoles());
+        LOGGER.debug("Caller roles:{}", getCallerRoles());
     }
-    
+
     /**
      * Constructs an operation context
      *
@@ -153,24 +153,24 @@ public final class OperationContext extends CRUDOperationContext {
         this.status = status;
     }
 
-    private void addMetadataRoles(Set<String> roles,EntityMetadata em) {
-        EntityAccess a=em.getAccess();
+    private void addMetadataRoles(Set<String> roles, EntityMetadata em) {
+        EntityAccess a = em.getAccess();
         a.getFind().addRolesTo(roles);
         a.getUpdate().addRolesTo(roles);
         a.getInsert().addRolesTo(roles);
         a.getDelete().addRolesTo(roles);
     }
-    
-    private void addFieldRoles(Set<String> roles,FieldTreeNode node) {
-        if(node instanceof Field) {
-            Field field = (Field)node;
-            FieldAccess a=field.getAccess();
+
+    private void addFieldRoles(Set<String> roles, FieldTreeNode node) {
+        if (node instanceof Field) {
+            Field field = (Field) node;
+            FieldAccess a = field.getAccess();
             a.getFind().addRolesTo(roles);
             a.getInsert().addRolesTo(roles);
-            a.getUpdate().addRolesTo(roles);    
-        }        
+            a.getUpdate().addRolesTo(roles);
+        }
     }
-    
+
     private Set<String> getCallerRoles(Set<String> metadataRoles, ClientIdentification id) {
         Set<String> callerRoles = new HashSet<>();
         if (!metadataRoles.isEmpty() && id != null) {
@@ -182,7 +182,7 @@ public final class OperationContext extends CRUDOperationContext {
         }
         return callerRoles;
     }
-    
+
     private void initMetadata(String name, String version) {
         EntityMetadata x = entityMetadata.get(name);
         if (x != null) {
@@ -198,15 +198,15 @@ public final class OperationContext extends CRUDOperationContext {
                 throw new IllegalArgumentException(CrudConstants.ERR_DISABLED_METADATA + " " + name + " " + x.getEntitySchema().getVersion().getValue());
             }
             entityMetadata.put(x.getName(), x);
-            
-            addMetadataRoles(metadataRoles,x);
+
+            addMetadataRoles(metadataRoles, x);
 
             FieldCursor c = x.getFieldCursor();
             while (c.next()) {
                 FieldTreeNode node = c.getCurrentNode();
-                
-                addFieldRoles(metadataRoles,node);
-                
+
+                addFieldRoles(metadataRoles, node);
+
                 if (node instanceof ReferenceField) {
                     String refName = ((ReferenceField) node).getEntityName();
                     String refVersion = ((ReferenceField) node).getVersionValue();
