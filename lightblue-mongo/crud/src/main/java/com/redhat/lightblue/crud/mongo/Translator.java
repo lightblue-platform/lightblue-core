@@ -94,7 +94,7 @@ public class Translator {
     public static final String ERR_INVALID_OBJECTTYPE = "INVALID_OBJECTTYPE";
     public static final String ERR_INVALID_FIELD = "INVALID_FIELD";
     public static final String ERR_INVALID_COMPARISON = "INVALID_COMPARISON";
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
 
     private final MetadataResolver mdResolver;
@@ -105,6 +105,8 @@ public class Translator {
     private static final Map<NaryLogicalOperator, String> NARY_LOGICAL_OPERATOR_MAP;
     private static final Map<UnaryLogicalOperator, String> UNARY_LOGICAL_OPERATOR_MAP;
     private static final Map<NaryRelationalOperator, String> NARY_RELATIONAL_OPERATOR_MAP;
+
+    private static final String LITERAL_THIS_DOT = "this.";
 
     static {
         BINARY_COMPARISON_OPERATOR_JS_MAP = new HashMap<>();
@@ -621,7 +623,7 @@ public class Translator {
             String lJSField = writeJSForLoop(str, lField, "l");
             str.append("if(this.").append(lJSField).
                     append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
-                    append("this.").append(rJSField).append(") { return true; }");
+                    append(LITERAL_THIS_DOT).append(rJSField).append(") { return true; }");
             for (int i = 0; i < rn + ln; i++) {
                 str.append('}');
             }
@@ -632,17 +634,17 @@ public class Translator {
             String jsField = writeJSForLoop(str, rn > 0 ? rField : lField, "i");
             str.append("if(this.").append(ln > 0 ? jsField : translateJsPath(lField)).
                     append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
-                    append("this.").append(rn > 0 ? jsField : translateJsPath(rField)).append(") {return true;}");
+                    append(LITERAL_THIS_DOT).append(rn > 0 ? jsField : translateJsPath(rField)).append(") {return true;}");
             for (int i = 0; i < rn + ln; i++) {
                 str.append('}');
             }
             str.append("return false;}");
         } else {
             // No ANYs, direct comparison
-            str.append("this.").
+            str.append(LITERAL_THIS_DOT).
                     append(translateJsPath(expr.getField())).
                     append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
-                    append("this.").
+                    append(LITERAL_THIS_DOT).
                     append(translateJsPath(expr.getRfield()));
         }
 

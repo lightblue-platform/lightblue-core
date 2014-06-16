@@ -60,8 +60,6 @@ public abstract class AbstractMongoCommand<T> extends HystrixCommand<T> {
             return super.execute();
         } catch (HystrixBadRequestException br) {
             throw (RuntimeException) br.getCause();
-        } catch (RuntimeException x) {
-            throw x;
         }
     }
 
@@ -70,6 +68,7 @@ public abstract class AbstractMongoCommand<T> extends HystrixCommand<T> {
         try {
             return runMongoCommand();
         } catch (MongoSocketException mse) {
+            // must rethrow because MongoSocketException is instance of RuntimeException
             throw mse;
         } catch (RuntimeException x) {
             throw new HystrixBadRequestException("in " + getClass().getName(), x);

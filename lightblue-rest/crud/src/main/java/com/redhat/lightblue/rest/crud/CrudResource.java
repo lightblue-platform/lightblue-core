@@ -58,77 +58,80 @@ public class CrudResource {
     private static final String SORT_TMPL = "{\"${field}\":\"${order}\"}";
     private static final String DEFAULT_PROJECTION_TMPL = "{\"field\":\"*\",\"recursive\":true}";
 
+    private static final String PARAM_ENTITY = "entity";
+    private static final String PARAM_VERSION = "version";
+
     @PUT
     @Path("/{entity}")
-    public String insert(@PathParam("entity") String entity,
+    public String insert(@PathParam(PARAM_ENTITY) String entity,
                          String request) {
         return insert(entity, null, request);
     }
 
     @PUT
     @Path("/{entity}/{version}")
-    public String insert(@PathParam("entity") String entity,
-                         @PathParam("version") String version,
+    public String insert(@PathParam(PARAM_ENTITY) String entity,
+                         @PathParam(PARAM_VERSION) String version,
                          String request) {
         return new InsertCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/save/{entity}")
-    public String save(@PathParam("entity") String entity,
+    public String save(@PathParam(PARAM_ENTITY) String entity,
                        String request) {
         return save(entity, null, request);
     }
 
     @POST
     @Path("/save/{entity}/{version}")
-    public String save(@PathParam("entity") String entity,
-                       @PathParam("version") String version,
+    public String save(@PathParam(PARAM_ENTITY) String entity,
+                       @PathParam(PARAM_VERSION) String version,
                        String request) {
         return new SaveCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/update/{entity}")
-    public String update(@PathParam("entity") String entity,
+    public String update(@PathParam(PARAM_ENTITY) String entity,
                          String request) {
         return update(entity, null, request);
     }
 
     @POST
     @Path("/update/{entity}/{version}")
-    public String update(@PathParam("entity") String entity,
-                         @PathParam("version") String version,
+    public String update(@PathParam(PARAM_ENTITY) String entity,
+                         @PathParam(PARAM_VERSION) String version,
                          String request) {
         return new UpdateCommand(null, entity, version, request).execute();
     }
 
     @POST
     @Path("/delete/{entity}")
-    public String delete(@PathParam("entity") String entity,
+    public String delete(@PathParam(PARAM_ENTITY) String entity,
                          String request) {
         return delete(entity, null, request);
     }
 
     @POST
     @Path("/delete/{entity}/{version}")
-    public String delete(@PathParam("entity") String entity,
-                         @PathParam("version") String version,
+    public String delete(@PathParam(PARAM_ENTITY) String entity,
+                         @PathParam(PARAM_VERSION) String version,
                          String req) {
         return new DeleteCommand(null, entity, version, req).execute();
     }
 
     @POST
     @Path("/find/{entity}")
-    public String find(@PathParam("entity") String entity,
+    public String find(@PathParam(PARAM_ENTITY) String entity,
                        String request) {
         return find(entity, null, request);
     }
 
     @POST
     @Path("/find/{entity}/{version}")
-    public String find(@PathParam("entity") String entity,
-                       @PathParam("version") String version,
+    public String find(@PathParam(PARAM_ENTITY) String entity,
+                       @PathParam(PARAM_VERSION) String version,
                        String request) {
         return new FindCommand(null, entity, version, request).execute();
     }
@@ -136,7 +139,7 @@ public class CrudResource {
     @GET
     @Path("/find/{entity}")
     //?Q&P&S&from&to
-    public String simpleFind(@PathParam("entity") String entity,
+    public String simpleFind(@PathParam(PARAM_ENTITY) String entity,
                              @QueryParam("Q") String q,
                              @QueryParam("P") String p,
                              @QueryParam("S") String s,
@@ -148,8 +151,8 @@ public class CrudResource {
     @GET
     @Path("/find/{entity}/{version}")
     //?Q&P&S&from&to
-    public String simpleFind(@PathParam("entity") String entity,
-                             @PathParam("version") String version,
+    public String simpleFind(@PathParam(PARAM_ENTITY) String entity,
+                             @PathParam(PARAM_VERSION) String version,
                              @QueryParam("Q") String q,
                              @QueryParam("P") String p,
                              @QueryParam("S") String s,

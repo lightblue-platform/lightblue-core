@@ -34,6 +34,10 @@ import javax.ws.rs.core.MediaType;
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class MetadataResource {
+    private static final String PARAM_ENTITY = "entity";
+    private static final String PARAM_VERSION = "version";
+    
+    
     @GET
     @Path("/dependencies")
     public String getDepGraph() {
@@ -42,13 +46,13 @@ public class MetadataResource {
 
     @GET
     @Path("/{entity}/dependencies")
-    public String getDepGraph(@PathParam("entity") String entity) {
+    public String getDepGraph(@PathParam(PARAM_ENTITY) String entity) {
         return getDepGraph(entity, null);
     }
 
     @GET
     @Path("/{entity}/{version}/dependencies")
-    public String getDepGraph(@PathParam("entity") String entity, @PathParam("version") String version) {
+    public String getDepGraph(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version) {
         return new GetDependenciesCommand(null, entity, version).execute();
     }
 
@@ -60,13 +64,13 @@ public class MetadataResource {
 
     @GET
     @Path("/{entity}/roles")
-    public String getEntityRoles(@PathParam("entity") String entity) {
+    public String getEntityRoles(@PathParam(PARAM_ENTITY) String entity) {
         return getEntityRoles(entity, null);
     }
 
     @GET
     @Path("/{entity}/{version}/roles")
-    public String getEntityRoles(@PathParam("entity") String entity, @PathParam("version") String version) {
+    public String getEntityRoles(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version) {
         return new GetEntityRolesCommand(null, entity, version).execute();
     }
 
@@ -90,40 +94,40 @@ public class MetadataResource {
 
     @GET
     @Path("/{entity}")
-    public String getEntityVersions(@PathParam("entity") String entity) {
+    public String getEntityVersions(@PathParam(PARAM_ENTITY) String entity) {
         return new GetEntityVersionsCommand(null, entity).execute();
     }
 
     @GET
     @Path("/{entity}/{version}")
-    public String getMetadata(@PathParam("entity") String entity, @PathParam("version") String version) {
+    public String getMetadata(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version) {
         return new GetEntityMetadataCommand(null, entity, version).execute();
     }
 
     @PUT
     @Path("/{entity}/{version}")
-    public String createMetadata(@PathParam("entity") String entity, @PathParam("version") String version, String data) {
+    public String createMetadata(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version, String data) {
         return new CreateEntityMetadataCommand(null, entity, version, data).execute();
     }
 
     @PUT
     @Path("/{entity}/schema={version}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String createSchema(@PathParam("entity") String entity, @PathParam("version") String version, String schema) {
+    public String createSchema(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version, String schema) {
         return new CreateEntitySchemaCommand(null, entity, version, schema).execute();
     }
 
     @PUT
     @Path("/{entity}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String updateEntityInfo(@PathParam("entity") String entity, String info) {
+    public String updateEntityInfo(@PathParam(PARAM_ENTITY) String entity, String info) {
         return new UpdateEntityInfoCommand(null, entity, info).execute();
     }
 
     @PUT
     @Path("/{entity}/{version}/{status}")
-    public String updateSchemaStatus(@PathParam("entity") String entity,
-                                     @PathParam("version") String version,
+    public String updateSchemaStatus(@PathParam(PARAM_ENTITY) String entity,
+                                     @PathParam(PARAM_VERSION) String version,
                                      @PathParam("status") String status,
                                      @QueryParam("comment") String comment) {
         return new UpdateEntitySchemaStatusCommand(null, entity, version, status, comment).execute();
@@ -131,20 +135,20 @@ public class MetadataResource {
 
     @POST
     @Path("/{entity}/{version}/default")
-    public String setDefaultVersion(@PathParam("entity") String entity,
-                                    @PathParam("version") String version) {
+    public String setDefaultVersion(@PathParam(PARAM_ENTITY) String entity,
+                                    @PathParam(PARAM_VERSION) String version) {
         return new SetDefaultVersionCommand(null, entity, version).execute();
     }
 
     @DELETE
     @Path("/{entity}")
-    public String removeEntity(@PathParam("entity") String entity) {
+    public String removeEntity(@PathParam(PARAM_ENTITY) String entity) {
         return new RemoveEntityCommand(null, entity).execute();
     }
 
     @DELETE
     @Path("/{entity}/default")
-    public String clearDefaultVersion(@PathParam("entity") String entity) {
+    public String clearDefaultVersion(@PathParam(PARAM_ENTITY) String entity) {
         return new SetDefaultVersionCommand(null, entity, null).execute();
     }
 }

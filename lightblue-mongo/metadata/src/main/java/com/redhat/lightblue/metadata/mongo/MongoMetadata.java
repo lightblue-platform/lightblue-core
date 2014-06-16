@@ -350,7 +350,7 @@ public class MongoMetadata extends AbstractMetadata {
                                 && !indexOptionsMatch(index, existingIndex)) {
                             LOGGER.debug("Same index exists with different options, dropping index:{}", existingIndex);
                             // Changing index options, drop the index using its name, recreate with new options
-                            entityCollection.dropIndex(existingIndex.get("name").toString());
+                            entityCollection.dropIndex(existingIndex.get(LITERAL_NAME).toString());
                         }
                     }
                 }
@@ -362,7 +362,7 @@ public class MongoMetadata extends AbstractMetadata {
                     }
                     BasicDBObject options = new BasicDBObject("unique", index.isUnique());
                     if (index.getName() != null && index.getName().trim().length() > 0) {
-                        options.append("name", index.getName().trim());
+                        options.append(LITERAL_NAME, index.getName().trim());
                     }
                     LOGGER.debug("Creating index {} with options {}", newIndex, options);
                     entityCollection.createIndex(newIndex, options);
@@ -575,8 +575,6 @@ public class MongoMetadata extends AbstractMetadata {
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
-        } catch (Error x) {
-            throw x;
         } catch (Exception e) {
             LOGGER.error("Error during delete", e);
             throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
@@ -616,7 +614,7 @@ public class MongoMetadata extends AbstractMetadata {
                 response.setStatus(OperationStatus.PARTIAL);
                 // construct error data
                 ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
-                obj.put("name", name);
+                obj.put(LITERAL_NAME, name);
                 if (null != version) {
                     obj.put("version", version);
                 }
