@@ -50,7 +50,7 @@
                 "values": ["person", "organization"]
             }
         ],
-        "datastore": {
+        "backend": {
             "empty": {
             }
         }

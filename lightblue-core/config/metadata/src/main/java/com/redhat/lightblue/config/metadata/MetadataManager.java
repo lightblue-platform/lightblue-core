@@ -32,7 +32,7 @@ import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.BackendParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -69,9 +69,9 @@ public final class MetadataManager {
 
         Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
         for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
-            Class<DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
-            DataStoreParser datastoreParser = tempParser.newInstance();
-            extensions.registerDataStoreParser(datastoreParser.getDefaultName(), datastoreParser);
+            Class<BackendParser> tempParser = entry.getValue().getMetadataBackendParser();
+            BackendParser backendParser = tempParser.newInstance();
+            extensions.registerBackendParser(backendParser.getDefaultName(), backendParser);
         }
 
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);

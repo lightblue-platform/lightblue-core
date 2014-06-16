@@ -58,7 +58,7 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.common.mongo.MongoBackend;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.query.SortKey;
@@ -169,9 +169,9 @@ public class MongoMetadataTest {
     public void setup() {
         Extensions<BSONObject> x = new Extensions<>();
         x.addDefaultExtensions();
-        x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
+        x.registerBackendParser("mongo", new MongoBackendParser<BSONObject>());
         md = new MongoMetadata(db, new DBResolver() {
-            public DB get(MongoDataStore ds) {
+            public DB get(MongoBackend ds) {
                 return db;
             }
         }, x, new DefaultTypes());
@@ -204,7 +204,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -221,7 +221,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -254,7 +254,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -274,7 +274,7 @@ public class MongoMetadataTest {
         EntityMetadata e2 = new EntityMetadata("testEntity");
         e2.setVersion(new Version("1.1.0", null, "some text blah blah"));
         e2.setStatus(MetadataStatus.ACTIVE);
-        e2.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e2.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e2.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e2);
         EntityMetadata g = md.getEntityMetadata("testEntity", "1.1.0");
@@ -291,7 +291,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         e.getEntityInfo().setDefaultVersion("1.0.0");
         md.createNewMetadata(e);
@@ -311,7 +311,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.DISABLED);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         e.getEntityInfo().setDefaultVersion("1.0.0");
         try {
@@ -327,7 +327,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
@@ -351,7 +351,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         md.createNewMetadata(e);
         try {
@@ -368,7 +368,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -376,7 +376,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         EntityInfo ei = new EntityInfo("testEntity");
-        ei.setDataStore(new MongoDataStore(null, null, null, "somethingelse"));
+        ei.setBackend(new MongoBackend(null, null, null, "somethingelse"));
         md.updateEntityInfo(ei);
     }
 
@@ -385,7 +385,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -393,7 +393,7 @@ public class MongoMetadataTest {
         md.createNewMetadata(e);
 
         EntityInfo ei = new EntityInfo("NottestEntity");
-        ei.setDataStore(new MongoDataStore(null, null, null, "somethingelse"));
+        ei.setBackend(new MongoBackend(null, null, null, "somethingelse"));
         try {
             md.updateEntityInfo(ei);
             Assert.fail();
@@ -408,7 +408,7 @@ public class MongoMetadataTest {
         EntityMetadata eDefault = new EntityMetadata("testDefaultEntity");
         eDefault.setVersion(new Version("1.0.0", null, "some text blah blah"));
         eDefault.setStatus(MetadataStatus.DISABLED);
-        eDefault.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        eDefault.setBackend(new MongoBackend(null, null, null, "testCollection"));
         eDefault.getFields().put(new SimpleField("field1", StringType.TYPE));
         eDefault.getEntityInfo().setDefaultVersion("blah");
         try {
@@ -424,7 +424,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -453,7 +453,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -466,7 +466,7 @@ public class MongoMetadataTest {
         e = new EntityMetadata("testEntity2");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -501,7 +501,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollection"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollection"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -540,7 +540,7 @@ public class MongoMetadataTest {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerBackendParser("mongo", new MongoBackendParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
 
         // get JsonNode representing metadata
@@ -573,7 +573,7 @@ public class MongoMetadataTest {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerBackendParser("mongo", new MongoBackendParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
 
         // get JsonNode representing metadata
@@ -609,7 +609,7 @@ public class MongoMetadataTest {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerBackendParser("mongo", new MongoBackendParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
 
         // get JsonNode representing metadata
@@ -648,7 +648,7 @@ public class MongoMetadataTest {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerBackendParser("mongo", new MongoBackendParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
 
         // get JsonNode representing metadata
@@ -686,7 +686,7 @@ public class MongoMetadataTest {
         // setup parser
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+        extensions.registerBackendParser("mongo", new MongoBackendParser<JsonNode>());
         JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), new JsonNodeFactory(true));
 
         // get JsonNode representing metadata
@@ -727,7 +727,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex1"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollectionIndex1"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -765,7 +765,7 @@ public class MongoMetadataTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex2"));
+        e.setBackend(new MongoBackend(null, null, null, "testCollectionIndex2"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));

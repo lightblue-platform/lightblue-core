@@ -13,7 +13,7 @@
                 "values": ["one", "two"]
             }
         ],
-        "datastore": {
+        "backend": {
             "empty": {
             }
         }

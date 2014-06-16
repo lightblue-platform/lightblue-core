@@ -29,7 +29,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.redhat.lightblue.common.mongo.DBResolver;
-import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.common.mongo.MongoBackend;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -151,7 +151,7 @@ public class MongoCRUDController implements CRUDController {
             if (dbObjects != null) {
                 LOGGER.debug("saveOrInsert: {} docs translated to bson", dbObjects.length);
 
-                MongoDataStore store = (MongoDataStore) md.getDataStore();
+                MongoBackend store = (MongoBackend) md.getBackend();
                 DB db = dbResolver.get(store);
                 DBCollection collection = db.getCollection(store.getCollectionName());
 
@@ -228,8 +228,8 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     projector = null;
                 }
-                DB db = dbResolver.get((MongoDataStore) md.getDataStore());
-                DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+                DB db = dbResolver.get((MongoBackend) md.getBackend());
+                DBCollection coll = db.getCollection(((MongoBackend) md.getBackend()).getCollectionName());
                 Projector errorProjector;
                 if (projector == null) {
                     errorProjector = Projector.getInstance(ID_PROJECTION, md);
@@ -298,8 +298,8 @@ public class MongoCRUDController implements CRUDController {
                 LOGGER.debug("Translating query {}", query);
                 DBObject mongoQuery = translator.translate(md, query);
                 LOGGER.debug("Translated query {}", mongoQuery);
-                DB db = dbResolver.get((MongoDataStore) md.getDataStore());
-                DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+                DB db = dbResolver.get((MongoBackend) md.getBackend());
+                DBCollection coll = db.getCollection(((MongoBackend) md.getBackend()).getCollectionName());
                 DocDeleter deleter = new IterateDeleter(translator);
                 ctx.setProperty(PROP_DELETER, deleter);
                 deleter.delete(ctx, coll, mongoQuery, response);
@@ -351,8 +351,8 @@ public class MongoCRUDController implements CRUDController {
                 } else {
                     mongoSort = null;
                 }
-                DB db = dbResolver.get((MongoDataStore) md.getDataStore());
-                DBCollection coll = db.getCollection(((MongoDataStore) md.getDataStore()).getCollectionName());
+                DB db = dbResolver.get((MongoBackend) md.getBackend());
+                DBCollection coll = db.getCollection(((MongoBackend) md.getBackend()).getCollectionName());
                 LOGGER.debug("Retrieve db collection:" + coll);
                 DocFinder finder = new BasicDocFinder(translator);
                 ctx.setProperty(PROP_FINDER, finder);

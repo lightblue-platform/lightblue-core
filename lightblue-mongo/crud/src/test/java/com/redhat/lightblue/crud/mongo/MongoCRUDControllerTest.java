@@ -38,7 +38,7 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.common.mongo.MongoBackend;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.util.JsonDoc;
@@ -55,7 +55,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
 
         controller = new MongoCRUDController(nodeFactory, new DBResolver() {
             @Override
-            public DB get(MongoDataStore store) {
+            public DB get(MongoBackend store) {
                 return dbx;
             }
         });

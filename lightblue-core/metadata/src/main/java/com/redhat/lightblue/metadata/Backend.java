@@ -16,13 +16,17 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.parser;
+package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.DataStore;
+import java.io.Serializable;
 
 /**
- * Interface for data store parsers
+ * Interface for backend metadata implementations. The actual contents are defined by the implementation.
  */
-public interface DataStoreParser<NodeType> extends Parser<NodeType, DataStore> {
-    String getDefaultName();
+public interface Backend extends Serializable {
+
+    /**
+     * Returns the type of the backend
+     */
+    String getType();
 }

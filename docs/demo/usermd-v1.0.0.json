@@ -7,7 +7,7 @@
           "values": [ "billing", "marketing", "service", "shipping" ]
        }
     ],
-    "datastore": {
+    "backend": {
         "mongo": {
             "datasource": "mongodata",
             "collection": "user"

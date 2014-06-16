@@ -16,17 +16,29 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata;
+package com.redhat.lightblue;
 
-import java.io.Serializable;
+import com.redhat.lightblue.metadata.Backend;
+import com.redhat.lightblue.metadata.parser.BackendParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-/**
- * Interface for datastore metadata implementations. The actual contents are defined by the implementation.
- */
-public interface DataStore extends Serializable {
+public class TestBackendParser<T> implements BackendParser<T> {
 
-    /**
-     * Returns the type of the datastore
-     */
-    String getType();
+    @Override
+    public Backend parse(String name, MetadataParser<T> p, T node) {
+        return new Backend() {
+            public String getType() {
+                return "mongo";
+            }
+        };
+    }
+
+    @Override
+    public void convert(MetadataParser<T> p, T emptyNode, Backend object) {
+    }
+
+    @Override
+    public String getDefaultName() {
+        return "mongo";
+    }
 }

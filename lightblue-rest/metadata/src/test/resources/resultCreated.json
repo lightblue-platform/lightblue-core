@@ -7,7 +7,7 @@
                 "fields": [{"name": "$asc"}]
             }
         ],
-        "datastore": {
+        "backend": {
             "mongo": {
                   "datasource" : "mongo",
                   "collection": "country"

@@ -42,8 +42,8 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.redhat.lightblue.config.common.DataSourceConfiguration;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.mongo.MongoBackendParser;
+import com.redhat.lightblue.metadata.parser.BackendParser;
 
 /**
  * Mongo client makes a distinction between contructing using a list of ServerAddress objects, and a single
@@ -67,7 +67,7 @@ public class MongoConfiguration implements DataSourceConfiguration {
     private List<MongoCredential> credentials;
     private boolean ssl = Boolean.FALSE;
     private boolean noCertValidation = Boolean.FALSE;
-    private Class metadataDataStoreParser = MongoDataStoreParser.class;
+    private Class metadataBackendParser = MongoBackendParser.class;
 
     public void addServerAddress(String hostname, int port) throws UnknownHostException {
         this.servers.add(new ServerAddress(hostname, port));
@@ -101,12 +101,12 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     @Override
-    public Class<DataStoreParser> getMetadataDataStoreParser() {
-        return metadataDataStoreParser;
+    public Class<BackendParser> getMetadataBackendParser() {
+        return metadataBackendParser;
     }
 
-    public void setMetadataDataStoreParser(Class<DataStoreParser> clazz) {
-        metadataDataStoreParser = clazz;
+    public void setMetadataBackendParser(Class<BackendParser> clazz) {
+        metadataBackendParser = clazz;
     }
 
     public List<MongoCredential> getCredentials() {
@@ -353,10 +353,10 @@ public class MongoConfiguration implements DataSourceConfiguration {
                 noCertValidation = x.asBoolean();
             }
             credentials = credentialsFromJson(node.get("credentials"));
-            x = node.get("metadataDataStoreParser");
+            x = node.get("metadataBackendParser");
             try {
                 if (x != null) {
-                    metadataDataStoreParser = Class.forName(x.asText());
+                    metadataBackendParser = Class.forName(x.asText());
                 }
             } catch (Exception e) {
                 throw new IllegalArgumentException(node.toString() + ":" + e);

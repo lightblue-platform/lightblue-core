@@ -1,7 +1,7 @@
 {
    "mongo" : {
      "type" : "com.redhat.lightblue.mongo.config.MongoConfiguration",
-     "metadataDataStoreParser" : "com.redhat.lightblue.metadata.mongo.MongoDataStoreParser",
+     "metadataBackendParser" : "com.redhat.lightblue.metadata.mongo.MongoBackendParser",
      "ssl" : false,
      "database" : "mongo",
      "servers" : [

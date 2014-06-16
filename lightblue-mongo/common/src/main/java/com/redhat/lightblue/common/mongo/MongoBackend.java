@@ -21,9 +21,9 @@ package com.redhat.lightblue.common.mongo;
 import java.io.Serializable;
 import java.util.Objects;
 
-import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.Backend;
 
-public class MongoDataStore implements DataStore, Serializable {
+public class MongoBackend implements Backend, Serializable {
 
     private static final long serialVersionUID = 1l;
 
@@ -32,13 +32,13 @@ public class MongoDataStore implements DataStore, Serializable {
     private String databaseName;
     private String collectionName;
 
-    public MongoDataStore() {
+    public MongoBackend() {
     }
 
-    public MongoDataStore(String clientJndiName,
-                          String databaseName,
-                          String datasourceName,
-                          String collectionName) {
+    public MongoBackend(String clientJndiName,
+                        String databaseName,
+                        String datasourceName,
+                        String collectionName) {
         this.clientJndiName = clientJndiName;
         this.databaseName = databaseName;
         this.datasourceName = datasourceName;
@@ -141,8 +141,8 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public boolean equals(Object x) {
         try {
-            if (x instanceof MongoDataStore) {
-                MongoDataStore mds = (MongoDataStore) x;
+            if (x instanceof MongoBackend) {
+                MongoBackend mds = (MongoBackend) x;
                 try {
                     return Objects.equals(clientJndiName, mds.getClientJndiName())
                             && Objects.equals(datasourceName, mds.getDatasourceName())

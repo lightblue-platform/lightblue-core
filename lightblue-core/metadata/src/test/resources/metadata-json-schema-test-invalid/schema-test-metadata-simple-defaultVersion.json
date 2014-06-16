@@ -10,7 +10,7 @@
                 "fields": ["name"]
             }
         ],
-        "datastore": {
+        "backend": {
             "empty": {
             }
         }

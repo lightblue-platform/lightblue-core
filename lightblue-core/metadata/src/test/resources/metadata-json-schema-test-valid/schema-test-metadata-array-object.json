@@ -7,7 +7,7 @@
                 "fields": [{"name": "$asc"}]
             }
         ],
-        "datastore": {
+        "backend": {
             "empty": {
             }
         }

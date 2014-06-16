@@ -3,7 +3,7 @@
         "entityInfo": {
             "name": "test1",
             "defaultVersion": "1.0.0",
-            "datastore": {
+            "backend": {
                 "mongo": {
                     "collection": "test1"
                 }
@@ -42,7 +42,7 @@
     {
         "entityInfo": {
             "name": "test2",
-            "datastore": {
+            "backend": {
                 "mongo": {
                     "collection": "test2"
                 }
@@ -82,7 +82,7 @@
         "entityInfo": {
             "name": "test3",
             "defaultVersion": "1.0.0",
-            "datastore": {
+            "backend": {
                 "mongo": {
                     "collection": "test3"
                 }

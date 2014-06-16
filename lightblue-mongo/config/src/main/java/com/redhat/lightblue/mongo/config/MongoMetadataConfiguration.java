@@ -22,12 +22,12 @@ import org.bson.BSONObject;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.common.mongo.DBResolver;
-import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.common.mongo.MongoBackend;
 import com.redhat.lightblue.config.common.DataSourceConfiguration;
 import com.redhat.lightblue.config.common.DataSourcesConfiguration;
 import com.redhat.lightblue.config.metadata.MetadataConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
+import com.redhat.lightblue.metadata.mongo.MongoBackendParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -45,9 +45,9 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
             DBResolver dbresolver = new MongoDBResolver(datasources);
             Extensions<BSONObject> parserExtensions = new Extensions<>();
             parserExtensions.addDefaultExtensions();
-            parserExtensions.registerDataStoreParser(MongoDataStoreParser.NAME, new MongoDataStoreParser<BSONObject>());
+            parserExtensions.registerBackendParser(MongoBackendParser.NAME, new MongoBackendParser<BSONObject>());
             DefaultTypes typeResolver = new DefaultTypes();
-            MongoDataStore mdstore = new MongoDataStore();
+            MongoBackend mdstore = new MongoBackend();
             mdstore.setDatasourceName(datasource);
             if (collection == null) {
                 return new MongoMetadata(dbresolver.get(mdstore), dbresolver, parserExtensions, typeResolver);

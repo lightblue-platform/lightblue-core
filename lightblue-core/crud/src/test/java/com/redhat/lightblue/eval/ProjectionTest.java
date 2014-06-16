@@ -33,7 +33,7 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.TestDataStoreParser;
+import com.redhat.lightblue.TestBackendParser;
 
 import java.io.IOException;
 
@@ -53,7 +53,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         JsonNode node = loadJsonNode(fname);
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
+        extensions.registerBackendParser("mongo", new TestBackendParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, factory);
         return parser.parseEntityMetadata(node);

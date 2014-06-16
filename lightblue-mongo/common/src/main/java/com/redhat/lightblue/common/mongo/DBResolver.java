@@ -21,11 +21,11 @@ package com.redhat.lightblue.common.mongo;
 import com.mongodb.DB;
 
 /**
- * Returns a DB object based on the MongoDataStore.
+ * Returns a DB object based on the MongoBackend.
  */
 public interface DBResolver {
     /**
-     * Returns a DB object based on the datastore definition
+     * Returns a DB object based on the backend definition
      */
-    DB get(MongoDataStore store);
+    DB get(MongoBackend store);
 }

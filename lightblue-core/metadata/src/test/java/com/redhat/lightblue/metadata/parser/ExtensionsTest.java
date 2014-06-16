@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.HookConfiguration;
-import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.Backend;
 import com.redhat.lightblue.metadata.EntityInfo;
 
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -57,10 +57,10 @@ public class ExtensionsTest {
 
     }
 
-    public static class TestDatastoreParser implements DataStoreParser<JsonNode> {
+    public static class TestBackendParser implements BackendParser<JsonNode> {
         @Override
-        public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
-            return new DataStore() {
+        public Backend parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+            return new Backend() {
                 @Override
                 public String getType() {
                     return "test";
@@ -69,7 +69,7 @@ public class ExtensionsTest {
         }
 
         @Override
-        public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
+        public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, Backend object) {
         }
 
         @Override
@@ -87,8 +87,8 @@ public class ExtensionsTest {
         Extensions<JsonNode> ex = new Extensions<>();
         HookTestCfgParser hookParser = new HookTestCfgParser();
         ex.registerHookConfigurationParser("testHook", hookParser);
-        ex.registerDataStoreParser("test", new TestDatastoreParser());
-        JsonNode mdJson = json("{'name':'test','datastore':{'test': { } }, "
+        ex.registerBackendParser("test", new TestBackendParser());
+        JsonNode mdJson = json("{'name':'test','backend':{'test': { } }, "
                 + "'hooks':[ "
                 + "{'name':'testHook','actions':['insert'],"
                 + "'projection':{'field':'*','recursive':1},"

@@ -36,7 +36,7 @@ public class EntityInfo implements Serializable {
     private final Hooks hooks = new Hooks();
     private final Indexes indexes = new Indexes();
     private final Enums enums = new Enums();
-    private DataStore dataStore;
+    private Backend backend;
     private final Map<String, Object> properties = new HashMap<>();
 
     public EntityInfo(String name) {
@@ -73,21 +73,21 @@ public class EntityInfo implements Serializable {
     }
 
     /**
-     * Gets the value of dataStore
+     * Gets the value of backend
      *
-     * @return the value of dataStore
+     * @return the value of backend
      */
-    public DataStore getDataStore() {
-        return this.dataStore;
+    public Backend getBackend() {
+        return this.backend;
     }
 
     /**
-     * Sets the value of dataStore
+     * Sets the value of backed
      *
-     * @param argDataStore Value to assign to this.dataStore
+     * @param argBackend Value to assign to this.backend
      */
-    public void setDataStore(DataStore argDataStore) {
-        this.dataStore = argDataStore;
+    public void setBackend(Backend argBackend) {
+        this.backend = argBackend;
     }
 
     public Map<String, Object> getProperties() {
