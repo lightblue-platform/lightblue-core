@@ -20,7 +20,7 @@ package com.redhat.lightblue.config.common;
 
 import com.redhat.lightblue.util.JsonInitializable;
 
-import com.redhat.lightblue.metadata.parser.BackendParser;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
 /**
  * Base interface for backend configuration
@@ -30,6 +30,6 @@ public interface DataSourceConfiguration extends JsonInitializable {
     /**
      * Returns the metadata backend parser class
      */
-    Class<BackendParser> getMetadataBackendParser();
+    Class<DataStoreParser> getMetadataDataStoreParser();
 
 }

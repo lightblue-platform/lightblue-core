@@ -13,9 +13,8 @@
                 "fields": [{"person": "$asc"}]
             }
         ],
-        "backend": {
-            "empty": {
-            }
+        "datastore": {
+            "backend":"empty"
         }
     },
     "schema": {

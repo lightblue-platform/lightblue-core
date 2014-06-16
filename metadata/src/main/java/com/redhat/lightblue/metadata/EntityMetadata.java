@@ -134,21 +134,21 @@ public class EntityMetadata implements Serializable {
     }
 
     /**
-     * Gets the value of backend
+     * Gets the value of datastore
      *
-     * @return the value of backend
+     * @return the value of datastore
      */
-    public Backend getBackend() {
-        return info.getBackend();
+    public DataStore getDataStore() {
+        return info.getDataStore();
     }
 
     /**
-     * Sets the value of backend
+     * Sets the value of datastore
      *
-     * @param argBackend Value to assign to this.backend
+     * @param argDataStore Value to assign to this.datastore
      */
-    public void setBackend(Backend argBackend) {
-        info.setBackend(argBackend);
+    public void setDataStore(DataStore argDataStore) {
+        info.setDataStore(argDataStore);
     }
 
     /**

@@ -18,9 +18,8 @@
             "unique": ["name"]
         }
     ],
-    "backend": {
-        "empty": {
-        }
+    "datastore": {
+        "backend":"empty"
     },
     "fields": {
         "type": "object",
