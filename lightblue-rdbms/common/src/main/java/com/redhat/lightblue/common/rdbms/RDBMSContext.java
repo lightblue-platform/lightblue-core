@@ -20,7 +20,6 @@ public class RDBMSContext <T> {
     private RowMapper<T> rowMapper = null;
     private List<T> resultList = null;
     private Set<Parameter> parameters = null;
-    private Set<TableField> tableFields = null;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -102,14 +101,6 @@ public class RDBMSContext <T> {
         this.parameters = parameters;
     }
 
-    public Set<TableField> getTableFields() {
-        return tableFields;
-    }
-
-    public void setTableFields(Set<TableField> tableFields) {
-        this.tableFields = tableFields;
-    }
-
     @Override
     public String toString() {
         return "RDBMSContext{" +
@@ -123,7 +114,6 @@ public class RDBMSContext <T> {
                 ", rowMapper=" + rowMapper +
                 ", resultList=" + resultList +
                 ", parameters=" + parameters +
-                ", tableFields=" + tableFields +
                 '}';
     }
 }

@@ -16,19 +16,10 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "entityInfo": {
-            "$ref": "entityInfo.json#"
-        },
-        "schema": {
-            "$ref": "schema.json#"
-        },
-        "addendum": {
-            "$ref": "addendum.json#"
+        "DML": {
+            "$ref": "DML.json#"
         }
     },
-    "required": [
-        "entityInfo",
-        "schema"
-    ],
+    "required": [],
     "additionalProperties": false
 }
