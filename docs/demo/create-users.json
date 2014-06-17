@@ -1,6 +1,6 @@
 {
   "object_type":"user",
-  "version":"2.0",
+  "version":"2.0.0",
   "returning": { "field":"_id"},
   "data": {"$array" : { "length":100,
                         "element":

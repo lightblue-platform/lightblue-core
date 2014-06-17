@@ -126,12 +126,14 @@ public class MongoDataStore implements DataStore, Serializable {
     public String toString() {
         StringBuilder bld = new StringBuilder(64);
         if (datasourceName != null) {
-            bld.append(datasourceName).append(':');
+            bld.append("datasourceName:").append(datasourceName).append(':');
         }
         if (databaseName != null) {
-            bld.append(databaseName).append(':');
+            bld.append("databaseName:").append(databaseName).append(':');
         }
-        bld.append(collectionName);
+        if(collectionName!=null) {
+            bld.append("collection:").append(collectionName);
+        }
         if (clientJndiName != null) {
             bld.append('@').append(clientJndiName);
         }

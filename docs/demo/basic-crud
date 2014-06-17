@@ -317,7 +317,7 @@ login=bserdar and site.0.streetAddress.state=CO:
   "query":  { "$and" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" },
                          {"field":"sites.0.streetAddress.state","op":"$eq","rvalue":"CO"} ] },
   "range" : [0,10] }' 
-./GET "${host}/data/find/user/1.0?Q=login:bserdar,sites.0.streetAddress.state:CO"
+./GET "${host}/data/find/user/1.0.0?Q=login:bserdar,sites.0.streetAddress.state:CO"
 
 login=bserdar or login!=bserdar (return everything):
   ./POST  ${host}/data/find/user/1.0.0  '{ "object_type":"user",

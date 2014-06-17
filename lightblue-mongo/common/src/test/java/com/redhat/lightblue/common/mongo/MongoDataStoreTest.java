@@ -82,10 +82,6 @@ public class MongoDataStoreTest {
         Assert.assertEquals("newCollectionName", dataStore.getCollectionName());
     }
 
-    @Test
-    public void testToString() {
-        Assert.assertEquals("datasourceName:databaseName:collectionName@jndiName", dataStore.toString());
-    }
 
     @Test
     public void testEqualsObject() {
