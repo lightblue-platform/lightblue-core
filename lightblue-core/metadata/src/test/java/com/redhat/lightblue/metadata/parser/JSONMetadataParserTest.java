@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.Backend;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
@@ -56,20 +56,20 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     public void setup() {
         Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
-        extensions.registerBackendParser("empty", new BackendParser<JsonNode>() {
+        extensions.registerDataStoreParser("empty", new DataStoreParser<JsonNode>() {
 
             @Override
-            public Backend parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+            public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
                 if (!"empty".equals(name)) {
                     throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
                 }
 
-                Backend ds = new Backend() {
+                DataStore ds = new DataStore() {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
-                    public String getType() {
+                    public String getBackend() {
                         return "empty";
                     }
                 };
@@ -77,7 +77,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
             }
 
             @Override
-            public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, Backend ds) {
+            public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore ds) {
                 // nothing to do
             }
 

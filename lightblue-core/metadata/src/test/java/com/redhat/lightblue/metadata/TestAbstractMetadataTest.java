@@ -43,7 +43,7 @@ public class TestAbstractMetadataTest {
             }
 
             @Override
-            protected void checkBackendIsValid(EntityInfo md) {
+            protected void checkDataStoreIsValid(EntityInfo md) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 

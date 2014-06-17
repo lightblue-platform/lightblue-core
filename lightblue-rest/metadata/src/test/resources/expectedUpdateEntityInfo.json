@@ -5,10 +5,9 @@
         "unique": true,
         "fields": [{"name": "$asc"}]
     }],
-    "backend": {
-        "mongo": {
-            "datasource" : "mongo",
-            "collection": "country"
-        }
+    "datastore": {
+        "backend":"mongo",
+        "datasource" : "mongo",
+        "collection": "country"
     }
 }

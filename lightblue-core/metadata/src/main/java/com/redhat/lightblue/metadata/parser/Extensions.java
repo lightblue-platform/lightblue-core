@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.Backend;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.HookConfiguration;
@@ -28,7 +28,7 @@ import com.redhat.lightblue.metadata.HookConfiguration;
  */
 public class Extensions<T> {
 
-    private final ParserRegistry<T, Backend> backendParsers = new ParserRegistry<>();
+    private final ParserRegistry<T, DataStore> backendParsers = new ParserRegistry<>();
 
     private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
 
@@ -45,12 +45,12 @@ public class Extensions<T> {
     }
 
     /**
-     * Adds a parser that parses Backend
+     * Adds a parser that parses DataStore
      *
      * @param name Name of the backend type (such as 'mongo')
      * @param parser The parser that parses backend of the given type
      */
-    public void registerBackendParser(String name, BackendParser<T> parser) {
+    public void registerDataStoreParser(String name, DataStoreParser<T> parser) {
         backendParsers.add(name, parser);
     }
 
@@ -61,8 +61,8 @@ public class Extensions<T> {
      *
      * @return The parser for the backend, or null if it does not exist
      */
-    public BackendParser<T> getBackendParser(String backendName) {
-        return (BackendParser<T>) backendParsers.find(backendName);
+    public DataStoreParser<T> getDataStoreParser(String backendName) {
+        return (DataStoreParser<T>) backendParsers.find(backendName);
     }
 
     /**

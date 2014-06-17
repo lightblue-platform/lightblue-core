@@ -49,9 +49,9 @@ import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.common.mongo.DBResolver;
-import com.redhat.lightblue.common.mongo.MongoBackend;
+import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.metadata.AbstractMetadata;
-import com.redhat.lightblue.metadata.Backend;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -258,7 +258,7 @@ public class MongoMetadata extends AbstractMetadata {
         LOGGER.debug("createNewMetadata: begin");
         checkMetadataHasName(md);
         checkMetadataHasFields(md);
-        checkBackendIsValid(md);
+        checkDataStoreIsValid(md);
         Version ver = checkVersionIsValid(md);
         LOGGER.debug("createNewMetadata: version {}", ver);
 
@@ -324,7 +324,7 @@ public class MongoMetadata extends AbstractMetadata {
 
         Indexes indexes = ei.getIndexes();
 
-        MongoBackend ds = (MongoBackend) ei.getBackend();
+        MongoDataStore ds = (MongoDataStore) ei.getDataStore();
         DB entityDB = dbResolver.get(ds);
         DBCollection entityCollection = entityDB.getCollection(ds.getCollectionName());
         Error.push("createUpdateIndex");
@@ -429,7 +429,7 @@ public class MongoMetadata extends AbstractMetadata {
     @Override
     public void updateEntityInfo(EntityInfo ei) {
         checkMetadataHasName(ei);
-        checkBackendIsValid(ei);
+        checkDataStoreIsValid(ei);
         Error.push("updateEntityInfo(" + ei.getName() + ")");
         try {
             // Verify entity info exists
@@ -463,7 +463,7 @@ public class MongoMetadata extends AbstractMetadata {
     public void createNewSchema(EntityMetadata md) {
         checkMetadataHasName(md);
         checkMetadataHasFields(md);
-        checkBackendIsValid(md);
+        checkDataStoreIsValid(md);
         Version ver = checkVersionIsValid(md);
 
         Error.push("createNewSchema(" + md.getName() + ")");
@@ -492,9 +492,9 @@ public class MongoMetadata extends AbstractMetadata {
     }
 
     @Override
-    protected void checkBackendIsValid(EntityInfo md) {
-        Backend store = md.getBackend();
-        if (!(store instanceof MongoBackend)) {
+    protected void checkDataStoreIsValid(EntityInfo md) {
+        DataStore store = md.getDataStore();
+        if (!(store instanceof MongoDataStore)) {
             throw new IllegalArgumentException(MongoMetadataConstants.ERR_INVALID_DATASTORE);
         }
     }

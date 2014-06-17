@@ -13,10 +13,9 @@
         "fields": [ { "login":"$asc" } ]
       }
     ],
-    "backend": {
-        "mongo": {
-            "datasource": "mongodata",
-            "collection": "user"
-        }
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "user"
     }
 }

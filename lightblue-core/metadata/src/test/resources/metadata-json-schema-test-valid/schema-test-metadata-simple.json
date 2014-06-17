@@ -8,9 +8,8 @@
                 "fields": [{"name": "$asc"}]
             }
         ],
-        "backend": {
-            "empty": {
-            }
+        "datastore": {
+            "backend":"empty"
         }
     },
     "schema": {
