@@ -1,0 +1,111 @@
+{
+    "copyright": [
+        "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+        "This file is part of lightblue.",
+        "This program is free software: you can redistribute it and/or modify",
+        "it under the terms of the GNU General Public License as published by",
+        "the Free Software Foundation, either version 3 of the License, or",
+        "(at your option) any later version.",
+        "This program is distributed in the hope that it will be useful,",
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+        "GNU General Public License for more details.",
+        "You should have received a copy of the GNU General Public License",
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>."
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "statements": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "sql": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum":  [ "select", "insert", "update", "delete" ]
+                    },
+                    "jndi" : {
+                        "type": "string"
+                    },
+                    "needsWhere" : {
+                        "type": "boolean"
+                    },
+                    "needsAnd" : {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "sql",
+                    "type",
+                    "jndi",
+                    "needsWhere",
+                    "needsAnd"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "bindings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "object",
+                        "properties": {
+                            "in": {
+                                "type": "object",
+                                "properties": {
+                                    "documentPath" : {
+                                        "type" : "string"
+                                    },
+                                    "columnPath" : {
+                                        "type" : "string"
+                                    }
+                                },
+                                "required": [
+                                    "documentPath",
+                                    "columnPath"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "out" : {
+                                "type" : "string"
+                            }
+                        },
+                        "anyOf": [
+                            {
+                                "title": "in required",
+                                "required": [
+                                    "in"
+                                ]
+                            },
+                            {
+                                "title": "out required",
+                                "required": [
+                                    "out"
+                                ]
+                            }
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "required": [
+                    "field"
+                ],
+                "additionalProperties": false
+            }
+        },
+    },
+    "required": [
+        "select",
+        "insert",
+        "update",
+        "delete"
+    ],
+    "additionalProperties": false
+}

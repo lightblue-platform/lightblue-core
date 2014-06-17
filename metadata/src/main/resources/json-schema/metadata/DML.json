@@ -16,19 +16,24 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "entityInfo": {
-            "$ref": "entityInfo.json#"
+        "select": {
+            "$ref": "statement.json#"
         },
-        "schema": {
-            "$ref": "schema.json#"
+        "insert": {
+            "$ref": "statement.json#"
         },
-        "addendum": {
-            "$ref": "addendum.json#"
+        "update": {
+            "$ref": "statement.json#"
+        },
+        "delete": {
+            "$ref": "statement.json#"
         }
     },
     "required": [
-        "entityInfo",
-        "schema"
+        "select",
+        "insert",
+        "update",
+        "delete"
     ],
     "additionalProperties": false
 }
