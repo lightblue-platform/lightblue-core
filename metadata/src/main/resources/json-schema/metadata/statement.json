@@ -58,23 +58,10 @@
                         "type": "object",
                         "properties": {
                             "in": {
-                                "type": "object",
-                                "properties": {
-                                    "documentPath" : {
-                                        "type" : "string"
-                                    },
-                                    "columnPath" : {
-                                        "type" : "string"
-                                    }
-                                },
-                                "required": [
-                                    "documentPath",
-                                    "columnPath"
-                                ],
-                                "additionalProperties": false
+                                "$ref": "inout.json#"
                             },
                             "out" : {
-                                "type" : "string"
+                                "$ref": "inout.json#"
                             }
                         },
                         "anyOf": [
