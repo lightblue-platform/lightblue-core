@@ -1,0 +1,23 @@
+strict digraph lightblue_cicd {
+compound=true;
+overlap=false;
+splines=true;
+subgraph cluster_rollback {
+    label="Continous Delivery: Rollback";
+    yum_downgrade -> lb_out_rotation -> traffic_quiesce -> puppet_run;
+    puppet_run -> verify_rpms -> functional_test;
+    verify_jboss [label="JBoss Started?", shape="diamond"];
+    puppet_run -> verify_jboss;
+    verify_jboss -> jboss_restart [label="no"];
+    jboss_restart -> verify_jboss;
+    verify_jboss -> functional_test [label="yes"];
+    puppet_run -> smoke_test -> functional_test;
+    functional_test -> puppet_start -> lb_in_rotation;
+}
+start [label="",shape="circle",width=0.2];
+success [shape="point",width=0.2];
+failure [shape="point",width=0.2,color="red"];
+start -> yum_downgrade;
+lb_in_rotation -> success;
+lb_in_rotation -> failure [ltail=cluster_rollback,color="red"];
+}

@@ -1,0 +1,29 @@
+strict digraph lightblue_cicd {
+compound=true;
+overlap=false;
+splines=true;
+node [shape=rectangle];
+subgraph cluster_CD {
+    label="Continuous Deployment";
+    continuous_delivery_prep [label="Continous Delivery: Prep"];
+    continuous_delivery_A [label="Continous Delivery [A]"];
+    continuous_delivery_B [label="Continous Delivery [B]"];
+    continuous_delivery_prep -> continuous_delivery_A -> continuous_delivery_B;
+}
+start [label="",shape="circle",width=0.2];
+continuous_delivery_rollback_prep [label="Continous Delivery: Rollback Prep"];
+continuous_delivery_rollback_A [label="Continous Delivery: Rollback [A]"];
+continuous_delivery_rollback_B [label="Continous Delivery: Rollback [B]"];
+rollback [shape="diamond",label="Rollback B?"];
+success [shape="point",width=0.2];
+failure [shape="point",width=0.2,color="red"];
+// relationships
+start -> continuous_delivery_prep [label="params: {env}"];
+continuous_delivery_B -> continuous_delivery_rollback_prep [ltail=cluster_CD,color="red"];
+continuous_delivery_rollback_prep -> rollback;
+rollback -> continuous_delivery_rollback_B [label="yes"];
+rollback -> continuous_delivery_rollback_A [label="no"];
+continuous_delivery_rollback_B -> continuous_delivery_rollback_A;
+continuous_delivery_rollback_A -> failure;
+continuous_delivery_B -> success;
+}

@@ -31,3 +31,4 @@ bin/*
 util/nb-configuration.xml
 nb-configuration.xml
 metadata/nb-configuration.xml
+docs/cicd/*.png
