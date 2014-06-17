@@ -17,7 +17,7 @@ subgraph cluster_rollback {
 start [label="",shape="circle",width=0.2];
 success [shape="point",width=0.2];
 failure [shape="point",width=0.2,color="red"];
-start -> yum_downgrade;
+start -> yum_downgrade [label="params: {env}"];
 lb_in_rotation -> success;
 lb_in_rotation -> failure [ltail=cluster_rollback,color="red"];
 }

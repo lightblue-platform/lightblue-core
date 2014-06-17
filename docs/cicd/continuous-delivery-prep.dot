@@ -13,7 +13,7 @@ subgraph cluster_CD {
 start [label="",shape="circle",width=0.2];
 success [shape="point",width=0.2];
 failure [shape="point",width=0.2,color="red"];
-start -> juicer_create_cart;
+start -> juicer_create_cart [label="params: {env}"];
 git_push_puppet -> success;
 notification -> failure [color="red"];
 // when prep fails
