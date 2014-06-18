@@ -30,7 +30,7 @@ public class SaveCommand extends AbstractMongoCommand<WriteResult> {
     private final DBObject data;
 
     public SaveCommand(String clientKey, DBCollection collection, DBObject data) {
-        super(SaveCommand.class.getSimpleName(), SaveCommand.class.getSimpleName(), clientKey, collection);
+        super(SaveCommand.class.getSimpleName(),clientKey, collection);
         this.data = data;
     }
 

@@ -36,7 +36,7 @@ public class RemoveCommand extends AbstractMongoCommand<WriteResult> {
     }
 
     public RemoveCommand(String clientKey, DBCollection collection, DBObject data, WriteConcern concern) {
-        super(RemoveCommand.class.getSimpleName(), RemoveCommand.class.getSimpleName(), clientKey, collection);
+        super(RemoveCommand.class.getSimpleName(),clientKey, collection);
         this.data = data;
         this.concern = concern;
     }

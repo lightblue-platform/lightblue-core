@@ -27,23 +27,29 @@ import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.exception.HystrixBadRequestException;
 
 /**
+ * The groupkey for all mongodb commands are "mongodb"
  *
  * @author nmalik
  */
 public abstract class AbstractMongoCommand<T> extends HystrixCommand<T> {
+    
+    /**
+     * The groupkey for all mongodb commands are "mongodb"
+     */
+    public static final String GROUPKEY="mongodb";
+
     private final DBCollection collection;
 
     /**
      *
-     * @param groupKey REQUIRED
-     * @param commandKey OPTIONAL defaults to groupKey value
+     * @param commandKey REQUIRED 
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      * @param collection REQUIRED
      */
-    public AbstractMongoCommand(String groupKey, String commandKey, String threadPoolKey, DBCollection collection) {
-        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
-                .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey == null ? groupKey : commandKey))
-                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? groupKey : threadPoolKey)));
+    public AbstractMongoCommand(String commandKey, String threadPoolKey, DBCollection collection) {
+        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(GROUPKEY))
+              .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
+              .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? GROUPKEY : threadPoolKey)));
         this.collection = collection;
     }
 

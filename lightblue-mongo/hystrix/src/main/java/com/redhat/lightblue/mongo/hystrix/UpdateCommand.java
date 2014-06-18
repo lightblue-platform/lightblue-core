@@ -39,7 +39,7 @@ public class UpdateCommand extends AbstractMongoCommand<WriteResult> {
     }
 
     public UpdateCommand(String clientKey, DBCollection collection, DBObject query, DBObject update, boolean upsert, boolean multi, WriteConcern concern) {
-        super(UpdateCommand.class.getSimpleName(), UpdateCommand.class.getSimpleName(), clientKey, collection);
+        super(UpdateCommand.class.getSimpleName(),clientKey, collection);
         this.query = query;
         this.update = update;
         this.upsert = upsert;

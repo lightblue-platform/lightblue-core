@@ -37,7 +37,7 @@ public class FindCommand extends AbstractMongoCommand<DBCursor> {
      * @param query
      */
     public FindCommand(String clientKey, DBCollection collection, DBObject query, DBObject projection) {
-        super(FindCommand.class.getSimpleName(), FindCommand.class.getSimpleName(), clientKey, collection);
+        super(FindCommand.class.getSimpleName(),clientKey, collection);
         this.query = query;
         this.projection = projection;
     }

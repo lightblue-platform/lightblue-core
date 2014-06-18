@@ -35,7 +35,7 @@ public class DistinctCommand extends AbstractMongoCommand<List> {
     }
 
     public DistinctCommand(String clientKey, DBCollection collection, String key, DBObject query) {
-        super(DistinctCommand.class.getSimpleName(), DistinctCommand.class.getSimpleName(), clientKey, collection);
+        super(DistinctCommand.class.getSimpleName(),clientKey, collection);
         this.key = key;
         this.query = query;
     }
