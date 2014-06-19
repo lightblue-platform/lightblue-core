@@ -4,7 +4,7 @@
 
     <servlet-mapping>
        <servlet-name>com.redhat.lightblue.rest.metadata.RestApplication</servlet-name>
-       <url-pattern>/*</url-pattern>
+       <url-pattern>/metadata/*</url-pattern>
     </servlet-mapping>
 
     <servlet>
