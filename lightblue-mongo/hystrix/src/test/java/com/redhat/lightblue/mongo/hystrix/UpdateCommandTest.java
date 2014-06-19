@@ -43,7 +43,7 @@ public class UpdateCommandTest extends AbstractMongoTest {
         DBObject set = new BasicDBObject();
         set.put("$set", new BasicDBObject(key2, newValue));
         //public UpdateCommand(String clientKey, DBCollection collection, DBObject query, DBObject update, boolean upsert, boolean multi, WriteConcern concern) {
-        WriteResult result = new UpdateCommand(null, coll,
+        WriteResult result = new UpdateCommand(coll,
                 query,
                 set,
                 false,
@@ -73,7 +73,7 @@ public class UpdateCommandTest extends AbstractMongoTest {
         DBObject set = new BasicDBObject();
         set.put("$set", new BasicDBObject(key2, newValue));
         //public UpdateCommand(String clientKey, DBCollection collection, DBObject query, DBObject update, boolean upsert, boolean multi, WriteConcern concern) {
-        WriteResult result = new UpdateCommand(null, coll,
+        WriteResult result = new UpdateCommand(coll,
                 query,
                 set,
                 false,

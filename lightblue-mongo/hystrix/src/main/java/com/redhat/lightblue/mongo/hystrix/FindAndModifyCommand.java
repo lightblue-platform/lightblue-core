@@ -34,9 +34,9 @@ public class FindAndModifyCommand extends AbstractMongoCommand<DBObject> {
     private final boolean returnNew;
     private final boolean upsert;
 
-    public FindAndModifyCommand(String clientKey, DBCollection collection, DBObject query, DBObject fields,
+    public FindAndModifyCommand(DBCollection collection, DBObject query, DBObject fields,
                                 DBObject sort, boolean remove, DBObject update, boolean returnNew, boolean upsert) {
-        super(FindAndModifyCommand.class.getSimpleName(),clientKey, collection);
+        super(FindAndModifyCommand.class.getSimpleName(),collection);
         this.query = query;
         this.fields = fields;
         this.sort = sort;

@@ -29,7 +29,7 @@ import org.junit.Test;
 public class DistinctCommandTest extends AbstractMongoTest {
     @Test
     public void execute() {
-        List values = new DistinctCommand(null, coll, key1).execute();
+        List values = new DistinctCommand(coll, key1).execute();
 
         Assert.assertEquals(4, values.size());
         Assert.assertTrue(values.contains("obj1"));

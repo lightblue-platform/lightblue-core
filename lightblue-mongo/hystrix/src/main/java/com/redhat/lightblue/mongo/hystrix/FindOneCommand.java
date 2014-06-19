@@ -34,8 +34,8 @@ public class FindOneCommand extends AbstractMongoCommand<DBObject> {
      * @param clientKey used to set thread pool key
      * @param query
      */
-    public FindOneCommand(String clientKey, DBCollection collection, DBObject query) {
-        super(FindOneCommand.class.getSimpleName(),clientKey, collection);
+    public FindOneCommand(DBCollection collection, DBObject query) {
+        super(FindOneCommand.class.getSimpleName(),collection);
         this.query = query;
     }
 

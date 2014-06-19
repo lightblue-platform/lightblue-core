@@ -87,7 +87,7 @@ public class IterateAndUpdate implements DocUpdater {
         int docIndex = 0;
         int numFailed = 0;
         try {
-            cursor = new FindCommand(null, collection, query, null).execute();
+            cursor = new FindCommand(collection, query, null).execute();
             LOGGER.debug("Found {} documents", cursor.count());
             // read-update-write
             while (cursor.hasNext()) {
@@ -127,7 +127,7 @@ public class IterateAndUpdate implements DocUpdater {
                         try {
                             DBObject updatedObject = translator.toBson(doc.getOutputDocument());
                             translator.addInvisibleFields(document, updatedObject, md);
-                            WriteResult result = new SaveCommand(null, collection, updatedObject).execute();
+                            WriteResult result = new SaveCommand(collection, updatedObject).execute();
                             doc.setOperationPerformed(Operation.UPDATE);
                             LOGGER.debug("Number of rows affected : ", result.getN());
                         } catch (Exception e) {

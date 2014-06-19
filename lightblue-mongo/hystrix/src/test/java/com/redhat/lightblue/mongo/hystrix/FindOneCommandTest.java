@@ -32,7 +32,7 @@ public class FindOneCommandTest extends AbstractMongoTest {
     public void executeWithoutProjection() {
         // doesn't support projection because there is no need at this time.
         DBObject query = new BasicDBObject(key1, "obj4");
-        DBObject obj = new FindOneCommand(null, coll, query).execute();
+        DBObject obj = new FindOneCommand(coll, query).execute();
 
         Assert.assertNotNull(obj);
         Assert.assertNotNull(obj.get(key1));

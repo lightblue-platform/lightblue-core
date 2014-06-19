@@ -32,7 +32,7 @@ public class FindAndModifyCommandTest extends AbstractMongoTest {
     public void execute() {
         String newValue = "new value";
         DBObject update = new BasicDBObject(key2, newValue);
-        DBObject modifiedDoc = new FindAndModifyCommand(null, coll,
+        DBObject modifiedDoc = new FindAndModifyCommand(coll,
                 new BasicDBObject(key1, "obj1"),
                 null,
                 null,

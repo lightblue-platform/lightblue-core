@@ -36,7 +36,7 @@ public class SaveCommandTest extends AbstractMongoTest {
 
         obj.put("newKey", "key value");
 
-        WriteResult result = new SaveCommand(null, coll, obj).execute();
+        WriteResult result = new SaveCommand(coll, obj).execute();
 
         Assert.assertNotNull(result);
         Assert.assertNull(result.getError());
@@ -54,7 +54,7 @@ public class SaveCommandTest extends AbstractMongoTest {
         DBObject save = new BasicDBObject(key1, obj.get(key1));
         save.put("newKey", "key value");
 
-        WriteResult result = new SaveCommand(null, coll, save).execute();
+        WriteResult result = new SaveCommand(coll, save).execute();
 
         Assert.assertNotNull(result);
         Assert.assertNull(result.getError());

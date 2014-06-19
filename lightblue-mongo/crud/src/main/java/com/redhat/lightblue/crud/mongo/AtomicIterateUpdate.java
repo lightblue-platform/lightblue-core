@@ -91,7 +91,7 @@ public class AtomicIterateUpdate implements DocUpdater {
             int docIndex = 0;
             try {
                 // Find docs
-                cursor = new FindCommand(null, collection, query, null).execute();
+                cursor = new FindCommand(collection, query, null).execute();
                 LOGGER.debug("Found {} documents", cursor.count());
                 // read-update
                 while (cursor.hasNext()) {
@@ -102,7 +102,7 @@ public class AtomicIterateUpdate implements DocUpdater {
                         Object id = document.get("_id");
                         LOGGER.debug("Retrieved doc {} id={}", docIndex, id);
                         // Update doc
-                        DBObject modifiedDoc = new FindAndModifyCommand(null, collection,
+                        DBObject modifiedDoc = new FindAndModifyCommand(collection,
                                 new BasicDBObject("_id", id),
                                 null,
                                 null,

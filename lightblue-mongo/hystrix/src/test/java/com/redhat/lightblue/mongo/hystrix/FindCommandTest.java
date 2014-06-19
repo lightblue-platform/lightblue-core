@@ -34,7 +34,7 @@ public class FindCommandTest extends AbstractMongoTest {
         int expectedCount = 4;
 
         DBObject query = new BasicDBObject(key1, "obj" + expectedCount);
-        DBCursor cur = new FindCommand(null, coll, query, null).execute();
+        DBCursor cur = new FindCommand(coll, query, null).execute();
 
         Assert.assertEquals(expectedCount, cur.count());
 
@@ -55,7 +55,7 @@ public class FindCommandTest extends AbstractMongoTest {
 
         DBObject query = new BasicDBObject(key1, "obj" + expectedCount);
         DBObject projection = new BasicDBObject(key2, 0);
-        DBCursor cur = new FindCommand(null, coll, query, projection).execute();
+        DBCursor cur = new FindCommand(coll, query, projection).execute();
 
         Assert.assertEquals(expectedCount, cur.count());
 

@@ -38,7 +38,7 @@ public class RemoveCommandTest extends AbstractMongoTest {
 
         Assert.assertNotNull(before);
 
-        WriteResult result = new RemoveCommand(null, coll, data, WriteConcern.SAFE).execute();
+        WriteResult result = new RemoveCommand(coll, data, WriteConcern.SAFE).execute();
 
         Assert.assertNotNull(result);
         Assert.assertNull(result.getError());
@@ -56,7 +56,7 @@ public class RemoveCommandTest extends AbstractMongoTest {
 
         Assert.assertNotNull(before);
 
-        WriteResult result = new RemoveCommand(null, coll, data).execute();
+        WriteResult result = new RemoveCommand(coll, data).execute();
 
         Assert.assertNotNull(result);
         Assert.assertNull(result.getError());

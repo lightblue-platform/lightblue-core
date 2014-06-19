@@ -85,7 +85,7 @@ public class BasicDocSaver implements DocSaver {
             // Updating
             LOGGER.debug("Updating doc {}" + id);
             BasicDBObject q = new BasicDBObject(MongoCRUDController.ID_STR, new ObjectId(id.toString()));
-            DBObject oldDBObject = new FindOneCommand(null, collection, q).execute();
+            DBObject oldDBObject = new FindOneCommand(collection, q).execute();
             if (oldDBObject != null) {
                 if (md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                     JsonDoc oldDoc = translator.toJson(oldDBObject);
@@ -93,7 +93,7 @@ public class BasicDocSaver implements DocSaver {
                     List<Path> paths = roleEval.getInaccessibleFields_Update(inputDoc, oldDoc);
                     if (paths == null || paths.isEmpty()) {
                         translator.addInvisibleFields(oldDBObject, dbObject, md);
-                        result = new UpdateCommand(null, collection, q, dbObject, upsert, upsert, WriteConcern.SAFE).execute();
+                        result = new UpdateCommand(collection, q, dbObject, upsert, upsert, WriteConcern.SAFE).execute();
                         inputDoc.setOperationPerformed(Operation.UPDATE);
                     } else {
                         inputDoc.addError(Error.get("update",
@@ -139,7 +139,7 @@ public class BasicDocSaver implements DocSaver {
             LOGGER.debug("Inaccessible fields:{}", paths);
             if (paths == null || paths.isEmpty()) {
                 try {
-                    WriteResult r = new InsertCommand(null, collection, dbObject, WriteConcern.SAFE).execute();
+                    WriteResult r = new InsertCommand(collection, dbObject, WriteConcern.SAFE).execute();
                     inputDoc.setOperationPerformed(Operation.INSERT);
                     return r;
                 } catch (MongoException.DuplicateKey dke) {

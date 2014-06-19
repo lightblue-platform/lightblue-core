@@ -59,7 +59,7 @@ public class IterateDeleter implements DocDeleter {
         int numDeleted = 0;
         try {
             // Find docs
-            cursor = new FindCommand(null, collection, mongoQuery, null).execute();
+            cursor = new FindCommand(collection, mongoQuery, null).execute();
             LOGGER.debug("Found {} documents", cursor.count());
             // read-delet
             while (cursor.hasNext()) {
@@ -68,7 +68,7 @@ public class IterateDeleter implements DocDeleter {
                 Object id = document.get(MongoCRUDController.ID_STR);
                 DocCtx doc = ctx.addDocument(translator.toJson(document));
                 doc.setOriginalDocument(doc);
-                WriteResult result = new RemoveCommand(null, collection, new BasicDBObject("_id", id), WriteConcern.SAFE).execute();
+                WriteResult result = new RemoveCommand(collection, new BasicDBObject("_id", id), WriteConcern.SAFE).execute();
                 if (result.getN() == 1) {
                     numDeleted++;
                     doc.setOperationPerformed(Operation.DELETE);

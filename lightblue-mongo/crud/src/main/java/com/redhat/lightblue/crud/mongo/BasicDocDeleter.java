@@ -42,7 +42,7 @@ public class BasicDocDeleter implements DocDeleter {
                        DBObject mongoQuery,
                        CRUDDeleteResponse response) {
         LOGGER.debug("Removing docs with {}", mongoQuery);
-        WriteResult result = new RemoveCommand(null, collection, mongoQuery).execute();
+        WriteResult result = new RemoveCommand(collection, mongoQuery).execute();
         LOGGER.debug("Removal complete, write result={}", result);
         response.setNumDeleted(result.getN());
     }

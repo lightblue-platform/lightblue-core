@@ -24,6 +24,7 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.exception.HystrixBadRequestException;
 
 /**
@@ -46,10 +47,11 @@ public abstract class AbstractMongoCommand<T> extends HystrixCommand<T> {
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      * @param collection REQUIRED
      */
-    public AbstractMongoCommand(String commandKey, String threadPoolKey, DBCollection collection) {
-        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(GROUPKEY))
-              .andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
-              .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? GROUPKEY : threadPoolKey)));
+    public AbstractMongoCommand(String commandKey, DBCollection collection) {
+        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(GROUPKEY)).
+              andCommandKey(HystrixCommandKey.Factory.asKey(commandKey)).
+              andCommandPropertiesDefaults(HystrixCommandProperties.Setter().
+                                           withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE)));
         this.collection = collection;
     }
 

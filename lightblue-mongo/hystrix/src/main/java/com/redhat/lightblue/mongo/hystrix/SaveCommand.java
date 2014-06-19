@@ -29,8 +29,8 @@ import com.mongodb.WriteResult;
 public class SaveCommand extends AbstractMongoCommand<WriteResult> {
     private final DBObject data;
 
-    public SaveCommand(String clientKey, DBCollection collection, DBObject data) {
-        super(SaveCommand.class.getSimpleName(),clientKey, collection);
+    public SaveCommand(DBCollection collection, DBObject data) {
+        super(SaveCommand.class.getSimpleName(),collection);
         this.data = data;
     }
 
