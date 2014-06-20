@@ -6,6 +6,8 @@ else
   upwd=${unamepwd}
 fi
 
-curl -H  Content-Type:application/json  -u ${upwd} -X GET $1|tee /tmp/out.json
+curl -H  Content-Type:application/json  -u ${upwd} -X GET $1|tee /tmp/out
+
+mv /tmp/out /tmp/out.json
 
 

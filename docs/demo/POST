@@ -19,8 +19,10 @@ else
 fi
 
 if [ -z "$body" ] ; then
-  curl -H  Content-Type:application/json  -u ${upwd} -X POST $url|tee /tmp/out.json
+  curl -H  Content-Type:application/json  -u ${upwd} -X POST $url|tee /tmp/out
 else
-  curl -H  Content-Type:application/json  -u ${upwd} -X POST $url -d $body|tee /tmp/out.json
+  curl -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url|tee /tmp/out
 fi
+mv /tmp/out /tmp/out.json
+
 
