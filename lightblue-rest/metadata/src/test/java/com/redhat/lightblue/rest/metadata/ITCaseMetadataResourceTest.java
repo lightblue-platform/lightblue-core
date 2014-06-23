@@ -213,8 +213,8 @@ public class ITCaseMetadataResourceTest {
     public void testFirstIntegrationTest() throws IOException, URISyntaxException, JSONException {
         Assert.assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
 
-        RestApplication.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
-        RestApplication.setMetadataMgr(new MetadataManager(RestApplication.getDatasources()));
+        MetadataRestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        MetadataRestConfiguration.setMetadataManager(new MetadataManager(MetadataRestConfiguration.getDatasources()));
 
         String expectedCreated = readFile("expectedCreated.json");
         String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));

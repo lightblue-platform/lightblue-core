@@ -210,16 +210,16 @@ public class ITCaseCrudResourceTest {
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
         Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        RestApplication.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
-        RestApplication.setMetadataMgr(new MetadataManager(RestApplication.getDatasources()));
-        RestApplication.setCrudMgr(new CrudManager(RestApplication.getDatasources(), RestApplication.getMetadataMgr()));
+        CrudRestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        CrudRestConfiguration.setMetadataMgr(new MetadataManager(CrudRestConfiguration.getDatasources()));
+        CrudRestConfiguration.setCrudMgr(new CrudManager(CrudRestConfiguration.getDatasources(), CrudRestConfiguration.getMetadataMgr()));
 
         String expectedCreated = readFile("expectedCreated.json");
         String metadata = readFile("metadata.json");
-        EntityMetadata em = RestApplication.getMetadataMgr().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
-        RestApplication.getMetadataMgr().getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = RestApplication.getMetadataMgr().getMetadata().getEntityMetadata("country", "1.0.0");
-        String resultCreated = RestApplication.getMetadataMgr().getJSONParser().convert(em2).toString();
+        EntityMetadata em = CrudRestConfiguration.getMetadataMgr().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+        CrudRestConfiguration.getMetadataMgr().getMetadata().createNewMetadata(em);
+        EntityMetadata em2 = CrudRestConfiguration.getMetadataMgr().getMetadata().getEntityMetadata("country", "1.0.0");
+        String resultCreated = CrudRestConfiguration.getMetadataMgr().getJSONParser().convert(em2).toString();
         JSONAssert.assertEquals(expectedCreated, resultCreated, false);
 
         String expectedInserted = readFile("expectedInserted.json");
