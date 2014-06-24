@@ -21,7 +21,6 @@ package com.redhat.lightblue.rest.metadata;
 import java.util.StringTokenizer;
 
 import com.redhat.lightblue.rest.metadata.hystrix.*;
-import com.redhat.lightblue.util.Error;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -37,7 +36,8 @@ import javax.ws.rs.core.MediaType;
 public class MetadataResource {
     private static final String PARAM_ENTITY = "entity";
     private static final String PARAM_VERSION = "version";
-
+    
+    
     @GET
     @Path("/dependencies")
     public String getDepGraph() {
@@ -53,7 +53,6 @@ public class MetadataResource {
     @GET
     @Path("/{entity}/{version}/dependencies")
     public String getDepGraph(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version) {
-        Error.reset();
         return new GetDependenciesCommand(null, entity, version).execute();
     }
 
@@ -72,14 +71,12 @@ public class MetadataResource {
     @GET
     @Path("/{entity}/{version}/roles")
     public String getEntityRoles(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version) {
-        Error.reset();
         return new GetEntityRolesCommand(null, entity, version).execute();
     }
 
     @GET
     @Path("/")
     public String getEntityNames() {
-        Error.reset();
         return new GetEntityNamesCommand(null, new String[0]).execute();
     }
 
@@ -92,28 +89,24 @@ public class MetadataResource {
         while (tok.hasMoreTokens()) {
             s[i++] = tok.nextToken();
         }
-        Error.reset();
         return new GetEntityNamesCommand(null, s).execute();
     }
 
     @GET
     @Path("/{entity}")
     public String getEntityVersions(@PathParam(PARAM_ENTITY) String entity) {
-        Error.reset();
         return new GetEntityVersionsCommand(null, entity).execute();
     }
 
     @GET
     @Path("/{entity}/{version}")
     public String getMetadata(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version) {
-        Error.reset();
         return new GetEntityMetadataCommand(null, entity, version).execute();
     }
 
     @PUT
     @Path("/{entity}/{version}")
     public String createMetadata(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version, String data) {
-        Error.reset();
         return new CreateEntityMetadataCommand(null, entity, version, data).execute();
     }
 
@@ -121,7 +114,6 @@ public class MetadataResource {
     @Path("/{entity}/schema={version}")
     @Consumes(MediaType.APPLICATION_JSON)
     public String createSchema(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version, String schema) {
-        Error.reset();
         return new CreateEntitySchemaCommand(null, entity, version, schema).execute();
     }
 
@@ -129,7 +121,6 @@ public class MetadataResource {
     @Path("/{entity}")
     @Consumes(MediaType.APPLICATION_JSON)
     public String updateEntityInfo(@PathParam(PARAM_ENTITY) String entity, String info) {
-        Error.reset();
         return new UpdateEntityInfoCommand(null, entity, info).execute();
     }
 
@@ -139,7 +130,6 @@ public class MetadataResource {
                                      @PathParam(PARAM_VERSION) String version,
                                      @PathParam("status") String status,
                                      @QueryParam("comment") String comment) {
-        Error.reset();
         return new UpdateEntitySchemaStatusCommand(null, entity, version, status, comment).execute();
     }
 
@@ -147,21 +137,18 @@ public class MetadataResource {
     @Path("/{entity}/{version}/default")
     public String setDefaultVersion(@PathParam(PARAM_ENTITY) String entity,
                                     @PathParam(PARAM_VERSION) String version) {
-        Error.reset();
         return new SetDefaultVersionCommand(null, entity, version).execute();
     }
 
     @DELETE
     @Path("/{entity}")
     public String removeEntity(@PathParam(PARAM_ENTITY) String entity) {
-        Error.reset();
         return new RemoveEntityCommand(null, entity).execute();
     }
 
     @DELETE
     @Path("/{entity}/default")
     public String clearDefaultVersion(@PathParam(PARAM_ENTITY) String entity) {
-        Error.reset();
         return new SetDefaultVersionCommand(null, entity, null).execute();
     }
 }

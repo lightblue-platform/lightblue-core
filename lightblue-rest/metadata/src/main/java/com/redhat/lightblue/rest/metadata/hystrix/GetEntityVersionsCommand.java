@@ -49,6 +49,7 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run: entity={}", entity);
+        Error.reset();
         Error.push(getClass().getSimpleName());
         try {
             VersionInfo[] versions = getMetadata().getEntityVersions(entity);
@@ -75,6 +76,8 @@ public class GetEntityVersionsCommand extends AbstractRestCommand {
         } catch (Exception e) {
             LOGGER.error("Failure: {}", e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR, e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 }

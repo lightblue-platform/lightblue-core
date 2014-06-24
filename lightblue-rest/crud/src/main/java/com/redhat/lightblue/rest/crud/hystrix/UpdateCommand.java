@@ -53,6 +53,7 @@ public class UpdateCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run: entity={}, version={}", entity, version);
+        Error.reset();
         Error.push(getClass().getSimpleName());
         Error.push(entity);
         try {
@@ -67,6 +68,8 @@ public class UpdateCommand extends AbstractRestCommand {
         } catch (Exception e) {
             LOGGER.error("update failure: {}", e);
             return Error.get(RestCrudConstants.ERR_REST_UPDATE, e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 }

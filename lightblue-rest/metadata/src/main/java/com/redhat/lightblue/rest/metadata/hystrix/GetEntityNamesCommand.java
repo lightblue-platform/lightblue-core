@@ -50,9 +50,10 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run:");
+        Error.reset();
         Error.push(getClass().getSimpleName());
         try {
-            HashSet<MetadataStatus> statusSet = new HashSet<>();
+            HashSet<MetadataStatus> statusSet = new HashSet<MetadataStatus>();
             for (String x : statuses) {
                 statusSet.add(MetadataParser.statusFromString(x));
             }
@@ -69,6 +70,8 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
         } catch (Exception e) {
             LOGGER.error("Failure: {}", e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR, e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 }

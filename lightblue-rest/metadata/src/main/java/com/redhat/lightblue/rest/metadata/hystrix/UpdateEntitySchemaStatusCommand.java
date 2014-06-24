@@ -52,6 +52,7 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run: enitty={}, version={}, status={}", entity, version, status);
+        Error.reset();
         Error.push(getClass().getSimpleName());
         Error.push(entity);
         Error.push(version);
@@ -65,6 +66,8 @@ public class UpdateEntitySchemaStatusCommand extends AbstractRestCommand {
         } catch (Exception e) {
             LOGGER.error("Failure: {}", e);
             return Error.get(RestMetadataConstants.ERR_REST_ERROR, e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 }

@@ -53,6 +53,7 @@ public class InsertCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run: entity={}, version={}", entity, version);
+        Error.reset();
         Error.push(getClass().getSimpleName());
         Error.push(entity);
         try {
@@ -67,6 +68,8 @@ public class InsertCommand extends AbstractRestCommand {
         } catch (Exception e) {
             LOGGER.error("insert failure: {}", e);
             return Error.get(RestCrudConstants.ERR_REST_INSERT, e.toString()).toString();
+        } finally {
+            Error.reset();
         }
     }
 }

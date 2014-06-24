@@ -85,10 +85,10 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
 
     protected void addCallerId(Request req) {
         req.setClientId(new ClientIdentification() {
-            @Override
             public boolean isUserInRole(String role) {
                 return httpServletRequest == null ? false : httpServletRequest.isUserInRole(role);
             }
+
         });
     }
 }
