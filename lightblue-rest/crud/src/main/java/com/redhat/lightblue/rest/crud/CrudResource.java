@@ -30,6 +30,7 @@ import com.redhat.lightblue.rest.crud.hystrix.*;
 import com.redhat.lightblue.util.JsonUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import com.redhat.lightblue.util.Error;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -73,6 +74,7 @@ public class CrudResource {
     public String insert(@PathParam(PARAM_ENTITY) String entity,
                          @PathParam(PARAM_VERSION) String version,
                          String request) {
+        Error.reset();
         return new InsertCommand(null, entity, version, request).execute();
     }
 
@@ -88,6 +90,7 @@ public class CrudResource {
     public String save(@PathParam(PARAM_ENTITY) String entity,
                        @PathParam(PARAM_VERSION) String version,
                        String request) {
+        Error.reset();
         return new SaveCommand(null, entity, version, request).execute();
     }
 
@@ -103,6 +106,7 @@ public class CrudResource {
     public String update(@PathParam(PARAM_ENTITY) String entity,
                          @PathParam(PARAM_VERSION) String version,
                          String request) {
+        Error.reset();
         return new UpdateCommand(null, entity, version, request).execute();
     }
 
@@ -118,6 +122,7 @@ public class CrudResource {
     public String delete(@PathParam(PARAM_ENTITY) String entity,
                          @PathParam(PARAM_VERSION) String version,
                          String req) {
+        Error.reset();
         return new DeleteCommand(null, entity, version, req).execute();
     }
 
@@ -133,6 +138,7 @@ public class CrudResource {
     public String find(@PathParam(PARAM_ENTITY) String entity,
                        @PathParam(PARAM_VERSION) String version,
                        String request) {
+        Error.reset();
         return new FindCommand(null, entity, version, request).execute();
     }
 
@@ -158,6 +164,7 @@ public class CrudResource {
                              @QueryParam("S") String s,
                              @DefaultValue("0") @QueryParam("from") long from,
                              @DefaultValue("-1") @QueryParam("to") long to) throws IOException {
+        Error.reset();
         // spec -> https://github.com/lightblue-platform/lightblue/wiki/Rest-Spec-Data#get-simple-find
         String sq = null;
         if (q != null && !"".equals(q.trim())) {
