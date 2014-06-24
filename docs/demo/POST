@@ -2,18 +2,15 @@
 
 url=$1
 
-body=""
-if [ "$#" -ge 2 ]; then
-  body=$2
-  if [ "${body:0:1}" != "@" ]; then
-    tmp=`mktemp`
-    echo $2 > /$tmp
-    body="@${tmp}"
-  fi
+body=$2
+if [ "${body:0:1}" != "@" ]; then
+  tmp=`mktemp`
+  echo $2 > /$tmp
+  body="@${tmp}"
 fi
 
-if [ "$#" == 3 ]; then
-  upwd=$3
+if [ "$#" == 4 ]; then
+  upwd=$4
 else
   upwd=${unamepwd}
 fi

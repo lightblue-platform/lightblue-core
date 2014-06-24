@@ -13,6 +13,14 @@
         "fields": [ { "field":"login","dir":"$asc" } ]
       },
       { 
+        "name":"firstname_ix",
+        "fields": [ { "field":"personalInfo.firstName","dir":"$asc" } ]
+      },
+      { 
+        "name":"lastName_ix",
+        "fields": [ { "field":"personalInfo.lastName","dir":"$asc" } ]
+      },
+      { 
         "name":"state_ix",
         "fields": [ { "field":"sites.streetAddress.state","dir":"$asc" } ]
       }
