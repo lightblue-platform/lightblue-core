@@ -10,7 +10,7 @@
         "indexes": [
             {
                 "unique": true,
-                "fields": [{"person": "$asc"}]
+                "fields": [{"field":"person", "dir":"$asc"}]
             }
         ],
         "datastore": {

@@ -65,6 +65,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other formats represented as a tree.
@@ -264,7 +265,11 @@ public abstract class MetadataParser<T> {
                     List<SortKey> f = new ArrayList<>();
 
                     for (T s : fields) {
-                        SortKey sort = (SortKey) parseSort(s);
+                        String fld=getRequiredStringProperty(s,"field");
+                        String dir=getStringProperty(s,"dir");
+                        if(dir==null)
+                            dir="$asc";
+                        SortKey sort = new SortKey(new Path(fld),"$desc".equals(dir));
                         f.add(sort);
                     }
                     index.setFields(f);
@@ -1089,7 +1094,8 @@ public abstract class MetadataParser<T> {
                     Object indexObj = newArrayField(node, STR_FIELDS);
                     for (SortKey p : i.getFields()) {
                         T node2 = newNode();
-                        putString(node2, p.getField().toString(), p.isDesc() ? "$desc" : "$asc");
+                        putString(node2, "field",p.getField().toString());
+                        putString(node2, "dir", p.isDesc() ? "$desc" : "$asc");
                         addObjectToArray(indexObj, node2);
                     }
                 }

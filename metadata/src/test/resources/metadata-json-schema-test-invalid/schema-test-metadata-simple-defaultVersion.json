@@ -7,7 +7,7 @@
         "indexes": [
             {
                 "unique": true,
-                "fields": ["name"]
+                "fields": [{"field":"name"}]
             }
         ],
         "datastore": {
