@@ -237,8 +237,8 @@ public class ITCaseMetadataResourceTest {
         JSONAssert.assertEquals(expectedEntityNames, resultEntityNames, false);
 
         // no default version
-        String expectedEntityRoles = esc("{'status':'ERROR','modifiedCount':0,'matchCount':0,'dataErrors':[{'data':{'name':'country'},'errors':[{'object_type':'error','context':'GetEntityRolesCommand/getEntityMetadata(country:null)','errorCode':'ERR_NO_METADATA','msg':'Could not get metadata for given input. Error message: version'}]}]}");
-        String expectedEntityRoles1 = esc("{'status':'ERROR','modifiedCount':0,'matchCount':0,'dataErrors':[{'data':{'name':'country'},'errors':[{'object_type':'error','context':'GetEntityRolesCommand/country/getEntityMetadata(country:null)','errorCode':'ERR_NO_METADATA','msg':'Could not get metadata for given input. Error message: version'}]}]}");
+        String expectedEntityRoles = esc("{'status':'ERROR','modifiedCount':0,'matchCount':0,'dataErrors':[{'data':{'name':'country'},'errors':[{'object_type':'error','context':'GetEntityRolesCommand','errorCode':'ERR_NO_METADATA','msg':'Could not get metadata for given input. Error message: version'}]}]}");
+        String expectedEntityRoles1 = esc("{'status':'ERROR','modifiedCount':0,'matchCount':0,'dataErrors':[{'data':{'name':'country'},'errors':[{'object_type':'error','context':'GetEntityRolesCommand/country','errorCode':'ERR_NO_METADATA','msg':'Could not get metadata for given input. Error message: version'}]}]}");
         String resultEntityRoles = cutMetadataResource.getEntityRoles();
         String resultEntityRoles1 = cutMetadataResource.getEntityRoles("country");
         JSONAssert.assertEquals(expectedEntityRoles, resultEntityRoles, false);
