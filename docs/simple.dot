@@ -1,0 +1,11 @@
+digraph {
+rankdir=LR;
+business_svc_1 [label="business service 1"];
+business_svc_2 [label="business service 2"];
+business_svc_n [label="business service ..."];
+business_svc_1 -> crud;
+business_svc_2 -> crud;
+business_svc_n -> crud;
+crud -> metadata;
+documentation -> metadata;
+}
