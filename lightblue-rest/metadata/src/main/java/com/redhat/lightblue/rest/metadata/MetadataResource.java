@@ -32,7 +32,7 @@ import javax.ws.rs.core.MediaType;
  * @see https://github.com/bserdar/lightblue/wiki/Rest-Spec-Metadata#rest-spec-metadata
  */
 //metadata/ prefix is the application context
-@Path("/")
+@Path("/metadata")
 @Produces(MediaType.APPLICATION_JSON)
 public class MetadataResource {
     private static final String PARAM_ENTITY = "entity";

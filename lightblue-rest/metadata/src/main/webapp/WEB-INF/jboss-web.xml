@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
 <jboss-web>
-  <context-root>/metadata</context-root>
+  <context-root>/rest</context-root>
 </jboss-web>
