@@ -173,6 +173,12 @@ public abstract class MetadataParser<T> {
             EntityMetadata md = new EntityMetadata(info, schema);
 
             return md;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -198,6 +204,12 @@ public abstract class MetadataParser<T> {
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
             return info;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -219,6 +231,12 @@ public abstract class MetadataParser<T> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -258,6 +276,12 @@ public abstract class MetadataParser<T> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -283,6 +307,12 @@ public abstract class MetadataParser<T> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -318,6 +348,12 @@ public abstract class MetadataParser<T> {
                 }
                 return hook;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -354,6 +390,12 @@ public abstract class MetadataParser<T> {
             parseEntityConstraints(schema, constraints);
 
             return schema;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -381,6 +423,12 @@ public abstract class MetadataParser<T> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -412,6 +460,12 @@ public abstract class MetadataParser<T> {
                 }
                 schema.setStatusChangeLog(list);
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -433,6 +487,12 @@ public abstract class MetadataParser<T> {
                 parseAccess(access.getDelete(), getStringList(object, STR_DELETE));
                 parseAccess(access.getInsert(), getStringList(object, STR_INSERT));
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -459,6 +519,12 @@ public abstract class MetadataParser<T> {
                     }
                     EntityConstraint constraint = parser.parse(name, this, x);
                     entityConstraintList.add(constraint);
+                } catch (Error e) {
+                    // rethrow lightblue error
+                    throw e;
+                } catch (Exception e) {
+                    // throw new Error (preserves current error context)
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
                 } finally {
                     Error.pop();
                 }
@@ -485,6 +551,12 @@ public abstract class MetadataParser<T> {
                     // for each FieldConstraint call parse on the parent object
                     FieldConstraint constraint = parser.parse(name, this, fieldConstraints);
                     constraints.add(constraint);
+                } catch (Error e) {
+                    // rethrow lightblue error
+                    throw e;
+                } catch (Exception e) {
+                    // throw new Error (preserves current error context)
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
                 } finally {
                     Error.pop();
                 }
@@ -510,6 +582,12 @@ public abstract class MetadataParser<T> {
                 parseAccess(access.getUpdate(), getStringList(object, STR_UPDATE));
                 parseAccess(access.getInsert(), getStringList(object, STR_INSERT));
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -538,6 +616,12 @@ public abstract class MetadataParser<T> {
                     fields.addNew(field);
                 }
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -602,6 +686,12 @@ public abstract class MetadataParser<T> {
                 field = null;
             }
             return field;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -676,6 +766,12 @@ public abstract class MetadataParser<T> {
             putObject(ret, STR_ENTITY_INFO, convert(md.getEntityInfo()));
             putObject(ret, STR_SCHEMA, convert(md.getEntitySchema()));
             return ret;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -708,6 +804,12 @@ public abstract class MetadataParser<T> {
                 putObject(ret, STR_DATASTORE, dsNode);
             }
             return ret;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -729,6 +831,12 @@ public abstract class MetadataParser<T> {
             putObject(ret, STR_FIELDS, convert(schema.getFields()));
             convertEntityConstraints(ret, schema.getConstraints());
             return ret;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -756,6 +864,12 @@ public abstract class MetadataParser<T> {
                     putString(obj, STR_CHANGELOG, v.getChangelog());
                 }
                 return obj;
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -789,6 +903,12 @@ public abstract class MetadataParser<T> {
                     }
                 }
                 return obj;
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -809,6 +929,12 @@ public abstract class MetadataParser<T> {
                 convertRoles(ret, STR_FIND, access.getFind());
                 convertRoles(ret, STR_DELETE, access.getDelete());
                 return ret;
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -832,6 +958,12 @@ public abstract class MetadataParser<T> {
                     convertRoles(ret, STR_UPDATE, access.getUpdate());
                 }
                 return ret;
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -864,6 +996,12 @@ public abstract class MetadataParser<T> {
                     putObject(fieldObject, STR_ACCESS, access);
                 }
                 convertFieldConstraints(fieldObject, field.getConstraints());
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -888,6 +1026,12 @@ public abstract class MetadataParser<T> {
                     }
                     parser.convert(this, constraintNode, constraint);
                 }
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -912,6 +1056,12 @@ public abstract class MetadataParser<T> {
                     parser.convert(this, constraintNode, constraint);
                     addObjectToArray(arr, constraintNode);
                 }
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
@@ -944,6 +1094,12 @@ public abstract class MetadataParser<T> {
                     }
                 }
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -969,6 +1125,12 @@ public abstract class MetadataParser<T> {
                     }
                 }
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -987,6 +1149,12 @@ public abstract class MetadataParser<T> {
             }
             parser.convert(this, dsNode, store);
             putString(dsNode, STR_BACKEND, type);
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -1090,6 +1258,12 @@ public abstract class MetadataParser<T> {
                 throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, name);
             }
             return property;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
             Error.pop();
@@ -1127,6 +1301,12 @@ public abstract class MetadataParser<T> {
                 throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, name);
             }
             return property;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
             Error.pop();

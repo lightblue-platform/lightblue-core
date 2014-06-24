@@ -80,6 +80,12 @@ public class ArrayField extends Field {
                 } else {
                     throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
                 }
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }

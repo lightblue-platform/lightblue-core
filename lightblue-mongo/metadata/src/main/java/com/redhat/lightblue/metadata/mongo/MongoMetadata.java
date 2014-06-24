@@ -62,6 +62,7 @@ import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Index;
 import com.redhat.lightblue.metadata.Indexes;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.StatusChange;
@@ -144,6 +145,12 @@ public class MongoMetadata extends AbstractMetadata {
                 throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
             return new EntityMetadata(info, schema);
+        } catch (Error|IllegalArgumentException e) {
+            // rethrow lightblue error or illegao arg exception
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -164,6 +171,12 @@ public class MongoMetadata extends AbstractMetadata {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -207,6 +220,12 @@ public class MongoMetadata extends AbstractMetadata {
                 }
                 return arr;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -248,6 +267,12 @@ public class MongoMetadata extends AbstractMetadata {
                 i++;
             }
             return ret;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -307,12 +332,22 @@ public class MongoMetadata extends AbstractMetadata {
                     new RemoveCommand(collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
                     throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
                 }
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
             } finally {
                 Error.pop();
             }
-        } catch (RuntimeException e) {
-            LOGGER.error("createNewMetadata", e);
+        } catch (Error e) {
+            // rethrow lightblue error
             throw e;
+        } catch (Exception e) {
+            LOGGER.error("createNewMetadata", e);
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -371,6 +406,12 @@ public class MongoMetadata extends AbstractMetadata {
         } catch (MongoException me) {
             LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
             throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED, me.getMessage());
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -449,6 +490,12 @@ public class MongoMetadata extends AbstractMetadata {
                 LOGGER.error("updateEntityInfo", e);
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -486,6 +533,12 @@ public class MongoMetadata extends AbstractMetadata {
             }
         } catch (MongoException.DuplicateKey dke) {
             throw Error.get(MongoMetadataConstants.ERR_DUPLICATE_METADATA, ver.getValue());
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -543,6 +596,12 @@ public class MongoMetadata extends AbstractMetadata {
             if (error != null) {
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }

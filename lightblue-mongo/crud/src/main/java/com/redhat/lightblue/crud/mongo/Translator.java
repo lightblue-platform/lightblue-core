@@ -289,6 +289,12 @@ public class Translator {
             } else {
                 ret = translateSortKey((SortKey) sort);
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT);
         } finally {
             Error.pop();
         }
@@ -307,6 +313,12 @@ public class Translator {
         FieldTreeNode mdRoot = md.getFieldTreeRoot();
         try {
             return translate(mdRoot, query);
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT);
         } finally {
             Error.pop();
         }
@@ -331,6 +343,12 @@ public class Translator {
             translateUpdate(md.getFieldTreeRoot(), expr, ret);
             LOGGER.debug("translated={}", ret);
             return ret;
+        } catch (Error|CannotTranslateException e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT);
         } finally {
             Error.pop();
         }

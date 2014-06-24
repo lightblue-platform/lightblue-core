@@ -182,6 +182,12 @@ public class BSONParser extends MetadataParser<BSONObject> {
             putValue(doc, "_id", getStringProperty(doc, "name") + DELIMITER_ID);
 
             return doc;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -198,6 +204,12 @@ public class BSONParser extends MetadataParser<BSONObject> {
             putValue(doc, "_id", getStringProperty(doc, "name") + DELIMITER_ID + getStringProperty(getObjectProperty(doc, "version"), "value"));
 
             return doc;
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }

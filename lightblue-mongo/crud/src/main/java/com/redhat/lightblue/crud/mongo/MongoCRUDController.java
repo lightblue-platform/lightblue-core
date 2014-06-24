@@ -38,6 +38,7 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDSaveResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.ConstraintValidator;
+import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
@@ -189,9 +190,13 @@ public class MongoCRUDController implements CRUDController {
                     }
                 }
             }
-        } catch (RuntimeException e) {
-            LOGGER.error("Error during insert: {}", e);
+        } catch (Error e) {
+            // rethrow lightblue error
             throw e;
+        } catch (Exception e) {
+            LOGGER.error("Error during insert: {}", e);
+            // throw new Error (preserves current error context)
+            throw Error.get(CrudConstants.ERR_CRUD);
         } finally {
             Error.pop();
         }
@@ -275,6 +280,12 @@ public class MongoCRUDController implements CRUDController {
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "update:" + ctx.getEntityName()));
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(CrudConstants.ERR_CRUD);
         } finally {
             Error.pop();
         }
@@ -307,6 +318,8 @@ public class MongoCRUDController implements CRUDController {
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "delete:" + ctx.getEntityName()));
             }
+        } catch (Error e) {
+            ctx.addError(e);
         } catch (Exception e) {
             ctx.addError(Error.get(e.toString()));
         } finally {
@@ -366,6 +379,12 @@ public class MongoCRUDController implements CRUDController {
             } else {
                 ctx.addError(Error.get(MongoCrudConstants.ERR_NO_ACCESS, "find:" + ctx.getEntityName()));
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(CrudConstants.ERR_CRUD);
         } finally {
             Error.pop();
         }
