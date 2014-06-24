@@ -3,7 +3,7 @@
     "indexes": [{
         "name": null,
         "unique": true,
-        "fields": [{"name": "$asc"}]
+        "fields": [{"field":"name","dir": "$asc"}]
     }],
     "datastore": {
         "backend":"mongo",

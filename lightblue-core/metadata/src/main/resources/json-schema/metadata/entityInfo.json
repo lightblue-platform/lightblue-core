@@ -87,11 +87,17 @@
                         "minItems": 1,
                         "items": {
                             "type": "object",
-                            "patternProperties": {
-                                ".*": {
-                                "enum": ["$asc", "$desc"]
-                                }
-                            }
+                            "properties" : {
+                               "field": {
+                                   "type":"string",
+                                   "description":"Index field"
+                               },
+                               "dir" : {
+                                   "type":"string",
+                                   "description":"$asc or $desc"
+                               }
+                            },
+                            "required" : [ "field" ]
                         }
                     }
                 },

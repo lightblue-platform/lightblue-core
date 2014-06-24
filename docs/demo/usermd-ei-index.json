@@ -10,7 +10,11 @@
       { 
         "name":"login_ix",
         "unique": true,
-        "fields": [ { "login":"$asc" } ]
+        "fields": [ { "field":"login","dir":"$asc" } ]
+      },
+      { 
+        "name":"state_ix",
+        "fields": [ { "field":"sites.streetAddress.state","dir":"$asc" } ]
       }
     ],
     "datastore": {

@@ -4,11 +4,11 @@
         "indexes": [
             {
                 "unique": true,
-                "fields": [{"name": "$asc"}]
+                "fields": [{"field":"name","dir": "$asc"}]
             },
             {
                 "unique": true,
-                "fields": [{"counter": "$asc"}]
+                "fields": [{"field":"counter","dir": "$asc"}]
             }
         ],
         "datastore": {
