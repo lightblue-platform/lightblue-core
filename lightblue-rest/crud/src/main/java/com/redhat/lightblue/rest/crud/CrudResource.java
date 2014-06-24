@@ -46,7 +46,7 @@ import java.util.Map;
  * @author bserdar
  */
 //metadata/ prefix is the application context
-@Path("/data")
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CrudResource {
