@@ -64,6 +64,12 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -94,6 +100,12 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -117,6 +129,12 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -140,6 +158,12 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
@@ -158,6 +182,12 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             } else {
                 return null;
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }

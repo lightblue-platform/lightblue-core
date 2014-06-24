@@ -143,6 +143,12 @@ public class ConstraintValidator {
             for (JsonDoc doc : docList) {
                 validateDoc(doc);
             }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(CrudConstants.ERR_CRUD);
         } finally {
             Error.pop();
         }
@@ -162,6 +168,12 @@ public class ConstraintValidator {
             checkEntityConstraints(doc);
             currentEntityConstraint = null;
             checkConstraints(doc, currentValuePath, currentValue);
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(CrudConstants.ERR_CRUD);
         } finally {
             Error.pop();
         }
@@ -185,7 +197,12 @@ public class ConstraintValidator {
                     throw Error.get(CrudConstants.ERR_NO_CONSTRAINT);
                 }
                 checker.checkConstraint(this, currentEntityConstraint, doc);
-
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(CrudConstants.ERR_CRUD);
             } finally {
                 Error.pop();
             }
@@ -208,6 +225,12 @@ public class ConstraintValidator {
                 if (constraints != null && !constraints.isEmpty()) {
                     checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
                 }
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(CrudConstants.ERR_CRUD);
             } finally {
                 Error.pop();
             }
@@ -233,6 +256,12 @@ public class ConstraintValidator {
                     // Constraint needs to be checked for all the values in the doc
                     checkValueContraints(doc, (FieldConstraintChecker) checker, currentValuePath, currentValue);
                 }
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(CrudConstants.ERR_CRUD);
             } finally {
                 Error.pop();
             }
@@ -262,6 +291,12 @@ public class ConstraintValidator {
                         currentValuePath,
                         doc,
                         currentValue);
+            } catch (Error e) {
+                // rethrow lightblue error
+                throw e;
+            } catch (Exception e) {
+                // throw new Error (preserves current error context)
+                throw Error.get(CrudConstants.ERR_CRUD);
             } finally {
                 Error.pop();
             }

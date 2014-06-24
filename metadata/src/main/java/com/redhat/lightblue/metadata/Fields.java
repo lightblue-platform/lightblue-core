@@ -126,6 +126,12 @@ public class Fields implements Serializable {
             }
             return field.resolve(p, level + 1);
 
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
         } finally {
             Error.pop();
         }
