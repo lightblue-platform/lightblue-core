@@ -9,15 +9,17 @@ if [ "${body:0:1}" != "@" ]; then
   body="@${tmp}"
 fi
 
-if [ "$#" == 4 ]; then
-  upwd=$4
+if [ "$#" == 3 ]; then
+  upwd=$3
 else
   upwd=${unamepwd}
 fi
 
 if [ -z "$body" ] ; then
+  echo curl -H  Content-Type:application/json  -u ${upwd} -X POST $url
   curl -H  Content-Type:application/json  -u ${upwd} -X POST $url|tee /tmp/out
 else
+  echo curl -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url
   curl -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url|tee /tmp/out
 fi
 mv /tmp/out /tmp/out.json

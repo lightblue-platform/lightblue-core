@@ -4,21 +4,23 @@ url=$1
 
 body=$2
 if [ "${body:0:1}" != "@" ]; then
-    tmp=`mktemp`
-    echo $2 > /$tmp
-    body="@${tmp}"
+  tmp=`mktemp`
+  echo $2 > /$tmp
+  body="@${tmp}"
 fi
 
-if [ "$#" == 4 ]; then
-  upwd=$4
+if [ "$#" == 3 ]; then
+  upwd=$3
 else
   upwd=${unamepwd}
 fi
 
 if [ -z "$body" ] ; then
+  echo curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url
   curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url|tee /tmp/out
 else
-  curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url -d $body|tee /tmp/out
+  echo curl -H  Content-Type:application/json  -u ${upwd} -d $body -X PUT $url
+  curl -H  Content-Type:application/json  -u ${upwd} -d $body -X PUT $url|tee /tmp/out
 fi
 mv /tmp/out /tmp/out.json
 
