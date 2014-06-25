@@ -207,7 +207,7 @@ public class ITCaseMetadataResourceTest {
     }
 
     @Inject
-    private MetadataResource cutMetadataResource;
+    private AbstractMetadataResource cutMetadataResource;
 
     @Test
     public void testFirstIntegrationTest() throws IOException, URISyntaxException, JSONException {
