@@ -79,6 +79,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <name>lightblue-${project.artifactId}</name>
                     <copyright>Red Hat</copyright>
                     <distribution>RHEL</distribution>
                     <group>Lightblue Platform</group>
