@@ -25,6 +25,8 @@ import java.util.StringTokenizer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Error object. Maintains an error code, message, and context of the error. The context works as a stack of context
@@ -33,6 +35,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  * The error object also provides static APIs that keep the execution context for the current thread.
  */
 public final class Error extends RuntimeException {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Error.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -55,11 +58,11 @@ public final class Error extends RuntimeException {
      * Pushes the given context information to the current thread stack
      */
     public static void push(String context) {
-        if (null != context) {
-            THREAD_CONTEXT.get().addLast(context);
-        } else {
-            THREAD_CONTEXT.get().addLast("null");
+        if (null == context) {
+            context = "null";
         }
+        LOGGER.debug("push: {}", context);
+        THREAD_CONTEXT.get().addLast(context);
     }
 
     /**
@@ -68,7 +71,8 @@ public final class Error extends RuntimeException {
     public static void pop() {
         ArrayDeque<String> c = THREAD_CONTEXT.get();
         if (!c.isEmpty()) {
-            c.removeLast();
+            String context = c.removeLast();
+            LOGGER.debug("pop: {}", context);
         }
         if (c.isEmpty()) {
             reset();
@@ -80,9 +84,12 @@ public final class Error extends RuntimeException {
      */
     public static Error get(String ctx, String errorCode, String msg) {
         push(ctx);
-        Error x = new Error(THREAD_CONTEXT.get(), errorCode, msg);
-        pop();
-        return x;
+        try {
+            Error x = new Error(THREAD_CONTEXT.get(), errorCode, msg);
+            return x;
+        } finally {
+            pop();
+        }
     }
 
     /**
@@ -103,6 +110,7 @@ public final class Error extends RuntimeException {
      * Resets the stack thread context
      */
     public static void reset() {
+        LOGGER.debug("reset");
         THREAD_CONTEXT.remove();
     }
 
