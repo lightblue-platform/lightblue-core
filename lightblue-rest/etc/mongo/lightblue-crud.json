@@ -1,7 +1,7 @@
 {
    "controllers" : [
       {
-        "datastoreType" : "mongo",
+        "backend" : "mongo",
         "controllerFactory" : "com.redhat.lightblue.mongo.config.MongoCRUDFactory"
       }
    ]
