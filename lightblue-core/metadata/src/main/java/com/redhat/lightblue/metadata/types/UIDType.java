@@ -20,10 +20,13 @@ package com.redhat.lightblue.metadata.types;
 
 import java.io.Serializable;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.util.Error;
 
 public final class UIDType implements Type, Serializable {
 
@@ -39,12 +42,12 @@ public final class UIDType implements Type, Serializable {
 
     @Override
     public boolean supportsEq() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsOrdering() {
-        return false;
+        return true;
     }
 
     @Override
@@ -55,13 +58,9 @@ public final class UIDType implements Type, Serializable {
     @Override
     public Object fromJson(JsonNode node) {
         if (node.isValueNode()) {
-            if (node.asText() != null && !node.asText().equals("")) {
-                return node.asText();
-            } else {
-                return java.util.UUID.randomUUID();
-            }
+            return node.asText();
         } else {
-            throw com.redhat.lightblue.util.Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
+            throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
         }
     }
 
@@ -78,22 +77,36 @@ public final class UIDType implements Type, Serializable {
 
     @Override
     public int compare(Object v1, Object v2) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_COMPARE_NOT_SUPPORTED);
+        if (v1 == null) {
+            if (v2 == null) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else if (v2 == null) {
+            return 1;
+        } else {
+            return ((Comparable) cast(v1)).compareTo(cast(v2));
+        }
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof StringType;
+        return obj instanceof UIDType;
     }
 
     @Override
     public int hashCode() {
-        return getName().hashCode();
+        return 9;
     }
 
     @Override
     public String toString() {
         return NAME;
+    }
+
+    public static String newValue() {
+        return UUID.randomUUID();
     }
 
     private UIDType() {
