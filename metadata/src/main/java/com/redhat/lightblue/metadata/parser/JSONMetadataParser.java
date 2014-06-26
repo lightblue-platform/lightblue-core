@@ -36,8 +36,11 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JSONMetadataParser.class);
 
     private final JsonNodeFactory factory;
 
@@ -69,7 +72,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -105,7 +109,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -134,7 +139,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -163,7 +169,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -187,7 +194,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
