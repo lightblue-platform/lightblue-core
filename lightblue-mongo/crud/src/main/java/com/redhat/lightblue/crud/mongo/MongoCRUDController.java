@@ -196,7 +196,8 @@ public class MongoCRUDController implements CRUDController {
         } catch (Exception e) {
             LOGGER.error("Error during insert: {}", e);
             // throw new Error (preserves current error context)
-            throw Error.get(CrudConstants.ERR_CRUD);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -285,7 +286,8 @@ public class MongoCRUDController implements CRUDController {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(CrudConstants.ERR_CRUD);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -321,6 +323,7 @@ public class MongoCRUDController implements CRUDController {
         } catch (Error e) {
             ctx.addError(e);
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             ctx.addError(Error.get(e.toString()));
         } finally {
             Error.pop();
@@ -384,7 +387,8 @@ public class MongoCRUDController implements CRUDController {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(CrudConstants.ERR_CRUD);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
             Error.pop();
         }

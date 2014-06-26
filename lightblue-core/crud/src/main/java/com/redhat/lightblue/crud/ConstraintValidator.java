@@ -148,7 +148,8 @@ public class ConstraintValidator {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(CrudConstants.ERR_CRUD);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -173,7 +174,8 @@ public class ConstraintValidator {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(CrudConstants.ERR_CRUD);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -202,7 +204,8 @@ public class ConstraintValidator {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(CrudConstants.ERR_CRUD);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -230,7 +233,8 @@ public class ConstraintValidator {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(CrudConstants.ERR_CRUD);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -261,7 +265,8 @@ public class ConstraintValidator {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(CrudConstants.ERR_CRUD);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -296,7 +301,8 @@ public class ConstraintValidator {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(CrudConstants.ERR_CRUD);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
                 Error.pop();
             }

@@ -179,7 +179,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -210,7 +211,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -237,7 +239,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -265,11 +268,12 @@ public abstract class MetadataParser<T> {
                     List<SortKey> f = new ArrayList<>();
 
                     for (T s : fields) {
-                        String fld=getRequiredStringProperty(s,"field");
-                        String dir=getStringProperty(s,"dir");
-                        if(dir==null)
-                            dir="$asc";
-                        SortKey sort = new SortKey(new Path(fld),"$desc".equals(dir));
+                        String fld = getRequiredStringProperty(s, "field");
+                        String dir = getStringProperty(s, "dir");
+                        if (dir == null) {
+                            dir = "$asc";
+                        }
+                        SortKey sort = new SortKey(new Path(fld), "$desc".equals(dir));
                         f.add(sort);
                     }
                     index.setFields(f);
@@ -286,7 +290,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -317,7 +322,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -358,7 +364,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -400,7 +407,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -433,7 +441,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -470,7 +479,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -497,7 +507,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -529,7 +540,8 @@ public abstract class MetadataParser<T> {
                     throw e;
                 } catch (Exception e) {
                     // throw new Error (preserves current error context)
-                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                    LOGGER.error(e.getMessage(), e);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
                 } finally {
                     Error.pop();
                 }
@@ -561,7 +573,8 @@ public abstract class MetadataParser<T> {
                     throw e;
                 } catch (Exception e) {
                     // throw new Error (preserves current error context)
-                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                    LOGGER.error(e.getMessage(), e);
+                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
                 } finally {
                     Error.pop();
                 }
@@ -592,7 +605,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -626,7 +640,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -696,7 +711,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -776,7 +792,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -814,7 +831,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -841,7 +859,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -874,7 +893,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -913,7 +933,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -939,7 +960,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -968,7 +990,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -1006,7 +1029,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -1036,7 +1060,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -1066,7 +1091,8 @@ public abstract class MetadataParser<T> {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -1094,7 +1120,7 @@ public abstract class MetadataParser<T> {
                     Object indexObj = newArrayField(node, STR_FIELDS);
                     for (SortKey p : i.getFields()) {
                         T node2 = newNode();
-                        putString(node2, "field",p.getField().toString());
+                        putString(node2, "field", p.getField().toString());
                         putString(node2, "dir", p.isDesc() ? "$desc" : "$asc");
                         addObjectToArray(indexObj, node2);
                     }
@@ -1105,7 +1131,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -1136,7 +1163,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -1160,7 +1188,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -1269,7 +1298,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
             Error.pop();
@@ -1312,7 +1342,8 @@ public abstract class MetadataParser<T> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
             Error.pop();

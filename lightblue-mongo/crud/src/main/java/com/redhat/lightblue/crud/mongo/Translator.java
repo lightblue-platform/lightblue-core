@@ -94,7 +94,7 @@ public class Translator {
     public static final String ERR_INVALID_OBJECTTYPE = "INVALID_OBJECTTYPE";
     public static final String ERR_INVALID_FIELD = "INVALID_FIELD";
     public static final String ERR_INVALID_COMPARISON = "INVALID_COMPARISON";
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
 
     private final MetadataResolver mdResolver;
@@ -294,7 +294,8 @@ public class Translator {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -318,7 +319,8 @@ public class Translator {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -343,12 +345,13 @@ public class Translator {
             translateUpdate(md.getFieldTreeRoot(), expr, ret);
             LOGGER.debug("translated={}", ret);
             return ret;
-        } catch (Error|CannotTranslateException e) {
+        } catch (Error | CannotTranslateException e) {
             // rethrow lightblue error
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MongoCrudConstants.ERR_INVALID_OBJECT, e.getMessage());
         } finally {
             Error.pop();
         }

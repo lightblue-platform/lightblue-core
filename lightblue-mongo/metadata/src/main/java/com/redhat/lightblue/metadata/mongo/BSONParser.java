@@ -39,9 +39,12 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BSONParser extends MetadataParser<BSONObject> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BSONParser.class);
 
     public static final String DELIMITER_ID = "|";
 
@@ -187,7 +190,8 @@ public class BSONParser extends MetadataParser<BSONObject> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -209,7 +213,8 @@ public class BSONParser extends MetadataParser<BSONObject> {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }

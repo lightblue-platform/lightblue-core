@@ -145,12 +145,13 @@ public class MongoMetadata extends AbstractMetadata {
                 throw Error.get(MongoMetadataConstants.ERR_UNKNOWN_VERSION, entityName + ":" + version);
             }
             return new EntityMetadata(info, schema);
-        } catch (Error|IllegalArgumentException e) {
+        } catch (Error | IllegalArgumentException e) {
             // rethrow lightblue error or illegao arg exception
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -176,7 +177,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -225,7 +227,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -272,7 +275,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -337,7 +341,8 @@ public class MongoMetadata extends AbstractMetadata {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
@@ -347,7 +352,8 @@ public class MongoMetadata extends AbstractMetadata {
         } catch (Exception e) {
             LOGGER.error("createNewMetadata", e);
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -411,7 +417,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -495,7 +502,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -538,7 +546,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }
@@ -601,7 +610,8 @@ public class MongoMetadata extends AbstractMetadata {
             throw e;
         } catch (Exception e) {
             // throw new Error (preserves current error context)
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
         } finally {
             Error.pop();
         }

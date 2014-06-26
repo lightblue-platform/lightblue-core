@@ -24,8 +24,11 @@ import java.util.Iterator;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.metadata.types.ArrayType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArrayField extends Field {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArrayField.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -85,7 +88,8 @@ public class ArrayField extends Field {
                 throw e;
             } catch (Exception e) {
                 // throw new Error (preserves current error context)
-                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA);
+                LOGGER.error(e.getMessage(), e);
+                throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
             } finally {
                 Error.pop();
             }
