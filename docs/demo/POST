@@ -17,10 +17,10 @@ fi
 
 if [ -z "$body" ] ; then
   echo curl -H  Content-Type:application/json  -u ${upwd} -X POST $url
-  curl -H  Content-Type:application/json  -u ${upwd} -X POST $url|tee /tmp/out
+  curl -H  Content-Type:application/json  -u ${upwd} -X POST $url> /tmp/out
 else
   echo curl -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url
-  curl -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url|tee /tmp/out
+  curl -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url> /tmp/out
 fi
 mv /tmp/out /tmp/out.json
 
