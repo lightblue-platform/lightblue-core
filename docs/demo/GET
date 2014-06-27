@@ -7,7 +7,7 @@ else
 fi
 
 echo curl -H  Content-Type:application/json  -u ${upwd} -X GET $1
-curl -H  Content-Type:application/json  -u ${upwd} -X GET $1|tee /tmp/out
+curl -H  Content-Type:application/json  -u ${upwd} -X GET $1> /tmp/out
 
 
 mv /tmp/out /tmp/out.json
