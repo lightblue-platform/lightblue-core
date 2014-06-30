@@ -2538,6 +2538,56 @@ or Service</content>
           <content>Original request always passes through application server's authentication module first.  After successful authentication and authorization the original request is enhanced with the authorization information.  Then the requested component is called.</content>
         </child>
       </element>
+      <element xsi:type="archimate:SketchModel" id="9e11f1a4" name="Overivew (simple)" background="0">
+        <child xsi:type="archimate:SketchModelActor" id="db6a7bdb" name="Metadata User">
+          <bounds x="80" y="56" width="97" height="100"/>
+          <sourceConnection id="b44edee5" source="db6a7bdb" target="5ce523f1" type="1"/>
+          <sourceConnection id="dc5cf7ab" source="db6a7bdb" target="0aca880e" type="5"/>
+        </child>
+        <child xsi:type="archimate:SketchModelSticky" id="ff214932" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="e694d4af" fillColor="#ffffb5">
+          <bounds x="404" y="416" width="121" height="65"/>
+          <content>Data 
+Datastore</content>
+        </child>
+        <child xsi:type="archimate:SketchModelSticky" id="85b771a3" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="71e24c02" fillColor="#ffffb5">
+          <bounds x="69" y="418" width="119" height="61"/>
+          <content>Metadata Datastore</content>
+        </child>
+        <child xsi:type="archimate:SketchModelActor" id="f0f88ecc" name="Data User">
+          <bounds x="416" y="56" width="98" height="100"/>
+          <sourceConnection id="af2f8a69" source="f0f88ecc" target="0aca880e" type="5"/>
+          <sourceConnection id="78ade65d" source="f0f88ecc" target="294d62b3" type="1"/>
+        </child>
+        <child xsi:type="archimate:SketchModelSticky" id="0aca880e" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="af2f8a69 dc5cf7ab" fillColor="#ffffb5">
+          <bounds x="236" y="75" width="121" height="61"/>
+          <content>Person Authentication &amp;
+Authorization</content>
+        </child>
+        <child xsi:type="archimate:DiagramModelReference" id="5ce523f1" textAlignment="2" targetConnections="b44edee5" fillColor="#b5ffff" model="5715d5d3">
+          <bounds x="69" y="200"/>
+          <sourceConnection id="9d85d354" source="5ce523f1" target="5aa6a366" type="1"/>
+        </child>
+        <child xsi:type="archimate:DiagramModelReference" id="5aa6a366" textAlignment="2" targetConnections="f075c8d1 9d85d354" fillColor="#b5ffff" model="e73ac729">
+          <bounds x="69" y="308"/>
+          <sourceConnection id="bf12fc53" source="5aa6a366" target="d4814c12" type="3"/>
+          <sourceConnection id="71e24c02" source="5aa6a366" target="85b771a3" type="1"/>
+        </child>
+        <child xsi:type="archimate:DiagramModelReference" id="e4391217" textAlignment="2" targetConnections="ed55a1e3" fillColor="#b5ffff" model="4c808069">
+          <bounds x="405" y="308"/>
+          <sourceConnection id="f075c8d1" source="e4391217" target="5aa6a366" type="1"/>
+          <sourceConnection id="e694d4af" source="e4391217" target="ff214932" type="1"/>
+          <sourceConnection id="7bcabd12" source="e4391217" target="d4814c12" type="3"/>
+        </child>
+        <child xsi:type="archimate:DiagramModelReference" id="294d62b3" textAlignment="2" targetConnections="78ade65d" fillColor="#b5ffff" model="1b49e776">
+          <bounds x="405" y="203"/>
+          <sourceConnection id="ed55a1e3" source="294d62b3" target="e4391217" type="1"/>
+        </child>
+        <child xsi:type="archimate:SketchModelSticky" id="d4814c12" name="Sticky" textAlignment="1" lineColor="#5c5c5c" targetConnections="bf12fc53 7bcabd12" fillColor="#ffffb5">
+          <bounds x="236" y="380" width="121" height="61"/>
+          <content>System Authentication &amp;
+Authorization</content>
+        </child>
+      </element>
     </folder>
     <folder name="FAQ" id="a2cfcf23">
       <element xsi:type="archimate:ArchimateDiagramModel" id="db5f55bc" name="Auto-scaling"/>
