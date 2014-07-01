@@ -16,11 +16,11 @@ else
 fi
 
 if [ -z "$body" ] ; then
-  echo curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url
-  curl -H  Content-Type:application/json  -u ${upwd} -X PUT $url> /tmp/out
+  echo curl -s -H  Content-Type:application/json  -u ${upwd} -X PUT $url
+  curl -s -H  Content-Type:application/json  -u ${upwd} -X PUT $url> /tmp/out
 else
-  echo curl -H  Content-Type:application/json  -u ${upwd} -d $body -X PUT $url
-  curl -H  Content-Type:application/json  -u ${upwd} -d $body -X PUT $url> /tmp/out
+  echo curl -s -H  Content-Type:application/json  -u ${upwd} -d $body -X PUT $url
+  curl -s -H  Content-Type:application/json  -u ${upwd} -d $body -X PUT $url> /tmp/out
 fi
 mv /tmp/out /tmp/out.json
 
