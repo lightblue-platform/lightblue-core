@@ -405,6 +405,7 @@ public class MongoMetadata extends AbstractMetadata {
                     if (index.getName() != null && index.getName().trim().length() > 0) {
                         options.append(LITERAL_NAME, index.getName().trim());
                     }
+                    options.append("background",true);
                     LOGGER.debug("Creating index {} with options {}", newIndex, options);
                     entityCollection.createIndex(newIndex, options);
                 }
