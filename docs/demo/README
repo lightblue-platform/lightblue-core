@@ -1,0 +1,7 @@
+Run
+
+ export host=<hostname>:8080
+ export unamepwd=bign:123qweasd!
+ export PATH=$PATH:.
+
+and then run the GET, PUT, POST scripts.
