@@ -21,9 +21,6 @@
         },
         "schema": {
             "$ref": "schema.json#"
-        },
-        "addendum": {
-            "$ref": "addendum.json#"
         }
     },
     "required": [

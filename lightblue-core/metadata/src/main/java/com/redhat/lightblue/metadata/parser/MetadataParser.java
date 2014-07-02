@@ -19,14 +19,11 @@
 package com.redhat.lightblue.metadata.parser;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.google.common.collect.Sets;
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
@@ -74,6 +71,7 @@ import com.redhat.lightblue.util.Path;
  */
 public abstract class MetadataParser<T> {
 
+    private static final String STR_ID= "_id";
     private static final String STR_NAME = "name";
     private static final String STR_VALUE = "value";
     private static final String STR_VERSION = "version";
@@ -205,6 +203,15 @@ public abstract class MetadataParser<T> {
 
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
+
+            final Set<String> ENTITY_INFO_FIELDS= Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
+            Set<String> propertyFields = findFieldsNotIn(object,ENTITY_INFO_FIELDS);
+            for(String property:propertyFields) {
+                PropertyParser p = extensions.getPropertyParser(property);
+                if(p!=null) {
+                    p.parseProperty(this, property, info.getProperties(), getObjectProperty(object, property));
+                }
+            }
             return info;
         } catch (Error e) {
             // rethrow lightblue error
@@ -825,6 +832,16 @@ public abstract class MetadataParser<T> {
                 convertDataStore(dsNode, info.getDataStore());
                 putObject(ret, STR_DATASTORE, dsNode);
             }
+            if (info.getProperties() != null && !info.getProperties().isEmpty()) {
+                for (String s : info.getProperties().keySet()) {
+                    PropertyParser p = extensions.getPropertyParser(s);
+                    if(p!=null) {
+                        T node = newNode();
+                        p.convert(this, node, info.getProperties().get(s));
+                        putObject(ret, s, node);
+                    }
+                }
+            }
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -910,7 +927,7 @@ public abstract class MetadataParser<T> {
                 T obj = newNode();
                 putString(obj, STR_VALUE, toString(status));
 
-                // only create log if you have a value for status, else isn't schema compliant 
+                // only create log if you have a value for status, else isn't schema compliant
                 if (!changeLog.isEmpty()) {
                     Object logArray = newArrayField(obj, STR_LOG);
                     for (StatusChange x : changeLog) {
@@ -1449,5 +1466,7 @@ public abstract class MetadataParser<T> {
      * Adds an element to the array
      */
     public abstract void addObjectToArray(Object array, Object value);
+
+    public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields );
 
 }

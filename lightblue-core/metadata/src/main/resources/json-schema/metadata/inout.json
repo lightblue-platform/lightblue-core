@@ -16,16 +16,21 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "documentPath" : {
+        "documentPath":{
             "type" : "string"
         },
-        "columnPath" : {
+        "isarray":{
+            "type" : "boolean"
+        },
+        "isaccumulative":{
+            "type" : "boolean"
+        },
+        "columnName" : {
             "type" : "string"
-        }
+        },
+        "variableName":{
+            "type" : "string"
+        },
     },
-    "required": [
-        "documentPath",
-        "columnPath"
-    ],
     "additionalProperties": false
 }

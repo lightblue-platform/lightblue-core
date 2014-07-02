@@ -273,6 +273,20 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
+    public Set<String> findFieldsNotIn(JsonNode elements, Set<String> removeAllFields) {
+        final HashSet<String> strings = new HashSet<String>();
+        final Iterator<String> stringIterator = elements.fieldNames();
+        while (stringIterator.hasNext()) {
+            String next = stringIterator.next();
+            if (!removeAllFields.contains(next)) {
+                strings.add(next);
+            }
+        }
+
+        return strings;
+    }
+
+    @Override
     public Projection parseProjection(JsonNode object) {
         return object == null ? null : Projection.fromJson(object);
     }

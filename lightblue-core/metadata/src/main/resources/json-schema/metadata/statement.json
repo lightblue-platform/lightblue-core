@@ -20,79 +20,93 @@
             "type": "array",
             "minItems": 1,
             "items": {
-                "type": "object",
-                "properties": {
-                    "sql": {
-                        "type": "string"
+                "type" : [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "sql": {
+                                "type": "string"
+                            },
+                            "iterateOverRows" : {
+                                "type": "boolean"
+                            },
+                            "type": {
+                               "enum":  [ "select", "insert", "update", "delete" ]
+                            },
+                            "datasource" : {
+                                "type": "string"
+                            }
+                        }
                     },
-                    "type": {
-                        "enum":  [ "select", "insert", "update", "delete" ]
-                    },
-                    "jndi" : {
-                        "type": "string"
-                    },
-                    "needsWhere" : {
-                        "type": "boolean"
-                    },
-                    "needsAnd" : {
-                        "type": "boolean"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "if": {
+                                "$ref": "if.json#"
+                            },
+                            "then": {
+                                "type" : [
+                                    {
+                                        "$ref": "statement.json#"
+                                    },
+                                    {
+                                        "enum": [ "$fail", "$continue", "$break" ]
+                                    }
+                                ]
+                            },
+                            "elseIf": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "if": {
+                                            "$ref": "if.json#"
+                                        },
+                                        "then": {
+                                            "type" : [
+                                                {
+                                                    "$ref": "statement.json#"
+                                                },
+                                                {
+                                                    "enum": [ "$fail", "$continue", "$break" ]
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "else": {
+                                "type" : [
+                                    {
+                                        "$ref": "statement.json#"
+                                    },
+                                    {
+                                        "enum": [ "$fail", "$continue", "$break" ]
+                                    }
+                                ]
+                            }
+                        }
                     }
-                },
-                "required": [
-                    "sql",
-                    "type",
-                    "jndi",
-                    "needsWhere",
-                    "needsAnd"
-                ],
-                "additionalProperties": false
+                ]
             }
         },
         "bindings": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "properties": {
-                    "field": {
-                        "type": "object",
-                        "properties": {
-                            "in": {
-                                "$ref": "inout.json#"
-                            },
-                            "out" : {
-                                "$ref": "inout.json#"
-                            }
-                        },
-                        "anyOf": [
-                            {
-                                "title": "in required",
-                                "required": [
-                                    "in"
-                                ]
-                            },
-                            {
-                                "title": "out required",
-                                "required": [
-                                    "out"
-                                ]
-                            }
-                        ],
-                        "additionalProperties": false
-                    }
+            "type": "object",
+            "properties": {
+                "in": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "inout.json#"
+                    },
                 },
-                "required": [
-                    "field"
-                ],
-                "additionalProperties": false
+                "out": {
+                     "type": "array",
+                     "items": {
+                         "$ref": "inout.json#"
+                     },
+                 }
             }
-        },
+        }
     },
-    "required": [
-        "select",
-        "insert",
-        "update",
-        "delete"
-    ],
     "additionalProperties": false
 }

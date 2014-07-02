@@ -5,7 +5,7 @@
      "ssl" : false,
      "database" : "mongo",
      "servers" : [
-        { 
+        {
            "host" : "localhost",
            "port" : "27777"
         }

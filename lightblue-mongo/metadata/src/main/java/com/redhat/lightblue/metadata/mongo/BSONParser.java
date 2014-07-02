@@ -172,6 +172,13 @@ public class BSONParser extends MetadataParser<BSONObject> {
         ((List) array).add(value);
     }
 
+    @Override
+    public Set<String> findFieldsNotIn(BSONObject elements, Set<String> removeAllFields) {
+        final Set<String> strings = elements.keySet();
+        strings.removeAll(removeAllFields);
+        return strings;
+    }
+
     /**
      * Override to set _id appropriately.
      */
