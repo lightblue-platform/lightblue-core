@@ -176,6 +176,8 @@
         <module>crud</module>
         <module>hystrix</module>
         <module>common</module>
+        <module>metadata</module>
+        <module>config</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>

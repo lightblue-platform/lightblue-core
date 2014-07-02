@@ -23,6 +23,8 @@ import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.HookConfiguration;
 
+import java.util.Map;
+
 /**
  * Parser extensions where T is the node type of the underlying object tree (for JSon, T is JsonNode).
  */
@@ -31,10 +33,9 @@ public class Extensions<T> {
     private final ParserRegistry<T, DataStore> backendParsers = new ParserRegistry<>();
 
     private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
-
     private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
-
     private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<>();
+    private final ParserRegistry<T, Map<String,Object>> propertyParsers = new ParserRegistry<>();
 
     /**
      * Initializes this to include the default extensions
@@ -130,11 +131,20 @@ public class Extensions<T> {
         return (HookConfigurationParser<T>) hookConfigurationParsers.find(hookName);
     }
 
+    public void registerPropertyParser(String parserName, PropertyParser<T> parser) {
+        propertyParsers.add(parserName, parser);
+    }
+
+    public PropertyParser<T> getPropertyParser(String parserName) {
+        return (PropertyParser<T>) propertyParsers.find(parserName);
+    }
+
     @Override
     public String toString() {
         return backendParsers.toString() + "\n"
                 + entityConstraintParsers.toString() + "\n"
                 + fieldConstraintParsers.toString() + "\n"
-                + hookConfigurationParsers.toString();
+                + hookConfigurationParsers.toString()
+                + propertyParsers;
     }
 }
