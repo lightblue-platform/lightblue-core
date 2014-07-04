@@ -135,9 +135,6 @@
             "type": "object",
             "description": "Definition of the backend in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.  This entity is wide open on purpose to allow individual backend implementations to deal with parsing and validating this structure.",
             "additionalProperties": true
-        },
-        "rdbms": {
-            "$ref": "rdbms.json#"
         }
     },
     "required": [
