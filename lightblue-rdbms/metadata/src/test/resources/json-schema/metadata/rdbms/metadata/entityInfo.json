@@ -87,17 +87,11 @@
                         "minItems": 1,
                         "items": {
                             "type": "object",
-                            "properties" : {
-                               "field": {
-                                   "type":"string",
-                                   "description":"Index field"
-                               },
-                               "dir" : {
-                                   "type":"string",
-                                   "description":"$asc or $desc"
-                               }
-                            },
-                            "required" : [ "field" ]
+                            "patternProperties": {
+                                ".*": {
+                                "enum": ["$asc", "$desc"]
+                                }
+                            }
                         }
                     }
                 },
@@ -133,7 +127,7 @@
         },
         "datastore": {
             "type": "object",
-            "description": "Definition of the backend in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.  This entity is wide open on purpose to allow individual backend implementations to deal with parsing and validating this structure.",
+            "description": "Definition of the datastore in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.  This entity is wide open on purpose to allow individual datastore implementations to deal with parsing and validating this structure.",
             "additionalProperties": true
         }
     },
