@@ -75,11 +75,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
             </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.2.4</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -132,11 +127,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
             <scope>test</scope>
         </dependency>
-         <dependency>
-             <groupId>com.google.code.gson</groupId>
-             <artifactId>gson</artifactId>
-             <scope>test</scope>
-         </dependency>
     </dependencies>
     <modules>
         <module>crud</module>

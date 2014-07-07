@@ -8,10 +8,10 @@ Cloud focused data services with dynamic querying, versioned schemas, and robust
 
 Developing enterprise services for access to data (CRUD) can be deceptively simple.  Just write something that gives access to the data you need.  Done!  The challenge is how do to deal with growth over time and not replicate the data access layer for every component.
 
-### Why is it so hard to add a new field?
-* Adding a field may break backwards compatibility for clients.
-* Updating all clients is not easy to schedule.
-* Creating new APIs on the service solves the above problems but leads to sprawling APIs and inconsistency.
+### Why is it so hard to manage change?
+* Adding a field may break backwards compatibility for clients of a service.
+* Updating all service clients is not easy to schedule.
+* Adding new APIs on the service solves the above problems but leads to sprawling APIs and inconsistency.
 
 ### Can we move our data to MongoDB?
 * Migrating from one type of tech to another is not trivial, such as RDBMS to NoSQL.
@@ -44,10 +44,10 @@ Not seeing a contoller you need?  We welcome new implementations and contributio
 
 #### Versioned Metadata
 All data in lightblue is controlled by its metadata.  Think of this as all the DDL for a table in a relational database.  
-Data structures are maintained by metadata.  A specific version of this metadata provides a window to the stored data.  You can have many versions of metadata active at a time, providing different clients with different windows to this data.  Key points to remember:
+A specific version of this metadata provides a view of the stored data.  You can have many versions of metadata active at a time, providing different clients with different views of this data.  Key points to remember:
 * all data structures are captured as metadata
 * each data stucture can have multiple versions active at a time
-* each client views data with a specific version
+* each client deals with data of a specific version
 * clients using different versions are seeing the same data, just viewed through a different window
 
 <insert example, something simple that anybody can relate to>
@@ -92,7 +92,6 @@ The license of lightblue is [GPLv3](https://www.gnu.org/licenses/gpl.html).  See
 | Dependency | Why | License
 | ---------- | --- | -------
 | [Jackson](http://wiki.fasterxml.com/JacksonHome) | Java library for processing JSON documents.  Use in complicated cases where processing is required on the JSON document. |[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-| [Gson](https://code.google.com/p/google-gson/) |Convert Java to and from JSON.  Used in simple cases where processing is 1:1 between Java and the JSON document. | [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 | [JSONassert](https://github.com/skyscreamer/JSONassert) | Used in unit tests to compare JSON documents before and after processing.  Useful for verifying parsing and type conversions (JSON -> Java -> JSON for example) | [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 | [json-schema-validator](https://github.com/fge/json-schema-validator) | Validation of JSON documents against a JSON schema.  Similar to XML Schema validation. | [LGPLv3 or later](https://www.gnu.org/licenses/lgpl.html)
 | [Flapdoodle Embedded MongoDB](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo) | In memory MongoDB used in unit tests to test against a real database. | [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
