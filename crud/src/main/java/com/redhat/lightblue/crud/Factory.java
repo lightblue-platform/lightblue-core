@@ -28,6 +28,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.hooks.HookResolver;
 import com.redhat.lightblue.hooks.CRUDHook;
 
+import com.redhat.lightblue.interceptor.InterceptorManager;
+
 /**
  * Factory class should be configured on initialization with all the validators and hooks from all the subsystems, and
  * used as a shared singleton object by all threads.
@@ -36,12 +38,13 @@ public class Factory implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final transient DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
-    private final transient DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
+    private final DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
+    private final DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
 
-    private final transient DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
+    private final DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
 
-    private transient HookResolver hookResolver;
+    private HookResolver hookResolver;
+    private final InterceptorManager interceptors=new InterceptorManager();
 
     /**
      * Adds a field constraint validator
@@ -134,4 +137,12 @@ public class Factory implements Serializable {
     public CRUDHook getHook(String hookName) {
         return hookResolver.getHook(hookName);
     }
+
+    /**
+     * Returns the interceptor manager
+     */
+    public InterceptorManager getInterceptors() {
+        return interceptors;
+    }
+
 }

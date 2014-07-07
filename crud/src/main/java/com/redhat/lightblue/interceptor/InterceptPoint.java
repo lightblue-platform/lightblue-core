@@ -18,11 +18,15 @@
  */
 package com.redhat.lightblue.interceptor;
 
+import java.io.Serializable;
+
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.mediator.OperationContext;
 
-public class InterceptPoint {
+public class InterceptPoint implements Serializable {
+
+    private static final long serialVersionUID=1l;
 
     public static final class MediatorInterceptPoint extends InterceptPoint {
         private MediatorInterceptPoint(int code) {
