@@ -8,7 +8,7 @@ Cloud focused data services with dynamic querying, versioned schemas, and robust
 
 Developing enterprise services for access to data (CRUD) can be deceptively simple.  Just write something that gives access to the data you need.  Done!  The challenge is how do to deal with growth over time and not replicate the data access layer for every component.
 
-### Why is it so hard to manage change?
+### Why is it so hard to add a new field?
 * Adding a field may break backwards compatibility for clients of a service.
 * Updating all service clients is not easy to schedule.
 * Adding new APIs on the service solves the above problems but leads to sprawling APIs and inconsistency.
