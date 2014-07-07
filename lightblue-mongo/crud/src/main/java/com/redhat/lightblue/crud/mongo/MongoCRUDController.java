@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.crud.CRUDController;
@@ -110,8 +111,10 @@ public class MongoCRUDController implements CRUDController {
                                         Projection projection) {
         LOGGER.debug("insert() start");
         CRUDInsertionResponse response = new CRUDInsertionResponse();
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_INSERT,ctx);
         int n = saveOrInsert(ctx, false, projection, OP_INSERT);
         response.setNumInserted(n);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_INSERT,ctx);
         return response;
     }
 
@@ -121,8 +124,10 @@ public class MongoCRUDController implements CRUDController {
                                  Projection projection) {
         LOGGER.debug("save() start");
         CRUDSaveResponse response = new CRUDSaveResponse();
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_SAVE,ctx);
         int n = saveOrInsert(ctx, upsert, projection, OP_SAVE);
         response.setNumSaved(n);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_SAVE,ctx);
         return response;
     }
 
@@ -217,6 +222,7 @@ public class MongoCRUDController implements CRUDController {
         Error.push(OP_UPDATE);
         CRUDUpdateResponse response = new CRUDUpdateResponse();
         Translator translator = new Translator(ctx, nodeFactory);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE,ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if (md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
@@ -291,6 +297,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE,ctx);
         LOGGER.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
         return response;
     }
@@ -305,6 +312,7 @@ public class MongoCRUDController implements CRUDController {
         Error.push(OP_DELETE);
         CRUDDeleteResponse response = new CRUDDeleteResponse();
         Translator translator = new Translator(ctx, nodeFactory);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_DELETE,ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if (md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
@@ -328,6 +336,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_DELETE,ctx);
         LOGGER.debug("delete end: deleted: {}}", response.getNumDeleted());
         return response;
     }
@@ -352,6 +361,7 @@ public class MongoCRUDController implements CRUDController {
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
         Translator translator = new Translator(ctx, nodeFactory);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_FIND,ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if (md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
@@ -392,6 +402,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_FIND,ctx);
         LOGGER.debug("find end: query: {} results: {}", response.getSize());
         return response;
     }

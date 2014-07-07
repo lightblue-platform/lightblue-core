@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.interceptor;
 
+import java.io.Serializable;
+
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
@@ -26,9 +28,11 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.mediator.OperationContext;
 
-public class InterceptorManager {
+public class InterceptorManager implements Serializable {
 
-    private final Map<InterceptPoint,TreeMap<Integer,Interceptor>> interceptors=new HashMap<>();
+    private static final long serialVersionUID=1l;
+
+    private final HashMap<InterceptPoint,TreeMap<Integer,Interceptor>> interceptors=new HashMap<>();
 
     public void registerInterceptor(int sequence, Interceptor i, InterceptPoint... pt) {
         for(InterceptPoint x:pt) {

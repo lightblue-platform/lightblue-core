@@ -29,6 +29,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
+import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.CrudConstants;
@@ -90,10 +91,12 @@ public class AtomicIterateUpdate implements DocUpdater {
             DBCursor cursor = null;
             int docIndex = 0;
             try {
+                ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_RESULTSET,ctx);
                 // Find docs
                 cursor = new FindCommand(collection, query, null).execute();
                 LOGGER.debug("Found {} documents", cursor.count());
-                // read-update
+                ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_RESULTSET,ctx);
+               // read-update
                 while (cursor.hasNext()) {
                     DBObject document = cursor.next();
                     // Add the doc to context
@@ -101,6 +104,7 @@ public class AtomicIterateUpdate implements DocUpdater {
                     try {
                         Object id = document.get("_id");
                         LOGGER.debug("Retrieved doc {} id={}", docIndex, id);
+                        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_DOC,ctx,doc);
                         // Update doc
                         DBObject modifiedDoc = new FindAndModifyCommand(collection,
                                 new BasicDBObject("_id", id),
@@ -115,6 +119,7 @@ public class AtomicIterateUpdate implements DocUpdater {
                             doc.setOutputDocument(projector.project(translator.toJson(modifiedDoc), nodeFactory));
                             doc.setOperationPerformed(Operation.UPDATE);
                         }
+                        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_DOC,ctx,doc);
                         numUpdated++;
                     } catch (MongoException e) {
                         LOGGER.warn("Update exception for document {}: {}", docIndex, e);

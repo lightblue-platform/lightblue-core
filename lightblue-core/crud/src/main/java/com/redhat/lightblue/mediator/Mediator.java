@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
@@ -92,6 +93,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert " + ctx.getTopLevelEntityName()));
             } else {
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_INSERT,ctx);
                 updatePredefinedFields(ctx.getDocuments(), md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
@@ -114,6 +116,7 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.ERROR);
                 }
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_INSERT,ctx);
             }
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
@@ -155,6 +158,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert/update " + ctx.getTopLevelEntityName()));
             } else {
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_SAVE,ctx);
                 updatePredefinedFields(ctx.getDocuments(), md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
@@ -175,6 +179,7 @@ public class Mediator {
                         ctx.setStatus(OperationStatus.ERROR);
                     }
                 }
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_SAVE,ctx);
             }
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
@@ -216,6 +221,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "update " + ctx.getTopLevelEntityName()));
             } else {
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_UPDATE,ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDUpdateResponse updateResponse = controller.update(ctx,
@@ -234,6 +240,7 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_UPDATE,ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -263,6 +270,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "delete " + ctx.getTopLevelEntityName()));
             } else {
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_DELETE,ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDDeleteResponse result = controller.delete(ctx,
@@ -274,6 +282,7 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_DELETE,ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -312,6 +321,7 @@ public class Mediator {
                 LOGGER.debug("No access");
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
             } else {
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND,ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDFindResponse result = controller.find(ctx,
@@ -331,6 +341,7 @@ public class Mediator {
                     }
                     response.setEntityData(JsonDoc.listToDoc(resultList, NODE_FACTORY));
                 }
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND,ctx);
             }
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());

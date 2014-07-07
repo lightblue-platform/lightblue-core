@@ -27,6 +27,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 
+import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.DocCtx;
@@ -76,6 +77,7 @@ public class BasicDocFinder implements DocFinder {
         ctx.addDocuments(jsonDocs);
         for (DocCtx doc : ctx.getDocuments()) {
             doc.setOperationPerformed(Operation.FIND);
+            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_FIND_DOC,ctx,doc);
         }
         LOGGER.debug("Translated DBObjects to json");
         return ret;
