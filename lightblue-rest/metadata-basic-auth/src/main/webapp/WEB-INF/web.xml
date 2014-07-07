@@ -1,0 +1,38 @@
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+  <servlet-mapping>
+    <servlet-name>com.redhat.lightblue.rest.metadata.RestApplication</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <description></description>
+    <display-name>HystrixMetricsStreamServlet</display-name>
+    <servlet-name>HystrixMetricsStreamServlet</servlet-name>
+    <servlet-class>com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>HystrixMetricsStreamServlet</servlet-name>
+    <url-pattern>/hystrix.stream</url-pattern>
+  </servlet-mapping>
+  
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>HtmlAuth</web-resource-name>
+            <description>application security constraints
+            </description>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>lightblue-user</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>ApplicationRealm</realm-name>
+    </login-config>
+  
+</web-app>

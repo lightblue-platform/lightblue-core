@@ -131,6 +131,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <modules>
         <module>crud</module>
         <module>metadata</module>
+        <module>metadata-basic-auth</module>
+        <module>metadata-cert-auth</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
