@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.util;
 
+import java.io.Serializable;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 /**
  * Default implementation of the registry interface
  */
-public class DefaultRegistry<K, V> implements Registry<K, V> {
+public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
     private final List<Resolver<K, V>> resolvers = new ArrayList<>();
     private final Map<K, V> items = new HashMap<>();
 
