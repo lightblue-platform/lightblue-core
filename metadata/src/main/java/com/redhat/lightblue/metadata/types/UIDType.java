@@ -106,7 +106,7 @@ public final class UIDType implements Type, Serializable {
     }
 
     public static String newValue() {
-        return UUID.randomUUID();
+        return UUID.randomUUID().toString();
     }
 
     private UIDType() {
