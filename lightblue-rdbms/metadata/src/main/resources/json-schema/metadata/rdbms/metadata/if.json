@@ -21,14 +21,6 @@
             {
                "type": "object",
                 "properties": {
-                    "logicalOperators": {
-                        "enum":  [ "and", "or" ]
-                    }
-                }
-            },
-            {
-               "type": "object",
-                "properties": {
                     "conditional": {
                         "enum":  [ "isempty", "greaterThan", "lessThan", "equalTo", " notEqualTo" , "greaterThanOrEqualTo" , "lessThanOrEqualTo", "in", "notIn", "contains" ]
                     },
@@ -37,6 +29,9 @@
                     },
                     "variable2": {
                        "type": "string"
+                    }
+                    "logicalOperatorNext": {
+                        "enum":  [ "and", "or" ]
                     }
                 }
             }

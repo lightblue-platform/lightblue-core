@@ -86,15 +86,87 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             SQLOrConditional e = new SQLOrConditional();
             final String sql = p.getStringProperty(statement, "sql");
             if(sql != null) {
-                Conditional c = new Conditional();
+                DynamicConditional c = new DynamicConditional();
+                /*
+                maybe change the
+                 /home/lcestari/repositories/lb/lightblue/lightblue-rdbms/metadata/src/main/resources/json-schema/metadata/rdbms/metadata/if.json
+                  to
+                 /home/lcestari/repositories/lb/lightblue/lightblue-core/query-api/src/main/resources/json-schema/query/conditional.json
+                 so the rdbms would look like the query api
+                 */
+                final List<T> ifArr = p.getObjectList(statement, "if");
+                final List<T> thenArr = p.getObjectList(statement, "then");
+                final String thenStr = p.getStringProperty(statement, "then");
+                final List<T> elseifStr = p.getObjectList(statement, "elseif");
+                final List<T> elseArr = p.getObjectList(statement, "then");
+                final String elseStr = p.getStringProperty(statement, "else");
+
+                if(ifArr != null && ! ifArr.isEmpty()){
+                    for (T t : ifArr) {
+                        final String logicalOperator = p.getStringProperty(t, "logicalOperators");
+                        final String conditional = p.getStringProperty(t, "conditional");
+                        final String variable1 = p.getStringProperty(t, "variable1");
+                        final String variable2 = p.getStringProperty(t, "variable2");
+
+                        If i = new If();
+
+                        if( LogicalOperators.getValues().contains(logicalOperator)){
+                            i.setLogicalOperatorNext(logicalOperator);
+                        } else {
+                            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, logicalOperator);
+                        }
+
+                        if( Conditional.getValues().contains(conditional)){
+                            i.setConditional(conditional);
+                        } else {
+                            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, conditional);
+                        }
+
+                        if(!(variable1 == null || variable1.isEmpty())){
+                            i.setVariable1(variable1);
+                        } else {
+                            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, variable1);
+                        }
+
+                        if(!(variable2 == null || variable2.isEmpty())){
+                            i.setVariable2(variable2);
+                        } else {
+                            if(!"isempty".equalsIgnoreCase(logicalOperator)){
+                                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, variable2);
+                            }
+                        }
+                        c.getIfs().add(i);
+                    }
+
+                    if(thenStr == null){
+
+                    }
+
+                    if(elseifStr != null){
+
+                    }
+                    if(elseStr != null){
+
+                    }
+
+                } else {
+                    throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ifArr.toString());
+                }
+
                 //TODO 'if then elseif else' fields
-                e.setConditional(c);
+                if(1 == 2 && 1== 3 || 1==3 || 1==1 ){
+
+                }
+                e.setDynamicConditional(c);
             } else {
                 SQL s = new SQL();
                 s.setSQL(sql);
                 s.setIterateOverRows(Boolean.TRUE.toString().equalsIgnoreCase(p.getStringProperty(statement,"iterateOverRows"))? Boolean.TRUE : Boolean.FALSE);
-                // check Types.getValues().contains(p.getStringProperty(statement, "type"))
-                s.setType(p.getStringProperty(statement, "type"));
+                final String type = p.getStringProperty(statement, "type");
+                if(! Types.getValues().contains(type)) {
+                    throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, type);
+                }
+                s.setType(type);
                 s.setDatasource(p.getStringProperty(statement, "datasource"));
                 e.setSQL(s);
             }

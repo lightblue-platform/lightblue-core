@@ -1,15 +1,15 @@
 package com.redhat.lightblue.metadata.rdbms;
 
 public class SQLOrConditional {
-    private Conditional conditional;
+    private DynamicConditional dynamicConditional;
     private com.redhat.lightblue.metadata.rdbms.SQL SQL;
 
-    public void setConditional(Conditional conditional) {
-        this.conditional = conditional;
+    public void setDynamicConditional(DynamicConditional dynamicConditional) {
+        this.dynamicConditional = dynamicConditional;
     }
 
-    public Conditional getConditional() {
-        return conditional;
+    public DynamicConditional getDynamicConditional() {
+        return dynamicConditional;
     }
 
     public void setSQL(SQL SQL) {
