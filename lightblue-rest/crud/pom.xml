@@ -102,14 +102,10 @@
                     <defaultFilemode>744</defaultFilemode>
                     <defaultUsername>jboss</defaultUsername>
                     <defaultGroupname>jboss</defaultGroupname>
-                    <!-- 
-                    <requires>
-                        <require>eap &gt;= 6.2</require>
-                    </requires>
-                    -->
                     <mappings>
                         <mapping>
                             <directory>${rpm.install.basedir}</directory>
+                            <directoryIncluded>false</directoryIncluded>
                             <sources>
                                 <source>
                                     <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>

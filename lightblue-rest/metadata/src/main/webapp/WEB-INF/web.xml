@@ -19,4 +19,13 @@
         <url-pattern>/hystrix.stream</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>health</servlet-name>
+        <jsp-file>/health.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>health</servlet-name>
+        <url-pattern>/health</url-pattern>
+    </servlet-mapping>
+
 </web-app>

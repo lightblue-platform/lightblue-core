@@ -151,4 +151,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>wildfly</id>
+            <properties>
+                <rpm.install.basedir>/usr/share/wildfly/standalone/deployments</rpm.install.basedir>
+            </properties>
+        </profile>
+    </profiles>
 </project>
