@@ -21,7 +21,7 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
 
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name>rest-metadata application</web-resource-name>
+      <web-resource-name>rest-metadata services</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
 

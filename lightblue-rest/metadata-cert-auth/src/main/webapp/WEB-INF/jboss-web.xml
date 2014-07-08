@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <jboss-web>
-  <context-root>metadata</context-root>
+  <context-root>/rest/metadata</context-root>
   <security-domain>lightblue-cert</security-domain>  
 </jboss-web>

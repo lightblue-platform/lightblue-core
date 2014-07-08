@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
 <jboss-web>
     <context-root>/rest/data</context-root>
-    <security-domain>java:/jaas/other</security-domain>
 </jboss-web>

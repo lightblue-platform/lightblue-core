@@ -18,24 +18,26 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
     <servlet-name>HystrixMetricsStreamServlet</servlet-name>
     <url-pattern>/hystrix.stream</url-pattern>
   </servlet-mapping>
-  
+
   <security-constraint>
     <web-resource-collection>
-        <web-resource-name>rest-metadata services</web-resource-name>
-        <url-pattern>/*</url-pattern>
+      <web-resource-name>rest-crud services</web-resource-name>
+      <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-        <role-name>authenticated</role-name>
+      <role-name>authenticated</role-name>
     </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint> 
   </security-constraint>
-  
-  <login-config>
-    <auth-method>BASIC</auth-method>
-    <realm-name>lightblueRealm</realm-name>
+
+  <login-config> 
+    <auth-method>CLIENT-CERT</auth-method>
   </login-config>
 
   <security-role>
-    <description>The roles that are required to log into the rest-metadata services</description>
+    <description>The roles that are required to log into the rest-crud services</description>
     <role-name>authenticated</role-name>
   </security-role>
   
