@@ -20,6 +20,8 @@ package com.redhat.lightblue.crud;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.util.DefaultRegistry;
 import com.redhat.lightblue.util.Resolver;
 
@@ -45,6 +47,8 @@ public class Factory implements Serializable {
 
     private HookResolver hookResolver;
     private final InterceptorManager interceptors=new InterceptorManager();
+
+    private JsonNodeFactory nodeFactory;
 
     /**
      * Adds a field constraint validator
@@ -143,6 +147,24 @@ public class Factory implements Serializable {
      */
     public InterceptorManager getInterceptors() {
         return interceptors;
+    }
+
+    /**
+     * Returns an instance of JsonNodeFactory. Never returns null, if
+     * the JsonNodeFactory is not initialized, this call initializes a
+     * default instance.
+     */
+    public JsonNodeFactory getNodeFactory() {
+        if(nodeFactory==null)
+            nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
+        return nodeFactory;
+    }
+
+    /**
+     * Sets the JsonNodeFactory. 
+     */
+    public synchronized void setNodeFactory(JsonNodeFactory factory) {
+        nodeFactory=factory;
     }
 
 }

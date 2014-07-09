@@ -27,7 +27,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
@@ -70,11 +69,10 @@ public final class OperationContext extends CRUDOperationContext {
     private OperationContext(Request request,
                              Metadata metadata,
                              Factory factory,
-                             JsonNodeFactory nodeFactory,
                              Set<String> roles,
                              List<JsonDoc> docs,
                              Operation operation) {
-        super(operation, request.getEntityVersion().getEntity(), factory, nodeFactory, roles, docs);
+        super(operation, request.getEntityVersion().getEntity(), factory, roles, docs);
         this.request = request;
         this.metadata = metadata;
         initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
@@ -91,9 +89,9 @@ public final class OperationContext extends CRUDOperationContext {
      * @param factory The factory to get validators and controllers
      * @param op The operation in progress
      */
-    public static OperationContext getInstance(Request req, Metadata md, Factory factory, JsonNodeFactory nodeFactory, Operation op) {
+    public static OperationContext getInstance(Request req, Metadata md, Factory factory, Operation op) {
         List<JsonDoc> docs = req instanceof DocRequest ? JsonDoc.docList(((DocRequest) req).getEntityData()) : null;
-        return new OperationContext(req, md, factory, nodeFactory, new HashSet<String>(), docs, op);
+        return new OperationContext(req, md, factory, new HashSet<String>(), docs, op);
     }
 
     /**

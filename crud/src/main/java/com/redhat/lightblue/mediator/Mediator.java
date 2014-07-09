@@ -61,8 +61,6 @@ public class Mediator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
 
-    private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
-
     private static final Path OBJECT_TYPE_PATH = new Path("object_type");
 
     private final Metadata metadata;
@@ -87,7 +85,7 @@ public class Mediator {
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.INSERT);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -103,7 +101,7 @@ public class Mediator {
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
-                        response.setEntityData(JsonDoc.listToDoc(insertedDocuments, NODE_FACTORY));
+                        response.setEntityData(JsonDoc.listToDoc(insertedDocuments, factory.getNodeFactory()));
                         response.setModifiedCount(insertedDocuments.size());
                     }
                     if (insertedDocuments != null && insertedDocuments.size() == ctx.getDocuments().size()) {
@@ -151,7 +149,7 @@ public class Mediator {
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.SAVE);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -168,7 +166,7 @@ public class Mediator {
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
-                        response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
+                        response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
                         response.setModifiedCount(updatedDocuments.size());
                     }
                     if (updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
@@ -215,7 +213,7 @@ public class Mediator {
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.UPDATE);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.UPDATE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -233,7 +231,7 @@ public class Mediator {
                 response.setModifiedCount(updateResponse.getNumUpdated());
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
-                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, NODE_FACTORY));
+                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
                 }
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
@@ -264,7 +262,7 @@ public class Mediator {
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response();
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.DELETE);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.DELETE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -314,7 +312,7 @@ public class Mediator {
         Response response = new Response();
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, NODE_FACTORY, Operation.FIND);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory,  Operation.FIND);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -339,7 +337,7 @@ public class Mediator {
                     for (DocCtx doc : documents) {
                         resultList.add(doc.getOutputDocument());
                     }
-                    response.setEntityData(JsonDoc.listToDoc(resultList, NODE_FACTORY));
+                    response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
                 }
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND,ctx);
             }
@@ -386,10 +384,10 @@ public class Mediator {
 
     private void updatePredefinedFields(List<DocCtx> docs, String entity) {
         for (JsonDoc doc : docs) {
-            PredefinedFields.updateArraySizes(NODE_FACTORY, doc);
+            PredefinedFields.updateArraySizes(factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
             if (node == null) {
-                doc.modify(OBJECT_TYPE_PATH, NODE_FACTORY.textNode(entity), false);
+                doc.modify(OBJECT_TYPE_PATH, factory.getNodeFactory().textNode(entity), false);
             } else if (!node.asText().equals(entity)) {
                 throw Error.get(CrudConstants.ERR_INVALID_ENTITY, node.asText());
             }
