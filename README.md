@@ -1,8 +1,8 @@
 # Books!
 
-[Overview](http://jewzaam.gitbooks.io/lightblue/)
-[User Guide](http://jewzaam.gitbooks.io/lightblue-user-guide/)
-[Devleoper Manual](http://jewzaam.gitbooks.io/lightblue-developer-manual/)
+*[Overview](http://jewzaam.gitbooks.io/lightblue/)
+*[User Guide](http://jewzaam.gitbooks.io/lightblue-user-guide/)
+*[Devleoper Manual](http://jewzaam.gitbooks.io/lightblue-developer-manual/)
 
 
 # lightblue
