@@ -24,7 +24,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -90,16 +89,9 @@ public class MongoCRUDController implements CRUDController {
 
     private static final Projection ID_PROJECTION = new FieldProjection(new Path(ID_STR), true, false);
 
-    private final JsonNodeFactory nodeFactory;
     private final DBResolver dbResolver;
 
     public MongoCRUDController(DBResolver dbResolver) {
-        this(JsonNodeFactory.withExactBigDecimals(true), dbResolver);
-    }
-
-    public MongoCRUDController(JsonNodeFactory factory,
-                               DBResolver dbResolver) {
-        this.nodeFactory = factory;
         this.dbResolver = dbResolver;
     }
 
@@ -145,7 +137,7 @@ public class MongoCRUDController implements CRUDController {
         }
         LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
-        Translator translator = new Translator(ctx, nodeFactory);
+        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
         try {
             FieldAccessRoleEvaluator roleEval
                     = new FieldAccessRoleEvaluator(ctx.getEntityMetadata(ctx.getEntityName()),
@@ -185,7 +177,7 @@ public class MongoCRUDController implements CRUDController {
                     if (projector != null) {
                         JsonDoc jsonDoc = translator.toJson(dbObject);
                         LOGGER.debug("Translated doc: {}", jsonDoc);
-                        inputDoc.setOutputDocument(projector.project(jsonDoc, nodeFactory));
+                        inputDoc.setOutputDocument(projector.project(jsonDoc, ctx.getFactory().getNodeFactory()));
                     } else {
                         inputDoc.setOutputDocument(null);
                     }
@@ -221,7 +213,7 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("update start: q:{} u:{} p:{}", query, update, projection);
         Error.push(OP_UPDATE);
         CRUDUpdateResponse response = new CRUDUpdateResponse();
-        Translator translator = new Translator(ctx, nodeFactory);
+        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
         ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE,ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
@@ -249,38 +241,21 @@ public class MongoCRUDController implements CRUDController {
                     errorProjector = projector;
                 }
 
-                // If there are any constraints for updated fields, we have to use iterate-update
-                Updater updater = Updater.getInstance(nodeFactory, md, update);
-                Set<Path> updatedFields = updater.getUpdateFields();
-                LOGGER.debug("Fields to be updated:{}", updatedFields);
-                boolean constrainedFieldUpdated = false;
-                for (Path x : updatedFields) {
-                    FieldTreeNode ftn = md.resolve(x);
-                    if (ftn instanceof Field && !((Field) ftn).getConstraints().isEmpty()) {
-                        LOGGER.debug("Field {} has constraints, can't run direct mongo update", ftn);
-                        constrainedFieldUpdated = true;
-                        break;
-                    }
-                }
-                // See if we can translate the update expression
-                DBObject mongoUpdateExpr;
-                try {
-                    mongoUpdateExpr = translator.translate(md, update);
-                } catch (CannotTranslateException e) {
-                    LOGGER.debug("Cannot translate update expression {}", e);
-                    mongoUpdateExpr = null;
-                }
-                // if we can translate mongo update expression, and if
-                // there are no constrained fields, we can use one of
-                // the mongo updaters
-                DocUpdater docUpdater;
-                if (mongoUpdateExpr != null && !constrainedFieldUpdated) {
-                    docUpdater = new AtomicIterateUpdate(nodeFactory, roleEval, translator,
-                            mongoUpdateExpr, projector, updatedFields);
-                } else {
-                    docUpdater = new IterateAndUpdate(nodeFactory, validator, roleEval, translator, updater,
-                            projector, errorProjector);
-                }
+                // If there are any constraints for updated fields, or if we're updating arrays, we have to use iterate-update
+                Updater updater = Updater.getInstance(ctx.getFactory().getNodeFactory(), md, update);
+                // Set<Path> updatedFields = updater.getUpdateFields();
+                // LOGGER.debug("Fields to be updated:{}", updatedFields);
+                // boolean constrainedFieldUpdated = false;
+                // for (Path x : updatedFields) {
+                //     FieldTreeNode ftn = md.resolve(x);
+                //     if (hasArray(ftn)||(ftn instanceof Field  && !((Field) ftn).getConstraints().isEmpty())) {
+                //         LOGGER.debug("Field {} either has constraints, or goes through an array, can't run direct mongo update", ftn);
+                //         constrainedFieldUpdated = true;
+                //         break;
+                //     }
+                // }
+                DocUpdater docUpdater = new IterateAndUpdate(ctx.getFactory().getNodeFactory(), validator, roleEval, translator, updater,
+                                                             projector, errorProjector);
                 ctx.setProperty(PROP_UPDATER, docUpdater);
                 docUpdater.update(ctx, coll, md, response, mongoQuery);
                 ctx.getHookManager().queueHooks(ctx);
@@ -302,6 +277,15 @@ public class MongoCRUDController implements CRUDController {
         return response;
     }
 
+    // private boolean hasArray(FieldTreeNode ftn) {
+    //     do {
+    //         if(ftn instanceof ArrayNode)
+    //             return true;
+    //         ftn=ftn.getParent();
+    //     } while(ftn!=null);
+    //     return false;
+    // }
+
     @Override
     public CRUDDeleteResponse delete(CRUDOperationContext ctx,
                                      QueryExpression query) {
@@ -311,7 +295,7 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("delete start: q:{}", query);
         Error.push(OP_DELETE);
         CRUDDeleteResponse response = new CRUDDeleteResponse();
-        Translator translator = new Translator(ctx, nodeFactory);
+        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
         ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_DELETE,ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
@@ -360,7 +344,7 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
-        Translator translator = new Translator(ctx, nodeFactory);
+        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
         ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_FIND,ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
@@ -386,7 +370,7 @@ public class MongoCRUDController implements CRUDController {
                 // Project results
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 for (DocCtx document : ctx.getDocuments()) {
-                    document.setOutputDocument(projector.project(document, nodeFactory));
+                    document.setOutputDocument(projector.project(document, ctx.getFactory().getNodeFactory()));
                 }
                 ctx.getHookManager().queueHooks(ctx);
             } else {

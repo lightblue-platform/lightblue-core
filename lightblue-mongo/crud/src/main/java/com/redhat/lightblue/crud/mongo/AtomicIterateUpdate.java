@@ -45,6 +45,8 @@ import com.redhat.lightblue.util.Path;
 
 /**
  * Atomic updater that evaluates the query, and updates the documents one by one using atomic updates
+ *
+ * This class is probably useless. It makes things complicated for update.
  */
 public class AtomicIterateUpdate implements DocUpdater {
 

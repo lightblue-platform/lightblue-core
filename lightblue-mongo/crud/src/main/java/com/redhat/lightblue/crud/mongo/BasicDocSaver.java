@@ -93,11 +93,11 @@ public class BasicDocSaver implements DocSaver {
                     inputDoc.setOriginalDocument(oldDoc);
                     List<Path> paths = roleEval.getInaccessibleFields_Update(inputDoc, oldDoc);
                     if (paths == null || paths.isEmpty()) {
-                        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_SAVE_UPDATE_DOC,ctx,inputDoc);
+                        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_DOC,ctx,inputDoc);
                         translator.addInvisibleFields(oldDBObject, dbObject, md);
                         result = new UpdateCommand(collection, q, dbObject, upsert, upsert, WriteConcern.SAFE).execute();
                         inputDoc.setOperationPerformed(Operation.UPDATE);
-                        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_SAVE_UPDATE_DOC,ctx,inputDoc);
+                        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_DOC,ctx,inputDoc);
                     } else {
                         inputDoc.addError(Error.get("update",
                                 CrudConstants.ERR_NO_FIELD_UPDATE_ACCESS, paths.toString()));
@@ -142,10 +142,10 @@ public class BasicDocSaver implements DocSaver {
             LOGGER.debug("Inaccessible fields:{}", paths);
             if (paths == null || paths.isEmpty()) {
                 try {
-                    ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_SAVE_INSERT_DOC,ctx,inputDoc);
+                    ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_INSERT_DOC,ctx,inputDoc);
                     WriteResult r = new InsertCommand(collection, dbObject, WriteConcern.SAFE).execute();
                     inputDoc.setOperationPerformed(Operation.INSERT);
-                    ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_SAVE_INSERT_DOC,ctx,inputDoc);
+                    ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_INSERT_DOC,ctx,inputDoc);
                    return r;
                 } catch (MongoException.DuplicateKey dke) {
                     LOGGER.error("saveOrInsert failed: {}", dke);

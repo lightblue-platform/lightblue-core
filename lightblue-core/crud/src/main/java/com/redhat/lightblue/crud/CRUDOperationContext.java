@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.util.Error;
@@ -52,14 +51,13 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     public CRUDOperationContext(Operation op,
                                 String entityName,
                                 Factory f,
-                                JsonNodeFactory nf,
                                 Set<String> callerRoles,
                                 List<JsonDoc> docs) {
         this.operation = op;
         this.entityName = entityName;
         this.factory = f;
         this.callerRoles = callerRoles;
-        this.hookManager = new HookManager(factory.getHookResolver(), nf);
+        this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         if (docs != null) {
             documents = new ArrayList<>(docs.size());
             for (JsonDoc doc : docs) {

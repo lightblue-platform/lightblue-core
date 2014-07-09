@@ -35,6 +35,14 @@ import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.types.UIDType;
 
 /**
+ * Initializes UID fields based on required/not-required status, and
+ * whether they're already initialized or not.
+ *
+ * <ul>
+ *  <li>If a UID field is required, it is inserted into the document if it is not already there.</li>
+ *  <li>If a UID field is not required and if it exists in the document with null or empty content, it 
+ *  is initialized. Otherwise, it is not changed.</li>
+ * </ul>
  */
 public final class UIDFields {
 
@@ -51,7 +59,7 @@ public final class UIDFields {
                 LOGGER.debug("Processing UID field {}",p);
                 if(required(field)) {
                     LOGGER.debug("Field {} is required",p);
-                    setRequiredField(factory,doc,p,1,p.prefix(1));
+                    setRequiredField(factory,doc,p,1,null);
                 } else {
                     LOGGER.debug("Field {} is not required",p);
                     JsonNodeCursor nodeCursor=doc.cursor(p);
@@ -72,30 +80,40 @@ public final class UIDFields {
                                          JsonDoc doc,
                                          Path fieldPath,
                                          int startSegment,
-                                         Path targetPath) {
+                                         Path resolvedPath) {
+        LOGGER.debug("setRequiredField: fieldPath:{} startSegment:{} resolvedPath:{}",fieldPath,startSegment,resolvedPath);
         int nSegments=fieldPath.numSegments();
         boolean array=false;
         for(int segment=startSegment;segment<nSegments;segment++) {
             if(fieldPath.head(segment).equals(Path.ANY)) {
                 array=true;
-                MutablePath arrPath=new MutablePath(fieldPath.head(segment-1));
+                MutablePath arrPath=new MutablePath(resolvedPath==null?fieldPath.prefix(segment):resolvedPath.prefix(segment));
+                LOGGER.debug("Processing segment {}", arrPath);
                 JsonNode node=doc.get(arrPath);
-                int size=node.size();
-                arrPath.push(0);
-                for(int i=0;i<size;i++) {
-                    setRequiredField(factory,doc,fieldPath,segment+1,arrPath.immutableCopy());
-                    arrPath.setLast(i);
+                if(node!=null) {
+                    int size=node.size();
+                    LOGGER.debug("{} size={}",arrPath,size);
+                    arrPath.push(0);
+                    for(int i=0;i<size;i++) {
+                        arrPath.setLast(i);
+                        setRequiredField(factory,doc,fieldPath,segment+1,arrPath.immutableCopy());
+                    }
                 }
                 break;
             }
         }
         if(!array) {
-            LOGGER.debug("Setting {}",targetPath);
-            JsonNode valueNode=doc.get(targetPath);
+            Path p;
+            if(resolvedPath==null)
+                p=fieldPath;
+            else
+                p=new MutablePath(fieldPath).rewriteIndexes(resolvedPath);
+            LOGGER.debug("Setting {}",p);
+            JsonNode valueNode=doc.get(p);
             if(valueNode==null||valueNode.isNull()||valueNode.asText().length()==0) {
                 String value=UIDType.newValue();
-                LOGGER.debug("Setting {} to {}",targetPath,value);
-                doc.modify(targetPath,factory.textNode(value),true);
+                LOGGER.debug("Setting {} to {}",p,value);
+                doc.modify(p,factory.textNode(value),true);
             }
         }
     }
