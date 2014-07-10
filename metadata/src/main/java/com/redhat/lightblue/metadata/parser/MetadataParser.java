@@ -112,6 +112,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_CONFIGURATION = "configuration";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataParser.class);
+    private static final Set<String> ENTITY_INFO_FIELDS= Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
 
     private final Extensions<T> extensions;
     private final TypeResolver typeResolver;
@@ -204,12 +205,23 @@ public abstract class MetadataParser<T> {
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
 
-            final Set<String> ENTITY_INFO_FIELDS= Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
+            parsePropertyParser(object,info.getProperties());
+
+            return info;
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public void parsePropertyParser(T object, Map<String, Object> properties) {
+        Error.push("parsePropertyParser");
+        try {
+
             Set<String> propertyFields = findFieldsNotIn(object,ENTITY_INFO_FIELDS);
             for(String property:propertyFields) {
                 PropertyParser p = extensions.getPropertyParser(property);
                 if(p!=null) {
-                    p.parseProperty(this, property, info.getProperties(), getObjectProperty(object, property));
+                    p.parseProperty(this, property, properties, getObjectProperty(object, property));
                 }
             }
             return info;
@@ -407,6 +419,8 @@ public abstract class MetadataParser<T> {
 
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
             parseEntityConstraints(schema, constraints);
+
+            parsePropertyParser(object,schema.getProperties());
 
             return schema;
         } catch (Error e) {
@@ -709,6 +723,8 @@ public abstract class MetadataParser<T> {
                         getObjectProperty(object, STR_ACCESS));
                 parseFieldConstraints(field,
                         getObjectProperty(object, STR_CONSTRAINTS));
+
+                parsePropertyParser(object,field.getProperties());
             } else {
                 field = null;
             }
