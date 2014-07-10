@@ -40,7 +40,7 @@ rw tries to update password:
 
   curl -H Content-Type:application/json -u rw:123qweasd! -X POST  -d '{
 "object_type":"user",
-"returning": { "field":"_id"},
+"projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
  "update": [ {"$set": {"password.hashed":"blah"} } ]
@@ -52,7 +52,7 @@ admin tries to update password:
 
   curl -H Content-Type:application/json -u lbadmin:123qweasd! -X POST  -d '{
 "object_type":"user",
-"returning": { "field":"_id"},
+"projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
  "update": [ {"$set": {"password.hashed":"blah-admin"} } ]
@@ -88,7 +88,7 @@ rw tries to create user:
 rw tries to update password:
   ./POST  ${host}/data/update/user/3.0.0 '{
 "object_type":"user",
-"returning": { "field":"_id"},
+"projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
  "update": [ {"$set": {"password.hashed":"blah"} } ]
@@ -100,7 +100,7 @@ rw tries to update password:
 admin tries to update password:
    ./POST ${host}/data/update/user/3.0.0 '{
 "object_type":"user",
-"returning": { "field":"_id"},
+"projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak2*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar2"} ] },
  "update": [ {"$set": {"password.hashed":"blah-admin"} } ]

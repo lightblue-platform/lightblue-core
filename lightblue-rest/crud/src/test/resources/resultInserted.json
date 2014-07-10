@@ -6,7 +6,7 @@
         "iso2code": "CA",
         "iso3code": "CAN"
     }],
-    "returning": [{
+    "projection": [{
         "field": "*",
         "include": true
     }]

@@ -6,7 +6,7 @@
         "op": "=",
         "rvalue": "CA"
     },
-    "returning": [{
+    "projection": [{
         "field": "name",
         "include": true
     }],

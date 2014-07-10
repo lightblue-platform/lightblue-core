@@ -69,7 +69,7 @@ public class SaveRequest extends DocRequest {
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         if (returnFields != null) {
-            node.set("returning", returnFields.toJson());
+            node.set("projection", returnFields.toJson());
         }
         node.put("upsert", upsert);
         return node;
@@ -81,7 +81,7 @@ public class SaveRequest extends DocRequest {
     public static SaveRequest fromJson(ObjectNode node) {
         SaveRequest req = new SaveRequest();
         req.parse(node);
-        JsonNode x = node.get("returning");
+        JsonNode x = node.get("projection");
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }

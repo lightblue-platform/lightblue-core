@@ -1,7 +1,7 @@
 {
 "object_type":"user",
 "version":"3.0.0",
-"returning":{
+"projection":{
   "field":"_id"
   },
 "data":[{

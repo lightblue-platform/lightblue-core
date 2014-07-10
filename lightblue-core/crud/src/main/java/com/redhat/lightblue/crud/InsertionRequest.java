@@ -54,7 +54,7 @@ public class InsertionRequest extends DocRequest {
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
         if (returnFields != null) {
-            node.set("returning", returnFields.toJson());
+            node.set("projection", returnFields.toJson());
         }
         return node;
     }
@@ -65,7 +65,7 @@ public class InsertionRequest extends DocRequest {
     public static InsertionRequest fromJson(ObjectNode node) {
         InsertionRequest req = new InsertionRequest();
         req.parse(node);
-        JsonNode x = node.get("returning");
+        JsonNode x = node.get("projection");
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
