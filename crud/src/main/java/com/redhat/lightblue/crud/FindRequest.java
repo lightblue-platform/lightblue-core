@@ -122,7 +122,7 @@ public class FindRequest extends Request {
             node.set("query", query.toJson());
         }
         if (projection != null) {
-            node.set("returning", projection.toJson());
+            node.set("projection", projection.toJson());
         }
         if (sort != null) {
             node.set("sort", sort.toJson());
@@ -146,7 +146,7 @@ public class FindRequest extends Request {
         if (x != null) {
             req.query = QueryExpression.fromJson(x);
         }
-        x = node.get("returning");
+        x = node.get("projection");
         if (x != null) {
             req.projection = Projection.fromJson(x);
         }

@@ -90,7 +90,7 @@ public class UpdateRequest extends Request {
             node.set("update", updateExpression.toJson());
         }
         if (returnFields != null) {
-            node.set("returning", returnFields.toJson());
+            node.set("projection", returnFields.toJson());
         }
         return node;
     }
@@ -109,7 +109,7 @@ public class UpdateRequest extends Request {
         if (x != null) {
             req.updateExpression = UpdateExpression.fromJson(x);
         }
-        x = node.get("returning");
+        x = node.get("projection");
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
