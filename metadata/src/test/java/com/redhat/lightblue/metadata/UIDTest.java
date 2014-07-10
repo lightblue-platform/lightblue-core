@@ -32,11 +32,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.types.UIDType;
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class UIDTest {
 
@@ -148,5 +155,30 @@ public class UIDTest {
         Assert.assertNotNull(doc.get(new Path("obj1.nested.objArr.0.nestedArrObjUID")));
         Assert.assertNotNull(doc.get(new Path("obj1.nested.objArr.1.nestedArrObjUID")));
         Assert.assertNull(doc.get(new Path("obj1.nested.objArr.2.nestedArrObjUID")));
+    }
+
+    @Test
+    public void userTest() throws Exception {
+        JsonNode node=JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
+        Extensions<JsonNode> extensions=new Extensions<JsonNode>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo",new DataStoreParser<JsonNode>() {
+                public String getDefaultName() {
+                    return "mongo";
+                }
+                public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {return new DataStore() {
+                        public String getBackend() { return "mongo";} }; 
+                }
+                
+                public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
+                }
+            });
+        JSONMetadataParser parser=new JSONMetadataParser(extensions,new DefaultTypes(),nodeFactory);
+        EntityMetadata md=parser.parseEntityMetadata(node);
+
+        JsonNode userNode=JsonUtils.json(getClass().getResourceAsStream("/userdata.json"));
+        JsonDoc doc=new JsonDoc(userNode);
+        UIDFields.initializeUIDFields(nodeFactory,md,doc);
+        System.out.println(doc);
     }
 }

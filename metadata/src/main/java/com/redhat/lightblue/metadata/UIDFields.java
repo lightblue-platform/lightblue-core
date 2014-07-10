@@ -30,6 +30,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.JsonNodeCursor;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.types.UIDType;
@@ -62,15 +63,16 @@ public final class UIDFields {
                     setRequiredField(factory,doc,p,1,null);
                 } else {
                     LOGGER.debug("Field {} is not required",p);
-                    JsonNodeCursor nodeCursor=doc.cursor(p);
-                    while(nodeCursor.next()) {
-                        JsonNode valueNode=nodeCursor.getCurrentNode();
+                    KeyValueCursor<Path,JsonNode> nodeCursor=doc.getAllNodes(p);
+                    while(nodeCursor.hasNext()) {
+                        nodeCursor.next();
+                        JsonNode valueNode=nodeCursor.getCurrentValue();
                         if(valueNode.isNull()||valueNode.asText().length()==0) {
                             String value=UIDType.newValue();
-                            LOGGER.debug("Setting {} to {}",nodeCursor.getCurrentPath(),value);
-                            doc.modify(nodeCursor.getCurrentPath(),factory.textNode(value),true);
+                            LOGGER.debug("Setting {} to {}",nodeCursor.getCurrentKey(),value);
+                            doc.modify(nodeCursor.getCurrentKey(),factory.textNode(value),true);
                         }
-                    }
+                    } 
                 }
             }
         }
@@ -87,7 +89,9 @@ public final class UIDFields {
         for(int segment=startSegment;segment<nSegments;segment++) {
             if(fieldPath.head(segment).equals(Path.ANY)) {
                 array=true;
-                MutablePath arrPath=new MutablePath(resolvedPath==null?fieldPath.prefix(segment):resolvedPath.prefix(segment));
+                MutablePath arrPath=new MutablePath(fieldPath.prefix(segment));
+                if(resolvedPath!=null)
+                    arrPath.rewriteIndexes(resolvedPath);
                 LOGGER.debug("Processing segment {}", arrPath);
                 JsonNode node=doc.get(arrPath);
                 if(node!=null) {
@@ -123,7 +127,7 @@ public final class UIDFields {
         if(constraints!=null)
             for(FieldConstraint c:constraints)
                 if(c instanceof RequiredConstraint)
-                    return true;
+                    return ((RequiredConstraint)c).getValue();
         return false;
     }
 
