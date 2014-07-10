@@ -28,6 +28,7 @@ import com.redhat.lightblue.config.metadata.MetadataManager;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.util.JsonUtils;
@@ -65,6 +66,9 @@ public final class CrudManager {
 
         Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
+
+        // Add default interceptors
+        new UIDInterceptor().register(factory.getInterceptors());
 
         // validate
         if (!configuration.isValid()) {

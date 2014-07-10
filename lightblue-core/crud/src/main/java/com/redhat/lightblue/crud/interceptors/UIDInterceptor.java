@@ -18,23 +18,39 @@
  */
 package com.redhat.lightblue.crud.interceptors;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 
+import com.redhat.lightblue.mediator.OperationContext;
+
 import com.redhat.lightblue.metadata.UIDFields;
+import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.interceptor.CRUDDocInterceptor;
+import com.redhat.lightblue.interceptor.MediatorInterceptor;
 import com.redhat.lightblue.interceptor.InterceptorManager;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 
-public class UIDInterceptor implements CRUDDocInterceptor {
+public class UIDInterceptor implements CRUDDocInterceptor, MediatorInterceptor {
 
     public static final int UID_SEQ=500;
 
     public void register(InterceptorManager mgr) {
         mgr.registerInterceptor(UID_SEQ,this,InterceptPoint.PRE_CRUD_INSERT_DOC,
-                                InterceptPoint.PRE_CRUD_UPDATE_DOC);
+                                InterceptPoint.PRE_CRUD_UPDATE_DOC,
+                                InterceptPoint.PRE_MEDIATOR_INSERT);
+    }
+
+    @Override
+    public void run(OperationContext ctx) {
+        JsonNodeFactory nodeFactory=ctx.getFactory().getNodeFactory();
+        EntityMetadata md=ctx.getEntityMetadata(ctx.getEntityName());
+        for(DocCtx doc:ctx.getDocuments()) {
+            UIDFields.initializeUIDFields(nodeFactory,md,doc);
+        }
     }
 
     @Override
