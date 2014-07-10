@@ -7,22 +7,6 @@
        <url-pattern>/*</url-pattern>
     </servlet-mapping>
     
-    <!--security-constraint>
-        <web-resource-collection>
-            <web-resource-name>HtmlAuth</web-resource-name>
-            <description>application security constraints
-            </description>
-            <url-pattern>/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>lightblue-user</role-name>
-        </auth-constraint>
-    </security-constraint-->
-    <!--login-config>
-        <auth-method>BASIC</auth-method>
-        <realm-name>ApplicationRealm</realm-name>
-    </login-config-->
-    
     <servlet>
         <description></description>
         <display-name>HystrixMetricsStreamServlet</display-name>
@@ -33,6 +17,15 @@
     <servlet-mapping>
         <servlet-name>HystrixMetricsStreamServlet</servlet-name>
         <url-pattern>/hystrix.stream</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>health</servlet-name>
+        <jsp-file>/health.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>health</servlet-name>
+        <url-pattern>/health</url-pattern>
     </servlet-mapping>
 
 </web-app>

@@ -130,6 +130,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </dependencies>
     <modules>
         <module>crud</module>
+        <module>crud-basic-auth</module>
+        <module>crud-cert-auth</module>
         <module>metadata</module>
         <module>metadata-basic-auth</module>
         <module>metadata-cert-auth</module>
@@ -151,4 +153,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>wildfly</id>
+            <properties>
+                <rpm.install.basedir>/usr/share/wildfly/standalone/deployments</rpm.install.basedir>
+            </properties>
+        </profile>
+    </profiles>
 </project>
