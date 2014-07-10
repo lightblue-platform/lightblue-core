@@ -79,42 +79,51 @@
                     <attachClasses>true</attachClasses>
                 </configuration>
             </plugin>
-            <!-- RPM packing -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rpm-maven-plugin</artifactId>
-                <version>2.1-alpha-3</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>rpm</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <name>lightblue-${project.artifactId}</name>
-                    <copyright>Red Hat</copyright>
-                    <distribution>RHEL</distribution>
-                    <group>Lightblue Platform</group>
-                    <packager>${user.name}</packager>
-                    <defaultFilemode>744</defaultFilemode>
-                    <defaultUsername>jboss</defaultUsername>
-                    <defaultGroupname>jboss</defaultGroupname>
-                    <mappings>
-                        <mapping>
-                            <directory>${rpm.install.basedir}</directory>
-                            <directoryIncluded>false</directoryIncluded>
-                            <sources>
-                                <source>
-                                    <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                    </mappings>
-                </configuration>
-            </plugin>
-      </plugins>
+        </plugins>
     </build>
+    <profiles>
+       <profile>
+           <id>rpm</id>
+           <build>
+             <plugins>
+               <!-- RPM packing -->
+               <plugin>
+                   <groupId>org.codehaus.mojo</groupId>
+                   <artifactId>rpm-maven-plugin</artifactId>
+                   <version>2.1-alpha-3</version>
+                   <extensions>true</extensions>
+                   <executions>
+                       <execution>
+                           <goals>
+                               <goal>rpm</goal>
+                           </goals>
+                           <phase>verify</phase>
+                       </execution>
+                   </executions>
+                   <configuration>
+                       <name>lightblue-${project.artifactId}</name>
+                       <copyright>Red Hat</copyright>
+                       <distribution>RHEL</distribution>
+                       <group>Lightblue Platform</group>
+                       <packager>${user.name}</packager>
+                       <defaultFilemode>744</defaultFilemode>
+                       <defaultUsername>jboss</defaultUsername>
+                       <defaultGroupname>jboss</defaultGroupname>
+                       <mappings>
+                           <mapping>
+                               <directory>${rpm.install.basedir}</directory>
+                               <directoryIncluded>false</directoryIncluded>
+                               <sources>
+                                   <source>
+                                       <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
+                                   </source>
+                               </sources>
+                           </mapping>
+                       </mappings>
+                   </configuration>
+               </plugin>
+         </plugins>
+       </build>
+     </profile>
+   </profiles>
 </project>
