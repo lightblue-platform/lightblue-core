@@ -3,8 +3,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
   <servlet-mapping>
-    <servlet-name>com.redhat.lightblue.rest.metadata.RestApplication</servlet-name>
-    <url-pattern>/*</url-pattern>
+     <servlet-name>com.redhat.lightblue.rest.crud.RestApplication</servlet-name>
+     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -40,5 +40,15 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
     <description>The roles that are required to log into the rest-crud services</description>
     <role-name>authenticated</role-name>
   </security-role>
+  
+  <servlet>
+    <servlet-name>request</servlet-name>
+    <servlet-class>com.redhat.lightblue.rest.auth.util.RequestDumper</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>request</servlet-name>
+    <url-pattern>/request</url-pattern>
+  </servlet-mapping>
   
 </web-app>

@@ -129,6 +129,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </dependency>
     </dependencies>
     <modules>
+        <module>auth</module>
         <module>crud</module>
         <module>crud-basic-auth</module>
         <module>crud-cert-auth</module>

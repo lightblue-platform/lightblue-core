@@ -43,4 +43,14 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
     <role-name>authenticated</role-name>
   </security-role>
   
+  <servlet>
+    <servlet-name>request</servlet-name>
+    <servlet-class>com.redhat.lightblue.rest.auth.util.RequestDumper</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>request</servlet-name>
+    <url-pattern>/request</url-pattern>
+  </servlet-mapping>
+  
 </web-app>
