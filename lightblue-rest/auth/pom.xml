@@ -15,7 +15,7 @@
   <repositories>
     <repository>
       <id>jboss</id>
-      <url>https://repository.jboss.org/nexus/content/repositories/</url>
+      <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
       <releases>
           <enabled>true</enabled>
       </releases>
