@@ -12,6 +12,18 @@
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>lightblue-rest: ${project.groupId}|${project.artifactId}</name>
+  <repositories>
+    <repository>
+      <id>jboss</id>
+      <url>https://repository.jboss.org/nexus/content/repositories/</url>
+      <releases>
+          <enabled>true</enabled>
+      </releases>
+      <snapshots>
+          <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.jboss.security</groupId>
