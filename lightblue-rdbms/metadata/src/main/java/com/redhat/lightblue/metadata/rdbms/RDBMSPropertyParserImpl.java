@@ -89,7 +89,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 DynamicConditional c = new DynamicConditional();
                 /*
                 maybe change the
-                 /home/lcestari/repositories/lb/lightblue/lightblue-rdbms/metadata/src/main/resources/json-schema/metadata/rdbms/metadata/if.json
+                 /home/lcestari/repositories/lb/lightblue/lightblue-rdbms/metadata/src/main/resources/json-schema/metadata/rdbms/metadata/conditional.json
                   to
                  /home/lcestari/repositories/lb/lightblue/lightblue-core/query-api/src/main/resources/json-schema/query/conditional.json
                  so the rdbms would look like the query api

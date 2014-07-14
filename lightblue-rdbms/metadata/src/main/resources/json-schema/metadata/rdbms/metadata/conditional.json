@@ -11,26 +11,36 @@
         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
         "GNU General Public License for more details.",
         "You should have received a copy of the GNU General Public License",
-        "along with this program.  If not, see <http://www.gnu.org/licenses/>."
-    ],
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>."],
+    "id": "#conditional",
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "documentPath":{
-            "type" : "string"
+        "$or": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "$ref": "choice.json#/definitions/query"
+            },
+            "description": "Match any of the conditions provided as queries."
         },
-        "isarray":{
-            "type" : "boolean"
+        "$any": {
+            "$ref": "#/properties/$or"
         },
-        "isaccumulative":{
-            "type" : "boolean"
+        "$and": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "$ref": "choice.json#/definitions/query"
+            },
+            "description": "Match all of the conditions provided as queries."
         },
-        "columnName" : {
-            "type" : "string"
+        "$all": {
+            "$ref": "#/properties/$and"
         },
-        "variableName":{
-            "type" : "string"
-        },
+        "$not": {
+            "$ref": "choice.json#/definitions/query"
+        }
     },
     "additionalProperties": false
 }
