@@ -16,14 +16,106 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "$or": {
-            "type": "array",
-            "minItems": 2,
-            "items": {
-                "$ref": "choice.json#/definitions/query"
-            },
-            "description": "Match any of the conditions provided as queries."
-        },
+      "$or": {
+        "description": "This piece of schema will be in conditional.json to avoid duplication",
+        "type": "array",
+        "minItems": 2,
+        "items": {
+          "anyOf": [{
+            "$ref": "conditional.json#/properties/oneOf/$or"
+          }, {
+            "$ref": "conditional.json#/properties/oneOf/$any"
+          }, {
+            "$ref": "conditional.json#/properties/oneOf/$and"
+          }, {
+            "$ref": "conditional.json#/properties/oneOf/$all"
+          }, {
+            "$ref": "conditional.json#/properties/oneOf/$not"
+          }, {
+            "description": "This schema will be in path-empty.json",
+            "type": "object",
+            "properties": {
+              "conditional": {
+                "enum": ["$isempty"]
+              },
+              "path1": {
+                "type": "string"
+              }
+            }
+          }, {
+            "description": "This schema will be in path-check-path.json",
+            "type": "object",
+            "properties": {
+              "conditional": {
+                "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
+              },
+              "path1": {
+                "type": "string"
+              },
+              "path2": {
+                "type": "string"
+              }
+            }
+          }, {
+            "description": "This schema will be in path-check-value.json",
+            "type": "object",
+            "properties": {
+              "conditional": {
+                "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
+              },
+              "path1": {
+                "type": "string"
+              },
+              "value2": {
+                "type": "string"
+              }
+            }
+          }, {
+            "description": "This schema will be in path-check-values.json",
+            "type": "object",
+            "properties": {
+              "conditional": {
+                "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
+              },
+              "path1": {
+                "type": "string"
+              },
+              "values2": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            }
+          }, {
+            "description": "This schema will be in path-regex.json",
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "regex": {
+                "type": "string",
+                "format": "regex"
+              },
+              "case_insensitive": {
+                "type": "boolean"
+              },
+              "multiline": {
+                "type": "boolean"
+              },
+              "extended": {
+                "type": "boolean"
+              },
+              "dotall": {
+                "type": "boolean"
+              }
+            }
+          }]
+        }
+      },
         "$any": {
             "$ref": "#/properties/$or"
         },
