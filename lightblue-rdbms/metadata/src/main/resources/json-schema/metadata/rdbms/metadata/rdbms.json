@@ -13,8 +13,8 @@
     "You should have received a copy of the GNU General Public License",
     "along with this program.  If not, see <http://www.gnu.org/licenses/>."
   ],
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "$schema": "http://json-schema.org/draft-03/schema",
   "id": "rdbms",
   "properties": {
     "delete": {
@@ -37,5 +37,12 @@
       "$ref": "operation.json#",
       "id": "update"
     }
-  }
+  },
+  "required": [
+    "delete",
+    "insert",
+    "save",
+    "update"
+  ],
+  "additionalProperties": false
 }

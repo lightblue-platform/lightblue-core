@@ -1,5 +1,5 @@
 {
-    "copyright": [
+  "copyright": [
         "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
         "This file is part of lightblue.",
         "This program is free software: you can redistribute it and/or modify",
@@ -15,7 +15,7 @@
 
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "id": "insert",
+  "id": "operation",
   "properties": {
     "bindings": {
       "type": "object",
@@ -31,11 +31,14 @@
               "path": {
                 "type": "string"
               }
-            }
+            },
+          "required": [
+          ],
+          "additionalProperties": false
           }
         },
         "out": {
-          "$ref": "#/properties/insert/bindings/in"
+          "$ref": "#/properties/bindings/in"
         }
       }
     },
@@ -64,35 +67,11 @@
           "type": "object",
           "properties": {
             "if": {
-              "type": "object",
-              "properties": {
-                "oneOf": [{
-                    "$ref": "conditional.json#/properties/$or"
-                  }, {
-                    "$ref": "conditional.json#/properties/$any"
-                  }, {
-                    "$ref": "conditional.json#/properties/$and"
-                  }, {
-                    "$ref": "conditional.json#/properties/$all"
-                  }, {
-                    "$ref": "conditional.json#/properties/$not"
-                  }, {
-                    "$ref": "conditional.json#/properties/path-empty.json"
-                  }, {
-                    "$ref": "conditional.json#/properties/path-check-path.json"
-                  }, {
-                    "$ref": "conditional.json#/properties/path-check-value.json"
-                  }, {
-                    "$ref": "conditional.json#/properties/path-check-values.json"
-                  }, {
-                    "$ref": "conditional.json#/properties/path-regex.json"
-                  }
-                ]
-              }
+              "$ref": "if.json#"
             },
             "then": {
               "oneOf": [{
-                "$ref": "construct.json#expressions"
+                "$ref": "#/properties/expressions"
               }, {
                 "enum": ["$fail", "$continue", "$break"]
               }]
@@ -101,15 +80,19 @@
               "type": "array",
               "items": {
                 "allOf": [{
-                  "$ref": "#properties/if"
+                  "$ref": "if.json#"
                 }, {
-                  "$ref": "#properties/then"
+                  "oneOf": [{
+                    "$ref": "#/properties/expressions"
+                  }, {
+                    "enum": ["$fail", "$continue", "$break"]
+                  }]
                 }]
               }
             },
             "else": {
               "oneOf": [{
-                "$ref": "construct.json#expressions"
+                "$ref": "#/properties/expressions"
               }, {
                 "enum": ["$fail", "$continue", "$break"]
               }]
@@ -124,7 +107,7 @@
                   "type": "string"
                 },
                 "expressions": {
-                  "$ref": "construct.json#expressions"
+                  "$ref": "#/properties/expressions"
                 }
               }
             }
@@ -141,7 +124,7 @@
                   "type": "string"
                 },
                 "expressions": {
-                  "$ref": "construct.json#expressions"
+                  "$ref": "#/properties/expressions"
                 }
               }
             }
@@ -150,9 +133,9 @@
       }
     }
   },
-    "required": [
-        "bindings",
-        "expressions"
-    ],
-    "additionalProperties": false
+  "required": [
+    "bindings",
+    "expressions"
+  ],
+  "additionalProperties": false
 }
