@@ -16,179 +16,138 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-      "$or": {
-        "description": "Match any",
-        "type": "array",
-        "minItems": 1,
-        "items": {
-          "anyOf": [{
-            "$ref": "#/properties/$or"
-          }, {
-            "$ref": "#/properties/$any"
-          }, {
-            "$ref": "#/properties/$and"
-          }, {
-            "$ref": "#/properties/$all"
-          }, {
-            "$ref": "#/properties/$not"
-          }, {
-            "$ref": "#/properties/path-empty"
-          }, {
-            "$ref": "#/properties/path-check-path"
-          }, {
-            "$ref": "#/properties/path-check-value"
-          }, {
-            "$ref": "#/properties/path-check-values"
-          }, {
-            "$ref": "#/properties/path-regex"
-          }]
-        }
-      },
-      "path-empty" : {
-        "type": "object",
-        "properties": {
-          "conditional": {
-            "enum": ["$isempty"]
-          },
-          "path1": {
-            "type": "string"
-          }
-        }
-      },
-      "path-check-path" : {
-        "type": "object",
-        "properties": {
-          "conditional": {
-            "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
-          },
-          "path1": {
-            "type": "string"
-          },
-          "path2": {
-            "type": "string"
-          }
-        }
-      },
-      "path-check-value" : {
-        "type": "object",
-        "properties": {
-          "conditional": {
-            "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
-          },
-          "path1": {
-            "type": "string"
-          },
-          "value2": {
-            "type": "string"
-          }
-        }
-      },
-      "path-check-values" : {
-        "type": "object",
-        "properties": {
-          "conditional": {
-            "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
-          },
-          "path1": {
-            "type": "string"
-          },
-          "values2": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-              "type": "string"
-            },
-            "uniqueItems": true
-          }
-        }
-      },
-      "path-regex" : {
-        "type": "object",
-        "properties": {
-          "path": {
-            "type": "string"
-          },
-          "regex": {
-            "type": "string",
-            "format": "regex"
-          },
-          "case_insensitive": {
-            "type": "boolean"
-          },
-          "multiline": {
-            "type": "boolean"
-          },
-          "extended": {
-            "type": "boolean"
-          },
-          "dotall": {
-            "type": "boolean"
-          }
-        }
-      },
-    "$any": {
+    "$or": {
+      "description": "Match any",
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "if.json#/definitions/if"
+      }
+    },
+   "$any": {
         "$ref": "#/properties/$or"
     },
     "$and": {
         "description": "Match all",
-        "type": "array",
-        "minItems": 1,
-        "items": {
-          "anyOf": [{
-            "$ref": "#/properties/$or"
-          }, {
-            "$ref": "#/properties/$any"
-          }, {
-            "$ref": "#/properties/$and"
-          }, {
-            "$ref": "#/properties/$all"
-          }, {
-            "$ref": "#/properties/$not"
-          }, {
-            "$ref": "#/properties/path-empty"
-          }, {
-            "$ref": "#/properties/path-check-path"
-          }, {
-            "$ref": "#/properties/path-check-value"
-          }, {
-            "$ref": "#/properties/path-check-values"
-          }, {
-            "$ref": "#/properties/path-regex"
-          }]
-        }
+        "$ref": "#/properties/$or"
     },
     "$all": {
         "$ref": "#/properties/$and"
     },
     "$not": {
         "description": "Charge the evaluation from true to false vice versa",
-        "type": "object",
-        "properties": {
-          "anyOf": [{
-            "$ref": "#/properties/$or"
-          }, {
-            "$ref": "#/properties/$any"
-          }, {
-            "$ref": "#/properties/$and"
-          }, {
-            "$ref": "#/properties/$all"
-          }, {
-            "$ref": "#/properties/$not"
-          }, {
-            "$ref": "#/properties/path-empty"
-          }, {
-            "$ref": "#/properties/path-check-path"
-          }, {
-            "$ref": "#/properties/path-check-value"
-          }, {
-            "$ref": "#/properties/path-check-values"
-          }, {
-            "$ref": "#/properties/path-regex"
-          }]
-        }
-    }
+        "$ref": "if.json#/definitions/if"
+    },
+   "path-empty" : {
+     "type": "object",
+     "properties": {
+       "conditional": {
+         "enum": ["$isempty"]
+       },
+       "path1": {
+         "type": "string"
+       }
+     },
+       "required": [
+         "conditional",
+         "path1"
+       ],
+       "additionalProperties": false
+   },
+   "path-check-path" : {
+     "type": "object",
+     "properties": {
+       "conditional": {
+         "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
+       },
+       "path1": {
+         "type": "string"
+       },
+       "path2": {
+         "type": "string"
+       }
+     },
+     "required": [
+       "conditional",
+       "path1",
+       "path2"
+     ],
+     "additionalProperties": false
+   },
+   "path-check-value" : {
+     "type": "object",
+     "properties": {
+       "conditional": {
+         "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
+       },
+       "path1": {
+         "type": "string"
+       },
+       "value2": {
+         "type": "string"
+       }
+     },
+     "required": [
+       "conditional",
+       "path1",
+       "value2"
+     ],
+     "additionalProperties": false
+   },
+   "path-check-values" : {
+     "type": "object",
+     "properties": {
+       "conditional": {
+         "enum": ["$greaterThan", "$lessThan", "$equalTo", "$notEqualTo", "$greaterThanOrEqualTo", "$lessThanOrEqualTo", "$in", "$notIn", "$contains"]
+       },
+       "path1": {
+         "type": "string"
+       },
+       "values2": {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+           "type": "string"
+         },
+         "uniqueItems": true
+       }
+     },
+     "required": [
+       "conditional",
+       "path1",
+       "values2"
+     ],
+     "additionalProperties": false
+   },
+   "path-regex" : {
+     "type": "object",
+     "properties": {
+       "path": {
+         "type": "string"
+       },
+       "regex": {
+         "type": "string",
+         "format": "regex"
+       },
+       "case_insensitive": {
+         "type": "boolean"
+       },
+       "multiline": {
+         "type": "boolean"
+       },
+       "extended": {
+         "type": "boolean"
+       },
+       "dotall": {
+         "type": "boolean"
+       }
+     },
+     "required": [
+       "path",
+       "regex"
+     ],
+     "additionalProperties": false
+   }
   },
-  "required": [
-  ],
   "additionalProperties": false
 }

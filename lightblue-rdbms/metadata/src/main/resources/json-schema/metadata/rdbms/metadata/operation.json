@@ -32,8 +32,6 @@
                 "type": "string"
               }
             },
-          "required": [
-          ],
           "additionalProperties": false
           }
         },
@@ -62,12 +60,18 @@
               "id": "type",
               "enum": ["select", "insert", "update", "delete", "call"]
             }
-          }
+          },
+          "required": [
+            "datasource",
+            "sql",
+            "type"
+          ],
+          "additionalProperties": false
         }, {
           "type": "object",
           "properties": {
             "if": {
-              "$ref": "if.json#"
+              "$ref": "if.json#/definitions/if"
             },
             "then": {
               "oneOf": [{
@@ -97,35 +101,54 @@
                 "enum": ["$fail", "$continue", "$break"]
               }]
             }
-          }
+          },
+          "required": [
+              "if",
+              "then"
+            ],
+            "additionalProperties": false
         }, {
           "type": "object",
           "properties": {
             "$foreach": {
+              "type": "object",
               "properties": {
                 "iterateOverPath": {
+                  "description": "Iterate for each value of the given path (which can be a variable or an entity's field",
                   "type": "string"
                 },
                 "expressions": {
                   "$ref": "#/properties/expressions"
                 }
-              }
+              },
+              "required": [
+                "iterateOverPath",
+                "expressions"
+              ],
+              "additionalProperties": false
             }
           }
         }, {
           "type": "object",
           "properties": {
             "$foreach": {
+              "type": "object",
               "properties": {
                 "loopTimes": {
                   "type": "number"
                 },
-                "loopVariable": {
+                "loopCounterVariableName": {
                   "type": "string"
                 },
                 "expressions": {
                   "$ref": "#/properties/expressions"
-                }
+                },
+               "required": [
+                 "loopTimes",
+                 "loopCounterVariableName",
+                 "expressions"
+               ],
+               "additionalProperties": false
               }
             }
           }

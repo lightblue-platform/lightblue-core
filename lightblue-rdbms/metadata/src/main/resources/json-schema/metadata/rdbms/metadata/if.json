@@ -15,28 +15,12 @@
   "id": "#if",
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "properties": {
+  "definitions": {
+   "if": {
     "oneOf": [{
         "$ref": "conditional.json#"
-      }, {
-        "$ref": "conditional.json#/properties/$any"
-      }, {
-        "$ref": "conditional.json#/properties/$and"
-      }, {
-        "$ref": "conditional.json#/properties/$all"
-      }, {
-        "$ref": "conditional.json#/properties/$not"
-      }, {
-        "$ref": "conditional.json#/properties/path-empty.json"
-      }, {
-        "$ref": "conditional.json#/properties/path-check-path.json"
-      }, {
-        "$ref": "conditional.json#/properties/path-check-value.json"
-      }, {
-        "$ref": "conditional.json#/properties/path-check-values.json"
-      }, {
-        "$ref": "conditional.json#/properties/path-regex.json"
       }
     ]
+   }
   }
 }
