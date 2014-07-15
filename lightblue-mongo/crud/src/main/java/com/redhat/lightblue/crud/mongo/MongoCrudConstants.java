@@ -37,6 +37,8 @@ public final class MongoCrudConstants {
     public static final String ERR_SAVE_CLOBBERS_HIDDEN_FIELDS = "mongo-crud:SaveClobblersHiddenFields";
     public static final String ERR_TRANSLATION_ERROR = "mongo-crud:TranslationError";
 
+    public static final String ERR_ENTITY_INDEX_NOT_CREATED = "mongo-crud:EntityIndexNotCreated";
+
     private MongoCrudConstants() {
 
     }

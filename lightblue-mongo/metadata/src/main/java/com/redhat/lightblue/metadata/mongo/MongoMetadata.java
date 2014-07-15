@@ -339,7 +339,6 @@ public class MongoMetadata extends AbstractMetadata {
                     factory.getCRUDController(md.getEntityInfo().getDataStore().getBackend()).
                         newSchema(this,md);
 
-                    createUpdateEntityInfoIndexes(md.getEntityInfo());
                 } catch (MongoException.DuplicateKey dke) {
                     LOGGER.error("createNewMetadata: duplicateKey {}", dke);
                     new RemoveCommand(collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
@@ -369,113 +368,7 @@ public class MongoMetadata extends AbstractMetadata {
         LOGGER.debug("createNewMetadata: end");
     }
 
-    private void createUpdateEntityInfoIndexes(EntityInfo ei) {
-        LOGGER.debug("createUpdateEntityInfoIndexes: begin");
 
-        Indexes indexes = ei.getIndexes();
-
-        MongoDataStore ds = (MongoDataStore) ei.getDataStore();
-        DB entityDB = dbResolver.get(ds);
-        DBCollection entityCollection = entityDB.getCollection(ds.getCollectionName());
-        Error.push("createUpdateIndex");
-        try {
-            List<DBObject> existingIndexes = entityCollection.getIndexInfo();
-            LOGGER.debug("Existing indexes: {}", existingIndexes);
-            for (Index index : indexes.getIndexes()) {
-                boolean createIx = true;
-                LOGGER.debug("Processing index {}", index);
-
-                for (DBObject existingIndex : existingIndexes) {
-                    if (indexFieldsMatch(index, existingIndex)
-                            && indexOptionsMatch(index, existingIndex)) {
-                        LOGGER.debug("Same index exists, not creating");
-                        createIx = false;
-                        break;
-                    }
-                }
-
-                if (createIx) {
-                    for (DBObject existingIndex : existingIndexes) {
-                        if (indexFieldsMatch(index, existingIndex)
-                                && !indexOptionsMatch(index, existingIndex)) {
-                            LOGGER.debug("Same index exists with different options, dropping index:{}", existingIndex);
-                            // Changing index options, drop the index using its name, recreate with new options
-                            entityCollection.dropIndex(existingIndex.get(LITERAL_NAME).toString());
-                        }
-                    }
-                }
-
-                if (createIx) {
-                    DBObject newIndex = new BasicDBObject();
-                    for (SortKey p : index.getFields()) {
-                        newIndex.put(p.getField().toString(), p.isDesc() ? -1 : 1);
-                    }
-                    BasicDBObject options = new BasicDBObject("unique", index.isUnique());
-                    if (index.getName() != null && index.getName().trim().length() > 0) {
-                        options.append(LITERAL_NAME, index.getName().trim());
-                    }
-                    options.append("background",true);
-                    LOGGER.debug("Creating index {} with options {}", newIndex, options);
-                    entityCollection.createIndex(newIndex, options);
-                }
-            }
-        } catch (MongoException me) {
-            LOGGER.error("createUpdateEntityInfoIndexes: {}", ei);
-            throw Error.get(MongoMetadataConstants.ERR_ENTITY_INDEX_NOT_CREATED, me.getMessage());
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-
-        LOGGER.debug("createUpdateEntityInfoIndexes: end");
-    }
-
-    private boolean compareSortKeys(SortKey sortKey, String fieldName, Object dir) {
-        if (sortKey.getField().toString().equals(fieldName)) {
-            int direction = ((Number) dir).intValue();
-            return sortKey.isDesc() == (direction < 0);
-        }
-        return false;
-    }
-
-    private boolean indexFieldsMatch(Index index, DBObject existingIndex) {
-        BasicDBObject keys = (BasicDBObject) existingIndex.get("key");
-        if (keys != null) {
-            List<SortKey> fields = index.getFields();
-            if (keys.size() == fields.size()) {
-                Iterator<SortKey> sortKeyItr = fields.iterator();
-                for (Map.Entry<String, Object> entry : keys.entrySet()) {
-                    SortKey sortKey = sortKeyItr.next();
-                    if (!compareSortKeys(sortKey, entry.getKey(), entry.getValue())) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-        return true;
-    }
-
-    private boolean indexOptionsMatch(Index index, DBObject existingIndex) {
-        Boolean unique = (Boolean) existingIndex.get("unique");
-        if (unique != null) {
-            if ((unique && index.isUnique())
-                    || (!unique && !index.isUnique())) {
-                return true;
-            }
-        } else {
-            if (!index.isUnique()) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     protected boolean checkVersionExists(String entityName, String version) {
@@ -504,7 +397,6 @@ public class MongoMetadata extends AbstractMetadata {
                         (DBObject) mdParser.convert(ei));
                 factory.getCRUDController(ei.getDataStore().getBackend()).
                     updateEntityInfo(this,ei);
-                createUpdateEntityInfoIndexes(ei);
                 
             } catch (Exception e) {
                 LOGGER.error("updateEntityInfo", e);

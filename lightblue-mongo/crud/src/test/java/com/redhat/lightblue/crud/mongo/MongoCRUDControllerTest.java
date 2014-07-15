@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
@@ -36,9 +37,18 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.metadata.types.IntegerType;
+
 import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
@@ -348,5 +358,103 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         del = controller.delete(ctx, query("{'field':'field3','op':'>','rvalue':10}"));
         Assert.assertEquals(9, del.getNumDeleted());
         Assert.assertEquals(10, coll.find(null).count());
+    }
+
+    @Test
+    public void entityIndexCreationTest() throws Exception {
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex1"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        e.getEntityInfo().setDefaultVersion("1.0.0");
+        Index index = new Index();
+        index.setName("testIndex");
+        index.setUnique(true);
+        List<SortKey> indexFields = new ArrayList<>();
+        //TODO actually parse $asc/$desc here
+        indexFields.add(new SortKey(new Path("field1"), true));
+        index.setFields(indexFields);
+        List<Index> indexes = new ArrayList<>();
+        indexes.add(index);
+        e.getEntityInfo().getIndexes().setIndexes(indexes);
+        controller.newSchema(null,e);
+
+        DBCollection entityCollection = db.getCollection("testCollectionIndex1");
+
+        boolean foundIndex = false;
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
+                    foundIndex = true;
+                }
+            }
+        }
+        Assert.assertTrue(foundIndex);
+    }
+
+    @Test
+    public void entityIndexUpdateTest() throws Exception {
+
+        EntityMetadata e = new EntityMetadata("testEntity");
+        e.setVersion(new Version("1.0.0", null, "some text blah blah"));
+        e.setStatus(MetadataStatus.ACTIVE);
+        e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex2"));
+        e.getFields().put(new SimpleField("field1", StringType.TYPE));
+        ObjectField o = new ObjectField("field2");
+        o.getFields().put(new SimpleField("x", IntegerType.TYPE));
+        e.getFields().put(o);
+        e.getEntityInfo().setDefaultVersion("1.0.0");
+        Index index = new Index();
+        index.setName("testIndex");
+        index.setUnique(true);
+        List<SortKey> indexFields = new ArrayList<>();
+        indexFields.add(new SortKey(new Path("field1"), true));
+        index.setFields(indexFields);
+        List<Index> indexes = new ArrayList<>();
+        indexes.add(index);
+        e.getEntityInfo().getIndexes().setIndexes(indexes);
+        controller.updateEntityInfo(null,e.getEntityInfo());
+
+        DBCollection entityCollection = db.getCollection("testCollectionIndex2");
+
+        index = new Index();
+        index.setName("testIndex2");
+        index.setUnique(false);
+        indexFields = new ArrayList<>();
+        indexFields.clear();
+        indexFields.add(new SortKey(new Path("field1"), true));
+        index.setFields(indexFields);
+        indexes = new ArrayList<>();
+        indexes.add(index);
+        e.getEntityInfo().getIndexes().setIndexes(indexes);
+
+        controller.updateEntityInfo(null,e.getEntityInfo());
+
+        boolean foundIndex = false;
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex2".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
+                    foundIndex = true;
+                }
+            }
+        }
+        Assert.assertTrue(foundIndex);
+
+        foundIndex = false;
+
+        for (DBObject mongoIndex : entityCollection.getIndexInfo()) {
+            if ("testIndex".equals(mongoIndex.get("name"))) {
+                if (mongoIndex.get("key").toString().contains("field1")) {
+                    foundIndex = true;
+                }
+            }
+        }
+        Assert.assertTrue(!foundIndex);
     }
 }
