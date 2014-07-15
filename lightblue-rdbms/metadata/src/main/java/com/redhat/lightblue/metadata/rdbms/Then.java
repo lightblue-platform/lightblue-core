@@ -1,5 +1,7 @@
 package com.redhat.lightblue.metadata.rdbms;
 
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+
 import java.util.List;
 
 public class Then implements ComplexConverter{
@@ -24,5 +26,22 @@ public class Then implements ComplexConverter{
 
     public List<Expression> getExpressions() {
         return expressions;
+    }
+
+    public String getName(){
+        return "$then";
+    }
+
+    @Override
+    public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+        if(loopOperator != null) {
+            p.putString(node,getName(),loopOperator);
+        }else{
+            Object arri = p.newArrayField(node, getName());
+            for(Expression s : expressions){
+                s.convert(p,expressions);
+            }
+        }
+
     }
 }

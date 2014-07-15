@@ -193,22 +193,55 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                             T pathEmpty = p.getObjectProperty(ifT, "$path-empty");
                             if (pathEmpty != null) {
                                 x = new IfPathEmpty();
+                                String path1 = p.getStringProperty(pathEmpty, "path1");
+                                ((IfPathEmpty) x).setPath1(path1);
                             } else {
                                 T pathpath = p.getObjectProperty(ifT, "$path-check-path");
                                 if (pathpath != null) {
                                     x = new IfPathPath();
+                                    String conditional = p.getStringProperty(pathpath, "conditional");
+                                    String path1 = p.getStringProperty(pathpath, "path1");
+                                    String path2 = p.getStringProperty(pathpath, "path2");
+                                    ((IfPathPath) x).setPath1(path1);
+                                    ((IfPathPath) x).setPath2(path2);
+                                    ((IfPathPath) x).setConditional(conditional);
                                 } else {
                                     T pathvalue = p.getObjectProperty(ifT, "$path-check-value");
                                     if (pathvalue != null) {
                                         x = new IfPathValue();
+                                        String conditional = p.getStringProperty(pathvalue, "conditional");
+                                        String path1 = p.getStringProperty(pathvalue, "path1");
+                                        String value2 = p.getStringProperty(pathvalue, "value2");
+                                        ((IfPathValue) x).setPath1(path1);
+                                        ((IfPathValue) x).setValue2(value2);
+                                        ((IfPathValue) x).setConditional(conditional);
                                     } else {
                                         T pathvalues = p.getObjectProperty(ifT, "$path-check-values");
                                         if (pathvalues != null) {
                                             x = new IfPathValues();
+                                            String conditional = p.getStringProperty(pathvalues, "conditional");
+                                            String path1 = p.getStringProperty(pathvalues, "path1");
+                                            List<String> values2 = p.getStringList(pathvalues, "values2");
+
+                                            ((IfPathValues) x).setPath1(path1);
+                                            ((IfPathValues) x).setValues2(values2);
+                                            ((IfPathValues) x).setConditional(conditional);
                                         } else {
                                             T pathregex = p.getObjectProperty(ifT, "$path-regex");
                                             if (pathregex != null) {
                                                 x = new IfPathRegex();
+                                                String path = p.getStringProperty(pathregex, "path");
+                                                String regex = p.getStringProperty(pathregex, "regex");
+                                                String caseInsensitive = p.getStringProperty(pathregex, "case_insensitive");
+                                                String multiline = p.getStringProperty(pathregex, "multiline");
+                                                String extended = p.getStringProperty(pathregex, "extended");
+                                                String dotall = p.getStringProperty(pathregex, "dotall");
+                                                ((IfPathRegex) x).setPath(path);
+                                                ((IfPathRegex) x).setRegex(regex);
+                                                ((IfPathRegex) x).setCaseInsensitive(Boolean.parseBoolean(caseInsensitive));
+                                                ((IfPathRegex) x).setMultiline(Boolean.parseBoolean(multiline));
+                                                ((IfPathRegex) x).setExtended(Boolean.parseBoolean(extended));
+                                                ((IfPathRegex) x).setDotall(Boolean.parseBoolean(dotall));
                                             } else {
                                                 throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "No valid field was found on if");
                                             }

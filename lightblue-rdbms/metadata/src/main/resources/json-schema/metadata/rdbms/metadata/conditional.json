@@ -52,13 +52,6 @@
                "type" : "object",
                "properties" :
                   {
-                     "conditional" :
-                        {
-                           "enum" :
-                              [
-                                 "$isempty"
-                              ]
-                        },
                      "path1" :
                         {
                            "type" : "string"

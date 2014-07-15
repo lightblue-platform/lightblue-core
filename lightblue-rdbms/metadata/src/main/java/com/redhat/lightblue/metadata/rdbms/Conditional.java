@@ -46,17 +46,21 @@ public class Conditional  extends Expression {
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
         T eT = p.newNode();
 
-        anIf.convert(p, expressionsNode, eT, anIf);
+        T iT = p.newNode();
+        anIf.convert(p,expressionsNode,iT);
+        p.putObject(eT, "$if", iT);
 
-        then.convert(p, expressionsNode, eT, then);
+        then.convert(p, expressionsNode, eT);
 
         if(!elseIfList.isEmpty()) {
             Object arri = p.newArrayField(eT, "$elseIf");
             for (ElseIf e : elseIfList) {
-                e.convert(p, arri, eT, e);
+                e.convert(p, arri, eT);
             }
         }
 
-        anElse.convert(p, expressionsNode, eT, anElse);
+        anElse.convert(p, expressionsNode, eT);
+
+        p.addObjectToArray(expressionsNode,eT);
     }
 }
