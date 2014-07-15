@@ -30,7 +30,7 @@ import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.rest.crud.CrudRestConfiguration;
+import com.redhat.lightblue.rest.RestConfiguration;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;
 
@@ -70,7 +70,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
             if (null != mediator) {
                 m = mediator;
             } else {
-                m = CrudRestConfiguration.getCrudMgr().getMediator();
+                m = RestConfiguration.getFactory().getMediator();
             }
         } catch (Exception e) {
             Error.get(RestCrudConstants.ERR_CANT_GET_MEDIATOR);

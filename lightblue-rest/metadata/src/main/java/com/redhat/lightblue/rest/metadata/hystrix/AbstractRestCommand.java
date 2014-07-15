@@ -30,7 +30,7 @@ import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.rest.metadata.MetadataRestConfiguration;
+import com.redhat.lightblue.rest.RestConfiguration;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import com.redhat.lightblue.util.Error;
 
@@ -65,7 +65,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
             if (null != metadata) {
                 m = metadata;
             } else {
-                m = MetadataRestConfiguration.getMetadataManager().getMetadata();
+                m = RestConfiguration.getFactory().getMetadata();
             }
         } catch (Exception e) {
             Error.get(RestMetadataConstants.ERR_CANT_GET_METADATA);
@@ -76,7 +76,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     protected JSONMetadataParser getJSONParser() {
         JSONMetadataParser parser = null;
         try {
-            parser = MetadataRestConfiguration.getMetadataManager().getJSONParser();
+            parser = RestConfiguration.getFactory().getJSONParser();
         } catch (Exception e) {
             Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
         }

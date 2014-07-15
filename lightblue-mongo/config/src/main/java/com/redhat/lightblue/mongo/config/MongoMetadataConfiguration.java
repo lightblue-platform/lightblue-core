@@ -23,9 +23,10 @@ import org.bson.BSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
-import com.redhat.lightblue.config.common.DataSourceConfiguration;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataConfiguration;
+import com.redhat.lightblue.config.DataSourceConfiguration;
+import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.MetadataConfiguration;
+import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
@@ -39,7 +40,8 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
     private String collection;
 
     public Metadata createMetadata(DataSourcesConfiguration datasources,
-                                   JSONMetadataParser jsonParser) {
+                                   JSONMetadataParser jsonParser,
+                                   LightblueFactory factory) {
         DataSourceConfiguration cfg = datasources.getDataSourceConfiguration(datasource);
         if (cfg != null) {
             DBResolver dbresolver = new MongoDBResolver(datasources);
@@ -49,10 +51,17 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
             DefaultTypes typeResolver = new DefaultTypes();
             MongoDataStore mdstore = new MongoDataStore();
             mdstore.setDatasourceName(datasource);
-            if (collection == null) {
-                return new MongoMetadata(dbresolver.get(mdstore), dbresolver, parserExtensions, typeResolver);
-            } else {
-                return new MongoMetadata(dbresolver.get(mdstore), collection, dbresolver, parserExtensions, typeResolver);
+            
+            try {
+                if (collection == null) {
+                    return new MongoMetadata(dbresolver.get(mdstore), dbresolver, parserExtensions, typeResolver,factory.getFactory());
+                } else {
+                    return new MongoMetadata(dbresolver.get(mdstore), collection, dbresolver, parserExtensions, typeResolver,factory.getFactory());
+                }
+            } catch (RuntimeException re) {
+                throw re;
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
             }
         } else {
             throw new IllegalArgumentException(datasource);

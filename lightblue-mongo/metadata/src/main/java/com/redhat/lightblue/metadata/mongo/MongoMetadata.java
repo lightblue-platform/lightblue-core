@@ -71,6 +71,7 @@ import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.VersionInfo;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.mongo.hystrix.FindCommand;
 import com.redhat.lightblue.mongo.hystrix.FindOneCommand;
 import com.redhat.lightblue.mongo.hystrix.InsertCommand;
@@ -99,22 +100,26 @@ public class MongoMetadata extends AbstractMetadata {
     private final transient DBCollection collection;
     private final transient DBResolver dbResolver;
     private final transient BSONParser mdParser;
+    private final transient Factory factory;
 
     public MongoMetadata(DB db,
                          String metadataCollection,
                          DBResolver dbResolver,
                          Extensions<BSONObject> parserExtensions,
-                         TypeResolver typeResolver) {
+                         TypeResolver typeResolver,
+                         Factory factory) {
         this.collection = db.getCollection(metadataCollection);
         this.mdParser = new BSONParser(parserExtensions, typeResolver);
         this.dbResolver = dbResolver;
+        this.factory=factory;
     }
 
     public MongoMetadata(DB db,
                          DBResolver dbResolver,
                          Extensions<BSONObject> parserExtensions,
-                         TypeResolver typeResolver) {
-        this(db, DEFAULT_METADATA_COLLECTION, dbResolver, parserExtensions, typeResolver);
+                         TypeResolver typeResolver,
+                         Factory factory) {
+        this(db, DEFAULT_METADATA_COLLECTION, dbResolver, parserExtensions, typeResolver,factory);
     }
 
     @Override
@@ -330,6 +335,10 @@ public class MongoMetadata extends AbstractMetadata {
                         new RemoveCommand(collection, new BasicDBObject(LITERAL_ID, infoObj.get(LITERAL_ID))).execute();
                         throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, error);
                     }
+
+                    factory.getCRUDController(md.getEntityInfo().getDataStore().getBackend()).
+                        newSchema(this,md);
+
                     createUpdateEntityInfoIndexes(md.getEntityInfo());
                 } catch (MongoException.DuplicateKey dke) {
                     LOGGER.error("createNewMetadata: duplicateKey {}", dke);
@@ -493,7 +502,10 @@ public class MongoMetadata extends AbstractMetadata {
             try {
                 collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
                         (DBObject) mdParser.convert(ei));
+                factory.getCRUDController(ei.getDataStore().getBackend()).
+                    updateEntityInfo(this,ei);
                 createUpdateEntityInfoIndexes(ei);
+                
             } catch (Exception e) {
                 LOGGER.error("updateEntityInfo", e);
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());

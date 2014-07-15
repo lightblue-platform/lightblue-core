@@ -36,13 +36,18 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.redhat.lightblue.rest</groupId>
+            <artifactId>rest-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
             <artifactId>mongo-crud</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.config</groupId>
-            <artifactId>config-crud</artifactId>
+            <artifactId>core-config</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

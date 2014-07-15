@@ -16,24 +16,27 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo.config;
+package com.redhat.lightblue.config;
 
-import com.redhat.lightblue.common.mongo.DBResolver;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
-import com.redhat.lightblue.config.ControllerConfiguration;
-import com.redhat.lightblue.config.ControllerFactory;
-import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.mongo.MongoCRUDController;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
-public class MongoCRUDFactory implements ControllerFactory {
+/**
+ * Test metadata configuration implementation, referenced by configuration files.
+ */
+public class TestConfig implements MetadataConfiguration {
+
     @Override
-    public CRUDController createController(ControllerConfiguration cfg,
-                                           DataSourcesConfiguration ds) {
-        try {
-            DBResolver resolver = new MongoDBResolver(ds);
-            return new MongoCRUDController(resolver);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public Metadata createMetadata(DataSourcesConfiguration ds,
+                                   JSONMetadataParser parser,
+                                   LightblueFactory f) {
+        return new DatabaseMetadata();
+    }
+
+    @Override
+    public void initializeFromJson(JsonNode node) {
     }
 }

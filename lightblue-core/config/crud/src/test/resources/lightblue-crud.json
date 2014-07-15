@@ -1,8 +1,0 @@
-{
-   "controllers" : [
-      {
-        "backend" : "mongo",
-        "controllerFactory" : "com.redhat.lightblue.config.crud.test.CRUDFactory"
-      }
-   ]
-}

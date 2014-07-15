@@ -21,15 +21,15 @@ package com.redhat.lightblue.rest.crud;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.crud.CrudConfiguration;
-import com.redhat.lightblue.config.crud.CrudManager;
-import com.redhat.lightblue.config.metadata.MetadataConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.CrudConfiguration;
+import com.redhat.lightblue.config.LightblueFactory;
+import com.redhat.lightblue.config.MetadataConfiguration;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.rest.RestConfiguration;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -210,16 +210,15 @@ public class ITCaseCrudResourceTest {
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
         Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        CrudRestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
-        CrudRestConfiguration.setMetadataMgr(new MetadataManager(CrudRestConfiguration.getDatasources()));
-        CrudRestConfiguration.setCrudMgr(new CrudManager(CrudRestConfiguration.getDatasources(), CrudRestConfiguration.getMetadataMgr()));
+        RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
 
         String expectedCreated = readFile("expectedCreated.json");
         String metadata = readFile("metadata.json");
-        EntityMetadata em = CrudRestConfiguration.getMetadataMgr().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
-        CrudRestConfiguration.getMetadataMgr().getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = CrudRestConfiguration.getMetadataMgr().getMetadata().getEntityMetadata("country", "1.0.0");
-        String resultCreated = CrudRestConfiguration.getMetadataMgr().getJSONParser().convert(em2).toString();
+        EntityMetadata em = RestConfiguration.getFactory().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+        RestConfiguration.getFactory().getMetadata().createNewMetadata(em);
+        EntityMetadata em2 = RestConfiguration.getFactory().getMetadata().getEntityMetadata("country", "1.0.0");
+        String resultCreated = RestConfiguration.getFactory().getJSONParser().convert(em2).toString();
         JSONAssert.assertEquals(expectedCreated, resultCreated, false);
 
         String expectedInserted = readFile("expectedInserted.json");

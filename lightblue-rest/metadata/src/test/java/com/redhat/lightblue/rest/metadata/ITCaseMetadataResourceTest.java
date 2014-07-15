@@ -47,12 +47,13 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.redhat.lightblue.config.common.DataSourcesConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataConfiguration;
-import com.redhat.lightblue.config.metadata.MetadataManager;
+import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.MetadataConfiguration;
+import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.rest.RestConfiguration;
 
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
@@ -213,9 +214,9 @@ public class ITCaseMetadataResourceTest {
     public void testFirstIntegrationTest() throws IOException, URISyntaxException, JSONException {
         Assert.assertNotNull("MetadataResource was not injected by the container", cutMetadataResource);
 
-        MetadataRestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
-        MetadataRestConfiguration.setMetadataManager(new MetadataManager(MetadataRestConfiguration.getDatasources()));
-
+        RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
+        System.out.println("factory:"+RestConfiguration.getFactory());
         String expectedCreated = readFile("expectedCreated.json");
         String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));
         JSONAssert.assertEquals(expectedCreated, resultCreated, false);

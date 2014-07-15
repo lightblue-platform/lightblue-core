@@ -46,6 +46,10 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
+
+import com.redhat.lightblue.crud.*;
+
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Index;
@@ -62,6 +66,10 @@ import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.query.SortKey;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
@@ -80,6 +88,35 @@ import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
 
 public class MongoMetadataTest {
+
+    public class TestCRUDController implements CRUDController {
+
+        public CRUDInsertionResponse insert(CRUDOperationContext ctx,
+                                            Projection projection) {return null;}
+
+        public CRUDSaveResponse save(CRUDOperationContext ctx,
+                                     boolean upsert,
+                                     Projection projection) {return null;}
+
+        public CRUDUpdateResponse update(CRUDOperationContext ctx,
+                                         QueryExpression query,
+                                         UpdateExpression update,
+                                         Projection projection) {return null;}
+
+        public CRUDDeleteResponse delete(CRUDOperationContext ctx,
+                                         QueryExpression query) {return null;}
+
+        public CRUDFindResponse find(CRUDOperationContext ctx,
+                                     QueryExpression query,
+                                     Projection projection,
+                                     Sort sort,
+                                     Long from,
+                                     Long to) {return null;}
+
+        public void updateEntityInfo(Metadata md,EntityInfo ei) {}
+        
+        public void newSchema(Metadata md,EntityMetadata emd) {}
+    }
 
     public static class FileStreamProcessor implements IStreamProcessor {
         private final FileOutputStream outputStream;
@@ -167,6 +204,8 @@ public class MongoMetadataTest {
 
     @Before
     public void setup() {
+        Factory factory=new Factory();
+        factory.addCRUDController("mongo",new TestCRUDController());
         Extensions<BSONObject> x = new Extensions<>();
         x.addDefaultExtensions();
         x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
@@ -174,7 +213,7 @@ public class MongoMetadataTest {
             public DB get(MongoDataStore ds) {
                 return db;
             }
-        }, x, new DefaultTypes());
+            }, x, new DefaultTypes(),factory);
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);

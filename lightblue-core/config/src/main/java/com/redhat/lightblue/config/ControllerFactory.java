@@ -16,24 +16,15 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.mongo.config;
+package com.redhat.lightblue.config;
 
-import com.redhat.lightblue.common.mongo.DBResolver;
-import com.redhat.lightblue.config.DataSourcesConfiguration;
-import com.redhat.lightblue.config.ControllerConfiguration;
-import com.redhat.lightblue.config.ControllerFactory;
 import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.mongo.MongoCRUDController;
 
-public class MongoCRUDFactory implements ControllerFactory {
-    @Override
-    public CRUDController createController(ControllerConfiguration cfg,
-                                           DataSourcesConfiguration ds) {
-        try {
-            DBResolver resolver = new MongoDBResolver(ds);
-            return new MongoCRUDController(resolver);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+/**
+ * Interface that specifies the factory that creates instances of
+ * controllers for a particular backend.
+ */
+public interface ControllerFactory {
+    CRUDController createController(ControllerConfiguration cfg,
+                                    DataSourcesConfiguration ds);
 }

@@ -41,7 +41,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.redhat.lightblue.config.common.DataSourceConfiguration;
+import com.redhat.lightblue.config.DataSourceConfiguration;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 

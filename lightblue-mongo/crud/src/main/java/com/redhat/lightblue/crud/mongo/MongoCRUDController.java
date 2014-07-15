@@ -43,6 +43,8 @@ import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.Updater;
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -390,4 +392,10 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find end: query: {} results: {}", response.getSize());
         return response;
     }
+
+    @Override
+    public void updateEntityInfo(Metadata md,EntityInfo ei) {}
+
+    @Override
+    public void newSchema(Metadata md,EntityMetadata emd) {}
 }

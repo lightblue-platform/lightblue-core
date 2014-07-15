@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.config</groupId>
-            <artifactId>config-crud</artifactId>
+            <artifactId>core-config</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
