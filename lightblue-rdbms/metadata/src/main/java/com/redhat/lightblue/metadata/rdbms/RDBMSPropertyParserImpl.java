@@ -122,14 +122,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 e = forLoop;
             } else if(ifthen != null) {
                 //$if
-                If If = parseIf(p, ifthen, new IfAnd());
+                If If = parseIf(p, ifthen);
 
                 //$then
                 Then Then = parseThen(p,expression);
 
                 //$elseIf
                 List<ElseIf> elseIfList= parseElseIf(p,expression);
-
 
                 //$else
                 Else elseC = parseElse(p,expression);
@@ -143,7 +142,6 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 e = c;
             } else {
                 throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "No valid field was found");
-
             }
             result.add(e);
         }
@@ -155,7 +153,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         List<ElseIf> elseIfList = new ArrayList<>();
         for(T ei : elseIfs){
             T eiIfT = p.getObjectProperty(ei, "$if");
-            If eiIf = parseIf(p, eiIfT, new IfAnd());
+            If eiIf = parseIf(p, eiIfT);
 
             T eiThenT = p.getObjectProperty(ei, "$then");
             Then eiThen = parseThen(p,eiThenT);
@@ -260,7 +258,40 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
 
 
-    private Object convertOperation(MetadataParser<T> p, Operation update) {
-        return null;
+    private Object convertOperation(MetadataParser<T> p, Operation o) {
+        T oT = p.newNode();
+        p.putObject(oT, "bindings", convertBindings(p, o.getBindings()));
+        Object expressions = p.newArrayField(oT, "expressions");
+        convertExpressions(p, o.getExpressionList(), expressions);
+        return oT;
+    }
+
+    private Object convertBindings(MetadataParser<T> p, Bindings bindings) {
+        T bT = p.newNode();
+        Object arri = p.newArrayField(bT, "in");
+        for (InOut x : bindings.getInList()) {
+            p.addObjectToArray(arri, convertInOut(p,x));
+        }
+        Object arro = p.newArrayField(bT, "out");
+        for (InOut x : bindings.getOutList()) {
+            p.addObjectToArray(arro, convertInOut(p,x));
+        }
+        return bT;
+    }
+
+    private Object convertInOut(MetadataParser<T> p, InOut x) {
+        T ioT = p.newNode();
+
+        p.putString(ioT,"column",x.getColumn());
+        p.putString(ioT,"path",x.getPath());
+
+        return ioT;
+    }
+
+    private void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
+        for (Expression expression : expressionList) {
+
+            //p.putObject();
+        }
     }
 }
