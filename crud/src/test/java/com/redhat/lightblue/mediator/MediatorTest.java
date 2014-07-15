@@ -51,7 +51,9 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.TypeResolver;
@@ -122,6 +124,13 @@ public class MediatorTest extends AbstractJsonSchemaTest {
                                      Long from,
                                      Long to) {
             return findResponse;
+        }
+        @Override
+        public void updateEntityInfo(Metadata md,EntityInfo ei) {
+        }
+    
+        @Override
+        public void newSchema(Metadata md,EntityMetadata emd) {
         }
     }
 

@@ -23,6 +23,10 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 
+import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntityInfo;
+
 public interface CRUDController {
 
     /**
@@ -99,4 +103,14 @@ public interface CRUDController {
                           Long from,
                           Long to);
 
+
+    /**
+     * Called by Metadata whenever entity info is created or updated
+     */
+    void updateEntityInfo(Metadata md,EntityInfo ei);
+
+    /**
+     * Called by Metadata whenever a new version of schema is created.
+     */
+    void newSchema(Metadata md,EntityMetadata emd);
 }

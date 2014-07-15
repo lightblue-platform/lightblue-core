@@ -25,13 +25,24 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue.config</groupId>
-    <artifactId>config-pom</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>core-config</artifactId>
+    <packaging>jar</packaging>
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
-    <modules>
-        <module>common</module>
-        <module>metadata</module>
-        <module>crud</module>
-    </modules>
+    <dependencies>
+       <dependency>
+          <groupId>com.redhat.lightblue</groupId>
+          <artifactId>metadata</artifactId>
+          <version>${project.version}</version>
+       </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue</groupId>
+            <artifactId>crud</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+    </dependencies>
 </project>

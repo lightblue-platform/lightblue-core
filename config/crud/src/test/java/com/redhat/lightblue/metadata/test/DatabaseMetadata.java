@@ -1,1 +1,0 @@
-../../../../../../../../../../metadata/src/test/java/com/redhat/lightblue/metadata/test/DatabaseMetadata.java
