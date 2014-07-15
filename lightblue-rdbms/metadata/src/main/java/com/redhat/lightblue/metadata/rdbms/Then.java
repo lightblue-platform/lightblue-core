@@ -2,7 +2,7 @@ package com.redhat.lightblue.metadata.rdbms;
 
 import java.util.List;
 
-public class Then {
+public class Then implements ComplexConverter{
 
     private String loopOperator;
     private List<Expression> expressions;

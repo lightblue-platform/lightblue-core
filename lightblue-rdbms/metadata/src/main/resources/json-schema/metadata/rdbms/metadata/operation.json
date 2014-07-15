@@ -128,7 +128,7 @@
                                                      {
                                                         "$if" :
                                                           {
-                                                             "$ref" : "if.json#"
+                                                             "$ref" : "if.json#/definitions/if"
                                                           },
                                                         "$then" :
                                                           {

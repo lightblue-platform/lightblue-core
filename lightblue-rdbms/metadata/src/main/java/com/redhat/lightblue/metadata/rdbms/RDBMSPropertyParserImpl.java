@@ -290,8 +290,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
         for (Expression expression : expressionList) {
-
-            //p.putObject();
+            expression.convert(p,expressions);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.redhat.lightblue.metadata.rdbms;
 
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+
 public class Statement extends Expression {
 
     private String datasource;
@@ -31,5 +33,14 @@ public class Statement extends Expression {
 
     public String getType() {
         return type;
+    }
+
+    @Override
+    public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
+        T eT = p.newNode();
+        p.putString(eT,"datasource",datasource);
+        p.putString(eT,"sql",SQL);
+        p.putString(eT,"type",type);
+        p.addObjectToArray(expressionsNode, eT);
     }
 }

@@ -3,7 +3,7 @@ package com.redhat.lightblue.metadata.rdbms;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ElseIf {
+public class ElseIf implements ComplexConverter {
 
 
     private If anIf;

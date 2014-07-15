@@ -1,6 +1,7 @@
 package com.redhat.lightblue.metadata.rdbms;
 
-import java.util.ArrayList;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+
 import java.util.List;
 
 public class Conditional  extends Expression {
@@ -13,12 +14,8 @@ public class Conditional  extends Expression {
         this.anIf = anIf;
     }
 
-    public If getAnIf() {
+    public If getIf() {
         return anIf;
-    }
-
-    public void setAnIf(If anIf) {
-        this.anIf = anIf;
     }
 
     public void setThen(Then then) {
@@ -28,7 +25,6 @@ public class Conditional  extends Expression {
     public Then getThen() {
         return then;
     }
-
 
     public void setElseIfList(List<ElseIf> elseIfList) {
         this.elseIfList = elseIfList;
@@ -42,11 +38,25 @@ public class Conditional  extends Expression {
         this.anElse = anElse;
     }
 
-    public Else getAnElse() {
+    public Else getElse() {
         return anElse;
     }
 
-    public void setAnElse(Else anElse) {
-        this.anElse = anElse;
+    @Override
+    public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
+        T eT = p.newNode();
+
+        anIf.convert(p, expressionsNode, eT, anIf);
+
+        then.convert(p, expressionsNode, eT, then);
+
+        if(!elseIfList.isEmpty()) {
+            Object arri = p.newArrayField(eT, "$elseIf");
+            for (ElseIf e : elseIfList) {
+                e.convert(p, arri, eT, e);
+            }
+        }
+
+        anElse.convert(p, expressionsNode, eT, anElse);
     }
 }
