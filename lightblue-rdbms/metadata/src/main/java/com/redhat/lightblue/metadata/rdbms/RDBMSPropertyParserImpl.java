@@ -14,10 +14,11 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
         }
         RDBMSConfiguration rdbmsConfiguration = new RDBMSConfiguration();
-        rdbmsConfiguration.setSelect(parseStatement(p, p.getObjectProperty(node, "select")));
-        rdbmsConfiguration.setSelect(parseStatement(p, p.getObjectProperty(node, "insert")));
-        rdbmsConfiguration.setSelect(parseStatement(p, p.getObjectProperty(node, "update")));
-        rdbmsConfiguration.setSelect(parseStatement(p, p.getObjectProperty(node, "delete")));
+        rdbmsConfiguration.setDelete(parseOperation(p, p.getObjectProperty(node, "delete")));
+        rdbmsConfiguration.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch")));
+        rdbmsConfiguration.setInsert(parseOperation(p, p.getObjectProperty(node, "insert")));
+        rdbmsConfiguration.setSave(parseOperation(p, p.getObjectProperty(node, "save")));
+        rdbmsConfiguration.setUpdate(parseOperation(p, p.getObjectProperty(node, "update")));
 
         return rdbmsConfiguration;
     }
@@ -29,22 +30,24 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private Object convertRDBMS(MetadataParser<T> p, RDBMSConfiguration object) {
         T rdbms = p.newNode();
-        p.putObject(rdbms, "select", convertStatement(p, object.getSelect()));
-        p.putObject(rdbms, "insert", convertStatement(p, object.getInsert()));
-        p.putObject(rdbms, "update", convertStatement(p, object.getUpdate()));
-        p.putObject(rdbms, "delete", convertStatement(p, object.getDelete()));
+        p.putObject(rdbms, "delete", convertOperation(p, object.getDelete()));
+        p.putObject(rdbms, "fetch", convertOperation(p, object.getFetch()));
+        p.putObject(rdbms, "insert", convertOperation(p, object.getInsert()));
+        p.putObject(rdbms, "save", convertOperation(p, object.getSave()));
+        p.putObject(rdbms, "update", convertOperation(p, object.getUpdate()));
         return rdbms;
     }
 
-    private Statement parseStatement(MetadataParser<T> p, T statement) {
-        List<T> statements = p.getObjectList(statement, "statements");
-        List<SQLOrConditional> sQLOrConditional = transformToSQLOrConditional(p,statements);
-        T b = p.getObjectProperty(statement, "bindings");
+    private Operation parseOperation(MetadataParser<T> p, T operation) {
+        T b = p.getObjectProperty(operation, "bindings");
         Bindings bindings = transformToBindings(p, b);
 
-        final Statement s = new Statement();
-        s.setsQLOrConditionalList(sQLOrConditional);
+        List<T> expressionsT = p.getObjectList(operation, "expressions");
+        List<Expression> expressions = parseExpressions(p, expressionsT);
+
+        final Operation s = new Operation();
         s.setBindings(bindings);
+        s.setExpressionList(expressions);
 
         return s;
     }
@@ -55,7 +58,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         List<T> outRaw = p.getObjectList(bindings, "out");
 
         List<InOut> inList = transformToInOut(p, inRaw);
-        List<InOut> outList = transformToInOut(p, inRaw);
+        List<InOut> outList = transformToInOut(p, outRaw);
 
         b.setInList(inList);
         b.setOutList(outList);
@@ -64,123 +67,200 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private List<InOut> transformToInOut(MetadataParser<T> p, List<T> inRaw) {
-        final ArrayList<InOut> result = new ArrayList<InOut>();
-        for (int i = 0; i < inRaw.size(); i++) {
-            T t = inRaw.get(i);
-
+        final ArrayList<InOut> result = new ArrayList<>();
+        for (T t : inRaw) {
             InOut a = new InOut();
-            a.setAccumulative(Boolean.TRUE.toString().equalsIgnoreCase(p.getStringProperty(t, "isaccumulative"))? Boolean.TRUE : Boolean.FALSE);
-            a.setArray(Boolean.TRUE.toString().equalsIgnoreCase(p.getStringProperty(t,"isarray"))? Boolean.TRUE : Boolean.FALSE);
-            a.setColumnName(p.getStringProperty(t,"columnName"));
-            a.setDocumentPath(p.getStringProperty(t,"documentPath"));
-            a.setVariableName(p.getStringProperty(t,"variableName"));
+            a.setColumn(p.getStringProperty(t, "column"));
+            a.setPath(p.getStringProperty(t, "path"));
 
             result.add(a);
         }
         return result;
     }
 
-    private List<SQLOrConditional> transformToSQLOrConditional(MetadataParser<T> p, List<T> statements) {
-        final ArrayList<SQLOrConditional> result = new ArrayList<SQLOrConditional>();
-        for (T statement : statements) {
-            SQLOrConditional e = new SQLOrConditional();
-            final String sql = p.getStringProperty(statement, "sql");
+    private List<Expression> parseExpressions(MetadataParser<T> p, List<T> expressionsT) {
+        final ArrayList<Expression> result = new ArrayList<>();
+        for (T expression : expressionsT) {
+            Expression e;
+            String sql = p.getStringProperty(expression, "sql");
+            T forS = p.getObjectProperty(expression, "$for");
+            T foreachS = p.getObjectProperty(expression, "$foreach");
+            T ifthen = p.getObjectProperty(expression, "$if");
+
             if(sql != null) {
-                DynamicConditional c = new DynamicConditional();
-                /*
-                maybe change the
-                 /home/lcestari/repositories/lb/lightblue/lightblue-rdbms/metadata/src/main/resources/json-schema/metadata/rdbms/metadata/conditional.json
-                  to
-                 /home/lcestari/repositories/lb/lightblue/lightblue-core/query-api/src/main/resources/json-schema/query/conditional.json
-                 so the rdbms would look like the query api
-                 */
-                final List<T> ifArr = p.getObjectList(statement, "if");
-                final List<T> thenArr = p.getObjectList(statement, "then");
-                final String thenStr = p.getStringProperty(statement, "then");
-                final List<T> elseifStr = p.getObjectList(statement, "elseif");
-                final List<T> elseArr = p.getObjectList(statement, "then");
-                final String elseStr = p.getStringProperty(statement, "else");
+                String datasource = p.getStringProperty(expression, "datasource");
+                String type = p.getStringProperty(expression, "type");
 
-                if(ifArr != null && ! ifArr.isEmpty()){
-                    for (T t : ifArr) {
-                        final String logicalOperator = p.getStringProperty(t, "logicalOperators");
-                        final String conditional = p.getStringProperty(t, "conditional");
-                        final String variable1 = p.getStringProperty(t, "variable1");
-                        final String variable2 = p.getStringProperty(t, "variable2");
+                Statement statement = new Statement();
+                statement.setSQL(sql);
+                statement.setDatasource(datasource);
+                statement.setType(type);
 
-                        If i = new If();
+                e = statement;
+            } else if(forS != null){
+                String loopTimesS = p.getStringProperty(forS, "loopTimes");
+                int loopTimes =  Integer.parseInt(loopTimesS);
+                String loopCounterVariableName = p.getStringProperty(forS, "loopCounterVariableName");
+                List<T> expressionsTforS = p.getObjectList(forS, "expressions");
+                List<Expression> expressions = parseExpressions(p, expressionsTforS);
 
-                        if( LogicalOperators.getValues().contains(logicalOperator)){
-                            i.setLogicalOperatorNext(logicalOperator);
-                        } else {
-                            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, logicalOperator);
-                        }
+                For forLoop = new For();
+                forLoop.setLoopTimes(loopTimes);
+                forLoop.setLoopCounterVariableName(loopCounterVariableName);
+                forLoop.setExpressions(expressions);
 
-                        if( Conditional.getValues().contains(conditional)){
-                            i.setConditional(conditional);
-                        } else {
-                            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, conditional);
-                        }
+                e = forLoop;
+            } else if(foreachS != null){
+                String iterateOverPath = p.getStringProperty(foreachS, "iterateOverPath");
+                List<T> expressionsTforS = p.getObjectList(foreachS, "expressions");
+                List<Expression> expressions = parseExpressions(p, expressionsTforS);
 
-                        if(!(variable1 == null || variable1.isEmpty())){
-                            i.setVariable1(variable1);
-                        } else {
-                            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, variable1);
-                        }
+                ForEach forLoop = new ForEach();
+                forLoop.setIterateOverPath(iterateOverPath);
+                forLoop.setExpressions(expressions);
 
-                        if(!(variable2 == null || variable2.isEmpty())){
-                            i.setVariable2(variable2);
-                        } else {
-                            if(!"isempty".equalsIgnoreCase(logicalOperator)){
-                                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, variable2);
-                            }
-                        }
-                        c.getIfs().add(i);
-                    }
+                e = forLoop;
+            } else if(ifthen != null) {
+                //$if
+                If If = parseIf(p, ifthen, new IfAnd());
 
-                    if(thenStr == null){
+                //$then
+                Then Then = parseThen(p,expression);
 
-                    }
+                //$elseIf
+                List<ElseIf> elseIfList= parseElseIf(p,expression);
 
-                    if(elseifStr != null){
 
-                    }
-                    if(elseStr != null){
+                //$else
+                Else elseC = parseElse(p,expression);
 
-                    }
+                Conditional c  = new Conditional();
+                c.setIf(If);
+                c.setThen(Then);
+                c.setElseIfList(elseIfList);
+                c.setElse(elseC);
 
-                } else {
-                    throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ifArr.toString());
-                }
-
-                //TODO 'if then elseif else' fields
-                if(1 == 2 && 1== 3 || 1==3 || 1==1 ){
-
-                }
-                e.setDynamicConditional(c);
+                e = c;
             } else {
-                SQL s = new SQL();
-                s.setSQL(sql);
-                s.setIterateOverRows(Boolean.TRUE.toString().equalsIgnoreCase(p.getStringProperty(statement,"iterateOverRows"))? Boolean.TRUE : Boolean.FALSE);
-                final String type = p.getStringProperty(statement, "type");
-                if(! Types.getValues().contains(type)) {
-                    throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, type);
-                }
-                s.setType(type);
-                s.setDatasource(p.getStringProperty(statement, "datasource"));
-                e.setSQL(s);
-            }
+                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "No valid field was found");
 
+            }
             result.add(e);
         }
         return result;
     }
 
+    private List<ElseIf> parseElseIf(MetadataParser<T> p, T expression) {
+        List<T> elseIfs = p.getObjectList(expression, "$elseIf");
+        List<ElseIf> elseIfList = new ArrayList<>();
+        for(T ei : elseIfs){
+            T eiIfT = p.getObjectProperty(ei, "$if");
+            If eiIf = parseIf(p, eiIfT, new IfAnd());
+
+            T eiThenT = p.getObjectProperty(ei, "$then");
+            Then eiThen = parseThen(p,eiThenT);
+
+            ElseIf elseIf = new ElseIf();
+            elseIf.setIf(eiIf);
+            elseIf.setThen(eiThen);
+            elseIfList.add(elseIf);
+        }
+        return elseIfList;
+    }
+
+    private If parseIf(MetadataParser<T> p, T ifT) {
+        If x = null;
+        List<T> orArray = p.getObjectList(ifT, "$or");
+        if (orArray != null) {
+             x = parseIfs(p, orArray, new IfOr());
+        } else {
+            List<T> anyArray = p.getObjectList(ifT, "$any");
+            if (anyArray != null) {
+                 x = parseIfs(p, anyArray, new IfOr());
+            } else {
+                List<T> andArray = p.getObjectList(ifT, "$and");
+                if (andArray != null) {
+                     x = parseIfs(p, andArray, new IfAnd());
+                } else {
+                    List<T> allArray = p.getObjectList(ifT, "$all");
+                    if (allArray != null) {
+                         x = parseIfs(p, allArray, new IfAnd());
+                    } else {
+                        T notIfT = p.getObjectProperty(ifT, "$not");
+                        if (notIfT != null) {
+                            If y = parseIf(p, notIfT);
+                            x = new IfNot();
+                            x.getConditions().add(y);
+                        } else {
+                            T pathEmpty = p.getObjectProperty(ifT, "$path-empty");
+                            if (pathEmpty != null) {
+                                x = new IfPathEmpty();
+                            } else {
+                                T pathpath = p.getObjectProperty(ifT, "$path-check-path");
+                                if (pathpath != null) {
+                                    x = new IfPathPath();
+                                } else {
+                                    T pathvalue = p.getObjectProperty(ifT, "$path-check-value");
+                                    if (pathvalue != null) {
+                                        x = new IfPathValue();
+                                    } else {
+                                        T pathvalues = p.getObjectProperty(ifT, "$path-check-values");
+                                        if (pathvalues != null) {
+                                            x = new IfPathValues();
+                                        } else {
+                                            T pathregex = p.getObjectProperty(ifT, "$path-regex");
+                                            if (pathregex != null) {
+                                                x = new IfPathRegex();
+                                            } else {
+                                                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "No valid field was found on if");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    return x;
+    }
+
+    private <Z extends If> Z parseIfs(MetadataParser<T> p, List<T> orArray, Z ifC) {
+        List<If> l = new ArrayList<>();
+        for (T t : orArray){
+            If eiIf = parseIf(p, t);
+            l.add(eiIf);
+        }
+        ifC.setConditions(l);
+        return ifC;
+    }
+
+    private Then parseThenOrElse(MetadataParser<T> p, T t, String name, Then then) {
+        String loopOperator = p.getStringProperty(t, name);
+        if(loopOperator != null) {
+            then.setLoopOperator(loopOperator);
+        } else {
+            List<T> expressionsT= p.getObjectList(t, name);
+            List<Expression> expressions = parseExpressions(p, expressionsT);
+            then.setExpressions(expressions);
+        }
+
+        return then;
+    }
+
+    private Then parseThen(MetadataParser<T> p, T parentThenT) {
+        return parseThenOrElse(p, parentThenT, "$then", new Else());
+    }
+
+    private Else parseElse(MetadataParser<T> p, T parentElseT) {
+        return (Else) parseThenOrElse(p, parentElseT, "$else", new Else());
+    }
 
 
 
-
-    private Object convertStatement(MetadataParser<T> p, Statement update) {
+    private Object convertOperation(MetadataParser<T> p, Operation update) {
         return null;
     }
 }

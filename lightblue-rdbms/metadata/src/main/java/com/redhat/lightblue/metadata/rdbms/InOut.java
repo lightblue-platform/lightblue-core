@@ -1,49 +1,22 @@
 package com.redhat.lightblue.metadata.rdbms;
 
 public class InOut {
-    private String documentPath;
-    private String columnName;
-    private String variableName;
-    private boolean array;
-    private boolean accumulative;
+    private String column;
+    private String path;
 
-    public String getDocumentPath() {
-        return documentPath;
+    public String getColumn() {
+        return column;
     }
 
-    public void setDocumentPath(String documentPath) {
-        this.documentPath = documentPath;
+    public void setColumn(String column) {
+        this.column = column;
     }
 
-    public String getColumnName() {
-        return columnName;
+    public String getPath() {
+        return path;
     }
 
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    public String getVariableName() {
-        return variableName;
-    }
-
-    public void setVariableName(String variableName) {
-        this.variableName = variableName;
-    }
-
-    public boolean isArray() {
-        return array;
-    }
-
-    public void setArray(boolean array) {
-        this.array = array;
-    }
-
-    public boolean isAccumulative() {
-        return accumulative;
-    }
-
-    public void setAccumulative(boolean accumulative) {
-        this.accumulative = accumulative;
+    public void setPath(String path) {
+        this.path = path;
     }
 }

@@ -47,7 +47,7 @@
                "description" : "Charge the evaluation from true to false vice versa",
                "$ref" : "if.json#/definitions/if"
             },
-         "path-empty" :
+         "$path-empty" :
             {
                "type" : "object",
                "properties" :
@@ -71,7 +71,7 @@
                   ],
                "additionalProperties" : false
             },
-         "path-check-path" :
+         "$path-check-path" :
             {
                "type" : "object",
                "properties" :
@@ -108,7 +108,7 @@
                   ],
                "additionalProperties" : false
             },
-         "path-check-value" :
+         "$path-check-value" :
             {
                "type" : "object",
                "properties" :
@@ -145,7 +145,7 @@
                   ],
                "additionalProperties" : false
             },
-         "path-check-values" :
+         "$path-check-values" :
             {
                "type" : "object",
                "properties" :
@@ -188,7 +188,7 @@
                   ],
                "additionalProperties" : false
             },
-         "path-regex" :
+         "$path-regex" :
             {
                "type" : "object",
                "properties" :

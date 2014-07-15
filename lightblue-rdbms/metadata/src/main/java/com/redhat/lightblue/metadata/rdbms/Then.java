@@ -1,22 +1,28 @@
 package com.redhat.lightblue.metadata.rdbms;
 
+import java.util.List;
+
 public class Then {
-    private Statement statement;
+
     private String loopOperator;
+    private List<Expression> expressions;
 
-    public Statement getStatement() {
-        return statement;
-    }
-
-    public void setStatement(Statement statement) {
-        this.statement = statement;
+    public void setLoopOperator(String loopOperator) {
+        if(LoopOperators.check(loopOperator)){
+            throw new IllegalStateException("Not a valid loop operator '" +loopOperator+"'. Valid Operators:"+ LoopOperators.getValues());
+        }
+        this.loopOperator = loopOperator;
     }
 
     public String getLoopOperator() {
         return loopOperator;
     }
 
-    public void setLoopOperator(String loopOperator) {
-        this.loopOperator = loopOperator;
+    public void setExpressions(List<Expression> expressions) {
+        this.expressions = expressions;
+    }
+
+    public List<Expression> getExpressions() {
+        return expressions;
     }
 }

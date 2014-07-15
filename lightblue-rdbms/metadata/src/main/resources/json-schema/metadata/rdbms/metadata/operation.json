@@ -88,7 +88,6 @@
                                  },
                               "required" :
                                  [
-                                    "datasource",
                                     "sql",
                                     "type"
                                  ],
@@ -98,11 +97,11 @@
                               "type" : "object",
                               "properties" :
                                  {
-                                    "if" :
+                                    "$if" :
                                        {
                                           "$ref" : "if.json#/definitions/if"
                                        },
-                                    "then" :
+                                    "$then" :
                                        {
                                           "oneOf" :
                                              [
@@ -119,36 +118,39 @@
                                                 }
                                              ]
                                        },
-                                    "elseIf" :
+                                    "$elseIf" :
                                        {
                                           "type" : "array",
                                           "items" :
                                              {
-                                                "allOf" :
-                                                   [
-                                                      {
-                                                         "$ref" : "if.json#"
-                                                      },
-                                                      {
-                                                         "oneOf" :
-                                                            [
-                                                               {
-                                                                  "$ref" : "#/properties/expressions"
-                                                               },
-                                                               {
-                                                                  "enum" :
-                                                                     [
-                                                                        "$fail",
-                                                                        "$continue",
-                                                                        "$break"
-                                                                     ]
-                                                               }
-                                                            ]
-                                                      }
-                                                   ]
+                                                  "type" : "object",
+                                                  "properties" :
+                                                     {
+                                                        "$if" :
+                                                          {
+                                                             "$ref" : "if.json#"
+                                                          },
+                                                        "$then" :
+                                                          {
+                                                             "oneOf" :
+                                                                [
+                                                                   {
+                                                                      "$ref" : "#/properties/expressions"
+                                                                   },
+                                                                   {
+                                                                      "enum" :
+                                                                         [
+                                                                            "$fail",
+                                                                            "$continue",
+                                                                            "$break"
+                                                                         ]
+                                                                   }
+                                                                ]
+                                                          }
+                                                   }
                                              }
                                        },
-                                    "else" :
+                                    "$else" :
                                        {
                                           "oneOf" :
                                              [
@@ -168,8 +170,8 @@
                                  },
                               "required" :
                                  [
-                                    "if",
-                                    "then"
+                                    "$if",
+                                    "$then"
                                  ],
                               "additionalProperties" : false
                            },
@@ -200,12 +202,17 @@
                                           "additionalProperties" : false
                                        }
                                  }
+                              "required" :
+                                 [
+                                    "$foreach"
+                                 ],
+                              "additionalProperties" : false
                            },
                            {
                               "type" : "object",
                               "properties" :
                                  {
-                                    "$foreach" :
+                                    "$for" :
                                        {
                                           "type" : "object",
                                           "properties" :
@@ -232,6 +239,11 @@
                                              }
                                        }
                                  }
+                              "required" :
+                                 [
+                                    "$for"
+                                 ],
+                              "additionalProperties" : false
                            }
                         ]
                   }

@@ -4,10 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ElseIf {
-    private List<If> ifs;
+
+
+    private If anIf;
     private Then then;
 
-    public ElseIf() {
-        ifs = new ArrayList<>();
+    public void setIf(If anIf) {
+        this.anIf = anIf;
+    }
+
+    public If getAnIf() {
+        return anIf;
+    }
+
+    public void setAnIf(If anIf) {
+        this.anIf = anIf;
+    }
+
+    public void setThen(Then then) {
+        this.then = then;
+    }
+
+    public Then getThen() {
+        return then;
     }
 }

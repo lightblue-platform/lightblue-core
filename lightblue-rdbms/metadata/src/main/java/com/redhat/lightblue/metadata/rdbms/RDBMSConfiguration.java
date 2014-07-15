@@ -1,40 +1,50 @@
 package com.redhat.lightblue.metadata.rdbms;
 
 public class RDBMSConfiguration {
-    private Statement select;
-    private Statement insert;
-    private Statement update;
-    private Statement delete;
 
-    public Statement getSelect() {
-        return select;
+    private Operation delete;
+    private Operation fetch;
+    private Operation insert;
+    private Operation save;
+    private Operation update;
+
+    public void setDelete(Operation delete) {
+        this.delete = delete;
     }
 
-    public void setSelect(Statement select) {
-        this.select = select;
-    }
-
-    public Statement getInsert() {
-        return insert;
-    }
-
-    public void setInsert(Statement insert) {
-        this.insert = insert;
-    }
-
-    public Statement getUpdate() {
-        return update;
-    }
-
-    public void setUpdate(Statement update) {
-        this.update = update;
-    }
-
-    public Statement getDelete() {
+    public Operation getDelete() {
         return delete;
     }
 
-    public void setDelete(Statement delete) {
-        this.delete = delete;
+    public void setFetch(Operation fetch) {
+        this.fetch = fetch;
+    }
+
+    public Operation getFetch() {
+        return fetch;
+    }
+
+    public void setInsert(Operation insert) {
+        this.insert = insert;
+    }
+
+    public Operation getInsert() {
+        return insert;
+    }
+
+    public void setSave(Operation save) {
+        this.save = save;
+    }
+
+    public Operation getSave() {
+        return save;
+    }
+
+    public void setUpdate(Operation update) {
+        this.update = update;
+    }
+
+    public Operation getUpdate() {
+        return update;
     }
 }

@@ -1,27 +1,35 @@
 package com.redhat.lightblue.metadata.rdbms;
 
-import java.util.List;
+public class Statement extends Expression {
 
-/**
- * Created by lcestari on 7/3/14.
- */
-public class Statement {
-    private List<SQLOrConditional> sQLOrConditionalList;
-    private Bindings bindings;
+    private String datasource;
+    private String SQL;
+    private String type;
 
-    public void setsQLOrConditionalList(List<SQLOrConditional> sQLOrConditionalList) {
-        this.sQLOrConditionalList = sQLOrConditionalList;
+    public void setDatasource(String datasource) {
+        this.datasource = datasource;
     }
 
-    public List<SQLOrConditional> getsQLOrConditionalList() {
-        return sQLOrConditionalList;
+    public String getDatasource() {
+        return datasource;
     }
 
-    public void setBindings(Bindings bindings) {
-        this.bindings = bindings;
+    public void setSQL(String SQL) {
+        this.SQL = SQL;
     }
 
-    public Bindings getBindings() {
-        return bindings;
+    public String getSQL() {
+        return SQL;
+    }
+
+    public void setType(String type) {
+        if(TypeOperators.check(type)){
+            throw new IllegalStateException("Not a valid type of SQL operation '" +type+"'. Valid types:"+ TypeOperators.getValues());
+        }
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
     }
 }
