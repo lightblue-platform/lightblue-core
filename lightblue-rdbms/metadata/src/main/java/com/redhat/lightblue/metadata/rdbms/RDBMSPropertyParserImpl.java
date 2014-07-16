@@ -3,6 +3,7 @@ package com.redhat.lightblue.metadata.rdbms;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.PropertyParser;
+import com.redhat.lightblue.util.Path;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         for (T t : inRaw) {
             InOut a = new InOut();
             a.setColumn(p.getStringProperty(t, "column"));
-            a.setPath(p.getStringProperty(t, "path"));
+            a.setPath(new Path(p.getStringProperty(t, "path")));
 
             result.add(a);
         }
@@ -116,7 +117,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 List<Expression> expressions = parseExpressions(p, expressionsTforS);
 
                 ForEach forLoop = new ForEach();
-                forLoop.setIterateOverPath(iterateOverPath);
+                forLoop.setIterateOverPath(new Path(iterateOverPath));
                 forLoop.setExpressions(expressions);
 
                 e = forLoop;
@@ -194,7 +195,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                             if (pathEmpty != null) {
                                 x = new IfPathEmpty();
                                 String path1 = p.getStringProperty(pathEmpty, "path1");
-                                ((IfPathEmpty) x).setPath1(path1);
+                                ((IfPathEmpty) x).setPath1(new Path(path1));
                             } else {
                                 T pathpath = p.getObjectProperty(ifT, "$path-check-path");
                                 if (pathpath != null) {
@@ -202,8 +203,8 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                     String conditional = p.getStringProperty(pathpath, "conditional");
                                     String path1 = p.getStringProperty(pathpath, "path1");
                                     String path2 = p.getStringProperty(pathpath, "path2");
-                                    ((IfPathPath) x).setPath1(path1);
-                                    ((IfPathPath) x).setPath2(path2);
+                                    ((IfPathPath) x).setPath1(new Path(path1));
+                                    ((IfPathPath) x).setPath2(new Path(path2));
                                     ((IfPathPath) x).setConditional(conditional);
                                 } else {
                                     T pathvalue = p.getObjectProperty(ifT, "$path-check-value");
@@ -212,7 +213,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                         String conditional = p.getStringProperty(pathvalue, "conditional");
                                         String path1 = p.getStringProperty(pathvalue, "path1");
                                         String value2 = p.getStringProperty(pathvalue, "value2");
-                                        ((IfPathValue) x).setPath1(path1);
+                                        ((IfPathValue) x).setPath1(new Path(path1));
                                         ((IfPathValue) x).setValue2(value2);
                                         ((IfPathValue) x).setConditional(conditional);
                                     } else {
@@ -223,7 +224,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                             String path1 = p.getStringProperty(pathvalues, "path1");
                                             List<String> values2 = p.getStringList(pathvalues, "values2");
 
-                                            ((IfPathValues) x).setPath1(path1);
+                                            ((IfPathValues) x).setPath1(new Path(path1));
                                             ((IfPathValues) x).setValues2(values2);
                                             ((IfPathValues) x).setConditional(conditional);
                                         } else {
@@ -236,7 +237,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                                 String multiline = p.getStringProperty(pathregex, "multiline");
                                                 String extended = p.getStringProperty(pathregex, "extended");
                                                 String dotall = p.getStringProperty(pathregex, "dotall");
-                                                ((IfPathRegex) x).setPath(path);
+                                                ((IfPathRegex) x).setPath(new Path(path));
                                                 ((IfPathRegex) x).setRegex(regex);
                                                 ((IfPathRegex) x).setCaseInsensitive(Boolean.parseBoolean(caseInsensitive));
                                                 ((IfPathRegex) x).setMultiline(Boolean.parseBoolean(multiline));
@@ -316,7 +317,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         T ioT = p.newNode();
 
         p.putString(ioT,"column",x.getColumn());
-        p.putString(ioT,"path",x.getPath());
+        p.putString(ioT,"path",x.getPath().toString());
 
         return ioT;
     }

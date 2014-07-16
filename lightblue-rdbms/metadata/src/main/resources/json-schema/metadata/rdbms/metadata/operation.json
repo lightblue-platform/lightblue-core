@@ -186,7 +186,7 @@
                                              {
                                                 "iterateOverPath" :
                                                    {
-                                                      "description" : "Iterate for each value of the given path (which can be a variable or an entity's field",
+                                                      "description" : "Iterate for each value of the given path (which can be a variable or an entity's field)",
                                                       "type" : "string"
                                                    },
                                                 "expressions" :

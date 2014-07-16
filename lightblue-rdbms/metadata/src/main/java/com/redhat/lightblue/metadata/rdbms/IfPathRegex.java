@@ -1,20 +1,21 @@
 package com.redhat.lightblue.metadata.rdbms;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.util.Path;
 
 public class IfPathRegex extends If {
-    private String path;
+    private Path path;
     private String regex;
     private boolean caseInsensitive;
     private boolean multiline;
     private boolean extended;
     private boolean dotall;
 
-    public void setPath(String path) {
+    public void setPath(Path path) {
         this.path = path;
     }
 
-    public String getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -60,7 +61,7 @@ public class IfPathRegex extends If {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
-        p.putString(node,"path",path);
+        p.putString(node,"path",path.toString());
         p.putString(node,"regex",regex);
         p.putString(node,"case_insensitive",str(caseInsensitive));
         p.putString(node,"multiline",str(multiline));
@@ -68,7 +69,7 @@ public class IfPathRegex extends If {
         p.putString(node,"dotall",str(dotall));
     }
 
-    //to make mroe readable
+    //to make more readable
     private String str(boolean b){
         return Boolean.toString(b);
     }
