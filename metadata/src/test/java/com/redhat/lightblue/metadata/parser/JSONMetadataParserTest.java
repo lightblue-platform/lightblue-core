@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -86,6 +87,19 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
             }
         });
+        extensions.registerPropertyParser("rdbms", new PropertyParser<JsonNode>() {
+            @Override
+            public Object parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+                p.getStringProperty(node, "answer");
+                return 42;
+            }
+
+            @Override
+            public void convert(MetadataParser<JsonNode> p, JsonNode parent, Object object) {
+                JsonNode t = p.newNode();
+                p.putObject(parent,"rdbms", t);
+                p.putString(t, "answer", object.toString());            }
+        });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
 
@@ -121,10 +135,29 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         testResource("JSONMetadataParserTest-object-everything-no-hooks.json");
     }
 
+    @Test
+    public void testExtraFieldNoHooks() throws IOException, ParseException, JSONException, ProcessingException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-object-everything-no-hooks-extra-field.json");
+        EntityMetadata em = parser.parseEntityMetadata(object);
+        Assert.assertNotNull(em);
+        Assert.assertNotNull(em.getEntitySchema());
+        Map<String, Object> properties = em.getEntitySchema().getProperties();
+        Assert.assertNotNull(properties);
+        Assert.assertFalse("Empty 'properties' (it should contain rdbms)", properties.isEmpty());
+        Assert.assertTrue("More than a single property (it should contain just rdbms)", properties.size() == 1);
+        Object rdbms = properties.get("rdbms");
+        Assert.assertNotNull(rdbms);
+        Assert.assertEquals(42, rdbms);
+        // TODO There is an error in the conversion that does not make the new JSON object equals to the original one. Maybe it is a default value. I checked that it is not related to RDBMS
+        JsonNode c = parser.convert(em);
+        Assert.assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
+    }
+
 //    @Test hooks not implemented yet
 //    public void fullObjectEverything() throws IOException, ParseException, JSONException {
 //        testResource("JSONMetadataParserTest-object-everything.json");
 //    }
+
     @Test
     public void getStringProperty() {
         String name = "name";

@@ -19,7 +19,8 @@
         }
     ],
     "datastore": {
-        "backend":"empty"
+        "empty": {
+        }
     },
     "fields": {
         "type": "object",
@@ -89,6 +90,8 @@
                 }
             }
         }
-    }
-
+    },
+     "rdbms":{
+         "answer": "42"
+     }
 }
