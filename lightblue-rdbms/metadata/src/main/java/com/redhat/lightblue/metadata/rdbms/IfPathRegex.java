@@ -67,20 +67,23 @@ public class IfPathRegex extends If {
         if(regex == null || regex.isEmpty()){
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No conditional informed");
         }
-        p.putString(node,"path",path.toString());
-        p.putString(node,"regex",regex);
+        T s = p.newNode();
+
+        p.putString(s,"path",path.toString());
+        p.putString(s,"regex",regex);
         if(!caseInsensitive) { // different than the default value
-            p.putString(node, "case_insensitive", str(caseInsensitive));
+            p.putString(s, "case_insensitive", str(caseInsensitive));
         }
         if(!multiline) {
-            p.putString(node, "multiline", str(multiline));
+            p.putString(s, "multiline", str(multiline));
         }
         if(!multiline) {
-            p.putString(node, "extended", str(extended));
+            p.putString(s, "extended", str(extended));
         }
         if(!multiline) {
-            p.putString(node, "dotall", str(dotall));
+            p.putString(s, "dotall", str(dotall));
         }
+        p.putObject(node,"$path-regex",s);
     }
 
     //to make more readable

@@ -45,11 +45,16 @@ public class Statement extends Expression {
         }
 
         T eT = p.newNode();
+
         if(datasource != null) {
             p.putString(eT, "datasource", datasource);
         }
         p.putString(eT,"sql",SQL);
         p.putString(eT,"type",type);
-        p.addObjectToArray(expressionsNode, eT);
+
+        T s = p.newNode();
+        p.putObject(s,"$statement",eT);
+
+        p.addObjectToArray(expressionsNode, s);
     }
 }

@@ -60,38 +60,45 @@
                         [
                            {
                               "type" : "object",
-                              "id" : "statement",
                               "properties" :
                                  {
-                                    "datasource" :
-                                       {
-                                          "type" : "string",
-                                          "id" : "datasource"
-                                       },
-                                    "sql" :
-                                       {
-                                          "type" : "string",
-                                          "id" : "sql"
-                                       },
-                                    "type" :
-                                       {
-                                          "id" : "type",
-                                          "enum" :
-                                             [
-                                                "select",
-                                                "insert",
-                                                "update",
-                                                "delete",
-                                                "call"
-                                             ]
-                                       }
-                                 },
-                              "required" :
-                                 [
-                                    "sql",
-                                    "type"
-                                 ],
-                              "additionalProperties" : false
+                                  "$statement":
+                                   {
+                                      "type" : "object",
+                                      "id" : "statement",
+                                      "properties" :
+                                         {
+                                            "datasource" :
+                                               {
+                                                  "type" : "string",
+                                                  "id" : "datasource"
+                                               },
+                                            "sql" :
+                                               {
+                                                  "type" : "string",
+                                                  "id" : "sql"
+                                               },
+                                            "type" :
+                                               {
+                                                  "id" : "type",
+                                                  "enum" :
+                                                     [
+                                                        "select",
+                                                        "insert",
+                                                        "update",
+                                                        "delete",
+                                                        "call"
+                                                     ]
+                                               }
+                                         },
+                                      "required" :
+                                         [
+                                            "sql",
+                                            "type"
+                                         ],
+                                      "additionalProperties" : false
+                                   }
+                                 }
                            },
                            {
                               "type" : "object",
@@ -128,7 +135,7 @@
                                                      {
                                                         "$if" :
                                                           {
-                                                             "$ref" : "if.json#"
+                                                             "$ref" : "if.json#/definitions/if"
                                                           },
                                                         "$then" :
                                                           {
@@ -186,7 +193,7 @@
                                              {
                                                 "iterateOverPath" :
                                                    {
-                                                      "description" : "Iterate for each value of the given path (which can be a variable or an entity's field",
+                                                      "description" : "Iterate for each value of the given path (which can be a variable or an entity's field)",
                                                       "type" : "string"
                                                    },
                                                 "expressions" :
@@ -251,7 +258,6 @@
       },
    "required" :
       [
-         "bindings",
          "expressions"
       ],
    "additionalProperties" : false

@@ -39,6 +39,9 @@ public class ForEach extends Expression {
         for (Expression expression : expressions) {
             expression.convert(p,o);
         }
-        p.addObjectToArray(expressionsNode, eT);
+        T s = p.newNode();
+        p.putObject(s,"$foreach",eT);
+
+        p.addObjectToArray(expressionsNode, s);;
     }
 }

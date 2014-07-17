@@ -97,14 +97,15 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         final ArrayList<Expression> result = new ArrayList<>();
         for (T expression : expressionsT) {
             Expression e;
-            String sql = p.getStringProperty(expression, "sql");
+            T stmt = p.getObjectProperty(expression, "$statement");
             T forS = p.getObjectProperty(expression, "$for");
             T foreachS = p.getObjectProperty(expression, "$foreach");
             T ifthen = p.getObjectProperty(expression, "$if");
 
-            if(sql != null) {
-                String datasource = p.getStringProperty(expression, "datasource");
-                String type = p.getStringProperty(expression, "type");
+            if(stmt != null) {
+                String sql = p.getStringProperty(stmt, "sql");
+                String datasource = p.getStringProperty(stmt, "datasource");
+                String type = p.getStringProperty(stmt, "type");
 
                 Statement statement = new Statement();
                 statement.setSQL(sql);
@@ -165,20 +166,25 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private List<ElseIf> parseElseIf(MetadataParser<T> p, T expression) {
         List<T> elseIfs = p.getObjectList(expression, "$elseIf");
-        List<ElseIf> elseIfList = new ArrayList<>();
-        for(T ei : elseIfs){
-            T eiIfT = p.getObjectProperty(ei, "$if");
-            If eiIf = parseIf(p, eiIfT);
 
-            T eiThenT = p.getObjectProperty(ei, "$then");
-            Then eiThen = parseThen(p,eiThenT);
+        if(elseIfs != null && !elseIfs.isEmpty()) {
+            List<ElseIf> elseIfList = new ArrayList<>();
+            for (T ei : elseIfs) {
+                T eiIfT = p.getObjectProperty(ei, "$if");
+                If eiIf = parseIf(p, eiIfT);
 
-            ElseIf elseIf = new ElseIf();
-            elseIf.setIf(eiIf);
-            elseIf.setThen(eiThen);
-            elseIfList.add(elseIf);
+                T eiThenT = p.getObjectProperty(ei, "$then");
+                Then eiThen = parseThen(p, eiThenT);
+
+                ElseIf elseIf = new ElseIf();
+                elseIf.setIf(eiIf);
+                elseIf.setThen(eiThen);
+                elseIfList.add(elseIf);
+            }
+            return elseIfList;
+        } else {
+            return null;
         }
-        return elseIfList;
     }
 
     private If parseIf(MetadataParser<T> p, T ifT) {
@@ -284,10 +290,19 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private Then parseThenOrElse(MetadataParser<T> p, T t, String name, Then then) {
-        String loopOperator = p.getStringProperty(t, name);
-        if(loopOperator != null) {
-            then.setLoopOperator(loopOperator);
-        } else {
+        try {
+            String loopOperator = p.getStringProperty(t, name);
+            if(loopOperator != null) {
+                then.setLoopOperator(loopOperator);
+            } else if (!name.equals("$else")){
+                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No operation informed");
+            } else {
+                return null;
+            }
+        } catch (com.redhat.lightblue.util.Error e){
+            if(e.getErrorCode().contains("RDBMS")){
+                throw e;
+            }
             List<T> expressionsT= p.getObjectList(t, name);
             List<Expression> expressions = parseExpressions(p, expressionsT);
             then.setExpressions(expressions);
@@ -297,7 +312,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private Then parseThen(MetadataParser<T> p, T parentThenT) {
-        return parseThenOrElse(p, parentThenT, "$then", new Else());
+        return parseThenOrElse(p, parentThenT, "$then", new Then());
     }
 
     private Else parseElse(MetadataParser<T> p, T parentElseT) {

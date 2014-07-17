@@ -18,6 +18,11 @@ public class IfPathEmpty extends  If {
         if(path1 == null || path1.isEmpty()){
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path1 informed");
         }
-        p.putString(node,"path1",path1.toString());
+        T s = p.newNode();
+
+        p.putString(s,"path1",path1.toString());
+
+        p.putObject(node,"$path-empty",s);
+
     }
 }

@@ -48,11 +48,15 @@ public class IfPathValues extends If{
         if(values2 == null || values2.isEmpty()){
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No values2 informed");
         }
-        p.putString(node,"path1",path1.toString());
-        Object arri = p.newArrayField(node, "value2");
-        for(String s : values2){
-            p.addStringToArray(arri,s);
+        T s = p.newNode();
+
+        p.putString(s,"path1",path1.toString());
+        Object arri = p.newArrayField(s, "value2");
+        for(String s1 : values2){
+            p.addStringToArray(arri,s1);
         }
-        p.putString(node,"conditional",conditional);
+        p.putString(s,"conditional",conditional);
+
+        p.putObject(node,"$path-check-values",s);
     }
 }
