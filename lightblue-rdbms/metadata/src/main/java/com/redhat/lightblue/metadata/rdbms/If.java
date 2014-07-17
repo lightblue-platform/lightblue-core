@@ -17,5 +17,4 @@ public abstract class If <Z extends If> implements ComplexConverter{
         return conditions;
     }
 
-
 }

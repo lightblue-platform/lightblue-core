@@ -25,6 +25,9 @@ public class IfPathValue extends If {
     }
 
     public void setConditional(String conditional) {
+        if(ConditionalOperators.check(conditional)){
+            throw new IllegalStateException("Not a valid conditional '" +conditional+"'. Valid ConditionalOperators:"+ ConditionalOperators.getValues());
+        }
         this.conditional = conditional;
     }
 
@@ -34,6 +37,15 @@ public class IfPathValue extends If {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+        if(path1 == null || path1.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path1 informed");
+        }
+        if(conditional == null || conditional.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No conditional informed");
+        }
+        if(value2 == null || value2.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No value2 informed");
+        }
         p.putString(node,"path1",path1.toString());
         p.putString(node,"value2",value2);
         p.putString(node,"conditional",conditional);

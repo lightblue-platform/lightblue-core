@@ -7,7 +7,6 @@ import java.util.List;
 
 public class ElseIf implements ComplexConverter {
 
-
     private If anIf;
     private Then then;
 
@@ -33,6 +32,12 @@ public class ElseIf implements ComplexConverter {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+        if(anIf == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No if informed");
+        }
+        if(then == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No then informed");
+        }
         T eT = p.newNode();
 
         T iT = p.newNode();

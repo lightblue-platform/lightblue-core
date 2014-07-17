@@ -15,6 +15,9 @@ public class IfPathEmpty extends  If {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+        if(path1 == null || path1.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path1 informed");
+        }
         p.putString(node,"path1",path1.toString());
     }
 }

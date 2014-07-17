@@ -21,17 +21,4 @@ public class InOut {
     public void setPath(Path path) {
         this.path = path;
     }
-
-    static class A {
-        public static int get(){return 1;}
-    }
-
-    static class B extends A {
-        public static int get(){return 2;}
-    }
-
-    public static void main(String[] args) {
-        B a = new B();
-        System.out.println(a.get());
-    }
 }

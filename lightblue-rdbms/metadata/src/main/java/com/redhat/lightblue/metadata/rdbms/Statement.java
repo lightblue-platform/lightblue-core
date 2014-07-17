@@ -25,7 +25,7 @@ public class Statement extends Expression {
     }
 
     public void setType(String type) {
-        if(TypeOperators.check(type)){
+        if(!TypeOperators.check(type)){
             throw new IllegalStateException("Not a valid type of SQL operation '" +type+"'. Valid types:"+ TypeOperators.getValues());
         }
         this.type = type;

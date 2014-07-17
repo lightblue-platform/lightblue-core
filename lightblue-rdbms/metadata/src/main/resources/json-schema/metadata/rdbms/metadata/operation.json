@@ -128,7 +128,7 @@
                                                      {
                                                         "$if" :
                                                           {
-                                                             "$ref" : "if.json#/definitions/if"
+                                                             "$ref" : "if.json#"
                                                           },
                                                         "$then" :
                                                           {
@@ -186,7 +186,7 @@
                                              {
                                                 "iterateOverPath" :
                                                    {
-                                                      "description" : "Iterate for each value of the given path (which can be a variable or an entity's field)",
+                                                      "description" : "Iterate for each value of the given path (which can be a variable or an entity's field",
                                                       "type" : "string"
                                                    },
                                                 "expressions" :
@@ -251,6 +251,7 @@
       },
    "required" :
       [
+         "bindings",
          "expressions"
       ],
    "additionalProperties" : false

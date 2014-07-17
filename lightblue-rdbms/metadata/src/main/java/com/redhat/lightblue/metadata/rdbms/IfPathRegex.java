@@ -61,12 +61,26 @@ public class IfPathRegex extends If {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+        if(path == null || path.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path1 informed");
+        }
+        if(regex == null || regex.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No conditional informed");
+        }
         p.putString(node,"path",path.toString());
         p.putString(node,"regex",regex);
-        p.putString(node,"case_insensitive",str(caseInsensitive));
-        p.putString(node,"multiline",str(multiline));
-        p.putString(node,"extended",str(extended));
-        p.putString(node,"dotall",str(dotall));
+        if(!caseInsensitive) { // different than the default value
+            p.putString(node, "case_insensitive", str(caseInsensitive));
+        }
+        if(!multiline) {
+            p.putString(node, "multiline", str(multiline));
+        }
+        if(!multiline) {
+            p.putString(node, "extended", str(extended));
+        }
+        if(!multiline) {
+            p.putString(node, "dotall", str(dotall));
+        }
     }
 
     //to make more readable

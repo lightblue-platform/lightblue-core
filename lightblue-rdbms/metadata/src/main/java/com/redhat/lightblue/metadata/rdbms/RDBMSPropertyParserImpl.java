@@ -15,11 +15,11 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_ROOT_NODE_NAME, "Node name informed:"+name);
         }
         RDBMS rdbms = new RDBMS();
-        rdbms.setDelete(parseOperation(p, p.getObjectProperty(node, "delete")));
-        rdbms.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch")));
-        rdbms.setInsert(parseOperation(p, p.getObjectProperty(node, "insert")));
-        rdbms.setSave(parseOperation(p, p.getObjectProperty(node, "save")));
-        rdbms.setUpdate(parseOperation(p, p.getObjectProperty(node, "update")));
+        rdbms.setDelete(parseOperation(p, p.getObjectProperty(node, "delete"),"delete"));
+        rdbms.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch"), "fetch"));
+        rdbms.setInsert(parseOperation(p, p.getObjectProperty(node, "insert"), "insert"));
+        rdbms.setSave(parseOperation(p, p.getObjectProperty(node, "save"), "save"));
+        rdbms.setUpdate(parseOperation(p, p.getObjectProperty(node, "update"), "update"));
 
         return rdbms;
     }
@@ -39,11 +39,17 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         return rdbms;
     }
 
-    private Operation parseOperation(MetadataParser<T> p, T operation) {
+    private Operation parseOperation(MetadataParser<T> p, T operation, String fieldName) {
+        if(operation == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No Operation informed for "+fieldName);
+        }
         T b = p.getObjectProperty(operation, "bindings");
         Bindings bindings = transformToBindings(p, b);
 
         List<T> expressionsT = p.getObjectList(operation, "expressions");
+        if(expressionsT == null || expressionsT.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No expressions informed for Operation "+fieldName);
+        }
         List<Expression> expressions = parseExpressions(p, expressionsT);
 
         final Operation s = new Operation();
@@ -57,12 +63,20 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         final Bindings b = new Bindings();
         List<T> inRaw = p.getObjectList(bindings, "in");
         List<T> outRaw = p.getObjectList(bindings, "out");
+        boolean bI = inRaw == null || inRaw.isEmpty();
+        boolean bO = outRaw == null || outRaw.isEmpty();
+        if(bI && bO){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No InOut informed for Binding");
+        }
 
-        List<InOut> inList = transformToInOut(p, inRaw);
-        List<InOut> outList = transformToInOut(p, outRaw);
-
-        b.setInList(inList);
-        b.setOutList(outList);
+        if(!bI) {
+            List<InOut> inList = transformToInOut(p, inRaw);
+            b.setInList(inList);
+        }
+        if(!bO) {
+            List<InOut> outList = transformToInOut(p, outRaw);
+            b.setOutList(outList);
+        }
 
         return b;
     }
