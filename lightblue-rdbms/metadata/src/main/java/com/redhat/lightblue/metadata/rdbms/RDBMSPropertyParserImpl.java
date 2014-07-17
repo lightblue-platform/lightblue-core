@@ -44,8 +44,10 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No Operation informed for "+fieldName);
         }
         T b = p.getObjectProperty(operation, "bindings");
-        Bindings bindings = transformToBindings(p, b);
-
+        Bindings bindings = null;
+        if(b != null) {
+            bindings = transformToBindings(p, b);
+        }
         List<T> expressionsT = p.getObjectList(operation, "expressions");
         if(expressionsT == null || expressionsT.isEmpty()){
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No expressions informed for Operation "+fieldName);

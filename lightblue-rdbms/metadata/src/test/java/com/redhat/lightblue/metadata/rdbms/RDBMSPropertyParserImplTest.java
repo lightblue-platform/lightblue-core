@@ -34,7 +34,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertTest() throws IOException, ParseException, JSONException, ProcessingException {
+    public void convertTest() throws IOException {
         Extensions<JsonNode> x = new Extensions<>();
         x.addDefaultExtensions();
         x.registerPropertyParser("rdbms",cut);
@@ -102,7 +102,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseTest() throws IOException, ParseException, JSONException, ProcessingException {
+    public void parseTest() throws IOException {
         Extensions<JsonNode> x = new Extensions<>();
         x.addDefaultExtensions();
         x.registerPropertyParser("rdbms",cut);
@@ -111,5 +111,177 @@ public class RDBMSPropertyParserImplTest {
         JsonNode parent = p.newNode();
         cut.convert(p, parent, r);
         Assert.assertEquals(expectedJSON, parent.toString());
+    }
+
+    @Test
+    public void convertAndParseBindingsJustIn() throws IOException {
+        Extensions<JsonNode> x = new Extensions<>();
+        x.addDefaultExtensions();
+        x.registerPropertyParser("rdbms",cut);
+        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+
+        //With just In  bindings
+        Bindings b = new Bindings();
+        ArrayList<InOut> inList = new ArrayList<InOut>();
+        InOut e = new InOut();
+        e.setColumn("col");
+        e.setPath(new Path("pat"));
+        inList.add(e);
+        b.setInList(inList);
+
+        o.setBindings(b);
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        Assert.assertEquals(json, rJSON.toString());
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, r);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+
+    @Test
+    public void convertAndParseBindingsJustOut() throws IOException {
+        Extensions<JsonNode> x = new Extensions<>();
+        x.addDefaultExtensions();
+        x.registerPropertyParser("rdbms",cut);
+        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+
+        //With just Out  bindings
+        Bindings b = new Bindings();
+        ArrayList<InOut> inList = new ArrayList<InOut>();
+        InOut e = new InOut();
+        e.setColumn("col");
+        e.setPath(new Path("pat"));
+        inList.add(e);
+        b.setOutList(inList);
+
+        o.setBindings(b);
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        Assert.assertEquals(json, rJSON.toString());
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, r);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+
+    @Test
+    public void convertAndParseBindingsNone() throws IOException {
+        Extensions<JsonNode> x = new Extensions<>();
+        x.addDefaultExtensions();
+        x.registerPropertyParser("rdbms",cut);
+        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+
+        //No  bindings
+        Bindings b = null;
+
+        o.setBindings(b);
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        Assert.assertEquals(json, rJSON.toString());
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, r);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+
+    @Test
+    public void convertAndParseBindingsBoth() throws IOException {
+        Extensions<JsonNode> x = new Extensions<>();
+        x.addDefaultExtensions();
+        x.registerPropertyParser("rdbms",cut);
+        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+
+        //No  bindings
+        Bindings b = new Bindings();
+        ArrayList<InOut> inList = new ArrayList<InOut>();
+        InOut e = new InOut();
+        e.setColumn("col");
+        e.setPath(new Path("pat"));
+        inList.add(e);
+        b.setInList(inList);
+        ArrayList<InOut> outList = new ArrayList<InOut>();
+        InOut ou = new InOut();
+        ou.setColumn("col1");
+        ou.setPath(new Path("pat1"));
+        outList.add(ou);
+        b.setOutList(outList);
+
+        o.setBindings(b);
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        Assert.assertEquals(json, rJSON.toString());
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, r);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
     }
 }
