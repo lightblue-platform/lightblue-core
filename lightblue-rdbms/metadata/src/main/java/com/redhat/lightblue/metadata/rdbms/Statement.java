@@ -37,8 +37,17 @@ public class Statement extends Expression {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
+        if(SQL == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No SQL statement informed");
+        }
+        if(type == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No type informed");
+        }
+
         T eT = p.newNode();
-        p.putString(eT,"datasource",datasource);
+        if(datasource != null) {
+            p.putString(eT, "datasource", datasource);
+        }
         p.putString(eT,"sql",SQL);
         p.putString(eT,"type",type);
         p.addObjectToArray(expressionsNode, eT);

@@ -120,9 +120,20 @@
                 <version>11.2.0-4</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>2.2.8</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>metadata</artifactId>

@@ -858,6 +858,7 @@ public abstract class MetadataParser<T> {
                     }
                 }
             }
+            convertPropertyParser(ret,info.getProperties());
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -885,6 +886,7 @@ public abstract class MetadataParser<T> {
             putObject(ret, STR_STATUS, convert(schema.getStatus(), schema.getStatusChangeLog()));
             putObject(ret, STR_ACCESS, convert(schema.getAccess()));
             putObject(ret, STR_FIELDS, convert(schema.getFields()));
+            convertPropertyParser(ret,schema.getProperties());
             convertEntityConstraints(ret, schema.getConstraints());
             return ret;
         } catch (Error e) {
@@ -894,6 +896,20 @@ public abstract class MetadataParser<T> {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
+        } finally {
+            Error.pop();
+        }
+    }
+
+    public void convertPropertyParser(T object, Map<String, Object> properties) {
+        Error.push("convertPropertyParser");
+        try {
+            for(String key:properties.keySet()) {
+                PropertyParser p = extensions.getPropertyParser(key);
+                if(p!=null) {
+                    p.convert(this,object,properties.get(key));
+                }
+            }
         } finally {
             Error.pop();
         }
@@ -1064,10 +1080,12 @@ public abstract class MetadataParser<T> {
                 // throw new Error (preserves current error context)
                 LOGGER.error(e.getMessage(), e);
                 throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
+                convertPropertyParser(ret,field.getProperties());
             } finally {
                 Error.pop();
             }
         }
+        convertPropertyParser(ret,fields.getProperties());
         return ret;
     }
 

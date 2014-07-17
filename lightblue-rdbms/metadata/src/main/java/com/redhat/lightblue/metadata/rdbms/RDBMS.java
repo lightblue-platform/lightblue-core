@@ -1,6 +1,6 @@
 package com.redhat.lightblue.metadata.rdbms;
 
-public class RDBMSConfiguration {
+public class RDBMS {
 
     private Operation delete;
     private Operation fetch;

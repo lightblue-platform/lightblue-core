@@ -1,6 +1,5 @@
 package com.redhat.lightblue.metadata.rdbms;
 
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.PropertyParser;
 import com.redhat.lightblue.util.Path;
@@ -9,27 +8,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
+
     @Override
     public Object parse(String name, MetadataParser<T> p, T node) {
         if (!"rdbms".equals(name)) {
-            throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_ROOT_NODE_NAME, "Node name informed:"+name);
         }
-        RDBMSConfiguration rdbmsConfiguration = new RDBMSConfiguration();
-        rdbmsConfiguration.setDelete(parseOperation(p, p.getObjectProperty(node, "delete")));
-        rdbmsConfiguration.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch")));
-        rdbmsConfiguration.setInsert(parseOperation(p, p.getObjectProperty(node, "insert")));
-        rdbmsConfiguration.setSave(parseOperation(p, p.getObjectProperty(node, "save")));
-        rdbmsConfiguration.setUpdate(parseOperation(p, p.getObjectProperty(node, "update")));
+        RDBMS rdbms = new RDBMS();
+        rdbms.setDelete(parseOperation(p, p.getObjectProperty(node, "delete")));
+        rdbms.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch")));
+        rdbms.setInsert(parseOperation(p, p.getObjectProperty(node, "insert")));
+        rdbms.setSave(parseOperation(p, p.getObjectProperty(node, "save")));
+        rdbms.setUpdate(parseOperation(p, p.getObjectProperty(node, "update")));
 
-        return rdbmsConfiguration;
+        return rdbms;
     }
 
     @Override
     public void convert(MetadataParser<T> p, T parent, Object object) {
-        p.putObject(parent,"rdbms", convertRDBMS(p, (RDBMSConfiguration) object));
+        p.putObject(parent,"rdbms", convertRDBMS(p, (RDBMS) object));
     }
 
-    private Object convertRDBMS(MetadataParser<T> p, RDBMSConfiguration object) {
+    private Object convertRDBMS(MetadataParser<T> p, RDBMS object) {
         T rdbms = p.newNode();
         p.putObject(rdbms, "delete", convertOperation(p, object.getDelete()));
         p.putObject(rdbms, "fetch", convertOperation(p, object.getFetch()));
@@ -142,7 +142,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
                 e = c;
             } else {
-                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "No valid field was found");
+                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_FIELD, "No valid field was set as expression ->"+expression.toString());
             }
             result.add(e);
         }
@@ -244,7 +244,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                                 ((IfPathRegex) x).setExtended(Boolean.parseBoolean(extended));
                                                 ((IfPathRegex) x).setDotall(Boolean.parseBoolean(dotall));
                                             } else {
-                                                throw com.redhat.lightblue.util.Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, "No valid field was found on if");
+                                                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_FIELD, "No valid if field was set ->"+ifT.toString());
                                             }
                                         }
                                     }
@@ -293,22 +293,36 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
 
     private Object convertOperation(MetadataParser<T> p, Operation o) {
+        if(o == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No operation informed");
+        }
         T oT = p.newNode();
-        p.putObject(oT, "bindings", convertBindings(p, o.getBindings()));
+        if(o.getBindings() != null) {
+            p.putObject(oT, "bindings", convertBindings(p, o.getBindings()));
+        }
         Object expressions = p.newArrayField(oT, "expressions");
         convertExpressions(p, o.getExpressionList(), expressions);
         return oT;
     }
 
     private Object convertBindings(MetadataParser<T> p, Bindings bindings) {
-        T bT = p.newNode();
-        Object arri = p.newArrayField(bT, "in");
-        for (InOut x : bindings.getInList()) {
-            p.addObjectToArray(arri, convertInOut(p,x));
+        boolean bIn = bindings.getInList() == null || bindings.getInList().size() == 0;
+        boolean bOut = bindings.getOutList() == null || bindings.getOutList().size() == 0;
+        if(bIn && bOut){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No fields found for binding");
         }
-        Object arro = p.newArrayField(bT, "out");
-        for (InOut x : bindings.getOutList()) {
-            p.addObjectToArray(arro, convertInOut(p,x));
+        T bT = p.newNode();
+        if(!bIn) {
+            Object arri = p.newArrayField(bT, "in");
+            for (InOut x : bindings.getInList()) {
+                p.addObjectToArray(arri, convertInOut(p, x));
+            }
+        }
+        if(!bOut) {
+            Object arro = p.newArrayField(bT, "out");
+            for (InOut x : bindings.getOutList()) {
+                p.addObjectToArray(arro, convertInOut(p, x));
+            }
         }
         return bT;
     }
@@ -323,6 +337,9 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
+        if(expressionList == null || expressionList.size() == 0){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Expressions not informed");
+        }
         for (Expression expression : expressionList) {
             expression.convert(p,expressions);
         }

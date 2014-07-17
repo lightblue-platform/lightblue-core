@@ -10,11 +10,12 @@
         "indexes": [
             {
                 "unique": true,
-                "fields": [{"field":"person", "dir":"$asc"}]
+                "fields": [{"person": "$asc"}]
             }
         ],
         "datastore": {
-            "backend":"empty"
+            "empty": {
+            }
         }
     },
     "schema": {
@@ -125,7 +126,9 @@
             "lastUpdateDate": {
                 "type": "date"
             }
+        },
+        "rdbms":{
+            "answer": "42"
         }
-
     }
 }

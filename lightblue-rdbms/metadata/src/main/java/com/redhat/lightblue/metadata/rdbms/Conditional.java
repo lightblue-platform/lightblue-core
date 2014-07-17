@@ -44,22 +44,31 @@ public class Conditional  extends Expression {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
+        if(anIf ==  null) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $if informed");
+        }
+        if(then ==  null) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $then informed");
+        }
         T eT = p.newNode();
-
         T iT = p.newNode();
-        anIf.convert(p,expressionsNode,iT);
+
+
+        anIf.convert(p, expressionsNode, iT);
         p.putObject(eT, "$if", iT);
 
         then.convert(p, expressionsNode, eT);
 
-        if(!elseIfList.isEmpty()) {
+        if(elseIfList != null && !elseIfList.isEmpty()) {
             Object arri = p.newArrayField(eT, "$elseIf");
             for (ElseIf e : elseIfList) {
                 e.convert(p, arri, eT);
             }
         }
 
-        anElse.convert(p, expressionsNode, eT);
+        if(anElse != null) {
+            anElse.convert(p, expressionsNode, eT);
+        }
 
         p.addObjectToArray(expressionsNode,eT);
     }
