@@ -4,7 +4,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +19,7 @@ public class RDBMSContext <T> {
     private RowMapper<T> rowMapper = null;
     private List<T> resultList = null;
     private Set<Parameter> parameters = null;
+    private Set<TableField> tableFields = null;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -115,5 +115,13 @@ public class RDBMSContext <T> {
                 ", resultList=" + resultList +
                 ", parameters=" + parameters +
                 '}';
+    }
+
+    public Set<TableField> getTableFields() {
+        return tableFields;
+    }
+
+    public void setTableFields(Set<TableField> tableFields) {
+        this.tableFields = tableFields;
     }
 }

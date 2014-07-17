@@ -18,55 +18,32 @@
  */
 package com.redhat.lightblue.mediator;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.*;
+import com.redhat.lightblue.crud.*;
+import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
+import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.test.DatabaseMetadata;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.ClientIdentification;
-import com.redhat.lightblue.EntityVersion;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
-import com.redhat.lightblue.crud.CRUDController;
-import com.redhat.lightblue.crud.CRUDDeleteResponse;
-import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.CRUDInsertionResponse;
-import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.CRUDSaveResponse;
-import com.redhat.lightblue.crud.CRUDUpdateResponse;
-import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.crud.DeleteRequest;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.FindRequest;
-import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.crud.SaveRequest;
-import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
-import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.EntityInfo;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.test.DatabaseMetadata;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.TestDataStoreParser;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.UpdateExpression;
-import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import static org.hamcrest.CoreMatchers.containsString;
 
 public class MediatorTest extends AbstractJsonSchemaTest {
     private Mediator mediator;

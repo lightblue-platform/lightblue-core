@@ -4,12 +4,11 @@ import com.redhat.lightblue.common.rdbms.Parameter;
 import com.redhat.lightblue.common.rdbms.RDBMSContext;
 import com.redhat.lightblue.common.rdbms.TableField;
 import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 
-import java.util.*;
+import java.util.HashSet;
 
 public class QueryTranslator {
 
@@ -36,9 +35,5 @@ public class QueryTranslator {
             return;
         }
 
-
-
-
     }
 }
-

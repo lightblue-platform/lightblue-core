@@ -18,19 +18,11 @@
  */
 package com.redhat.lightblue.metadata.mongo;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
-import org.bson.BSONObject;
-
 import com.mongodb.BasicDBObject;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntitySchema;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -39,8 +31,11 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import org.bson.BSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BSONParser extends MetadataParser<BSONObject> {
@@ -174,7 +169,7 @@ public class BSONParser extends MetadataParser<BSONObject> {
 
     @Override
     public Set<String> findFieldsNotIn(BSONObject elements, Set<String> removeAllFields) {
-        final Set<String> strings = elements.keySet();
+        final Set<String> strings = new HashSet<>(elements.keySet());
         strings.removeAll(removeAllFields);
         return strings;
     }

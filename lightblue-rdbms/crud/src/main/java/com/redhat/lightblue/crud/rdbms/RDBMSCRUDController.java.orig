@@ -25,9 +25,8 @@ import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.hystrix.rdbms.QueryCommand;
-import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.mongo.hystrix.FindCommand;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -37,6 +36,11 @@ import com.redhat.lightblue.util.JsonDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -164,15 +168,5 @@ public class RDBMSCRUDController implements CRUDController {
         }
         LOGGER.debug("find end: query: {} results: {}", response.getSize());
         return response;
-    }
-
-    @Override
-    public void updateEntityInfo(Metadata md, EntityInfo ei) {
-
-    }
-
-    @Override
-    public void newSchema(Metadata md, EntityMetadata emd) {
-
     }
 }
