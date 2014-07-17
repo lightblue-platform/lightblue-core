@@ -21,25 +21,27 @@ import java.util.ArrayList;
 public class RDBMSPropertyParserImplTest {
 
     RDBMSPropertyParserImpl cut;
+    JSONMetadataParser p;
+
     static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
     @Before
     public void setup() {
         cut = new RDBMSPropertyParserImpl();
+        Extensions<JsonNode> x = new Extensions<>();
+        x.addDefaultExtensions();
+        x.registerPropertyParser("rdbms",cut);
+        p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
     }
 
     @After
     public void tearDown() {
         cut = null;
+        p = null;
     }
 
     @Test
     public void convertTest() throws IOException {
-        Extensions<JsonNode> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerPropertyParser("rdbms",cut);
-        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
-
         JsonNode parent = p.newNode();
         RDBMS r = new RDBMS();
 
@@ -103,10 +105,6 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseTest() throws IOException {
-        Extensions<JsonNode> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerPropertyParser("rdbms",cut);
-        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
         Object r = cut.parse("rdbms", p, JsonUtils.json(expectedJSON).get("rdbms"));
         JsonNode parent = p.newNode();
         cut.convert(p, parent, r);
@@ -114,11 +112,62 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
+    public void convertAndParseBindingsFieldsReq() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+
+        //With just In  bindings
+        Bindings b = new Bindings();
+        ArrayList<InOut> inList = new ArrayList<InOut>();
+        InOut e = new InOut();
+        e.setColumn("col");
+        inList.add(e);
+        b.setInList(inList);
+
+        o.setBindings(b);
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+
+        NullPointerException npe = null;
+        try {
+            cut.convert(p, rJSON, r);
+        } catch (NullPointerException ex){
+            npe = ex;
+        } finally {
+            /*
+                Expected to get NPE due a programmatic error. Maybe we could add constraints about that, but that could make maintain harder and not be very valuable to the project
+             */
+            Assert.assertNotNull(e);
+        }
+        Assert.assertEquals("{}", rJSON.toString());
+
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } finally {
+            /*
+                Expected to get NPE due a programmatic error. Maybe we could add constraints about that, but that could make maintain harder and not be very valuable to the project
+             */
+            Assert.assertNotNull(error);
+        }
+    }
+
+    @Test
     public void convertAndParseBindingsJustIn() throws IOException {
-        Extensions<JsonNode> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerPropertyParser("rdbms",cut);
-        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
         String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
@@ -151,17 +200,13 @@ public class RDBMSPropertyParserImplTest {
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
-        cut.convert(p, roJSON, r);
+        cut.convert(p, roJSON, ro);
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
     }
 
     @Test
     public void convertAndParseBindingsJustOut() throws IOException {
-        Extensions<JsonNode> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerPropertyParser("rdbms",cut);
-        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
         String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
@@ -194,17 +239,13 @@ public class RDBMSPropertyParserImplTest {
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
-        cut.convert(p, roJSON, r);
+        cut.convert(p, roJSON, ro);
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
     }
 
     @Test
     public void convertAndParseBindingsNone() throws IOException {
-        Extensions<JsonNode> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerPropertyParser("rdbms",cut);
-        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
         String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
@@ -231,17 +272,13 @@ public class RDBMSPropertyParserImplTest {
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
-        cut.convert(p, roJSON, r);
+        cut.convert(p, roJSON, ro);
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
     }
 
     @Test
     public void convertAndParseBindingsBoth() throws IOException {
-        Extensions<JsonNode> x = new Extensions<>();
-        x.addDefaultExtensions();
-        x.registerPropertyParser("rdbms",cut);
-        JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
         String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
@@ -280,7 +317,35 @@ public class RDBMSPropertyParserImplTest {
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
-        cut.convert(p, roJSON, r);
+        cut.convert(p, roJSON, ro);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+
+    @Test
+    public void convertAndParseStatement() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        Assert.assertEquals(json, rJSON.toString());
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, ro);
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
     }

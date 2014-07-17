@@ -87,8 +87,17 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         final ArrayList<InOut> result = new ArrayList<>();
         for (T t : inRaw) {
             InOut a = new InOut();
-            a.setColumn(p.getStringProperty(t, "column"));
-            a.setPath(new Path(p.getStringProperty(t, "path")));
+            String column = p.getStringProperty(t, "column");
+            if (column == null || column.isEmpty() ){
+                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No column informed");
+            }
+            a.setColumn(column);
+
+            String path = p.getStringProperty(t, "path");
+            if (path == null || path.isEmpty() ){
+                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path informed");
+            }
+            a.setPath(new Path(path));
 
             result.add(a);
         }
