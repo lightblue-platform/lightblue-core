@@ -140,16 +140,15 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(o);
         r.setUpdate(o);
 
-        NullPointerException npe = null;
+        com.redhat.lightblue.util.Error xe = null;
         try {
             cut.convert(p, rJSON, r);
-        } catch (NullPointerException ex){
-            npe = ex;
+        } catch (com.redhat.lightblue.util.Error ex){
+            xe = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
         } finally {
-            /*
-                Expected to get NPE due a programmatic error. Maybe we could add constraints about that, but that could make maintain harder and not be very valuable to the project
-             */
-            Assert.assertNotNull(e);
+            Assert.assertNotNull(xe);
         }
         Assert.assertEquals("{}", rJSON.toString());
 
@@ -158,10 +157,9 @@ public class RDBMSPropertyParserImplTest {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         } catch (com.redhat.lightblue.util.Error ex){
             error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
         } finally {
-            /*
-                Expected to get NPE due a programmatic error. Maybe we could add constraints about that, but that could make maintain harder and not be very valuable to the project
-             */
             Assert.assertNotNull(error);
         }
     }
@@ -348,5 +346,118 @@ public class RDBMSPropertyParserImplTest {
         cut.convert(p, roJSON, ro);
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+    
+    @Test
+    public void convertAndParseForEachMissingIterateOverPath() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        ForEach forEach = new ForEach();
+        ArrayList<Expression> el = new ArrayList<Expression>();
+        Statement es = new Statement();
+        es.setSQL("X");
+        es.setType("select");
+        el.add(es);
+        forEach.setExpressions(el);
+        expressionList.add(forEach);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        com.redhat.lightblue.util.Error xe = null;
+        try {
+            cut.convert(p, rJSON, r);
+        } catch (com.redhat.lightblue.util.Error ex){
+            xe = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(xe);
+        }
+        Assert.assertEquals("{}", rJSON.toString());
+
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    
+    @Test
+    public void convertAndParseForEachMissingExpressions() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        ForEach forEach = new ForEach();
+        forEach.setIterateOverPath(Path.ANYPATH);
+        expressionList.add(forEach);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        com.redhat.lightblue.util.Error xe = null;
+        try {
+            cut.convert(p, rJSON, r);
+        } catch (com.redhat.lightblue.util.Error ex){
+            xe = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(xe);
+        }
+        Assert.assertEquals("{}", rJSON.toString());
+
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    @Test
+    public void generateContent() throws IOException {
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        ForEach forEach = new ForEach();
+        ArrayList<Expression> el = new ArrayList<Expression>();
+        Statement es = new Statement();
+        es.setSQL("X");
+        es.setType("select");
+        el.add(es);
+        forEach.setExpressions(el);
+        forEach.setIterateOverPath(Path.ANYPATH);
+        expressionList.add(forEach);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        Assert.assertEquals("", rJSON.toString());
     }
 }

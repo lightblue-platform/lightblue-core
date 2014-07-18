@@ -14,12 +14,8 @@ public class ElseIf implements ComplexConverter {
         this.anIf = anIf;
     }
 
-    public If getAnIf() {
+    public If getIf() {
         return anIf;
-    }
-
-    public void setAnIf(If anIf) {
-        this.anIf = anIf;
     }
 
     public void setThen(Then then) {

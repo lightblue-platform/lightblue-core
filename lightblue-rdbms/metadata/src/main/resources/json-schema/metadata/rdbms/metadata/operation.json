@@ -41,6 +41,11 @@
                                              "type" : "string"
                                           }
                                     },
+                                "required" :
+                                   [
+                                      "column",
+                                      "path"
+                                   ],
                                  "additionalProperties" : false
                               }
                         },
@@ -208,7 +213,7 @@
                                              ],
                                           "additionalProperties" : false
                                        }
-                                 }
+                                 },
                               "required" :
                                  [
                                     "$foreach"
@@ -245,7 +250,7 @@
                                                 "additionalProperties" : false
                                              }
                                        }
-                                 }
+                                 },
                               "required" :
                                  [
                                     "$for"
