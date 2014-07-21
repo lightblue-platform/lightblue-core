@@ -83,7 +83,14 @@ public class IfPathRegex extends If {
         if(!multiline) {
             p.putString(s, "dotall", str(dotall));
         }
-        p.putObject(node,"$path-regex",s);
+        
+        if(lastArrayNode == null){
+            p.putObject(node,"$path-regex",s);
+        } else {
+            T iT = p.newNode();
+            p.putObject(iT,"$path-regex",s);
+            p.addObjectToArray(lastArrayNode, iT);
+        }
     }
 
     //to make more readable

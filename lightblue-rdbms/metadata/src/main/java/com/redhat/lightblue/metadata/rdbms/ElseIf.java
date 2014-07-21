@@ -39,8 +39,8 @@ public class ElseIf implements ComplexConverter {
         T iT = p.newNode();
         p.putObject(eT, "$if", iT);
 
-        anIf.convert(p,lastArrayNode,iT);
-        then.convert(p,lastArrayNode,eT); //it already add $then
+        anIf.convert(p,null,iT);
+        then.convert(p,null,eT); //it already add $then
 
         p.addObjectToArray(lastArrayNode,eT);
     }

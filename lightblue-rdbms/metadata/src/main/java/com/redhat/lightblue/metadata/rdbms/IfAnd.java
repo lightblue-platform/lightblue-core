@@ -8,10 +8,16 @@ public class IfAnd extends If<If> {
         if(getConditions() == null || getConditions().size() < 2){
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$and/$all doesn't have enough conditionals");
         }
-        T eT = p.newNode();
-        for(If i : getConditions()) {
-            i.convert(p, lastArrayNode, eT);
+        Object eT = null;
+        if(lastArrayNode == null){
+            eT = p.newArrayField(node, "$and");
+        } else {
+            T iT = p.newNode();
+            eT = p.newArrayField(iT, "$and");
+            p.addObjectToArray(lastArrayNode, iT);
         }
-        p.putObject(node, "$and", eT);
+        for(If i : getConditions()) {
+            i.convert(p, eT, node);
+        }
     }
 }

@@ -22,7 +22,12 @@ public class IfPathEmpty extends  If {
 
         p.putString(s,"path1",path1.toString());
 
-        p.putObject(node,"$path-empty",s);
-
+        if(lastArrayNode == null){
+            p.putObject(node,"$path-empty",s);
+        } else {
+            T iT = p.newNode();
+            p.putObject(iT,"$path-empty",s);
+            p.addObjectToArray(lastArrayNode, iT);
+        }
     }
 }

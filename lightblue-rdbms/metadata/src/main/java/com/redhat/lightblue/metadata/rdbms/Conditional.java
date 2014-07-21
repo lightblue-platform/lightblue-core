@@ -54,20 +54,20 @@ public class Conditional  extends Expression {
         T iT = p.newNode();
 
 
-        anIf.convert(p, expressionsNode, iT);
+        anIf.convert(p, null, iT);
         p.putObject(eT, "$if", iT);
 
-        then.convert(p, expressionsNode, eT);
+        then.convert(p, null, eT);
 
         if(elseIfList != null && !elseIfList.isEmpty()) {
             Object arri = p.newArrayField(eT, "$elseIf");
             for (ElseIf e : elseIfList) {
-                e.convert(p, arri, eT);
+                e.convert(p, arri, null);
             }
         }
 
         if(anElse != null) {
-            anElse.convert(p, expressionsNode, eT);
+            anElse.convert(p, null, eT);
         }
 
         p.addObjectToArray(expressionsNode,eT);

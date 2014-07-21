@@ -656,7 +656,6 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(o);
         r.setUpdate(o);
         cut.convert(p, rJSON, r);
-        System.out.println(rJSON.toString());
         Assert.assertEquals(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -699,7 +698,7 @@ public class RDBMSPropertyParserImplTest {
     
     @Test
     public void convertAndParseIfOr() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
@@ -752,6 +751,7 @@ public class RDBMSPropertyParserImplTest {
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
         IfOr ifOr = new IfOr();
+        IfAnd ifAnd = new IfAnd();
         IfPathValue anIf = new IfPathValue();
         anIf.setConditional("equalTo");
         anIf.setPath1(new Path("abc"));
@@ -761,7 +761,9 @@ public class RDBMSPropertyParserImplTest {
         anIf2.setPath1(new Path("abc"));
         anIf2.setValue2("123");
         List asList = Arrays.asList(anIf, anIf2);
-        ifOr.setConditions(((List<If>)asList));
+        ifAnd.setConditions(((List<If>)asList));
+        List asList2 = Arrays.asList(ifAnd, anIf2);
+        ifOr.setConditions(((List<If>)asList2));
         e4.setIf(ifOr);
         Then then = new Then();
         ArrayList<Expression> expressions2 = new ArrayList<Expression>();

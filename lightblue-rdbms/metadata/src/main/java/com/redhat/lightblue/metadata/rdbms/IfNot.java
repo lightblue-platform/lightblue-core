@@ -11,6 +11,12 @@ public class IfNot extends If<If> {
         If o = getConditions().get(0);
         T eT = p.newNode();
         o.convert(p,lastArrayNode,eT);
-        p.putObject(node,"$not",eT);
+        if(lastArrayNode == null){
+            p.putObject(node,"$not",eT);
+        } else {
+            T iT = p.newNode();
+            p.putObject(iT,"$not",eT);
+            p.addObjectToArray(lastArrayNode, iT);
+        }
     }
 }

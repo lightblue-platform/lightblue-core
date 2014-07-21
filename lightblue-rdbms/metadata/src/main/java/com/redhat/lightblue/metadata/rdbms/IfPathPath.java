@@ -52,6 +52,12 @@ public class IfPathPath extends If {
         p.putString(s,"path2",path2.toString());
         p.putString(s,"conditional",conditional);
 
-        p.putObject(node,"$path-check-path",s);
+        if(lastArrayNode == null){
+            p.putObject(node,"$path-check-path",s);
+        } else {
+            T iT = p.newNode();
+            p.putObject(iT,"$path-check-path",s);
+            p.addObjectToArray(lastArrayNode, iT);
+        }
     }
 }
