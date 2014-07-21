@@ -51,7 +51,7 @@ public class IfPathValues extends If{
         T s = p.newNode();
 
         p.putString(s,"path1",path1.toString());
-        Object arri = p.newArrayField(s, "value2");
+        Object arri = p.newArrayField(s, "values2");
         for(String s1 : values2){
             p.addStringToArray(arri,s1);
         }

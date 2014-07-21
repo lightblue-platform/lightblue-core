@@ -39,18 +39,14 @@ public class IfPathPathTest {
 
     @Test
     public void testGetSetConditional() {
-        String expResult = null;
+        String expResult = "lessThan";
         IfPathPath instance = new IfPathPath();
         instance.setConditional(expResult);
         String result = instance.getConditional();
         assertEquals(expResult, result);
-        expResult = "x";
+        expResult = "equalTo";
         instance.setConditional(expResult);
         result = instance.getConditional();
         assertEquals(expResult, result);
     }
-
-
-   
-    
 }
