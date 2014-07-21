@@ -25,7 +25,7 @@ public class IfPathValue extends If {
     }
 
     public void setConditional(String conditional) {
-        if(ConditionalOperators.check(conditional)){
+        if(!ConditionalOperators.check(conditional)){
             throw new IllegalStateException("Not a valid conditional '" +conditional+"'. Valid ConditionalOperators:"+ ConditionalOperators.getValues());
         }
         this.conditional = conditional;

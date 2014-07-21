@@ -8,22 +8,23 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-
 public class RDBMSPropertyParserImplTest {
 
     RDBMSPropertyParserImpl cut;
     JSONMetadataParser p;
 
-    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalsTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
     @Before
     public void setup() {
@@ -78,7 +79,7 @@ public class RDBMSPropertyParserImplTest {
 
         Conditional e4 = new Conditional();
         IfPathValue anIf = new IfPathValue();
-        anIf.setConditional("equalsTo");
+        anIf.setConditional("equalTo");
         anIf.setPath1(new Path("abc"));
         anIf.setValue2("123");
         e4.setIf(anIf);
@@ -109,6 +110,51 @@ public class RDBMSPropertyParserImplTest {
         JsonNode parent = p.newNode();
         cut.convert(p, parent, r);
         Assert.assertEquals(expectedJSON, parent.toString());
+    }
+    
+    @Test
+    public void parseWrongNodeName() throws IOException {
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object r = cut.parse("x", p, JsonUtils.json(expectedJSON).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    @Test
+    public void parseMissingOperation() throws IOException {
+        String json = "{\"rdbms\":{}}";
+
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    @Test
+    public void parseMissingOperationsExpressions() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"ke\"}]},\"X\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
     }
 
     @Test
@@ -274,7 +320,37 @@ public class RDBMSPropertyParserImplTest {
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
     }
-
+    
+    @Test
+    public void parseBindingsWrong() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    @Test
+    public void parseInOutMissingColumn() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"path\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
     @Test
     public void convertAndParseBindingsBoth() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"path\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
@@ -346,6 +422,37 @@ public class RDBMSPropertyParserImplTest {
         cut.convert(p, roJSON, ro);
         Assert.assertEquals(json, roJSON.toString());
         Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+    
+     
+    @Test
+    public void parseMissingStatemtentsSQL() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"type\":\"select\"}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+        @Test
+    public void parseMissingStatemtentsType() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\"}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
     }
     
     @Test
@@ -436,21 +543,112 @@ public class RDBMSPropertyParserImplTest {
         }
     }
     
+    
     @Test
-    public void generateContent() throws IOException {
+    public void parseForMissingLoopTimes() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopCounterVariableName\":\"2\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+      @Test
+    public void parseForLoopTimesNotInteger() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"A\",\"loopCounterVariableName\":\"2\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+      @Test
+    public void parseForMissingLoopCounterVariableName() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"1\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+      @Test
+    public void parseForMissingExpressions() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"2\"}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+        
+      @Test
+    public void parseWrongExpression() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"Wrong\":{}}]}}}";
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    @Test
+    public void convertAndParseElseIf() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
-        ForEach forEach = new ForEach();
-        ArrayList<Expression> el = new ArrayList<Expression>();
-        Statement es = new Statement();
-        es.setSQL("X");
-        es.setType("select");
-        el.add(es);
-        forEach.setExpressions(el);
-        forEach.setIterateOverPath(Path.ANYPATH);
-        expressionList.add(forEach);
+        Conditional e4 = new Conditional();
+        IfPathValue anIf = new IfPathValue();
+        anIf.setConditional("equalTo");
+        anIf.setPath1(new Path("abc"));
+        anIf.setValue2("123");
+        e4.setIf(anIf);
+        Then then = new Then();
+        ArrayList<Expression> expressions2 = new ArrayList<Expression>();
+        Statement e5 = new Statement();
+        e5.setType("delete");
+        e5.setSQL("DELETE FROM somewhere WHERE someColumn=someValue");
+        expressions2.add(e5);
+        then.setExpressions(expressions2);
+        e4.setThen(then);
+        ArrayList<ElseIf> arrayList = new ArrayList<ElseIf>();
+        final ElseIf elseIf = new ElseIf();
+        elseIf.setIf(anIf);
+        elseIf.setThen(then);
+        arrayList.add(elseIf);                
+        e4.setElseIfList(arrayList);
+        expressionList.add(e4);
         o.setExpressionList(expressionList);
         r.setDelete(o);
         r.setFetch(o);
@@ -458,6 +656,130 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(o);
         r.setUpdate(o);
         cut.convert(p, rJSON, r);
-        Assert.assertEquals("", rJSON.toString());
+        System.out.println(rJSON.toString());
+        Assert.assertEquals(json, rJSON.toString());
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, ro);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+    
+    @Test
+    public void parseElseIfMissingIf() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$ifx\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";        
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }
+    
+    @Test
+    public void parseElseIfMissingThen() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$thenX\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";        
+        com.redhat.lightblue.util.Error error = null;
+        try {
+            Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (com.redhat.lightblue.util.Error ex){
+            error = ex;
+        } catch (Throwable exx){
+            exx.printStackTrace();
+        } finally {
+            Assert.assertNotNull(error);
+        }
+    }    
+    
+    
+    @Test
+    public void convertAndParseIfOr() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"lessThan\"}}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Conditional e4 = new Conditional();
+        IfOr ifOr = new IfOr();
+        IfPathValue anIf = new IfPathValue();
+        anIf.setConditional("equalTo");
+        anIf.setPath1(new Path("abc"));
+        anIf.setValue2("123");
+        IfPathValue anIf2 = new IfPathValue();
+        anIf2.setConditional("lessThan");
+        anIf2.setPath1(new Path("abc"));
+        anIf2.setValue2("123");
+        List asList = Arrays.asList(anIf, anIf2);
+        ifOr.setConditions(((List<If>)asList));
+        e4.setIf(ifOr);
+        Then then = new Then();
+        ArrayList<Expression> expressions2 = new ArrayList<Expression>();
+        Statement e5 = new Statement();
+        e5.setType("delete");
+        e5.setSQL("DELETE FROM somewhere WHERE someColumn=someValue");
+        expressions2.add(e5);
+        then.setExpressions(expressions2);
+        e4.setThen(then);
+        expressionList.add(e4);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+
+        Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        JsonNode roJSON = p.newNode();
+        cut.convert(p, roJSON, ro);
+        Assert.assertEquals(json, roJSON.toString());
+        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+    }
+    
+    @Test
+    public void generateContent() throws IOException {
+        
+        
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Conditional e4 = new Conditional();
+        IfOr ifOr = new IfOr();
+        IfPathValue anIf = new IfPathValue();
+        anIf.setConditional("equalTo");
+        anIf.setPath1(new Path("abc"));
+        anIf.setValue2("123");
+        IfPathValue anIf2 = new IfPathValue();
+        anIf2.setConditional("lessThan");
+        anIf2.setPath1(new Path("abc"));
+        anIf2.setValue2("123");
+        List asList = Arrays.asList(anIf, anIf2);
+        ifOr.setConditions(((List<If>)asList));
+        e4.setIf(ifOr);
+        Then then = new Then();
+        ArrayList<Expression> expressions2 = new ArrayList<Expression>();
+        Statement e5 = new Statement();
+        e5.setType("delete");
+        e5.setSQL("DELETE FROM somewhere WHERE someColumn=someValue");
+        expressions2.add(e5);
+        then.setExpressions(expressions2);
+        e4.setThen(then);
+        expressionList.add(e4);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+        r.setFetch(o);
+        r.setInsert(o);
+        r.setSave(o);
+        r.setUpdate(o);
+        cut.convert(p, rJSON, r);
+        
+        System.out.println("\n!!!!!!!!!!!!!!!!!!!!\n"+rJSON.toString()+"\n!!!!!!!!!!!!!!!!!!!!\n");
     }
 }

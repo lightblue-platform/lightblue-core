@@ -46,7 +46,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         T b = p.getObjectProperty(operation, "bindings");
         Bindings bindings = null;
         if(b != null) {
-            bindings = transformToBindings(p, b);
+            bindings = parseBindings(p, b);
         }
         List<T> expressionsT = p.getObjectList(operation, "expressions");
         if(expressionsT == null || expressionsT.isEmpty()){
@@ -61,7 +61,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         return s;
     }
 
-    private Bindings transformToBindings(MetadataParser<T> p,T bindings) {
+    private Bindings parseBindings(MetadataParser<T> p,T bindings) {
         final Bindings b = new Bindings();
         List<T> inRaw = p.getObjectList(bindings, "in");
         List<T> outRaw = p.getObjectList(bindings, "out");
@@ -209,7 +209,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $elseif: No $if or $then informed");
                 }
                 If eiIf = parseIf(p, eiIfT);
-                Then eiThen = parseThen(p, eiThenT);
+                Then eiThen = parseThen(p, ei);
 
                 ElseIf elseIf = new ElseIf();
                 elseIf.setIf(eiIf);
@@ -360,22 +360,21 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private Then parseThenOrElse(MetadataParser<T> p, T t, String name, Then then) {
-        try {
-            String loopOperator = p.getStringProperty(t, name);
+        try{
+            String loopOperator = p.getStringProperty(t, name); // getStringProperty  doesnt throw execption when field doesnt exist (but if it doesnt and it isnt the right type it throws and execption)
             if(loopOperator != null) {
                 then.setLoopOperator(loopOperator);
-            } else if (!name.equals("$else")){
-                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No operation informed");
             } else {
-                return null;
+                List<T> expressionsT= p.getObjectList(t, name);
+                List<Expression> expressions = parseExpressions(p, expressionsT);
+                then.setExpressions(expressions);
             }
-        } catch (com.redhat.lightblue.util.Error e){
-            if(e.getErrorCode().contains("RDBMS")){
-                throw e;
-            }
+        } catch(com.redhat.lightblue.util.Error e){
             List<T> expressionsT= p.getObjectList(t, name);
             List<Expression> expressions = parseExpressions(p, expressionsT);
             then.setExpressions(expressions);
+        } catch (Throwable te){
+            return null;
         }
 
         return then;
