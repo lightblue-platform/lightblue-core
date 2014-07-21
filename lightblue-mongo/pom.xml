@@ -23,6 +23,7 @@
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
+        <relativePath></relativePath>
     </parent>
     <groupId>com.redhat.lightblue.mongo</groupId>
     <artifactId>mongo-pom</artifactId>
@@ -94,7 +95,7 @@
                 <groupId>org.skyscreamer</groupId>
                 <artifactId>jsonassert</artifactId>
                 <version>1.2.1</version>
-            </dependency>       
+            </dependency>
            <dependency>
                 <groupId>com.netflix.hystrix</groupId>
                 <artifactId>hystrix-core</artifactId>
