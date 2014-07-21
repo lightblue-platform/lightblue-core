@@ -2,6 +2,7 @@ package com.redhat.lightblue.metadata.rdbms;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.util.Path;
+import java.util.List;
 
 public class IfPathEmpty extends  If {
     private Path path1;
@@ -11,7 +12,7 @@ public class IfPathEmpty extends  If {
 
     public Path getPath1() {
         return path1;
-    }
+    }   
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {

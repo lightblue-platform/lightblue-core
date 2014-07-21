@@ -244,6 +244,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                         if (notIfT != null) {
                             If y = parseIf(p, notIfT);
                             x = new IfNot();
+                            x.setConditions(new ArrayList());
                             x.getConditions().add(y);
                         } else {
                             T pathEmpty = p.getObjectProperty(ifT, "$path-empty");
