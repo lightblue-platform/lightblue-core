@@ -24,7 +24,7 @@ public class IfNot extends If<If> {
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
         if (getConditions() == null || getConditions().size() != 1) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$not doesn't have just one conditional");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$not doesn't have just one conditional");
         }
         If o = getConditions().get(0);
         T eT = p.newNode();

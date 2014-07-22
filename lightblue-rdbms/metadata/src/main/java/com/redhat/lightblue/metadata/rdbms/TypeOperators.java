@@ -35,9 +35,6 @@ public class TypeOperators {
     }
 
     public static boolean check(String value) {
-        if (singleton.getValues().contains(value)) {
-            return true;
-        }
-        return false;
+        return singleton.getValues().contains(value);
     }
 }

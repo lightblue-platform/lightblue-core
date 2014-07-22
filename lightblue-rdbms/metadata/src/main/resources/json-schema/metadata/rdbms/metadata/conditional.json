@@ -1,224 +1,182 @@
 {
-   "copyright" :
-      [
-         "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
-         "This file is part of lightblue.",
-         "This program is free software: you can redistribute it and/or modify",
-         "it under the terms of the GNU General Public License as published by",
-         "the Free Software Foundation, either version 3 of the License, or",
-         "(at your option) any later version.",
-         "This program is distributed in the hope that it will be useful,",
-         "but WITHOUT ANY WARRANTY; without even the implied warranty of",
-         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
-         "GNU General Public License for more details.",
-         "You should have received a copy of the GNU General Public License",
-         "along with this program.  If not, see <http://www.gnu.org/licenses/>."
-      ],
-   "id" : "#conditional",
-   "$schema" : "http://json-schema.org/draft-04/schema#",
-   "type" : "object",
-   "properties" :
-      {
-         "$or" :
-            {
-               "description" : "Match any",
-               "type" : "array",
-               "minItems" : 2,
-               "items" :
-                  {
-                     "$ref" : "if.json#/definitions/if"
-                  }
-            },
-         "$any" :
-            {
-               "$ref" : "#/properties/$or"
-            },
-         "$and" :
-            {
-               "description" : "Match all",
-               "$ref" : "#/properties/$or"
-            },
-         "$all" :
-            {
-               "$ref" : "#/properties/$and"
-            },
-         "$not" :
-            {
-               "description" : "Charge the evaluation from true to false vice versa",
-               "$ref" : "if.json#/definitions/if"
-            },
-         "$path-empty" :
-            {
-               "type" : "object",
-               "properties" :
-                  {
-                     "path1" :
-                        {
-                           "type" : "string"
-                        }
-                  },
-               "required" :
-                  [
-                     "conditional",
-                     "path1"
-                  ],
-               "additionalProperties" : false
-            },
-         "$path-check-path" :
-            {
-               "type" : "object",
-               "properties" :
-                  {
-                     "conditional" :
-                        {
-                           "enum" :
-                              [
-                                 "$greaterThan",
-                                 "$lessThan",
-                                 "$equalTo",
-                                 "$notEqualTo",
-                                 "$greaterThanOrEqualTo",
-                                 "$lessThanOrEqualTo",
-                                 "$in",
-                                 "$notIn",
-                                 "$contains"
-                              ]
-                        },
-                     "path1" :
-                        {
-                           "type" : "string"
-                        },
-                     "path2" :
-                        {
-                           "type" : "string"
-                        }
-                  },
-               "required" :
-                  [
-                     "conditional",
-                     "path1",
-                     "path2"
-                  ],
-               "additionalProperties" : false
-            },
-         "$path-check-value" :
-            {
-               "type" : "object",
-               "properties" :
-                  {
-                     "conditional" :
-                        {
-                           "enum" :
-                              [
-                                 "$greaterThan",
-                                 "$lessThan",
-                                 "$equalTo",
-                                 "$notEqualTo",
-                                 "$greaterThanOrEqualTo",
-                                 "$lessThanOrEqualTo",
-                                 "$in",
-                                 "$notIn",
-                                 "$contains"
-                              ]
-                        },
-                     "path1" :
-                        {
-                           "type" : "string"
-                        },
-                     "value2" :
-                        {
-                           "type" : "string"
-                        }
-                  },
-               "required" :
-                  [
-                     "conditional",
-                     "path1",
-                     "value2"
-                  ],
-               "additionalProperties" : false
-            },
-         "$path-check-values" :
-            {
-               "type" : "object",
-               "properties" :
-                  {
-                     "conditional" :
-                        {
-                           "enum" :
-                              [
-                                 "$greaterThan",
-                                 "$lessThan",
-                                 "$equalTo",
-                                 "$notEqualTo",
-                                 "$greaterThanOrEqualTo",
-                                 "$lessThanOrEqualTo",
-                                 "$in",
-                                 "$notIn",
-                                 "$contains"
-                              ]
-                        },
-                     "path1" :
-                        {
-                           "type" : "string"
-                        },
-                     "values2" :
-                        {
-                           "type" : "array",
-                           "minItems" : 1,
-                           "items" :
-                              {
-                                 "type" : "string"
-                              },
-                           "uniqueItems" : true
-                        }
-                  },
-               "required" :
-                  [
-                     "conditional",
-                     "path1",
-                     "values2"
-                  ],
-               "additionalProperties" : false
-            },
-         "$path-regex" :
-            {
-               "type" : "object",
-               "properties" :
-                  {
-                     "path" :
-                        {
-                           "type" : "string"
-                        },
-                     "regex" :
-                        {
-                           "type" : "string",
-                           "format" : "regex"
-                        },
-                     "case_insensitive" :
-                        {
-                           "type" : "boolean"
-                        },
-                     "multiline" :
-                        {
-                           "type" : "boolean"
-                        },
-                     "extended" :
-                        {
-                           "type" : "boolean"
-                        },
-                     "dotall" :
-                        {
-                           "type" : "boolean"
-                        }
-                  },
-               "required" :
-                  [
-                     "path",
-                     "regex"
-                  ],
-               "additionalProperties" : false
+    "copyright": [
+        "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+        "This file is part of lightblue.",
+        "This program is free software: you can redistribute it and/or modify",
+        "it under the terms of the GNU General Public License as published by",
+        "the Free Software Foundation, either version 3 of the License, or",
+        "(at your option) any later version.",
+        "This program is distributed in the hope that it will be useful,",
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+        "GNU General Public License for more details.",
+        "You should have received a copy of the GNU General Public License",
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>."
+    ],
+    "id": "#conditional",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "$or": {
+            "description": "Match any",
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "$ref": "if.json#/definitions/if"
             }
-      },
-   "additionalProperties" : false
+        },
+        "$any": {
+            "description": "Match any of these conditions.",
+            "$ref": "#/properties/$or"
+        },
+        "$and": {
+            "description": "Match all of these conditions.",
+            "$ref": "#/properties/$or"
+        },
+        "$all": {
+            "description": "Match all of these conditions.",
+            "$ref": "#/properties/$and"
+        },
+        "$not": {
+            "description": "Charge the evaluation from true to false vice versa",
+            "$ref": "if.json#/definitions/if"
+        },
+        "$path-empty": {
+            "type": "object",
+            "properties": {
+                "path1": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "path1"
+            ],
+            "additionalProperties": false
+        },
+        "$path-check-path": {
+            "type": "object",
+            "properties": {
+                "conditional": {
+                    "enum": [
+                        "$greaterThan",
+                        "$lessThan",
+                        "$equalTo",
+                        "$notEqualTo",
+                        "$greaterThanOrEqualTo",
+                        "$lessThanOrEqualTo",
+                        "$in",
+                        "$notIn",
+                        "$contains"
+                    ]
+                },
+                "path1": {
+                    "type": "string"
+                },
+                "path2": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "conditional",
+                "path1",
+                "path2"
+            ],
+            "additionalProperties": false
+        },
+        "$path-check-value": {
+            "type": "object",
+            "properties": {
+                "conditional": {
+                    "enum": [
+                        "$greaterThan",
+                        "$lessThan",
+                        "$equalTo",
+                        "$notEqualTo",
+                        "$greaterThanOrEqualTo",
+                        "$lessThanOrEqualTo",
+                        "$in",
+                        "$notIn",
+                        "$contains"
+                    ]
+                },
+                "path1": {
+                    "type": "string"
+                },
+                "value2": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "conditional",
+                "path1",
+                "value2"
+            ],
+            "additionalProperties": false
+        },
+        "$path-check-values": {
+            "type": "object",
+            "properties": {
+                "conditional": {
+                    "enum": [
+                        "$greaterThan",
+                        "$lessThan",
+                        "$equalTo",
+                        "$notEqualTo",
+                        "$greaterThanOrEqualTo",
+                        "$lessThanOrEqualTo",
+                        "$in",
+                        "$notIn",
+                        "$contains"
+                    ]
+                },
+                "path1": {
+                    "type": "string"
+                },
+                "values2": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                }
+            },
+            "required": [
+                "conditional",
+                "path1",
+                "values2"
+            ],
+            "additionalProperties": false
+        },
+        "$path-regex": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "regex": {
+                    "type": "string",
+                    "format": "regex"
+                },
+                "case_insensitive": {
+                    "type": "boolean"
+                },
+                "multiline": {
+                    "type": "boolean"
+                },
+                "extended": {
+                    "type": "boolean"
+                },
+                "dotall": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "path",
+                "regex"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
 }

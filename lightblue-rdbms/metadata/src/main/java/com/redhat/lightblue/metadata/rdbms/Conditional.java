@@ -63,10 +63,10 @@ public class Conditional extends Expression {
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
         if (anIf == null) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $if informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No $if informed");
         }
         if (then == null) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $then informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No $then informed");
         }
         T eT = p.newNode();
         T iT = p.newNode();

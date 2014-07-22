@@ -20,9 +20,6 @@ package com.redhat.lightblue.metadata.rdbms;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ElseIf implements ComplexConverter {
 
     private If anIf;
@@ -47,10 +44,10 @@ public class ElseIf implements ComplexConverter {
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
         if (anIf == null) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No if informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No if informed");
         }
         if (then == null) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No then informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No then informed");
         }
         T eT = p.newNode();
 

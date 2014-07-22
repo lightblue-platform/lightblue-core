@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata.rdbms;
 
-import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.Enum;
 
 import java.util.Arrays;

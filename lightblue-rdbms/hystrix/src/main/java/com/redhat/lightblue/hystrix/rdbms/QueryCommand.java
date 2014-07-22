@@ -26,7 +26,6 @@ import com.netflix.hystrix.exception.HystrixBadRequestException;
 import com.redhat.lightblue.common.rdbms.RDBMSContext;
 import com.redhat.lightblue.common.rdbms.RDBMSUtils;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 //TODO

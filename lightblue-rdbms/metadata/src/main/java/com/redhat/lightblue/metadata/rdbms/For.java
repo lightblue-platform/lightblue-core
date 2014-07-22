@@ -54,13 +54,13 @@ public class For extends Expression {
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
         if (loopTimes == 0 || loopTimes < 0) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No loopTimes informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No loopTimes informed");
         }
         if (loopCounterVariableName == null || loopCounterVariableName.length() == 0) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No loopCounterVariableName informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No loopCounterVariableName informed");
         }
-        if (expressions == null || expressions.size() == 0) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $for's expressions informed");
+        if (expressions == null || expressions.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No $for's expressions informed");
         }
         T eT = p.newNode();
         p.putString(eT, "loopTimes", Integer.toString(loopTimes));
