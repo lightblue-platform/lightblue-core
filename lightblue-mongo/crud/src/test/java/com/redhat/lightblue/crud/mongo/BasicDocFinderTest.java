@@ -63,11 +63,11 @@ public class BasicDocFinderTest extends AbstractMongoTest {
 
     private void insert(String jsonStringFormat, String[] formatArgs) {
         try {
-            JsonNode node=JsonUtils.json(String.format(jsonStringFormat, (Object[]) formatArgs));
-            BasicDBObject dbObject=new BasicDBObject();
-            for(Iterator<String> itr=node.fieldNames();itr.hasNext();) {
-                String fld=itr.next();
-                dbObject.append(fld,node.get(fld).asText());
+            JsonNode node = JsonUtils.json(String.format(jsonStringFormat, (Object[]) formatArgs));
+            BasicDBObject dbObject = new BasicDBObject();
+            for (Iterator<String> itr = node.fieldNames(); itr.hasNext();) {
+                String fld = itr.next();
+                dbObject.append(fld, node.get(fld).asText());
             }
             WriteResult wr = coll.insert(dbObject);
             // check that insert didn't fail

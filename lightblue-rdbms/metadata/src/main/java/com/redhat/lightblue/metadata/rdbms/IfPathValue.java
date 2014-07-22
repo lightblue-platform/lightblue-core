@@ -43,8 +43,8 @@ public class IfPathValue extends If {
     }
 
     public void setConditional(String conditional) {
-        if(!ConditionalOperators.check(conditional)){
-            throw new IllegalStateException("Not a valid conditional '" +conditional+"'. Valid ConditionalOperators:"+ ConditionalOperators.getValues());
+        if (!ConditionalOperators.check(conditional)) {
+            throw new IllegalStateException("Not a valid conditional '" + conditional + "'. Valid ConditionalOperators:" + ConditionalOperators.getValues());
         }
         this.conditional = conditional;
     }
@@ -55,26 +55,26 @@ public class IfPathValue extends If {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
-        if(path1 == null || path1.isEmpty()){
+        if (path1 == null || path1.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path1 informed");
         }
-        if(conditional == null || conditional.isEmpty()){
+        if (conditional == null || conditional.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No conditional informed");
         }
-        if(value2 == null || value2.isEmpty()){
+        if (value2 == null || value2.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No value2 informed");
         }
         T s = p.newNode();
 
-        p.putString(s,"path1",path1.toString());
-        p.putString(s,"value2",value2);
-        p.putString(s,"conditional",conditional);
+        p.putString(s, "path1", path1.toString());
+        p.putString(s, "value2", value2);
+        p.putString(s, "conditional", conditional);
 
-        if(lastArrayNode == null){
-            p.putObject(node,"$path-check-value",s);
+        if (lastArrayNode == null) {
+            p.putObject(node, "$path-check-value", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT,"$path-check-value",s);
+            p.putObject(iT, "$path-check-value", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }

@@ -46,10 +46,12 @@ import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
 /**
- * Mongo client makes a distinction between contructing using a list of ServerAddress objects, and a single
- * ServerAddress object. If you contruct with a List, it wants access to all the nodes in the replica set. If you
- * construct with a single ServerAddress, it only talks to that server. So, we make a distinction between array of
- * server addresses and a single server address.
+ * Mongo client makes a distinction between contructing using a list of
+ * ServerAddress objects, and a single ServerAddress object. If you contruct
+ * with a List, it wants access to all the nodes in the replica set. If you
+ * construct with a single ServerAddress, it only talks to that server. So, we
+ * make a distinction between array of server addresses and a single server
+ * address.
  *
  *
  * @author bserdar
@@ -205,7 +207,8 @@ public class MongoConfiguration implements DataSourceConfiguration {
     }
 
     /**
-     * Returns an options object with defaults overriden where there is a valid override.
+     * Returns an options object with defaults overriden where there is a valid
+     * override.
      *
      * @return
      */

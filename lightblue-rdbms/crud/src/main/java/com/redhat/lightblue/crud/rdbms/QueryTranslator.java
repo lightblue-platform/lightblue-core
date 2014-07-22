@@ -30,8 +30,6 @@ import java.util.HashSet;
 
 public class QueryTranslator {
 
-
-
     public static <T> void translate(RDBMSContext<T> rdbmsContext,
                                      CRUDOperationContext crudOperationContext,
                                      QueryExpression queryExpression, Sort sort, Long from, Long to,
@@ -49,7 +47,7 @@ public class QueryTranslator {
     }
 
     private static <T> void recursiveQueryBuild(RDBMSContext<T> rdbmsContext, CRUDOperationContext crudOperationContext, QueryExpression queryExpression, Sort sort, Long from, Long to, EntityMetadata entityMetadata, StringBuilder queryBeginning, StringBuilder queryEnding, String linkPath) {
-        if(queryExpression == null){
+        if (queryExpression == null) {
             return;
         }
 

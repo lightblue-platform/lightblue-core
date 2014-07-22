@@ -30,8 +30,9 @@ import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility class for publishing hystrix and jvm stats from servo to graphite. If the app is running in OpenShift it will
- * setup an appropriate metric prefix, else defaults to the hostname of where the app is running.
+ * Utility class for publishing hystrix and jvm stats from servo to graphite. If
+ * the app is running in OpenShift it will setup an appropriate metric prefix,
+ * else defaults to the hostname of where the app is running.
  *
  * @author nmalik
  */

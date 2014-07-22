@@ -30,10 +30,10 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     @Override
     public Object parse(String name, MetadataParser<T> p, T node) {
         if (!"rdbms".equals(name)) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_ROOT_NODE_NAME, "Node name informed:"+name);
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_ROOT_NODE_NAME, "Node name informed:" + name);
         }
         RDBMS rdbms = new RDBMS();
-        rdbms.setDelete(parseOperation(p, p.getObjectProperty(node, "delete"),"delete"));
+        rdbms.setDelete(parseOperation(p, p.getObjectProperty(node, "delete"), "delete"));
         rdbms.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch"), "fetch"));
         rdbms.setInsert(parseOperation(p, p.getObjectProperty(node, "insert"), "insert"));
         rdbms.setSave(parseOperation(p, p.getObjectProperty(node, "save"), "save"));
@@ -44,7 +44,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     @Override
     public void convert(MetadataParser<T> p, T parent, Object object) {
-        p.putObject(parent,"rdbms", convertRDBMS(p, (RDBMS) object));
+        p.putObject(parent, "rdbms", convertRDBMS(p, (RDBMS) object));
     }
 
     private Object convertRDBMS(MetadataParser<T> p, RDBMS object) {
@@ -58,17 +58,17 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private Operation parseOperation(MetadataParser<T> p, T operation, String fieldName) {
-        if(operation == null){
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No Operation informed for "+fieldName);
+        if (operation == null) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No Operation informed for " + fieldName);
         }
         T b = p.getObjectProperty(operation, "bindings");
         Bindings bindings = null;
-        if(b != null) {
+        if (b != null) {
             bindings = parseBindings(p, b);
         }
         List<T> expressionsT = p.getObjectList(operation, "expressions");
-        if(expressionsT == null || expressionsT.isEmpty()){
-            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No expressions informed for Operation "+fieldName);
+        if (expressionsT == null || expressionsT.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No expressions informed for Operation " + fieldName);
         }
         List<Expression> expressions = parseExpressions(p, expressionsT);
 
@@ -79,21 +79,21 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         return s;
     }
 
-    private Bindings parseBindings(MetadataParser<T> p,T bindings) {
+    private Bindings parseBindings(MetadataParser<T> p, T bindings) {
         final Bindings b = new Bindings();
         List<T> inRaw = p.getObjectList(bindings, "in");
         List<T> outRaw = p.getObjectList(bindings, "out");
         boolean bI = inRaw == null || inRaw.isEmpty();
         boolean bO = outRaw == null || outRaw.isEmpty();
-        if(bI && bO){
+        if (bI && bO) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No InOut informed for Binding");
         }
 
-        if(!bI) {
+        if (!bI) {
             List<InOut> inList = parseInOut(p, inRaw);
             b.setInList(inList);
         }
-        if(!bO) {
+        if (!bO) {
             List<InOut> outList = parseInOut(p, outRaw);
             b.setOutList(outList);
         }
@@ -106,13 +106,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         for (T t : inRaw) {
             InOut a = new InOut();
             String column = p.getStringProperty(t, "column");
-            if (column == null || column.isEmpty() ){
+            if (column == null || column.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No column informed");
             }
             a.setColumn(column);
 
             String path = p.getStringProperty(t, "path");
-            if (path == null || path.isEmpty() ){
+            if (path == null || path.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path informed");
             }
             a.setPath(new Path(path));
@@ -131,15 +131,15 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             T foreachS = p.getObjectProperty(expression, "$foreach");
             T ifthen = p.getObjectProperty(expression, "$if");
 
-            if(stmt != null) {
+            if (stmt != null) {
                 String sql = p.getStringProperty(stmt, "sql");
                 String datasource = p.getStringProperty(stmt, "datasource");
                 String type = p.getStringProperty(stmt, "type");
-                boolean sqlB = sql== null ||sql.isEmpty();
-                boolean typeB = type == null ||type.isEmpty();
-                 if(sqlB||typeB){
-                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $statement: No sql or type informed");
-                 }
+                boolean sqlB = sql == null || sql.isEmpty();
+                boolean typeB = type == null || type.isEmpty();
+                if (sqlB || typeB) {
+                    throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $statement: No sql or type informed");
+                }
 
                 Statement statement = new Statement();
                 statement.setSQL(sql);
@@ -147,21 +147,21 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 statement.setType(type);
 
                 e = statement;
-            } else if(forS != null){
+            } else if (forS != null) {
                 String loopTimesS = p.getStringProperty(forS, "loopTimes");
                 String loopCounterVariableName = p.getStringProperty(forS, "loopCounterVariableName");
                 List<T> expressionsTforS = p.getObjectList(forS, "expressions");
-                boolean loopTimesSB = loopTimesS== null ||loopTimesS.isEmpty();
-                boolean loopCounterVariableNameB = loopCounterVariableName== null ||loopCounterVariableName.isEmpty();
-                boolean expressionsTforSB = expressionsTforS == null ||expressionsTforS.isEmpty();
-                 if(loopTimesSB||loopCounterVariableNameB ||expressionsTforSB){
-                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $for: No loopTimesS or loopCounterVariableName or expressions informed");
-                 }
+                boolean loopTimesSB = loopTimesS == null || loopTimesS.isEmpty();
+                boolean loopCounterVariableNameB = loopCounterVariableName == null || loopCounterVariableName.isEmpty();
+                boolean expressionsTforSB = expressionsTforS == null || expressionsTforS.isEmpty();
+                if (loopTimesSB || loopCounterVariableNameB || expressionsTforSB) {
+                    throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $for: No loopTimesS or loopCounterVariableName or expressions informed");
+                }
                 List<Expression> expressions = parseExpressions(p, expressionsTforS);
                 int loopTimes = 0;
-                try{
-                    loopTimes =  Integer.parseInt(loopTimesS);
-                } catch(NumberFormatException nfe){
+                try {
+                    loopTimes = Integer.parseInt(loopTimesS);
+                } catch (NumberFormatException nfe) {
                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $for: loopTimes is not an integer");
                 }
                 For forLoop = new For();
@@ -170,12 +170,12 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 forLoop.setExpressions(expressions);
 
                 e = forLoop;
-            } else if(foreachS != null){
+            } else if (foreachS != null) {
                 String iterateOverPath = p.getStringProperty(foreachS, "iterateOverPath");
                 List<T> expressionsTforS = p.getObjectList(foreachS, "expressions");
-                boolean iterateOverPathB = iterateOverPath== null ||iterateOverPath.isEmpty();
-                boolean expressionsTforSB = expressionsTforS == null ||expressionsTforS.isEmpty();
-                if(iterateOverPathB ||expressionsTforSB){
+                boolean iterateOverPathB = iterateOverPath == null || iterateOverPath.isEmpty();
+                boolean expressionsTforSB = expressionsTforS == null || expressionsTforS.isEmpty();
+                if (iterateOverPathB || expressionsTforSB) {
                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $for: No loopTimesS or loopCounterVariableName or expressions informed");
                 }
                 List<Expression> expressions = parseExpressions(p, expressionsTforS);
@@ -185,20 +185,20 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 forLoop.setExpressions(expressions);
 
                 e = forLoop;
-            } else if(ifthen != null) {
+            } else if (ifthen != null) {
                 //$if
                 If If = parseIf(p, ifthen);
 
                 //$then
-                Then Then = parseThen(p,expression);
+                Then Then = parseThen(p, expression);
 
                 //$elseIf
-                List<ElseIf> elseIfList= parseElseIf(p,expression);
+                List<ElseIf> elseIfList = parseElseIf(p, expression);
 
                 //$else
-                Else elseC = parseElse(p,expression);
+                Else elseC = parseElse(p, expression);
 
-                Conditional c  = new Conditional();
+                Conditional c = new Conditional();
                 c.setIf(If);
                 c.setThen(Then);
                 c.setElseIfList(elseIfList);
@@ -206,7 +206,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
                 e = c;
             } else {
-                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_FIELD, "No valid field was set as expression ->"+expression.toString());
+                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_FIELD, "No valid field was set as expression ->" + expression.toString());
             }
             result.add(e);
         }
@@ -216,14 +216,14 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     private List<ElseIf> parseElseIf(MetadataParser<T> p, T expression) {
         List<T> elseIfs = p.getObjectList(expression, "$elseIf");
 
-        if(elseIfs != null && !elseIfs.isEmpty()) {
+        if (elseIfs != null && !elseIfs.isEmpty()) {
             List<ElseIf> elseIfList = new ArrayList<>();
             for (T ei : elseIfs) {
                 T eiIfT = p.getObjectProperty(ei, "$if");
                 T eiThenT = p.getObjectProperty(ei, "$then");
-                boolean ifB = eiIfT== null;
+                boolean ifB = eiIfT == null;
                 boolean thenB = eiThenT == null;
-                if(ifB ||thenB){
+                if (ifB || thenB) {
                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $elseif: No $if or $then informed");
                 }
                 If eiIf = parseIf(p, eiIfT);
@@ -235,7 +235,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 elseIfList.add(elseIf);
             }
             return elseIfList;
-        } else if(elseIfs != null && elseIfs.isEmpty()){
+        } else if (elseIfs != null && elseIfs.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $elseif: the $elseif array is empty");
         } else {
             return null;
@@ -246,19 +246,19 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         If x = null;
         List<T> orArray = p.getObjectList(ifT, "$or");
         if (orArray != null) {
-             x = parseIfs(p, orArray, new IfOr());
+            x = parseIfs(p, orArray, new IfOr());
         } else {
             List<T> anyArray = p.getObjectList(ifT, "$any");
             if (anyArray != null) {
-                 x = parseIfs(p, anyArray, new IfOr());
+                x = parseIfs(p, anyArray, new IfOr());
             } else {
                 List<T> andArray = p.getObjectList(ifT, "$and");
                 if (andArray != null) {
-                     x = parseIfs(p, andArray, new IfAnd());
+                    x = parseIfs(p, andArray, new IfAnd());
                 } else {
                     List<T> allArray = p.getObjectList(ifT, "$all");
                     if (allArray != null) {
-                         x = parseIfs(p, allArray, new IfAnd());
+                        x = parseIfs(p, allArray, new IfAnd());
                     } else {
                         T notIfT = p.getObjectProperty(ifT, "$not");
                         if (notIfT != null) {
@@ -271,7 +271,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                             if (pathEmpty != null) {
                                 x = new IfPathEmpty();
                                 String path1 = p.getStringProperty(pathEmpty, "path1");
-                                if (path1 == null || path1.isEmpty()){
+                                if (path1 == null || path1.isEmpty()) {
                                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-empty: path1 not informed");
                                 }
                                 ((IfPathEmpty) x).setPath1(new Path(path1));
@@ -282,13 +282,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                     String conditional = p.getStringProperty(pathpath, "conditional");
                                     String path1 = p.getStringProperty(pathpath, "path1");
                                     String path2 = p.getStringProperty(pathpath, "path2");
-                                    if (path1 == null || path1.isEmpty()){
+                                    if (path1 == null || path1.isEmpty()) {
                                         throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-path: path1 not informed");
                                     }
-                                    if (path2 == null || path2.isEmpty()){
+                                    if (path2 == null || path2.isEmpty()) {
                                         throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-path: path2 not informed");
                                     }
-                                    if (conditional == null || conditional.isEmpty()){
+                                    if (conditional == null || conditional.isEmpty()) {
                                         throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-path: conditional not informed");
                                     }
                                     ((IfPathPath) x).setPath1(new Path(path1));
@@ -301,13 +301,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                         String conditional = p.getStringProperty(pathvalue, "conditional");
                                         String path1 = p.getStringProperty(pathvalue, "path1");
                                         String value2 = p.getStringProperty(pathvalue, "value2");
-                                        if (path1 == null || path1.isEmpty()){
+                                        if (path1 == null || path1.isEmpty()) {
                                             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-value: path1 not informed");
                                         }
-                                        if (value2 == null || value2.isEmpty()){
+                                        if (value2 == null || value2.isEmpty()) {
                                             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-value: value2 not informed");
                                         }
-                                        if (conditional == null || conditional.isEmpty()){
+                                        if (conditional == null || conditional.isEmpty()) {
                                             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-value: conditional not informed");
                                         }
                                         ((IfPathValue) x).setPath1(new Path(path1));
@@ -320,13 +320,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                             String conditional = p.getStringProperty(pathvalues, "conditional");
                                             String path1 = p.getStringProperty(pathvalues, "path1");
                                             List<String> values2 = p.getStringList(pathvalues, "values2");
-                                            if (path1 == null || path1.isEmpty()){
+                                            if (path1 == null || path1.isEmpty()) {
                                                 throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-values: path1 not informed");
                                             }
-                                            if (values2 == null || values2.isEmpty()){
+                                            if (values2 == null || values2.isEmpty()) {
                                                 throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-values: values2 not informed");
                                             }
-                                            if (conditional == null || conditional.isEmpty()){
+                                            if (conditional == null || conditional.isEmpty()) {
                                                 throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-check-values: conditional not informed");
                                             }
                                             ((IfPathValues) x).setPath1(new Path(path1));
@@ -338,10 +338,10 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                                 x = new IfPathRegex();
                                                 String path = p.getStringProperty(pathregex, "path");
                                                 String regex = p.getStringProperty(pathregex, "regex");
-                                                if (path == null || path.isEmpty()){
+                                                if (path == null || path.isEmpty()) {
                                                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-regex: path not informed");
                                                 }
-                                                if (regex == null || regex.isEmpty()){
+                                                if (regex == null || regex.isEmpty()) {
                                                     throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "$path-regex: regex not informed");
                                                 }
                                                 String caseInsensitive = p.getStringProperty(pathregex, "case_insensitive");
@@ -355,7 +355,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                                 ((IfPathRegex) x).setExtended(Boolean.parseBoolean(extended));
                                                 ((IfPathRegex) x).setDotall(Boolean.parseBoolean(dotall));
                                             } else {
-                                                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_FIELD, "No valid if field was set ->"+ifT.toString());
+                                                throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_WRONG_FIELD, "No valid if field was set ->" + ifT.toString());
                                             }
                                         }
                                     }
@@ -367,12 +367,12 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             }
         }
 
-    return x;
+        return x;
     }
 
     private <Z extends If> Z parseIfs(MetadataParser<T> p, List<T> orArray, Z ifC) {
         List<If> l = new ArrayList<>();
-        for (T t : orArray){
+        for (T t : orArray) {
             If eiIf = parseIf(p, t);
             l.add(eiIf);
         }
@@ -381,20 +381,20 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private Then parseThenOrElse(MetadataParser<T> p, T t, String name, Then then) {
-        try{
+        try {
             String loopOperator = p.getStringProperty(t, name); // getStringProperty  doesnt throw execption when field doesnt exist (but if it doesnt and it isnt the right type it throws and execption)
-            if(loopOperator != null) {
+            if (loopOperator != null) {
                 then.setLoopOperator(loopOperator);
             } else {
-                List<T> expressionsT= p.getObjectList(t, name);
+                List<T> expressionsT = p.getObjectList(t, name);
                 List<Expression> expressions = parseExpressions(p, expressionsT);
                 then.setExpressions(expressions);
             }
-        } catch(com.redhat.lightblue.util.Error e){
-            List<T> expressionsT= p.getObjectList(t, name);
+        } catch (com.redhat.lightblue.util.Error e) {
+            List<T> expressionsT = p.getObjectList(t, name);
             List<Expression> expressions = parseExpressions(p, expressionsT);
             then.setExpressions(expressions);
-        } catch (Throwable te){
+        } catch (Throwable te) {
             return null;
         }
 
@@ -409,14 +409,12 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         return (Else) parseThenOrElse(p, parentElseT, "$else", new Else());
     }
 
-
-
     private Object convertOperation(MetadataParser<T> p, Operation o) {
-        if(o == null){
+        if (o == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No operation informed");
         }
         T oT = p.newNode();
-        if(o.getBindings() != null) {
+        if (o.getBindings() != null) {
             p.putObject(oT, "bindings", convertBindings(p, o.getBindings()));
         }
         Object expressions = p.newArrayField(oT, "expressions");
@@ -427,17 +425,17 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     private Object convertBindings(MetadataParser<T> p, Bindings bindings) {
         boolean bIn = bindings.getInList() == null || bindings.getInList().size() == 0;
         boolean bOut = bindings.getOutList() == null || bindings.getOutList().size() == 0;
-        if(bIn && bOut){
+        if (bIn && bOut) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No fields found for binding");
         }
         T bT = p.newNode();
-        if(!bIn) {
+        if (!bIn) {
             Object arri = p.newArrayField(bT, "in");
             for (InOut x : bindings.getInList()) {
                 p.addObjectToArray(arri, convertInOut(p, x));
             }
         }
-        if(!bOut) {
+        if (!bOut) {
             Object arro = p.newArrayField(bT, "out");
             for (InOut x : bindings.getOutList()) {
                 p.addObjectToArray(arro, convertInOut(p, x));
@@ -449,22 +447,22 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     private Object convertInOut(MetadataParser<T> p, InOut x) {
         boolean column = x.getColumn() == null || x.getColumn().isEmpty();
         boolean path = x.getPath() == null || x.getPath().toString().isEmpty();
-        if(column||path){
+        if (column || path) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid InOut: No column or path informed");
         }
         T ioT = p.newNode();
-        p.putString(ioT,"column",x.getColumn());
-        p.putString(ioT,"path",x.getPath().toString());
-      
+        p.putString(ioT, "column", x.getColumn());
+        p.putString(ioT, "path", x.getPath().toString());
+
         return ioT;
     }
 
     private void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
-        if(expressionList == null || expressionList.size() == 0){
+        if (expressionList == null || expressionList.size() == 0) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Expressions not informed");
         }
         for (Expression expression : expressionList) {
-            expression.convert(p,expressions);
+            expression.convert(p, expressions);
         }
     }
 }

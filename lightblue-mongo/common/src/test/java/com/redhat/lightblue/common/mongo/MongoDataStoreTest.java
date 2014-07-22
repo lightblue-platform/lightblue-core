@@ -82,7 +82,6 @@ public class MongoDataStoreTest {
         Assert.assertEquals("newCollectionName", dataStore.getCollectionName());
     }
 
-
     @Test
     public void testEqualsObject() {
         MongoDataStore dataStore2 = new MongoDataStore();

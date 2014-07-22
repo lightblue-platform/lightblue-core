@@ -40,9 +40,10 @@ public interface DocUpdater {
      * @param response Update response
      * @param query The query to search
      *
-     * It is expected that how the documents will be updated is to be passed in the constructor. The implementation
-     * should run the query, update the documents, compute the projections of the updated documents, and update the
-     * operation context accordingly.1
+     * It is expected that how the documents will be updated is to be passed in
+     * the constructor. The implementation should run the query, update the
+     * documents, compute the projections of the updated documents, and update
+     * the operation context accordingly.1
      */
     void update(CRUDOperationContext ctx,
                 DBCollection collection,

@@ -56,7 +56,8 @@ public class NaryRelationalExpression extends RelationalExpression {
     }
 
     /**
-     * The field. If this is a nested query, the field is relative to the context
+     * The field. If this is a nested query, the field is relative to the
+     * context
      */
     public Path getField() {
         return this.field;

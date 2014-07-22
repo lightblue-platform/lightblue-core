@@ -23,7 +23,7 @@ import com.redhat.lightblue.util.Path;
 
 import java.util.List;
 
-public class IfPathValues extends If{
+public class IfPathValues extends If {
     private Path path1;
     private List<String> values2;
     private String conditional;
@@ -45,8 +45,8 @@ public class IfPathValues extends If{
     }
 
     public void setConditional(String conditional) {
-        if(!ConditionalOperators.check(conditional)){
-            throw new IllegalStateException("Not a valid conditional '" +conditional+"'. Valid ConditionalOperators:"+ ConditionalOperators.getValues());
+        if (!ConditionalOperators.check(conditional)) {
+            throw new IllegalStateException("Not a valid conditional '" + conditional + "'. Valid ConditionalOperators:" + ConditionalOperators.getValues());
         }
         this.conditional = conditional;
     }
@@ -57,29 +57,29 @@ public class IfPathValues extends If{
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
-        if(path1 == null || path1.isEmpty()){
+        if (path1 == null || path1.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No path1 informed");
         }
-        if(conditional == null || conditional.isEmpty()){
+        if (conditional == null || conditional.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No conditional informed");
         }
-        if(values2 == null || values2.isEmpty()){
+        if (values2 == null || values2.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No values2 informed");
         }
         T s = p.newNode();
 
-        p.putString(s,"path1",path1.toString());
+        p.putString(s, "path1", path1.toString());
         Object arri = p.newArrayField(s, "values2");
-        for(String s1 : values2){
-            p.addStringToArray(arri,s1);
+        for (String s1 : values2) {
+            p.addStringToArray(arri, s1);
         }
-        p.putString(s,"conditional",conditional);
+        p.putString(s, "conditional", conditional);
 
-        if(lastArrayNode == null){
-            p.putObject(node,"$path-check-values",s);
+        if (lastArrayNode == null) {
+            p.putObject(node, "$path-check-values", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT,"$path-check-values",s);
+            p.putObject(iT, "$path-check-values", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }

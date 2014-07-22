@@ -18,6 +18,6 @@
  */
 package com.redhat.lightblue.config.rdbms;
 
-public class Test{
+public class Test {
 
 }

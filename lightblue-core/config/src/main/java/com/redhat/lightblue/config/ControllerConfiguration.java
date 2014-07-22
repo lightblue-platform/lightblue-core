@@ -25,14 +25,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.util.JsonInitializable;
 
 /**
- * Represents a controller configuration.It specifies the name of the
- * backend, and the class for the controller factory. The controller
- * instances of that backend are created by an instance of the
- * controller factory.
+ * Represents a controller configuration.It specifies the name of the backend,
+ * and the class for the controller factory. The controller instances of that
+ * backend are created by an instance of the controller factory.
  */
 public class ControllerConfiguration implements JsonInitializable, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;

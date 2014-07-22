@@ -20,7 +20,8 @@
 package com.redhat.lightblue.metadata;
 
 /**
- * Marker interface to indicate objects that represent some portion of access in a metadata document.
+ * Marker interface to indicate objects that represent some portion of access in
+ * a metadata document.
  *
  * @author nmalik
  */

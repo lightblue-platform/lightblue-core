@@ -22,7 +22,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 
 import java.util.List;
 
-public class Conditional  extends Expression {
+public class Conditional extends Expression {
     private If anIf;
     private Then then;
     private List<ElseIf> elseIfList;
@@ -62,32 +62,31 @@ public class Conditional  extends Expression {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
-        if(anIf ==  null) {
+        if (anIf == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $if informed");
         }
-        if(then ==  null) {
+        if (then == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No $then informed");
         }
         T eT = p.newNode();
         T iT = p.newNode();
-
 
         anIf.convert(p, null, iT);
         p.putObject(eT, "$if", iT);
 
         then.convert(p, null, eT);
 
-        if(elseIfList != null && !elseIfList.isEmpty()) {
+        if (elseIfList != null && !elseIfList.isEmpty()) {
             Object arri = p.newArrayField(eT, "$elseIf");
             for (ElseIf e : elseIfList) {
                 e.convert(p, arri, null);
             }
         }
 
-        if(anElse != null) {
+        if (anElse != null) {
             anElse.convert(p, null, eT);
         }
 
-        p.addObjectToArray(expressionsNode,eT);
+        p.addObjectToArray(expressionsNode, eT);
     }
 }

@@ -33,23 +33,23 @@ import com.netflix.hystrix.exception.HystrixBadRequestException;
  * @author nmalik
  */
 public abstract class AbstractMongoCommand<T> extends HystrixCommand<T> {
-    
+
     /**
      * The groupkey for all mongodb commands are "mongodb"
      */
-    public static final String GROUPKEY="mongodb";
+    public static final String GROUPKEY = "mongodb";
 
     private final DBCollection collection;
 
     /**
      *
-     * @param commandKey REQUIRED 
+     * @param commandKey REQUIRED
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      * @param collection REQUIRED
      */
     public AbstractMongoCommand(String commandKey, DBCollection collection) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(GROUPKEY)).
-              andCommandKey(HystrixCommandKey.Factory.asKey(GROUPKEY+":"+commandKey)));
+                andCommandKey(HystrixCommandKey.Factory.asKey(GROUPKEY + ":" + commandKey)));
         this.collection = collection;
     }
 

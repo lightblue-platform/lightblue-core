@@ -22,7 +22,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 /**
- * Abstract base class for query expressions that can be used in for-each clauses
+ * Abstract base class for query expressions that can be used in for-each
+ * clauses
  */
 public abstract class UpdateQueryExpression extends QueryExpression {
 

@@ -28,8 +28,8 @@ public class Types implements TypeResolver {
     private static final List<TypeResolver> TYPE_RESOLVERS = new ArrayList<>();
 
     /**
-     * Adds a new type resolver. If the new type resolver redefined any of the already defined types, the type is
-     * overriden by the new copy
+     * Adds a new type resolver. If the new type resolver redefined any of the
+     * already defined types, the type is overriden by the new copy
      */
     public void addTypeResolver(TypeResolver r) {
         if (!TYPE_RESOLVERS.contains(r)) {

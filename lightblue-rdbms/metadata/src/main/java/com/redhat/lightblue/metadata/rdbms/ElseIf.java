@@ -46,10 +46,10 @@ public class ElseIf implements ComplexConverter {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
-        if(anIf == null){
+        if (anIf == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No if informed");
         }
-        if(then == null){
+        if (then == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No then informed");
         }
         T eT = p.newNode();
@@ -57,9 +57,9 @@ public class ElseIf implements ComplexConverter {
         T iT = p.newNode();
         p.putObject(eT, "$if", iT);
 
-        anIf.convert(p,null,iT);
-        then.convert(p,null,eT); //it already add $then
+        anIf.convert(p, null, iT);
+        then.convert(p, null, eT); //it already add $then
 
-        p.addObjectToArray(lastArrayNode,eT);
+        p.addObjectToArray(lastArrayNode, eT);
     }
 }

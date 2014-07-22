@@ -44,8 +44,9 @@ public abstract class Projection extends JsonObject {
     }
 
     /**
-     * Adds two projections and returns a new projection containing both. Any projection can be null. If the resulting
-     * projection is empty, returns null.
+     * Adds two projections and returns a new projection containing both. Any
+     * projection can be null. If the resulting projection is empty, returns
+     * null.
      */
     public static Projection add(Projection p1, Projection p2) {
         List<Projection> list = new ArrayList<>();

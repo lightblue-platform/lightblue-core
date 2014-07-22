@@ -23,7 +23,8 @@ import com.redhat.lightblue.util.DefaultResolver;
 import com.redhat.lightblue.metadata.EntityConstraint;
 
 /**
- * Convenience class to register all predefined constraint parsers to MetadataParser
+ * Convenience class to register all predefined constraint parsers to
+ * MetadataParser
  */
 public class DefaultEntityConstraintParsers<N>
         extends DefaultResolver<String, Parser<N, EntityConstraint>> {

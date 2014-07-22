@@ -35,7 +35,7 @@ import java.util.List;
 public class RDBMSUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtils.class);
 
-    public DataSource getDataSource(RDBMSContext rDBMSContext){
+    public DataSource getDataSource(RDBMSContext rDBMSContext) {
         LOGGER.debug("getDataSource() start");
         com.redhat.lightblue.util.Error.push("Getting JDBC through JNDI");
         InitialContext context = null;
@@ -54,7 +54,7 @@ public class RDBMSUtils {
         return ds;
     }
 
-    public Connection getConnection(RDBMSContext context){
+    public Connection getConnection(RDBMSContext context) {
         if (context.getDataSource() == null) {
             throw new IllegalArgumentException("No dataSource informed");
         }
@@ -74,7 +74,7 @@ public class RDBMSUtils {
         return c;
     }
 
-    public PreparedStatement getStatement(RDBMSContext context){
+    public PreparedStatement getStatement(RDBMSContext context) {
         if (context.getConnection() == null) {
             throw new IllegalArgumentException("No connection informed");
         }
@@ -97,7 +97,7 @@ public class RDBMSUtils {
         return ps;
     }
 
-    public ResultSet executeQuery(RDBMSContext context){
+    public ResultSet executeQuery(RDBMSContext context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement informed");
         }
@@ -117,7 +117,7 @@ public class RDBMSUtils {
 
     }
 
-    public int executeUpdate(RDBMSContext context){
+    public int executeUpdate(RDBMSContext context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement informed");
         }
@@ -137,9 +137,7 @@ public class RDBMSUtils {
 
     }
 
-
-
-    public <T> List<T> buildMappedList(RDBMSContext<T> context){
+    public <T> List<T> buildMappedList(RDBMSContext<T> context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement informed");
         }

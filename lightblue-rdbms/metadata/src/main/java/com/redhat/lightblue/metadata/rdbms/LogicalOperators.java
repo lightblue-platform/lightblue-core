@@ -26,6 +26,7 @@ import java.util.Set;
 
 public class LogicalOperators {
     private static final com.redhat.lightblue.metadata.Enum singleton = new Enum("logicalOperators");
+
     static {
         singleton.setValues(Arrays.asList("and", "or"));
     }

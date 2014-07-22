@@ -90,7 +90,8 @@ public class JsonDoc implements Serializable {
     }
 
     /**
-     * Internal class that overrides the behavior for '*' processing during path resolution
+     * Internal class that overrides the behavior for '*' processing during path
+     * resolution
      */
     private static final class CursorResolver extends Resolver {
         private Iteration[] iterators;
@@ -119,8 +120,9 @@ public class JsonDoc implements Serializable {
     }
 
     /**
-     * Internal class containing the algorithm for path resolution starting from a node and path level. Handling of '*'
-     * is overridable, by default, throws an exception
+     * Internal class containing the algorithm for path resolution starting from
+     * a node and path level. Handling of '*' is overridable, by default, throws
+     * an exception
      */
     private static class Resolver {
         public JsonNode resolve(Path p, final JsonNode node, int level) {
@@ -184,9 +186,10 @@ public class JsonDoc implements Serializable {
     }
 
     /**
-     * Given a path p=x_1.x_2...x_n, it creates all the intermediate nodes x_1...x_(n-1), but not the node x_n. However,
-     * the node x_(n-1) is created correctly depending on the x_n: if x_n is an index, x_(n-1) is an ArrayNode,
-     * otherwise x_(n-1) is an object node.
+     * Given a path p=x_1.x_2...x_n, it creates all the intermediate nodes
+     * x_1...x_(n-1), but not the node x_n. However, the node x_(n-1) is created
+     * correctly depending on the x_n: if x_n is an index, x_(n-1) is an
+     * ArrayNode, otherwise x_(n-1) is an object node.
      */
     private static class CreatingResolver extends Resolver {
         @Override
@@ -231,12 +234,14 @@ public class JsonDoc implements Serializable {
     }
 
     /**
-     * A cursor that iterates through all elements of a document that matches the path. If the path has no '*', the
-     * initialization code finds the node if any, and the iteration runs only once. If the path contains '*', iterators
-     * for all arrays corresponding to '*' are kept in CursorResolver.
+     * A cursor that iterates through all elements of a document that matches
+     * the path. If the path has no '*', the initialization code finds the node
+     * if any, and the iteration runs only once. If the path contains '*',
+     * iterators for all arrays corresponding to '*' are kept in CursorResolver.
      *
-     * The algorithms is somewhat complicated because not all elements of the array are guaranteed to have the same
-     * structure. For instance, a path of the form x.*.y, when evaluated on a document of the form:
+     * The algorithms is somewhat complicated because not all elements of the
+     * array are guaranteed to have the same structure. For instance, a path of
+     * the form x.*.y, when evaluated on a document of the form:
      *
      * <pre>
      *   x : [
@@ -246,7 +251,8 @@ public class JsonDoc implements Serializable {
      *    ]
      * </pre>
      *
-     * the iterator starts iterating from the second element of the array x, because x.0.y does not exist.
+     * the iterator starts iterating from the second element of the array x,
+     * because x.0.y does not exist.
      */
     private class PathCursor implements KeyValueCursor<Path, JsonNode> {
 
@@ -405,7 +411,8 @@ public class JsonDoc implements Serializable {
      *
      * @param p Path to modify
      * @param newValue new value to set. If null, path is removed from the doc.
-     * @param createPath If true, creates all intermediate nodes if they don't exist
+     * @param createPath If true, creates all intermediate nodes if they don't
+     * exist
      *
      * @return Old value
      */
@@ -432,8 +439,8 @@ public class JsonDoc implements Serializable {
      *
      * @psram data Json document containing one or more documents
      *
-     * The Json document is either an ArrayNode containing Json documents at each element, or an ObjectNode containing
-     * only one document.
+     * The Json document is either an ArrayNode containing Json documents at
+     * each element, or an ObjectNode containing only one document.
      */
     public static List<JsonDoc> docList(JsonNode data) {
         ArrayList<JsonDoc> docs = null;
@@ -458,8 +465,9 @@ public class JsonDoc implements Serializable {
      * @param docs List of JsonDoc objects
      * @param nodeFactory Json node factory
      *
-     * @return If the list has only one document, returns an ObjectNode, otherwise returns an array node containing each
-     * document in array elements
+     * @return If the list has only one document, returns an ObjectNode,
+     * otherwise returns an array node containing each document in array
+     * elements
      */
     public static JsonNode listToDoc(List<JsonDoc> docs, JsonNodeFactory nodeFactory) {
         if (docs == null) {

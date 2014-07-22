@@ -35,8 +35,9 @@ import com.redhat.lightblue.query.ContainsOperator;
 import com.redhat.lightblue.query.Value;
 
 /**
- * Initialize the class with the corresponding expression and the context path. If this is a nested query, the context
- * path determines the field from which the query needs to be evaluated.
+ * Initialize the class with the corresponding expression and the context path.
+ * If this is a nested query, the context path determines the field from which
+ * the query needs to be evaluated.
  */
 public class ArrayContainsEvaluator extends QueryEvaluator {
     private final ArrayContainsExpression expr;

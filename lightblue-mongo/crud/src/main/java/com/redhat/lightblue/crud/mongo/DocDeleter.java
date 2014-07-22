@@ -37,8 +37,9 @@ public interface DocDeleter {
      * @param mongoQuery The query whose result set will be deleted
      * @param response The deletion response
      *
-     * The implementation should delete the documents, and update the response with the number of docs deleted. No
-     * exception handling is expected from the implementation, so all unhandled exceptions should be rethrown.
+     * The implementation should delete the documents, and update the response
+     * with the number of docs deleted. No exception handling is expected from
+     * the implementation, so all unhandled exceptions should be rethrown.
      */
     void delete(CRUDOperationContext ctx,
                 DBCollection collection,

@@ -28,7 +28,7 @@ import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Moving initialization logic out of RestApplication. 
+ * Moving initialization logic out of RestApplication.
  *
  * @author nmalik
  */
@@ -46,11 +46,11 @@ public class RestConfiguration {
     }
 
     public static void setDatasources(DataSourcesConfiguration ds) {
-        datasources=ds;
+        datasources = ds;
     }
 
     public static void setFactory(LightblueFactory f) {
-        factory=f;
+        factory = f;
     }
 
     static {

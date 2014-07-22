@@ -81,32 +81,32 @@ public class FindRequest extends Request {
     }
 
     /**
-     * Specifies the index in the result set to start returning documents. Meaningful only if sort is given. Starts from
-     * 0.
+     * Specifies the index in the result set to start returning documents.
+     * Meaningful only if sort is given. Starts from 0.
      */
     public Long getFrom() {
         return from;
     }
 
     /**
-     * Specifies the index in the result set to start returning documents. Meaningful only if sort is given. Starts from
-     * 0.
+     * Specifies the index in the result set to start returning documents.
+     * Meaningful only if sort is given. Starts from 0.
      */
     public void setFrom(Long l) {
         from = l;
     }
 
     /**
-     * Specifies the last index of the document in the result set to be returned. Meaningful only if sort is given.
-     * Starts from 0.
+     * Specifies the last index of the document in the result set to be
+     * returned. Meaningful only if sort is given. Starts from 0.
      */
     public Long getTo() {
         return to;
     }
 
     /**
-     * Specifies the last index of the document in the result set to be returned. Meaningful only if sort is given.
-     * Starts from 0.
+     * Specifies the last index of the document in the result set to be
+     * returned. Meaningful only if sort is given. Starts from 0.
      */
     public void setTo(Long l) {
         to = l;
@@ -137,7 +137,8 @@ public class FindRequest extends Request {
     }
 
     /**
-     * Parses a find request from a json object. Unrecognized elements are ignored.
+     * Parses a find request from a json object. Unrecognized elements are
+     * ignored.
      */
     public static FindRequest fromJson(ObjectNode node) {
         FindRequest req = new FindRequest();

@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Set;
 
-public class RDBMSContext <T> {
+public class RDBMSContext<T> {
 
     private DataSource dataSource = null;
     private String dataSourceName = null;
@@ -121,18 +121,18 @@ public class RDBMSContext <T> {
 
     @Override
     public String toString() {
-        return "RDBMSContext{" +
-                "dataSource=" + dataSource +
-                ", dataSourceName='" + dataSourceName + '\'' +
-                ", connection=" + connection +
-                ", statement='" + statement + '\'' +
-                ", preparedStatement=" + preparedStatement +
-                ", resultInteger=" + resultInteger +
-                ", ResultSet=" + ResultSet +
-                ", rowMapper=" + rowMapper +
-                ", resultList=" + resultList +
-                ", parameters=" + parameters +
-                '}';
+        return "RDBMSContext{"
+                + "dataSource=" + dataSource
+                + ", dataSourceName='" + dataSourceName + '\''
+                + ", connection=" + connection
+                + ", statement='" + statement + '\''
+                + ", preparedStatement=" + preparedStatement
+                + ", resultInteger=" + resultInteger
+                + ", ResultSet=" + ResultSet
+                + ", rowMapper=" + rowMapper
+                + ", resultList=" + resultList
+                + ", parameters=" + parameters
+                + '}';
     }
 
     public Set<TableField> getTableFields() {

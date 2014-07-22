@@ -81,7 +81,8 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Util;
 
 /**
- * Translations between BSON and JSON. This class is thread-safe, and can be shared between threads
+ * Translations between BSON and JSON. This class is thread-safe, and can be
+ * shared between threads
  */
 public class Translator {
 
@@ -191,7 +192,8 @@ public class Translator {
     }
 
     /**
-     * Translates a list of JSON documents to DBObjects. Translation is metadata driven.
+     * Translates a list of JSON documents to DBObjects. Translation is metadata
+     * driven.
      */
     public DBObject[] toBson(List<? extends JsonDoc> docs) {
         DBObject[] ret = new DBObject[docs.size()];
@@ -250,7 +252,8 @@ public class Translator {
     }
 
     /**
-     * Add any fields in the old object that are not in the metadata to the new object
+     * Add any fields in the old object that are not in the metadata to the new
+     * object
      */
     public void addInvisibleFields(DBObject oldDBObject, DBObject newObject, EntityMetadata md) {
         Merge merge = new Merge(md);
@@ -332,9 +335,10 @@ public class Translator {
      * @param md Entity metedata
      * @param expr Update expression
      *
-     * If the update expresssion is something that can be translated into a mongo update expression, translation is
-     * performed. Otherwise, CannotTranslateException is thrown, and the update operation must be performed using the
-     * Updaters.
+     * If the update expresssion is something that can be translated into a
+     * mongo update expression, translation is performed. Otherwise,
+     * CannotTranslateException is thrown, and the update operation must be
+     * performed using the Updaters.
      */
     public DBObject translate(EntityMetadata md, UpdateExpression expr)
             throws CannotTranslateException {
@@ -358,7 +362,8 @@ public class Translator {
     }
 
     /**
-     * Translate update expression list and primitive updates. Anything else causes an exception.
+     * Translate update expression list and primitive updates. Anything else
+     * causes an exception.
      */
     private void translateUpdate(FieldTreeNode root, UpdateExpression expr, BasicDBObject dest)
             throws CannotTranslateException {
@@ -374,8 +379,8 @@ public class Translator {
     }
 
     /**
-     * Attempt to translate a primitive update expression. If the epxression touches any arrays or array elements,
-     * translation fails.
+     * Attempt to translate a primitive update expression. If the epxression
+     * touches any arrays or array elements, translation fails.
      */
     private void translatePrimitiveUpdate(FieldTreeNode root,
                                           PrimitiveUpdateExpression expr,
@@ -454,7 +459,8 @@ public class Translator {
     }
 
     /**
-     * Returns true if the field is an array, or points to a field within an array
+     * Returns true if the field is an array, or points to a field within an
+     * array
      */
     private boolean hasArray(FieldTreeNode root, Path field)
             throws CannotTranslateException {

@@ -58,8 +58,9 @@ public class DeleteRequest extends Request {
     }
 
     /**
-     * Parses an object node and populates a DeleteRequest. It is up to the caller to make sure that the node is
-     * actually a DeleteRequest. Any unrecignized elements are ignored.
+     * Parses an object node and populates a DeleteRequest. It is up to the
+     * caller to make sure that the node is actually a DeleteRequest. Any
+     * unrecignized elements are ignored.
      */
     public static DeleteRequest fromJson(ObjectNode node) {
         DeleteRequest req = new DeleteRequest();

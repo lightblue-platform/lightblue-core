@@ -19,8 +19,9 @@
 package com.redhat.lightblue.util;
 
 /**
- * Interface representing a cursor into a key-value collection. Upon construction, cursor points to the location before
- * the first element, so calling next() is required.
+ * Interface representing a cursor into a key-value collection. Upon
+ * construction, cursor points to the location before the first element, so
+ * calling next() is required.
  */
 public interface KeyValueCursor<K, V> extends Cursor<V> {
 

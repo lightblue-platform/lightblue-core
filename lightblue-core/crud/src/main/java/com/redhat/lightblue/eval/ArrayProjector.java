@@ -84,8 +84,8 @@ public abstract class ArrayProjector extends Projector {
     }
 
     /**
-     * Check if the array element matches. This is called after determining that the path points to a field that can be
-     * interpreted by this projector.
+     * Check if the array element matches. This is called after determining that
+     * the path points to a field that can be interpreted by this projector.
      */
     protected abstract Boolean projectArray(Path p, QueryEvaluationContext ctx);
 }

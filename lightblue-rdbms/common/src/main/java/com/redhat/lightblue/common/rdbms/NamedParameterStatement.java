@@ -25,16 +25,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A simple PreparedStatement wrapper to make SQL statements easier
- * Source inspired from  http://www.javaworld.com/article/2077706/core-java/named-parameters-for-preparedstatement.html
+ * A simple PreparedStatement wrapper to make SQL statements easier Source
+ * inspired from
+ * http://www.javaworld.com/article/2077706/core-java/named-parameters-for-preparedstatement.html
  * and
  * https://github.com/bnewport/Samples/blob/master/wxsutils/src/main/java/com/devwebsphere/jdbc/loader/NamedParameterStatement.java
  */
 public class NamedParameterStatement {
-    /** The statement this object is wrapping. */
+    /**
+     * The statement this object is wrapping.
+     */
     private final PreparedStatement statement;
 
-    /** Maps parameter names to arrays of integers which are the parameter indices. */
+    /**
+     * Maps parameter names to arrays of integers which are the parameter
+     * indices.
+     */
     private Map<String, int[]> indexMap;
 
     public NamedParameterStatement(Connection connection, String query) throws SQLException {
@@ -142,7 +148,7 @@ public class NamedParameterStatement {
 
     public void setTimestamp(String name, Timestamp value) throws SQLException {
         int[] indexes = getIndexes(name);
-        for (int index: indexes) {
+        for (int index : indexes) {
             statement.setTimestamp(index, value);
         }
     }
@@ -158,7 +164,6 @@ public class NamedParameterStatement {
     public int executeUpdate() throws SQLException {
         return statement.executeUpdate();
     }
-
 
     public void close() throws SQLException {
         statement.close();

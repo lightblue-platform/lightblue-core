@@ -74,12 +74,12 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public void updateEntityInfo(Metadata md,EntityInfo ei) {
+    public void updateEntityInfo(Metadata md, EntityInfo ei) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public void newSchema(Metadata md,EntityMetadata emd) {
+    public void newSchema(Metadata md, EntityMetadata emd) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

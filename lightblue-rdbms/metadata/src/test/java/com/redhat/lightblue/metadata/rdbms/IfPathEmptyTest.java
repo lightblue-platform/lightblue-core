@@ -23,7 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class IfPathEmptyTest {
-    
+
     public IfPathEmptyTest() {
     }
 
@@ -39,5 +39,5 @@ public class IfPathEmptyTest {
         result = instance.getPath1();
         assertEquals(expResult, result);
     }
-  
+
 }

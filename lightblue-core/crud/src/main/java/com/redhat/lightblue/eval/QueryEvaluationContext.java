@@ -25,8 +25,10 @@ import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 /**
- * An instance of the query evaluation context is passed to query evaluation logic, mainly too keep track of the context
- * for nested queries, and remember what elements of arrays matched the query, if any, once the evaluation is complete.
+ * An instance of the query evaluation context is passed to query evaluation
+ * logic, mainly too keep track of the context for nested queries, and remember
+ * what elements of arrays matched the query, if any, once the evaluation is
+ * complete.
  */
 public class QueryEvaluationContext {
 

@@ -22,7 +22,6 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import org.junit.Test;
 
 public class SimpleConverterTest {
-    
 
     @Test
     public void testConvert() {
@@ -35,5 +34,5 @@ public class SimpleConverterTest {
         public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
         }
     }
-    
+
 }

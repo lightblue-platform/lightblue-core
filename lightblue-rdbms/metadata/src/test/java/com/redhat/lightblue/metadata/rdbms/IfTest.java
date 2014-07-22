@@ -25,7 +25,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class IfTest {
-    
+
     @Test
     public void testGetSetConditions() {
         If instance = new IfImpl();
@@ -36,7 +36,7 @@ public class IfTest {
         expResult = new ArrayList();
         instance.setConditions(expResult);
         result = instance.getConditions();
-        assertEquals(expResult, result);        
+        assertEquals(expResult, result);
     }
 
     public class IfImpl extends If {
@@ -45,5 +45,5 @@ public class IfTest {
             throw new UnsupportedOperationException("Not supported");
         }
     }
-    
+
 }

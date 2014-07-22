@@ -23,7 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class IfPathPathTest {
-    
+
     public IfPathPathTest() {
     }
 
@@ -40,7 +40,6 @@ public class IfPathPathTest {
         assertEquals(expResult, result);
     }
 
-
     @Test
     public void testGetSetPath2() {
         Path expResult = null;
@@ -53,7 +52,6 @@ public class IfPathPathTest {
         result = instance.getPath2();
         assertEquals(expResult, result);
     }
-
 
     @Test
     public void testGetSetConditional() {

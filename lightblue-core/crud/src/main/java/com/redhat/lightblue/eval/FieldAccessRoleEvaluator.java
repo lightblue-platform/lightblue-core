@@ -55,7 +55,8 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns whether the current caller has access to all the given fields based on the operation
+     * Returns whether the current caller has access to all the given fields
+     * based on the operation
      */
     public boolean hasAccess(Set<Path> fields, Operation op) {
         for (Path x : fields) {
@@ -67,7 +68,8 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns whether the current caller has access to the given field based on the operation
+     * Returns whether the current caller has access to the given field based on
+     * the operation
      */
     public boolean hasAccess(Path field, Operation op) {
         FieldTreeNode fn = md.resolve(field);
@@ -83,7 +85,8 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a set of fields that are inaccessible to the user for the given operation
+     * Returns a set of fields that are inaccessible to the user for the given
+     * operation
      */
     public Set<Path> getInaccessibleFields(Operation op) {
         FieldCursor cursor = md.getFieldCursor();
@@ -98,8 +101,9 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a list of fields in the doc inaccessible to the current user during insertion. If the returned list is
-     * empty, the user can insert the doc.
+     * Returns a list of fields in the doc inaccessible to the current user
+     * during insertion. If the returned list is empty, the user can insert the
+     * doc.
      */
     public List<Path> getInaccessibleFields_Insert(JsonDoc doc) {
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.insert);
@@ -114,7 +118,8 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a list of fields in the doc inaccessible to the current user during update.
+     * Returns a list of fields in the doc inaccessible to the current user
+     * during update.
      *
      * @param newDoc The new version of the document
      * @param oldDoc The old version of the document
@@ -133,7 +138,8 @@ public final class FieldAccessRoleEvaluator {
     }
 
     /**
-     * Returns a projection that excludes the fields the caller does not have access to based on the operation
+     * Returns a projection that excludes the fields the caller does not have
+     * access to based on the operation
      */
     public Projection getExcludedFields(Operation op) {
         Set<Path> inaccessibleFields = getInaccessibleFields(op);

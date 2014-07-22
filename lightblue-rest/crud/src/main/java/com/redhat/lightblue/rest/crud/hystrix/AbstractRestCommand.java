@@ -35,7 +35,8 @@ import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;
 
 /**
- * Note that passing a Mediator in the constructor is optional. If not provided, it is fetched from CrudManager object.
+ * Note that passing a Mediator in the constructor is optional. If not provided,
+ * it is fetched from CrudManager object.
  *
  * @author nmalik
  */
@@ -59,7 +60,8 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     }
 
     /**
-     * Returns the mediator. If no mediator is set on the command uses CrudManager#getMediator() method.
+     * Returns the mediator. If no mediator is set on the command uses
+     * CrudManager#getMediator() method.
      *
      * @return
      * @throws Exception

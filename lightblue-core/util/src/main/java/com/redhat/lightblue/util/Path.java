@@ -31,10 +31,11 @@ import java.util.Iterator;
  *   field1.field2.index.field3...
  * </pre>
  *
- * where fields are identifiers, and indexes are integers denoting array indexes.
+ * where fields are identifiers, and indexes are integers denoting array
+ * indexes.
  *
- * Paths can be used to represent fields as well as patterns. A pattern path includes '*' for any matching index. For
- * instance:
+ * Paths can be used to represent fields as well as patterns. A pattern path
+ * includes '*' for any matching index. For instance:
  *
  * <pre>
  *    user.address.1.city
@@ -48,8 +49,8 @@ import java.util.Iterator;
  *
  * matches all cities of addresses.
  *
- * Implementation is optimized to be fast to toString and hashCode, and does not occupy too much memory when a lot of
- * paths are created from a common prefix.
+ * Implementation is optimized to be fast to toString and hashCode, and does not
+ * occupy too much memory when a lot of paths are created from a common prefix.
  *
  * $parent and $this keywords can be used to create relative paths.
  * <pre>
@@ -104,8 +105,9 @@ public class Path implements Comparable<Path>, Serializable {
      * Create a mutable path as a prefix of the given path
      *
      * @param x Source path
-     * @param pfix If positive, the new path is a prefix of x containing pfix elements. If negative, the new path is a
-     * prefix of x with last -pfix elements removed.
+     * @param pfix If positive, the new path is a prefix of x containing pfix
+     * elements. If negative, the new path is a prefix of x with last -pfix
+     * elements removed.
      */
     public Path(Path x, int pfix) {
         data = new PathRep(x.data, pfix);
@@ -178,7 +180,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Get path segment at given index starting from the head of the segment list.
+     * Get path segment at given index starting from the head of the segment
+     * list.
      *
      * @param i the index
      * @return the path segment
@@ -188,7 +191,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Get path segment at given index starting from the tail of the segment list.
+     * Get path segment at given index starting from the tail of the segment
+     * list.
      *
      * @param i
      * @return the segment data
@@ -198,7 +202,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Get the array index represented by the given path segment index (relative to head).
+     * Get the array index represented by the given path segment index (relative
+     * to head).
      *
      * @param i
      * @return
@@ -208,7 +213,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Check if path segment at given index (relative to head) is an array index.
+     * Check if path segment at given index (relative to head) is an array
+     * index.
      *
      * @param i
      * @return
@@ -236,13 +242,17 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Returns a new path that is a prefix of this path obtained by removing -x elements from the end (if x is
-     * negative), or selecting x elements from the beginning (if x is positive). If the path is a mutable path, the
-     * returned path is a mutable path. If the path is an immutable path, the returned path is an immutable path.
+     * Returns a new path that is a prefix of this path obtained by removing -x
+     * elements from the end (if x is negative), or selecting x elements from
+     * the beginning (if x is positive). If the path is a mutable path, the
+     * returned path is a mutable path. If the path is an immutable path, the
+     * returned path is an immutable path.
      *
-     * @param x number of elements to remove from end, or include from the beginning
+     * @param x number of elements to remove from end, or include from the
+     * beginning
      * @return the new path
-     * @throws IndexOutOfBoundException number of elements to remove is greater than number of segments available
+     * @throws IndexOutOfBoundException number of elements to remove is greater
+     * than number of segments available
      */
     public Path prefix(int x) {
         Path p;
@@ -255,9 +265,10 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Returns a new path that is a suffix of this path obtained by removing -x elements from the beginning (if x is
-     * negative), or selecting x elements from the end (if x is positive). If the path is a mutable path, the returned
-     * path is a mutable path.
+     * Returns a new path that is a suffix of this path obtained by removing -x
+     * elements from the beginning (if x is negative), or selecting x elements
+     * from the end (if x is positive). If the path is a mutable path, the
+     * returned path is a mutable path.
      */
     public Path suffix(final int x) {
         Path p;
@@ -298,8 +309,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Check if this path is a matching descendant of the pattern, that is: - path matches pattern, or - a prefix of the
-     * path matches the pattern
+     * Check if this path is a matching descendant of the pattern, that is: -
+     * path matches pattern, or - a prefix of the path matches the pattern
      */
     public boolean matchingDescendant(Path pattern) {
         int n = pattern.numSegments();
@@ -312,8 +323,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Check if this path is a matching prefix of the pattern, that is: - path matches pattern, or - path matches a
-     * prefix of the pattern
+     * Check if this path is a matching prefix of the pattern, that is: - path
+     * matches pattern, or - path matches a prefix of the pattern
      */
     public boolean matchingPrefix(Path pattern) {
         int n = pattern.numSegments();
@@ -333,7 +344,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Returns a path with all $parent and $this references removed. This must be called on absolute paths
+     * Returns a path with all $parent and $this references removed. This must
+     * be called on absolute paths
      */
     public Path normalize() {
         int n = data.size();
@@ -381,7 +393,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Parses the input path string (x) and appends each segment to the segments argument.
+     * Parses the input path string (x) and appends each segment to the segments
+     * argument.
      *
      * @param x the new paths segments to parse
      * @param segments the segment list to append new segments onto

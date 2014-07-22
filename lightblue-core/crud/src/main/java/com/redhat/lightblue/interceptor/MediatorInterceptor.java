@@ -21,5 +21,5 @@ package com.redhat.lightblue.interceptor;
 import com.redhat.lightblue.mediator.OperationContext;
 
 public interface MediatorInterceptor extends Interceptor {
-     void run(OperationContext ctx);                 
+    void run(OperationContext ctx);
 }

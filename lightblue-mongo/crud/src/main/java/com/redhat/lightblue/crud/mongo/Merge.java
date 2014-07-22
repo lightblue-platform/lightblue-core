@@ -32,10 +32,13 @@ import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 /**
- * During a save operation, the document provided by the client replaces the copy in the database. If the client has a
- * more limited view of data than is already present (i.e. client using an earlier version of metadata), then there may
- * be some invisible fields, fields that are in the document, but not in the metadata used by the client. To prevent
- * overwriting those fields, we perform a merge operation: all invisible fields are preserved in the updated document.
+ * During a save operation, the document provided by the client replaces the
+ * copy in the database. If the client has a more limited view of data than is
+ * already present (i.e. client using an earlier version of metadata), then
+ * there may be some invisible fields, fields that are in the document, but not
+ * in the metadata used by the client. To prevent overwriting those fields, we
+ * perform a merge operation: all invisible fields are preserved in the updated
+ * document.
  */
 public final class Merge {
 
@@ -79,7 +82,8 @@ public final class Merge {
     }
 
     /**
-     * Attempts to copy the invisible fields in oldCopy into newCopy. If the attemp is unsucessful, Error is thrown.
+     * Attempts to copy the invisible fields in oldCopy into newCopy. If the
+     * attemp is unsucessful, Error is thrown.
      */
     public void merge(DBObject oldCopy, DBObject newCopy) {
         reset();
@@ -106,8 +110,8 @@ public final class Merge {
     }
 
     /**
-     * Tries to locate the parent DBObject object that will be the parent of the field that needs to be added to tbe
-     * newCopy to preverse the field
+     * Tries to locate the parent DBObject object that will be the parent of the
+     * field that needs to be added to tbe newCopy to preverse the field
      */
     private DBObject findMergeParent(DBObject oldCopy, DBObject newCopy, Path field) {
         LOGGER.debug("Attempting to merge in {}", field);
@@ -158,8 +162,9 @@ public final class Merge {
     }
 
     /**
-     * Construct the initial state of Merge by going through all the fields in the DBObject, and checking if they exist
-     * in metadata. Those fields that don't exist in metadata will be store in the invisibleFields list.
+     * Construct the initial state of Merge by going through all the fields in
+     * the DBObject, and checking if they exist in metadata. Those fields that
+     * don't exist in metadata will be store in the invisibleFields list.
      */
     public void findInvisibleFields(DBObject dbObject) {
         MutablePath mp = new MutablePath();

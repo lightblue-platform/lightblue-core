@@ -21,8 +21,8 @@ package com.redhat.lightblue.config;
 import com.redhat.lightblue.crud.CRUDController;
 
 /**
- * Interface that specifies the factory that creates instances of
- * controllers for a particular backend.
+ * Interface that specifies the factory that creates instances of controllers
+ * for a particular backend.
  */
 public interface ControllerFactory {
     CRUDController createController(ControllerConfiguration cfg,

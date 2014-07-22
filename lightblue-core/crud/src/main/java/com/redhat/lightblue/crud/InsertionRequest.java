@@ -32,16 +32,16 @@ public class InsertionRequest extends DocRequest {
     private Projection returnFields;
 
     /**
-     * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
-     * inserted entities.
+     * Specifies the fields of the inserted entities to return. This can be used
+     * to retrieve the _id fields of the inserted entities.
      */
     public Projection getReturnFields() {
         return returnFields;
     }
 
     /**
-     * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
-     * inserted entities.
+     * Specifies the fields of the inserted entities to return. This can be used
+     * to retrieve the _id fields of the inserted entities.
      */
     public void setReturnFields(Projection p) {
         returnFields = p;
@@ -60,7 +60,8 @@ public class InsertionRequest extends DocRequest {
     }
 
     /**
-     * Parses an insertion request from a json object. Unrecognized elements are ignored.
+     * Parses an insertion request from a json object. Unrecognized elements are
+     * ignored.
      */
     public static InsertionRequest fromJson(ObjectNode node) {
         InsertionRequest req = new InsertionRequest();

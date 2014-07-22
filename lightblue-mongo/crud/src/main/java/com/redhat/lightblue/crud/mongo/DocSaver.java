@@ -41,15 +41,18 @@ public interface DocSaver {
      * @param ctx Operation context
      * @param op insert or save
      * @param upsert Whether to insert if the document is not in db
-     * @param collection The MongoDB collection to which documents will be inserted or saved
+     * @param collection The MongoDB collection to which documents will be
+     * inserted or saved
      * @param md Entity metadata
      * @param dbObject Document to insert/save
      * @param inputDoc The input document
      *
-     * The implementation should insert or save the document to the collection. If operation is insert, the document is
-     * inserted, and the _id is returned in the output document of inputDoc. If the operation is save, and the document
-     * to be saved has _id, the document is attempted to be updated in the db. If the db does not have the document but
-     * upsert=true, document is inserted. Otherwise, update fails.
+     * The implementation should insert or save the document to the collection.
+     * If operation is insert, the document is inserted, and the _id is returned
+     * in the output document of inputDoc. If the operation is save, and the
+     * document to be saved has _id, the document is attempted to be updated in
+     * the db. If the db does not have the document but upsert=true, document is
+     * inserted. Otherwise, update fails.
      */
     void saveDoc(CRUDOperationContext ctx,
                  Op op,

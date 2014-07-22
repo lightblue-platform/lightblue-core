@@ -31,8 +31,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ElseIfTest {
- 
-     @Test
+
+    @Test
     public void testGetSetIf() {
         If expResult = null;
         ElseIf instance = new ElseIf();
@@ -42,7 +42,7 @@ public class ElseIfTest {
         expResult = new IfPathEmpty();
         instance.setIf(expResult);
         result = instance.getIf();
-        assertEquals(expResult, result);    
+        assertEquals(expResult, result);
     }
 
     @Test

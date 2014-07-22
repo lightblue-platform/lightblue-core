@@ -111,7 +111,7 @@ public class MongoMetadata extends AbstractMetadata {
         this.collection = db.getCollection(metadataCollection);
         this.mdParser = new BSONParser(parserExtensions, typeResolver);
         this.dbResolver = dbResolver;
-        this.factory=factory;
+        this.factory = factory;
     }
 
     public MongoMetadata(DB db,
@@ -119,7 +119,7 @@ public class MongoMetadata extends AbstractMetadata {
                          Extensions<BSONObject> parserExtensions,
                          TypeResolver typeResolver,
                          Factory factory) {
-        this(db, DEFAULT_METADATA_COLLECTION, dbResolver, parserExtensions, typeResolver,factory);
+        this(db, DEFAULT_METADATA_COLLECTION, dbResolver, parserExtensions, typeResolver, factory);
     }
 
     @Override
@@ -337,7 +337,7 @@ public class MongoMetadata extends AbstractMetadata {
                     }
 
                     factory.getCRUDController(md.getEntityInfo().getDataStore().getBackend()).
-                        newSchema(this,md);
+                            newSchema(this, md);
 
                 } catch (MongoException.DuplicateKey dke) {
                     LOGGER.error("createNewMetadata: duplicateKey {}", dke);
@@ -368,8 +368,6 @@ public class MongoMetadata extends AbstractMetadata {
         LOGGER.debug("createNewMetadata: end");
     }
 
-
-
     @Override
     protected boolean checkVersionExists(String entityName, String version) {
         BasicDBObject query = new BasicDBObject(LITERAL_ID, entityName + BSONParser.DELIMITER_ID + version);
@@ -396,8 +394,8 @@ public class MongoMetadata extends AbstractMetadata {
                 collection.update(new BasicDBObject(LITERAL_ID, ei.getName() + BSONParser.DELIMITER_ID),
                         (DBObject) mdParser.convert(ei));
                 factory.getCRUDController(ei.getDataStore().getBackend()).
-                    updateEntityInfo(this,ei);
-                
+                        updateEntityInfo(this, ei);
+
             } catch (Exception e) {
                 LOGGER.error("updateEntityInfo", e);
                 throw Error.get(MongoMetadataConstants.ERR_DB_ERROR, e.toString());

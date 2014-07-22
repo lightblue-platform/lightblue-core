@@ -25,8 +25,8 @@ import java.util.List;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Container for info and schema metadata, gives details of a single version of metadata. Implementation is a facade on
- * top of EntityInfo and EntitySchema.
+ * Container for info and schema metadata, gives details of a single version of
+ * metadata. Implementation is a facade on top of EntityInfo and EntitySchema.
  *
  * @author nmalik
  */

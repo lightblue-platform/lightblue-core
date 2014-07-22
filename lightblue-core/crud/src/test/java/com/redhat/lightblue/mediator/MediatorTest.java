@@ -102,12 +102,13 @@ public class MediatorTest extends AbstractJsonSchemaTest {
                                      Long to) {
             return findResponse;
         }
+
         @Override
-        public void updateEntityInfo(Metadata md,EntityInfo ei) {
+        public void updateEntityInfo(Metadata md, EntityInfo ei) {
         }
-    
+
         @Override
-        public void newSchema(Metadata md,EntityMetadata emd) {
+        public void newSchema(Metadata md, EntityMetadata emd) {
         }
     }
 

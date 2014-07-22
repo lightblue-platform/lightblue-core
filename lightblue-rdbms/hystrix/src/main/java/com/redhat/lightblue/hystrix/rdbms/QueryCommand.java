@@ -37,7 +37,7 @@ public class QueryCommand<T> extends HystrixCommand<List<T>> {
     /**
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public QueryCommand(String threadPoolKey,RDBMSContext<T> rdbmsContext) {
+    public QueryCommand(String threadPoolKey, RDBMSContext<T> rdbmsContext) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(QueryCommand.class.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(QueryCommand.class.getSimpleName()))
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? QueryCommand.class.getSimpleName() : threadPoolKey)));
@@ -52,7 +52,7 @@ public class QueryCommand<T> extends HystrixCommand<List<T>> {
         try {
             return super.execute();
         } catch (HystrixBadRequestException br) {
-            throw (RuntimeException)br.getCause();
+            throw (RuntimeException) br.getCause();
         } catch (RuntimeException x) {
             throw x;
         }
@@ -68,7 +68,7 @@ public class QueryCommand<T> extends HystrixCommand<List<T>> {
             rdbmsUtils.buildMappedList(rdbmsContext);
             return rdbmsContext.getResultList();
         } catch (RuntimeException x) {
-            throw new HystrixBadRequestException("in "+getClass().getName(),x);
+            throw new HystrixBadRequestException("in " + getClass().getName(), x);
         }
     }
 }

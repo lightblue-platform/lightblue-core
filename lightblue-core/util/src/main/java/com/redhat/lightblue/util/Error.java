@@ -29,10 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Error object. Maintains an error code, message, and context of the error. The context works as a stack of context
- * information that can be passed to the client as an indicator of where the error happened.
+ * Error object. Maintains an error code, message, and context of the error. The
+ * context works as a stack of context information that can be passed to the
+ * client as an indicator of where the error happened.
  *
- * The error object also provides static APIs that keep the execution context for the current thread.
+ * The error object also provides static APIs that keep the execution context
+ * for the current thread.
  */
 public final class Error extends RuntimeException {
     private static final Logger LOGGER = LoggerFactory.getLogger(Error.class);
@@ -80,7 +82,8 @@ public final class Error extends RuntimeException {
     }
 
     /**
-     * Constructs a new error object by pushing the given context on top of the current context
+     * Constructs a new error object by pushing the given context on top of the
+     * current context
      */
     public static Error get(String ctx, String errorCode, String msg) {
         push(ctx);

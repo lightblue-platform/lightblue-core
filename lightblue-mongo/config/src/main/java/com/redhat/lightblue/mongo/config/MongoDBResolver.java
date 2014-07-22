@@ -48,7 +48,7 @@ public class MongoDBResolver implements DBResolver {
         DB db = null;
         try {
             if (store.getDatasourceName() != null) {
-                LOGGER.debug("datasource:{}",store.getDatasourceName());
+                LOGGER.debug("datasource:{}", store.getDatasourceName());
                 db = dsMap.get(store.getDatasourceName());
                 if (db == null) {
                     MongoConfiguration cfg = (MongoConfiguration) datasources.get(store.getDatasourceName());
@@ -59,7 +59,7 @@ public class MongoDBResolver implements DBResolver {
                     dsMap.put(store.getDatasourceName(), db);
                 }
             } else if (store.getDatabaseName() != null) {
-                LOGGER.debug("databaseName:{}",store.getDatabaseName());
+                LOGGER.debug("databaseName:{}", store.getDatabaseName());
                 db = dbMap.get(store.getDatabaseName());
                 if (db == null) {
                     for (DataSourceConfiguration cfg : datasources.values()) {
@@ -81,7 +81,7 @@ public class MongoDBResolver implements DBResolver {
         if (db == null) {
             throw new IllegalArgumentException("Cannot find DB for  " + store);
         }
-        LOGGER.debug("Returning {} for {}",db,store);
+        LOGGER.debug("Returning {} for {}", db, store);
         return db;
     }
 }

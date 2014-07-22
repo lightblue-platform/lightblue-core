@@ -47,8 +47,8 @@ public final class DateType implements Type, Serializable {
     }
 
     /**
-     * Returns a DateFormat instance using the DATE_FORMAT_STR in GMT. Clone of the static internal variable, because
-     * SimpleDateFormat is not thread safe
+     * Returns a DateFormat instance using the DATE_FORMAT_STR in GMT. Clone of
+     * the static internal variable, because SimpleDateFormat is not thread safe
      */
     public static DateFormat getDateFormat() {
         return (DateFormat) DATE_FORMAT.clone();

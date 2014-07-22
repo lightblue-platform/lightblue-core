@@ -29,7 +29,8 @@ public abstract class ComparisonExpression extends QueryExpression {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Parses a relational expression or an array comparison expression from the given json object
+     * Parses a relational expression or an array comparison expression from the
+     * given json object
      */
     public static ComparisonExpression fromJson(ObjectNode node) {
         JsonNode x = node.get("field");

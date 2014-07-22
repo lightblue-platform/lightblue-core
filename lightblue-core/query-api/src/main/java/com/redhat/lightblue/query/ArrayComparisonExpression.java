@@ -31,7 +31,8 @@ public abstract class ArrayComparisonExpression extends ComparisonExpression {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Parses an array contains or array match expression from the given object node
+     * Parses an array contains or array match expression from the given object
+     * node
      */
     public static ArrayComparisonExpression fromJson(ObjectNode node) {
         JsonNode x = node.get("contains");

@@ -34,5 +34,5 @@ public class ComplexConverterTest {
         public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
         }
     }
-    
+
 }

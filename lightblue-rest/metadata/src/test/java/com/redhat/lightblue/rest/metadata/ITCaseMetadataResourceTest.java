@@ -216,7 +216,7 @@ public class ITCaseMetadataResourceTest {
 
         RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
         RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
-        System.out.println("factory:"+RestConfiguration.getFactory());
+        System.out.println("factory:" + RestConfiguration.getFactory());
         String expectedCreated = readFile("expectedCreated.json");
         String resultCreated = cutMetadataResource.createMetadata("country", "1.0.0", readFile("resultCreated.json"));
         JSONAssert.assertEquals(expectedCreated, resultCreated, false);

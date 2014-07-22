@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /*
-    Implements the relationship between Metdata from MongoDB and the Data from RDBMS
+ Implements the relationship between Metdata from MongoDB and the Data from RDBMS
  */
 //TODO
 public class RDBMSCRUDController implements CRUDController {
@@ -146,7 +146,7 @@ public class RDBMSCRUDController implements CRUDController {
                 rdbmsContext.setRowMapper(new DocCtxRowMapper());
                 rdbmsContext.setDataSourceName("java:jboss/jdbc/lightblueOracleDS"); //example
 
-                QueryTranslator.translate(rdbmsContext, crudOperationContext,queryExpression, sort, from, to, md);
+                QueryTranslator.translate(rdbmsContext, crudOperationContext, queryExpression, sort, from, to, md);
 
                 List<JsonDoc> documents = new QueryCommand(null, rdbmsContext).execute();
                 crudOperationContext.addDocuments(documents);

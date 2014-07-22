@@ -24,8 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Named a bit strangely in case we exclude tests that begin with "Abstract", the test is intended to test functionality
- * defined on the AbstractMetadata class.
+ * Named a bit strangely in case we exclude tests that begin with "Abstract",
+ * the test is intended to test functionality defined on the AbstractMetadata
+ * class.
  *
  * @author nmalik
  */

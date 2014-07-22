@@ -43,8 +43,8 @@ public class Statement extends Expression {
     }
 
     public void setType(String type) {
-        if(!TypeOperators.check(type)){
-            throw new IllegalStateException("Not a valid type of SQL operation '" +type+"'. Valid types:"+ TypeOperators.getValues());
+        if (!TypeOperators.check(type)) {
+            throw new IllegalStateException("Not a valid type of SQL operation '" + type + "'. Valid types:" + TypeOperators.getValues());
         }
         this.type = type;
     }
@@ -55,23 +55,23 @@ public class Statement extends Expression {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
-        if(SQL == null){
+        if (SQL == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No SQL statement informed");
         }
-        if(type == null){
+        if (type == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "No type informed");
         }
 
         T eT = p.newNode();
 
-        if(datasource != null) {
+        if (datasource != null) {
             p.putString(eT, "datasource", datasource);
         }
-        p.putString(eT,"sql",SQL);
-        p.putString(eT,"type",type);
+        p.putString(eT, "sql", SQL);
+        p.putString(eT, "type", type);
 
         T s = p.newNode();
-        p.putObject(s,"$statement",eT);
+        p.putObject(s, "$statement", eT);
 
         p.addObjectToArray(expressionsNode, s);
     }

@@ -25,6 +25,7 @@ import java.util.Set;
 
 public class TypeOperators {
     private static final Enum singleton = new Enum("operations");
+
     static {
         singleton.setValues(Arrays.asList("select", "insert", "update", "delete", "call"));
     }
@@ -34,7 +35,7 @@ public class TypeOperators {
     }
 
     public static boolean check(String value) {
-        if(singleton.getValues().contains(value)){
+        if (singleton.getValues().contains(value)) {
             return true;
         }
         return false;

@@ -70,22 +70,26 @@ public class MongoCRUDController implements CRUDController {
     public static final String ID_STR = "_id";
 
     /**
-     * Name of the property for the operation context that keeps the last saver class instance used
+     * Name of the property for the operation context that keeps the last saver
+     * class instance used
      */
     public static final String PROP_SAVER = "MongoCRUDController:saver";
 
     /**
-     * Name of the property for the operation context that keeps the last updater class instance used
+     * Name of the property for the operation context that keeps the last
+     * updater class instance used
      */
     public static final String PROP_UPDATER = "MongoCRUDController:updater";
 
     /**
-     * Name of the property for the operation context that keeps the last deleter class instance used
+     * Name of the property for the operation context that keeps the last
+     * deleter class instance used
      */
     public static final String PROP_DELETER = "MongoCRUDController:deleter";
 
     /**
-     * Name of the property for the operation context that keeps the last finder class instance used
+     * Name of the property for the operation context that keeps the last finder
+     * class instance used
      */
     public static final String PROP_FINDER = "MongoCRUDController:finder";
 
@@ -113,10 +117,10 @@ public class MongoCRUDController implements CRUDController {
                                         Projection projection) {
         LOGGER.debug("insert() start");
         CRUDInsertionResponse response = new CRUDInsertionResponse();
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_INSERT,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_INSERT, ctx);
         int n = saveOrInsert(ctx, false, projection, OP_INSERT);
         response.setNumInserted(n);
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_INSERT,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_INSERT, ctx);
         return response;
     }
 
@@ -126,10 +130,10 @@ public class MongoCRUDController implements CRUDController {
                                  Projection projection) {
         LOGGER.debug("save() start");
         CRUDSaveResponse response = new CRUDSaveResponse();
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_SAVE,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_SAVE, ctx);
         int n = saveOrInsert(ctx, upsert, projection, OP_SAVE);
         response.setNumSaved(n);
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_SAVE,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_SAVE, ctx);
         return response;
     }
 
@@ -147,7 +151,7 @@ public class MongoCRUDController implements CRUDController {
         }
         LOGGER.debug("saveOrInsert() start");
         Error.push(operation);
-        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
+        Translator translator = new Translator(ctx, ctx.getFactory().getNodeFactory());
         try {
             FieldAccessRoleEvaluator roleEval
                     = new FieldAccessRoleEvaluator(ctx.getEntityMetadata(ctx.getEntityName()),
@@ -223,8 +227,8 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("update start: q:{} u:{} p:{}", query, update, projection);
         Error.push(OP_UPDATE);
         CRUDUpdateResponse response = new CRUDUpdateResponse();
-        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE,ctx);
+        Translator translator = new Translator(ctx, ctx.getFactory().getNodeFactory());
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE, ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if (md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
@@ -265,7 +269,7 @@ public class MongoCRUDController implements CRUDController {
                 //     }
                 // }
                 DocUpdater docUpdater = new IterateAndUpdate(ctx.getFactory().getNodeFactory(), validator, roleEval, translator, updater,
-                                                             projector, errorProjector);
+                        projector, errorProjector);
                 ctx.setProperty(PROP_UPDATER, docUpdater);
                 docUpdater.update(ctx, coll, md, response, mongoQuery);
                 ctx.getHookManager().queueHooks(ctx);
@@ -282,7 +286,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE, ctx);
         LOGGER.debug("update end: updated: {}, failed: {}", response.getNumUpdated(), response.getNumFailed());
         return response;
     }
@@ -295,7 +299,6 @@ public class MongoCRUDController implements CRUDController {
     //     } while(ftn!=null);
     //     return false;
     // }
-
     @Override
     public CRUDDeleteResponse delete(CRUDOperationContext ctx,
                                      QueryExpression query) {
@@ -305,8 +308,8 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("delete start: q:{}", query);
         Error.push(OP_DELETE);
         CRUDDeleteResponse response = new CRUDDeleteResponse();
-        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_DELETE,ctx);
+        Translator translator = new Translator(ctx, ctx.getFactory().getNodeFactory());
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_DELETE, ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if (md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
@@ -330,7 +333,7 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_DELETE,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_DELETE, ctx);
         LOGGER.debug("delete end: deleted: {}}", response.getNumDeleted());
         return response;
     }
@@ -354,8 +357,8 @@ public class MongoCRUDController implements CRUDController {
         LOGGER.debug("find start: q:{} p:{} sort:{} from:{} to:{}", query, projection, sort, from, to);
         Error.push(OP_FIND);
         CRUDFindResponse response = new CRUDFindResponse();
-        Translator translator = new Translator(ctx,ctx.getFactory().getNodeFactory());
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_FIND,ctx);
+        Translator translator = new Translator(ctx, ctx.getFactory().getNodeFactory());
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_FIND, ctx);
         try {
             EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
             if (md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
@@ -396,18 +399,18 @@ public class MongoCRUDController implements CRUDController {
         } finally {
             Error.pop();
         }
-        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_FIND,ctx);
+        ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_FIND, ctx);
         LOGGER.debug("find end: query: {} results: {}", response.getSize());
         return response;
     }
 
     @Override
-    public void updateEntityInfo(Metadata md,EntityInfo ei) {
+    public void updateEntityInfo(Metadata md, EntityInfo ei) {
         createUpdateEntityInfoIndexes(ei);
     }
 
     @Override
-    public void newSchema(Metadata md,EntityMetadata emd) {
+    public void newSchema(Metadata md, EntityMetadata emd) {
         createUpdateEntityInfoIndexes(emd.getEntityInfo());
     }
 
@@ -456,7 +459,7 @@ public class MongoCRUDController implements CRUDController {
                     if (index.getName() != null && index.getName().trim().length() > 0) {
                         options.append("name", index.getName().trim());
                     }
-                    options.append("background",true);
+                    options.append("background", true);
                     LOGGER.debug("Creating index {} with options {}", newIndex, options);
                     entityCollection.createIndex(newIndex, options);
                 }

@@ -38,62 +38,62 @@ import com.redhat.lightblue.rest.auth.LightblueRoleProvider;
 
 public class LightblueLdapRoleProvider implements LightblueRoleProvider {
 
-	LdapContext ldapContext;
-	String ldapSearchBase;
-	
-	public LightblueLdapRoleProvider(String server, String searchBase, String bindDn, String bindDNPwd) throws NamingException {
-		
+    LdapContext ldapContext;
+    String ldapSearchBase;
+
+    public LightblueLdapRoleProvider(String server, String searchBase, String bindDn, String bindDNPwd) throws NamingException {
+
         Hashtable<String, Object> env = new Hashtable<String, Object>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        if(bindDn != null) {
+        if (bindDn != null) {
             env.put(Context.SECURITY_PRINCIPAL, bindDn);
         }
-        if(bindDNPwd != null) {
+        if (bindDNPwd != null) {
             env.put(Context.SECURITY_CREDENTIALS, bindDNPwd);
         }
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, server);
         ldapSearchBase = searchBase;
         ldapContext = new InitialLdapContext(env, null);
-	}
-	
-	public List<String> getUserRoles(String userName) {
-		List<String> userRoles = new ArrayList<String>();
-		
-		try {
-			userRoles.addAll(getUserRolesFromCache(userName));
-			
-			if(userRoles.size() == 0) {
-				userRoles.addAll(getUserRolesFromLdap(findUserByUid(userName)));
-			}	
-		} catch (NamingException ne) {
-			System.err.println("Problem getting roles for user: " + userName);
-		}
-						
-		return userRoles;
-	}
-		
-	@Override
-	public Collection<String> getUsersInGroup(String groupName) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
+    }
 
-	@Override
-	public void flushRoleCache(String roleName) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
+    public List<String> getUserRoles(String userName) {
+        List<String> userRoles = new ArrayList<String>();
 
-	@Override
-	public void flushUserCache(String userName) {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-	
-	private List<String> getUserRolesFromCache(String userName) {
-		//TODO add persistent caching backed by lightblue here at some point
-		return Collections.emptyList();
-	}
-		
-	private SearchResult findUserByUid(String uid) throws NamingException {
+        try {
+            userRoles.addAll(getUserRolesFromCache(userName));
+
+            if (userRoles.size() == 0) {
+                userRoles.addAll(getUserRolesFromLdap(findUserByUid(userName)));
+            }
+        } catch (NamingException ne) {
+            System.err.println("Problem getting roles for user: " + userName);
+        }
+
+        return userRoles;
+    }
+
+    @Override
+    public Collection<String> getUsersInGroup(String groupName) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void flushRoleCache(String roleName) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void flushUserCache(String userName) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private List<String> getUserRolesFromCache(String userName) {
+        //TODO add persistent caching backed by lightblue here at some point
+        return Collections.emptyList();
+    }
+
+    private SearchResult findUserByUid(String uid) throws NamingException {
 
         String searchFilter = "(uid=" + uid + ")";
 
@@ -103,36 +103,36 @@ public class LightblueLdapRoleProvider implements LightblueRoleProvider {
         NamingEnumeration<SearchResult> results = ldapContext.search(ldapSearchBase, searchFilter, searchControls);
 
         SearchResult searchResult = null;
-        if(results.hasMoreElements()) {
-             searchResult = results.nextElement();
+        if (results.hasMoreElements()) {
+            searchResult = results.nextElement();
 
             //make sure there is not another item available, there should be only 1 match
-            if(results.hasMoreElements()) {
+            if (results.hasMoreElements()) {
                 System.err.println("Matched multiple users for the accountName: " + uid);
                 return null;
             }
         }
-        
+
         return searchResult;
     }
-    
+
     private List<String> getUserRolesFromLdap(SearchResult ldapUser) throws NamingException {
         List<String> groups = new ArrayList<String>();
-        
-        NamingEnumeration<?> groupAttributes = ldapUser.getAttributes().get("memberOf").getAll();
-                
-        while(groupAttributes.hasMore()) {
-        	LdapName name = new LdapName((String)groupAttributes.next());
 
-        	for(Rdn rdn : name.getRdns()) {
-        	    if(rdn.getType().equalsIgnoreCase("cn")) {
-        	        groups.add((String)rdn.getValue());
-        	        break;
-        	    }
-        	}
+        NamingEnumeration<?> groupAttributes = ldapUser.getAttributes().get("memberOf").getAll();
+
+        while (groupAttributes.hasMore()) {
+            LdapName name = new LdapName((String) groupAttributes.next());
+
+            for (Rdn rdn : name.getRdns()) {
+                if (rdn.getType().equalsIgnoreCase("cn")) {
+                    groups.add((String) rdn.getValue());
+                    break;
+                }
+            }
         }
-        
+
         return groups;
     }
-    
+
 }

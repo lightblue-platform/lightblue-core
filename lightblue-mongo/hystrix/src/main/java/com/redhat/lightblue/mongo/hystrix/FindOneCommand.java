@@ -35,7 +35,7 @@ public class FindOneCommand extends AbstractMongoCommand<DBObject> {
      * @param query
      */
     public FindOneCommand(DBCollection collection, DBObject query) {
-        super(FindOneCommand.class.getSimpleName(),collection);
+        super(FindOneCommand.class.getSimpleName(), collection);
         this.query = query;
     }
 

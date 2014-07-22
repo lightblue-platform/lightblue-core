@@ -25,6 +25,7 @@ import java.util.Set;
 
 public class LoopOperators {
     private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("loopOperator");
+
     static {
         singleton.setValues(Arrays.asList("$fail", "$continue", "$break"));
     }
@@ -34,7 +35,7 @@ public class LoopOperators {
     }
 
     public static boolean check(String value) {
-        if(singleton.getValues().contains(value)){
+        if (singleton.getValues().contains(value)) {
             return true;
         }
         return false;

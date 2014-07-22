@@ -36,7 +36,7 @@ import com.redhat.lightblue.util.JsonInitializable;
  */
 public class CrudConfiguration implements JsonInitializable, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     /**
      * The file on classpath that this configuration is loaded from.

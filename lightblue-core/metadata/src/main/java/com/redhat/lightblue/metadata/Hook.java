@@ -48,14 +48,16 @@ public class Hook implements Serializable {
     }
 
     /**
-     * Optional projection applied to data sent to the hook. If null, data is sent without projecting
+     * Optional projection applied to data sent to the hook. If null, data is
+     * sent without projecting
      */
     public Projection getProjection() {
         return projection;
     }
 
     /**
-     * Optional projection applied to data sent to the hook. If null, data is sent without projecting
+     * Optional projection applied to data sent to the hook. If null, data is
+     * sent without projecting
      */
     public void setProjection(Projection projection) {
         this.projection = projection;

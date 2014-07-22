@@ -36,9 +36,9 @@ public class MongoDataStore implements DataStore, Serializable {
     }
 
     public MongoDataStore(String clientJndiName,
-                        String databaseName,
-                        String datasourceName,
-                        String collectionName) {
+                          String databaseName,
+                          String datasourceName,
+                          String collectionName) {
         this.clientJndiName = clientJndiName;
         this.databaseName = databaseName;
         this.datasourceName = datasourceName;
@@ -131,7 +131,7 @@ public class MongoDataStore implements DataStore, Serializable {
         if (databaseName != null) {
             bld.append("databaseName:").append(databaseName).append(':');
         }
-        if(collectionName!=null) {
+        if (collectionName != null) {
             bld.append("collection:").append(collectionName);
         }
         if (clientJndiName != null) {

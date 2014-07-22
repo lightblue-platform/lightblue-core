@@ -23,9 +23,7 @@ public class RDBMSConstants {
     public static final String ERR_WRONG_ROOT_NODE_NAME = "RDBMS:WrongRootNodeName";
     public static final String ERR_WRONG_FIELD = "RDBMS:WrongField";
 
-
     private RDBMSConstants() {
     }
 
 }
-

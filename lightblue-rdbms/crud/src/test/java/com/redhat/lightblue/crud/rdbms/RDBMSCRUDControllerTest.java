@@ -62,7 +62,7 @@ public class RDBMSCRUDControllerTest {
         dsMock = mock(DataSource.class);
         cMock = mock(Connection.class);
         psMock = mock(PreparedStatement.class);
-        rDBMSUtils = new RDBMSUtils(){
+        rDBMSUtils = new RDBMSUtils() {
             @Override
             public DataSource getDataSource(RDBMSContext rDBMSContext) {
                 return dsMock;
@@ -112,18 +112,18 @@ public class RDBMSCRUDControllerTest {
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
         final Map<String, EntityMetadata> map = new HashMap<>();
         /*
-        CRUDOperationContext ctx = new CRUDOperationContext(Operation.FIND, "test", factory, JsonNodeFactory.withExactBigDecimals(true), new HashSet<String>(), null){
-            @Override
-            public EntityMetadata getEntityMetadata(String entityName) {
-                return map.get(entityName);
-            }
-        };
-        map.put(md.getName(), md);
-        cut.find(ctx,
-                QueryExpression.fromJson(JsonUtils.json(("{'field':'_id','op':'=','rvalue':'" + id + "'}").replace('\'', '\"'))),
-                Projection.fromJson(JsonUtils.json("{'field':'*','recursive':1}".replace('\'', '\"'))),
-                null, null, null);
-        JsonDoc readDoc = ctx.getDocuments().get(0);
-        */
+         CRUDOperationContext ctx = new CRUDOperationContext(Operation.FIND, "test", factory, JsonNodeFactory.withExactBigDecimals(true), new HashSet<String>(), null){
+         @Override
+         public EntityMetadata getEntityMetadata(String entityName) {
+         return map.get(entityName);
+         }
+         };
+         map.put(md.getName(), md);
+         cut.find(ctx,
+         QueryExpression.fromJson(JsonUtils.json(("{'field':'_id','op':'=','rvalue':'" + id + "'}").replace('\'', '\"'))),
+         Projection.fromJson(JsonUtils.json("{'field':'*','recursive':1}".replace('\'', '\"'))),
+         null, null, null);
+         JsonDoc readDoc = ctx.getDocuments().get(0);
+         */
     }
 }

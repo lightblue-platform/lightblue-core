@@ -35,8 +35,8 @@ import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import com.redhat.lightblue.util.Error;
 
 /**
- * Note that passing a Metadata in the constructor is optional. If not provided, it is fetched from MetadataManager
- * object.
+ * Note that passing a Metadata in the constructor is optional. If not provided,
+ * it is fetched from MetadataManager object.
  *
  * @author nmalik
  */
@@ -54,7 +54,8 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
     }
 
     /**
-     * Returns the metadata. If no metadata is set on the command uses MetadataManager#getMetadata() method.
+     * Returns the metadata. If no metadata is set on the command uses
+     * MetadataManager#getMetadata() method.
      *
      * @return
      * @throws Exception

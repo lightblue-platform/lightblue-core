@@ -36,25 +36,25 @@ import com.redhat.lightblue.interceptor.InterceptPoint;
 
 public class UIDInterceptor implements CRUDDocInterceptor, MediatorInterceptor {
 
-    public static final int UID_SEQ=500;
+    public static final int UID_SEQ = 500;
 
     public void register(InterceptorManager mgr) {
-        mgr.registerInterceptor(UID_SEQ,this,InterceptPoint.PRE_CRUD_INSERT_DOC,
-                                InterceptPoint.PRE_CRUD_UPDATE_DOC,
-                                InterceptPoint.PRE_MEDIATOR_INSERT);
+        mgr.registerInterceptor(UID_SEQ, this, InterceptPoint.PRE_CRUD_INSERT_DOC,
+                InterceptPoint.PRE_CRUD_UPDATE_DOC,
+                InterceptPoint.PRE_MEDIATOR_INSERT);
     }
 
     @Override
     public void run(OperationContext ctx) {
-        JsonNodeFactory nodeFactory=ctx.getFactory().getNodeFactory();
-        EntityMetadata md=ctx.getEntityMetadata(ctx.getEntityName());
-        for(DocCtx doc:ctx.getDocuments()) {
-            UIDFields.initializeUIDFields(nodeFactory,md,doc);
+        JsonNodeFactory nodeFactory = ctx.getFactory().getNodeFactory();
+        EntityMetadata md = ctx.getEntityMetadata(ctx.getEntityName());
+        for (DocCtx doc : ctx.getDocuments()) {
+            UIDFields.initializeUIDFields(nodeFactory, md, doc);
         }
     }
 
     @Override
-    public void run(CRUDOperationContext ctx,DocCtx doc) {
-        UIDFields.initializeUIDFields(ctx.getFactory().getNodeFactory(),ctx.getEntityMetadata(ctx.getEntityName()),doc);
+    public void run(CRUDOperationContext ctx, DocCtx doc) {
+        UIDFields.initializeUIDFields(ctx.getFactory().getNodeFactory(), ctx.getEntityMetadata(ctx.getEntityName()), doc);
     }
 }

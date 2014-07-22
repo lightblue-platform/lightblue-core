@@ -21,15 +21,17 @@ package com.redhat.lightblue.util;
 import java.util.List;
 
 /**
- * A Path that can be modified. Uses copy-on-write semantics to prevent unnecessary copies.
+ * A Path that can be modified. Uses copy-on-write semantics to prevent
+ * unnecessary copies.
  */
 public class MutablePath extends Path {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * If true, this MutablePath is the only Path with a reference to the path data. If false, path data is referenced
-     * by other Paths and a deep copy will only be made if data is modified.
+     * If true, this MutablePath is the only Path with a reference to the path
+     * data. If false, path data is referenced by other Paths and a deep copy
+     * will only be made if data is modified.
      */
     private boolean pathOwned;
 
@@ -38,7 +40,8 @@ public class MutablePath extends Path {
     }
 
     /**
-     * Shallow copy of the input Path that is converted to a deep copy on first update.
+     * Shallow copy of the input Path that is converted to a deep copy on first
+     * update.
      *
      * @param x
      */
@@ -56,8 +59,9 @@ public class MutablePath extends Path {
      * Create a mutable path as a prefix of the given path
      *
      * @param x Source path
-     * @param pfix If positive, the new path is a prefix of x containing pfix elements. If negative, the new path is a
-     * prefix of x with last -pfix elements removed.
+     * @param pfix If positive, the new path is a prefix of x containing pfix
+     * elements. If negative, the new path is a prefix of x with last -pfix
+     * elements removed.
      */
     public MutablePath(Path x, int pfix) {
         setData(new PathRep(x.getData(), pfix));
@@ -202,7 +206,8 @@ public class MutablePath extends Path {
     }
 
     /**
-     * If the path is not owned by this instance does a deep copy and marks the path as owned.
+     * If the path is not owned by this instance does a deep copy and marks the
+     * path as owned.
      */
     private void own() {
         if (!pathOwned) {
@@ -226,8 +231,8 @@ public class MutablePath extends Path {
     }
 
     /**
-     * Rewrites the array indexes in the prefix of this path that is common with fullPath, based on the array indexes in
-     * that shared prefix
+     * Rewrites the array indexes in the prefix of this path that is common with
+     * fullPath, based on the array indexes in that shared prefix
      *
      * @param fullPath A path
      *
@@ -240,8 +245,8 @@ public class MutablePath extends Path {
      *    thisPath.rewriteIndexes(fullPath) -> x.y.1.w.2.k.*
      * </pre>
      *
-     * This is useful when interpreting an absolute path derived from metadata in the context of a definite absolute
-     * path with no ANYs
+     * This is useful when interpreting an absolute path derived from metadata
+     * in the context of a definite absolute path with no ANYs
      *
      * @return this
      */

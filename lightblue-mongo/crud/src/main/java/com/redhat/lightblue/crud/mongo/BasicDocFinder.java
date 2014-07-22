@@ -77,7 +77,7 @@ public class BasicDocFinder implements DocFinder {
         ctx.addDocuments(jsonDocs);
         for (DocCtx doc : ctx.getDocuments()) {
             doc.setOperationPerformed(Operation.FIND);
-            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_FIND_DOC,ctx,doc);
+            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_FIND_DOC, ctx, doc);
         }
         LOGGER.debug("Translated DBObjects to json");
         return ret;

@@ -22,5 +22,5 @@ import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 
 public interface CRUDDocInterceptor extends Interceptor {
-    void run(CRUDOperationContext ctx,DocCtx doc);           
+    void run(CRUDOperationContext ctx, DocCtx doc);
 }

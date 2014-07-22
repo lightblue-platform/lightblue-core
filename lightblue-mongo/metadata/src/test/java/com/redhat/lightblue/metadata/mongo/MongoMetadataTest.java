@@ -73,30 +73,42 @@ public class MongoMetadataTest {
     public class TestCRUDController implements CRUDController {
 
         public CRUDInsertionResponse insert(CRUDOperationContext ctx,
-                                            Projection projection) {return null;}
+                                            Projection projection) {
+            return null;
+        }
 
         public CRUDSaveResponse save(CRUDOperationContext ctx,
                                      boolean upsert,
-                                     Projection projection) {return null;}
+                                     Projection projection) {
+            return null;
+        }
 
         public CRUDUpdateResponse update(CRUDOperationContext ctx,
                                          QueryExpression query,
                                          UpdateExpression update,
-                                         Projection projection) {return null;}
+                                         Projection projection) {
+            return null;
+        }
 
         public CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                                         QueryExpression query) {return null;}
+                                         QueryExpression query) {
+            return null;
+        }
 
         public CRUDFindResponse find(CRUDOperationContext ctx,
                                      QueryExpression query,
                                      Projection projection,
                                      Sort sort,
                                      Long from,
-                                     Long to) {return null;}
+                                     Long to) {
+            return null;
+        }
 
-        public void updateEntityInfo(Metadata md,EntityInfo ei) {}
-        
-        public void newSchema(Metadata md,EntityMetadata emd) {}
+        public void updateEntityInfo(Metadata md, EntityInfo ei) {
+        }
+
+        public void newSchema(Metadata md, EntityMetadata emd) {
+        }
     }
 
     public static class FileStreamProcessor implements IStreamProcessor {
@@ -155,9 +167,9 @@ public class MongoMetadataTest {
             MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
             mongodExe = runtime.prepare(
                     new MongodConfigBuilder()
-                            .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
-                            .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
-                            .build()
+                    .version(de.flapdoodle.embed.mongo.distribution.Version.V2_6_0)
+                    .net(new Net(MONGO_PORT, Network.localhostIsIPv6()))
+                    .build()
             );
             try {
                 mongod = mongodExe.start();
@@ -185,8 +197,8 @@ public class MongoMetadataTest {
 
     @Before
     public void setup() {
-        Factory factory=new Factory();
-        factory.addCRUDController("mongo",new TestCRUDController());
+        Factory factory = new Factory();
+        factory.addCRUDController("mongo", new TestCRUDController());
         Extensions<BSONObject> x = new Extensions<>();
         x.addDefaultExtensions();
         x.registerDataStoreParser("mongo", new MongoDataStoreParser<BSONObject>());
@@ -194,7 +206,7 @@ public class MongoMetadataTest {
             public DB get(MongoDataStore ds) {
                 return db;
             }
-            }, x, new DefaultTypes(),factory);
+        }, x, new DefaultTypes(), factory);
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
@@ -267,7 +279,8 @@ public class MongoMetadataTest {
     }
 
     /**
-     * Issue #13: if you create it twice, the error thrown for the second one cleans up the first
+     * Issue #13: if you create it twice, the error thrown for the second one
+     * cleans up the first
      */
     @Test
     public void createMd2Test() throws Exception {
@@ -619,7 +632,8 @@ public class MongoMetadataTest {
     }
 
     /**
-     * TODO enable once mongo metadata allows falling back on default version in getEntityMetadata()
+     * TODO enable once mongo metadata allows falling back on default version in
+     * getEntityMetadata()
      *
      * @throws IOException
      * @throws JSONException
@@ -658,7 +672,8 @@ public class MongoMetadataTest {
     }
 
     /**
-     * TODO enable once mongo metadata allows falling back on default version in getEntityMetadata()
+     * TODO enable once mongo metadata allows falling back on default version in
+     * getEntityMetadata()
      *
      * @throws IOException
      * @throws JSONException
@@ -696,7 +711,8 @@ public class MongoMetadataTest {
     }
 
     /**
-     * TODO enable once mongo metadata allows falling back on default version in getEntityMetadata()
+     * TODO enable once mongo metadata allows falling back on default version in
+     * getEntityMetadata()
      *
      * @throws IOException
      * @throws JSONException
@@ -740,6 +756,5 @@ public class MongoMetadataTest {
         String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
-
 
 }

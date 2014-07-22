@@ -32,8 +32,10 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * An implementation of this class is passed into CRUD operation implementations. It contains information about the
- * caller roles, correct metadata versions, and the constraint validators that will be used in this call.
+ * An implementation of this class is passed into CRUD operation
+ * implementations. It contains information about the caller roles, correct
+ * metadata versions, and the constraint validators that will be used in this
+ * call.
  */
 public abstract class CRUDOperationContext implements MetadataResolver, Serializable {
 
@@ -76,7 +78,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * Returns the factory instance that controls the validator and CRUD instances.
+     * Returns the factory instance that controls the validator and CRUD
+     * instances.
      */
     public Factory getFactory() {
         return factory;
@@ -192,7 +195,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * Returns all the data errors in the context. If there are none, returns an empty list.
+     * Returns all the data errors in the context. If there are none, returns an
+     * empty list.
      */
     public List<DataError> getDataErrors() {
         List<DataError> list = new ArrayList<>();
@@ -236,7 +240,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * Returns if there are any errors. This does not take into account document errors.
+     * Returns if there are any errors. This does not take into account document
+     * errors.
      */
     public boolean hasErrors() {
         return !errors.isEmpty();

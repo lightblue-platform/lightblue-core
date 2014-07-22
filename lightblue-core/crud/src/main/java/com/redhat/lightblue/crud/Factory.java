@@ -33,8 +33,9 @@ import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.interceptor.InterceptorManager;
 
 /**
- * Factory class should be configured on initialization with all the validators and hooks from all the subsystems, and
- * used as a shared singleton object by all threads.
+ * Factory class should be configured on initialization with all the validators
+ * and hooks from all the subsystems, and used as a shared singleton object by
+ * all threads.
  */
 public class Factory implements Serializable {
 
@@ -46,7 +47,7 @@ public class Factory implements Serializable {
     private final DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
 
     private HookResolver hookResolver;
-    private final InterceptorManager interceptors=new InterceptorManager();
+    private final InterceptorManager interceptors = new InterceptorManager();
 
     private JsonNodeFactory nodeFactory;
 
@@ -63,7 +64,8 @@ public class Factory implements Serializable {
     /**
      * Adds a set of field constraint validators
      *
-     * @param r A field constraint checker resolver containing a set of constraint checkers
+     * @param r A field constraint checker resolver containing a set of
+     * constraint checkers
      */
     public synchronized void addFieldConstraintValidators(Resolver<String, FieldConstraintChecker> r) {
         fieldConstraintValidatorRegistry.add(r);
@@ -82,14 +84,16 @@ public class Factory implements Serializable {
     /**
      * Adds a set of entity constraint validators
      *
-     * @param r An entity constraint checker resolver containing a set of constraint checkers
+     * @param r An entity constraint checker resolver containing a set of
+     * constraint checkers
      */
     public synchronized void addEntityConstraintValidators(Resolver<String, EntityConstraintChecker> r) {
         entityConstraintValidatorRegistry.add(r);
     }
 
     /**
-     * Returns a constraint validator containing field and entity constraint validators for the given entity
+     * Returns a constraint validator containing field and entity constraint
+     * validators for the given entity
      */
     public ConstraintValidator getConstraintValidator(EntityMetadata md) {
         return new ConstraintValidator(fieldConstraintValidatorRegistry,
@@ -100,7 +104,8 @@ public class Factory implements Serializable {
     /**
      * Adds a CRUD controller for the given backend type
      *
-     * @param backendType Type of the backend for which a controller is being added
+     * @param backendType Type of the backend for which a controller is being
+     * added
      * @param controller The controller
      */
     public synchronized void addCRUDController(String backendType, CRUDController controller) {
@@ -150,21 +155,22 @@ public class Factory implements Serializable {
     }
 
     /**
-     * Returns an instance of JsonNodeFactory. Never returns null, if
-     * the JsonNodeFactory is not initialized, this call initializes a
-     * default instance.
+     * Returns an instance of JsonNodeFactory. Never returns null, if the
+     * JsonNodeFactory is not initialized, this call initializes a default
+     * instance.
      */
     public JsonNodeFactory getNodeFactory() {
-        if(nodeFactory==null)
-            nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
+        if (nodeFactory == null) {
+            nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+        }
         return nodeFactory;
     }
 
     /**
-     * Sets the JsonNodeFactory. 
+     * Sets the JsonNodeFactory.
      */
     public synchronized void setNodeFactory(JsonNodeFactory factory) {
-        nodeFactory=factory;
+        nodeFactory = factory;
     }
 
 }

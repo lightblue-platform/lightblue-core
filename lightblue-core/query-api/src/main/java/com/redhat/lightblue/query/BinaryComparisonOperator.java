@@ -59,9 +59,11 @@ public enum BinaryComparisonOperator {
     /**
      * Applies the operator
      *
-     * @param cmp Comparison result of x and y, wheres <0 denotes x<y, >0 denotes x>y, and 0 denotes x=y
+     * @param cmp Comparison result of x and y, wheres <0 denotes x<y, >0
+     * denotes x>y, and 0 denotes x=y
      *
-     * @return Returns the value of x op y based on the comparison result of x and y
+     * @return Returns the value of x op y based on the comparison result of x
+     * and y
      */
     public boolean apply(int cmp) {
         if (cmp < 0) {

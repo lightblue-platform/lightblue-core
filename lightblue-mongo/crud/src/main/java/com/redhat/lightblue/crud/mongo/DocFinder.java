@@ -31,17 +31,21 @@ public interface DocFinder {
     /**
      * Finds documents.
      *
-     * @param ctx The operation context. The found documents are stored in the context.
+     * @param ctx The operation context. The found documents are stored in the
+     * context.
      * @param coll The collection on which the find operation will be performed
      * @param mongoQuery The MongoDB query
      * @param mongoSort Optional sort
      * @param from Optional from index, starting from 0
      * @param to Optional to index, starting from 0
      *
-     * The find implementation should search for documents in the given collection using the search criteria. If a sort
-     * is given, the results should be sorted, and optionally, a subset of the result set should be returned.
+     * The find implementation should search for documents in the given
+     * collection using the search criteria. If a sort is given, the results
+     * should be sorted, and optionally, a subset of the result set should be
+     * returned.
      *
-     * @return Total number of objects found with given query before applying from and to conditions
+     * @return Total number of objects found with given query before applying
+     * from and to conditions
      */
     long find(CRUDOperationContext ctx,
               DBCollection coll,

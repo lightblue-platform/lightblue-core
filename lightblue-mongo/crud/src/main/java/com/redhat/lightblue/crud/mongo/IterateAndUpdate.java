@@ -46,7 +46,8 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Non-atomic updater that evaluates the query, and updates the documents one by one.
+ * Non-atomic updater that evaluates the query, and updates the documents one by
+ * one.
  */
 public class IterateAndUpdate implements DocUpdater {
 
@@ -88,10 +89,10 @@ public class IterateAndUpdate implements DocUpdater {
         int docIndex = 0;
         int numFailed = 0;
         try {
-            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_RESULTSET,ctx);
+            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_RESULTSET, ctx);
             cursor = new FindCommand(collection, query, null).execute();
             LOGGER.debug("Found {} documents", cursor.count());
-            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_RESULTSET,ctx);
+            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_RESULTSET, ctx);
             // read-update-write
             while (cursor.hasNext()) {
                 DBObject document = cursor.next();
@@ -128,13 +129,13 @@ public class IterateAndUpdate implements DocUpdater {
                     }
                     if (!hasErrors) {
                         try {
-                            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_DOC,ctx,doc);
+                            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.PRE_CRUD_UPDATE_DOC, ctx, doc);
                             DBObject updatedObject = translator.toBson(doc.getOutputDocument());
                             translator.addInvisibleFields(document, updatedObject, md);
                             WriteResult result = new SaveCommand(collection, updatedObject).execute();
                             doc.setOperationPerformed(Operation.UPDATE);
                             LOGGER.debug("Number of rows affected : ", result.getN());
-                            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_DOC,ctx,doc);
+                            ctx.getFactory().getInterceptors().callInterceptors(InterceptPoint.POST_CRUD_UPDATE_DOC, ctx, doc);
                         } catch (Exception e) {
                             LOGGER.warn("Update exception for document {}: {}", docIndex, e);
                             doc.addError(Error.get(MongoCrudConstants.ERR_UPDATE_ERROR, e.toString()));

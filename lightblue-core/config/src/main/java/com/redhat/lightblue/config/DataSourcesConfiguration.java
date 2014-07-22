@@ -36,7 +36,7 @@ import com.redhat.lightblue.util.JsonInitializable;
  */
 public class DataSourcesConfiguration implements JsonInitializable, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSourcesConfiguration.class);
 
@@ -63,10 +63,11 @@ public class DataSourcesConfiguration implements JsonInitializable, Serializable
      * }
      * </pre>
      *
-     * Each datasource is defined by a field in a Json object. For each datasource definition, the 'type' field gives
-     * the class name of a a JsonInitializable object. When Json object is processed, an instance of 'type' is
-     * instantiated for each datasource, and processing of the actual datasource configuration is delegated to the
-     * implementation,
+     * Each datasource is defined by a field in a Json object. For each
+     * datasource definition, the 'type' field gives the class name of a a
+     * JsonInitializable object. When Json object is processed, an instance of
+     * 'type' is instantiated for each datasource, and processing of the actual
+     * datasource configuration is delegated to the implementation,
      */
     public DataSourcesConfiguration(JsonNode node) {
         this.initializeFromJson(node);
