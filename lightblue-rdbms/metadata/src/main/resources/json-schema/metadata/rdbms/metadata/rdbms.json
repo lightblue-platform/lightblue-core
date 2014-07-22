@@ -38,11 +38,20 @@
             "id": "update"
         }
     },
-    "required": [
-        "delete",
-        "insert",
-        "save",
-        "update"
-    ],
+    "anyOf": [
+    {
+        "required": [
+            "delete"
+        ],
+        "required": [
+            "insert"
+        ],
+        "required": [
+            "save"
+        ],
+        "required": [
+            "update"
+        ]
+    }],
     "additionalProperties": false
 }

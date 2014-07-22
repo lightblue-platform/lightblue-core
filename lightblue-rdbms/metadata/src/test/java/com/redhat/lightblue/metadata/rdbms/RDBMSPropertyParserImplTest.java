@@ -173,6 +173,60 @@ public class RDBMSPropertyParserImplTest {
             Assert.assertNotNull(error);
         }
     }
+    
+    @Test
+    public void parseMissingOneOfOperations() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"path\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        Throwable error = null;
+        Object r = null;
+        try {
+            r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            error = ex;
+        } finally {
+            Assert.assertNull(error);
+            Assert.assertNotNull(r);
+            Assert.assertTrue(r instanceof RDBMS);
+        }
+    }
+        
+    @Test
+    public void convertMissingOneOfOperations() throws IOException {
+        JsonNode rJSON = p.newNode();
+        RDBMS r = new RDBMS();
+        Operation o = new Operation();
+
+        //With just In  bindings
+        Bindings b = new Bindings();
+        ArrayList<InOut> inList = new ArrayList<InOut>();
+        InOut e = new InOut();
+        e.setColumn("col");
+        e.setPath(Path.ANYPATH);
+        inList.add(e);
+        b.setInList(inList);
+
+        o.setBindings(b);
+        ArrayList<Expression> expressionList = new ArrayList<Expression>();
+        Statement e1 = new Statement();
+        e1.setSQL("REQ EXPRESSION");
+        e1.setType("select");
+        expressionList.add(e1);
+        o.setExpressionList(expressionList);
+        r.setDelete(o);
+     
+        Throwable error = null;
+        try {
+            cut.convert(p, rJSON, r);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            error = ex;
+        } finally {
+            Assert.assertNull(error);
+            Assert.assertNotNull(r);
+            Assert.assertTrue(r instanceof RDBMS);
+        }
+    }
 
     @Test
     public void convertAndParseBindingsFieldsReq() throws IOException {

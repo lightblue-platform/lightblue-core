@@ -32,12 +32,22 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         if (!"rdbms".equals(name)) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_WRONG_ROOT_NODE_NAME, "Node name informed:" + name);
         }
+        T delete = p.getObjectProperty(node, "delete");
+        T fetch = p.getObjectProperty(node, "fetch");
+        T insert = p.getObjectProperty(node, "insert");
+        T save = p.getObjectProperty(node, "save");
+        T update = p.getObjectProperty(node, "update");
+        
+        if(delete == null && fetch == null && insert == null && save == null && update == null ) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No Operation informed");
+        }
+    
         RDBMS rdbms = new RDBMS();
-        rdbms.setDelete(parseOperation(p, p.getObjectProperty(node, "delete"), "delete"));
-        rdbms.setFetch(parseOperation(p, p.getObjectProperty(node, "fetch"), "fetch"));
-        rdbms.setInsert(parseOperation(p, p.getObjectProperty(node, "insert"), "insert"));
-        rdbms.setSave(parseOperation(p, p.getObjectProperty(node, "save"), "save"));
-        rdbms.setUpdate(parseOperation(p, p.getObjectProperty(node, "update"), "update"));
+        rdbms.setDelete(parseOperation(p, delete, "delete"));
+        rdbms.setFetch(parseOperation(p, fetch, "fetch"));
+        rdbms.setInsert(parseOperation(p, insert, "insert"));
+        rdbms.setSave(parseOperation(p, save, "save"));
+        rdbms.setUpdate(parseOperation(p, update, "update"));
 
         return rdbms;
     }
@@ -49,6 +59,11 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private Object convertRDBMS(MetadataParser<T> p, RDBMS object) {
         T rdbms = p.newNode();
+        
+        if(object.getDelete() == null && object.getFetch() == null && object.getInsert() == null && object.getSave() == null && object.getUpdate() == null ) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No operation informed");
+        }
+        
         p.putObject(rdbms, "delete", convertOperation(p, object.getDelete()));
         p.putObject(rdbms, "fetch", convertOperation(p, object.getFetch()));
         p.putObject(rdbms, "insert", convertOperation(p, object.getInsert()));
@@ -59,7 +74,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private Operation parseOperation(MetadataParser<T> p, T operation, String fieldName) {
         if (operation == null) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No Operation informed for " + fieldName);
+            return null;
         }
         T b = p.getObjectProperty(operation, "bindings");
         Bindings bindings = null;
@@ -411,7 +426,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private Object convertOperation(MetadataParser<T> p, Operation o) {
         if (o == null) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No operation informed");
+            return null;
         }
         T oT = p.newNode();
         if (o.getBindings() != null) {
