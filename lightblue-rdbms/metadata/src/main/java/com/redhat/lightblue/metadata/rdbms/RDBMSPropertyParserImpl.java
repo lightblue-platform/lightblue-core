@@ -72,18 +72,18 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         }
 
         if(!bI) {
-            List<InOut> inList = transformToInOut(p, inRaw);
+            List<InOut> inList = parseInOut(p, inRaw);
             b.setInList(inList);
         }
         if(!bO) {
-            List<InOut> outList = transformToInOut(p, outRaw);
+            List<InOut> outList = parseInOut(p, outRaw);
             b.setOutList(outList);
         }
 
         return b;
     }
 
-    private List<InOut> transformToInOut(MetadataParser<T> p, List<T> inRaw) {
+    private List<InOut> parseInOut(MetadataParser<T> p, List<T> inRaw) {
         final ArrayList<InOut> result = new ArrayList<>();
         for (T t : inRaw) {
             InOut a = new InOut();
@@ -217,6 +217,8 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                 elseIfList.add(elseIf);
             }
             return elseIfList;
+        } else if(elseIfs != null && elseIfs.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSConstants.ERR_FIELD_REQ, "Invalid $elseif: the $elseif array is empty");
         } else {
             return null;
         }
