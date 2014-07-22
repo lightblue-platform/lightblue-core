@@ -25,11 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A simple PreparedStatement wrapper to make SQL statements easier Source
- * inspired from
- * http://www.javaworld.com/article/2077706/core-java/named-parameters-for-preparedstatement.html
- * and
- * https://github.com/bnewport/Samples/blob/master/wxsutils/src/main/java/com/devwebsphere/jdbc/loader/NamedParameterStatement.java
+ * A simple PreparedStatement wrapper to make SQL statements easier. Source
+ * inspired from:
+ * <ul>
+ * <li>http://www.javaworld.com/article/2077706/core-java/named-parameters-for-preparedstatement.html<?li>
+ * <li>https://github.com/bnewport/Samples/blob/master/wxsutils/src/main/java/com/devwebsphere/jdbc/loader/NamedParameterStatement.java</li>
+ * </ul>
  */
 public class NamedParameterStatement {
     /**
@@ -49,14 +50,14 @@ public class NamedParameterStatement {
     }
 
     private String parse(String query) {
-        // I was originally using regular expressions, but they didn't work well for ignoring
-        // parameter-like strings inside quotes.
+        // NOTE regular expressions don't work well for ignoring parameter-like strings inside quotes.
         int length = query.length();
         StringBuilder parsedQuery = new StringBuilder(length);
         boolean inSingleQuote = false;
         boolean inDoubleQuote = false;
         int index = 1;
-        HashMap<String, List<Integer>> indexes = new HashMap<>(15); // Setting a good initialCapacity for a better performance
+        // Setting a good initialCapacity for a better performance
+        HashMap<String, List<Integer>> indexes = new HashMap<>(15);
 
         for (int i = 0; i < length; i++) {
             char c = query.charAt(i);
@@ -73,7 +74,8 @@ public class NamedParameterStatement {
                     inSingleQuote = true;
                 } else if (c == '"') {
                     inDoubleQuote = true;
-                } else if (c == ':' && i + 1 < length && Character.isJavaIdentifierStart(query.charAt(i + 1))) {//isJavaIdentifierStart-> make sure that the parameter's chars are all qualified for java (which would be more readable)
+                } else if (c == ':' && i + 1 < length && Character.isJavaIdentifierStart(query.charAt(i + 1))) {
+                    //isJavaIdentifierStart-> make sure that the parameter's chars are all qualified for java (which would be more readable)
                     int j = i + 2;
                     while (j < length && Character.isJavaIdentifierPart(query.charAt(j))) {
                         j++;

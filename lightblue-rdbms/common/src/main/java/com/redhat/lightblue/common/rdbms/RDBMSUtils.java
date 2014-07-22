@@ -37,16 +37,19 @@ public class RDBMSUtils {
 
     public DataSource getDataSource(RDBMSContext rDBMSContext) {
         LOGGER.debug("getDataSource() start");
-        com.redhat.lightblue.util.Error.push("Getting JDBC through JNDI");
-        InitialContext context = null;
+        Error.push("RDBMSUtils");
+        Error.push("getDataSource");
         DataSource ds = null;
         try {
-            context = new InitialContext();
+            // relying on garbage collection to close context
+            InitialContext context = new InitialContext();
             ds = (DataSource) context.lookup(rDBMSContext.getDataSourceName());
         } catch (NamingException e) {
-            LOGGER.error("getDataSource : {}", e);
-            throw new IllegalStateException(e);
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_DATASOURCE_NOT_FOUND, e.getMessage());
         } finally {
+            Error.pop();
             Error.pop();
         }
         rDBMSContext.setDataSource(ds);
@@ -56,17 +59,20 @@ public class RDBMSUtils {
 
     public Connection getConnection(RDBMSContext context) {
         if (context.getDataSource() == null) {
-            throw new IllegalArgumentException("No dataSource informed");
+            throw new IllegalArgumentException("No dataSource supplied");
         }
         LOGGER.debug("getConnection() start");
-        Error.push("Getting the connection from JDBC");
+        Error.push("RDBMSUtils");
+        Error.push("getConnection");
         Connection c = null;
         try {
             c = context.getDataSource().getConnection();
         } catch (SQLException e) {
-            LOGGER.error("getConnection : {}", e);
-            throw new IllegalStateException(e);
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_GET_CONNECTION_FAILED, e.getMessage());
         } finally {
+            Error.pop();
             Error.pop();
         }
         context.setConnection(c);
@@ -76,20 +82,23 @@ public class RDBMSUtils {
 
     public PreparedStatement getStatement(RDBMSContext context) {
         if (context.getConnection() == null) {
-            throw new IllegalArgumentException("No connection informed");
+            throw new IllegalArgumentException("No connection supplied");
         }
         if (context.getStatement() == null) {
-            throw new IllegalArgumentException("No statement informed");
+            throw new IllegalArgumentException("No statement supplied");
         }
         LOGGER.debug("getStatement() start");
-        Error.push("Getting the statement from JDBC");
+        Error.push("RDBMSUtils");
+        Error.push("getStatement");
         PreparedStatement ps = null;
         try {
             ps = context.getConnection().prepareStatement(context.getStatement());
         } catch (SQLException e) {
-            LOGGER.error("getDataSource NamingException: {}", e);
-            throw new IllegalStateException(e);
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_GET_STATEMENT_FAILED, e.getMessage());
         } finally {
+            Error.pop();
             Error.pop();
         }
         context.setPreparedStatement(ps);
@@ -99,16 +108,20 @@ public class RDBMSUtils {
 
     public ResultSet executeQuery(RDBMSContext context) {
         if (context.getPreparedStatement() == null) {
-            throw new IllegalArgumentException("No statement informed");
+            throw new IllegalArgumentException("No statement supplied");
         }
         ResultSet rs = null;
         LOGGER.debug("executeQuery() start");
+        Error.push("RDBMSUtils");
+        Error.push("executeQuery");
         try {
             rs = context.getPreparedStatement().executeQuery();
         } catch (SQLException e) {
-            LOGGER.error("executeQuery SQLException: {}", e);
-            throw new IllegalStateException(e);
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_EXECUTE_QUERY_FAILED, e.getMessage());
         } finally {
+            Error.pop();
             Error.pop();
         }
         context.setResultSet(rs);
@@ -119,16 +132,20 @@ public class RDBMSUtils {
 
     public int executeUpdate(RDBMSContext context) {
         if (context.getPreparedStatement() == null) {
-            throw new IllegalArgumentException("No statement informed");
+            throw new IllegalArgumentException("No statement supplied");
         }
         Integer r = null;
         LOGGER.debug("executeUpdate() start");
+        Error.push("RDBMSUtils");
+        Error.push("executeUpdate");
         try {
             r = context.getPreparedStatement().executeUpdate();
         } catch (SQLException e) {
-            LOGGER.error("executeUpdate SQLException: {}", e);
-            throw new IllegalStateException(e);
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_EXECUTE_UPDATE_FAILED, e.getMessage());
         } finally {
+            Error.pop();
             Error.pop();
         }
         context.setResultInteger(r);
@@ -139,30 +156,27 @@ public class RDBMSUtils {
 
     public <T> List<T> buildMappedList(RDBMSContext<T> context) {
         if (context.getPreparedStatement() == null) {
-            throw new IllegalArgumentException("No statement informed");
+            throw new IllegalArgumentException("No statement supplied");
         }
         if (context.getRowMapper() == null) {
-            throw new IllegalArgumentException("No rowMapper informed");
+            throw new IllegalArgumentException("No rowMapper supplied");
         }
-        ResultSet resultSet = executeQuery(context);
-        List<T> list = new ArrayList<T>();
+        Error.push("RDBMSUtils");
+        Error.push("buildMappedList");
+        List<T> list = new ArrayList<>();
         context.setResultList(list);
-        try {
+        try (ResultSet resultSet = executeQuery(context)) {
             while (resultSet.next()) {
                 T o = context.getRowMapper().map(resultSet);
                 list.add(o);
             }
         } catch (SQLException e) {
-            LOGGER.error("Error with the ResultSet", e);
-            throw new IllegalStateException("Error with the ResultSet", e);
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_BUILD_RESULT_FAILED, e.getMessage());
         } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (Exception ex) {
-                    LOGGER.error("Problem closing the ResultSet", ex);
-                }
-            }
+            Error.pop();
+            Error.pop();
         }
         close(context);
         return list;
@@ -172,14 +186,14 @@ public class RDBMSUtils {
         if (context.getConnection() != null) {
             try {
                 context.getConnection().close();
-            } catch (Exception e) {
-                LOGGER.error("Error closing the connection", e);
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage(), e);
             } finally {
                 if (context.getPreparedStatement() != null) {
                     try {
                         context.getPreparedStatement().close();
-                    } catch (Exception e) {
-                        LOGGER.error("Error closing the PreparedStatement", e);
+                    } catch (SQLException e) {
+                        LOGGER.error(e.getMessage(), e);
                     }
                 }
             }

@@ -25,6 +25,9 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @param <T> type of object returned in List (resultList)
+ */
 public class RDBMSContext<T> {
 
     private DataSource dataSource = null;
