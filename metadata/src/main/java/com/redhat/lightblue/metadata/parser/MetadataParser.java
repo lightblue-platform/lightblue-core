@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other formats represented as a tree.
@@ -44,7 +45,7 @@ import java.util.*;
  */
 public abstract class MetadataParser<T> {
 
-    private static final String STR_ID= "_id";
+    private static final String STR_ID = "_id";
     private static final String STR_NAME = "name";
     private static final String STR_VALUE = "value";
     private static final String STR_VERSION = "version";
@@ -85,7 +86,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_CONFIGURATION = "configuration";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataParser.class);
-    private static final Set<String> ENTITY_INFO_FIELDS= Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
+    private static final Set<String> ENTITY_INFO_FIELDS = Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
 
     private final Extensions<T> extensions;
     private final TypeResolver typeResolver;
@@ -178,7 +179,7 @@ public abstract class MetadataParser<T> {
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
 
-            parsePropertyParser(object,info.getProperties());
+            parsePropertyParser(object, info.getProperties());
 
             return info;
         } finally {
@@ -190,10 +191,10 @@ public abstract class MetadataParser<T> {
         Error.push("parsePropertyParser");
         try {
 
-            Set<String> propertyFields = findFieldsNotIn(object,ENTITY_INFO_FIELDS);
-            for(String property:propertyFields) {
+            Set<String> propertyFields = findFieldsNotIn(object, ENTITY_INFO_FIELDS);
+            for (String property : propertyFields) {
                 PropertyParser p = extensions.getPropertyParser(property);
-                if(p!=null) {
+                if (p != null) {
                     p.parseProperty(this, property, properties, getObjectProperty(object, property));
                 }
             }
@@ -392,7 +393,7 @@ public abstract class MetadataParser<T> {
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
             parseEntityConstraints(schema, constraints);
 
-            parsePropertyParser(object,schema.getProperties());
+            parsePropertyParser(object, schema.getProperties());
 
             return schema;
         } catch (Error e) {
@@ -696,7 +697,7 @@ public abstract class MetadataParser<T> {
                 parseFieldConstraints(field,
                         getObjectProperty(object, STR_CONSTRAINTS));
 
-                parsePropertyParser(object,field.getProperties());
+                parsePropertyParser(object, field.getProperties());
             } else {
                 field = null;
             }
@@ -823,14 +824,14 @@ public abstract class MetadataParser<T> {
             if (info.getProperties() != null && !info.getProperties().isEmpty()) {
                 for (String s : info.getProperties().keySet()) {
                     PropertyParser p = extensions.getPropertyParser(s);
-                    if(p!=null) {
+                    if (p != null) {
                         T node = newNode();
                         p.convert(this, node, info.getProperties().get(s));
                         putObject(ret, s, node);
                     }
                 }
             }
-            convertPropertyParser(ret,info.getProperties());
+            convertPropertyParser(ret, info.getProperties());
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -858,7 +859,7 @@ public abstract class MetadataParser<T> {
             putObject(ret, STR_STATUS, convert(schema.getStatus(), schema.getStatusChangeLog()));
             putObject(ret, STR_ACCESS, convert(schema.getAccess()));
             putObject(ret, STR_FIELDS, convert(schema.getFields()));
-            convertPropertyParser(ret,schema.getProperties());
+            convertPropertyParser(ret, schema.getProperties());
             convertEntityConstraints(ret, schema.getConstraints());
             return ret;
         } catch (Error e) {
@@ -876,10 +877,12 @@ public abstract class MetadataParser<T> {
     public void convertPropertyParser(T object, Map<String, Object> properties) {
         Error.push("convertPropertyParser");
         try {
-            for(String key:properties.keySet()) {
+
+            for (Entry entry : properties.entrySet()) {
+                String key = (String) entry.getKey();
                 PropertyParser p = extensions.getPropertyParser(key);
-                if(p!=null) {
-                    p.convert(this,object,properties.get(key));
+                if (p != null) {
+                    p.convert(this, object, entry.getValue());
                 }
             }
         } finally {
@@ -1045,7 +1048,7 @@ public abstract class MetadataParser<T> {
                     putObject(fieldObject, STR_ACCESS, access);
                 }
                 convertFieldConstraints(fieldObject, field.getConstraints());
-                convertPropertyParser(ret,field.getProperties());
+                convertPropertyParser(ret, field.getProperties());
             } catch (Error e) {
                 // rethrow lightblue error
                 throw e;
@@ -1057,7 +1060,7 @@ public abstract class MetadataParser<T> {
                 Error.pop();
             }
         }
-        convertPropertyParser(ret,fields.getProperties());
+        convertPropertyParser(ret, fields.getProperties());
         return ret;
     }
 
@@ -1473,6 +1476,6 @@ public abstract class MetadataParser<T> {
      */
     public abstract void addObjectToArray(Object array, Object value);
 
-    public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields );
+    public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields);
 
 }
