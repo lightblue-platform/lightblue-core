@@ -30,7 +30,8 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 
 /**
- * Convenience class to register all predefined constraint parsers to MetadataParser
+ * Convenience class to register all predefined constraint parsers to
+ * MetadataParser
  */
 public class DefaultFieldConstraintParsers<N>
         extends DefaultResolver<String, Parser<N, FieldConstraint>> {

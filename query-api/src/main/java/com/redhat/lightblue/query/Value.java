@@ -28,8 +28,9 @@ import com.redhat.lightblue.util.JsonObject;
 import java.util.Objects;
 
 /**
- * Wrapper for primitive values in queries. Provides the basics to convert a primitive value to/from json. during query
- * evaluation, metadata is used to interpret the actual value.
+ * Wrapper for primitive values in queries. Provides the basics to convert a
+ * primitive value to/from json. during query evaluation, metadata is used to
+ * interpret the actual value.
  */
 public class Value extends JsonObject {
 
@@ -80,8 +81,9 @@ public class Value extends JsonObject {
     /**
      * Creates a value from a json node
      *
-     * If the node is decimal, double, or float, create s a BigDecimal value. If the node is BigInteger, creates a
-     * BigIngeter value. If the node is a long or int, creates a long or int value. If the node is a boolean, creates a
+     * If the node is decimal, double, or float, create s a BigDecimal value. If
+     * the node is BigInteger, creates a BigIngeter value. If the node is a long
+     * or int, creates a long or int value. If the node is a boolean, creates a
      * boolean value. Otherwise, creates a string value.
      */
     public static Value fromJson(JsonNode node) {

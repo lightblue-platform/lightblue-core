@@ -22,7 +22,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Implementing classes should setup arrays of data to suite their data and implement createPath().
+ * Implementing classes should setup arrays of data to suite their data and
+ * implement createPath().
  *
  * @author nmalik
  *

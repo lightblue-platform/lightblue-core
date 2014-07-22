@@ -25,8 +25,8 @@ import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Interface for items of the field tree. This interface allows resolution of Paths based on an arbitrary location in
- * the field tree.
+ * Interface for items of the field tree. This interface allows resolution of
+ * Paths based on an arbitrary location in the field tree.
  */
 public interface FieldTreeNode {
 
@@ -63,7 +63,8 @@ public interface FieldTreeNode {
     FieldTreeNode resolve(Path p);
 
     /**
-     * Returns the field tree node for the given Path relative to this, starting at a specific level
+     * Returns the field tree node for the given Path relative to this, starting
+     * at a specific level
      */
     FieldTreeNode resolve(Path p, int level);
 
@@ -73,7 +74,8 @@ public interface FieldTreeNode {
     Path getFullPath();
 
     /**
-     * Builds the full path by calling parent.getFullPath() first, and then adding the current segment. Returns mp.
+     * Builds the full path by calling parent.getFullPath() first, and then
+     * adding the current segment. Returns mp.
      */
     MutablePath getFullPath(MutablePath mp);
 }

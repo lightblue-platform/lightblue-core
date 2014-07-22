@@ -36,7 +36,8 @@ public class ArrayQueryProjector extends ArrayProjector {
      * Ctor
      *
      * @param p The projection expression
-     * @param ctxPath The absolute path relative to which this is to be interpreted
+     * @param ctxPath The absolute path relative to which this is to be
+     * interpreted
      * @param context The metadata node at which this is to be interpreted
      */
     public ArrayQueryProjector(ArrayQueryMatchProjection p, Path ctxPath, FieldTreeNode context) {

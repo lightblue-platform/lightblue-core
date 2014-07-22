@@ -50,11 +50,12 @@ import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.util.JsonUtils;
 
 /**
- * Manager class that creates instances of Mediator, Factory, Metadata, etc. based on configuration.
+ * Manager class that creates instances of Mediator, Factory, Metadata, etc.
+ * based on configuration.
  */
 public final class LightblueFactory implements Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LightblueFactory.class);
 
@@ -71,87 +72,87 @@ public final class LightblueFactory implements Serializable {
         this.datasources = datasources;
     }
 
-    private synchronized void initializeParser() 
-        throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
+    private synchronized void initializeParser()
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         if (parser == null) {
             Extensions<JsonNode> extensions = new Extensions<>();
             extensions.addDefaultExtensions();
-            
+
             Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
             for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
                 Class<DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
                 DataStoreParser backendParser = tempParser.newInstance();
                 extensions.registerDataStoreParser(backendParser.getDefaultName(), backendParser);
             }
-            
+
             parser = new JSONMetadataParser(extensions, new DefaultTypes(), NODE_FACTORY);
         }
     }
 
-    private synchronized void initializeMediator() 
-        throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+    private synchronized void initializeMediator()
+            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator == null) {
             mediator = new Mediator(getMetadata(), getFactory());
         }
     }
 
-    private synchronized void initializeFactory() 
-        throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
-        if(factory==null) {
+    private synchronized void initializeFactory()
+            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+        if (factory == null) {
             JsonNode root;
             try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
-                    root = JsonUtils.json(is);
-                }
-            
+                root = JsonUtils.json(is);
+            }
+
             // convert root to Configuration object
             CrudConfiguration configuration = new CrudConfiguration();
             configuration.initializeFromJson(root);
-            
+
             Factory f = new Factory();
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
-            
+
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());
-            
+
             // validate
             if (!configuration.isValid()) {
                 throw new IllegalStateException(CrudConstants.ERR_CONFIG_NOT_VALID + " - " + CrudConfiguration.FILENAME);
             }
-            
+
             for (ControllerConfiguration x : configuration.getControllers()) {
                 ControllerFactory cfactory = x.getControllerFactory().newInstance();
                 CRUDController controller = cfactory.createController(x, datasources);
                 f.addCRUDController(x.getBackend(), controller);
             }
             // Make sure we assign factory after it is initialized. (factory is volatile, there's a memory barrier here)
-            factory=f;
+            factory = f;
         }
     }
 
     private synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
             LOGGER.debug("Initializing metadata");
-            
+
             JsonNode root;
             try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
-                    root = JsonUtils.json(is);
-                }
+                root = JsonUtils.json(is);
+            }
             LOGGER.debug("Config root:{}", root);
-            
+
             JsonNode cfgClass = root.get("type");
             if (cfgClass == null) {
                 throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
             }
-            
+
             MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
             cfg.initializeFromJson(root);
-            
-            metadata = cfg.createMetadata(datasources, getJSONParser(),this);
+
+            metadata = cfg.createMetadata(datasources, getJSONParser(), this);
         }
     }
 
-    public Metadata getMetadata() 
-        throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Metadata getMetadata()
+            throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
             initializeMetadata();
         }
@@ -159,8 +160,8 @@ public final class LightblueFactory implements Serializable {
         return metadata;
     }
 
-    public JSONMetadataParser getJSONParser() 
-        throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public JSONMetadataParser getJSONParser()
+            throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (parser == null) {
             initializeParser();
         }
@@ -168,16 +169,16 @@ public final class LightblueFactory implements Serializable {
         return parser;
     }
 
-    public Factory getFactory()  
-        throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
-        if(factory==null) {
+    public Factory getFactory()
+            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+        if (factory == null) {
             initializeFactory();
         }
         return factory;
     }
 
-    public Mediator getMediator() 
-        throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+    public Mediator getMediator()
+            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (mediator == null) {
             initializeMediator();
         }

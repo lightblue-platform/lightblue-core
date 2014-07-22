@@ -30,8 +30,8 @@ public interface EntityConstraintChecker {
     /**
      * Entity constraint checker function
      *
-     * @param validator The constraint validator instance from which the implementation can access the metadata and
-     * context information
+     * @param validator The constraint validator instance from which the
+     * implementation can access the metadata and context information
      * @param constraint field constraint
      * @param doc The document
      *

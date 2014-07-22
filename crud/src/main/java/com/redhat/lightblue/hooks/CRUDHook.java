@@ -24,8 +24,8 @@ import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 /**
- * A hook is called once after an operation is completed, with the list of documents that were processed during the
- * operation
+ * A hook is called once after an operation is completed, with the list of
+ * documents that were processed during the operation
  */
 public interface CRUDHook {
     /**
@@ -36,12 +36,13 @@ public interface CRUDHook {
     /**
      * Process the hook
      *
-     * @param ctx The operation context. This contains the operation performed on the entity, and the complete list of
-     * documents
+     * @param ctx The operation context. This contains the operation performed
+     * on the entity, and the complete list of documents
      * @param cfg The hook configuration as specified in the metadata
-     * @param processedDocuments Contains the list of documents that are operated on. If the hook specifies a projection
-     * in metadata, the input and output documents are projected. The hook should not modify the documents in the list.
-     * Same documents are passed to the other hooks.
+     * @param processedDocuments Contains the list of documents that are
+     * operated on. If the hook specifies a projection in metadata, the input
+     * and output documents are projected. The hook should not modify the
+     * documents in the list. Same documents are passed to the other hooks.
      */
     void processHook(EntityMetadata md,
                      HookConfiguration cfg,

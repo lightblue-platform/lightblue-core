@@ -39,7 +39,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * Base class for converting metadata to/from json/bson and potentially other formats represented as a tree.
+ * Base class for converting metadata to/from json/bson and potentially other
+ * formats represented as a tree.
  *
  * The metadata parser is thread safe.
  */
@@ -134,7 +135,8 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Entry point for entity metadata parser. Expects an Object corresponding to the EntityMetadata object.
+     * Entry point for entity metadata parser. Expects an Object corresponding
+     * to the EntityMetadata object.
      *
      * @throws ParseException
      */
@@ -160,7 +162,8 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Entry point for entity info parser. Expects an Object corresponding to the EntityInfo object.
+     * Entry point for entity info parser. Expects an Object corresponding to
+     * the EntityInfo object.
      *
      * @throws ParseException
      */
@@ -365,7 +368,8 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Entry point for entity schema parser. Expects an Object corresponding to the EntitySchema object.
+     * Entry point for entity schema parser. Expects an Object corresponding to
+     * the EntitySchema object.
      *
      * @throws ParseException
      */
@@ -511,8 +515,9 @@ public abstract class MetadataParser<T> {
     /**
      * Parses entity constraints using the registered entity constraint parsers.
      *
-     * Entity constraints are an object array where each object contains only one field, the constraint name. The
-     * constraint data can be a simple value, an array, or an object.
+     * Entity constraints are an object array where each object contains only
+     * one field, the constraint name. The constraint data can be a simple
+     * value, an array, or an object.
      */
     public void parseEntityConstraints(EntitySchema schema,
                                        List<T> constraintList) {
@@ -644,8 +649,8 @@ public abstract class MetadataParser<T> {
     /**
      * Parses a backend using a registered backend parser
      *
-     * @param object The object for the backend element. The object must contain only one object field whose name is
-     * used to resolve the backend parser
+     * @param object The object for the backend element. The object must contain
+     * only one object field whose name is used to resolve the backend parser
      *
      * @return The parsed backend. Returns null if object is null.
      */
@@ -666,8 +671,9 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Returns the single field name contained in the object. If the object contains more fields or no fields, throws an
-     * error with the given error code.
+     * Returns the single field name contained in the object. If the object
+     * contains more fields or no fields, throws an error with the given error
+     * code.
      */
     private String getSingleFieldName(T object, String errorCode) {
         Set<String> names = getChildNames(object);
@@ -1065,7 +1071,8 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Creates a STR_CONSTRAINTS array in <code>parent</code> and fills it up with constraints
+     * Creates a STR_CONSTRAINTS array in <code>parent</code> and fills it up
+     * with constraints
      */
     public void convertFieldConstraints(T parent, List<FieldConstraint> constraints) {
         if (constraints != null && !constraints.isEmpty()) {
@@ -1095,7 +1102,8 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Creates a STR_CONSTRAINTS array in <code>parent</code> and fills it up with constraints
+     * Creates a STR_CONSTRAINTS array in <code>parent</code> and fills it up
+     * with constraints
      */
     public void convertEntityConstraints(T parent, List<EntityConstraint> constraints) {
         if (constraints != null && !constraints.isEmpty()) {
@@ -1197,7 +1205,8 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Adds the description of backend to parent as a field named by the type of the backend
+     * Adds the description of backend to parent as a field named by the type of
+     * the backend
      */
     public void convertDataStore(T dsNode, DataStore store) {
         Error.push("convertDataStore");
@@ -1345,7 +1354,8 @@ public abstract class MetadataParser<T> {
     public abstract T getObjectProperty(T object, String name);
 
     /**
-     * Returns an object child property, fail if the child property is not found.
+     * Returns an object child property, fail if the child property is not
+     * found.
      *
      * @param object The object containing the property
      * @param name Name of the property to return
@@ -1384,7 +1394,8 @@ public abstract class MetadataParser<T> {
      *
      * If the property is not a simple java value, should throw exception
      *
-     * @return The property value requested (String, Number, Boolean, etc), or null if property does not exist
+     * @return The property value requested (String, Number, Boolean, etc), or
+     * null if property does not exist
      */
     public abstract Object getValueProperty(T object, String name);
 

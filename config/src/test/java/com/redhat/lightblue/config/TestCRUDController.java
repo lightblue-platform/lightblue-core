@@ -69,8 +69,10 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public void updateEntityInfo(Metadata md,EntityInfo ei) {}
+    public void updateEntityInfo(Metadata md, EntityInfo ei) {
+    }
 
     @Override
-    public void newSchema(Metadata md,EntityMetadata emd) {}
+    public void newSchema(Metadata md, EntityMetadata emd) {
+    }
 }

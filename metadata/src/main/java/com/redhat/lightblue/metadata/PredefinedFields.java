@@ -40,12 +40,12 @@ import com.redhat.lightblue.util.Path;
  * Ensures that the predefined fields are included in the metadata.
  *
  * <ul>
- * <li> _id, type is string, int or biginteger. Unique constraint, roles setup to allow read by anyone, noone
- * updates</li>
- * <li> object_type, type is string. required and minimum length=1, roles setup to allow read by anyone, noone
- * updates</li>
- * <li> for every array field with name "x", a field "x#" of type int, roles setup to allow read by anyone, noone
- * updates</li>
+ * <li> _id, type is string, int or biginteger. Unique constraint, roles setup
+ * to allow read by anyone, noone updates</li>
+ * <li> object_type, type is string. required and minimum length=1, roles setup
+ * to allow read by anyone, noone updates</li>
+ * <li> for every array field with name "x", a field "x#" of type int, roles
+ * setup to allow read by anyone, noone updates</li>
  * </ul>
  */
 public final class PredefinedFields {
@@ -84,7 +84,8 @@ public final class PredefinedFields {
     }
 
     /**
-     * Updates all array size values at the subtree rooted at the given object node
+     * Updates all array size values at the subtree rooted at the given object
+     * node
      *
      * @param factory Node factory
      * @param node All array size fields under this subtree will be updated

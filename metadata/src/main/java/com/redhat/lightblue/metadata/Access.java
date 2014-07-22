@@ -39,7 +39,8 @@ public class Access implements Serializable {
     }
 
     /**
-     * Sets the roles. The given collection contents are copied to internal storage.
+     * Sets the roles. The given collection contents are copied to internal
+     * storage.
      */
     public void setRoles(Collection<String> roles) {
         values.clear();

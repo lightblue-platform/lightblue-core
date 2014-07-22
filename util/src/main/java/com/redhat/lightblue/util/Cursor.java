@@ -19,8 +19,9 @@
 package com.redhat.lightblue.util;
 
 /**
- * Interface representing a cursor into a collection. Upon construction, cursor points to the location before the first
- * element, so calling next() is required.
+ * Interface representing a cursor into a collection. Upon construction, cursor
+ * points to the location before the first element, so calling next() is
+ * required.
  */
 public interface Cursor<V> {
 

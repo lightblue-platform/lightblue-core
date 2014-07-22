@@ -23,8 +23,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.util.JsonObject;
 
 /**
- * This is the base class for implementation specific client identification. Implementations of this class must contain
- * data that identifies the caller of an API
+ * This is the base class for implementation specific client identification.
+ * Implementations of this class must contain data that identifies the caller of
+ * an API
  */
 public abstract class ClientIdentification extends JsonObject {
     private static final long serialVersionUID = 1L;

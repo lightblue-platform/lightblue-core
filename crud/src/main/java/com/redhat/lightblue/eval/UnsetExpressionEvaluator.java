@@ -38,7 +38,8 @@ import com.redhat.lightblue.util.Path;
 /**
  * Removes a field from a doc.
  *
- * Removals take place one by one, results of a removal are visible to the subsequent operations
+ * Removals take place one by one, results of a removal are visible to the
+ * subsequent operations
  */
 public class UnsetExpressionEvaluator extends Updater {
 
@@ -51,7 +52,8 @@ public class UnsetExpressionEvaluator extends Updater {
         private final Path field;
 
         /**
-         * If field refers to an array element, the absolute array field containing that element
+         * If field refers to an array element, the absolute array field
+         * containing that element
          */
         private final Path absArrayField;
 

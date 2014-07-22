@@ -70,7 +70,8 @@ public class Index implements Serializable {
     }
 
     /**
-     * The fields such that the ordered combination of their values must be unique
+     * The fields such that the ordered combination of their values must be
+     * unique
      */
     @SuppressWarnings("unchecked")
     public List<SortKey> getFields() {
@@ -78,7 +79,8 @@ public class Index implements Serializable {
     }
 
     /**
-     * The fields such that the ordered combination of their values must be unique
+     * The fields such that the ordered combination of their values must be
+     * unique
      */
     public void setFields(List<SortKey> f) {
         fields.clear();

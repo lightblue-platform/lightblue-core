@@ -33,16 +33,16 @@ public class SaveRequest extends DocRequest {
     private boolean upsert;
 
     /**
-     * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
-     * inserted entities.
+     * Specifies the fields of the inserted entities to return. This can be used
+     * to retrieve the _id fields of the inserted entities.
      */
     public Projection getReturnFields() {
         return returnFields;
     }
 
     /**
-     * Specifies the fields of the inserted entities to return. This can be used to retrieve the _id fields of the
-     * inserted entities.
+     * Specifies the fields of the inserted entities to return. This can be used
+     * to retrieve the _id fields of the inserted entities.
      */
     public void setReturnFields(Projection p) {
         returnFields = p;

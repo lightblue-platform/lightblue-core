@@ -52,16 +52,16 @@ public class DataError extends JsonObject {
     }
 
     /**
-     * The entity data for which these errors apply. Generated using the same projection as the API generated this
-     * error.
+     * The entity data for which these errors apply. Generated using the same
+     * projection as the API generated this error.
      */
     public JsonNode getEntityData() {
         return entityData;
     }
 
     /**
-     * The entity data for which these errors apply. Generated using the same projection as the API generated this
-     * error.
+     * The entity data for which these errors apply. Generated using the same
+     * projection as the API generated this error.
      */
     public void setEntityData(JsonNode node) {
         entityData = node;
@@ -101,8 +101,9 @@ public class DataError extends JsonObject {
     }
 
     /**
-     * Parses a Json object node and returns the DataError corresponding to it. It is up to the client to make sure that
-     * the object node is a DataError representation. Any unrecognized elements are ignored.
+     * Parses a Json object node and returns the DataError corresponding to it.
+     * It is up to the client to make sure that the object node is a DataError
+     * representation. Any unrecognized elements are ignored.
      */
     public static DataError fromJson(ObjectNode node) {
         DataError error = new DataError();

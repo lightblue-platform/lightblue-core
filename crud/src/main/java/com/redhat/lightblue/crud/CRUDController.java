@@ -33,12 +33,13 @@ public interface CRUDController {
      * Performs insertion of documents to the back end
      *
      * @param ctx Operation context
-     * @param projection If non-null, the inserted documents are projected using this projection and returned in the
-     * response
+     * @param projection If non-null, the inserted documents are projected using
+     * this projection and returned in the response
      *
-     * The ctx must provide access to the correct versions of metadata used to insert all the documents. All documents
-     * must be of the same entity type. If projection is non-null, the data must be projected and returned, otherwise,
-     * no data is returned.
+     * The ctx must provide access to the correct versions of metadata used to
+     * insert all the documents. All documents must be of the same entity type.
+     * If projection is non-null, the data must be projected and returned,
+     * otherwise, no data is returned.
      */
     CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                  Projection projection);
@@ -48,13 +49,15 @@ public interface CRUDController {
      *
      * @param ctx Operation context
      * @param upsert If true, and if a document does not exist, it is inserted
-     * @param projection If non-null, the inserted/updated documents are projected using this projection and returned in
-     * the response
+     * @param projection If non-null, the inserted/updated documents are
+     * projected using this projection and returned in the response
      *
-     * The ctx must provide access to the correct versions of metadata used to insert/update all the documents. All
-     * documents must be of the same entity type. If a document has nonnull _id field, the document is updated in the
-     * db. Otherwise, if upsert is true, the document is updated. If projection is non-null, the data must be projected
-     * and returned, otherwise, no data is returned.
+     * The ctx must provide access to the correct versions of metadata used to
+     * insert/update all the documents. All documents must be of the same entity
+     * type. If a document has nonnull _id field, the document is updated in the
+     * db. Otherwise, if upsert is true, the document is updated. If projection
+     * is non-null, the data must be projected and returned, otherwise, no data
+     * is returned.
      */
     CRUDSaveResponse save(CRUDOperationContext ctx,
                           boolean upsert,
@@ -65,10 +68,12 @@ public interface CRUDController {
      *
      * @param ctx Operation context
      * @param query The query specifying the documents to update
-     * @param update The update expression specifying the operations to be performed on matching documents
+     * @param update The update expression specifying the operations to be
+     * performed on matching documents
      * @param projection The fields to be returned from the updated documents
      *
-     * If projection is non-null, the updated documents are projected and returned.
+     * If projection is non-null, the updated documents are projected and
+     * returned.
      */
     CRUDUpdateResponse update(CRUDOperationContext ctx,
                               QueryExpression query,
@@ -93,8 +98,10 @@ public interface CRUDController {
      * @param query The query. Cannot be null
      * @param projection What fields to return. Cannot be null
      * @param sort Sort keys. Can be null
-     * @param from starting index in the result set. Can be null. Meaninguful only if a sort is given. Starts from 0.
-     * @param to end index in the result set. Starts from 0, and inclusive. Can be null.
+     * @param from starting index in the result set. Can be null. Meaninguful
+     * only if a sort is given. Starts from 0.
+     * @param to end index in the result set. Starts from 0, and inclusive. Can
+     * be null.
      */
     CRUDFindResponse find(CRUDOperationContext ctx,
                           QueryExpression query,
@@ -103,14 +110,13 @@ public interface CRUDController {
                           Long from,
                           Long to);
 
-
     /**
      * Called by Metadata whenever entity info is created or updated
      */
-    void updateEntityInfo(Metadata md,EntityInfo ei);
+    void updateEntityInfo(Metadata md, EntityInfo ei);
 
     /**
      * Called by Metadata whenever a new version of schema is created.
      */
-    void newSchema(Metadata md,EntityMetadata emd);
+    void newSchema(Metadata md, EntityMetadata emd);
 }

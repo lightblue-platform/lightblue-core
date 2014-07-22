@@ -96,30 +96,34 @@ public class Response extends JsonObject {
     }
 
     /**
-     * If the operation continues asynchronously, the task handle can be used to retrieve status information, and the
-     * result of the call once the operation is complete
+     * If the operation continues asynchronously, the task handle can be used to
+     * retrieve status information, and the result of the call once the
+     * operation is complete
      */
     public String getTaskHandle() {
         return taskHandle;
     }
 
     /**
-     * If the operation continues asynchronously, the task handle can be used to retrieve status information, and the
-     * result of the call once the operation is complete
+     * If the operation continues asynchronously, the task handle can be used to
+     * retrieve status information, and the result of the call once the
+     * operation is complete
      */
     public void setTaskHandle(String t) {
         taskHandle = t;
     }
 
     /**
-     * If the operation starts a session or uses an existing session, the session information
+     * If the operation starts a session or uses an existing session, the
+     * session information
      */
     public SessionInfo getSessionInfo() {
         return session;
     }
 
     /**
-     * If the operation starts a session or uses an existing session, the session information
+     * If the operation starts a session or uses an existing session, the
+     * session information
      */
     public void setSessionInfo(SessionInfo s) {
         session = s;

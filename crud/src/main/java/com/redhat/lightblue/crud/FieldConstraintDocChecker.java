@@ -25,18 +25,20 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * Field constraint checker for constraints that run once for the document. This is to implement stuff like the required
- * constraint, so that even if the field does not exist, constraint can be checked.
+ * Field constraint checker for constraints that run once for the document. This
+ * is to implement stuff like the required constraint, so that even if the field
+ * does not exist, constraint can be checked.
  */
 public interface FieldConstraintDocChecker extends FieldConstraintChecker {
 
     /**
      * Field constraint checker function that is run once for the document
      *
-     * @param validator The constraint validator instance from which the implementation can access the metadata and
-     * context information
+     * @param validator The constraint validator instance from which the
+     * implementation can access the metadata and context information
      * @param fieldMedata The field metadata
-     * @param fieldMetadataPath The path for the field metadata (i.e. may contain *)
+     * @param fieldMetadataPath The path for the field metadata (i.e. may
+     * contain *)
      * @param constraint field constraint
      * @param doc The document
      *

@@ -30,46 +30,51 @@ import com.redhat.lightblue.mediator.OperationContext;
 
 public class InterceptorManager implements Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
-    private final HashMap<InterceptPoint,TreeMap<Integer,Interceptor>> interceptors=new HashMap<>();
+    private final HashMap<InterceptPoint, TreeMap<Integer, Interceptor>> interceptors = new HashMap<>();
 
     public void registerInterceptor(int sequence, Interceptor i, InterceptPoint... pt) {
-        for(InterceptPoint x:pt) {
-            TreeMap<Integer,Interceptor> tmap=interceptors.get(x);
-            if(tmap==null)
-                interceptors.put(x,tmap=new TreeMap<Integer,Interceptor>());
-            if(x.getInterceptorClass().isAssignableFrom(i.getClass()))
-                tmap.put(sequence,i);
-            else
-                throw new IllegalArgumentException("Interceptor requires "+
-                                                   x.getInterceptorClass().getName()+
-                                                   " but got "+
-                                                   i.getClass().getName());
+        for (InterceptPoint x : pt) {
+            TreeMap<Integer, Interceptor> tmap = interceptors.get(x);
+            if (tmap == null) {
+                interceptors.put(x, tmap = new TreeMap<Integer, Interceptor>());
+            }
+            if (x.getInterceptorClass().isAssignableFrom(i.getClass())) {
+                tmap.put(sequence, i);
+            } else {
+                throw new IllegalArgumentException("Interceptor requires "
+                        + x.getInterceptorClass().getName()
+                        + " but got "
+                        + i.getClass().getName());
+            }
         }
     }
 
-    public void callInterceptors(InterceptPoint.MediatorInterceptPoint pt,OperationContext ctx) {
-        TreeMap<Integer,Interceptor> tree=interceptors.get(pt);
-        if(tree!=null) {
-            for(Interceptor interceptor:tree.values())
-                pt.call(interceptor,ctx);
+    public void callInterceptors(InterceptPoint.MediatorInterceptPoint pt, OperationContext ctx) {
+        TreeMap<Integer, Interceptor> tree = interceptors.get(pt);
+        if (tree != null) {
+            for (Interceptor interceptor : tree.values()) {
+                pt.call(interceptor, ctx);
+            }
         }
     }
 
-    public void callInterceptors(InterceptPoint.CRUDControllerInterceptPoint pt,CRUDOperationContext ctx) {
-        TreeMap<Integer,Interceptor> tree=interceptors.get(pt);
-        if(tree!=null) {
-            for(Interceptor interceptor:tree.values())
-                pt.call(interceptor,ctx);
+    public void callInterceptors(InterceptPoint.CRUDControllerInterceptPoint pt, CRUDOperationContext ctx) {
+        TreeMap<Integer, Interceptor> tree = interceptors.get(pt);
+        if (tree != null) {
+            for (Interceptor interceptor : tree.values()) {
+                pt.call(interceptor, ctx);
+            }
         }
     }
 
-    public void callInterceptors(InterceptPoint.CRUDDocInterceptPoint pt,CRUDOperationContext ctx,DocCtx doc) {
-        TreeMap<Integer,Interceptor> tree=interceptors.get(pt);
-        if(tree!=null) {
-            for(Interceptor interceptor:tree.values())
-                pt.call(interceptor,ctx,doc);
+    public void callInterceptors(InterceptPoint.CRUDDocInterceptPoint pt, CRUDOperationContext ctx, DocCtx doc) {
+        TreeMap<Integer, Interceptor> tree = interceptors.get(pt);
+        if (tree != null) {
+            for (Interceptor interceptor : tree.values()) {
+                pt.call(interceptor, ctx, doc);
+            }
         }
     }
 }

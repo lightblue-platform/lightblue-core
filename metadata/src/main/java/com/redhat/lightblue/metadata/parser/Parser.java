@@ -21,8 +21,9 @@ package com.redhat.lightblue.metadata.parser;
 /**
  * Common interface for parsers for metadata extensions
  *
- * The <code>N</code> refers to the type of the tree node in the document object tree. The parameter <code>T</code> is
- * the object returned once a node of type <code>N</code> is parsed.
+ * The <code>N</code> refers to the type of the tree node in the document object
+ * tree. The parameter <code>T</code> is the object returned once a node of type
+ * <code>N</code> is parsed.
  */
 public interface Parser<N, T> {
 
@@ -32,7 +33,8 @@ public interface Parser<N, T> {
     T parse(String name, MetadataParser<N> p, N node);
 
     /**
-     * Intialize the empt node <code>emptyNode</code> with the contents of <code>object</code>
+     * Intialize the empt node <code>emptyNode</code> with the contents of
+     * <code>object</code>
      */
     void convert(MetadataParser<N> p, N emptyNode, T object);
 

@@ -59,8 +59,9 @@ public abstract class Projector {
     }
 
     /**
-     * Returns the nested projector for this path *only if* <code>project</code> returns true. May return null, which
-     * means to continue using this projector.
+     * Returns the nested projector for this path *only if* <code>project</code>
+     * returns true. May return null, which means to continue using this
+     * projector.
      */
     public abstract Projector getNestedProjector();
 
@@ -80,8 +81,8 @@ public abstract class Projector {
     }
 
     /**
-     * Builds a (potentially nested) projection based on the given projection, and the location in the metadata field
-     * tree.
+     * Builds a (potentially nested) projection based on the given projection,
+     * and the location in the metadata field tree.
      */
     public static Projector getInstance(Projection projection, Path ctxPath, FieldTreeNode ctx) {
         if (projection instanceof FieldProjection) {

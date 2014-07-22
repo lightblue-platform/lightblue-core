@@ -30,16 +30,18 @@ public abstract class DocRequest extends Request {
     private JsonNode entityData;
 
     /**
-     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
-     * multiple entities. All entities must be of the same type.
+     * Entity data to be saved. this may be an object node containing a single
+     * entity, or an array node containing multiple entities. All entities must
+     * be of the same type.
      */
     public JsonNode getEntityData() {
         return entityData;
     }
 
     /**
-     * Entity data to be saved. this may be an object node containing a single entity, or an array node containing
-     * multiple entities. All entities must be of the same type.
+     * Entity data to be saved. this may be an object node containing a single
+     * entity, or an array node containing multiple entities. All entities must
+     * be of the same type.
      */
     public void setEntityData(JsonNode data) {
         this.entityData = data;

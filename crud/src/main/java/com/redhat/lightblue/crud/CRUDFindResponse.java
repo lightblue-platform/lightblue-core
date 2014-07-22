@@ -21,7 +21,8 @@ package com.redhat.lightblue.crud;
 import java.io.Serializable;
 
 /**
- * CRUD layer response to find() request. Contains the found documents, total resultset size, and errors.
+ * CRUD layer response to find() request. Contains the found documents, total
+ * resultset size, and errors.
  */
 public class CRUDFindResponse implements Serializable {
 

@@ -47,7 +47,7 @@ import com.redhat.lightblue.util.JsonUtils;
 
 public class UIDTest {
 
-    private static final JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(false);
+    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
 
     private EntityMetadata getMD1() {
         EntityMetadata entityMetadata = new EntityMetadata("test");
@@ -75,22 +75,22 @@ public class UIDTest {
 
     private EntityMetadata getMDWithReq() {
         EntityMetadata entityMetadata = new EntityMetadata("test");
-        List<FieldConstraint> list=new ArrayList<>();
+        List<FieldConstraint> list = new ArrayList<>();
         list.add(new RequiredConstraint());
 
         entityMetadata.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
-        Field f=new SimpleField("simpleUID",UIDType.TYPE);
+        Field f = new SimpleField("simpleUID", UIDType.TYPE);
         f.setConstraints(list);
         entityMetadata.getFields().addNew(f);
         ObjectField objectField1 = new ObjectField("obj1");
         entityMetadata.getFields().addNew(objectField1);
         objectField1.getFields().addNew(new SimpleField("nestedSimpleInteger", IntegerType.TYPE));
-        f=new SimpleField("nestedUID",UIDType.TYPE);
+        f = new SimpleField("nestedUID", UIDType.TYPE);
         f.setConstraints(list);
         objectField1.getFields().addNew(f);
         ObjectField objectField2 = new ObjectField("nested");
         objectField1.getFields().addNew(objectField2);
-        f=new SimpleField("doubleNestedUID",UIDType.TYPE);
+        f = new SimpleField("doubleNestedUID", UIDType.TYPE);
         f.setConstraints(list);
         objectField2.getFields().addNew(f);
         ArrayField arrayField1 = new ArrayField("simpleArr", new SimpleArrayElement(StringType.TYPE));
@@ -98,7 +98,7 @@ public class UIDTest {
 
         ObjectArrayElement objectArrayElement = new ObjectArrayElement();
         objectArrayElement.getFields().addNew(new SimpleField("nestedArrObjString1", StringType.TYPE));
-        f=new SimpleField("nestedArrObjUID",UIDType.TYPE);
+        f = new SimpleField("nestedArrObjUID", UIDType.TYPE);
         f.setConstraints(list);
         objectArrayElement.getFields().addNew(f);
         ArrayField arrayField2 = new ArrayField("objArr", objectArrayElement);
@@ -107,15 +107,14 @@ public class UIDTest {
         return entityMetadata;
     }
 
-
     @Test
     public void nonReq() throws Exception {
-        EntityMetadata md=getMD1();
-        ObjectNode node=nodeFactory.objectNode();
-        node.put("simpleInteger",10);
-        JsonDoc doc=new JsonDoc(node);
-        UIDFields.initializeUIDFields(nodeFactory,md,doc);
-        Assert.assertEquals(10,doc.get(new Path("simpleInteger")).asInt());
+        EntityMetadata md = getMD1();
+        ObjectNode node = nodeFactory.objectNode();
+        node.put("simpleInteger", 10);
+        JsonDoc doc = new JsonDoc(node);
+        UIDFields.initializeUIDFields(nodeFactory, md, doc);
+        Assert.assertEquals(10, doc.get(new Path("simpleInteger")).asInt());
         Assert.assertNull(doc.get(new Path("simpleUID")));
         Assert.assertNull(doc.get(new Path("obj1")));
         Assert.assertNull(doc.get(new Path("obj1.nested.objArr")));
@@ -123,12 +122,12 @@ public class UIDTest {
 
     @Test
     public void req() throws Exception {
-        EntityMetadata md=getMDWithReq();
-        ObjectNode node=nodeFactory.objectNode();
-        node.put("simpleInteger",10);
-        JsonDoc doc=new JsonDoc(node);
-        UIDFields.initializeUIDFields(nodeFactory,md,doc);
-        Assert.assertEquals(10,doc.get(new Path("simpleInteger")).asInt());
+        EntityMetadata md = getMDWithReq();
+        ObjectNode node = nodeFactory.objectNode();
+        node.put("simpleInteger", 10);
+        JsonDoc doc = new JsonDoc(node);
+        UIDFields.initializeUIDFields(nodeFactory, md, doc);
+        Assert.assertEquals(10, doc.get(new Path("simpleInteger")).asInt());
         Assert.assertNotNull(doc.get(new Path("simpleUID")).asText());
         Assert.assertNotNull(doc.get(new Path("obj1.nestedUID")).asText());
         Assert.assertNotNull(doc.get(new Path("obj1.nested.doubleNestedUID")).asText());
@@ -137,21 +136,21 @@ public class UIDTest {
 
     @Test
     public void reqArr() throws Exception {
-        EntityMetadata md=getMDWithReq();
-        ObjectNode node=nodeFactory.objectNode();
-        node.put("simpleInteger",10);
-        
-        ArrayNode arr=nodeFactory.arrayNode();
-        arr.add(nodeFactory.objectNode());
-        arr.add(nodeFactory.objectNode());
-        ObjectNode obj1=nodeFactory.objectNode();
-        node.put("obj1",obj1);
-        ObjectNode nested=nodeFactory.objectNode();
-        obj1.put("nested",nested);
-        nested.put("objArr",arr);
+        EntityMetadata md = getMDWithReq();
+        ObjectNode node = nodeFactory.objectNode();
+        node.put("simpleInteger", 10);
 
-        JsonDoc doc=new JsonDoc(node);
-        UIDFields.initializeUIDFields(nodeFactory,md,doc);
+        ArrayNode arr = nodeFactory.arrayNode();
+        arr.add(nodeFactory.objectNode());
+        arr.add(nodeFactory.objectNode());
+        ObjectNode obj1 = nodeFactory.objectNode();
+        node.put("obj1", obj1);
+        ObjectNode nested = nodeFactory.objectNode();
+        obj1.put("nested", nested);
+        nested.put("objArr", arr);
+
+        JsonDoc doc = new JsonDoc(node);
+        UIDFields.initializeUIDFields(nodeFactory, md, doc);
         Assert.assertNotNull(doc.get(new Path("obj1.nested.objArr.0.nestedArrObjUID")));
         Assert.assertNotNull(doc.get(new Path("obj1.nested.objArr.1.nestedArrObjUID")));
         Assert.assertNull(doc.get(new Path("obj1.nested.objArr.2.nestedArrObjUID")));
@@ -159,26 +158,31 @@ public class UIDTest {
 
     @Test
     public void userTest() throws Exception {
-        JsonNode node=JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
-        Extensions<JsonNode> extensions=new Extensions<JsonNode>();
+        JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
+        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
         extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo",new DataStoreParser<JsonNode>() {
-                public String getDefaultName() {
-                    return "mongo";
-                }
-                public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {return new DataStore() {
-                        public String getBackend() { return "mongo";} }; 
-                }
-                
-                public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
-                }
-            });
-        JSONMetadataParser parser=new JSONMetadataParser(extensions,new DefaultTypes(),nodeFactory);
-        EntityMetadata md=parser.parseEntityMetadata(node);
+        extensions.registerDataStoreParser("mongo", new DataStoreParser<JsonNode>() {
+            public String getDefaultName() {
+                return "mongo";
+            }
 
-        JsonNode userNode=JsonUtils.json(getClass().getResourceAsStream("/userdata.json"));
-        JsonDoc doc=new JsonDoc(userNode);
-        UIDFields.initializeUIDFields(nodeFactory,md,doc);
+            public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+                return new DataStore() {
+                    public String getBackend() {
+                        return "mongo";
+                    }
+                };
+            }
+
+            public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
+            }
+        });
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), nodeFactory);
+        EntityMetadata md = parser.parseEntityMetadata(node);
+
+        JsonNode userNode = JsonUtils.json(getClass().getResourceAsStream("/userdata.json"));
+        JsonDoc doc = new JsonDoc(userNode);
+        UIDFields.initializeUIDFields(nodeFactory, md, doc);
         System.out.println(doc);
     }
 }

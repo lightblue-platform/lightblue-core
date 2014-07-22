@@ -97,8 +97,9 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
             @Override
             public void convert(MetadataParser<JsonNode> p, JsonNode parent, Object object) {
                 JsonNode t = p.newNode();
-                p.putObject(parent,"rdbms", t);
-                p.putString(t, "answer", object.toString());            }
+                p.putObject(parent, "rdbms", t);
+                p.putString(t, "answer", object.toString());
+            }
         });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
@@ -157,7 +158,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 //    public void fullObjectEverything() throws IOException, ParseException, JSONException {
 //        testResource("JSONMetadataParserTest-object-everything.json");
 //    }
-
     @Test
     public void getStringProperty() {
         String name = "name";

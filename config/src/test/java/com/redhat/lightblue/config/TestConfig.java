@@ -25,7 +25,8 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
 /**
- * Test metadata configuration implementation, referenced by configuration files.
+ * Test metadata configuration implementation, referenced by configuration
+ * files.
  */
 public class TestConfig implements MetadataConfiguration {
 

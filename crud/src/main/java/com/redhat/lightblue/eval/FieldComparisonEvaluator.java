@@ -44,7 +44,8 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
      *
      * @param expr The expression
      * @param md Entity metadata
-     * @param context The path relative to which the expression will be evaluated
+     * @param context The path relative to which the expression will be
+     * evaluated
      */
     public FieldComparisonEvaluator(FieldComparisonExpression expr, FieldTreeNode context) {
         this.relativePath = expr.getField();

@@ -26,8 +26,8 @@ import com.redhat.lightblue.util.Path;
 import java.util.Objects;
 
 /**
- * Expression that can be on the right side of an assignment operator. It can be a value, a field reference, or an empty
- * object
+ * Expression that can be on the right side of an assignment operator. It can be
+ * a value, a field reference, or an empty object
  * <pre>
  *   rvalue_expression := value | { $valueof : path } | {}
  */

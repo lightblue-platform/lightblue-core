@@ -30,16 +30,18 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.DataError;
 
 /**
- * This class represents a document and its related copies, errors, and the operation performed on the document
+ * This class represents a document and its related copies, errors, and the
+ * operation performed on the document
  *
  * DocCtx provides three views of a document:
  * <ul>
  * <li>DocCtx instance: This is the document on which we operate.</li>
- * <li>originalDoc: This is the copy of the document before any modifications are done on it. This has to be explicitly
- * set.</li>
- * <li>outputDoc: This is the version of the document that is projected to be returned. Initially it points to DocCtx
- * instance, and must be explicitly set to point to something else if projections are applied, or null if document will
- * not appear in the output.</li>
+ * <li>originalDoc: This is the copy of the document before any modifications
+ * are done on it. This has to be explicitly set.</li>
+ * <li>outputDoc: This is the version of the document that is projected to be
+ * returned. Initially it points to DocCtx instance, and must be explicitly set
+ * to point to something else if projections are applied, or null if document
+ * will not appear in the output.</li>
  * </ul>
  */
 public class DocCtx extends JsonDoc {
@@ -144,7 +146,8 @@ public class DocCtx extends JsonDoc {
     }
 
     /**
-     * If there are errors for this documents, returns a data error. Otherwise, returns null.
+     * If there are errors for this documents, returns a data error. Otherwise,
+     * returns null.
      */
     public DataError getDataError() {
         if (!errors.isEmpty()) {

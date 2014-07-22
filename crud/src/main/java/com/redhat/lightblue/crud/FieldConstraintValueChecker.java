@@ -27,17 +27,19 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * Field value constraint validator. Instances of this validator are only called if the field exists in the document.
+ * Field value constraint validator. Instances of this validator are only called
+ * if the field exists in the document.
  */
 public interface FieldConstraintValueChecker extends FieldConstraintChecker {
 
     /**
      * Constraint checker function that validates the value of a field
      *
-     * @param validator The constraint validator instance from which the implementation can access the metadata and
-     * context information
+     * @param validator The constraint validator instance from which the
+     * implementation can access the metadata and context information
      * @param fieldMedata The field metadata
-     * @param fieldMetadataPath The path for the field metadata (i.e. may contain *)
+     * @param fieldMetadataPath The path for the field metadata (i.e. may
+     * contain *)
      * @param constraint field constraint
      * @param valuePath The path to the current value being validated
      * @param doc The document containing the field

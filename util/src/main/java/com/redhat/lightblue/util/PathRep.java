@@ -55,7 +55,8 @@ class PathRep implements Serializable, Comparable<PathRep> {
      * Prefix copy ctor
      *
      * @param data source
-     * @param x If x>0, x elements from the beginning are copied. If x<0, -x elements from the end are removed
+     * @param x If x>0, x elements from the beginning are copied. If x<0, -x
+     * elements from the end are removed
      */
     public PathRep(PathRep data, int x) {
         int k = data.segments.size();

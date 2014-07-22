@@ -55,7 +55,8 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
     }
 
     /**
-     * The array field. If this is included in a nested query, relative to the context
+     * The array field. If this is included in a nested query, relative to the
+     * context
      */
     public Path getArray() {
         return this.array;

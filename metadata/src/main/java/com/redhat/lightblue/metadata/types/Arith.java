@@ -51,8 +51,9 @@ public final class Arith {
     }
 
     /**
-     * Determines the resulting type of an arithmetic operation between a value of type operand1 and a value of type
-     * operand2. Throws IllegalArgumentException if the operation is invalid.
+     * Determines the resulting type of an arithmetic operation between a value
+     * of type operand1 and a value of type operand2. Throws
+     * IllegalArgumentException if the operation is invalid.
      */
     public static Type promote(Type operand1,
                                Type operand2) {

@@ -57,8 +57,9 @@ public class MetadataJsonSchemaValidTest extends AbstractJsonSchemaTest {
     }
 
     /**
-     * The pom has an exec plugin that generates a file in the test classpath that contains all the metadata to
-     * validate. This test then verifies each metadata listed, collecting any errors and and failing at the end of all
+     * The pom has an exec plugin that generates a file in the test classpath
+     * that contains all the metadata to validate. This test then verifies each
+     * metadata listed, collecting any errors and and failing at the end of all
      * validation.
      *
      * @throws IOException

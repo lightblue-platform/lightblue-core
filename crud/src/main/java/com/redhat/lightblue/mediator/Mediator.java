@@ -52,8 +52,8 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
 /**
- * The mediator looks at a request, performs basic validation, and passes the operation to one or more of the
- * controllers based on the request attributes.
+ * The mediator looks at a request, performs basic validation, and passes the
+ * operation to one or more of the controllers based on the request attributes.
  */
 public class Mediator {
 
@@ -77,8 +77,9 @@ public class Mediator {
      *
      * @param req Insertion request
      *
-     * Mediator performs constraint and role validation, and passes documents that pass the validation to the CRUD
-     * implementation for that entity. CRUD implementation can perform further validations.
+     * Mediator performs constraint and role validation, and passes documents
+     * that pass the validation to the CRUD implementation for that entity. CRUD
+     * implementation can perform further validations.
      */
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntityVersion());
@@ -91,7 +92,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert " + ctx.getTopLevelEntityName()));
             } else {
-                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_INSERT,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_INSERT, ctx);
                 updatePredefinedFields(ctx.getDocuments(), md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
@@ -114,7 +115,7 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.ERROR);
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_INSERT,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_INSERT, ctx);
             }
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
@@ -135,13 +136,15 @@ public class Mediator {
     }
 
     /**
-     * Saves data. Documents in the DB that match the ID of the documents in the request are rewritten. If a document
-     * does not exist in the DB and upsert=true, the document is inserted.
+     * Saves data. Documents in the DB that match the ID of the documents in the
+     * request are rewritten. If a document does not exist in the DB and
+     * upsert=true, the document is inserted.
      *
      * @param req Save request
      *
-     * Mediator performs constraint validation, and passes documents that pass the validation to the CRUD implementation
-     * for that entity. CRUD implementation can perform further validations.
+     * Mediator performs constraint validation, and passes documents that pass
+     * the validation to the CRUD implementation for that entity. CRUD
+     * implementation can perform further validations.
      *
      */
     public Response save(SaveRequest req) {
@@ -156,7 +159,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert/update " + ctx.getTopLevelEntityName()));
             } else {
-                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_SAVE,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_SAVE, ctx);
                 updatePredefinedFields(ctx.getDocuments(), md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
@@ -177,7 +180,7 @@ public class Mediator {
                         ctx.setStatus(OperationStatus.ERROR);
                     }
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_SAVE,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_SAVE, ctx);
             }
             response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
@@ -202,11 +205,13 @@ public class Mediator {
      *
      * @param req Update request
      *
-     * All documents matching the search criteria are updated using the update expression given in the request. Then,
-     * the updated document is projected and returned in the response.
+     * All documents matching the search criteria are updated using the update
+     * expression given in the request. Then, the updated document is projected
+     * and returned in the response.
      *
-     * The mediator does not perform any constraint validation. The CRUD implementation must perform all constraint
-     * validations and process only the documents that pass those validations.
+     * The mediator does not perform any constraint validation. The CRUD
+     * implementation must perform all constraint validations and process only
+     * the documents that pass those validations.
      */
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntityVersion());
@@ -219,7 +224,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "update " + ctx.getTopLevelEntityName()));
             } else {
-                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_UPDATE,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_UPDATE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDUpdateResponse updateResponse = controller.update(ctx,
@@ -238,7 +243,7 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_UPDATE,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_UPDATE, ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -268,7 +273,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "delete " + ctx.getTopLevelEntityName()));
             } else {
-                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_DELETE,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_DELETE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDDeleteResponse result = controller.delete(ctx,
@@ -280,7 +285,7 @@ public class Mediator {
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_DELETE,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_DELETE, ctx);
             }
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
@@ -312,14 +317,14 @@ public class Mediator {
         Response response = new Response();
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory,  Operation.FIND);
+            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.FIND);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 LOGGER.debug("No access");
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
             } else {
-                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                 CRUDFindResponse result = controller.find(ctx,
@@ -339,7 +344,7 @@ public class Mediator {
                     }
                     response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
                 }
-                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND,ctx);
+                factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
             }
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());

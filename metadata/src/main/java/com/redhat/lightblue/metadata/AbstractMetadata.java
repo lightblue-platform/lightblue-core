@@ -42,8 +42,9 @@ public abstract class AbstractMetadata implements Metadata {
     protected abstract void checkDataStoreIsValid(EntityInfo md);
 
     /**
-     * Checks that the default version on the EntityInfo exists. If no default version is set then has no side effect.
-     * If the default version does not exist an error is raised.
+     * Checks that the default version on the EntityInfo exists. If no default
+     * version is set then has no side effect. If the default version does not
+     * exist an error is raised.
      *
      * @param ei
      */
@@ -97,7 +98,8 @@ public abstract class AbstractMetadata implements Metadata {
     }
 
     /**
-     * Add roles and paths to accessMap where accessMap = <role, <operation, List<path>>>
+     * Add roles and paths to accessMap where accessMap = <role, <operation,
+     * List<path>>>
      *
      * @param roles
      * @param operation

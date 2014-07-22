@@ -38,13 +38,16 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * This class manages hooks. As operations are performed, queueHooks() is called to queue up hooks for successfully
- * processed documents. Once operations are complete and changes are committed, callQueuedHooks is called to execute all
- * hooks that were queued. The queues are executed in the order they are queued, but the hooks for a single document can
- * be executed in a non-deterministic order.
+ * This class manages hooks. As operations are performed, queueHooks() is called
+ * to queue up hooks for successfully processed documents. Once operations are
+ * complete and changes are committed, callQueuedHooks is called to execute all
+ * hooks that were queued. The queues are executed in the order they are queued,
+ * but the hooks for a single document can be executed in a non-deterministic
+ * order.
  *
- * Each hook receives a list containing pre- and post- update versions of the documents. If there are multiple hooks for
- * the given operation, the hooks of that operation share the document copies. Because of this, hooks must treat
+ * Each hook receives a list containing pre- and post- update versions of the
+ * documents. If there are multiple hooks for the given operation, the hooks of
+ * that operation share the document copies. Because of this, hooks must treat
  * documents as read-only.
  *
  *
@@ -131,28 +134,31 @@ public class HookManager {
      *
      * @param ctx Operation context
      *
-     * This will create copies of all the documents that has no errors in the context, and save them for later hook
-     * execution.
+     * This will create copies of all the documents that has no errors in the
+     * context, and save them for later hook execution.
      */
     public void queueHooks(CRUDOperationContext ctx) {
         queueHooks(ctx, false);
     }
 
     /**
-     * Queues mediator hooks for the operation represented by the operation context.
+     * Queues mediator hooks for the operation represented by the operation
+     * context.
      *
      * @param ctx Operation context
      *
-     * This operation will only queue mediator hooks. This will create copies of all the documents that has no errors in
-     * the context, and save them for later hook execution.
+     * This operation will only queue mediator hooks. This will create copies of
+     * all the documents that has no errors in the context, and save them for
+     * later hook execution.
      */
     public void queueMediatorHooks(CRUDOperationContext ctx) {
         queueHooks(ctx, true);
     }
 
     /**
-     * Calls all queued hooks, and then clears the queued hooks. Any hook that failed will be logged, but hook execution
-     * will continue unless one of the hooks throws an exception with @StopHookProcessing annotation.
+     * Calls all queued hooks, and then clears the queued hooks. Any hook that
+     * failed will be logged, but hook execution will continue unless one of the
+     * hooks throws an exception with @StopHookProcessing annotation.
      */
     public void callQueuedHooks() {
         for (HookDocs hd : queuedHooks) {

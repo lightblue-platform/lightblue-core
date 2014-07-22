@@ -21,5 +21,5 @@ package com.redhat.lightblue.interceptor;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 
 public interface CRUDControllerInterceptor extends Interceptor {
-    void run(CRUDOperationContext ctx);           
+    void run(CRUDOperationContext ctx);
 }

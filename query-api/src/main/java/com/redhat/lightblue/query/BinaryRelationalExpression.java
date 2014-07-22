@@ -32,7 +32,8 @@ public abstract class BinaryRelationalExpression extends RelationalExpression {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Parses a field comparison or value comparison expression from the given json object
+     * Parses a field comparison or value comparison expression from the given
+     * json object
      */
     public static BinaryRelationalExpression fromJson(ObjectNode node) {
         if (node.size() == 3) {

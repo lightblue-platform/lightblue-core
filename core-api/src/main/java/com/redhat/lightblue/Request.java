@@ -92,7 +92,8 @@ public abstract class Request extends JsonObject {
     }
 
     /**
-     * Parses the entity, client identification and execution options from the given json object
+     * Parses the entity, client identification and execution options from the
+     * given json object
      */
     protected void parse(ObjectNode node) {
         entityVersion = new EntityVersion();

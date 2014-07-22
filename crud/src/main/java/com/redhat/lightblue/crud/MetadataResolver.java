@@ -21,14 +21,17 @@ package com.redhat.lightblue.crud;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 /**
- * This resolver should return the correct version of the entity metadata based on the current operation context. If the
- * operation involves an entity containing references to other entities, the mediator pre-loads the correct versions for
- * all relevant entities, and serves them using an implementation of this interface.
+ * This resolver should return the correct version of the entity metadata based
+ * on the current operation context. If the operation involves an entity
+ * containing references to other entities, the mediator pre-loads the correct
+ * versions for all relevant entities, and serves them using an implementation
+ * of this interface.
  */
 public interface MetadataResolver {
 
     /**
-     * Return the correct version of the entity metadata based on current context
+     * Return the correct version of the entity metadata based on current
+     * context
      */
     EntityMetadata getEntityMetadata(String entityName);
 }

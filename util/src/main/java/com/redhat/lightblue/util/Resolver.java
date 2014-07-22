@@ -19,7 +19,8 @@
 package com.redhat.lightblue.util;
 
 /**
- * A resolver is a key-value pair. The value is a resource (parser, constraint checker, etc) that is tied to a key.
+ * A resolver is a key-value pair. The value is a resource (parser, constraint
+ * checker, etc) that is tied to a key.
  */
 public interface Resolver<K, V> {
 

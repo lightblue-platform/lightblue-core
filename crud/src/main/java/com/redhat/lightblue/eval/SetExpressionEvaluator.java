@@ -70,12 +70,14 @@ public class SetExpressionEvaluator extends Updater {
         private final Type fieldType;
 
         /**
-         * If the field is to be set from another field, the referenced relative path to the source field
+         * If the field is to be set from another field, the referenced relative
+         * path to the source field
          */
         private final Path refPath;
 
         /**
-         * If the field is to be set from another field, the type of the source field
+         * If the field is to be set from another field, the type of the source
+         * field
          */
         private final Type refType;
 
@@ -101,7 +103,8 @@ public class SetExpressionEvaluator extends Updater {
      * @param context The context from which the expression will be evaluated
      * @param expr The set expression
      *
-     * This ctor resolves the field references in expr and stores them to be applied later.
+     * This ctor resolves the field references in expr and stores them to be
+     * applied later.
      */
     public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
         this.factory = factory;
