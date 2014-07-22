@@ -98,7 +98,8 @@ public class CertLdapLoginModule extends CertRolesLoginModule {
 
 			logger.debug("Assign principal [" + p.getName() + "] to role [" + roleName + "]");
 		} catch (Exception e) {
-			logger.info("Failed to assign principal [" + p.getName() + "] to role [" + roleName + "]", e);
+            String principalName = p == null ? "null" : p.getName();
+            logger.info("Failed to assign principal [" + principalName + "] to role [" + roleName + "]", e);
 		}
 		Group[] roleSets = {userRoles};
 		return roleSets;
