@@ -28,13 +28,13 @@
                             "column": {
                                 "type": "string"
                             },
-                            "path": {
+                            "field": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "column",
-                            "path"
+                            "field"
                         ],
                         "additionalProperties": false
                     }

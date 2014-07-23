@@ -41,19 +41,19 @@
             "description": "Charge the evaluation from true to false vice versa",
             "$ref": "if.json#/definitions/if"
         },
-        "$path-empty": {
+        "$field-empty": {
             "type": "object",
             "properties": {
-                "path1": {
+                "field": {
                     "type": "string"
                 }
             },
             "required": [
-                "path1"
+                "field"
             ],
             "additionalProperties": false
         },
-        "$path-check-path": {
+        "$field-check-field": {
             "type": "object",
             "properties": {
                 "conditional": {
@@ -69,51 +69,21 @@
                         "$contains"
                     ]
                 },
-                "path1": {
+                "field": {
                     "type": "string"
                 },
-                "path2": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "conditional",
-                "path1",
-                "path2"
-            ],
-            "additionalProperties": false
-        },
-        "$path-check-value": {
-            "type": "object",
-            "properties": {
-                "conditional": {
-                    "enum": [
-                        "$greaterThan",
-                        "$lessThan",
-                        "$equalTo",
-                        "$notEqualTo",
-                        "$greaterThanOrEqualTo",
-                        "$lessThanOrEqualTo",
-                        "$in",
-                        "$notIn",
-                        "$contains"
-                    ]
-                },
-                "path1": {
-                    "type": "string"
-                },
-                "value2": {
+                "rfield": {
                     "type": "string"
                 }
             },
             "required": [
                 "conditional",
-                "path1",
-                "value2"
+                "field",
+                "rfield"
             ],
             "additionalProperties": false
         },
-        "$path-check-values": {
+        "$field-check-value": {
             "type": "object",
             "properties": {
                 "conditional": {
@@ -129,10 +99,40 @@
                         "$contains"
                     ]
                 },
-                "path1": {
+                "field": {
                     "type": "string"
                 },
-                "values2": {
+                "value": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "conditional",
+                "field",
+                "value"
+            ],
+            "additionalProperties": false
+        },
+        "$field-check-values": {
+            "type": "object",
+            "properties": {
+                "conditional": {
+                    "enum": [
+                        "$greaterThan",
+                        "$lessThan",
+                        "$equalTo",
+                        "$notEqualTo",
+                        "$greaterThanOrEqualTo",
+                        "$lessThanOrEqualTo",
+                        "$in",
+                        "$notIn",
+                        "$contains"
+                    ]
+                },
+                "field": {
+                    "type": "string"
+                },
+                "values": {
                     "type": "array",
                     "minItems": 1,
                     "items": {
@@ -143,15 +143,15 @@
             },
             "required": [
                 "conditional",
-                "path1",
-                "values2"
+                "field",
+                "values"
             ],
             "additionalProperties": false
         },
-        "$path-regex": {
+        "$field-regex": {
             "type": "object",
             "properties": {
-                "path": {
+                "field": {
                     "type": "string"
                 },
                 "regex": {
@@ -172,7 +172,7 @@
                 }
             },
             "required": [
-                "path",
+                "field",
                 "regex"
             ],
             "additionalProperties": false
