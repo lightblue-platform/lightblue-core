@@ -105,6 +105,7 @@
                             },
                             "$elseIf": {
                                 "type": "array",
+                                "minItems": 1,
                                 "items": {
                                     "type": "object",
                                     "properties": {
@@ -125,7 +126,12 @@
                                                 }
                                             ]
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "$if",
+                                        "$then"
+                                    ],
+                                    "additionalProperties": false
                                 }
                             },
                             "$else": {
