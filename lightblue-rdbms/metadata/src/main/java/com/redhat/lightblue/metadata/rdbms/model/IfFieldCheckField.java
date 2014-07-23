@@ -19,7 +19,7 @@
 package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.rdbms.enums.ConditionalOperators;
+import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.parser.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
@@ -45,8 +45,8 @@ public class IfFieldCheckField extends If {
     }
 
     public void setOp(String op) {
-        if (!ConditionalOperators.check(op)) {
-            throw new IllegalStateException("Not a valid op '" + op + "'. Valid ConditionalOperators:" + ConditionalOperators.getValues());
+        if (!OpOperators.check(op)) {
+            throw new IllegalStateException("Not a valid op '" + op + "'. Valid ConditionalOperators:" + OpOperators.getValues());
         }
         this.op = op;
     }

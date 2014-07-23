@@ -56,12 +56,12 @@ public class IfFieldCheckFieldTest {
 
     @Test
     public void testGetSetConditional() {
-        String expResult = "lessThan";
+        String expResult = "$lt";
         IfFieldCheckField instance = new IfFieldCheckField();
         instance.setOp(expResult);
         String result = instance.getOp();
         assertEquals(expResult, result);
-        expResult = "equalTo";
+        expResult = "$eq";
         instance.setOp(expResult);
         result = instance.getOp();
         assertEquals(expResult, result);

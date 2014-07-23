@@ -23,11 +23,11 @@ import com.redhat.lightblue.metadata.Enum;
 import java.util.Arrays;
 import java.util.Set;
 
-public class ConditionalOperators {
+public class OpOperators {
     private static final com.redhat.lightblue.metadata.Enum singleton = new Enum("conditionals");
 
     static {
-        singleton.setValues(Arrays.asList("greaterThan", "lessThan", "equalTo", " notEqualTo", "greaterThanOrEqualTo", "lessThanOrEqualTo", "in", "notIn", "contains"));
+        singleton.setValues(Arrays.asList("$eq", "$neq", "$lt", " $gt", "$lte", "$gte", "$in", "$nin"));
     }
 
     public static Set<String> getValues() {

@@ -19,7 +19,7 @@
 package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.rdbms.enums.ConditionalOperators;
+import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.parser.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
@@ -45,8 +45,8 @@ public class IfPathValue extends If {
     }
 
     public void setConditional(String conditional) {
-        if (!ConditionalOperators.check(conditional)) {
-            throw new IllegalStateException("Not a valid conditional '" + conditional + "'. Valid ConditionalOperators:" + ConditionalOperators.getValues());
+        if (!OpOperators.check(conditional)) {
+            throw new IllegalStateException("Not a valid conditional '" + conditional + "'. Valid ConditionalOperators:" + OpOperators.getValues());
         }
         this.conditional = conditional;
     }
