@@ -63,7 +63,7 @@ public class RDBMSPropertyParserImplTest {
     RDBMSPropertyParserImpl cut;
     JSONMetadataParser p;
 
-    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverPath\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"equalTo\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
     @Before
     public void setup() {
@@ -110,7 +110,7 @@ public class RDBMSPropertyParserImplTest {
         ArrayList<Expression> expressions1 = new ArrayList<Expression>();
         expressions1.add(e1);
         e3.setExpressions(expressions1);
-        e3.setIterateOverPath(new Path("j"));
+        e3.setIterateOverField(new Path("j"));
         expressions.add(e3);
         e2.setExpressions(expressions);
         expressionList.add(e2);
@@ -595,15 +595,15 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseForEachMissingExpressions() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"iterateOverPath\":\"*\"}}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         ForEach forEach = new ForEach();
-        forEach.setIterateOverPath(Path.ANYPATH);
-        Assert.assertEquals(Path.ANYPATH, forEach.getIterateOverPath());
+        forEach.setIterateOverField(Path.ANYPATH);
+        Assert.assertEquals(Path.ANYPATH, forEach.getIterateOverField());
         expressionList.add(forEach);
         o.setExpressionList(expressionList);
         r.setDelete(o);
@@ -1227,7 +1227,7 @@ public class RDBMSPropertyParserImplTest {
         es.setType("select");
         el.add(es);
         forEach.setExpressions(el);
-        forEach.setIterateOverPath(Path.EMPTY);
+        forEach.setIterateOverField(Path.EMPTY);
         Assert.assertEquals(el, forEach.getExpressions());
         expressionList.add(forEach);
         o.setExpressionList(expressionList);
@@ -1341,7 +1341,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForEachWithEmptyFields() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverPath\":\"\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverPath\":\"\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverPath\":\"\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverPath\":\"\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverPath\":\"\"}}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));

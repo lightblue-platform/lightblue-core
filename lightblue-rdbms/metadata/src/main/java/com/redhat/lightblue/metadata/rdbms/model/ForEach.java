@@ -25,15 +25,15 @@ import com.redhat.lightblue.util.Path;
 import java.util.List;
 
 public class ForEach extends Expression {
-    private Path iterateOverPath;
+    private Path iterateOverField;
     private List<Expression> expressions;
 
-    public void setIterateOverPath(Path iterateOverPath) {
-        this.iterateOverPath = iterateOverPath;
+    public void setIterateOverField(Path iterateOverField) {
+        this.iterateOverField = iterateOverField;
     }
 
-    public Path getIterateOverPath() {
-        return iterateOverPath;
+    public Path getIterateOverField() {
+        return iterateOverField;
     }
 
     public void setExpressions(List<Expression> expressions) {
@@ -46,14 +46,14 @@ public class ForEach extends Expression {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
-        if (iterateOverPath == null || iterateOverPath.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No iterateOverPath informed");
+        if (iterateOverField == null || iterateOverField.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No $foreach's iterateOverField informed");
         }
         if (expressions == null || expressions.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No $foreach's expressions informed");
         }
         T eT = p.newNode();
-        p.putString(eT, "iterateOverPath", iterateOverPath.toString());
+        p.putString(eT, "iterateOverField", iterateOverField.toString());
         Object o = p.newArrayField(eT, "expressions");
         for (Expression expression : expressions) {
             expression.convert(p, o);

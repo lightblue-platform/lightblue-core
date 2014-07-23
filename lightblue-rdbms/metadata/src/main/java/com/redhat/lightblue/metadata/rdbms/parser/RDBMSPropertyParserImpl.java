@@ -207,17 +207,17 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
                 e = forLoop;
             } else if (foreachS != null) {
-                String iterateOverPath = p.getStringProperty(foreachS, "iterateOverPath");
+                String iterateOverPath = p.getStringProperty(foreachS, "iterateOverField");
                 List<T> expressionsTforS = p.getObjectList(foreachS, "expressions");
                 boolean iterateOverPathB = iterateOverPath == null || iterateOverPath.isEmpty();
                 boolean expressionsTforSB = expressionsTforS == null || expressionsTforS.isEmpty();
                 if (iterateOverPathB || expressionsTforSB) {
-                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Invalid $for: No loopTimesS or loopCounterVariableName or expressions informed");
+                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Invalid $foreach: No iterateOverField or expressions informed");
                 }
                 List<Expression> expressions = parseExpressions(p, expressionsTforS);
 
                 ForEach forLoop = new ForEach();
-                forLoop.setIterateOverPath(new Path(iterateOverPath));
+                forLoop.setIterateOverField(new Path(iterateOverPath));
                 forLoop.setExpressions(expressions);
 
                 e = forLoop;
