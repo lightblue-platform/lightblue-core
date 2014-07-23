@@ -22,31 +22,31 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.parser.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfPathEmpty extends If {
-    private Path path1;
+public class IfFieldEmpty extends If {
+    private Path field;
 
-    public void setPath1(Path path1) {
-        this.path1 = path1;
+    public void setField(Path field) {
+        this.field = field;
     }
 
-    public Path getPath1() {
-        return path1;
+    public Path getField() {
+        return field;
     }
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
-        if (path1 == null || path1.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No path1 informed");
+        if (field == null || field.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No field informed");
         }
         T s = p.newNode();
 
-        p.putString(s, "path1", path1.toString());
+        p.putString(s, "field", field.toString());
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$path-empty", s);
+            p.putObject(node, "$field-empty", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$path-empty", s);
+            p.putObject(iT, "$field-empty", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }

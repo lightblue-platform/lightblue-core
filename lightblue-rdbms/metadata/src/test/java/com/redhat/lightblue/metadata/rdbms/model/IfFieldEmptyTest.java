@@ -18,26 +18,26 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.model.IfPathEmpty;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
 import com.redhat.lightblue.util.Path;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class IfPathEmptyTest {
+public class IfFieldEmptyTest {
 
-    public IfPathEmptyTest() {
+    public IfFieldEmptyTest() {
     }
 
     @Test
     public void testGetSetPath1() {
         Path expResult = null;
-        IfPathEmpty instance = new IfPathEmpty();
-        instance.setPath1(expResult);
-        Path result = instance.getPath1();
+        IfFieldEmpty instance = new IfFieldEmpty();
+        instance.setField(expResult);
+        Path result = instance.getField();
         assertEquals(expResult, result);
         expResult = Path.ANYPATH;
-        instance.setPath1(expResult);
-        result = instance.getPath1();
+        instance.setField(expResult);
+        result = instance.getField();
         assertEquals(expResult, result);
     }
 

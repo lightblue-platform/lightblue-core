@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.model.IfPathEmpty;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
 import com.redhat.lightblue.metadata.rdbms.model.Then;
 import com.redhat.lightblue.metadata.rdbms.model.ElseIf;
 import com.redhat.lightblue.metadata.rdbms.model.If;
@@ -43,7 +43,7 @@ public class ElseIfTest {
         instance.setIf(expResult);
         If result = instance.getIf();
         assertEquals(expResult, result);
-        expResult = new IfPathEmpty();
+        expResult = new IfFieldEmpty();
         instance.setIf(expResult);
         result = instance.getIf();
         assertEquals(expResult, result);

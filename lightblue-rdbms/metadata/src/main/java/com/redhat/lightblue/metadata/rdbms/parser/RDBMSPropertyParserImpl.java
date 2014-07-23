@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.parser;
 
-import com.redhat.lightblue.metadata.rdbms.model.IfPathEmpty;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
 import com.redhat.lightblue.metadata.rdbms.model.IfPathValue;
 import com.redhat.lightblue.metadata.rdbms.model.ForEach;
 import com.redhat.lightblue.metadata.rdbms.model.InOut;
@@ -149,7 +149,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
             String path = p.getStringProperty(t, "field");
             if (path == null || path.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No path informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No field informed");
             }
             a.setField(new Path(path));
 
@@ -303,14 +303,14 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                             x.setConditions(new ArrayList());
                             x.getConditions().add(y);
                         } else {
-                            T pathEmpty = p.getObjectProperty(ifT, "$path-empty");
+                            T pathEmpty = p.getObjectProperty(ifT, "$field-empty");
                             if (pathEmpty != null) {
-                                x = new IfPathEmpty();
-                                String path1 = p.getStringProperty(pathEmpty, "path1");
+                                x = new IfFieldEmpty();
+                                String path1 = p.getStringProperty(pathEmpty, "field");
                                 if (path1 == null || path1.isEmpty()) {
-                                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$path-empty: path1 not informed");
+                                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-empty: field not informed");
                                 }
-                                ((IfPathEmpty) x).setPath1(new Path(path1));
+                                ((IfFieldEmpty) x).setField(new Path(path1));
                             } else {
                                 T pathpath = p.getObjectProperty(ifT, "$path-check-path");
                                 if (pathpath != null) {
