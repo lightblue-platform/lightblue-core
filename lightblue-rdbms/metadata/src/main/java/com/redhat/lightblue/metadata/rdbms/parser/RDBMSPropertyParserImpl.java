@@ -33,7 +33,7 @@ import com.redhat.lightblue.metadata.rdbms.model.Bindings;
 import com.redhat.lightblue.metadata.rdbms.model.Else;
 import com.redhat.lightblue.metadata.rdbms.model.IfPathValues;
 import com.redhat.lightblue.metadata.rdbms.model.IfAnd;
-import com.redhat.lightblue.metadata.rdbms.model.IfPathPath;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckField;
 import com.redhat.lightblue.metadata.rdbms.model.IfNot;
 import com.redhat.lightblue.metadata.rdbms.model.Expression;
 import com.redhat.lightblue.metadata.rdbms.model.Operation;
@@ -312,24 +312,24 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
                                 }
                                 ((IfFieldEmpty) x).setField(new Path(path1));
                             } else {
-                                T pathpath = p.getObjectProperty(ifT, "$path-check-path");
+                                T pathpath = p.getObjectProperty(ifT, "$field-check-field");
                                 if (pathpath != null) {
-                                    x = new IfPathPath();
-                                    String conditional = p.getStringProperty(pathpath, "conditional");
-                                    String path1 = p.getStringProperty(pathpath, "path1");
-                                    String path2 = p.getStringProperty(pathpath, "path2");
+                                    x = new IfFieldCheckField();
+                                    String conditional = p.getStringProperty(pathpath, "op");
+                                    String path1 = p.getStringProperty(pathpath, "field");
+                                    String path2 = p.getStringProperty(pathpath, "rfield");
                                     if (path1 == null || path1.isEmpty()) {
-                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$path-check-path: path1 not informed");
+                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-field: field not informed");
                                     }
                                     if (path2 == null || path2.isEmpty()) {
-                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$path-check-path: path2 not informed");
+                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-field: rfield not informed");
                                     }
                                     if (conditional == null || conditional.isEmpty()) {
-                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$path-check-path: conditional not informed");
+                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-field: op not informed");
                                     }
-                                    ((IfPathPath) x).setPath1(new Path(path1));
-                                    ((IfPathPath) x).setPath2(new Path(path2));
-                                    ((IfPathPath) x).setConditional(conditional);
+                                    ((IfFieldCheckField) x).setField(new Path(path1));
+                                    ((IfFieldCheckField) x).setRfield(new Path(path2));
+                                    ((IfFieldCheckField) x).setOp(conditional);
                                 } else {
                                     T pathvalue = p.getObjectProperty(ifT, "$path-check-value");
                                     if (pathvalue != null) {

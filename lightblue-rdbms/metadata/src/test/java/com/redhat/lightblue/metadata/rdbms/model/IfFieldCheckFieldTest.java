@@ -18,52 +18,52 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.model.IfPathPath;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckField;
 import com.redhat.lightblue.util.Path;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class IfPathPathTest {
+public class IfFieldCheckFieldTest {
 
-    public IfPathPathTest() {
+    public IfFieldCheckFieldTest() {
     }
 
     @Test
     public void testGetSetPath1() {
         Path expResult = null;
-        IfPathPath instance = new IfPathPath();
-        instance.setPath1(expResult);
-        Path result = instance.getPath1();
+        IfFieldCheckField instance = new IfFieldCheckField();
+        instance.setField(expResult);
+        Path result = instance.getField();
         assertEquals(expResult, result);
         expResult = Path.ANYPATH;
-        instance.setPath1(expResult);
-        result = instance.getPath1();
+        instance.setField(expResult);
+        result = instance.getField();
         assertEquals(expResult, result);
     }
 
     @Test
     public void testGetSetPath2() {
         Path expResult = null;
-        IfPathPath instance = new IfPathPath();
-        instance.setPath2(expResult);
-        Path result = instance.getPath2();
+        IfFieldCheckField instance = new IfFieldCheckField();
+        instance.setRfield(expResult);
+        Path result = instance.getRfield();
         assertEquals(expResult, result);
         expResult = Path.ANYPATH;
-        instance.setPath2(expResult);
-        result = instance.getPath2();
+        instance.setRfield(expResult);
+        result = instance.getRfield();
         assertEquals(expResult, result);
     }
 
     @Test
     public void testGetSetConditional() {
         String expResult = "lessThan";
-        IfPathPath instance = new IfPathPath();
-        instance.setConditional(expResult);
-        String result = instance.getConditional();
+        IfFieldCheckField instance = new IfFieldCheckField();
+        instance.setOp(expResult);
+        String result = instance.getOp();
         assertEquals(expResult, result);
         expResult = "equalTo";
-        instance.setConditional(expResult);
-        result = instance.getConditional();
+        instance.setOp(expResult);
+        result = instance.getOp();
         assertEquals(expResult, result);
     }
 }
