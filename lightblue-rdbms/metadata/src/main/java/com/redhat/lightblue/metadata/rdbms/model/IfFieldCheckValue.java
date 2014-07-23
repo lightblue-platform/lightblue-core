@@ -69,8 +69,8 @@ public class IfFieldCheckValue extends If {
         T s = p.newNode();
 
         p.putString(s, "field", field.toString());
-        p.putString(s, "op", value);
-        p.putString(s, "value", op);
+        p.putString(s, "value", value);
+        p.putString(s, "op", op);
 
         if (lastArrayNode == null) {
             p.putObject(node, "$field-check-value", s);
