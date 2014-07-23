@@ -25,7 +25,7 @@ import com.redhat.lightblue.metadata.rdbms.model.Conditional;
 import com.redhat.lightblue.metadata.rdbms.model.Then;
 import com.redhat.lightblue.metadata.rdbms.model.For;
 import com.redhat.lightblue.metadata.rdbms.model.ForEach;
-import com.redhat.lightblue.metadata.rdbms.model.IfPathRegex;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldRegex;
 import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
 import com.redhat.lightblue.metadata.rdbms.model.IfNot;
 import com.redhat.lightblue.metadata.rdbms.model.IfAnd;
@@ -34,8 +34,8 @@ import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
 import com.redhat.lightblue.metadata.rdbms.model.Operation;
 import com.redhat.lightblue.metadata.rdbms.model.ElseIf;
 import com.redhat.lightblue.metadata.rdbms.model.Statement;
-import com.redhat.lightblue.metadata.rdbms.model.IfPathValues;
-import com.redhat.lightblue.metadata.rdbms.model.IfPathValue;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckValues;
+import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckValue;
 import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckField;
 import com.redhat.lightblue.metadata.rdbms.model.If;
 import com.redhat.lightblue.metadata.rdbms.model.InOut;
@@ -63,7 +63,7 @@ public class RDBMSPropertyParserImplTest {
     RDBMSPropertyParserImpl cut;
     JSONMetadataParser p;
 
-    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
     @Before
     public void setup() {
@@ -116,10 +116,10 @@ public class RDBMSPropertyParserImplTest {
         expressionList.add(e2);
 
         Conditional e4 = new Conditional();
-        IfPathValue anIf = new IfPathValue();
-        anIf.setConditional("$eq");
-        anIf.setPath1(new Path("abc"));
-        anIf.setValue2("123");
+        IfFieldCheckValue anIf = new IfFieldCheckValue();
+        anIf.setOp("$eq");
+        anIf.setField(new Path("abc"));
+        anIf.setValue("123");
         e4.setIf(anIf);
         Then then = new Then();
         ArrayList<Expression> expressions2 = new ArrayList<Expression>();
@@ -697,7 +697,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseWrongIfField() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"WRONG\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"WRONG\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -727,17 +727,17 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseElseIf() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
-        IfPathValue anIf = new IfPathValue();
-        anIf.setConditional("$eq");
-        anIf.setPath1(new Path("abc"));
-        anIf.setValue2("123");
+        IfFieldCheckValue anIf = new IfFieldCheckValue();
+        anIf.setOp("$eq");
+        anIf.setField(new Path("abc"));
+        anIf.setValue("123");
         e4.setIf(anIf);
         Then then = new Then();
         ArrayList<Expression> expressions2 = new ArrayList<Expression>();
@@ -772,7 +772,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseElseIfMissingIf() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$ifx\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$ifx\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -787,7 +787,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseElseIfMissingThen() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$thenX\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$thenX\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -802,13 +802,13 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseIfOr() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfOrAny(json);
     }
 
     @Test
     public void convertAndParseIfAny() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfOrAny(json);
     }
 
@@ -819,14 +819,14 @@ public class RDBMSPropertyParserImplTest {
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
         IfOr ifOr = new IfOr();
-        IfPathValue anIf = new IfPathValue();
-        anIf.setConditional("$eq");
-        anIf.setPath1(new Path("abc"));
-        anIf.setValue2("123");
-        IfPathValue anIf2 = new IfPathValue();
-        anIf2.setConditional("$lt");
-        anIf2.setPath1(new Path("abc"));
-        anIf2.setValue2("123");
+        IfFieldCheckValue anIf = new IfFieldCheckValue();
+        anIf.setOp("$eq");
+        anIf.setField(new Path("abc"));
+        anIf.setValue("123");
+        IfFieldCheckValue anIf2 = new IfFieldCheckValue();
+        anIf2.setOp("$lt");
+        anIf2.setField(new Path("abc"));
+        anIf2.setValue("123");
         List asList = Arrays.asList(anIf, anIf2);
         ifOr.setConditions(((List<If>) asList));
         e4.setIf(ifOr);
@@ -855,13 +855,13 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseIfAll() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfAndAll(json);
     }
 
     @Test
     public void convertAndParseIfAnd() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfAndAll(json);
     }
 
@@ -872,14 +872,14 @@ public class RDBMSPropertyParserImplTest {
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
         IfAnd ifAnd = new IfAnd();
-        IfPathValue anIf = new IfPathValue();
-        anIf.setConditional("$eq");
-        anIf.setPath1(new Path("abc"));
-        anIf.setValue2("123");
-        IfPathValue anIf2 = new IfPathValue();
-        anIf2.setConditional("$lt");
-        anIf2.setPath1(new Path("abc"));
-        anIf2.setValue2("123");
+        IfFieldCheckValue anIf = new IfFieldCheckValue();
+        anIf.setOp("$eq");
+        anIf.setField(new Path("abc"));
+        anIf.setValue("123");
+        IfFieldCheckValue anIf2 = new IfFieldCheckValue();
+        anIf2.setOp("$lt");
+        anIf2.setField(new Path("abc"));
+        anIf2.setValue("123");
         List asList = Arrays.asList(anIf, anIf2);
         ifAnd.setConditions(((List<If>) asList));
         e4.setIf(ifAnd);
@@ -908,7 +908,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseIfNot() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
@@ -917,14 +917,14 @@ public class RDBMSPropertyParserImplTest {
         Conditional e4 = new Conditional();
         IfNot ifNot = new IfNot();
         IfAnd ifAnd = new IfAnd();
-        IfPathValue anIf = new IfPathValue();
-        anIf.setConditional("$eq");
-        anIf.setPath1(new Path("abc"));
-        anIf.setValue2("123");
-        IfPathValue anIf2 = new IfPathValue();
-        anIf2.setConditional("$lt");
-        anIf2.setPath1(new Path("abc"));
-        anIf2.setValue2("123");
+        IfFieldCheckValue anIf = new IfFieldCheckValue();
+        anIf.setOp("$eq");
+        anIf.setField(new Path("abc"));
+        anIf.setValue("123");
+        IfFieldCheckValue anIf2 = new IfFieldCheckValue();
+        anIf2.setOp("$lt");
+        anIf2.setField(new Path("abc"));
+        anIf2.setValue("123");
         List asList = Arrays.asList(anIf, anIf2);
         ifAnd.setConditions(asList);
         List l = Arrays.asList(ifAnd);
@@ -956,7 +956,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertAndParseIfPathEmpty() throws IOException {
+    public void convertAndParseIfFieldEmpty() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
@@ -992,7 +992,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathEmptyNoPath() throws IOException {
+    public void parseIfFieldEmptyNoField() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
@@ -1007,7 +1007,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertIfPathEmptyNoPath() throws IOException {
+    public void convertIfFieldEmptyNoField() throws IOException {
         com.redhat.lightblue.util.Error error = null;
         try {
             JsonNode rJSON = p.newNode();
@@ -1059,7 +1059,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertAndParseIfPathPath() throws IOException {
+    public void convertAndParseIfFieldCheckField() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
@@ -1097,17 +1097,17 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertAndParseIfPathValue() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"1\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"1\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"1\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"1\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"1\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void convertAndParseIfFieldCheckValue() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
-        IfPathValue pe = new IfPathValue();
-        pe.setConditional("$eq");
-        pe.setPath1(Path.ANYPATH);
-        pe.setValue2("1");
+        IfFieldCheckValue pe = new IfFieldCheckValue();
+        pe.setOp("$eq");
+        pe.setField(Path.ANYPATH);
+        pe.setValue("1");
         e4.setIf(pe);
         Then then = new Then();
         ArrayList<Expression> expressions2 = new ArrayList<Expression>();
@@ -1135,20 +1135,20 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertAndParseIfPathValues() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"1\",\"2\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"1\",\"2\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"1\",\"2\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"1\",\"2\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"1\",\"2\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void convertAndParseIfFieldCheckValues() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
-        IfPathValues pe = new IfPathValues();
-        pe.setConditional("$eq");
-        pe.setPath1(Path.ANYPATH);
+        IfFieldCheckValues pe = new IfFieldCheckValues();
+        pe.setOp("$eq");
+        pe.setField(Path.ANYPATH);
         ArrayList<String> arl = new ArrayList<String>();
         arl.add("1");
         arl.add("2");
-        pe.setValues2(arl);
+        pe.setValues(arl);
         e4.setIf(pe);
         Then then = new Then();
         ArrayList<Expression> expressions2 = new ArrayList<Expression>();
@@ -1176,15 +1176,15 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertAndParseIfPathRegex() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"path\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"path\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"path\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"path\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"path\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void convertAndParseIfFieldRegex() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
-        IfPathRegex pe = new IfPathRegex();
-        pe.setPath(Path.ANYPATH);
+        IfFieldRegex pe = new IfFieldRegex();
+        pe.setField(Path.ANYPATH);
         pe.setRegex("*");
         e4.setIf(pe);
         Then then = new Then();
@@ -1213,7 +1213,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertForEachIterateOverPathEmpty() throws IOException {
+    public void convertForEachIterateOverFieldEmpty() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
 
         JsonNode rJSON = p.newNode();
@@ -1295,7 +1295,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseInOutEmptyPath() throws IOException {
+    public void parseInOutEmptyField() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"column\":\"x\",\"field\":\"\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
@@ -1356,7 +1356,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseElseIfEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"abc\",\"value2\":\"123\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[]}]}}}";
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1370,7 +1370,7 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathEmptyEmptyPath() throws IOException {
+    public void parseIfFieldEmptyEmptyField() throws IOException {
         String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
@@ -1475,8 +1475,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuePath1IsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValueFieldIsNull() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1490,8 +1490,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuePath1IsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"\",\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"\",\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"\",\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"\",\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"\",\"value2\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValueFieldIsEmpty() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1505,8 +1505,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValueValue2IsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValueValueIsNull() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1520,8 +1520,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValueValue2IsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"\",\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"\",\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"\",\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"\",\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"\",\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValueValueIsEmpty() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1535,8 +1535,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValueConditionalIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"value2\":\"*\",\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValueOpIsNull() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1550,8 +1550,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValueConditionalIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"*\",\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"*\",\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"*\",\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"*\",\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-value\":{\"path1\":\"*\",\"value2\":\"*\",\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValueOpIsEmpty() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1565,8 +1565,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuesPath1IsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValuesFieldIsNull() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1580,8 +1580,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuesPath1IsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"\",\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"\",\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"\",\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"\",\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"\",\"values2\":[\"*\"],\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValuesField1IsEmpty() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1595,8 +1595,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuesValues2IsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValuesValuesIsNull() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1610,8 +1610,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuesValues2IsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[],\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[],\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[],\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[],\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[],\"path1\":\"*\",\"conditional\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValuesValuesIsEmpty() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1625,8 +1625,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuesConditionalIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"values2\":[\"*\"],\"path1\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValuesOpIsNull() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1640,8 +1640,8 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void parseIfPathValuesConditionalIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"*\"],\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"*\"],\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"*\"],\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"*\"],\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$path-check-values\":{\"path1\":\"*\",\"values2\":[\"*\"],\"conditional\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    public void parseIfFieldCheckValuesOpIsEmpty() throws IOException {
+        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));

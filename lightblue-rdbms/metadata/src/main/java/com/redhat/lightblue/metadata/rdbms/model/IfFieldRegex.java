@@ -22,20 +22,20 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.parser.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfPathRegex extends If {
-    private Path path;
+public class IfFieldRegex extends If {
+    private Path field;
     private String regex;
     private boolean caseInsensitive;
     private boolean multiline;
     private boolean extended;
     private boolean dotall;
 
-    public void setPath(Path path) {
-        this.path = path;
+    public void setField(Path field) {
+        this.field = field;
     }
 
-    public Path getPath() {
-        return path;
+    public Path getField() {
+        return field;
     }
 
     public void setRegex(String regex) {
@@ -80,15 +80,15 @@ public class IfPathRegex extends If {
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
-        if (path == null || path.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No path1 informed");
+        if (field == null || field.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No field informed");
         }
         if (regex == null || regex.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No conditional informed");
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No regex informed");
         }
         T s = p.newNode();
 
-        p.putString(s, "path", path.toString());
+        p.putString(s, "field", field.toString());
         p.putString(s, "regex", regex);
         if (!caseInsensitive) { // different than the default value
             p.putString(s, "case_insensitive", str(caseInsensitive));
@@ -104,10 +104,10 @@ public class IfPathRegex extends If {
         }
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$path-regex", s);
+            p.putObject(node, "$field-regex", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$path-regex", s);
+            p.putObject(iT, "$field-regex", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }

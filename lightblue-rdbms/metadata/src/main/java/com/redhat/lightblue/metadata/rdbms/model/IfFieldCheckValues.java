@@ -23,9 +23,11 @@ import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.parser.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldCheckField extends If {
+import java.util.List;
+
+public class IfFieldCheckValues extends If {
     private Path field;
-    private Path rfield;
+    private List<String> values;
     private String op;
 
     public void setField(Path field) {
@@ -36,12 +38,12 @@ public class IfFieldCheckField extends If {
         return field;
     }
 
-    public void setRfield(Path rfield) {
-        this.rfield = rfield;
+    public void setValues(List<String> values) {
+        this.values = values;
     }
 
-    public Path getRfield() {
-        return rfield;
+    public List<String> getValues() {
+        return values;
     }
 
     public void setOp(String op) {
@@ -63,20 +65,23 @@ public class IfFieldCheckField extends If {
         if (op == null || op.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No op informed");
         }
-        if (rfield == null || rfield.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No rfield informed");
+        if (values == null || values.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No values informed");
         }
         T s = p.newNode();
 
         p.putString(s, "field", field.toString());
-        p.putString(s, "rfield", rfield.toString());
+        Object arri = p.newArrayField(s, "values");
+        for (String s1 : values) {
+            p.addStringToArray(arri, s1);
+        }
         p.putString(s, "op", op);
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$field-check-field", s);
+            p.putObject(node, "$field-check-values", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$field-check-field", s);
+            p.putObject(iT, "$field-check-values", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }

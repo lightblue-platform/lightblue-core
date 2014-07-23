@@ -23,9 +23,9 @@ import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.parser.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldCheckField extends If {
+public class IfFieldCheckValue extends If {
     private Path field;
-    private Path rfield;
+    private String value;
     private String op;
 
     public void setField(Path field) {
@@ -36,12 +36,12 @@ public class IfFieldCheckField extends If {
         return field;
     }
 
-    public void setRfield(Path rfield) {
-        this.rfield = rfield;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public Path getRfield() {
-        return rfield;
+    public String getValue() {
+        return value;
     }
 
     public void setOp(String op) {
@@ -63,20 +63,20 @@ public class IfFieldCheckField extends If {
         if (op == null || op.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No op informed");
         }
-        if (rfield == null || rfield.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No rfield informed");
+        if (value == null || value.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No value informed");
         }
         T s = p.newNode();
 
         p.putString(s, "field", field.toString());
-        p.putString(s, "rfield", rfield.toString());
-        p.putString(s, "op", op);
+        p.putString(s, "op", value);
+        p.putString(s, "value", op);
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$field-check-field", s);
+            p.putObject(node, "$field-check-value", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$field-check-field", s);
+            p.putObject(iT, "$field-check-value", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
