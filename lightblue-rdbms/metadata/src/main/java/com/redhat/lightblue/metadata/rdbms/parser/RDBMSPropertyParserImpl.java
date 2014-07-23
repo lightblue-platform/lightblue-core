@@ -147,11 +147,11 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
             }
             a.setColumn(column);
 
-            String path = p.getStringProperty(t, "path");
+            String path = p.getStringProperty(t, "field");
             if (path == null || path.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No path informed");
             }
-            a.setPath(new Path(path));
+            a.setField(new Path(path));
 
             result.add(a);
         }
@@ -482,13 +482,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private Object convertInOut(MetadataParser<T> p, InOut x) {
         boolean column = x.getColumn() == null || x.getColumn().isEmpty();
-        boolean path = x.getPath() == null || x.getPath().toString().isEmpty();
+        boolean path = x.getField() == null || x.getField().toString().isEmpty();
         if (column || path) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Invalid InOut: No column or path informed");
         }
         T ioT = p.newNode();
         p.putString(ioT, "column", x.getColumn());
-        p.putString(ioT, "path", x.getPath().toString());
+        p.putString(ioT, "field", x.getField().toString());
 
         return ioT;
     }

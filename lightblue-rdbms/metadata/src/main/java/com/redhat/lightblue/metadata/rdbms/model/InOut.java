@@ -22,7 +22,7 @@ import com.redhat.lightblue.util.Path;
 
 public class InOut {
     private String column;
-    private Path path;
+    private Path field;
 
     public String getColumn() {
         return column;
@@ -32,11 +32,11 @@ public class InOut {
         this.column = column;
     }
 
-    public Path getPath() {
-        return path;
+    public Path getField() {
+        return field;
     }
 
-    public void setPath(Path path) {
-        this.path = path;
+    public void setField(Path field) {
+        this.field = field;
     }
 }
