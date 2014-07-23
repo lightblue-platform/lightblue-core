@@ -18,19 +18,6 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
-import com.redhat.lightblue.metadata.rdbms.model.Then;
-import com.redhat.lightblue.metadata.rdbms.model.ElseIf;
-import com.redhat.lightblue.metadata.rdbms.model.If;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
-import java.util.List;
-import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

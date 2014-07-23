@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckField;
 import com.redhat.lightblue.util.Path;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -29,7 +28,7 @@ public class IfFieldCheckFieldTest {
     }
 
     @Test
-    public void testGetSetPath1() {
+    public void testGetSetField() {
         Path expResult = null;
         IfFieldCheckField instance = new IfFieldCheckField();
         instance.setField(expResult);
@@ -42,7 +41,7 @@ public class IfFieldCheckFieldTest {
     }
 
     @Test
-    public void testGetSetPath2() {
+    public void testGetSetRfield() {
         Path expResult = null;
         IfFieldCheckField instance = new IfFieldCheckField();
         instance.setRfield(expResult);
@@ -55,7 +54,7 @@ public class IfFieldCheckFieldTest {
     }
 
     @Test
-    public void testGetSetConditional() {
+    public void testGetSetOp() {
         String expResult = "$lt";
         IfFieldCheckField instance = new IfFieldCheckField();
         instance.setOp(expResult);

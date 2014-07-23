@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata.rdbms.parser;
 
-import com.redhat.lightblue.metadata.rdbms.parser.RDBMSPropertyParserImpl;
 import com.redhat.lightblue.metadata.rdbms.model.IfOr;
 import com.redhat.lightblue.metadata.rdbms.model.Bindings;
 import com.redhat.lightblue.metadata.rdbms.model.Conditional;
@@ -41,18 +40,15 @@ import com.redhat.lightblue.metadata.rdbms.model.If;
 import com.redhat.lightblue.metadata.rdbms.model.InOut;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

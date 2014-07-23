@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.model.If;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import java.util.ArrayList;
 import java.util.List;
