@@ -34,6 +34,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Ignore;
 
 public class BinaryTypeTest {
 
@@ -74,6 +76,23 @@ public class BinaryTypeTest {
         JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
         JsonNode jsonNode = binaryType.toJson(jsonNodeFactory, bite);
         assertTrue(Arrays.toString(jsonNode.binaryValue()).equals(Arrays.toString(bite)));
+    }
+
+    @Test
+    public void testFromJsonString() throws IOException {
+        String jsonString = "{\"binaryData\": \"asdf\"}";
+
+        JsonNode node = JsonUtils.json(jsonString);
+
+        assertTrue(node != null);
+        
+        JsonNode binaryDataNode = node.get("binaryData");
+        
+        assertTrue(binaryDataNode != null);
+        assertTrue(binaryDataNode.isBinary());
+        byte[] bytes = binaryDataNode.binaryValue();
+        assertTrue(bytes != null);
+        assertTrue(bytes.length > 0);
     }
 
     @Test
