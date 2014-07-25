@@ -63,6 +63,7 @@ public final class BigIntegerType implements Type, Serializable {
         }
     }
 
+    @Override
     public Object cast(Object obj) {
         BigInteger value = null;
         if (obj != null) {

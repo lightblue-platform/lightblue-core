@@ -62,6 +62,7 @@ public final class StringType implements Type, Serializable {
         }
     }
 
+    @Override
     public Object cast(Object obj) {
         if (obj == null) {
             return null;
