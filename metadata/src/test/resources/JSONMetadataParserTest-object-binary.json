@@ -1,0 +1,47 @@
+{
+    "entityInfo": {
+        "name": "test",
+        "enums": [
+            {
+                "name": "customerType",
+                "values": ["person", "organization"]
+            }
+        ],
+        "indexes": [
+            {
+                "unique": true,
+                "fields": [{
+                        "field": "person",
+                        "dir": "$asc"
+                    }]
+            }
+        ],
+        "datastore": {
+            "backend": "empty"
+        }
+    },
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "Initial version"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": ["admin"],
+            "update": ["admin"],
+            "find": ["admin", "all"],
+            "delete": ["admin"]
+        },
+        "fields": {
+            "binaryData": {
+                "type": "binary",
+                "constraints": {
+                    "required": true
+                }
+            }
+        }
+    }
+}

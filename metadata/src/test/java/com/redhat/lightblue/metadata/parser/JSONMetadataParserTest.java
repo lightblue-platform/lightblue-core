@@ -137,6 +137,11 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void testBinary() throws IOException, ParseException, JSONException, ProcessingException {
+        testResource("JSONMetadataParserTest-object-binary.json");
+    }
+
+    @Test
     public void testExtraFieldNoHooks() throws IOException, ParseException, JSONException, ProcessingException {
         JsonNode object = loadJsonNode("JSONMetadataParserTest-object-everything-no-hooks-extra-field.json");
         EntityMetadata em = parser.parseEntityMetadata(object);
