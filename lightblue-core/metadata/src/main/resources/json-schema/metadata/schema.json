@@ -88,7 +88,8 @@
                 "double",
                 "biginteger",
                 "bigdecimal",
-                "date"
+                "date",
+                "binary"
             ]
         },
         "types_complex": {

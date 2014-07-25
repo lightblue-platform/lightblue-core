@@ -1,7 +1,7 @@
 {
     "name": "test",
     "version": {
-        "value": "1.0",
+        "value": "1.0.0",
         "changelog": "Initial version"
     },
     "status": {
@@ -19,7 +19,7 @@
         }
     ],
     "datastore": {
-        "backend":"empty"
+        "backend": "empty"
     },
     "fields": {
         "type": "object",
@@ -90,5 +90,4 @@
             }
         }
     }
-
 }
