@@ -169,7 +169,6 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
             if (stmt != null) {
                 String sql = p.getStringProperty(stmt, "sql");
-                String datasource = p.getStringProperty(stmt, "datasource");
                 String type = p.getStringProperty(stmt, "type");
                 boolean sqlB = sql == null || sql.isEmpty();
                 boolean typeB = type == null || type.isEmpty();
@@ -179,7 +178,6 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
                 Statement statement = new Statement();
                 statement.setSQL(sql);
-                statement.setDatasource(datasource);
                 statement.setType(type);
 
                 e = statement;
