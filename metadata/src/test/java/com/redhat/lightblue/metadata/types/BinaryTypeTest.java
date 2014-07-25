@@ -32,10 +32,16 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
-import org.junit.Ignore;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import javax.xml.bind.DatatypeConverter;
+import org.json.JSONException;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public class BinaryTypeTest {
 
@@ -96,10 +102,36 @@ public class BinaryTypeTest {
         // try to convert back to json, verify we get the exact same thing
         JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
         JsonNode binaryDataNodeOut = binaryType.toJson(jsonNodeFactory, bytes);
-        
+
         assertTrue(binaryDataNodeOut != null);
         assertEquals("asdf", binaryDataNodeOut.asText());
         assertEquals("\"asdf\"", binaryDataNodeOut.toString());
+    }
+
+    @Test
+    public void testEmbeddedPDF() throws FileNotFoundException, IOException, JSONException {
+        String pdfFilename = "./BinaryTypeTest-sample.pdf";
+
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream(pdfFilename);
+
+        byte[] bytesIn = new byte[1000];
+        is.read(bytesIn);
+        String encoded = DatatypeConverter.printBase64Binary(bytesIn);
+
+        String jsonString = "{\"binaryData\": \"" + encoded + "\"}";
+
+        JsonNode nodeIn = JsonUtils.json(jsonString);
+        JsonNode binaryDataNodeIn = nodeIn.get("binaryData");
+
+        byte[] bytesOut = binaryDataNodeIn.binaryValue();
+
+        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+        JsonNode binaryDataNodeOut = binaryType.toJson(jsonNodeFactory, bytesOut);
+
+        ObjectNode nodeOut = jsonNodeFactory.objectNode();
+        nodeOut.set("binaryData", binaryDataNodeOut);
+
+        JSONAssert.assertEquals(jsonString, nodeOut.toString(), JSONCompareMode.LENIENT);
     }
 
     @Test
