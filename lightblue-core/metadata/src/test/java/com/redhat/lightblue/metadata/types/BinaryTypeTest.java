@@ -85,14 +85,21 @@ public class BinaryTypeTest {
         JsonNode node = JsonUtils.json(jsonString);
 
         assertTrue(node != null);
-        
+
         JsonNode binaryDataNode = node.get("binaryData");
-        
+
         assertTrue(binaryDataNode != null);
-        assertTrue(binaryDataNode.isBinary());
         byte[] bytes = binaryDataNode.binaryValue();
         assertTrue(bytes != null);
         assertTrue(bytes.length > 0);
+
+        // try to convert back to json, verify we get the exact same thing
+        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+        JsonNode binaryDataNodeOut = binaryType.toJson(jsonNodeFactory, bytes);
+        
+        assertTrue(binaryDataNodeOut != null);
+        assertEquals("asdf", binaryDataNodeOut.asText());
+        assertEquals("\"asdf\"", binaryDataNodeOut.toString());
     }
 
     @Test
