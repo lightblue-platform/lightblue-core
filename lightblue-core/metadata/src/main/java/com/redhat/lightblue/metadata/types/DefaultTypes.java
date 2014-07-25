@@ -28,6 +28,7 @@ public final class DefaultTypes implements TypeResolver {
 
     private final Map<String, Type> typeMap;
 
+    @Override
     public Type getType(String name) {
         return typeMap.get(name);
     }
