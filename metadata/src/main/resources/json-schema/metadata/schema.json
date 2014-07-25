@@ -84,10 +84,7 @@
             "enum": [
                 "boolean",
                 "integer",
-                "number",
                 "string",
-                "long",
-                "float",
                 "double",
                 "biginteger",
                 "bigdecimal",
