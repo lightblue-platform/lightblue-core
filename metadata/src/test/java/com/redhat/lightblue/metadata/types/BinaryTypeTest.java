@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import javax.xml.bind.DatatypeConverter;
@@ -114,9 +115,16 @@ public class BinaryTypeTest {
 
         InputStream is = this.getClass().getClassLoader().getResourceAsStream(pdfFilename);
 
-        byte[] bytesIn = new byte[1000];
-        is.read(bytesIn);
-        String encoded = DatatypeConverter.printBase64Binary(bytesIn);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int read;
+        byte[] bytes = new byte[1000];
+
+        while ((read = is.read(bytes, 0, bytes.length)) != -1) {
+            buffer.write(bytes, 0, read);
+        }
+        
+        String encoded = DatatypeConverter.printBase64Binary(buffer.toByteArray());
 
         String jsonString = "{\"binaryData\": \"" + encoded + "\"}";
 
