@@ -6,7 +6,7 @@
             "timeLimit": 5000,
             "asynchronous": 4500
         },
-        "returning": {
+        "projection": {
             "field": "firstname",
             "include": true,
             "recursive": true
