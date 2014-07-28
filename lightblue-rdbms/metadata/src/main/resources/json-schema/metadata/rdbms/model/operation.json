@@ -102,11 +102,7 @@
                                         "$ref": "#/properties/expressions"
                                     },
                                     {
-                                        "enum": [
-                                            "$fail",
-                                            "$continue",
-                                            "$break"
-                                        ]
+                                        "$ref": "loop.json#"
                                     }
                                 ]
                             },
@@ -125,11 +121,7 @@
                                                     "$ref": "#/properties/expressions"
                                                 },
                                                 {
-                                                    "enum": [
-                                                        "$fail",
-                                                        "$continue",
-                                                        "$break"
-                                                    ]
+                                                    "$ref": "loop.json#"
                                                 }
                                             ]
                                         }
@@ -147,11 +139,7 @@
                                         "$ref": "#/properties/expressions"
                                     },
                                     {
-                                        "enum": [
-                                            "$fail",
-                                            "$continue",
-                                            "$break"
-                                        ]
+                                        "$ref": "loop.json#"
                                     }
                                 ]
                             }
