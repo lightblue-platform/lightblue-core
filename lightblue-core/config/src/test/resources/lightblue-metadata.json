@@ -1,9 +1,11 @@
 {
     "documentation": [
         "type - the class implementing MetadataConfiguration interface",
+        "hookConfigurationParsers - array of classes implementing HookConfigurationParser interface",
         "The remainder of the file is parsed by the implementation class"
     ],
-    "type" : "com.redhat.lightblue.config.TestConfig",
-    "dataSource" : "mongo",
+    "type": "com.redhat.lightblue.config.TestConfig",
+    "hookConfigurationParsers": ["com.redhat.lightblue.config.TestHookConfigurationParser"],
+    "dataSource": "mongo",
     "collection": "metadata"
 }

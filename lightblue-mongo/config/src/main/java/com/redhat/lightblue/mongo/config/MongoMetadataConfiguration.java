@@ -23,6 +23,7 @@ import org.bson.BSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.mongo.MongoDataStore;
+import com.redhat.lightblue.config.AbstractMetadataConfiguration;
 import com.redhat.lightblue.config.DataSourceConfiguration;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.MetadataConfiguration;
@@ -34,11 +35,12 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
-public class MongoMetadataConfiguration implements MetadataConfiguration {
+public class MongoMetadataConfiguration extends AbstractMetadataConfiguration {
 
     private String datasource;
     private String collection;
 
+    @Override
     public Metadata createMetadata(DataSourcesConfiguration datasources,
                                    JSONMetadataParser jsonParser,
                                    LightblueFactory factory) {
@@ -48,6 +50,10 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
             Extensions<BSONObject> parserExtensions = new Extensions<>();
             parserExtensions.addDefaultExtensions();
             parserExtensions.registerDataStoreParser(MongoDataStoreParser.NAME, new MongoDataStoreParser<BSONObject>());
+            
+            // register any of the common configuration bits from abstract parent
+            registerWithExtensions(parserExtensions);
+            
             DefaultTypes typeResolver = new DefaultTypes();
             MongoDataStore mdstore = new MongoDataStore();
             mdstore.setDatasourceName(datasource);
@@ -96,12 +102,16 @@ public class MongoMetadataConfiguration implements MetadataConfiguration {
         this.collection = collection;
     }
 
+    @Override
     public String toString() {
         return "dataSource:" + datasource + " collection:" + collection;
     }
 
     @Override
     public void initializeFromJson(JsonNode node) {
+        // init from super (gets hook configuration parsers and anything else that's common)
+        super.initializeFromJson(node);
+        
         if (node != null) {
             JsonNode x = node.get("dataSource");
             if (x != null) {
