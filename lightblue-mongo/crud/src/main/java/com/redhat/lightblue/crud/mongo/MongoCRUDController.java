@@ -19,7 +19,6 @@
 package com.redhat.lightblue.crud.mongo;
 
 import java.util.List;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -52,8 +51,6 @@ import com.redhat.lightblue.metadata.Index;
 import com.redhat.lightblue.metadata.Indexes;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Field;
-import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Projection;
