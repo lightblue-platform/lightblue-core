@@ -18,9 +18,6 @@
  */
 package com.redhat.lightblue.config;
 
-import com.redhat.lightblue.config.DataSourcesConfiguration;
-import com.redhat.lightblue.config.ControllerConfiguration;
-import com.redhat.lightblue.config.ControllerFactory;
 import com.redhat.lightblue.crud.CRUDController;
 
 public class CRUDFactory implements ControllerFactory {

@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.config;
 
-import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.util.JsonInitializable;

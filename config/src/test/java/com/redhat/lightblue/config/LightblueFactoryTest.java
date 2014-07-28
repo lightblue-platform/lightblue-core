@@ -20,7 +20,6 @@ package com.redhat.lightblue.config;
 
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.config.DataSourcesConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;

@@ -25,4 +25,10 @@ import com.redhat.lightblue.metadata.HookConfiguration;
  */
 public interface HookConfigurationParser<N> extends Parser<N, HookConfiguration> {
 
+    /**
+     * The name of the hook the config parser is used for.
+     * TODO consider accepting many names?
+     * @return the name of the hook
+     */
+    String getName();
 }
