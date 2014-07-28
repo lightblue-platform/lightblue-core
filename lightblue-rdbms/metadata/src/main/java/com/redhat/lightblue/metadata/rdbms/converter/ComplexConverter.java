@@ -16,10 +16,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.rdbms.parser;
+package com.redhat.lightblue.metadata.rdbms.converter;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-public interface SimpleConverter {
-    public abstract <T> void convert(MetadataParser<T> p, Object expressionsNode);
+public interface ComplexConverter {
+    public abstract <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node);
 }

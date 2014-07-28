@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.parser.ComplexConverter;
+import com.redhat.lightblue.metadata.rdbms.converter.ComplexConverter;
 import java.util.List;
 
 public abstract class If<Z extends If> implements ComplexConverter {

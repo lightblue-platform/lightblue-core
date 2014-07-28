@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.parser;
 
+import com.redhat.lightblue.metadata.rdbms.converter.SimpleConverter;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import org.junit.Test;
 

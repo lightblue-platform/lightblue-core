@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.parser;
 
+import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
 import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckValue;
 import com.redhat.lightblue.metadata.rdbms.model.ForEach;

@@ -16,13 +16,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.rdbms.parser;
+package com.redhat.lightblue.metadata.rdbms.converter;
 
-public class RDBMSMetadataConstants {
-    public static final String ERR_FIELD_REQUIRED = "rdbms-metadata:FieldRequired";
-    public static final String ERR_WRONG_ROOT_NODE_NAME = "rdbms-metadata:WrongRootNodeName";
-    public static final String ERR_WRONG_FIELD = "rdbms-metadata:WrongField";
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-    private RDBMSMetadataConstants() {
-    }
+public interface SimpleConverter {
+    public abstract <T> void convert(MetadataParser<T> p, Object expressionsNode);
 }

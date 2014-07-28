@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-import com.redhat.lightblue.metadata.rdbms.parser.SimpleConverter;
+import com.redhat.lightblue.metadata.rdbms.converter.SimpleConverter;
 
 public abstract class Expression implements SimpleConverter {
 }
