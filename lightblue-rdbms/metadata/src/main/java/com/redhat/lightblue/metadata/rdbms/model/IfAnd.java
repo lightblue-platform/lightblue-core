@@ -20,8 +20,9 @@ package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
+import java.util.List;
 
-public class IfAnd extends If<If> {
+public class IfAnd extends If<If,If> {
     @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
         if (getConditions() == null || getConditions().size() < 2) {
@@ -38,5 +39,20 @@ public class IfAnd extends If<If> {
         for (If i : getConditions()) {
             i.convert(p, eT, node);
         }
+    }
+
+    @Override
+    public <T> If parse(MetadataParser<T> p, T ifT) {
+        If x = null;
+        List<T> andArray = p.getObjectList(ifT, "$and");
+        if (andArray != null) {
+            x = parseIfs(p, andArray, new IfAnd());
+        } else {
+            List<T> allArray = p.getObjectList(ifT, "$all");
+            if (allArray != null) {
+                x = parseIfs(p, allArray, new IfAnd());
+            }
+        }
+        return x;
     }
 }

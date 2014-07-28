@@ -22,7 +22,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldRegex extends If {
+public class IfFieldRegex extends If<If,If> {
     private Path field;
     private String regex;
     private boolean caseInsensitive;
@@ -111,7 +111,33 @@ public class IfFieldRegex extends If {
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
-
+    @Override
+    public <T> If parse(MetadataParser<T> p, T ifT) {
+        If x = null;
+        T pathregex = p.getObjectProperty(ifT, "$field-regex");
+        if (pathregex != null) {
+            x = new IfFieldRegex();
+            String path = p.getStringProperty(pathregex, "field");
+            String regex = p.getStringProperty(pathregex, "regex");
+            if (path == null || path.isEmpty()) {
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: field not informed");
+            }
+            if (regex == null || regex.isEmpty()) {
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: regex not informed");
+            }
+            String caseInsensitive = p.getStringProperty(pathregex, "case_insensitive");
+            String multiline = p.getStringProperty(pathregex, "multiline");
+            String extended = p.getStringProperty(pathregex, "extended");
+            String dotall = p.getStringProperty(pathregex, "dotall");
+            ((IfFieldRegex) x).setField(new Path(path));
+            ((IfFieldRegex) x).setRegex(regex);
+            ((IfFieldRegex) x).setCaseInsensitive(Boolean.parseBoolean(caseInsensitive));
+            ((IfFieldRegex) x).setMultiline(Boolean.parseBoolean(multiline));
+            ((IfFieldRegex) x).setExtended(Boolean.parseBoolean(extended));
+            ((IfFieldRegex) x).setDotall(Boolean.parseBoolean(dotall));
+        }
+        return x;
+    }
     //to make more readable
     private String str(boolean b) {
         return Boolean.toString(b);

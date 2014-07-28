@@ -20,6 +20,8 @@ package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
+import com.redhat.lightblue.metadata.rdbms.enums.LightblueOperators;
+import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import java.util.List;
 
@@ -73,6 +75,9 @@ public class Operation implements RootConverter {
     }
 
     public void setName(String name) {
+        if (!LightblueOperators.check(name)) {
+            throw new IllegalStateException("Not a valid op '" + name + "'. Valid LightblueOperators:" + LightblueOperators.getValues());
+        }
         this.name = name;
     }
 }

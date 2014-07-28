@@ -22,7 +22,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldEmpty extends If {
+public class IfFieldEmpty extends If<If,If> {
     private Path field;
 
     public void setField(Path field) {
@@ -49,5 +49,20 @@ public class IfFieldEmpty extends If {
             p.putObject(iT, "$field-empty", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
+    }
+
+    @Override
+    public <T> If parse(MetadataParser<T> p, T ifT) {
+        If x = null;
+        T pathEmpty = p.getObjectProperty(ifT, "$field-empty");
+        if (pathEmpty != null) {
+            x = new IfFieldEmpty();
+            String path1 = p.getStringProperty(pathEmpty, "field");
+            if (path1 == null || path1.isEmpty()) {
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-empty: field not informed");
+            }
+            ((IfFieldEmpty) x).setField(new Path(path1));
+        }
+        return x;
     }
 }

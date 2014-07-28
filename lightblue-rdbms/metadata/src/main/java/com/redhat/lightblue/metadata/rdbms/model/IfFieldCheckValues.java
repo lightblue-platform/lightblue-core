@@ -25,7 +25,7 @@ import com.redhat.lightblue.util.Path;
 
 import java.util.List;
 
-public class IfFieldCheckValues extends If {
+public class IfFieldCheckValues extends If<If,If> {
     private Path field;
     private List<String> values;
     private String op;
@@ -84,5 +84,30 @@ public class IfFieldCheckValues extends If {
             p.putObject(iT, "$field-check-values", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
+    }
+    
+    @Override
+    public <T> If parse(MetadataParser<T> p, T ifT) {
+        If x = null;
+        T pathvalues = p.getObjectProperty(ifT, "$field-check-values");
+        if (pathvalues != null) {
+            x = new IfFieldCheckValues();
+            String conditional = p.getStringProperty(pathvalues, "op");
+            String path1 = p.getStringProperty(pathvalues, "field");
+            List<String> values2 = p.getStringList(pathvalues, "values");
+            if (path1 == null || path1.isEmpty()) {
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-values: field not informed");
+            }
+            if (values2 == null || values2.isEmpty()) {
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-values: values not informed");
+            }
+            if (conditional == null || conditional.isEmpty()) {
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-values: op not informed");
+            }
+            ((IfFieldCheckValues) x).setField(new Path(path1));
+            ((IfFieldCheckValues) x).setValues(values2);
+            ((IfFieldCheckValues) x).setOp(conditional);
+        }
+        return x;
     }
 }

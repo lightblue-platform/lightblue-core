@@ -16,30 +16,22 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.rdbms.parser;
+package com.redhat.lightblue.metadata.rdbms.impl;
 
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldEmpty;
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckValue;
 import com.redhat.lightblue.metadata.rdbms.model.ForEach;
 import com.redhat.lightblue.metadata.rdbms.model.InOut;
 import com.redhat.lightblue.metadata.rdbms.model.If;
 import com.redhat.lightblue.metadata.rdbms.model.Conditional;
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldRegex;
 import com.redhat.lightblue.metadata.rdbms.model.Statement;
 import com.redhat.lightblue.metadata.rdbms.model.ElseIf;
 import com.redhat.lightblue.metadata.rdbms.model.Then;
 import com.redhat.lightblue.metadata.rdbms.model.For;
 import com.redhat.lightblue.metadata.rdbms.model.Bindings;
 import com.redhat.lightblue.metadata.rdbms.model.Else;
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckValues;
-import com.redhat.lightblue.metadata.rdbms.model.IfAnd;
-import com.redhat.lightblue.metadata.rdbms.model.IfFieldCheckField;
-import com.redhat.lightblue.metadata.rdbms.model.IfNot;
 import com.redhat.lightblue.metadata.rdbms.model.Expression;
 import com.redhat.lightblue.metadata.rdbms.model.Operation;
 import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
-import com.redhat.lightblue.metadata.rdbms.model.IfOr;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.PropertyParser;
 import com.redhat.lightblue.util.Path;
@@ -268,141 +260,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
     }
 
     private If parseIf(MetadataParser<T> p, T ifT) {
-        If x = null;
-        List<T> orArray = p.getObjectList(ifT, "$or");
-        if (orArray != null) {
-            x = parseIfs(p, orArray, new IfOr());
-        } else {
-            List<T> anyArray = p.getObjectList(ifT, "$any");
-            if (anyArray != null) {
-                x = parseIfs(p, anyArray, new IfOr());
-            } else {
-                List<T> andArray = p.getObjectList(ifT, "$and");
-                if (andArray != null) {
-                    x = parseIfs(p, andArray, new IfAnd());
-                } else {
-                    List<T> allArray = p.getObjectList(ifT, "$all");
-                    if (allArray != null) {
-                        x = parseIfs(p, allArray, new IfAnd());
-                    } else {
-                        T notIfT = p.getObjectProperty(ifT, "$not");
-                        if (notIfT != null) {
-                            If y = parseIf(p, notIfT);
-                            x = new IfNot();
-                            x.setConditions(new ArrayList());
-                            x.getConditions().add(y);
-                        } else {
-                            T pathEmpty = p.getObjectProperty(ifT, "$field-empty");
-                            if (pathEmpty != null) {
-                                x = new IfFieldEmpty();
-                                String path1 = p.getStringProperty(pathEmpty, "field");
-                                if (path1 == null || path1.isEmpty()) {
-                                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-empty: field not informed");
-                                }
-                                ((IfFieldEmpty) x).setField(new Path(path1));
-                            } else {
-                                T pathpath = p.getObjectProperty(ifT, "$field-check-field");
-                                if (pathpath != null) {
-                                    x = new IfFieldCheckField();
-                                    String conditional = p.getStringProperty(pathpath, "op");
-                                    String path1 = p.getStringProperty(pathpath, "field");
-                                    String path2 = p.getStringProperty(pathpath, "rfield");
-                                    if (path1 == null || path1.isEmpty()) {
-                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-field: field not informed");
-                                    }
-                                    if (path2 == null || path2.isEmpty()) {
-                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-field: rfield not informed");
-                                    }
-                                    if (conditional == null || conditional.isEmpty()) {
-                                        throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-field: op not informed");
-                                    }
-                                    ((IfFieldCheckField) x).setField(new Path(path1));
-                                    ((IfFieldCheckField) x).setRfield(new Path(path2));
-                                    ((IfFieldCheckField) x).setOp(conditional);
-                                } else {
-                                    T pathvalue = p.getObjectProperty(ifT, "$field-check-value");
-                                    if (pathvalue != null) {
-                                        x = new IfFieldCheckValue();
-                                        String conditional = p.getStringProperty(pathvalue, "op");
-                                        String path1 = p.getStringProperty(pathvalue, "field");
-                                        String value2 = p.getStringProperty(pathvalue, "value");
-                                        if (path1 == null || path1.isEmpty()) {
-                                            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: field not informed");
-                                        }
-                                        if (value2 == null || value2.isEmpty()) {
-                                            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: value not informed");
-                                        }
-                                        if (conditional == null || conditional.isEmpty()) {
-                                            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: op not informed");
-                                        }
-                                        ((IfFieldCheckValue) x).setField(new Path(path1));
-                                        ((IfFieldCheckValue) x).setValue(value2);
-                                        ((IfFieldCheckValue) x).setOp(conditional);
-                                    } else {
-                                        T pathvalues = p.getObjectProperty(ifT, "$field-check-values");
-                                        if (pathvalues != null) {
-                                            x = new IfFieldCheckValues();
-                                            String conditional = p.getStringProperty(pathvalues, "op");
-                                            String path1 = p.getStringProperty(pathvalues, "field");
-                                            List<String> values2 = p.getStringList(pathvalues, "values");
-                                            if (path1 == null || path1.isEmpty()) {
-                                                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-values: field not informed");
-                                            }
-                                            if (values2 == null || values2.isEmpty()) {
-                                                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-values: values not informed");
-                                            }
-                                            if (conditional == null || conditional.isEmpty()) {
-                                                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-values: op not informed");
-                                            }
-                                            ((IfFieldCheckValues) x).setField(new Path(path1));
-                                            ((IfFieldCheckValues) x).setValues(values2);
-                                            ((IfFieldCheckValues) x).setOp(conditional);
-                                        } else {
-                                            T pathregex = p.getObjectProperty(ifT, "$field-regex");
-                                            if (pathregex != null) {
-                                                x = new IfFieldRegex();
-                                                String path = p.getStringProperty(pathregex, "field");
-                                                String regex = p.getStringProperty(pathregex, "regex");
-                                                if (path == null || path.isEmpty()) {
-                                                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: field not informed");
-                                                }
-                                                if (regex == null || regex.isEmpty()) {
-                                                    throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: regex not informed");
-                                                }
-                                                String caseInsensitive = p.getStringProperty(pathregex, "case_insensitive");
-                                                String multiline = p.getStringProperty(pathregex, "multiline");
-                                                String extended = p.getStringProperty(pathregex, "extended");
-                                                String dotall = p.getStringProperty(pathregex, "dotall");
-                                                ((IfFieldRegex) x).setField(new Path(path));
-                                                ((IfFieldRegex) x).setRegex(regex);
-                                                ((IfFieldRegex) x).setCaseInsensitive(Boolean.parseBoolean(caseInsensitive));
-                                                ((IfFieldRegex) x).setMultiline(Boolean.parseBoolean(multiline));
-                                                ((IfFieldRegex) x).setExtended(Boolean.parseBoolean(extended));
-                                                ((IfFieldRegex) x).setDotall(Boolean.parseBoolean(dotall));
-                                            } else {
-                                                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_WRONG_FIELD, "No valid if field was set ->" + ifT.toString());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return x;
-    }
-
-    private <Z extends If> Z parseIfs(MetadataParser<T> p, List<T> orArray, Z ifC) {
-        List<If> l = new ArrayList<>();
-        for (T t : orArray) {
-            If eiIf = parseIf(p, t);
-            l.add(eiIf);
-        }
-        ifC.setConditions(l);
-        return ifC;
+        return (If) If.getChain().parse(p, ifT);
     }
 
     private Then parseThenOrElse(MetadataParser<T> p, T t, String name, Then then) {

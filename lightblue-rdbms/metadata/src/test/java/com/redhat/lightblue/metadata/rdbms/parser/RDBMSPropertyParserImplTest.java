@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.parser;
 
+import com.redhat.lightblue.metadata.rdbms.impl.RDBMSPropertyParserImpl;
 import com.redhat.lightblue.metadata.rdbms.model.IfOr;
 import com.redhat.lightblue.metadata.rdbms.model.Bindings;
 import com.redhat.lightblue.metadata.rdbms.model.Conditional;
