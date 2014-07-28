@@ -18,11 +18,27 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.rdbms.converter.ComplexConverter;
+import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class InOut {
+public class InOut implements ComplexConverter {
     private String column;
     private Path field;
+    
+        @Override
+    public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+        boolean col = this.getColumn() == null || this.getColumn().isEmpty();
+        boolean path = this.getField() == null || this.getField().toString().isEmpty();
+        if (col || path) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Invalid InOut: No column or path informed");
+        }
+        T ioT = p.newNode();
+        p.putString(ioT, "column", this.getColumn());
+        p.putString(ioT, "field", this.getField().toString());
+        p.addObjectToArray(lastArrayNode, ioT);
+    }
 
     public String getColumn() {
         return column;

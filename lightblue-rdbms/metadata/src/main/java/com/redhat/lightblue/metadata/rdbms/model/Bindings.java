@@ -18,11 +18,37 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
+import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import java.util.List;
 
-public class Bindings {
+public class Bindings implements RootConverter {
     private List<InOut> inList;
     private List<InOut> outList;
+    
+    @Override
+    public <T> void convert(MetadataParser<T> p, T parent) {
+        boolean bIn = this.getInList() == null || this.getInList().isEmpty();
+        boolean bOut = this.getOutList() == null || this.getOutList().isEmpty();
+        if (bIn && bOut) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No fields found for binding");
+        }
+        T bT = p.newNode();
+        if (!bIn) {
+            Object arri = p.newArrayField(bT, "in");
+            for (InOut x : this.getInList()) {
+                x.convert(p, arri, bT);
+            }
+        }
+        if (!bOut) {
+            Object arro = p.newArrayField(bT, "out");
+            for (InOut x : this.getOutList()) {
+                x.convert(p, arro, bT);
+            }
+        }
+        p.putObject(parent, "bindings", bT);
+    }
 
     public void setInList(List<InOut> inList) {
         this.inList = inList;

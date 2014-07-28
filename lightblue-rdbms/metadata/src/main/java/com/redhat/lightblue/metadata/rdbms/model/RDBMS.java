@@ -18,7 +18,12 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
-public class RDBMS {
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
+import com.redhat.lightblue.metadata.rdbms.converter.SimpleConverter;
+import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
+
+public class RDBMS implements RootConverter {
 
     private Operation delete;
     private Operation fetch;
@@ -26,6 +31,34 @@ public class RDBMS {
     private Operation save;
     private Operation update;
 
+    @Override
+    public <T> void convert(MetadataParser<T> p, T parent) {
+        T rdbms = p.newNode();
+        
+        if(this.getDelete() == null && this.getFetch() == null && this.getInsert() == null && this.getSave() == null && this.getUpdate() == null ) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No operation informed");
+        }
+        
+        if(this.getDelete() != null){
+            this.getDelete().convert(p,rdbms );
+        }
+        if(this.getFetch() != null){
+            this.getFetch().convert(p,rdbms );
+        }
+        if(this.getInsert() != null){
+            this.getInsert().convert(p,rdbms );
+        }
+        if(this.getSave() != null){
+            this.getSave().convert(p,rdbms );
+        }
+        if(this.getUpdate() != null){
+            this.getUpdate().convert(p, rdbms);  
+        }
+        
+        p.putObject(parent, "rdbms", rdbms);
+    }
+
+    
     public void setDelete(Operation delete) {
         this.delete = delete;
     }
@@ -64,5 +97,5 @@ public class RDBMS {
 
     public Operation getUpdate() {
         return update;
-    }
+    }    
 }

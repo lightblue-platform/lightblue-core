@@ -76,24 +76,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     @Override
     public void convert(MetadataParser<T> p, T parent, Object object) {
-        p.putObject(parent, "rdbms", convertRDBMS(p, (RDBMS) object));
-    }
-
-    private Object convertRDBMS(MetadataParser<T> p, RDBMS object) {
-        T rdbms = p.newNode();
-        
-        if(object.getDelete() == null && object.getFetch() == null && object.getInsert() == null && object.getSave() == null && object.getUpdate() == null ) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No operation informed");
+        if(object == null){
+            throw new IllegalArgumentException("No RDBMS object was informed!");
         }
-        
-        p.putObject(rdbms, "delete", convertOperation(p, object.getDelete()));
-        p.putObject(rdbms, "fetch", convertOperation(p, object.getFetch()));
-        p.putObject(rdbms, "insert", convertOperation(p, object.getInsert()));
-        p.putObject(rdbms, "save", convertOperation(p, object.getSave()));
-        p.putObject(rdbms, "update", convertOperation(p, object.getUpdate()));
-        return rdbms;
+        RDBMS rdbms = (RDBMS) object;
+        rdbms.convert(p, parent);
     }
-
+    
     private Operation parseOperation(MetadataParser<T> p, T operation, String fieldName) {
         if (operation == null) {
             return null;
@@ -112,6 +101,7 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         final Operation s = new Operation();
         s.setBindings(bindings);
         s.setExpressionList(expressions);
+        s.setName(fieldName);
 
         return s;
     }
@@ -442,62 +432,5 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     private Else parseElse(MetadataParser<T> p, T parentElseT) {
         return (Else) parseThenOrElse(p, parentElseT, "$else", new Else());
-    }
-
-    private Object convertOperation(MetadataParser<T> p, Operation o) {
-        if (o == null) {
-            return null;
-        }
-        T oT = p.newNode();
-        if (o.getBindings() != null) {
-            p.putObject(oT, "bindings", convertBindings(p, o.getBindings()));
-        }
-        Object expressions = p.newArrayField(oT, "expressions");
-        convertExpressions(p, o.getExpressionList(), expressions);
-        return oT;
-    }
-
-    private Object convertBindings(MetadataParser<T> p, Bindings bindings) {
-        boolean bIn = bindings.getInList() == null || bindings.getInList().isEmpty();
-        boolean bOut = bindings.getOutList() == null || bindings.getOutList().isEmpty();
-        if (bIn && bOut) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No fields found for binding");
-        }
-        T bT = p.newNode();
-        if (!bIn) {
-            Object arri = p.newArrayField(bT, "in");
-            for (InOut x : bindings.getInList()) {
-                p.addObjectToArray(arri, convertInOut(p, x));
-            }
-        }
-        if (!bOut) {
-            Object arro = p.newArrayField(bT, "out");
-            for (InOut x : bindings.getOutList()) {
-                p.addObjectToArray(arro, convertInOut(p, x));
-            }
-        }
-        return bT;
-    }
-
-    private Object convertInOut(MetadataParser<T> p, InOut x) {
-        boolean column = x.getColumn() == null || x.getColumn().isEmpty();
-        boolean path = x.getField() == null || x.getField().toString().isEmpty();
-        if (column || path) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Invalid InOut: No column or path informed");
-        }
-        T ioT = p.newNode();
-        p.putString(ioT, "column", x.getColumn());
-        p.putString(ioT, "field", x.getField().toString());
-
-        return ioT;
-    }
-
-    private void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
-        if (expressionList == null || expressionList.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Expressions not informed");
-        }
-        for (Expression expression : expressionList) {
-            expression.convert(p, expressions);
-        }
     }
 }

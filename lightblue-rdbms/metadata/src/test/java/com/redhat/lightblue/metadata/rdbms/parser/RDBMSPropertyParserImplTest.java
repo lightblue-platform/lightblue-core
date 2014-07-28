@@ -128,14 +128,23 @@ public class RDBMSPropertyParserImplTest {
         expressionList.add(e4);
 
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, parent, r);
 
+        System.out.println( parent.toString());
         Assert.assertEquals(expectedJSON, parent.toString());
+    }
+    
+    private Operation duplicate(String name, Operation ori){
+        Operation o = new Operation();
+        o.setBindings(ori.getBindings());
+        o.setExpressionList(ori.getExpressionList());
+        o.setName(name);
+        return o;
     }
 
     @Test
@@ -230,6 +239,7 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
+        o.setName("delete");
         r.setDelete(o);
      
         Throwable error = null;
@@ -268,11 +278,11 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
 
         com.redhat.lightblue.util.Error xe = null;
         try {
@@ -322,11 +332,11 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         Assert.assertEquals(json, rJSON.toString());
 
@@ -361,11 +371,11 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         Assert.assertEquals(json, rJSON.toString());
 
@@ -394,11 +404,11 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         Assert.assertEquals(json, rJSON.toString());
 
@@ -469,11 +479,11 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         Assert.assertEquals(json, rJSON.toString());
 
@@ -497,11 +507,11 @@ public class RDBMSPropertyParserImplTest {
         e1.setType("select");
         expressionList.add(e1);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         Assert.assertEquals(json, rJSON.toString());
 
@@ -560,11 +570,11 @@ public class RDBMSPropertyParserImplTest {
         Assert.assertEquals(el, forEach.getExpressions());
         expressionList.add(forEach);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         com.redhat.lightblue.util.Error xe = null;
         try {
             cut.convert(p, rJSON, r);
@@ -602,11 +612,11 @@ public class RDBMSPropertyParserImplTest {
         Assert.assertEquals(Path.ANYPATH, forEach.getIterateOverField());
         expressionList.add(forEach);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         com.redhat.lightblue.util.Error xe = null;
         try {
             cut.convert(p, rJSON, r);
@@ -751,11 +761,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setElseIfList(arrayList);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         Assert.assertEquals(json, rJSON.toString());
 
@@ -836,11 +846,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -889,11 +899,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -936,11 +946,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Assert.assertEquals(json, rJSON.toString());
@@ -972,11 +982,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Assert.assertEquals(json, rJSON.toString());
@@ -1024,11 +1034,11 @@ public class RDBMSPropertyParserImplTest {
             e4.setThen(then);
             expressionList.add(e4);
             o.setExpressionList(expressionList);
-            r.setDelete(o);
-            r.setFetch(o);
-            r.setInsert(o);
-            r.setSave(o);
-            r.setUpdate(o);
+            r.setDelete(duplicate("delete",o));
+            r.setFetch(duplicate("fetch",o));
+            r.setInsert(duplicate("insert",o));
+            r.setSave(duplicate("save",o));
+            r.setUpdate(duplicate("update",o));
             cut.convert(p, rJSON, r);
         } catch (com.redhat.lightblue.util.Error ex) {
             error = ex;
@@ -1077,11 +1087,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Assert.assertEquals(json, rJSON.toString());
@@ -1115,11 +1125,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Assert.assertEquals(json, rJSON.toString());
@@ -1156,11 +1166,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
         Assert.assertEquals(json, rJSON.toString());
@@ -1193,11 +1203,11 @@ public class RDBMSPropertyParserImplTest {
         e4.setThen(then);
         expressionList.add(e4);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         
         Assert.assertEquals(json, rJSON.toString());
@@ -1227,11 +1237,11 @@ public class RDBMSPropertyParserImplTest {
         Assert.assertEquals(el, forEach.getExpressions());
         expressionList.add(forEach);
         o.setExpressionList(expressionList);
-        r.setDelete(o);
-        r.setFetch(o);
-        r.setInsert(o);
-        r.setSave(o);
-        r.setUpdate(o);
+        r.setDelete(duplicate("delete",o));
+        r.setFetch(duplicate("fetch",o));
+        r.setInsert(duplicate("insert",o));
+        r.setSave(duplicate("save",o));
+        r.setUpdate(duplicate("update",o));
         com.redhat.lightblue.util.Error xe = null;
         try {
             cut.convert(p, rJSON, r);

@@ -18,11 +18,39 @@
  */
 package com.redhat.lightblue.metadata.rdbms.model;
 
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
+import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import java.util.List;
 
-public class Operation {
+public class Operation implements RootConverter {
+    private String name;
     private List<Expression> expressionList;
     private Bindings bindings;
+    
+    @Override
+    public <T> void convert(MetadataParser<T> p, T parent) {
+        if(this.getName() == null){
+          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Operation malformated");  
+        }
+        
+        T oT = p.newNode();
+        if (this.getBindings() != null) {
+            this.getBindings().convert(p, oT);
+        }
+        Object expressions = p.newArrayField(oT, "expressions");
+        convertExpressions(p, this.getExpressionList(), expressions);
+        p.putObject(parent, this.getName(), oT);
+    }
+    
+    public <T> void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
+        if (expressionList == null || expressionList.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Expressions not informed");
+        }
+        for (Expression expression : expressionList) {
+            expression.convert(p, expressions);
+        }
+    }
 
     public void setExpressionList(List<Expression> expressionList) {
         this.expressionList = expressionList;
@@ -38,5 +66,13 @@ public class Operation {
 
     public Bindings getBindings() {
         return bindings;
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
