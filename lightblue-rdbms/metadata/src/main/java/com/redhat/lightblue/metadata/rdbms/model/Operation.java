@@ -76,7 +76,7 @@ public class Operation implements RootConverter {
 
     public void setName(String name) {
         if (!LightblueOperators.check(name)) {
-            throw new IllegalStateException("Not a valid op '" + name + "'. Valid LightblueOperators:" + LightblueOperators.getValues());
+            throw new IllegalStateException("Not a valid operation name '" + name + "'. Valid LightblueOperators:" + LightblueOperators.getValues());
         }
         this.name = name;
     }

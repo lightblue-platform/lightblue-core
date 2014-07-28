@@ -27,7 +27,7 @@ public class LightblueOperators {
     private static final com.redhat.lightblue.metadata.Enum singleton = new Enum("LightblueOperators");
 
     static {
-        singleton.setValues(Arrays.asList("delete", "fetch", "insert", " save", "update"));
+        singleton.setValues(Arrays.asList("delete", "fetch", "insert", "save", "update"));
     }
 
     public static Set<String> getValues() {

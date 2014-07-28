@@ -44,6 +44,11 @@ public class IfTest {
         public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
             throw new UnsupportedOperationException("Not supported");
         }
+
+        @Override
+        public Object parse(MetadataParser p, Object node) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
     }
 
 }
