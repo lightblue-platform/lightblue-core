@@ -31,7 +31,7 @@
                 },
                 "execution": {
                 },
-                "returning": {
+                "projection": {
                 },
                 "query": {
                     "$ref": "#/definitions/query"
@@ -57,7 +57,7 @@
                 },
                 "execution": {
                 },
-                "returning": {
+                "projection": {
                 },
                 "data": {
                     "oneOf": [
@@ -90,7 +90,7 @@
                 },
                 "execution": {
                 },
-                "returning": {
+                "projection": {
                 },
                 "data": {
                     "oneOf": [
@@ -127,7 +127,7 @@
                 },
                 "execution": {
                 },
-                "returning": {
+                "projection": {
                 },
                 "query": {
                     "$ref": "#/definitions/query",
@@ -168,7 +168,7 @@
                 },
                 "execution": {
                 },
-                "returning": {
+                "projection": {
                 },
                 "query": {
                     "description": "A non-empty query expression",
@@ -195,7 +195,7 @@
         "query": {
             "$ref": "/json-schema/query/choice.json#/definitions/query"
         },
-        "returning": {
+        "projection": {
             "$ref": "/json-schema/projection/choice.json#/definitions/projection",
             "description": "A projection expression specifying what fields of entities to return once the insert/update/delete is performed. For insert/update operations, the projection is performed on the updated entity. For deletion, projection is performed on the entity currently in db. Empty projection list is allowed. WARN: Requesting more than the unique IDs of entities might require a re-fetch of entities."
         },
@@ -270,8 +270,8 @@
                 "execution": {
                     "$ref": "#/definitions/execution"
                 },
-                "returning": {
-                    "$ref": "#/definitions/returning"
+                "projection": {
+                    "$ref": "#/definitions/projection"
                 }
             },
             "required": [

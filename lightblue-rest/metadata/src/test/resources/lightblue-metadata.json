@@ -1,1 +1,5 @@
-../../../../crud/src/test/resources/lightblue-metadata.json
+{
+    "type" : "com.redhat.lightblue.mongo.config.MongoMetadataConfiguration",
+    "dataSource" : "mongo",
+    "collection": "metadata"
+}

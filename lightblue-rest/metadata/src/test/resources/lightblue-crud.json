@@ -1,1 +1,8 @@
-../../../../crud/src/test/resources/lightblue-crud.json
+{
+   "controllers" : [
+      {
+        "backend" : "mongo",
+        "controllerFactory" : "com.redhat.lightblue.mongo.config.MongoCRUDFactory"
+      }
+   ]
+}
