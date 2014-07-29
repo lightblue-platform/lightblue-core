@@ -37,17 +37,17 @@ public class PathParseTest extends Path {
 
     @Test(expected = InvalidPathException.class)
     public void leading_dot_in_path_throws_exception() {
-        super.parse(".badPath");
+        Path.parse(".badPath");
     }
 
     @Test(expected = InvalidPathException.class)
     public void space_in_path_throws_exception() {
-        super.parse("good.start.with bad space.");
+        Path.parse("good.start.with bad space.");
     }
 
     @Test(expected = InvalidPathException.class)
     public void two_spaces_at_end_of_path_segment_throws_exception() {
-        super.parse("good.start.with  .");
+        Path.parse("good.start.with  .");
     }
 
     @Test
