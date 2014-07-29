@@ -33,6 +33,8 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.rest.RestConfiguration;
 import com.redhat.lightblue.rest.metadata.RestMetadataConstants;
 import com.redhat.lightblue.util.Error;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Note that passing a Metadata in the constructor is optional. If not provided,
@@ -41,6 +43,8 @@ import com.redhat.lightblue.util.Error;
  * @author nmalik
  */
 public abstract class AbstractRestCommand extends HystrixCommand<String> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRestCommand.class);
+
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Metadata metadata;
@@ -69,6 +73,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
                 m = RestConfiguration.getFactory().getMetadata();
             }
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             throw Error.get(RestMetadataConstants.ERR_CANT_GET_METADATA);
         }
         return m;
@@ -79,6 +84,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         try {
             parser = RestConfiguration.getFactory().getJSONParser();
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             throw Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
         }
         return parser;

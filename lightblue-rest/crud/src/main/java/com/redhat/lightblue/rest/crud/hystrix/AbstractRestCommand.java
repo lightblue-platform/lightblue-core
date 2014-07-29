@@ -33,6 +33,8 @@ import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.rest.RestConfiguration;
 import com.redhat.lightblue.rest.crud.RestCrudConstants;
 import com.redhat.lightblue.util.Error;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Note that passing a Mediator in the constructor is optional. If not provided,
@@ -41,6 +43,8 @@ import com.redhat.lightblue.util.Error;
  * @author nmalik
  */
 public abstract class AbstractRestCommand extends HystrixCommand<String> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRestCommand.class);
+
     protected static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private final Mediator mediator;
@@ -75,6 +79,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
                 m = RestConfiguration.getFactory().getMediator();
             }
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             throw Error.get(RestCrudConstants.ERR_CANT_GET_MEDIATOR);
         }
 
