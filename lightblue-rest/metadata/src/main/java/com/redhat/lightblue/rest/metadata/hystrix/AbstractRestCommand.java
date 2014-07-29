@@ -69,7 +69,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
                 m = RestConfiguration.getFactory().getMetadata();
             }
         } catch (Exception e) {
-            Error.get(RestMetadataConstants.ERR_CANT_GET_METADATA);
+            throw Error.get(RestMetadataConstants.ERR_CANT_GET_METADATA);
         }
         return m;
     }
@@ -79,7 +79,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
         try {
             parser = RestConfiguration.getFactory().getJSONParser();
         } catch (Exception e) {
-            Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
+            throw Error.get(RestMetadataConstants.ERR_CANT_GET_PARSER);
         }
         return parser;
     }

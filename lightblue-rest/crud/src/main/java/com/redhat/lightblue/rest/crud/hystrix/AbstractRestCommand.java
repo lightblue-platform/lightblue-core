@@ -75,7 +75,7 @@ public abstract class AbstractRestCommand extends HystrixCommand<String> {
                 m = RestConfiguration.getFactory().getMediator();
             }
         } catch (Exception e) {
-            Error.get(RestCrudConstants.ERR_CANT_GET_MEDIATOR);
+            throw Error.get(RestCrudConstants.ERR_CANT_GET_MEDIATOR);
         }
 
         return m;
