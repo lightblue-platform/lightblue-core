@@ -68,7 +68,20 @@ public final class LightblueFactory implements Serializable {
     private volatile Mediator mediator = null;
     private volatile Factory factory;
 
+    private static LightblueFactory instance;
+
+    /**
+     * Sudo-singleton, get the last instantiated instance of LightblueFactory.
+     * In practice expect only one instance to ever exist.
+     *
+     * @return an instance of LightblueFactory
+     */
+    public static LightblueFactory getInstance() {
+        return instance;
+    }
+
     public LightblueFactory(DataSourcesConfiguration datasources) {
+        instance = this;
         this.datasources = datasources;
     }
 

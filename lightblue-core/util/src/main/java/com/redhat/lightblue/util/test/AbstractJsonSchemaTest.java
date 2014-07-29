@@ -19,44 +19,16 @@
 package com.redhat.lightblue.util.test;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.junit.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.exceptions.ProcessingException;
 import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
-import com.github.fge.jsonschema.report.ProcessingMessage;
 import com.github.fge.jsonschema.report.ProcessingReport;
+import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
-
-    /**
-     * Load a schema from given resourceName.
-     *
-     * @param resourceName
-     * @return the schema
-     * @throws ProcessingException
-     * @throws IOException
-     */
-    public final JsonSchema loadSchema(String resourceName) throws ProcessingException, IOException {
-        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-        SyntaxValidator validator = factory.getSyntaxValidator();
-
-        JsonNode node = loadJsonNode(resourceName);
-
-        ProcessingReport report = validator.validateSchema(node);
-        Assert.assertTrue("Schema is not valid!", report.isSuccess());
-
-        JsonSchema schema = factory.getJsonSchema("resource:/" + resourceName);
-        Assert.assertNotNull(schema);
-
-        return schema;
-    }
-
     /**
      * Validate the given resource is a valid json schema.
      *
@@ -65,7 +37,7 @@ public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
      * @throws IOException
      */
     public void validateSchema(String schemaResourceName) throws ProcessingException, IOException {
-        loadSchema(schemaResourceName);
+        JsonUtils.loadSchema(schemaResourceName);
     }
 
     /**
@@ -77,13 +49,12 @@ public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
      * @throws ProcessingException
      */
     public void runInvalidJsonTest(String schemaResourceName, String documentResourceName) throws IOException, ProcessingException {
-        JsonSchema schema = loadSchema(schemaResourceName);
+        JsonSchema schema = JsonUtils.loadSchema(schemaResourceName);
 
         JsonNode instance = loadJsonNode(documentResourceName);
 
         ProcessingReport report = schema.validate(instance);
         Assert.assertFalse("Expected validation to fail!", report.isSuccess());
-
     }
 
     /**
@@ -95,23 +66,12 @@ public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
      * @throws ProcessingException
      */
     public void runValidJsonTest(String schemaResourceName, String documentResourceName) throws IOException, ProcessingException {
-        JsonSchema schema = loadSchema(schemaResourceName);
+        JsonSchema schema = JsonUtils.loadSchema(schemaResourceName);
 
         JsonNode instance = loadJsonNode(documentResourceName);
 
-        ProcessingReport report = schema.validate(instance);
-        Iterator<ProcessingMessage> i = report.iterator();
-        StringBuilder buff = new StringBuilder("Expected validation to succeed!\nResource: ").append(documentResourceName).append("\nMessages:\n");
-        while (i != null && i.hasNext()) {
-            ProcessingMessage pm = i.next();
-
-            // attempting to pretty print the json
-            ObjectMapper mapper = new ObjectMapper();
-            String prettyPrintJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pm.asJson());
-
-            buff.append(prettyPrintJson).append("\n\n");
-        }
-        Assert.assertTrue(buff.toString(), report.isSuccess());
+        // if report isn't null it's a failure and the value of report is the detail of why
+        String report = JsonUtils.jsonSchemaValidation(schema, instance);
+        Assert.assertTrue("Expected validation to succeed!\nResource: " + documentResourceName + "\nMessages:\n" + report, report == null);
     }
-
 }

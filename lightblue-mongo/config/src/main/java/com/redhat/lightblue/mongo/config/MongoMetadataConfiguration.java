@@ -26,7 +26,6 @@ import com.redhat.lightblue.common.mongo.MongoDataStore;
 import com.redhat.lightblue.config.AbstractMetadataConfiguration;
 import com.redhat.lightblue.config.DataSourceConfiguration;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
-import com.redhat.lightblue.config.MetadataConfiguration;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;

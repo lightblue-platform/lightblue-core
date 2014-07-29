@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Map;
 import java.util.Iterator;
 
@@ -33,6 +34,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.fge.jsonschema.exceptions.ProcessingException;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
+import com.github.fge.jsonschema.report.ProcessingMessage;
+import com.github.fge.jsonschema.report.ProcessingReport;
+import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
+import org.junit.Assert;
 
 /**
  * Generic utilities for dealing with JSON
@@ -99,6 +108,56 @@ public final class JsonUtils {
      */
     public static String toJson(String[] strings) {
         return _toJson(strings);
+    }
+
+    /**
+     * Load a schema from given resourceName.
+     *
+     * @param resourceName
+     * @return the schema
+     * @throws ProcessingException
+     * @throws IOException
+     */
+    public static JsonSchema loadSchema(String resourceName) throws ProcessingException, IOException {
+        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
+        SyntaxValidator validator = factory.getSyntaxValidator();
+
+        JsonNode node = loadJsonNode(resourceName);
+
+        ProcessingReport report = validator.validateSchema(node);
+        Assert.assertTrue("Schema is not valid!", report.isSuccess());
+
+        JsonSchema schema = factory.getJsonSchema("resource:/" + resourceName);
+        Assert.assertNotNull(schema);
+
+        return schema;
+    }
+
+    /**
+     * Validates input node against given schema. Returns NULL if no errors
+     * reported, else returns string representing violations.
+     *
+     * @param schema the json schema (see #loadSchema)
+     * @param node the json node to validate
+     * @return null if there are no errors, else string with all errors and
+     * warnings
+     * @throws ProcessingException
+     */
+    public static String jsonSchemaValidation(JsonSchema schema, JsonNode node) throws ProcessingException, JsonProcessingException {
+        ProcessingReport report = schema.validate(node);
+        Iterator<ProcessingMessage> i = report.iterator();
+        StringBuilder buff = new StringBuilder();
+        while (!report.isSuccess() && i != null && i.hasNext()) {
+            ProcessingMessage pm = i.next();
+
+            // attempting to pretty print the json
+            ObjectMapper mapper = new ObjectMapper();
+            String prettyPrintJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pm.asJson());
+
+            buff.append(prettyPrintJson).append("\n\n");
+        }
+
+        return report.isSuccess() ? null : buff.toString();
     }
 
     private static String _toJson(Object[] objects) {
@@ -174,11 +233,9 @@ public final class JsonUtils {
             } else {
                 if (newLine) {
                     indent(bld, depth);
-                    newLine = false;
                 }
                 bld.append(',');
                 bld.append('\n');
-                newLine = true;
             }
             Map.Entry<String, JsonNode> entry = itr.next();
             indent(bld, depth);
@@ -198,7 +255,6 @@ public final class JsonUtils {
         }
         if (newLine) {
             indent(bld, depth);
-            newLine = false;
         }
         bld.append('}');
         return false;
