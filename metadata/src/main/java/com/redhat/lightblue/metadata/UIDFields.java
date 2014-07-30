@@ -56,10 +56,9 @@ public final class UIDFields {
             FieldTreeNode node = cursor.getCurrentNode();
             // Process all UID fields
             if (node.getType().equals(UIDType.TYPE)) {
-                Field field = (Field) node;
                 Path p = cursor.getCurrentPath();
                 LOGGER.debug("Processing UID field {}", p);
-                if (required(field)) {
+                if (node instanceof Field && required((Field) node)) {
                     LOGGER.debug("Field {} is required", p);
                     setRequiredField(factory, doc, p, 1, null);
                 } else {
