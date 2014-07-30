@@ -187,6 +187,8 @@ public class UIDTest {
         Assert.assertTrue(doc.get(new Path("personalInfo.requid")).asText().length()>0);
         Assert.assertTrue(doc.get(new Path("sites.0.streetAddress.requid")).asText().length()>0);
         Assert.assertTrue(doc.get(new Path("sites.1.streetAddress.requid")).asText().length()>0);
+        Assert.assertTrue(doc.get(new Path("sites.0.streetAddress.nonrequid")).asText().length()>0);
+        Assert.assertTrue(doc.get(new Path("sites.1.streetAddress.nonrequid")).asText().length()>0);
         Assert.assertTrue(doc.get(new Path("sites.0.usages.0.requid")).asText().length()>0);
         Assert.assertTrue(doc.get(new Path("sites.0.usages.1.requid")).asText().length()>0);
         Assert.assertTrue(doc.get(new Path("sites.1.usages.0.requid")).asText().length()>0);

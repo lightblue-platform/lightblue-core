@@ -35,7 +35,8 @@
           "country":"US",
           "countryCode":"US",
           "postalCode":"80111",
-          "poBox":false
+          "poBox":false,
+          "nonrequid":""
           },
         "contactInfo":{
           "emailAddress":"bserdar@redhat.com",
@@ -66,7 +67,8 @@
           "country":"US",
           "countryCode":"US",
           "postalCode":"27514",
-          "poBox":false
+          "poBox":false,
+          "nonrequid":""
           },
         "contactInfo":{
           "emailAddress":"a@b.com"
