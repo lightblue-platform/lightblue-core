@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.common.rdbms;
+package com.redhat.lightblue.config.rdbms;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.common.rdbms.RDBMSUtils;

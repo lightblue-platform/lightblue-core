@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.common.rdbms;
+package com.redhat.lightblue.crud.rdbms;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

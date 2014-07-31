@@ -23,24 +23,23 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.exception.HystrixBadRequestException;
-import com.redhat.lightblue.common.rdbms.RDBMSContext;
-import com.redhat.lightblue.crud.rdbms.RDBMSUtils;
 
 import java.util.List;
 
 //TODO
-public class QueryCommand<T> extends HystrixCommand<List<T>> {
+public class ExecuteUpdateCommand<T> extends HystrixCommand<List<T>> {
 
-    private final RDBMSContext<T> rdbmsContext;
+    //private final RDBMSContext<T> rdbmsContext;
 
     /**
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public QueryCommand(String threadPoolKey, RDBMSContext<T> rdbmsContext) {
-        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(QueryCommand.class.getSimpleName()))
-                .andCommandKey(HystrixCommandKey.Factory.asKey(QueryCommand.class.getSimpleName()))
-                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? QueryCommand.class.getSimpleName() : threadPoolKey)));
-        this.rdbmsContext = rdbmsContext;
+    //public ExecuteUpdateCommand(String threadPoolKey, RDBMSContext<T> rdbmsContext) {
+    public ExecuteUpdateCommand(String threadPoolKey) {
+        super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(ExecuteUpdateCommand.class.getSimpleName()))
+                .andCommandKey(HystrixCommandKey.Factory.asKey(ExecuteUpdateCommand.class.getSimpleName()))
+                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? ExecuteUpdateCommand.class.getSimpleName() : threadPoolKey)));
+        //this.rdbmsContext = rdbmsContext;
     }
 
     /**
@@ -60,12 +59,15 @@ public class QueryCommand<T> extends HystrixCommand<List<T>> {
     @Override
     protected List<T> run() {
         try {
+            return null;
+            /*
             RDBMSUtils rdbmsUtils = new RDBMSUtils();
             rdbmsUtils.getDataSource(rdbmsContext);
             rdbmsUtils.getConnection(rdbmsContext);
             rdbmsUtils.getStatement(rdbmsContext);
             rdbmsUtils.buildMappedList(rdbmsContext);
             return rdbmsContext.getResultList();
+            */
         } catch (RuntimeException x) {
             throw new HystrixBadRequestException("in " + getClass().getName(), x);
         }

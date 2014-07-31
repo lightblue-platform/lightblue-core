@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.common.rdbms;
+package com.redhat.lightblue.config.rdbms;
 
-import com.redhat.lightblue.common.rdbms.RDBMSDataSourceMap;
+import com.redhat.lightblue.common.rdbms.RDBMSDataSourceResolver;
 import com.redhat.lightblue.config.ControllerConfiguration;
 import com.redhat.lightblue.config.ControllerFactory;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
@@ -21,7 +21,7 @@ public class RDBMSControllerFactory implements ControllerFactory {
 
     @Override
     public CRUDController createController(ControllerConfiguration cfg, DataSourcesConfiguration ds) {
-            RDBMSDataSourceMap rds = new RDBMSDataSourceMap(ds);
+            RDBMSDataSourceResolver rds = new RDBMSDataSourceMap(ds);
             return new RDBMSCRUDController(rds);
     }
 }

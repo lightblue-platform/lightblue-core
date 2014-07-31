@@ -16,14 +16,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.common.rdbms;
+package com.redhat.lightblue.crud.rdbms;
 
+import com.redhat.lightblue.common.rdbms.RDBMSConstants;
 import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,29 +35,9 @@ public class RDBMSUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtils.class);
 
     public static DataSource getDataSource(RDBMSContext rDBMSContext) {
-        DataSource dataSource = getDataSource(rDBMSContext.getDataSourceName());
+        DataSource dataSource = com.redhat.lightblue.common.rdbms.RDBMSUtils.getDataSource(rDBMSContext.getDataSourceName());
         rDBMSContext.setDataSource(dataSource);
         return dataSource;
-    }
-    public static DataSource getDataSource(String name) {
-        LOGGER.debug("getDataSource() start");
-        Error.push("RDBMSUtils");
-        Error.push("getDataSource");
-        DataSource ds = null;
-        try {
-            // relying on garbage collection to close context
-            InitialContext context = new InitialContext();
-            ds = (DataSource) context.lookup(name);
-        } catch (NamingException e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(RDBMSConstants.ERR_DATASOURCE_NOT_FOUND, e.getMessage());
-        } finally {
-            Error.pop();
-            Error.pop();
-        }
-        LOGGER.debug("getDataSource() stop");
-        return ds;
     }
 
     public static Connection getConnection(RDBMSContext context) {

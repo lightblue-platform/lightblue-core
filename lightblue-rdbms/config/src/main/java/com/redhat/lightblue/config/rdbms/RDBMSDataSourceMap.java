@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.common.rdbms;
+package com.redhat.lightblue.config.rdbms;
 
+import com.redhat.lightblue.common.rdbms.RDBMSDataSourceResolver;
 import com.redhat.lightblue.common.rdbms.RDBMSDataStore;
 import com.redhat.lightblue.config.DataSourceConfiguration;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
-import com.redhat.lightblue.config.rdbms.RDBMSDataSourceConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lcestari
  */
-public class RDBMSDataSourceMap {
+public class RDBMSDataSourceMap implements RDBMSDataSourceResolver{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSDataSourceMap.class);
 

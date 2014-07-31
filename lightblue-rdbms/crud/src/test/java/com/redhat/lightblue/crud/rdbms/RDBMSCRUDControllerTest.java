@@ -18,21 +18,6 @@
  */
 package com.redhat.lightblue.crud.rdbms;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.common.rdbms.RDBMSContext;
-import com.redhat.lightblue.common.rdbms.RDBMSUtils;
-import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.TypeResolver;
-import com.redhat.lightblue.metadata.mongo.MongoDataStoreParser;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.util.JsonUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,9 +25,6 @@ import org.junit.Test;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +35,6 @@ public class RDBMSCRUDControllerTest {
     public static Connection cMock = null;
     public static String statement = null;
     public static PreparedStatement psMock = null;
-    public static RDBMSUtils rDBMSUtils = null;
     RDBMSCRUDController cut = null; //class under test
 
     @Before
@@ -62,12 +43,6 @@ public class RDBMSCRUDControllerTest {
         dsMock = mock(DataSource.class);
         cMock = mock(Connection.class);
         psMock = mock(PreparedStatement.class);
-        rDBMSUtils = new RDBMSUtils() {
-            @Override
-            public DataSource getDataSource(RDBMSContext rDBMSContext) {
-                return dsMock;
-            }
-        };
         when(dsMock.getConnection()).thenReturn(cMock);
         when(cMock.prepareStatement(statement)).thenReturn(psMock);
 
@@ -96,6 +71,7 @@ public class RDBMSCRUDControllerTest {
     @Ignore
     @Test
     public void testFind() throws Exception {
+        /*
         String json = new Scanner(this.getClass().getClassLoader().getResourceAsStream("metadata.json")).useDelimiter("\\Z").next();
         JsonNode node = JsonUtils.json(json);
         Extensions<JsonNode> extensions = new Extensions<>();
@@ -111,7 +87,7 @@ public class RDBMSCRUDControllerTest {
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
         final Map<String, EntityMetadata> map = new HashMap<>();
-        /*
+        
          CRUDOperationContext ctx = new CRUDOperationContext(Operation.FIND, "test", factory, JsonNodeFactory.withExactBigDecimals(true), new HashSet<String>(), null){
          @Override
          public EntityMetadata getEntityMetadata(String entityName) {

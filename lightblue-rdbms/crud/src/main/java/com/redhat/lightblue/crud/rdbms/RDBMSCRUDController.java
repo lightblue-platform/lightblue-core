@@ -19,10 +19,8 @@
 package com.redhat.lightblue.crud.rdbms;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.common.rdbms.RDBMSContext;
+import com.redhat.lightblue.common.rdbms.RDBMSDataSourceResolver;
 import com.redhat.lightblue.common.rdbms.RDBMSDataStore;
-import com.redhat.lightblue.common.rdbms.VariableUpdateRowMapper;
-import com.redhat.lightblue.config.rdbms.RDBMSDataSourceMap;
 import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
@@ -46,13 +44,13 @@ public class RDBMSCRUDController implements CRUDController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSCRUDController.class);
 
     private final JsonNodeFactory nodeFactory;
-    private final RDBMSDataSourceMap rds;
+    private final RDBMSDataSourceResolver rds;
 
-    public RDBMSCRUDController(RDBMSDataSourceMap rds) {
+    public RDBMSCRUDController(RDBMSDataSourceResolver rds) {
         this(JsonNodeFactory.withExactBigDecimals(true), rds);
     }
 
-    public RDBMSCRUDController(JsonNodeFactory factory, RDBMSDataSourceMap rds) {
+    public RDBMSCRUDController(JsonNodeFactory factory, RDBMSDataSourceResolver rds) {
         this.nodeFactory = factory;
         this.rds = rds;
     }

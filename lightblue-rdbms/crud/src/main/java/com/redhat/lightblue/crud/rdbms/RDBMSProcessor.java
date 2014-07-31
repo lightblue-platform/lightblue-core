@@ -6,7 +6,6 @@
 
 package com.redhat.lightblue.crud.rdbms;
 
-import com.redhat.lightblue.common.rdbms.RDBMSContext;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.JsonDoc;
