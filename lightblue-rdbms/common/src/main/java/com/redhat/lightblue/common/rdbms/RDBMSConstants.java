@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud.rdbms;
+package com.redhat.lightblue.common.rdbms;
 
 /**
  *
@@ -30,6 +30,7 @@ public final class RDBMSConstants {
     public static final String ERR_EXECUTE_QUERY_FAILED = "rdbms-util:ExecuteQueryFailed";
     public static final String ERR_EXECUTE_UPDATE_FAILED = "rdbms-util:ExecuteUpdateFailed";
     public static final String ERR_BUILD_RESULT_FAILED = "rdbms-util:BuildResultFailed";
+    public static final String ERR_ILL_FORMED_METADATA = "rdbms-metadata:IllFormedMetadata";
 
     private RDBMSConstants() {
     }

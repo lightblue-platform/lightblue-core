@@ -6,16 +6,23 @@
 
 package com.redhat.lightblue.common.rdbms;
 
-import com.redhat.lightblue.config.DataSourcesConfiguration;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  *
  * @author lcestari
  */
-public class RDBMSDatasources {
+public class VariableUpdateRowMapper<T> implements RowMapper<T>  {
 
-    public RDBMSDatasources(DataSourcesConfiguration ds) {
+    public VariableUpdateRowMapper(RDBMSContext rdbmsContext) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public T map(ResultSet resultSet) throws SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
 }

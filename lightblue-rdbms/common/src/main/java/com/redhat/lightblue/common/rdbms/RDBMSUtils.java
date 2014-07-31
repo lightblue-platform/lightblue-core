@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.common.rdbms;
 
-import com.redhat.lightblue.common.rdbms.RDBMSContext;
 import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +31,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 public class RDBMSUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtils.class);
 
-    public DataSource getDataSource(RDBMSContext rDBMSContext) {
+    public static DataSource getDataSource(RDBMSContext rDBMSContext) {
+        DataSource dataSource = getDataSource(rDBMSContext.getDataSourceName());
+        rDBMSContext.setDataSource(dataSource);
+        return dataSource;
+    }
+    public static DataSource getDataSource(String name) {
         LOGGER.debug("getDataSource() start");
         Error.push("RDBMSUtils");
         Error.push("getDataSource");
@@ -45,7 +48,7 @@ public class RDBMSUtils {
         try {
             // relying on garbage collection to close context
             InitialContext context = new InitialContext();
-            ds = (DataSource) context.lookup(rDBMSContext.getDataSourceName());
+            ds = (DataSource) context.lookup(name);
         } catch (NamingException e) {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
@@ -54,12 +57,11 @@ public class RDBMSUtils {
             Error.pop();
             Error.pop();
         }
-        rDBMSContext.setDataSource(ds);
         LOGGER.debug("getDataSource() stop");
         return ds;
     }
 
-    public Connection getConnection(RDBMSContext context) {
+    public static Connection getConnection(RDBMSContext context) {
         if (context.getDataSource() == null) {
             throw new IllegalArgumentException("No dataSource supplied");
         }
@@ -82,7 +84,7 @@ public class RDBMSUtils {
         return c;
     }
 
-    public PreparedStatement getStatement(RDBMSContext context) {
+    public static PreparedStatement getStatement(RDBMSContext context) {
         if (context.getConnection() == null) {
             throw new IllegalArgumentException("No connection supplied");
         }
@@ -108,7 +110,7 @@ public class RDBMSUtils {
         return ps;
     }
 
-    public int executeUpdate(RDBMSContext context) {
+    public static int executeUpdate(RDBMSContext context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement supplied");
         }
@@ -152,7 +154,7 @@ public class RDBMSUtils {
 
     }
 
-    public <T> List<T> buildMappedList(RDBMSContext<T> context) {
+    public static <T> List<T> buildMappedList(RDBMSContext<T> context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement supplied");
         }
@@ -180,7 +182,7 @@ public class RDBMSUtils {
         return list;
     }
 
-    public void close(RDBMSContext context) {
+    public static void close(RDBMSContext context) {
         if (context.getConnection() != null) {
             try {
                 context.getConnection().close();

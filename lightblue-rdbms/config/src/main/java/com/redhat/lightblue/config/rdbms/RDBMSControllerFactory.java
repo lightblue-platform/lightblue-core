@@ -6,7 +6,6 @@
 
 package com.redhat.lightblue.config.rdbms;
 
-import com.redhat.lightblue.common.rdbms.RDBMSDatasources;
 import com.redhat.lightblue.config.ControllerConfiguration;
 import com.redhat.lightblue.config.ControllerFactory;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
@@ -21,7 +20,7 @@ public class RDBMSControllerFactory implements ControllerFactory {
 
     @Override
     public CRUDController createController(ControllerConfiguration cfg, DataSourcesConfiguration ds) {
-            RDBMSDatasources rds = new RDBMSDatasources(ds);
+            RDBMSDataSourceMap rds = new RDBMSDataSourceMap(ds);
             return new RDBMSCRUDController(rds);
     }
 }

@@ -19,13 +19,14 @@
 package com.redhat.lightblue.crud.rdbms;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.rdbms.RDBMSContext;
-import com.redhat.lightblue.common.rdbms.RDBMSDatasources;
+import com.redhat.lightblue.common.rdbms.RDBMSDataStore;
+import com.redhat.lightblue.common.rdbms.VariableUpdateRowMapper;
+import com.redhat.lightblue.config.rdbms.RDBMSDataSourceMap;
 import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
-import com.redhat.lightblue.hystrix.rdbms.QueryCommand;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
@@ -35,9 +36,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonDoc;
-
-import java.util.List;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +47,13 @@ public class RDBMSCRUDController implements CRUDController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSCRUDController.class);
 
     private final JsonNodeFactory nodeFactory;
-    private final RDBMSDatasources rds;
+    private final RDBMSDataSourceMap rds;
 
-    public RDBMSCRUDController(RDBMSDatasources rds) {
+    public RDBMSCRUDController(RDBMSDataSourceMap rds) {
         this(JsonNodeFactory.withExactBigDecimals(true), rds);
     }
 
-    public RDBMSCRUDController(JsonNodeFactory factory, RDBMSDatasources rds) {
+    public RDBMSCRUDController(JsonNodeFactory factory, RDBMSDataSourceMap rds) {
         this.nodeFactory = factory;
         this.rds = rds;
     }
@@ -142,11 +141,17 @@ public class RDBMSCRUDController implements CRUDController {
             EntityMetadata md = crudOperationContext.getEntityMetadata(crudOperationContext.getEntityName());
             if (md.getAccess().getFind().hasAccess(crudOperationContext.getCallerRoles())) {
                 FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(md, crudOperationContext.getCallerRoles());
-                RDBMSContext<DocCtx> rdbmsContext = new RDBMSContext<>();             
+                RDBMSContext rdbmsContext = new RDBMSContext();             
                 RDBMS rdbms = (RDBMS)md.getEntitySchema().getProperties().get("rdbms");
                 if(rdbms == null){
                     throw new IllegalStateException("Configured to use RDBMS but no RDBMS definition was found for the entity");
                 }
+                rdbmsContext.setRdbms(rdbms);
+                RDBMSDataStore d = (RDBMSDataStore) md.getDataStore();
+                DataSource ds = rds.get(d);
+                rdbmsContext.setDataSource(ds);
+                rdbmsContext.setRowMapper(new VariableUpdateRowMapper(rdbmsContext));
+                RDBMSProcessor.process(crudOperationContext, queryExpression, rdbmsContext);
                 
                 //Reviewing
                 /*

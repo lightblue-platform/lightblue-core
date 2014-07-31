@@ -1,0 +1,13 @@
+{
+   "rdbms" : {
+     "type" : "com.redhat.lightblue.config.rdbms.RDBMSDataSourceConfiguration",
+     "metadataBackendParser" : "com.redhat.lightblue.metadata.rdbms.RDBMSBackendParser",
+     "database" : "mysql",
+     "connections" : [
+        {
+           "datasourceName" : "localhost",
+           "JNDI" : "java:jboss/datasources/localMySQLDS"
+        }
+     ]
+   }
+}
