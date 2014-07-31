@@ -20,7 +20,6 @@ package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
-import com.redhat.lightblue.metadata.rdbms.converter.SimpleConverter;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 
 public class RDBMS implements RootConverter {

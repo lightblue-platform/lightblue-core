@@ -28,6 +28,7 @@ import com.redhat.lightblue.hystrix.rdbms.QueryCommand;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -61,7 +62,7 @@ public class RDBMSCRUDController implements CRUDController {
     @Override
     public CRUDInsertionResponse insert(CRUDOperationContext ctx, Projection projection) {
         LOGGER.debug("insert() start");
-        Error.push("");
+        Error.push("insert() start");
 
         CRUDInsertionResponse response = new CRUDInsertionResponse();
         int n = 0;
@@ -141,16 +142,18 @@ public class RDBMSCRUDController implements CRUDController {
             EntityMetadata md = crudOperationContext.getEntityMetadata(crudOperationContext.getEntityName());
             if (md.getAccess().getFind().hasAccess(crudOperationContext.getCallerRoles())) {
                 FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(md, crudOperationContext.getCallerRoles());
-                RDBMSContext<DocCtx> rdbmsContext = new RDBMSContext<>();
-                //configure rdbmsContext TODO need to finish
+                RDBMSContext<DocCtx> rdbmsContext = new RDBMSContext<>();             
+                RDBMS rdbms = (RDBMS)md.getEntitySchema().getProperties().get("rdbms");
+                if(rdbms == null){
+                    throw new IllegalStateException("Configured to use RDBMS but no RDBMS definition was found for the entity");
+                }
+                //Reviewing
+                
                 rdbmsContext.setRowMapper(new DocCtxRowMapper());
                 rdbmsContext.setDataSourceName("java:jboss/jdbc/lightblueOracleDS"); //example
-
                 QueryTranslator.translate(rdbmsContext, crudOperationContext, queryExpression, sort, from, to, md);
-
                 List<JsonDoc> documents = new QueryCommand(null, rdbmsContext).execute();
                 crudOperationContext.addDocuments(documents);
-
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 for (DocCtx document : crudOperationContext.getDocuments()) {
                     document.setOutputDocument(projector.project(document, nodeFactory));
