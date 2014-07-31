@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.config.rdbms;
+package com.redhat.lightblue.common.rdbms;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.common.rdbms.RDBMSUtils;
@@ -14,9 +14,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

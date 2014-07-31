@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.config.rdbms;
+package com.redhat.lightblue.common.rdbms;
 
+import com.redhat.lightblue.common.rdbms.RDBMSDataSourceMap;
 import com.redhat.lightblue.config.ControllerConfiguration;
 import com.redhat.lightblue.config.ControllerFactory;
 import com.redhat.lightblue.config.DataSourcesConfiguration;

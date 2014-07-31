@@ -4,11 +4,12 @@
  * and open the template in the editor.
  */
 
-package com.redhat.lightblue.config.rdbms;
+package com.redhat.lightblue.common.rdbms;
 
 import com.redhat.lightblue.common.rdbms.RDBMSDataStore;
 import com.redhat.lightblue.config.DataSourceConfiguration;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
+import com.redhat.lightblue.config.rdbms.RDBMSDataSourceConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;

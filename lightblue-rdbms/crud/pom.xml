@@ -42,11 +42,6 @@
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.rdbms</groupId>
-            <artifactId>rdbms-config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.redhat.lightblue.rdbms</groupId>
             <artifactId>rdbms-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
