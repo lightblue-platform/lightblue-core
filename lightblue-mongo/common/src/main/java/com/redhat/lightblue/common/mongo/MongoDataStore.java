@@ -54,7 +54,9 @@ public class MongoDataStore implements DataStore, Serializable {
      * Gets the value of clientJndiName
      *
      * @return the value of clientJndiName
+     *  
      */
+    // TODO Do we use it?
     public String getClientJndiName() {
         return this.clientJndiName;
     }

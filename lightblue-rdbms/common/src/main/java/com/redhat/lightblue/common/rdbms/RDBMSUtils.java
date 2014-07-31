@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.common.rdbms;
 
+import com.redhat.lightblue.common.rdbms.RDBMSContext;
 import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class RDBMSUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtils.class);
@@ -106,30 +108,6 @@ public class RDBMSUtils {
         return ps;
     }
 
-    public ResultSet executeQuery(RDBMSContext context) {
-        if (context.getPreparedStatement() == null) {
-            throw new IllegalArgumentException("No statement supplied");
-        }
-        ResultSet rs = null;
-        LOGGER.debug("executeQuery() start");
-        Error.push("RDBMSUtils");
-        Error.push("executeQuery");
-        try {
-            rs = context.getPreparedStatement().executeQuery();
-        } catch (SQLException e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(RDBMSConstants.ERR_EXECUTE_QUERY_FAILED, e.getMessage());
-        } finally {
-            Error.pop();
-            Error.pop();
-        }
-        context.setResultSet(rs);
-        LOGGER.debug("executeQuery() stop");
-        return rs;
-
-    }
-
     public int executeUpdate(RDBMSContext context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement supplied");
@@ -149,6 +127,26 @@ public class RDBMSUtils {
             Error.pop();
         }
         context.setResultInteger(r);
+        context.setResultSetList(new ArrayList()); 
+        
+        ResultSet rs;
+        try {
+            rs = context.getPreparedStatement().getResultSet();
+            if(rs != null){
+                context.getResultSetList().add(rs);
+                try {
+                    while(context.getPreparedStatement().getMoreResults()){
+                        context.getResultSetList().add(context.getPreparedStatement().getResultSet());
+                    }
+                } catch (SQLException ex) {
+                    LOGGER.error(ex.getMessage(), ex);
+                }
+
+            }
+        } catch (SQLException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+        }
+                
         LOGGER.debug("executeUpdate() stop");
         return r;
 
@@ -161,23 +159,23 @@ public class RDBMSUtils {
         if (context.getRowMapper() == null) {
             throw new IllegalArgumentException("No rowMapper supplied");
         }
-        Error.push("RDBMSUtils");
         Error.push("buildMappedList");
         List<T> list = new ArrayList<>();
         context.setResultList(list);
-        try (ResultSet resultSet = executeQuery(context)) {
-            while (resultSet.next()) {
-                T o = context.getRowMapper().map(resultSet);
-                list.add(o);
+        executeUpdate(context);
+        List<ResultSet> resultSetList = context.getResultSetList();
+        for(ResultSet rs : resultSetList){
+            try {
+                while (rs.next()) {
+                    T o = context.getRowMapper().map(rs);
+                    list.add(o);
+                }
+                rs.close();
+            } catch (SQLException ex) {
+                LOGGER.error(ex.getMessage(), ex);
             }
-        } catch (SQLException e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(RDBMSConstants.ERR_BUILD_RESULT_FAILED, e.getMessage());
-        } finally {
-            Error.pop();
-            Error.pop();
-        }
+        }                
+        Error.pop();
         close(context);
         return list;
     }

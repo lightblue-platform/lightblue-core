@@ -21,6 +21,7 @@ package com.redhat.lightblue.crud.rdbms;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.common.mongo.DBResolver;
 import com.redhat.lightblue.common.rdbms.RDBMSContext;
+import com.redhat.lightblue.common.rdbms.RDBMSDatasources;
 import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.eval.Projector;
@@ -35,28 +36,27 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  Implements the relationship between Metdata from MongoDB and the Data from RDBMS
  */
-//TODO
 public class RDBMSCRUDController implements CRUDController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSCRUDController.class);
 
     private final JsonNodeFactory nodeFactory;
-    private final DBResolver dbResolver;
+    private final RDBMSDatasources rds;
 
-    public RDBMSCRUDController(DBResolver dbResolver) {
-        this(JsonNodeFactory.withExactBigDecimals(true), dbResolver);
+    public RDBMSCRUDController(RDBMSDatasources rds) {
+        this(JsonNodeFactory.withExactBigDecimals(true), rds);
     }
 
-    public RDBMSCRUDController(JsonNodeFactory factory, DBResolver dbResolver) {
+    public RDBMSCRUDController(JsonNodeFactory factory, RDBMSDatasources rds) {
         this.nodeFactory = factory;
-        this.dbResolver = dbResolver;
+        this.rds = rds;
     }
 
     @Override
@@ -147,13 +147,15 @@ public class RDBMSCRUDController implements CRUDController {
                 if(rdbms == null){
                     throw new IllegalStateException("Configured to use RDBMS but no RDBMS definition was found for the entity");
                 }
-                //Reviewing
                 
+                //Reviewing
+                /*
                 rdbmsContext.setRowMapper(new DocCtxRowMapper());
                 rdbmsContext.setDataSourceName("java:jboss/jdbc/lightblueOracleDS"); //example
                 QueryTranslator.translate(rdbmsContext, crudOperationContext, queryExpression, sort, from, to, md);
                 List<JsonDoc> documents = new QueryCommand(null, rdbmsContext).execute();
                 crudOperationContext.addDocuments(documents);
+                        */
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 for (DocCtx document : crudOperationContext.getDocuments()) {
                     document.setOutputDocument(projector.project(document, nodeFactory));

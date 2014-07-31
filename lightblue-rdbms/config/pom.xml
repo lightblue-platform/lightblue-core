@@ -41,8 +41,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-metadata</artifactId>
+            <groupId>com.redhat.lightblue.rdbms</groupId>
+            <artifactId>rdbms-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.rdbms</groupId>
+            <artifactId>rdbms-crud</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

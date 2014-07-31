@@ -18,29 +18,28 @@
  */
 package com.redhat.lightblue.common.rdbms;
 
-import javax.sql.DataSource;
+import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Set;
+import javax.sql.DataSource;
 
 /**
  * @param <T> type of object returned in List (resultList)
  */
 public class RDBMSContext<T> {
-
     private DataSource dataSource = null;
     private String dataSourceName = null;
     private Connection connection = null;
     private String statement = null;
     private PreparedStatement preparedStatement = null;
+    private Boolean resultBoolean = null;
     private Integer resultInteger = null;
-    private ResultSet ResultSet = null;
+    private List<ResultSet> resultSetList = null;
     private RowMapper<T> rowMapper = null;
     private List<T> resultList = null;
-    private Set<Parameter> parameters = null;
-    private Set<TableField> tableFields = null;
+    private RDBMS rdbms = null;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -82,6 +81,14 @@ public class RDBMSContext<T> {
         this.preparedStatement = preparedStatement;
     }
 
+    public Boolean isResultBoolean() {
+        return resultBoolean;
+    }
+
+    public void setResultBoolean(Boolean resultBoolean) {
+        this.resultBoolean = resultBoolean;
+    }
+
     public Integer getResultInteger() {
         return resultInteger;
     }
@@ -90,12 +97,12 @@ public class RDBMSContext<T> {
         this.resultInteger = resultInteger;
     }
 
-    public ResultSet getResultSet() {
-        return ResultSet;
+    public List<ResultSet> getResultSetList() {
+        return resultSetList;
     }
 
-    public void setResultSet(ResultSet resultSet) {
-        ResultSet = resultSet;
+    public void setResultSetList(List<ResultSet> resultSetList) {
+        this.resultSetList = resultSetList;
     }
 
     public RowMapper<T> getRowMapper() {
@@ -114,35 +121,12 @@ public class RDBMSContext<T> {
         this.resultList = resultList;
     }
 
-    public Set<Parameter> getParameters() {
-        return parameters;
+    public RDBMS getRdbms() {
+        return rdbms;
     }
 
-    public void setParameters(Set<Parameter> parameters) {
-        this.parameters = parameters;
+    public void setRdbms(RDBMS rdbms) {
+        this.rdbms = rdbms;
     }
 
-    @Override
-    public String toString() {
-        return "RDBMSContext{"
-                + "dataSource=" + dataSource
-                + ", dataSourceName='" + dataSourceName + '\''
-                + ", connection=" + connection
-                + ", statement='" + statement + '\''
-                + ", preparedStatement=" + preparedStatement
-                + ", resultInteger=" + resultInteger
-                + ", ResultSet=" + ResultSet
-                + ", rowMapper=" + rowMapper
-                + ", resultList=" + resultList
-                + ", parameters=" + parameters
-                + '}';
-    }
-
-    public Set<TableField> getTableFields() {
-        return tableFields;
-    }
-
-    public void setTableFields(Set<TableField> tableFields) {
-        this.tableFields = tableFields;
-    }
 }
