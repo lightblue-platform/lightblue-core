@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.inject.Inject;
@@ -236,6 +237,9 @@ public class ITCaseCrudResourceRDBMSTest {
             archive.addAsLibrary(file);
         }
         archive.addPackages(true, "com.redhat.lightblue");
+        
+                      System.out.print(archive.toString());
+
         return archive;
 
     }
@@ -251,7 +255,20 @@ public class ITCaseCrudResourceRDBMSTest {
             Connection conn = ds.getConnection();
             Statement stmt = conn.createStatement();
             stmt.execute("CREATE TABLE People ( PersonID int, Name varchar(255) );");
+            
+            // https://code.google.com/p/h2database/source/browse/trunk/h2/src/test/org/h2/samples/Function.java
+            stmt.execute("CREATE ALIAS getVersion FOR \"org.h2.engine.Constants.getVersion\"");
+            ResultSet rs = stmt.executeQuery("CALL getVersion()");
+            if (rs.next()) System.out.println("Version: " + rs.getString(1));
             stmt.close();
+            
+             byte[] contents = new byte[1024];
+    int bytesRead = 0;
+    String strFileContents;
+    while ((bytesRead = Thread.currentThread().getContextClassLoader().getResourceAsStream("/WEB-INF/classes/datasources.json").read(contents)) != -1) {
+      strFileContents = new String(contents, 0, bytesRead);
+      System.out.print(strFileContents);
+    }
             
             Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
             RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
