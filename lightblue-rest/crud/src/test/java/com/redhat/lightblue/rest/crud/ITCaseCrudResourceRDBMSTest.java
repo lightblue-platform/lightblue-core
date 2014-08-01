@@ -43,13 +43,22 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -230,7 +239,8 @@ public class ITCaseCrudResourceRDBMSTest {
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
                 .addAsResource(new File("src/test/resources/rdbms/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
                 .addAsResource(new File("src/test/resources/rdbms/lightblue-crud.json"), CrudConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/rdbms/datasources.json"), "datasources.json")
+                .addAsResource(new File("src/test/resources/rdbms/"+DATASOURCESJSON), DATASOURCESJSON)
+                .addAsResource(new File("src/test/resources/rdbms/"+DATASOURCESJSON), "XPTO")
                 .addAsResource(new File("src/test/resources/config.properties"),"config.properties");
 
         for (File file : libs) {
@@ -238,7 +248,6 @@ public class ITCaseCrudResourceRDBMSTest {
         }
         archive.addPackages(true, "com.redhat.lightblue");
         
-                      System.out.print(archive.toString());
 
         return archive;
 
@@ -262,16 +271,21 @@ public class ITCaseCrudResourceRDBMSTest {
             if (rs.next()) System.out.println("Version: " + rs.getString(1));
             stmt.close();
             
-             byte[] contents = new byte[1024];
-    int bytesRead = 0;
-    String strFileContents;
-    while ((bytesRead = Thread.currentThread().getContextClassLoader().getResourceAsStream("/WEB-INF/classes/datasources.json").read(contents)) != -1) {
-      strFileContents = new String(contents, 0, bytesRead);
-      System.out.print(strFileContents);
-    }
+            System.out.print(((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource("XPTO").getFile());
+//            InputStream propsStream = Thread.currentThread().getContextClassLoader().findResource("datasources.json").getFile();
+            InputStream propsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("XPTO");
+            BufferedReader x = new  BufferedReader(new InputStreamReader(propsStream));
+            /////BufferedReader x = new  BufferedReader(new InputStreamReader(new InputStream( new File((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource(DATASOURCESJSON).toURI() )));
+            //String line = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("test.war/WEB-INF/classes/datasources.json").toURI())), Charset.forName("UTF-8"));
+            //String line = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("XPTO").toURI())), Charset.forName("UTF-8"));
+            //System.out.print(line);
+            String line;
+            while ((line = x.readLine()) != null) {
+              System.out.print(line);
+            }
             
             Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-            RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+            RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile(DATASOURCESJSON))));
             RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
             
             String expectedCreated = readFile("expectedCreated.json");
@@ -291,4 +305,5 @@ public class ITCaseCrudResourceRDBMSTest {
             throw new IllegalStateException(ex);
         }
     }
+    private static final String DATASOURCESJSON = "datasources.json";
 }

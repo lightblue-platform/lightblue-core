@@ -1,6 +1,5 @@
 {
    "mongo" : {
-     "type" : "com.redhat.lightblue.mongo.config.MongoConfiguration",
      "metadataBackendParser" : "com.redhat.lightblue.metadata.mongo.MongoBackendParser",
      "ssl" : false,
      "database" : "mongo",
@@ -9,6 +8,7 @@
            "host" : "localhost",
            "port" : "27777"
         }
-     ]
+     ],
+     "type" : "com.redhat.lightblue.mongo.config.MongoConfiguration"
    }
 }
