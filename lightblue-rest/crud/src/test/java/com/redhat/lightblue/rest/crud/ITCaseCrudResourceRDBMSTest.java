@@ -46,6 +46,7 @@ import de.flapdoodle.embed.process.runtime.Network;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
@@ -166,7 +167,16 @@ public class ITCaseCrudResourceRDBMSTest {
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() throws Exception {       
+        File folder = new File("/tmp");
+        File[] files = folder.listFiles( new FilenameFilter() {@Override public boolean accept( final File dir,final String name ) {
+            return name.startsWith("test.db" );
+        }});
+        for ( final File file : files ) {
+            if ( !file.delete() ) {
+                System.out.println( "Failed to remove " + file.getAbsolutePath() );
+            }
+        }
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
@@ -240,14 +250,7 @@ public class ITCaseCrudResourceRDBMSTest {
             DataSource ds = (DataSource) initCtx.lookup("java:/mydatasource");
             Connection conn = ds.getConnection();
             Statement stmt = conn.createStatement();
-            stmt.execute("CREATE OR REPLACE PROCEDURE procOneOUTParameter(outParam1 OUT VARCHAR2)\n" +
-                            "IS\n" +
-                            "BEGIN\n" +
-                            " \n" +
-                            "  outParam1 := 'Hello World OUT parameter';\n" +
-                            " \n" +
-                            "END;\n" +
-                            "/");
+            stmt.execute("CREATE TABLE People ( PersonID int, Name varchar(255) );");
             stmt.close();
             
             Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
