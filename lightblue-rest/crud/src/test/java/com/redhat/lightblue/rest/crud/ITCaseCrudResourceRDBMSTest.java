@@ -237,11 +237,10 @@ public class ITCaseCrudResourceRDBMSTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/rdbms/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/rdbms/lightblue-crud.json"), CrudConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/rdbms/"+DATASOURCESJSON), DATASOURCESJSON)
-                .addAsResource(new File("src/test/resources/rdbms/"+DATASOURCESJSON), "XPTO")
-                .addAsResource(new File("src/test/resources/config.properties"),"config.properties");
+                .addAsResource(new File(PATH+MetadataConfiguration.FILENAME), MetadataConfiguration.FILENAME)
+                .addAsResource(new File(PATH+CrudConfiguration.FILENAME), CrudConfiguration.FILENAME)
+                .addAsResource(new File(PATH+DATASOURCESJSON), DATASOURCESJSON)
+                .addAsResource(new File(PATH+CONFIGPROPERTIES), CONFIGPROPERTIES);
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -252,6 +251,9 @@ public class ITCaseCrudResourceRDBMSTest {
         return archive;
 
     }
+    private static final String PATH = "src/test/resources/it-rdbms/rdbms-";
+    private static final String CONFIGPROPERTIES = "config.properties";
+    private static final String DATASOURCESJSON = "datasources.json";
 
     @Inject
     private CrudResource cutCrudResource; //class under test
@@ -271,9 +273,9 @@ public class ITCaseCrudResourceRDBMSTest {
             if (rs.next()) System.out.println("Version: " + rs.getString(1));
             stmt.close();
             
-            System.out.print(((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource("XPTO").getFile());
+            System.out.print(((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource(DATASOURCESJSON).getFile());
 //            InputStream propsStream = Thread.currentThread().getContextClassLoader().findResource("datasources.json").getFile();
-            InputStream propsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("XPTO");
+            InputStream propsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(DATASOURCESJSON);
             BufferedReader x = new  BufferedReader(new InputStreamReader(propsStream));
             /////BufferedReader x = new  BufferedReader(new InputStreamReader(new InputStream( new File((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource(DATASOURCESJSON).toURI() )));
             //String line = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("test.war/WEB-INF/classes/datasources.json").toURI())), Charset.forName("UTF-8"));
@@ -305,5 +307,4 @@ public class ITCaseCrudResourceRDBMSTest {
             throw new IllegalStateException(ex);
         }
     }
-    private static final String DATASOURCESJSON = "datasources.json";
 }

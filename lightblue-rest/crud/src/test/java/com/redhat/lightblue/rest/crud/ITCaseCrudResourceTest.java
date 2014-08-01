@@ -188,13 +188,13 @@ public class ITCaseCrudResourceTest {
     @Deployment
     public static WebArchive createDeployment() {
         File[] libs = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeDependencies().resolve().withTransitivity().asFile();
-
+        
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/lightblue-crud.json"), CrudConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/datasources.json"), "datasources.json")
-                .addAsResource(new File("src/test/resources/config.properties"),"config.properties");
+                .addAsResource(new File("src/test/resources/it/it-lightblue-metadata.json"), MetadataConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/it/it-lightblue-crud.json"), CrudConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/it/it-datasources.json"), DATASOURCESJSON)
+                .addAsResource(new File("src/test/resources/it/it-config.properties"), CONFIGPROPERTIES);
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -203,6 +203,7 @@ public class ITCaseCrudResourceTest {
         return archive;
 
     }
+    private static final String CONFIGPROPERTIES = "config.properties";
 
     @Inject
     private CrudResource cutCrudResource; //class under test
@@ -210,7 +211,7 @@ public class ITCaseCrudResourceTest {
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
         Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+        RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile(DATASOURCESJSON))));
         RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
 
         String expectedCreated = readFile("expectedCreated.json");
@@ -251,4 +252,5 @@ public class ITCaseCrudResourceTest {
         String resultFound2 = cutCrudResource.find("country", "1.0.0", readFile("resultFound2.json"));
         JSONAssert.assertEquals(expectedFound2, resultFound2, false);
     }
+    private static final String DATASOURCESJSON = "datasources.json";
 }
