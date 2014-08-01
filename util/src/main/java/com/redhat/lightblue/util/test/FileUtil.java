@@ -34,6 +34,6 @@ public final class FileUtil {
     }
 
     public static String readFile(String path) throws IOException, URISyntaxException {
-        return new String(Files.readAllBytes(Paths.get(FileUtil.class.getClassLoader().getResource(path).toURI())), Charset.forName("UTF-8")).replaceAll("\\s", "").replaceAll("\\r|\\n", "");
+        return new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource(path).toURI())), Charset.forName("UTF-8")).replaceAll("\\s", "").replaceAll("\\r|\\n", "");
     }
 }
