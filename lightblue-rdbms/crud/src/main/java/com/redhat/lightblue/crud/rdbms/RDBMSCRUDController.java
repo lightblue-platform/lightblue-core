@@ -148,7 +148,7 @@ public class RDBMSCRUDController implements CRUDController {
                 DataSource ds = rds.get(d);
                 rdbmsContext.setDataSource(ds);
                 rdbmsContext.setRowMapper(new VariableUpdateRowMapper(rdbmsContext));
-                RDBMSProcessor.process(crudOperationContext, queryExpression, rdbmsContext);
+                RDBMSProcessor.process(crudOperationContext, queryExpression, rdbmsContext, "find");
                 
                 //Reviewing
                 /*

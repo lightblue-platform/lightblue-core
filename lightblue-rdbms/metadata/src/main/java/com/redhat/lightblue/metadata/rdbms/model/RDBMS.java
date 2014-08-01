@@ -20,6 +20,7 @@ package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
+import com.redhat.lightblue.metadata.rdbms.enums.LightblueOperators;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 
 public class RDBMS implements RootConverter {
@@ -97,4 +98,22 @@ public class RDBMS implements RootConverter {
     public Operation getUpdate() {
         return update;
     }    
+    
+    public Operation getOperationByName(String operation){
+        switch(operation){
+            case LightblueOperators.DELETE:
+                    return delete;
+            case LightblueOperators.FETCH:
+                    return fetch;
+            case LightblueOperators.INSERT:
+                    return insert;
+            case LightblueOperators.SAVE:
+                    return save;
+            case LightblueOperators.UPDATE:
+                    return update;
+            default: 
+                    throw new IllegalArgumentException("Not valid operation -> "+operation);
+        }
+        
+    }
 }

@@ -1,24 +1,152 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.redhat.lightblue.crud.rdbms;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.hystrix.rdbms.ExecuteUpdateCommand;
+import com.redhat.lightblue.metadata.rdbms.enums.ExpressionOperators;
+import com.redhat.lightblue.metadata.rdbms.model.Bindings;
+import com.redhat.lightblue.metadata.rdbms.model.Conditional;
+import com.redhat.lightblue.metadata.rdbms.model.ElseIf;
+import com.redhat.lightblue.metadata.rdbms.model.Expression;
+import com.redhat.lightblue.metadata.rdbms.model.For;
+import com.redhat.lightblue.metadata.rdbms.model.ForEach;
+import com.redhat.lightblue.metadata.rdbms.model.If;
+import com.redhat.lightblue.metadata.rdbms.model.InOut;
+import com.redhat.lightblue.metadata.rdbms.model.Operation;
+import com.redhat.lightblue.metadata.rdbms.model.Statement;
+import com.redhat.lightblue.metadata.rdbms.model.Then;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author lcestari
  */
 public class RDBMSProcessor {
-    public static void process(CRUDOperationContext crudOperationContext, QueryExpression queryExpression,RDBMSContext rdbms){
-        ArrayList<JsonDoc> result = new ArrayList<JsonDoc>();
+    public static void process(CRUDOperationContext crudOperationContext, QueryExpression queryExpression,RDBMSContext rdbms, String operation){
+        // result
+        List<JsonDoc> result = new ArrayList<>(); 
+        
+        // the inputed information
+        // TODO Need to get this from the request
+        List<InOut> in = new ArrayList<>(); 
+        List<InOut> out = new ArrayList<>();
+        
+        Operation op = rdbms.getRdbms().getOperationByName(operation);
+        op.getBindings().setInList(in);
+        op.getBindings().setOutList(out);
+        
+        recursiveExpressionCall(crudOperationContext,op, op.getExpressionList());
+        
+        // processed final output
+        // TODO need to trnasform the out list into the those JSON documents
         crudOperationContext.addDocuments(result);
+    }
+
+    private static void recursiveExpressionCall(CRUDOperationContext crudOperationContext, Operation op, List<Expression> expressionList) {
+        if(expressionList == null){
+            return;
+        }
+        for (Expression expression : expressionList) {
+            final String simpleName = expression.getClass().getSimpleName();
+            switch (simpleName) {
+                case ExpressionOperators.CONDITIONAL:
+                    Conditional c = (Conditional) expression;
+                    recursiveConditionalCall(crudOperationContext,op,expressionList, c);
+                    break;
+                case ExpressionOperators.FOR:
+                    For f = (For) expression;
+                    recursiveForCall(crudOperationContext,op,expressionList, f);
+                    break;
+                case ExpressionOperators.FOREACH:
+                    ForEach e = (ForEach) expression;
+                    recursiveForEachCall(crudOperationContext,op,expressionList, e);
+                    break;
+                case ExpressionOperators.STATEMENT:
+                    Statement s = (Statement) expression;
+                    recursiveStatementCall(crudOperationContext,op,expressionList, s);
+                    break;
+                default:
+                    throw new IllegalStateException("New implementation of Expression not present in ExpressionOperators");
+            }
+        }
+    }
+
+    private static void recursiveConditionalCall(CRUDOperationContext crudOperationContext, Operation op, List<Expression> expressionList, Conditional c) {
+        if(evaluateConditions(c.getIf().getConditions(), op.getBindings())){
+            recursiveThenCall(crudOperationContext, op, expressionList, c.getThen());
+        }else{
+            boolean notEnter = true;
+            if(c.getElseIfList() != null && !c.getElseIfList().isEmpty()){
+                for (ElseIf ef : c.getElseIfList()) {
+                    if(evaluateConditions(ef.getIf().getConditions(), op.getBindings())){
+                        notEnter = false;
+                        recursiveThenCall(crudOperationContext, op, expressionList, ef.getThen());
+                    }
+                }
+            }
+            if(notEnter && c.getElse() != null){
+                recursiveThenCall(crudOperationContext, op, expressionList, c.getElse());
+            }
+        }
+    }
+
+    private static void recursiveForCall(CRUDOperationContext crudOperationContext, Operation op, List<Expression> expressionList, For f) {
+        // TODO need to transform the IN and OUT  into a Map to improve the processing performance. Also need that map for variables
+        String var  = f.getLoopCounterVariableName(); // Update this string everytime 
+        int loopTimes = f.getLoopTimes();
+        for (int i = 0; i < loopTimes; i++) {
+            recursiveExpressionCall(crudOperationContext, op, f.getExpressions());
+        }
+    }
+
+    private static void recursiveForEachCall(CRUDOperationContext crudOperationContext, Operation op, List<Expression> expressionList, ForEach e) {
+        Path field = e.getIterateOverField();
+        // TODO finish this implementation. It need to interate over it, I supose that only arrays will be informed. The input variable will change to each value this array contains so the user can iteract with the array content on the Expressions (statements, conditional, etc)
+       for (int i = 0; i < 1; i++) {
+            recursiveExpressionCall(crudOperationContext, op, e.getExpressions());
+        }
+    }
+    
+    private static void recursiveStatementCall(CRUDOperationContext crudOperationContext, Operation op, List<Expression> expressionList, Statement s) {
+        String type = s.getType();
+        String sql = s.getSQL();
+        new ExecuteUpdateCommand(sql).execute();
+    }
+
+    private static boolean evaluateConditions(List<If> conditions, Bindings bindings) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void recursiveThenCall(CRUDOperationContext crudOperationContext, Operation op, List<Expression> expressionList, Then then) {
+        if(then.getExpressions() != null && !then.getExpressions().isEmpty()){
+            recursiveExpressionCall(crudOperationContext, op, then.getExpressions());
+        }else{
+            // "$fail", "$continue", "$break"
+            // TODO put the flang into the context and make the static methods aware of it
+            then.getLoopOperator();
+        }
     }
     
 }

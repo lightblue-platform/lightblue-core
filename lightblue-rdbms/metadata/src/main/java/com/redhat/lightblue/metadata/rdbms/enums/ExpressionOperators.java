@@ -16,24 +16,32 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.redhat.lightblue.metadata.rdbms.enums;
 
-import com.redhat.lightblue.metadata.Enum;
-
+import com.redhat.lightblue.metadata.rdbms.model.Conditional;
+import com.redhat.lightblue.metadata.rdbms.model.Expression;
+import com.redhat.lightblue.metadata.rdbms.model.For;
+import com.redhat.lightblue.metadata.rdbms.model.ForEach;
+import com.redhat.lightblue.metadata.rdbms.model.Statement;
 import java.util.Arrays;
 import java.util.Set;
 
-public class LightblueOperators {
-    private static final com.redhat.lightblue.metadata.Enum singleton = new Enum("LightblueOperators");
-    
-    public static final String DELETE = "delete";
-    public static final String FETCH = "fetch";
-    public static final String INSERT = "insert";
-    public static final String SAVE = "save";
-    public static final String UPDATE = "update";
+/**
+ *
+ * @author lcestari
+ */
+public class ExpressionOperators {
+private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("ExpressionOperators");
+
+    //public static final String CONDITIONAL = Conditional.class.getSimpleName(); //-> error constant string expression required 
+    public static final String CONDITIONAL = "Conditional";
+    public static final String FOR = "For";
+    public static final String FOREACH = "ForEach";
+    public static final String STATEMENT = "Statement";
 
     static {
-        singleton.setValues(Arrays.asList(DELETE, FETCH, INSERT, SAVE, UPDATE));
+        singleton.setValues(Arrays.asList(CONDITIONAL, FOR, FOREACH, STATEMENT));
     }
 
     public static Set<String> getValues() {

@@ -34,6 +34,7 @@ import com.redhat.lightblue.metadata.rdbms.model.Operation;
 import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.PropertyParser;
+import com.redhat.lightblue.metadata.rdbms.enums.LightblueOperators;
 import com.redhat.lightblue.util.Path;
 
 import java.util.ArrayList;
@@ -46,22 +47,22 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         if (!"rdbms".equals(name)) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_WRONG_ROOT_NODE_NAME, "Node name informed:" + name);
         }
-        T delete = p.getObjectProperty(node, "delete");
-        T fetch = p.getObjectProperty(node, "fetch");
-        T insert = p.getObjectProperty(node, "insert");
-        T save = p.getObjectProperty(node, "save");
-        T update = p.getObjectProperty(node, "update");
+        T delete = p.getObjectProperty(node, LightblueOperators.DELETE);
+        T fetch = p.getObjectProperty(node, LightblueOperators.FETCH);
+        T insert = p.getObjectProperty(node, LightblueOperators.INSERT);
+        T save = p.getObjectProperty(node, LightblueOperators.SAVE);
+        T update = p.getObjectProperty(node, LightblueOperators.UPDATE);
         
         if(delete == null && fetch == null && insert == null && save == null && update == null ) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No Operation informed");
         }
     
         RDBMS rdbms = new RDBMS();
-        rdbms.setDelete(parseOperation(p, delete, "delete"));
-        rdbms.setFetch(parseOperation(p, fetch, "fetch"));
-        rdbms.setInsert(parseOperation(p, insert, "insert"));
-        rdbms.setSave(parseOperation(p, save, "save"));
-        rdbms.setUpdate(parseOperation(p, update, "update"));
+        rdbms.setDelete(parseOperation(p, delete, LightblueOperators.DELETE));
+        rdbms.setFetch(parseOperation(p, fetch, LightblueOperators.FETCH));
+        rdbms.setInsert(parseOperation(p, insert, LightblueOperators.INSERT));
+        rdbms.setSave(parseOperation(p, save, LightblueOperators.SAVE));
+        rdbms.setUpdate(parseOperation(p, update, LightblueOperators.UPDATE));
 
         return rdbms;
     }

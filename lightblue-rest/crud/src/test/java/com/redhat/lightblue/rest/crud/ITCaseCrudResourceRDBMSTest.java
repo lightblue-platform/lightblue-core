@@ -267,25 +267,12 @@ public class ITCaseCrudResourceRDBMSTest {
             Statement stmt = conn.createStatement();
             stmt.execute("CREATE TABLE People ( PersonID int, Name varchar(255) );");
             
-            // https://code.google.com/p/h2database/source/browse/trunk/h2/src/test/org/h2/samples/Function.java
+            // Good resource for examples of procedure with h2 https://code.google.com/p/h2database/source/browse/trunk/h2/src/test/org/h2/samples/Function.java
             stmt.execute("CREATE ALIAS getVersion FOR \"org.h2.engine.Constants.getVersion\"");
             ResultSet rs = stmt.executeQuery("CALL getVersion()");
             if (rs.next()) System.out.println("Version: " + rs.getString(1));
             stmt.close();
-            
-            System.out.print(((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource(DATASOURCESJSON).getFile());
-//            InputStream propsStream = Thread.currentThread().getContextClassLoader().findResource("datasources.json").getFile();
-            InputStream propsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(DATASOURCESJSON);
-            BufferedReader x = new  BufferedReader(new InputStreamReader(propsStream));
-            /////BufferedReader x = new  BufferedReader(new InputStreamReader(new InputStream( new File((URLClassLoader)Thread.currentThread().getContextClassLoader()).findResource(DATASOURCESJSON).toURI() )));
-            //String line = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("test.war/WEB-INF/classes/datasources.json").toURI())), Charset.forName("UTF-8"));
-            //String line = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource("XPTO").toURI())), Charset.forName("UTF-8"));
-            //System.out.print(line);
-            String line;
-            while ((line = x.readLine()) != null) {
-              System.out.print(line);
-            }
-            
+
             Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
             RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile(DATASOURCESJSON))));
             RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));

@@ -29,7 +29,7 @@ import java.util.List;
 //TODO
 public class ExecuteUpdateCommand<T> extends HystrixCommand<List<T>> {
 
-    //private final RDBMSContext<T> rdbmsContext;
+    private final RDBMSContext<T> rdbmsContext;
 
     /**
      * @param threadPoolKey OPTIONAL defaults to groupKey value
@@ -59,15 +59,13 @@ public class ExecuteUpdateCommand<T> extends HystrixCommand<List<T>> {
     @Override
     protected List<T> run() {
         try {
-            return null;
-            /*
+
             RDBMSUtils rdbmsUtils = new RDBMSUtils();
             rdbmsUtils.getDataSource(rdbmsContext);
             rdbmsUtils.getConnection(rdbmsContext);
             rdbmsUtils.getStatement(rdbmsContext);
             rdbmsUtils.buildMappedList(rdbmsContext);
             return rdbmsContext.getResultList();
-            */
         } catch (RuntimeException x) {
             throw new HystrixBadRequestException("in " + getClass().getName(), x);
         }
