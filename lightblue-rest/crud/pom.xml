@@ -62,6 +62,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.178</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
             <artifactId>mongo-config</artifactId>
             <version>${project.version}</version>
