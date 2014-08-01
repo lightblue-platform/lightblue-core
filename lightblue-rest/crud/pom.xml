@@ -36,6 +36,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.redhat.lightblue.config</groupId>
+            <artifactId>core-config</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.redhat.lightblue.rest</groupId>
             <artifactId>rest-common</artifactId>
             <version>${project.version}</version>
@@ -46,13 +51,28 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.config</groupId>
-            <artifactId>core-config</artifactId>
+            <groupId>com.redhat.lightblue.mongo</groupId>
+            <artifactId>mongo-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-metadata</artifactId>
+            <artifactId>mongo-config</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.rdbms</groupId>
+            <artifactId>rdbms-crud</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.rdbms</groupId>
+            <artifactId>rdbms-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.redhat.lightblue.rdbms</groupId>
+            <artifactId>rdbms-config</artifactId>
             <version>${project.version}</version>
         </dependency>
          <dependency>
@@ -68,9 +88,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.redhat.lightblue.mongo</groupId>
-            <artifactId>mongo-config</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>7.0.54</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

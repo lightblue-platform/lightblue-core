@@ -21,15 +21,16 @@ package com.redhat.lightblue.rest.crud;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.Mongo;
-import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.CrudConfiguration;
+import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.config.MetadataConfiguration;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.mongo.MongoMetadata;
 import com.redhat.lightblue.mongo.config.MongoConfiguration;
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.rest.RestConfiguration;
+import com.redhat.lightblue.util.JsonUtils;
+import static com.redhat.lightblue.util.test.FileUtil.readFile;
 import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
@@ -42,6 +43,21 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 import de.flapdoodle.embed.process.io.Processors;
 import de.flapdoodle.embed.process.runtime.Network;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.inject.Inject;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -55,16 +71,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-
-import static com.redhat.lightblue.util.test.FileUtil.readFile;
 
 /**
  *
@@ -158,8 +164,6 @@ public class ITCaseCrudResourceRDBMSTest {
             throw new java.lang.Error(e);
         }
     }
-    private org.h2.tools.Server httpServer;
-
 
     @Before
     public void setup() throws Exception {
@@ -167,6 +171,26 @@ public class ITCaseCrudResourceRDBMSTest {
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
+        
+        
+        try {
+            // Create initial context
+            System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.naming.java.javaURLContextFactory");
+            System.setProperty(Context.URL_PKG_PREFIXES, "org.apache.naming");
+            // already tried System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.as.naming.InitialContextFactory");
+            InitialContext ic = new InitialContext();
+
+            ic.createSubcontext("java:");
+            ic.createSubcontext("java:/comp");
+            ic.createSubcontext("java:/comp/env");
+            ic.createSubcontext("java:/comp/env/jdbc");
+
+            JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:file:/tmp/test.db;FILE_LOCK=NO;MVCC=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "sasasa");
+            
+            ic.bind("java:/mydatasourcename", ds);
+        } catch (NamingException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     @After
@@ -211,46 +235,31 @@ public class ITCaseCrudResourceRDBMSTest {
 
     @Test
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
-        Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
-        RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
-        RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
-
-        String expectedCreated = readFile("expectedCreated.json");
-        String metadata = readFile("metadata.json");
-        EntityMetadata em = RestConfiguration.getFactory().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
-        RestConfiguration.getFactory().getMetadata().createNewMetadata(em);
-        EntityMetadata em2 = RestConfiguration.getFactory().getMetadata().getEntityMetadata("country", "1.0.0");
-        String resultCreated = RestConfiguration.getFactory().getJSONParser().convert(em2).toString();
-        JSONAssert.assertEquals(expectedCreated, resultCreated, false);
-
-        String expectedInserted = readFile("expectedInserted.json");
-        String resultInserted = cutCrudResource.insert("country", "1.0.0", readFile("resultInserted.json"));
-        JSONAssert.assertEquals(expectedInserted, resultInserted, false);
-
-        String expectedUpdated = readFile("expectedUpdated.json");
-        String resultUpdated = cutCrudResource.update("country", "1.0.0", readFile("resultUpdated.json"));
-        JSONAssert.assertEquals(expectedUpdated, resultUpdated, false);
-
-        String expectedFound = readFile("expectedFound.json");
-        String resultFound = cutCrudResource.find("country", "1.0.0", readFile("resultFound.json"));
-        JSONAssert.assertEquals(expectedFound, resultFound, false);
-
-        String resultSimpleFound = cutCrudResource.simpleFind( //?Q&P&S&from&to
-                "country",
-                "1.0.0",
-                "iso2code:CA,QE;iso2code:CA;iso2code:CA,EN",
-                "name:1r,iso3code:1,iso2code:0r",
-                "name:a,iso3code:d,iso2code:d",
-                0,
-                -1);
-        JSONAssert.assertEquals(expectedFound, resultSimpleFound, false);
-
-        String expectedDeleted = readFile("expectedDeleted.json");
-        String resultDeleted = cutCrudResource.delete("country", "1.0.0", readFile("resultDeleted.json"));
-        JSONAssert.assertEquals(expectedDeleted, resultDeleted, false);
-
-        String expectedFound2 = readFile("expectedFound2.json");
-        String resultFound2 = cutCrudResource.find("country", "1.0.0", readFile("resultFound2.json"));
-        JSONAssert.assertEquals(expectedFound2, resultFound2, false);
+        try {
+            Context initCtx = new InitialContext();
+            DataSource ds = (DataSource) initCtx.lookup("java:/mydatasourcename");
+            Connection conn = ds.getConnection();
+            Statement stmt = conn.createStatement();
+            
+            Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
+            RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
+            RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
+            
+            String expectedCreated = readFile("expectedCreated.json");
+            String metadata = readFile("metadata.json");
+            EntityMetadata em = RestConfiguration.getFactory().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
+            RestConfiguration.getFactory().getMetadata().createNewMetadata(em);
+            EntityMetadata em2 = RestConfiguration.getFactory().getMetadata().getEntityMetadata("country", "1.0.0");
+            String resultCreated = RestConfiguration.getFactory().getJSONParser().convert(em2).toString();
+            JSONAssert.assertEquals(expectedCreated, resultCreated, false);
+            
+            String expectedInserted = readFile("expectedInserted.json");
+            String resultInserted = cutCrudResource.insert("country", "1.0.0", readFile("resultInserted.json"));
+            JSONAssert.assertEquals(expectedInserted, resultInserted, false);
+        } catch (NamingException ex) {
+            throw new IllegalStateException(ex);
+        } catch (SQLException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 }
