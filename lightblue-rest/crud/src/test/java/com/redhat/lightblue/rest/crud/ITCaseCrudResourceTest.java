@@ -194,7 +194,7 @@ public class ITCaseCrudResourceTest {
                 .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
                 .addAsResource(new File("src/test/resources/lightblue-crud.json"), CrudConfiguration.FILENAME)
                 .addAsResource(new File("src/test/resources/datasources.json"), "datasources.json")
-                .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
+                .addAsResource(new File("src/test/resources/config.properties"),"config.properties");
 
         for (File file : libs) {
             archive.addAsLibrary(file);

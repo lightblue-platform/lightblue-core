@@ -1,0 +1,12 @@
+{
+   "controllers" : [
+      {
+        "backend" : "mongo",
+        "controllerFactory" : "com.redhat.lightblue.mongo.config.MongoCRUDFactory"
+      },
+      {
+        "backend" : "rdbms",
+        "controllerFactory" : "com.redhat.lightblue.rdbms.config.RDBMSControllerFactory"
+      }
+   ]
+}

@@ -187,7 +187,7 @@ public class ITCaseCrudResourceRDBMSTest {
 
             JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:file:/tmp/test.db;FILE_LOCK=NO;MVCC=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "sasasa");
             
-            ic.bind("java:/mydatasourcename", ds);
+            ic.bind("java:/mydatasource", ds);
         } catch (NamingException ex) {
             throw new IllegalStateException(ex);
         }
@@ -217,10 +217,10 @@ public class ITCaseCrudResourceRDBMSTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/lightblue-crud.json"), CrudConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/datasources.json"), "datasources.json")
-                .addAsResource(EmptyAsset.INSTANCE, "resources/test.properties");
+                .addAsResource(new File("src/test/resources/rdbms/lightblue-metadata.json"), MetadataConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/rdbms/lightblue-crud.json"), CrudConfiguration.FILENAME)
+                .addAsResource(new File("src/test/resources/rdbms/datasources.json"), "datasources.json")
+                .addAsResource(new File("src/test/resources/config.properties"),"config.properties");
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -237,9 +237,18 @@ public class ITCaseCrudResourceRDBMSTest {
     public void testFirstIntegrationTest() throws IOException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, URISyntaxException, JSONException {
         try {
             Context initCtx = new InitialContext();
-            DataSource ds = (DataSource) initCtx.lookup("java:/mydatasourcename");
+            DataSource ds = (DataSource) initCtx.lookup("java:/mydatasource");
             Connection conn = ds.getConnection();
             Statement stmt = conn.createStatement();
+            stmt.execute("CREATE OR REPLACE PROCEDURE procOneOUTParameter(outParam1 OUT VARCHAR2)\n" +
+                            "IS\n" +
+                            "BEGIN\n" +
+                            " \n" +
+                            "  outParam1 := 'Hello World OUT parameter';\n" +
+                            " \n" +
+                            "END;\n" +
+                            "/");
+            stmt.close();
             
             Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
             RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile("datasources.json"))));
