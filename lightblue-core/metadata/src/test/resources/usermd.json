@@ -185,6 +185,7 @@
         },
         "createdDate": {"type": "date"},
         "updatedDate": {"type": "date"},
+        "uids": {"type": "array", "items":{"type":"uid"}},
         "uid": {"type": "uid"}
        }
    }
