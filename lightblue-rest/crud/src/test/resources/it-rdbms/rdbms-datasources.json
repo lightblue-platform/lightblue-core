@@ -13,7 +13,7 @@
    },
    "rdbms" : {
      "type" : "com.redhat.lightblue.config.rdbms.RDBMSDataSourceConfiguration",
-     "metadataBackendParser" : "com.redhat.lightblue.metadata.rdbms.RDBMSBackendParser",
+     "metadataBackendParser" : "com.redhat.lightblue.metadata.rdbms.impl.RDBMSDataStoreParser",
      "database" : "inmemory",
      "connections" : [
         {

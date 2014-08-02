@@ -6,7 +6,7 @@
       },
       {
         "backend" : "rdbms",
-        "controllerFactory" : "com.redhat.lightblue.rdbms.config.RDBMSControllerFactory"
+        "controllerFactory" : "com.redhat.lightblue.config.rdbms.RDBMSControllerFactory"
       }
    ]
 }

@@ -246,11 +246,9 @@ public class ITCaseCrudResourceRDBMSTest {
             archive.addAsLibrary(file);
         }
         archive.addPackages(true, "com.redhat.lightblue");
-        
-
         return archive;
-
     }
+    
     private static final String PATH = "src/test/resources/it-rdbms/rdbms-";
     private static final String CONFIGPROPERTIES = "config.properties";
     private static final String DATASOURCESJSON = "datasources.json";

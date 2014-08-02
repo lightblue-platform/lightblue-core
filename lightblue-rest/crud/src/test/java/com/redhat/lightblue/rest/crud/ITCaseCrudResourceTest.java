@@ -191,10 +191,10 @@ public class ITCaseCrudResourceTest {
         
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File("src/test/resources/it/it-lightblue-metadata.json"), MetadataConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/it/it-lightblue-crud.json"), CrudConfiguration.FILENAME)
-                .addAsResource(new File("src/test/resources/it/it-datasources.json"), DATASOURCESJSON)
-                .addAsResource(new File("src/test/resources/it/it-config.properties"), CONFIGPROPERTIES);
+                .addAsResource(new File(PATH+MetadataConfiguration.FILENAME), MetadataConfiguration.FILENAME)
+                .addAsResource(new File(PATH+CrudConfiguration.FILENAME), CrudConfiguration.FILENAME)
+                .addAsResource(new File(PATH+DATASOURCESJSON), DATASOURCESJSON)
+                .addAsResource(new File(PATH+CONFIGPROPERTIES), CONFIGPROPERTIES);
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -203,7 +203,10 @@ public class ITCaseCrudResourceTest {
         return archive;
 
     }
+    
+    private static final String PATH = "src/test/resources/it/it-";
     private static final String CONFIGPROPERTIES = "config.properties";
+    private static final String DATASOURCESJSON = "datasources.json";
 
     @Inject
     private CrudResource cutCrudResource; //class under test
@@ -252,5 +255,4 @@ public class ITCaseCrudResourceTest {
         String resultFound2 = cutCrudResource.find("country", "1.0.0", readFile("resultFound2.json"));
         JSONAssert.assertEquals(expectedFound2, resultFound2, false);
     }
-    private static final String DATASOURCESJSON = "datasources.json";
 }

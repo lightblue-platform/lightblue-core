@@ -18,7 +18,9 @@
  */
 package com.redhat.lightblue.util.test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -34,6 +36,12 @@ public final class FileUtil {
     }
 
     public static String readFile(String path) throws IOException, URISyntaxException {
-        return new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().getResource(path).toURI())), Charset.forName("UTF-8")).replaceAll("\\s", "").replaceAll("\\r|\\n", "");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path)));
+        StringBuilder everything = new StringBuilder();
+        String line;
+        while( (line = bufferedReader.readLine()) != null) {
+           everything.append(line);
+        }
+        return everything.toString().replaceAll("\\s", "").replaceAll("\\r|\\n", "");
     }
 }
