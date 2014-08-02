@@ -32,7 +32,6 @@ public class RDBMSContext<T> {
     private DataSource dataSource = null;
     private String dataSourceName = null;
     private Connection connection = null;
-    private String statement = null;
     private PreparedStatement preparedStatement = null;
     private Boolean resultBoolean = null;
     private Integer resultInteger = null;
@@ -40,6 +39,8 @@ public class RDBMSContext<T> {
     private RowMapper<T> rowMapper = null;
     private List<T> resultList = null;
     private RDBMS rdbms = null;
+    private String sql;
+    private String type;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -63,14 +64,6 @@ public class RDBMSContext<T> {
 
     public void setConnection(Connection connection) {
         this.connection = connection;
-    }
-
-    public String getStatement() {
-        return statement;
-    }
-
-    public void setStatement(String statement) {
-        this.statement = statement;
     }
 
     public PreparedStatement getPreparedStatement() {
@@ -129,4 +122,19 @@ public class RDBMSContext<T> {
         this.rdbms = rdbms;
     }
 
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

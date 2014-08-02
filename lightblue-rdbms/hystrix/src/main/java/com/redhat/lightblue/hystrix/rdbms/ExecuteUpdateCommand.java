@@ -63,7 +63,7 @@ public class ExecuteUpdateCommand<T> extends HystrixCommand<Void> {
     @Override
     protected Void run() {
         try {
-            RDBMSUtilsMetadata.buildMappedList(rdbmsContext);
+            RDBMSUtilsMetadata.buildAllMappedList(rdbmsContext);
         } catch (RuntimeException x) {
             throw new HystrixBadRequestException("in " + getClass().getName(), x);
         }

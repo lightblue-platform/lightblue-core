@@ -140,6 +140,8 @@ public class RDBMSProcessor {
     private static void recursiveStatementCall(CRUDOperationContext crudOperationContext,RDBMSContext rdbmsContext, Operation op, List<Expression> expressionList, Statement s) {
         String type = s.getType();
         String sql = s.getSQL();
+        rdbmsContext.setSql(sql);
+        rdbmsContext.setType(type);
         new ExecuteUpdateCommand(rdbmsContext).execute();
     }
 
