@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.crud.rdbms;
 
+import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.common.rdbms.RDBMSDataSourceResolver;
 import com.redhat.lightblue.common.rdbms.RDBMSDataStore;

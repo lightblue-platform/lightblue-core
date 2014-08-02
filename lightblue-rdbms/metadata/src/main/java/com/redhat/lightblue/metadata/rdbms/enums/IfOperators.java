@@ -26,17 +26,20 @@ import java.util.Set;
  *
  * @author lcestari
  */
-public class ExpressionOperators {
+public class IfOperators {
 private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("ExpressionOperators");
 
-    //public static final String CONDITIONAL = Conditional.class.getSimpleName(); //-> error constant string expression required 
-    public static final String CONDITIONAL = "Conditional";
-    public static final String FOR = "For";
-    public static final String FOREACH = "ForEach";
-    public static final String STATEMENT = "Statement";
-
+    //public static final String IFAND = IfAnd.class.getSimpleName(); //-> error constant string expression required 
+    public static final String IFAND = "IfAnd";
+    public static final String IFFIELDCHECKFIELD = "IfFieldCheckField";
+    public static final String IFFIELDCHECKVALUE = "IfFieldCheckValue";
+    public static final String IFFIELDCHECKVALUES = "IfFieldCheckValues";
+    public static final String IFFIELDEMPTY = "IfFieldEmpty";
+    public static final String IFFIELDREGEX = "IfFieldRegex";
+    public static final String IFNOT = "IfNot";
+    public static final String IFOR = "IfOr";
     static {
-        singleton.setValues(Arrays.asList(CONDITIONAL, FOR, FOREACH, STATEMENT));
+        singleton.setValues(Arrays.asList(IFAND, IFFIELDCHECKFIELD, IFFIELDCHECKVALUE, IFFIELDCHECKVALUES,IFFIELDEMPTY,IFFIELDREGEX,IFNOT,IFOR));
     }
 
     public static Set<String> getValues() {

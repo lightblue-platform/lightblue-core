@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud.rdbms;
+package com.redhat.lightblue.metadata.rdbms.converter;
 
 import com.redhat.lightblue.common.rdbms.RDBMSConstants;
 import com.redhat.lightblue.util.Error;
@@ -31,8 +31,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RDBMSUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtils.class);
+public class RDBMSUtilsMetadata {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtilsMetadata.class);
 
     public static DataSource getDataSource(RDBMSContext rDBMSContext) {
         DataSource dataSource = com.redhat.lightblue.common.rdbms.RDBMSUtils.getDataSource(rDBMSContext.getDataSourceName());
@@ -132,7 +132,25 @@ public class RDBMSUtils {
         return r;
 
     }
-
+    
+    public static void close(RDBMSContext context) {
+        if (context.getConnection() != null) {
+            try {
+                context.getConnection().close();
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage(), e);
+            } finally {
+                if (context.getPreparedStatement() != null) {
+                    try {
+                        context.getPreparedStatement().close();
+                    } catch (SQLException e) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
+                }
+            }
+        }
+    }
+    
     public static <T> List<T> buildMappedList(RDBMSContext<T> context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement supplied");
@@ -161,21 +179,4 @@ public class RDBMSUtils {
         return list;
     }
 
-    public static void close(RDBMSContext context) {
-        if (context.getConnection() != null) {
-            try {
-                context.getConnection().close();
-            } catch (SQLException e) {
-                LOGGER.error(e.getMessage(), e);
-            } finally {
-                if (context.getPreparedStatement() != null) {
-                    try {
-                        context.getPreparedStatement().close();
-                    } catch (SQLException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
-                }
-            }
-        }
-    }
 }

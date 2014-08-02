@@ -19,6 +19,8 @@
 
 package com.redhat.lightblue.crud.rdbms;
 
+import com.redhat.lightblue.metadata.rdbms.converter.RowMapper;
+import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -26,6 +28,7 @@ import java.sql.SQLException;
  *
  * @author lcestari
  */
+//TODO Process each row and update the In and OUT field
 public class VariableUpdateRowMapper<T> implements RowMapper<T>  {
 
     public VariableUpdateRowMapper(RDBMSContext rdbmsContext) {
