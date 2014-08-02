@@ -56,13 +56,13 @@ public final class UIDFields {
             FieldTreeNode node = cursor.getCurrentNode();
             // Process all UID fields
             if (node.getType().equals(UIDType.TYPE)) {
-                Field field = (Field) node;
                 Path p = cursor.getCurrentPath();
                 LOGGER.debug("Processing UID field {}", p);
-                if (required(field)) {
+                if (node instanceof Field && required((Field) node)) {
                     LOGGER.debug("Field {} is required", p);
                     setRequiredField(factory, doc, p, 1, null);
                 } else {
+                    // Here, node could be a field or an array
                     LOGGER.debug("Field {} is not required", p);
                     KeyValueCursor<Path, JsonNode> nodeCursor = doc.getAllNodes(p);
                     while (nodeCursor.hasNext()) {
