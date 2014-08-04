@@ -50,6 +50,7 @@ public class GetEntityNamesCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run:");
+        Error.reset();
         Error.push(getClass().getSimpleName());
         try {
             HashSet<MetadataStatus> statusSet = new HashSet<>();

@@ -48,6 +48,7 @@ public class GetEntityRolesCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("run: entity={}, version={}", entity, version);
+        Error.reset();
         Error.push(getClass().getSimpleName());
         if (entity != null) {
             Error.push(entity);

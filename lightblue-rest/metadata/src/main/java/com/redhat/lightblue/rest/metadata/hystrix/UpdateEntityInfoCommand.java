@@ -49,6 +49,7 @@ public class UpdateEntityInfoCommand extends AbstractRestCommand {
     @Override
     protected String run() {
         LOGGER.debug("updateEntityInfo {}", entity);
+        Error.reset();
         Error.push(getClass().getSimpleName());
         Error.push(entity);
         try {
