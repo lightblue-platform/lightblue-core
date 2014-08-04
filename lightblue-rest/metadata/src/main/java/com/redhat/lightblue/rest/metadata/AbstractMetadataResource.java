@@ -111,6 +111,7 @@ public abstract class AbstractMetadataResource {
 
     @PUT
     @Path("/{entity}/{version}")
+    @Consumes(MediaType.APPLICATION_JSON)
     public String createMetadata(@PathParam(PARAM_ENTITY) String entity, @PathParam(PARAM_VERSION) String version, String data) {
         Error.reset();
         return new CreateEntityMetadataCommand(null, entity, version, data).execute();
