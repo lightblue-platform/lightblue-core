@@ -63,6 +63,35 @@ public class RDBMSUtilsMetadata {
         return c;
     }
 
+    public static PreparedStatement getPreparedStatement(RDBMSContext context) {
+        if (context.getConnection() == null) {
+            throw new IllegalArgumentException("No connection supplied");
+        }
+        if (context.getSql() == null) {
+            throw new IllegalArgumentException("No sql statement supplied");
+        }
+        if (context.getType()== null) {
+            throw new IllegalArgumentException("No sql statement type supplied");
+        }
+        LOGGER.debug("getPreparedStatement() start");
+        Error.push("RDBMSUtils");
+        Error.push("getStatement");
+        PreparedStatement ps = null;
+        try { 
+            ps = context.getConnection().prepareStatement(context.getSql());
+        } catch (SQLException e) {
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(RDBMSConstants.ERR_GET_STATEMENT_FAILED, e.getMessage());
+        } finally {
+            Error.pop();
+            Error.pop();
+        }
+        context.setPreparedStatement(ps);
+        LOGGER.debug("getPreparedStatement() stop");
+        return ps;
+    }
+    
     public static PreparedStatement getStatement(RDBMSContext context) {
         if (context.getConnection() == null) {
             throw new IllegalArgumentException("No connection supplied");
@@ -77,8 +106,9 @@ public class RDBMSUtilsMetadata {
         Error.push("RDBMSUtils");
         Error.push("getStatement");
         PreparedStatement ps = null;
-        try {
-            ps = context.getConnection().prepareStatement(context.getSql());
+        try { 
+            NamedParameterStatement nps = new NamedParameterStatement(context.getConnection(), context.getSql());
+            //ps = .prepareStatement();
         } catch (SQLException e) {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
