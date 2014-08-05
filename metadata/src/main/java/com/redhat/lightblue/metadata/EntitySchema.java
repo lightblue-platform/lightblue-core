@@ -25,10 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
+
+import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,5 +247,36 @@ public class EntitySchema implements Serializable {
 
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    public Field[] getIdentityFields() {
+        FieldCursor cursor=getFieldCursor();
+        TreeMap<Path,Field> fieldMap=new TreeMap<>();
+        getIdentityFields(fieldMap,cursor);
+        Field[] ret=new Field[fieldMap.size()];
+        int i=0;
+        for(Field f:fieldMap.values())
+            ret[i++]=f;
+        return ret;
+    }
+
+    private void getIdentityFields(TreeMap<Path,Field> fieldMap, FieldCursor cursor) {
+        if(cursor.firstChild()) {
+            do {
+                FieldTreeNode fn=cursor.getCurrentNode();
+                if(fn instanceof ObjectField)
+                    getIdentityFields(fieldMap,cursor);
+                else if(fn instanceof SimpleField) {
+                    SimpleField f=(SimpleField)fn;
+                    for(FieldConstraint fc:f.getConstraints()) {
+                        if(fc instanceof IdentityConstraint) {
+                            fieldMap.put(f.getFullPath(),f);
+                            break;
+                        }
+                    }
+                }
+            } while(cursor.nextSibling());
+            cursor.parent();
+        }
     }
 }
