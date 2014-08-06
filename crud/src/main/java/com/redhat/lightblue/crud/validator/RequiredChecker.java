@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.crud.validator;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
@@ -39,25 +42,42 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                                 FieldConstraint constraint,
                                 JsonDoc doc) {
         if (((RequiredConstraint) constraint).getValue()) {
-            int nAnys = fieldMetadataPath.nAnys();
-            if (nAnys == 0) {
-                if (doc.get(fieldMetadataPath) == null) {
-                    validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED));
-                }
-            } else {
-                // The required field is a member of an object that's an element of an array
-                // If the array element exists, then the member must exist in that object
-                Path parent = fieldMetadataPath.prefix(-1);
-                String fieldName = fieldMetadata.getName();
-                KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(parent);
-                while (cursor.hasNext()) {
-                    cursor.next();
-                    JsonNode parentObject = cursor.getCurrentValue();
-                    if (parentObject.get(fieldName) == null) {
-                        validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED, cursor.getCurrentKey() + "." + fieldName));
-                    }
+            List<Path> errors=getMissingFields(fieldMetadataPath,doc);
+            for(Path x:errors)
+                validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED, x.toString()));
+        }
+    }
+
+    /**
+     * Returns the list of fields that are missing in the doc
+     *
+     * @param fieldMetadataPath Path of the required field
+     * @param doc The document
+     *
+     * @return List of field instances that are not present in the doc.
+     */
+    public static List<Path> getMissingFields(Path fieldMetadataPath,
+                                              JsonDoc doc) {
+        int nAnys = fieldMetadataPath.nAnys();
+        List<Path> errors=new ArrayList<Path>();
+        if (nAnys == 0) {
+            if (doc.get(fieldMetadataPath) == null) {
+                errors.add(fieldMetadataPath);
+            }
+        } else {
+            // The required field is a member of an object that's an element of an array
+            // If the array element exists, then the member must exist in that object
+            Path parent = fieldMetadataPath.prefix(-1);
+            String fieldName = fieldMetadataPath.tail(0);
+            KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(parent);
+            while (cursor.hasNext()) {
+                cursor.next();
+                JsonNode parentObject = cursor.getCurrentValue();
+                if (parentObject.get(fieldName) == null) {
+                    errors.add(new Path(cursor.getCurrentKey()+"."+fieldName));
                 }
             }
         }
+        return errors;
     }
 }

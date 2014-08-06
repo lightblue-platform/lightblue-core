@@ -28,6 +28,7 @@ import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
+import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 
 import com.redhat.lightblue.crud.FieldConstraintChecker;
 
@@ -49,6 +50,7 @@ public class DefaultFieldConstraintValidators
         checkers.put(RequiredConstraint.REQUIRED, new RequiredChecker());
         checkers.put(StringLengthConstraint.MINLENGTH, new StringLengthChecker());
         checkers.put(StringLengthConstraint.MAXLENGTH, new StringLengthChecker());
+        checkers.put(IdentityConstraint.IDENTITY, new IdentityChecker());
     }
 
     @Override
