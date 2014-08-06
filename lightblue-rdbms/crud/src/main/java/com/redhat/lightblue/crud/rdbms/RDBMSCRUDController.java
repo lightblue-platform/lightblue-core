@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
- Implements the relationship between Metdata from MongoDB and the Data from RDBMS
+ Implements the relationship between Metdata from Lightblue and the Data from RDBMS
  */
 public class RDBMSCRUDController implements CRUDController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSCRUDController.class);
@@ -149,16 +149,8 @@ public class RDBMSCRUDController implements CRUDController {
                 DataSource ds = rds.get(d);
                 rdbmsContext.setDataSource(ds);
                 rdbmsContext.setRowMapper(new VariableUpdateRowMapper(rdbmsContext));
+                rdbmsContext.setEntityMetadata(md);
                 RDBMSProcessor.process(crudOperationContext, queryExpression, rdbmsContext, "find");
-                
-                //Reviewing
-                /*
-                rdbmsContext.setRowMapper(new DocCtxRowMapper());
-                rdbmsContext.setDataSourceName("java:jboss/jdbc/lightblueOracleDS"); //example
-                QueryTranslator.translate(rdbmsContext, crudOperationContext, queryExpression, sort, from, to, md);
-                List<JsonDoc> documents = new QueryCommand(null, rdbmsContext).execute();
-                crudOperationContext.addDocuments(documents);
-                        */
                 Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
                 for (DocCtx document : crudOperationContext.getDocuments()) {
                     document.setOutputDocument(projector.project(document, nodeFactory));

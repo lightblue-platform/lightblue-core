@@ -25,25 +25,32 @@ import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.exception.HystrixBadRequestException;
 import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
 import com.redhat.lightblue.metadata.rdbms.converter.RDBMSUtilsMetadata;
+import com.redhat.lightblue.metadata.rdbms.converter.SelectStmt;
+import java.util.List;
 
 public class ExecuteUpdateCommand<T> extends HystrixCommand<Void> {
 
     private final RDBMSContext<T> rdbmsContext;
+    private List<SelectStmt> inputStmt;
 
     public ExecuteUpdateCommand(RDBMSContext<T> rdbmsContext) {
-        this(null,rdbmsContext);
+        this(rdbmsContext,null);
+    }
+    
+    public ExecuteUpdateCommand(RDBMSContext rdbmsContext, List<SelectStmt> inputStmt) {
+        this(rdbmsContext, inputStmt, null);       
     }
         
     /**
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public ExecuteUpdateCommand(String threadPoolKey, RDBMSContext<T> rdbmsContext) {
-    
+    public ExecuteUpdateCommand(RDBMSContext<T> rdbmsContext, List<SelectStmt> inputStmt, String threadPoolKey) {    
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(ExecuteUpdateCommand.class.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(ExecuteUpdateCommand.class.getSimpleName()))
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? ExecuteUpdateCommand.class.getSimpleName() : threadPoolKey)));
         
         this.rdbmsContext = rdbmsContext;
+        this.inputStmt = inputStmt;
     }
 
     /**

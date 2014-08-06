@@ -53,7 +53,7 @@
                                     "type": "string"
                                 }
                             },
-                            "joinStmt" : {
+                            "tablesAliases" : {
                                 "type": "string"
                             },
                             "whereStmt" : {
@@ -85,7 +85,7 @@
                         },
                         "required": [
                             "tables",
-                            "whereStmt",
+                            "tablesAliases",
                             "projectionMappings"
                         ],
                         "additionalProperties": false
@@ -96,6 +96,9 @@
                 "joins"
             ],
             "additionalProperties": false
+        },
+        "dialoect" : {
+            "type": "string"
         }
     },
     "anyOf": [
@@ -114,7 +117,8 @@
         ]
     }],
     "required": [
-        "SQLMapping"
+        "SQLMapping",
+        "dialoect"
     ],
     "additionalProperties": false
 }

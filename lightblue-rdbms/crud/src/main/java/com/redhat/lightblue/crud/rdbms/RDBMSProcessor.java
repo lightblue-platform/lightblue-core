@@ -19,6 +19,7 @@
 
 package com.redhat.lightblue.crud.rdbms;
 
+import com.redhat.lightblue.metadata.rdbms.converter.SelectStmt;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.hystrix.rdbms.ExecuteUpdateCommand;
 import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
@@ -51,12 +52,13 @@ import java.util.List;
  * @author lcestari
  */
 public class RDBMSProcessor {
-    public static void process(CRUDOperationContext crudOperationContext, QueryExpression queryExpression,RDBMSContext rdbmsContext, String operation){
+    public static void process(CRUDOperationContext crudOperationContext, QueryExpression queryExpression, RDBMSContext rdbmsContext, String operation){
         // result
         List<JsonDoc> result = new ArrayList<>(); 
         
-        // the inputed information
-        // TODO Need to get this from the request
+        //Check RDBMS field
+        List<SelectStmt> inputStmt = Translator.ORACLE.translate(crudOperationContext, queryExpression, rdbmsContext);
+        
         List<InOut> in = new ArrayList<>(); 
         List<InOut> out = new ArrayList<>();
         
@@ -65,6 +67,8 @@ public class RDBMSProcessor {
         op.getBindings().setOutList(out);
         
         recursiveExpressionCall(crudOperationContext,rdbmsContext,op, op.getExpressionList());
+        
+        new ExecuteUpdateCommand(rdbmsContext,inputStmt).execute();
         
         // processed final output
         // TODO need to trnasform the out list into the those JSON documents

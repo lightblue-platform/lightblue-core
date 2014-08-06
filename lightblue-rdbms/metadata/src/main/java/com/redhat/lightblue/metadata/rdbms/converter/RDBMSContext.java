@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata.rdbms.converter;
 
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +42,7 @@ public class RDBMSContext<T> {
     private RDBMS rdbms = null;
     private String sql;
     private String type;
+    private EntityMetadata entityMetadata;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -137,4 +139,13 @@ public class RDBMSContext<T> {
     public void setType(String type) {
         this.type = type;
     }
+
+    public EntityMetadata getEntityMetadata() {
+        return entityMetadata;
+    }
+
+    public void setEntityMetadata(EntityMetadata entityMetadata) {
+        this.entityMetadata = entityMetadata;
+    }
+
 }
