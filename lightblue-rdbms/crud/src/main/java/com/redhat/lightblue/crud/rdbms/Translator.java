@@ -22,6 +22,7 @@ import com.redhat.lightblue.metadata.rdbms.converter.SelectStmt;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ArrayMatchExpression;
@@ -31,7 +32,9 @@ import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.RegexMatchExpression;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
+import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.util.Path;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,22 @@ abstract class Translator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
 
     public static Translator ORACLE = new OracleTranslator();
+    
+    public static class Depth {
+        private int value;
+        public Depth() {
+            value = 0;
+        }
+        public Depth(int v) {
+            value = v;
+        }
+        public void increment(){
+            value++;
+        }
+        public int getValue(){
+            return value;
+        }
+    }
 
     public List<SelectStmt> translate(CRUDOperationContext c, QueryExpression q, RDBMSContext r) {
         LOGGER.debug("translate {}", q);
@@ -55,7 +74,7 @@ abstract class Translator {
 
         try {
             ArrayList<SelectStmt> result = new ArrayList<>();
-            recursiveTranslate(c, q, r, f, result, 0);
+            recursiveTranslate(c, q, r, f, result, new Depth());
             return result;
         } catch (com.redhat.lightblue.util.Error e) {
             // rethrow lightblue error
@@ -69,7 +88,7 @@ abstract class Translator {
         }
     }
 
-    private void recursiveTranslate(CRUDOperationContext c, QueryExpression q, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex) {
+    private void recursiveTranslate(CRUDOperationContext c, QueryExpression q, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
         if (q instanceof ArrayContainsExpression) {
             recursiveTranslateArrayContains(c, (ArrayContainsExpression) q, r, f, result, currentIndex);
         } else if (q instanceof ArrayMatchExpression) {
@@ -88,20 +107,58 @@ abstract class Translator {
             recursiveTranslateValueComparisonExpression(c, (ValueComparisonExpression) q, r, f, result, currentIndex);
         }
     }
+    
+    public FieldTreeNode resolve(FieldTreeNode fieldTreeNode, Path path) {
+        FieldTreeNode node = fieldTreeNode.resolve(path);
+        if (node == null) {
+            throw com.redhat.lightblue.util.Error.get("Invalid field", path.toString());
+        }
+        return node;
+    }
+    
+    public static String translatePath(Path p) {
+        StringBuilder str = new StringBuilder();
+        int n = p.numSegments();
+        for (int i = 0; i < n; i++) {
+            String s = p.head(i);
+            if (!s.equals(Path.ANY)) {
+                if (i > 0) {
+                    str.append('.');
+                }
+                str.append(s);
+            }
+        }
+        return str.toString();
+    }
+    
+    public List<Object> translateValueList(Type t, List<Value> values) {
+        if (values == null || values.isEmpty()) {
+            throw new IllegalArgumentException("Empty values");
+        }
+        List<Object> ret = new ArrayList<>(values.size());
+        for (Value v : values) {
+            Object value = v == null ? null : v.getValue();
+            if (value != null) {
+                value = t.cast(value);
+            }
+            ret.add(value);
+        }
+        return ret;
+    }
 
-    public abstract void recursiveTranslateArrayContains(CRUDOperationContext c, ArrayContainsExpression arrayContainsExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateArrayContains(CRUDOperationContext c, ArrayContainsExpression arrayContainsExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateArrayElemMatch(CRUDOperationContext c, ArrayMatchExpression arrayMatchExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateArrayElemMatch(CRUDOperationContext c, ArrayMatchExpression arrayMatchExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateFieldComparison(FieldComparisonExpression fieldComparisonExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateFieldComparison(FieldComparisonExpression fieldComparisonExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateNaryLogicalExpression(CRUDOperationContext c, NaryLogicalExpression naryLogicalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateNaryLogicalExpression(CRUDOperationContext c, NaryLogicalExpression naryLogicalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateNaryRelationalExpression(CRUDOperationContext c, NaryRelationalExpression naryRelationalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateNaryRelationalExpression(CRUDOperationContext c, NaryRelationalExpression naryRelationalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateRegexMatchExpression(RegexMatchExpression regexMatchExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateRegexMatchExpression(RegexMatchExpression regexMatchExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateUnaryLogicalExpression(CRUDOperationContext c, UnaryLogicalExpression unaryLogicalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateUnaryLogicalExpression(CRUDOperationContext c, UnaryLogicalExpression unaryLogicalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 
-    public abstract void recursiveTranslateValueComparisonExpression(CRUDOperationContext c, ValueComparisonExpression valueComparisonExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, int currentIndex);
+    public abstract void recursiveTranslateValueComparisonExpression(CRUDOperationContext c, ValueComparisonExpression valueComparisonExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex);
 }

@@ -35,6 +35,7 @@ import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.PropertyParser;
 import com.redhat.lightblue.metadata.rdbms.enums.LightblueOperators;
+import com.redhat.lightblue.metadata.rdbms.model.SQLMapping;
 import com.redhat.lightblue.util.Path;
 
 import java.util.ArrayList;
@@ -63,6 +64,16 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         rdbms.setInsert(parseOperation(p, insert, LightblueOperators.INSERT));
         rdbms.setSave(parseOperation(p, save, LightblueOperators.SAVE));
         rdbms.setUpdate(parseOperation(p, update, LightblueOperators.UPDATE));
+        
+        SQLMapping s = new SQLMapping();
+        s.parse(p, p.getObjectProperty(node, "SQLMapping"));
+        rdbms.setSQLMapping(s);
+        
+        String dialect = p.getStringProperty(node, "dialect");
+        if (dialect == null || dialect.isEmpty() ) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No field informed");
+        }
+        rdbms.setDialect(dialect);
 
         return rdbms;
     }

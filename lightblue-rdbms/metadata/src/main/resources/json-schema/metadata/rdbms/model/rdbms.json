@@ -50,13 +50,22 @@
                                 "type": "array",
                                 "minItems": 1,
                                 "items": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "name" : {
+                                            "type": "string"
+                                        },
+                                        "alias" : {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "name"
+                                    ],
+                                    "additionalProperties": false
                                 }
                             },
-                            "tablesAliases" : {
-                                "type": "string"
-                            },
-                            "whereStmt" : {
+                            "joinTablesStatement" : {
                                 "type": "string"
                             },
                             "projectionMappings" : {
@@ -85,7 +94,6 @@
                         },
                         "required": [
                             "tables",
-                            "tablesAliases",
                             "projectionMappings"
                         ],
                         "additionalProperties": false
@@ -118,7 +126,7 @@
     }],
     "required": [
         "SQLMapping",
-        "dialoect"
+        "dialect"
     ],
     "additionalProperties": false
 }

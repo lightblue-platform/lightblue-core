@@ -20,7 +20,9 @@ package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.converter.RootConverter;
+import com.redhat.lightblue.metadata.rdbms.enums.DialectOperators;
 import com.redhat.lightblue.metadata.rdbms.enums.LightblueOperators;
+import com.redhat.lightblue.metadata.rdbms.enums.LoopOperators;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 
 public class RDBMS implements RootConverter {
@@ -30,6 +32,9 @@ public class RDBMS implements RootConverter {
     private Operation insert;
     private Operation save;
     private Operation update;
+    
+    private SQLMapping sQLMapping;
+    private String dialect;
 
     @Override
     public <T> void convert(MetadataParser<T> p, T parent) {
@@ -54,7 +59,11 @@ public class RDBMS implements RootConverter {
         if(this.getUpdate() != null){
             this.getUpdate().convert(p, rdbms);  
         }
-        
+        if(dialect == null){
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No dialect informed");
+        }
+        p.putString(rdbms, "dialect", dialect);
+        this.getSQLMapping().convert(p, rdbms);  
         p.putObject(parent, "rdbms", rdbms);
     }
 
@@ -98,6 +107,25 @@ public class RDBMS implements RootConverter {
     public Operation getUpdate() {
         return update;
     }    
+    
+    public String getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(String dialect) {
+        if (DialectOperators.check(dialect)) {
+            throw new IllegalStateException("Not a valid dialect operator '" + dialect + "'. Valid Operators:" + DialectOperators.getValues());
+        }
+        this.dialect = dialect;
+    }
+    
+    public SQLMapping getSQLMapping() {
+        return sQLMapping;
+    }
+
+    public void setSQLMapping(SQLMapping sQLMapping) {
+        this.sQLMapping = sQLMapping;
+    }
     
     public Operation getOperationByName(String operation){
         switch(operation){
