@@ -22,16 +22,17 @@ import java.io.Serializable;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.types.ContainerType;;
 
+import com.redhat.lightblue.metadata.types.ContainerType;
 /**
- * Field is part of identityconstraint
+ * Field is part of an array element id. All such fields of an array
+ * element is used to uniquely identify an array element
  */
-public class IdentityConstraint implements FieldConstraint, Serializable {
+public class ArrayElementIdConstraint implements FieldConstraint, Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    public static final String IDENTITY = "identity";
+    public static final String IDENTITY = "element-identity";
 
     public String getType() {
         return IDENTITY;
