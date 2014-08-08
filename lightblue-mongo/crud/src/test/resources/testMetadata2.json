@@ -1,0 +1,70 @@
+{
+    "entityInfo": {
+        "name": "test",
+        "datastore": {
+            "backend":"mongo",
+            "collection": "data"
+        }
+    },
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "blahblah"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access" : {
+             "insert" : ["anyone"],
+             "update" : ["anyone"],
+             "delete" : [ "anyone" ] ,
+             "find" : [ "anyone" ]
+        },
+        "fields": {
+            "object_type": {"type": "string"},
+            "_id": {"type": "string"},
+            "field1": {"type": "string"},
+            "field2": {"type": "string"},
+            "field3": {"type": "integer"},
+            "field4": {"type": "bigdecimal"},
+            "field5": {"type": "boolean"},
+            "field6": {
+                "type": "object",
+                "fields": {
+                    "nf1": {"type": "string"},
+                    "nf2": {"type": "string"},
+                    "nf3": {"type": "integer"},
+                    "nf4": {"type": "boolean"},
+                    "nf5": {
+                        "type": "array",
+                        "items": {"type": "integer"}
+                    },
+                    "nf6": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "nf7": {
+                        "type": "object",
+                        "fields": {
+                            "nnf1": {"type": "string"},
+                            "nnf2": {"type": "integer"}
+                        }
+                    }
+                }
+            },
+            "field7": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "elemf1": {"type": "string"},
+                        "elemf2": {"type": "string"},
+                        "elemf3": {"type": "integer"},
+                        "arrid": {"type":"uid"}
+                    }
+                }
+            }
+        }
+    }
+}
