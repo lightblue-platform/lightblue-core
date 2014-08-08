@@ -20,6 +20,9 @@ package com.redhat.lightblue.metadata.rdbms.converter;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.rdbms.model.RDBMS;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,19 +33,24 @@ import javax.sql.DataSource;
  * @param <T> type of object returned in List (resultList)
  */
 public class RDBMSContext<T> {
-    private DataSource dataSource = null;
-    private String dataSourceName = null;
-    private Connection connection = null;
-    private PreparedStatement preparedStatement = null;
-    private Boolean resultBoolean = null;
-    private Integer resultInteger = null;
-    private List<ResultSet> resultSetList = null;
-    private RowMapper<T> rowMapper = null;
-    private List<T> resultList = null;
-    private RDBMS rdbms = null;
+    private DataSource dataSource;
+    private String dataSourceName;
+    private Connection connection;
+    private PreparedStatement preparedStatement;
+    private Boolean resultBoolean;
+    private Integer resultInteger;
+    private List<ResultSet> resultSetList;
+    private RowMapper<T> rowMapper;
+    private List<T> resultList;
+    private RDBMS rdbms;
     private String sql;
     private String type;
     private EntityMetadata entityMetadata;
+    private QueryExpression queryExpression;
+    private Projection projection;
+    private Sort sort;
+    private Long from;
+    private Long to;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -148,4 +156,43 @@ public class RDBMSContext<T> {
         this.entityMetadata = entityMetadata;
     }
 
+    public QueryExpression getQueryExpression() {
+        return queryExpression;
+    }
+
+    public void setQueryExpression(QueryExpression queryExpression) {
+        this.queryExpression = queryExpression;
+    }
+
+    public Projection getProjection() {
+        return projection;
+    }
+
+    public void setProjection(Projection projection) {
+        this.projection = projection;
+    }
+
+    public Sort getSort() {
+        return sort;
+    }
+
+    public void setSort(Sort sort) {
+        this.sort = sort;
+    }
+
+    public Long getFrom() {
+        return from;
+    }
+
+    public void setFrom(Long from) {
+        this.from = from;
+    }
+
+    public Long getTo() {
+        return to;
+    }
+
+    public void setTo(Long to) {
+        this.to = to;
+    }
 }

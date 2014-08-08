@@ -44,7 +44,7 @@ public class ProjectionMapping implements SimpleConverter {
         p.putString(eT, "column", column);
         p.putString(eT, "field", field);
         
-        if(sort == null && sort.isEmpty()){
+        if(sort != null && !sort.isEmpty()){
            p.putString(eT, "sort", sort);
         }
         

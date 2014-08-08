@@ -52,12 +52,12 @@ import java.util.List;
  * @author lcestari
  */
 public class RDBMSProcessor {
-    public static void process(CRUDOperationContext crudOperationContext, QueryExpression queryExpression, RDBMSContext rdbmsContext, String operation){
+    public static void process(CRUDOperationContext crudOperationContext, RDBMSContext rdbmsContext, String operation){
         // result
         List<JsonDoc> result = new ArrayList<>(); 
         
-        //Check RDBMS field
-        List<SelectStmt> inputStmt = Translator.ORACLE.translate(crudOperationContext, queryExpression, rdbmsContext);
+        //create the first SQL statements to run the RDBMS module
+        List<SelectStmt> inputStmt = Translator.ORACLE.translate(crudOperationContext, rdbmsContext);
         
         List<InOut> in = new ArrayList<>(); 
         List<InOut> out = new ArrayList<>();

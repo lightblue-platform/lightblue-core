@@ -33,78 +33,83 @@ class OracleTranslator extends Translator {
     public OracleTranslator() {
     }
 
-    public void recursiveTranslateArrayContains(CRUDOperationContext c, ArrayContainsExpression arrayContainsExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
-        FieldTreeNode arrayNode = resolve(f, arrayContainsExpression.getArray());
+    @Override
+    public void recursiveTranslateArrayContains(TranslationContext c, ArrayContainsExpression arrayContainsExpression) {
+        FieldTreeNode arrayNode = resolve(c.f, arrayContainsExpression.getArray());
         if (arrayNode instanceof ArrayField) {
-            Type t = ((ArrayField) arrayNode).getElement().getType();
-            
+            c.tmpType = ((ArrayField) arrayNode).getElement().getType();
+            c.tmpArray = arrayContainsExpression.getArray();
+            c.tmpValues = arrayContainsExpression.getValues();
             switch (arrayContainsExpression.getOp()) {
                 case _all:
-                    recursiveTranslateArrayContainsAll(c,r,f,t,result,currentIndex, arrayContainsExpression.getArray(), arrayContainsExpression.getValues());
+                    recursiveTranslateArrayContainsAll(c);
                     break;
                 case _any:
-                    recursiveTranslateArrayContainsAny(c,r,f,t,result,currentIndex, arrayContainsExpression.getArray(), arrayContainsExpression.getValues());
+                    recursiveTranslateArrayContainsAny(c);
                     break;
                 case _none:
-                    recursiveTranslateArrayContainsNone(c,r,f,t,result,currentIndex, arrayContainsExpression.getArray(), arrayContainsExpression.getValues());
+                    recursiveTranslateArrayContainsNone(c);
                     break;
                 default:
                     throw com.redhat.lightblue.util.Error.get("Not mapped field", arrayContainsExpression.toString());
             }
+            c.clearTmp();
         } else {
             throw com.redhat.lightblue.util.Error.get("Invalid field", arrayContainsExpression.toString());
         }
     }
 
     @Override
-    public void recursiveTranslateArrayElemMatch(CRUDOperationContext c, ArrayMatchExpression arrayMatchExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateArrayElemMatch(TranslationContext c, ArrayMatchExpression arrayMatchExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void recursiveTranslateFieldComparison(FieldComparisonExpression fieldComparisonExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateFieldComparison(TranslationContext c, FieldComparisonExpression fieldComparisonExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void recursiveTranslateNaryLogicalExpression(CRUDOperationContext c, NaryLogicalExpression naryLogicalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateNaryLogicalExpression(TranslationContext c, NaryLogicalExpression naryLogicalExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void recursiveTranslateNaryRelationalExpression(CRUDOperationContext c, NaryRelationalExpression naryRelationalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateNaryRelationalExpression(TranslationContext c, NaryRelationalExpression naryRelationalExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void recursiveTranslateRegexMatchExpression(RegexMatchExpression regexMatchExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateRegexMatchExpression(TranslationContext c, RegexMatchExpression regexMatchExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void recursiveTranslateUnaryLogicalExpression(CRUDOperationContext c, UnaryLogicalExpression unaryLogicalExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateUnaryLogicalExpression(TranslationContext c, UnaryLogicalExpression unaryLogicalExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void recursiveTranslateValueComparisonExpression(CRUDOperationContext c, ValueComparisonExpression valueComparisonExpression, RDBMSContext r, FieldTreeNode f, List<SelectStmt> result, Depth currentIndex) {
+    public void recursiveTranslateValueComparisonExpression(TranslationContext c, ValueComparisonExpression valueComparisonExpression) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
     
-    
-    private void recursiveTranslateArrayContainsAll(CRUDOperationContext c, RDBMSContext r, FieldTreeNode f, Type t, List<SelectStmt> result, Depth currentIndex, Path array, List<Value> values) {
+    private void recursiveTranslateArrayContainsAll(TranslationContext c) {
+        Path array = c.tmpArray;
+        Type t =  c.tmpType;
+        List<Value> values = c.tmpValues;
+        
         String translatePath = translatePath(array);
         List<Object> translateValueList = translateValueList(t, values);
-        c.
-        return new BasicDBObject(translatePath, new BasicDBObject("$all", translateValueList));
+        
+        //TODO return new BasicDBObject(translatePath, new BasicDBObject("$all", translateValueList));
     }
 
-    private void recursiveTranslateArrayContainsAny(CRUDOperationContext c, RDBMSContext r, FieldTreeNode f, Type t, List<SelectStmt> result, Depth currentIndex, Path array, List<Value> values) {
+    private void recursiveTranslateArrayContainsAny(TranslationContext c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private void recursiveTranslateArrayContainsNone(CRUDOperationContext c, RDBMSContext r, FieldTreeNode f, Type t, List<SelectStmt> result, Depth currentIndex, Path array, List<Value> values) {
+    private void recursiveTranslateArrayContainsNone(TranslationContext c) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -113,7 +113,7 @@ public class RDBMS implements RootConverter {
     }
 
     public void setDialect(String dialect) {
-        if (DialectOperators.check(dialect)) {
+        if (!DialectOperators.check(dialect)) {
             throw new IllegalStateException("Not a valid dialect operator '" + dialect + "'. Valid Operators:" + DialectOperators.getValues());
         }
         this.dialect = dialect;

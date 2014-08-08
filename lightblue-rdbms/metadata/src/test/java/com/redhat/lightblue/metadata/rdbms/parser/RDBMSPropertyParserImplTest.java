@@ -43,6 +43,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.rdbms.model.Join;
+import com.redhat.lightblue.metadata.rdbms.model.ProjectionMapping;
+import com.redhat.lightblue.metadata.rdbms.model.SQLMapping;
+import com.redhat.lightblue.metadata.rdbms.model.Table;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
@@ -50,17 +54,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 public class RDBMSPropertyParserImplTest {
 
     RDBMSPropertyParserImpl cut;
     JSONMetadataParser p;
 
-    static final String expectedJSON = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+    static final String expectedJSON = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"i\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}},{\"$foreach\":{\"iterateOverField\":\"j\",\"expressions\":[{\"$statement\":{\"sql\":\"SELECT * FROM TABLE1\",\"type\":\"select\"}}]}}]}},{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
     @Before
     public void setup() {
@@ -78,9 +84,23 @@ public class RDBMSPropertyParserImplTest {
     }
 
     @Test
-    public void convertTest() throws IOException {
+    public void convertTest() throws IOException, JSONException {
         JsonNode parent = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
 
         Operation o = new Operation();
         Bindings b = new Bindings();
@@ -137,7 +157,7 @@ public class RDBMSPropertyParserImplTest {
         cut.convert(p, parent, r);
 
         System.out.println( parent.toString());
-        Assert.assertEquals(expectedJSON, parent.toString());
+        assertEqualJson(expectedJSON, parent.toString());
     }
     
     private Operation duplicate(String name, Operation ori){
@@ -147,13 +167,21 @@ public class RDBMSPropertyParserImplTest {
         o.setName(name);
         return o;
     }
+    
+    private void assertEqualJson(String a, String b) {
+        try {
+            JSONAssert.assertEquals(a, b, false);
+        } catch (JSONException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
 
     @Test
     public void parseTest() throws IOException {
         Object r = cut.parse("rdbms", p, JsonUtils.json(expectedJSON).get("rdbms"));
         JsonNode parent = p.newNode();
         cut.convert(p, parent, r);
-        Assert.assertEquals(expectedJSON, parent.toString());
+        assertEqualJson(expectedJSON, parent.toString());
     }
 
     @Test
@@ -188,7 +216,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseMissingOperationsExpressions() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"X\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"X\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -203,7 +231,7 @@ public class RDBMSPropertyParserImplTest {
     
     @Test
     public void parseMissingOneOfOperations() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         Throwable error = null;
         Object r = null;
         try {
@@ -222,6 +250,21 @@ public class RDBMSPropertyParserImplTest {
     public void convertMissingOneOfOperations() throws IOException {
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
+
         Operation o = new Operation();
 
         //With just In  bindings
@@ -258,10 +301,24 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseBindingsFieldsReq() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
 
         //With just In  bindings
@@ -311,10 +368,24 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseBindingsJustIn() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
 
         //With just In  bindings
@@ -339,21 +410,35 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(duplicate("save",o));
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseBindingsJustOut() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"out\":[{\"column\":\"col\",\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
 
         //With just Out  bindings
@@ -378,21 +463,35 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(duplicate("save",o));
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseBindingsNone() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
 
         //No  bindings
@@ -411,18 +510,18 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(duplicate("save",o));
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void parseBindingsWrong() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -437,7 +536,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseInOutMissingColumn() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"out\":[{\"field\":\"pat\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -452,10 +551,24 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseBindingsBoth() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"pat\"}],\"out\":[{\"column\":\"col1\",\"field\":\"pat1\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
 
         //No  bindings
@@ -486,21 +599,35 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(duplicate("save",o));
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseStatement() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"fetch\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"insert\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"save\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]},\"update\":{\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Statement e1 = new Statement();
@@ -514,18 +641,18 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(duplicate("save",o));
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void parseMissingStatemtentsSQL() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -540,7 +667,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseMissingStatemtentsType() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -555,10 +682,24 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseForEachMissingIterateOverPath() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         ForEach forEach = new ForEach();
@@ -602,10 +743,24 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseForEachMissingExpressions() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"iterateOverField\":\"*\"}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         ForEach forEach = new ForEach();
@@ -644,7 +799,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForMissingLoopTimes() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopCounterVariableName\":\"2\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$for\":{\"loopCounterVariableName\":\"2\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -659,7 +814,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForLoopTimesNotInteger() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"A\",\"loopCounterVariableName\":\"2\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"A\",\"loopCounterVariableName\":\"2\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -674,7 +829,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForMissingLoopCounterVariableName() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"1\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"1\",\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -689,7 +844,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForMissingExpressions() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"2\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"1\",\"loopCounterVariableName\":\"2\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -704,7 +859,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseWrongIfField() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"WRONG\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"WRONG\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -719,7 +874,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseWrongExpression() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"Wrong\":{}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"Wrong\":{}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -734,10 +889,24 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseElseIf() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -768,18 +937,18 @@ public class RDBMSPropertyParserImplTest {
         r.setSave(duplicate("save",o));
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
 
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void parseElseIfMissingIf() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$ifx\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$ifx\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -794,7 +963,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseElseIfMissingThen() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$thenX\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$thenX\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -809,19 +978,33 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseIfOr() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$or\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfOrAny(json);
     }
 
     @Test
     public void convertAndParseIfAny() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$any\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfOrAny(json);
     }
 
     private void convertAndParseIfOrAny(String json) throws IOException {
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -857,24 +1040,38 @@ public class RDBMSPropertyParserImplTest {
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseIfAll() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$all\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfAndAll(json);
     }
 
     @Test
     public void convertAndParseIfAnd() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         convertAndParseIfAndAll(json);
     }
 
     private void convertAndParseIfAndAll(String json) throws IOException {
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -910,15 +1107,29 @@ public class RDBMSPropertyParserImplTest {
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseIfNot() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$not\":{\"$and\":[{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$lt\"}}]}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -954,19 +1165,33 @@ public class RDBMSPropertyParserImplTest {
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseIfFieldEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -990,17 +1215,17 @@ public class RDBMSPropertyParserImplTest {
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void parseIfFieldEmptyNoField() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1019,6 +1244,20 @@ public class RDBMSPropertyParserImplTest {
         try {
             JsonNode rJSON = p.newNode();
             RDBMS r = new RDBMS();
+            r.setDialect("oracle");
+            r.setSQLMapping(new SQLMapping());
+            r.getSQLMapping().setJoins(new ArrayList<Join>());
+            r.getSQLMapping().getJoins().add(new Join());
+            r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+            r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+            r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+            r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+            r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+            r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+            r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+            r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+            r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+            r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
             Operation o = new Operation();
             ArrayList<Expression> expressionList = new ArrayList<Expression>();
             Conditional e4 = new Conditional();
@@ -1052,7 +1291,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseWrongExpressions() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$Xt\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$Xt\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1067,9 +1306,23 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void convertAndParseIfFieldCheckField() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -1095,19 +1348,33 @@ public class RDBMSPropertyParserImplTest {
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseIfFieldCheckValue() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"1\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -1133,19 +1400,33 @@ public class RDBMSPropertyParserImplTest {
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseIfFieldCheckValues() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"1\",\"2\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -1174,19 +1455,33 @@ public class RDBMSPropertyParserImplTest {
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
 
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertAndParseIfFieldRegex() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-regex\":{\"field\":\"*\",\"regex\":\"*\",\"case_insensitive\":\"false\",\"multiline\":\"false\",\"extended\":\"false\",\"dotall\":\"false\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         Conditional e4 = new Conditional();
@@ -1211,20 +1506,34 @@ public class RDBMSPropertyParserImplTest {
         r.setUpdate(duplicate("update",o));
         cut.convert(p, rJSON, r);
         
-        Assert.assertEquals(json, rJSON.toString());
+        assertEqualJson(json, rJSON.toString());
         Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
         JsonNode roJSON = p.newNode();
         cut.convert(p, roJSON, ro);
-        Assert.assertEquals(json, roJSON.toString());
-        Assert.assertEquals(roJSON.toString(), rJSON.toString());
+        assertEqualJson(json, roJSON.toString());
+        assertEqualJson(roJSON.toString(),rJSON.toString());
     }
 
     @Test
     public void convertForEachIterateOverFieldEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[{\"$statement\":{\"sql\":\"X\",\"type\":\"select\"}}]}}]}}}";
 
         JsonNode rJSON = p.newNode();
         RDBMS r = new RDBMS();
+        r.setDialect("oracle");
+        r.setSQLMapping(new SQLMapping());
+        r.getSQLMapping().setJoins(new ArrayList<Join>());
+        r.getSQLMapping().getJoins().add(new Join());
+        r.getSQLMapping().getJoins().get(0).setJoinTablesStatement("x");
+        r.getSQLMapping().getJoins().get(0).setProjectionMappings(new ArrayList<ProjectionMapping>());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().add(new ProjectionMapping());
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setColumn("c");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setField("f");
+        r.getSQLMapping().getJoins().get(0).getProjectionMappings().get(0).setSort("s");
+        r.getSQLMapping().getJoins().get(0).setTables(new ArrayList<Table>());
+        r.getSQLMapping().getJoins().get(0).getTables().add(new Table());
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setAlias("a");
+        r.getSQLMapping().getJoins().get(0).getTables().get(0).setName("n");
         Operation o = new Operation();
         ArrayList<Expression> expressionList = new ArrayList<Expression>();
         ForEach forEach = new ForEach();
@@ -1258,7 +1567,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseOperationsExpressionsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1273,7 +1582,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseBindingsEmptyInAndOut() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[],\"in\":[]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"out\":[],\"in\":[]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1288,7 +1597,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseInOutEmptyColumn() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"column\":\"\",\"field\":\"y\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"out\":[{\"column\":\"\",\"field\":\"y\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1303,7 +1612,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseInOutEmptyField() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"out\":[{\"column\":\"x\",\"field\":\"\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"out\":[{\"column\":\"x\",\"field\":\"\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"REQ EXPRESSION\",\"type\":\"select\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1318,7 +1627,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseWrongExpressionsSQLAndTypeIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"\",\"type\":\"\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"bindings\":{\"in\":[{\"column\":\"col\",\"field\":\"ke\"}]},\"expressions\":[{\"$statement\":{\"sql\":\"\",\"type\":\"\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object r = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1333,7 +1642,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForWithEmptyFields() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"\",\"loopCounterVariableName\":\"\",\"expressions\":[]}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$for\":{\"loopTimes\":\"\",\"loopCounterVariableName\":\"\",\"expressions\":[]}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1348,7 +1657,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseForEachWithEmptyFields() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"fetch\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"insert\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"save\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]},\"update\":{\"expressions\":[{\"$foreach\":{\"expressions\":[],\"iterateOverField\":\"\"}}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1363,7 +1672,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseElseIfEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"abc\",\"value\":\"123\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}],\"$elseIf\":[]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1378,7 +1687,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldEmptyEmptyField() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-empty\":{\"field\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1393,7 +1702,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckFieldFieldIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1408,7 +1717,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckFieldFieldIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"\",\"rfield\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1423,7 +1732,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckFieldRfieldIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1438,7 +1747,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckFieldRfieldIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1453,7 +1762,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckFieldOpIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"rfield\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1468,7 +1777,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckFieldOpIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-field\":{\"field\":\"*\",\"rfield\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1483,7 +1792,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValueFieldIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1498,7 +1807,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValueFieldIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"\",\"value\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1513,7 +1822,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValueValueIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1528,7 +1837,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValueValueIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"\",\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1543,7 +1852,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValueOpIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"value\":\"*\",\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1558,7 +1867,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValueOpIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-value\":{\"field\":\"*\",\"value\":\"*\",\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1573,7 +1882,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValuesFieldIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1588,7 +1897,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValuesField1IsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"\",\"values\":[\"*\"],\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1603,7 +1912,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValuesValuesIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1618,7 +1927,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValuesValuesIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[],\"field\":\"*\",\"op\":\"$eq\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1633,7 +1942,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValuesOpIsNull() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"values\":[\"*\"],\"field\":\"*\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));
@@ -1648,7 +1957,7 @@ public class RDBMSPropertyParserImplTest {
 
     @Test
     public void parseIfFieldCheckValuesOpIsEmpty() throws IOException {
-        String json = "{\"rdbms\":{\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
+        String json = "{\"rdbms\":{\"dialect\":\"oracle\",\"SQLMapping\": {\"joins\" :[{\"tables\":[{\"name\":\"n\",\"alias\":\"a\"}],\"joinTablesStatement\" : \"x\", \"projectionMappings\": [{\"column\":\"c\",\"field\":\"f\",\"sort\":\"s\"}]}]},\"delete\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"fetch\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"insert\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"save\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]},\"update\":{\"expressions\":[{\"$if\":{\"$field-check-values\":{\"field\":\"*\",\"values\":[\"*\"],\"op\":\"\"}},\"$then\":[{\"$statement\":{\"sql\":\"DELETE FROM somewhere WHERE someColumn=someValue\",\"type\":\"delete\"}}]}]}}}";
         com.redhat.lightblue.util.Error error = null;
         try {
             Object ro = cut.parse("rdbms", p, JsonUtils.json(json).get("rdbms"));

@@ -150,11 +150,8 @@ public class RDBMSCRUDController implements CRUDController {
                 rdbmsContext.setDataSource(ds);
                 rdbmsContext.setRowMapper(new VariableUpdateRowMapper(rdbmsContext));
                 rdbmsContext.setEntityMetadata(md);
-                RDBMSProcessor.process(crudOperationContext, queryExpression, rdbmsContext, "find");
-                Projector projector = Projector.getInstance(Projection.add(projection, roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), md);
-                for (DocCtx document : crudOperationContext.getDocuments()) {
-                    document.setOutputDocument(projector.project(document, nodeFactory));
-                }
+                RDBMSProcessor.process(crudOperationContext, rdbmsContext, "find");
+                
                 crudOperationContext.getHookManager().queueHooks(crudOperationContext);
             } else {
                 crudOperationContext.addError(Error.get("No access", "find:" + crudOperationContext.getEntityName()));

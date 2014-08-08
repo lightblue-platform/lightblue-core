@@ -39,8 +39,8 @@ public class Table  implements SimpleConverter {
         }
         p.putString(eT, "name", name);
         
-        if(alias == null && alias.isEmpty()){
-           p.putString(eT, "alias", name);
+        if(alias != null && !alias.isEmpty()){
+           p.putString(eT, "alias", alias);
         }
         
         p.addObjectToArray(expressionsNode, eT);

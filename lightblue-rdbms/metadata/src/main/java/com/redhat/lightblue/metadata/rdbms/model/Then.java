@@ -31,7 +31,7 @@ public class Then implements ComplexConverter {
     private List<Expression> expressions;
 
     public void setLoopOperator(String loopOperator) {
-        if (LoopOperators.check(loopOperator)) {
+        if (!LoopOperators.check(loopOperator)) {
             throw new IllegalStateException("Not a valid loop operator '" + loopOperator + "'. Valid Operators:" + LoopOperators.getValues());
         }
         this.loopOperator = loopOperator;
