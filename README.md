@@ -90,11 +90,11 @@ Each of the applications provides access to the corresponding service layer.  Th
 * Deploy lightblue with basic-auth:
 * Deploy lightblue with SAML 2.0:
 
-## License
+# License
 
 The license of lightblue is [GPLv3](https://www.gnu.org/licenses/gpl.html).  See COPYING in root of project for the full text.
 
-## Dependencies
+# Dependencies
 
 | Dependency | Why | License
 | ---------- | --- | -------
