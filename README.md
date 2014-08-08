@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lightblue-platform/lightblue.svg?branch=master)](https://travis-ci.org/lightblue-platform/lightblue)
+
 # Books!
 
 * [Overview](http://jewzaam.gitbooks.io/lightblue/)
