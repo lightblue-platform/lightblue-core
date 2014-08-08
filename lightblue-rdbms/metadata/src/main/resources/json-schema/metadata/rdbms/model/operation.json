@@ -45,14 +45,15 @@
                 }
             },
             "anyOf": [
-            {
-                "required": [
-                    "in"
-                ],
-                "required": [
-                    "out"
-                ]
-            }],
+                {
+                    "required": [
+                        "in"
+                    ],
+                    "required": [
+                        "out"
+                    ]
+                }
+            ],
             "additionalProperties": false
         },
         "expressions": {

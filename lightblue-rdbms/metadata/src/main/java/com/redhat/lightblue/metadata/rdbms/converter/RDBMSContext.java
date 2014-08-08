@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 
 /**
@@ -51,6 +52,7 @@ public class RDBMSContext<T> {
     private Sort sort;
     private Long from;
     private Long to;
+    private Map<String, Object> temporaryVariable;
 
     public DataSource getDataSource() {
         return dataSource;
@@ -82,10 +84,6 @@ public class RDBMSContext<T> {
 
     public void setPreparedStatement(PreparedStatement preparedStatement) {
         this.preparedStatement = preparedStatement;
-    }
-
-    public Boolean isResultBoolean() {
-        return resultBoolean;
     }
 
     public void setResultBoolean(Boolean resultBoolean) {
@@ -194,5 +192,17 @@ public class RDBMSContext<T> {
 
     public void setTo(Long to) {
         this.to = to;
+    }
+
+    public Boolean getResultBoolean() {
+        return resultBoolean;
+    }
+
+    public Map<String, Object> getTemporaryVariable() {
+        return temporaryVariable;
+    }
+
+    public void setTemporaryVariable(Map<String, Object> temporaryVariable) {
+        this.temporaryVariable = temporaryVariable;
     }
 }

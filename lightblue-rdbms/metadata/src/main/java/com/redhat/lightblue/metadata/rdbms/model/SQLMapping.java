@@ -31,22 +31,30 @@ import java.util.List;
 public class SQLMapping implements RootConverter{
     
     private List<Join> joins;
+    private List<ColumnToField> columnToFieldMap;
 
-    public List<Join> getJoins() {
-        return joins;
-    }
-
-    public void setJoins(List<Join> joins) {
-        this.joins = joins;
-    }
-    
     public <T> void parse(MetadataParser<T> p, T node){
         List<T> joinsT = p.getObjectList(node, "joins");
-        if (joinsT == null || joinsT.isEmpty()) {
-            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No joins informed for SQLMapping");
-        }
+        List<T> ctfmT = p.getObjectList(node, "columnToFieldMap");
+
         List<Join> js = parseJoins(p, joinsT);
+        List<ColumnToField> ctfm = parseColumnToFieldMap(p, ctfmT);
+
         this.joins = js;
+        this.columnToFieldMap = ctfm;
+    }
+
+    private <T> List<ColumnToField> parseColumnToFieldMap(MetadataParser<T> p, List<T> ctfmT) {
+        if (ctfmT == null || ctfmT.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No columnToFieldMap informed for SQLMapping");
+        }
+        List<ColumnToField> list = new ArrayList<>();
+        for (T t : ctfmT) {
+            ColumnToField c = new ColumnToField();
+            c.parse(p, t);
+            list.add(c);
+        }
+        return list;
     }
 
     private <T> List<Join> parseJoins(MetadataParser<T> p, List<T> joinsT) {
@@ -64,15 +72,40 @@ public class SQLMapping implements RootConverter{
         T oT = p.newNode();
         Object js = p.newArrayField(oT, "joins");
         convertJoins(p, js);
+        Object c = p.newArrayField(oT, "columnToFieldMap");
+        convertColumnToFieldMap(p, c);
         p.putObject(rdbms, "SQLMapping", oT);
     }
 
-    private <T> void convertJoins(MetadataParser<T> p, Object array) {
-        if(this.joins == null || this.joins.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing joins field");  
+    private <T> void convertColumnToFieldMap(MetadataParser<T> p, Object c) {
+        if(this.columnToFieldMap == null || this.columnToFieldMap.isEmpty()){
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing columnToFieldMap field");
         }
+        for (ColumnToField columnToField : columnToFieldMap) {
+            columnToField.convert(p,c);
+        }
+    }
+
+    private <T> void convertJoins(MetadataParser<T> p, Object array) {
         for (Join j : this.joins) {
             j.convert(p, array);
         }
+    }
+
+
+    public List<Join> getJoins() {
+        return joins;
+    }
+
+    public void setJoins(List<Join> joins) {
+        this.joins = joins;
+    }
+
+    public List<ColumnToField> getColumnToFieldMap() {
+        return columnToFieldMap;
+    }
+
+    public void setColumnToFieldMap(List<ColumnToField> columnToFieldMap) {
+        this.columnToFieldMap = columnToFieldMap;
     }
 }

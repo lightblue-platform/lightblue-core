@@ -19,31 +19,16 @@
 package com.redhat.lightblue.crud.rdbms;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
 import com.redhat.lightblue.metadata.rdbms.converter.SelectStmt;
-import com.redhat.lightblue.query.ArrayContainsExpression;
-import com.redhat.lightblue.query.ArrayMatchExpression;
-import com.redhat.lightblue.query.CompositeSortKey;
-import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.RegexMatchExpression;
-import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.SortKey;
-import com.redhat.lightblue.query.UnaryLogicalExpression;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.util.Path;
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import com.redhat.lightblue.metadata.rdbms.model.*;
+import com.redhat.lightblue.query.*;
+import com.redhat.lightblue.util.*;
+
+import java.util.*;
+
+import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,30 +41,55 @@ abstract class Translator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
 
     public static Translator ORACLE = new OracleTranslator();
-  
-    public static class TranslationContext {
+
+    protected static class TranslationContext {
         CRUDOperationContext c;
         RDBMSContext r;
         FieldTreeNode f;
-        Stack<SelectStmt> s;
-        
-        
+        LinkedList<SelectStmt> stmts;
+        Map<String, ProjectionMapping> fieldToProjectionMap;
+        Map<ProjectionMapping, Join> projectionToJoinMap;
+        Map<String, ColumnToField> fieldToTableMap;
+        SelectStmt sortDependencies;
+        Set<String> nameOfTables;
+
+        // temporary variables
         Path tmpArray;
         Type tmpType;
         List<Value> tmpValues;
-        
+        public boolean hasJoins;
+
         public List<SelectStmt> generateFinalTranslation(){
             ArrayList<SelectStmt> result = new ArrayList<>();
             return result;
         }
 
         public TranslationContext(CRUDOperationContext c, RDBMSContext r, FieldTreeNode f) {
-            this.s = new Stack<>();
+            this.stmts = new LinkedList<>();
+            this.fieldToProjectionMap = new HashMap<>();
+            this.fieldToTableMap = new HashMap<>();
+            this.sortDependencies = new SelectStmt();
+            this.sortDependencies.setOrderBy(new ArrayList<String>());
+            this.nameOfTables = new HashSet<>();
             this.c = c;
             this.r = r;
             this.f = f;
+            index();
         }
-        
+
+        private void index() {
+            for (Join join : r.getRdbms().getSQLMapping().getJoins()) {
+                for (ProjectionMapping projectionMapping : join.getProjectionMappings()) {
+                    String field = projectionMapping.getField();
+                    fieldToProjectionMap.put(field, projectionMapping);
+                    projectionToJoinMap.put(projectionMapping,join);
+                }
+            }
+            for (ColumnToField columnToField : r.getRdbms().getSQLMapping().getColumnToFieldMap()) {
+                fieldToTableMap.put(columnToField.getField(), columnToField);
+            }
+        }
+
         public void clearTmp(){
             this.tmpArray = null;
             this.tmpType = null;
@@ -87,12 +97,14 @@ abstract class Translator {
         }
         
         public void clearAll(){
-            s.clear();
-            this.s = null;
+            stmts.clear();
+            fieldToProjectionMap.clear();
+            this.stmts = null;
             this.c = null;
             this.r = null;
             this.f = null;
             this.clearTmp();
+
         }
     }
 
@@ -103,10 +115,11 @@ abstract class Translator {
 
         try {
             TranslationContext translationContext = new TranslationContext(c, r, f);
-            translateSort(translationContext);
+            //translationContext.s.
+            preProcess(translationContext);
             recursiveTranslateQuery(translationContext,r.getQueryExpression());
             List<SelectStmt> translation = translationContext.generateFinalTranslation();
-            translationContext.clearAll();
+            // TODO test translationContext.clearAll(); for moved the objects ahead to GC , maybe it will be better make this call from the class that called this method
             return translation;
         } catch (com.redhat.lightblue.util.Error e) {
             // rethrow lightblue error
@@ -119,7 +132,33 @@ abstract class Translator {
             com.redhat.lightblue.util.Error.pop();
         }
     }
-    private void translateSort(TranslationContext translationContext) {
+
+    private void preProcess(TranslationContext t) {
+        translateSort(t);
+        CheckForJoins(t);
+        translateFromTo(t);
+    }
+
+    protected void CheckForJoins(TranslationContext t){
+        if(t.r.getFrom() != null && t.r.getTo() != null){
+            if (t.sortDependencies.getOrderBy().size() > 1) {
+                t.hasJoins = true;
+            }else {
+                new FindField().recursiveTranslateQuery(t, t.r.getQueryExpression());
+                if(t.nameOfTables.size() >1){
+                    t.hasJoins = true;
+                }
+            }
+        }
+    }
+
+    protected void translateFromTo(TranslationContext t) {
+        translateFromToDependencies(t);
+    }
+
+    protected abstract void translateFromToDependencies(TranslationContext t);
+
+    protected void translateSort(TranslationContext translationContext) {
         Sort sort = translationContext.r.getSort();
         if(sort instanceof CompositeSortKey) {
             CompositeSortKey c =  (CompositeSortKey) sort;
@@ -132,11 +171,20 @@ abstract class Translator {
             translateSortKey(translationContext, k);            
         }
     }
-    private void translateSortKey(TranslationContext translationContext, SortKey k) {            
-        
+    protected void translateSortKey(TranslationContext t, SortKey k) {
+        String translatePath = translatePath(k.getField());
+        ProjectionMapping projectionMapping = t.fieldToProjectionMap.get(translatePath);
+        String field;
+        if(projectionMapping.getSort() != null && projectionMapping.getSort().isEmpty()){
+            field = projectionMapping.getSort();
+        } else {
+            field = projectionMapping.getColumn();
+        }
+        t.sortDependencies.getOrderBy().add(field);
+
     }
-    
-    private void recursiveTranslateQuery(TranslationContext c, QueryExpression q) {
+
+    protected void recursiveTranslateQuery(TranslationContext c, QueryExpression q) {
         if (q instanceof ArrayContainsExpression) {
             recursiveTranslateArrayContains(c, (ArrayContainsExpression) q);
         } else if (q instanceof ArrayMatchExpression) {
@@ -155,16 +203,16 @@ abstract class Translator {
             recursiveTranslateValueComparisonExpression(c, (ValueComparisonExpression) q);
         }
     }
-    
-    public FieldTreeNode resolve(FieldTreeNode fieldTreeNode, Path path) {
+
+    protected FieldTreeNode resolve(FieldTreeNode fieldTreeNode, Path path) {
         FieldTreeNode node = fieldTreeNode.resolve(path);
         if (node == null) {
             throw com.redhat.lightblue.util.Error.get("Invalid field", path.toString());
         }
         return node;
     }
-    
-    public static String translatePath(Path p) {
+
+    protected static String translatePath(Path p) {
         StringBuilder str = new StringBuilder();
         int n = p.numSegments();
         for (int i = 0; i < n; i++) {
@@ -178,8 +226,8 @@ abstract class Translator {
         }
         return str.toString();
     }
-    
-    public List<Object> translateValueList(Type t, List<Value> values) {
+
+    protected List<Object> translateValueList(Type t, List<Value> values) {
         if (values == null || values.isEmpty()) {
             throw new IllegalArgumentException("Empty values");
         }
@@ -194,19 +242,147 @@ abstract class Translator {
         return ret;
     }
 
-    public abstract void recursiveTranslateArrayContains(TranslationContext c, ArrayContainsExpression arrayContainsExpression);
+    protected void recursiveTranslateArrayContains(TranslationContext c, ArrayContainsExpression arrayContainsExpression) {
+        FieldTreeNode arrayNode = resolve(c.f, arrayContainsExpression.getArray());
+        if (arrayNode instanceof ArrayField) {
+            c.tmpType = ((ArrayField) arrayNode).getElement().getType();
+            c.tmpArray = arrayContainsExpression.getArray();
+            c.tmpValues = arrayContainsExpression.getValues();
+            switch (arrayContainsExpression.getOp()) {
+                case _all:
+                    recursiveTranslateArrayContainsAll(c);
+                    break;
+                case _any:
+                    recursiveTranslateArrayContainsAny(c);
+                    break;
+                case _none:
+                    recursiveTranslateArrayContainsNone(c);
+                    break;
+                default:
+                    throw com.redhat.lightblue.util.Error.get("Not mapped field", arrayContainsExpression.toString());
+            }
+            c.clearTmp();
+        } else {
+            throw com.redhat.lightblue.util.Error.get("Invalid field", arrayContainsExpression.toString());
+        }
+    }
 
-    public abstract void recursiveTranslateArrayElemMatch(TranslationContext c, ArrayMatchExpression arrayMatchExpression);
+    //Possible subquery or it will need to run a query before this
+    //{ _id: 1, results: [ 82, 85, 88 ] } { _id: 2, results: [ 75, 88, 89 ] } ->{ results: { $elemMatch: { $gte: 80, $lt: 85 } } }->{ "_id" : 1, "results" : [ 82, 85, 88 ] }
+    protected void recursiveTranslateArrayElemMatch(TranslationContext c, ArrayMatchExpression expr){
+        FieldTreeNode arrayNode = resolve(c.f, expr.getArray());
+        if (arrayNode instanceof ArrayField) {
+            ArrayElement el = ((ArrayField) arrayNode).getElement();
+            if (el instanceof ObjectArrayElement) {
+                FieldTreeNode tmp = c.f;
+                c.f = el;
+                recursiveTranslateQuery(c, expr.getElemMatch());
+                String path = translatePath(expr.getArray());
 
-    public abstract void recursiveTranslateFieldComparison(TranslationContext c,FieldComparisonExpression fieldComparisonExpression);
+                // TODO
+                c.f = tmp;
+            }
+        }
+        throw com.redhat.lightblue.util.Error.get("Invalid field", expr.toString());
+    }
 
-    public abstract void recursiveTranslateNaryLogicalExpression(TranslationContext c, NaryLogicalExpression naryLogicalExpression);
+    protected void recursiveTranslateFieldComparison(TranslationContext c, FieldComparisonExpression expr){
+        StringBuilder str = new StringBuilder();
+        // We have to deal with array references here
+        Path rField = expr.getRfield();
+        Path lField = expr.getField();
+        int rn = rField.nAnys();
+        int ln = lField.nAnys();
+        if (rn > 0 && ln > 0) {
+            // TODO Need to define what would happen in this scenario
+        } else if (rn > 0 || ln > 0) {
+            // TODO Need to define what would happen in this scenario
+        } else {
+            // No ANYs, direct comparison
+            //TODO put a comparison clause in the statenent, which can turn into more than one in case of join tables with pagination
+//            str.append(LITERAL_THIS_DOT).
+//                    append(translateJsPath(expr.getField())).
+//                    append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
+//                    append(LITERAL_THIS_DOT).
+//                    append(translateJsPath(expr.getRfield()));
+        }
 
-    public abstract void recursiveTranslateNaryRelationalExpression(TranslationContext c, NaryRelationalExpression naryRelationalExpression);
+      //  return new BasicDBObject("$where", str.toString());
+    }
 
-    public abstract void recursiveTranslateRegexMatchExpression(TranslationContext c,RegexMatchExpression regexMatchExpression);
+    protected void recursiveTranslateNaryLogicalExpression(TranslationContext c, NaryLogicalExpression naryLogicalExpression){
+//        List<QueryExpression> queries = expr.getQueries();
+//        List<DBObject> list = new ArrayList<>(queries.size());
+//        for (QueryExpression query : queries) {
+//            list.add(translate(context, query));
+//        }
+//        return new BasicDBObject(NARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()), list);
+    }
 
-    public abstract void recursiveTranslateUnaryLogicalExpression(TranslationContext c, UnaryLogicalExpression unaryLogicalExpression);
+    protected void recursiveTranslateNaryRelationalExpression(TranslationContext c, NaryRelationalExpression naryRelationalExpression){
+//        Type t = resolve(context, expr.getField()).getType();
+//        if (t.supportsEq()) {
+//            List<Object> values = translateValueList(t, expr.getValues());
+//            return new BasicDBObject(translatePath(expr.getField()),
+//                    new BasicDBObject(NARY_RELATIONAL_OPERATOR_MAP.get(expr.getOp()),
+//                            values));
+//        } else {
+//            throw Error.get(ERR_INVALID_FIELD, expr.toString());
+//        }
+    }
 
-    public abstract void recursiveTranslateValueComparisonExpression(TranslationContext c, ValueComparisonExpression valueComparisonExpression);
+    protected void recursiveTranslateRegexMatchExpression(TranslationContext c,RegexMatchExpression regexMatchExpression){
+//        StringBuilder options = new StringBuilder();
+//        BasicDBObject regex = new BasicDBObject("$regex", expr.getRegex());
+//        if (expr.isCaseInsensitive()) {
+//            options.append('i');
+//        }
+//        if (expr.isMultiline()) {
+//            options.append('m');
+//        }
+//        if (expr.isExtended()) {
+//            options.append('x');
+//        }
+//        if (expr.isDotAll()) {
+//            options.append('s');
+//        }
+//        String opStr = options.toString();
+//        if (opStr.length() > 0) {
+//            regex.append("$options", opStr);
+//        }
+//        return new BasicDBObject(translatePath(expr.getField()), regex);
+    }
+
+    protected void recursiveTranslateUnaryLogicalExpression(TranslationContext c, UnaryLogicalExpression unaryLogicalExpression){
+//        return new BasicDBObject(UNARY_LOGICAL_OPERATOR_MAP.get(expr.getOp()), translate(context, expr.getQuery()));
+    }
+
+    protected void recursiveTranslateValueComparisonExpression(TranslationContext c, ValueComparisonExpression valueComparisonExpression){
+//        Type t = resolve(context, expr.getField()).getType();
+//        if (expr.getOp() == BinaryComparisonOperator._eq
+//                || expr.getOp() == BinaryComparisonOperator._neq) {
+//            if (!t.supportsEq()) {
+//                throw Error.get(ERR_INVALID_COMPARISON, expr.toString());
+//            }
+//        } else {
+//            if (!t.supportsOrdering()) {
+//                throw Error.get(ERR_INVALID_COMPARISON, expr.toString());
+//            }
+//        }
+//        Object valueObject = t.cast(expr.getRvalue().getValue());
+//        if (expr.getField().equals(ID_PATH)) {
+//            valueObject = new ObjectId(valueObject.toString());
+//        }
+//        if (expr.getOp() == BinaryComparisonOperator._eq) {
+//            return new BasicDBObject(translatePath(expr.getField()), valueObject);
+//        } else {
+//            return new BasicDBObject(translatePath(expr.getField()),
+//                    new BasicDBObject(BINARY_COMPARISON_OPERATOR_MAP.get(expr.getOp()), valueObject));
+//        }
+    }
+
+
+    protected abstract void recursiveTranslateArrayContainsAll(TranslationContext c);
+    protected abstract void recursiveTranslateArrayContainsAny(TranslationContext c);
+    protected abstract void recursiveTranslateArrayContainsNone(TranslationContext c) ;
 }
