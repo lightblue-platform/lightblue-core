@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 
-abstract class ContainerType implements Type {
+public abstract class ContainerType implements Type {
     private final String name;
 
     public ContainerType(String name) {

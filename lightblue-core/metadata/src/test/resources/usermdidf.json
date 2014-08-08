@@ -65,7 +65,7 @@
         "contactPermissions" : {
              "type":"object",
              "fields" : { 
-                "allowEmailContact" : {"type":"boolean"},
+                "allowEmailContact" : {"type":"boolean", "constraints": { "identity":1 }},
                 "allowFaxContact" : {"type":"boolean"},
                 "allowMailContact" : {"type":"boolean"},
                 "allowPhoneContact" : {"type":"boolean"},
@@ -107,7 +107,7 @@
              "items" : {
                  "type":"object",
                  "fields" : {
-                     "siteId" : { "type":"string" },
+                     "siteId" : { "type":"string","constraints":{"identity":1} },
                      "streetAddress" : {
                          "type" : "object",
                          "fields" : {
