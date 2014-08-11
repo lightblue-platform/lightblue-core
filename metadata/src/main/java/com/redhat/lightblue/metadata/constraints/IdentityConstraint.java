@@ -22,7 +22,9 @@ import java.io.Serializable;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.types.ContainerType;;
+import com.redhat.lightblue.metadata.types.ContainerType;
+
+;
 
 /**
  * Field is part of identityconstraint

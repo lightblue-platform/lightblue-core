@@ -39,24 +39,26 @@ import java.util.concurrent.TimeUnit;
 public final class ServoGraphiteSetup {
     private static boolean initialized = false;
 
-    private ServoGraphiteSetup() {}
-    
+    private ServoGraphiteSetup() {
+    }
+
     public static void stop() {
         if (initialized) {
             doStop();
         }
     }
+
     private static void doStop() {
         if (!initialized) {
             return;
         }
         PollScheduler.getInstance().stop();
     }
-    
+
     public static void initialize() {
         // Without GRAPHITE_HOSTNAME variable, graphite will not start
         String env = System.getenv("GRAPHITE_HOSTNAME");
-        if (!initialized && env != null && !env.trim().isEmpty() ) {
+        if (!initialized && env != null && !env.trim().isEmpty()) {
             doInitialize();
         }
     }
@@ -85,7 +87,7 @@ public final class ServoGraphiteSetup {
 
         String host = System.getenv("GRAPHITE_HOSTNAME");
         String port = System.getenv("GRAPHITE_PORT");
-        if(port == null) {
+        if (port == null) {
             port = "2004"; //default graphite port
         }
 
@@ -105,5 +107,5 @@ public final class ServoGraphiteSetup {
 
         initialized = true;
     }
-    
+
 }

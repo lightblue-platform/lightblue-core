@@ -33,7 +33,8 @@ import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Identity fields are required. This constraint checker makes sure they are present in the doc
+ * Identity fields are required. This constraint checker makes sure they are
+ * present in the doc
  */
 public class IdentityChecker implements FieldConstraintDocChecker {
 
@@ -43,8 +44,9 @@ public class IdentityChecker implements FieldConstraintDocChecker {
                                 Path fieldMetadataPath,
                                 FieldConstraint constraint,
                                 JsonDoc doc) {
-        List<Path> errors=RequiredChecker.getMissingFields(fieldMetadataPath,doc);
-        for(Path x:errors)
+        List<Path> errors = RequiredChecker.getMissingFields(fieldMetadataPath, doc);
+        for (Path x : errors) {
             validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED, x.toString()));
+        }
     }
 }

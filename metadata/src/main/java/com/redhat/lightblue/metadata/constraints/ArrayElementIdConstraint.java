@@ -24,9 +24,10 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Type;
 
 import com.redhat.lightblue.metadata.types.ContainerType;
+
 /**
- * Field is part of an array element id. All such fields of an array
- * element is used to uniquely identify an array element
+ * Field is part of an array element id. All such fields of an array element is
+ * used to uniquely identify an array element
  */
 public class ArrayElementIdConstraint implements FieldConstraint, Serializable {
 

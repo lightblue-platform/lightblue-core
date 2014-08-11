@@ -250,32 +250,33 @@ public class EntitySchema implements Serializable {
     }
 
     public Field[] getIdentityFields() {
-        FieldCursor cursor=getFieldCursor();
-        TreeMap<Path,Field> fieldMap=new TreeMap<>();
-        getIdentityFields(fieldMap,cursor);
-        Field[] ret=new Field[fieldMap.size()];
-        int i=0;
-        for(Field f:fieldMap.values())
-            ret[i++]=f;
+        FieldCursor cursor = getFieldCursor();
+        TreeMap<Path, Field> fieldMap = new TreeMap<>();
+        getIdentityFields(fieldMap, cursor);
+        Field[] ret = new Field[fieldMap.size()];
+        int i = 0;
+        for (Field f : fieldMap.values()) {
+            ret[i++] = f;
+        }
         return ret;
     }
 
-    private void getIdentityFields(TreeMap<Path,Field> fieldMap, FieldCursor cursor) {
-        if(cursor.firstChild()) {
+    private void getIdentityFields(TreeMap<Path, Field> fieldMap, FieldCursor cursor) {
+        if (cursor.firstChild()) {
             do {
-                FieldTreeNode fn=cursor.getCurrentNode();
-                if(fn instanceof ObjectField)
-                    getIdentityFields(fieldMap,cursor);
-                else if(fn instanceof SimpleField) {
-                    SimpleField f=(SimpleField)fn;
-                    for(FieldConstraint fc:f.getConstraints()) {
-                        if(fc instanceof IdentityConstraint) {
-                            fieldMap.put(f.getFullPath(),f);
+                FieldTreeNode fn = cursor.getCurrentNode();
+                if (fn instanceof ObjectField) {
+                    getIdentityFields(fieldMap, cursor);
+                } else if (fn instanceof SimpleField) {
+                    SimpleField f = (SimpleField) fn;
+                    for (FieldConstraint fc : f.getConstraints()) {
+                        if (fc instanceof IdentityConstraint) {
+                            fieldMap.put(f.getFullPath(), f);
                             break;
                         }
                     }
                 }
-            } while(cursor.nextSibling());
+            } while (cursor.nextSibling());
             cursor.parent();
         }
     }

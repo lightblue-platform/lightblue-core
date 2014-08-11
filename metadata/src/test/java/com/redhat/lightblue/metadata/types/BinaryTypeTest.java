@@ -123,7 +123,7 @@ public class BinaryTypeTest {
         while ((read = is.read(bytes, 0, bytes.length)) != -1) {
             buffer.write(bytes, 0, read);
         }
-        
+
         String encoded = DatatypeConverter.printBase64Binary(buffer.toByteArray());
 
         String jsonString = "{\"binaryData\": \"" + encoded + "\"}";

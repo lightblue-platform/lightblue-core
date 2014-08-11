@@ -37,12 +37,12 @@ import com.redhat.lightblue.util.Error;
 public abstract class AbstractMetadataConfiguration implements MetadataConfiguration {
 
     private final List<HookConfigurationParser> hookConfigurationParsers = new ArrayList<>();
-    
+
     /**
      * Register any common bits with the given Extensions instance.
      */
     protected void registerWithExtensions(Extensions ext) {
-        for (HookConfigurationParser parser: hookConfigurationParsers) {
+        for (HookConfigurationParser parser : hookConfigurationParsers) {
             ext.registerHookConfigurationParser(parser.getName(), parser);
         }
     }
