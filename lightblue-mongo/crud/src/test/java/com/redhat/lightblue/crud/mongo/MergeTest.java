@@ -39,14 +39,17 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import org.junit.Ignore;
 
 public class MergeTest extends AbstractJsonSchemaTest {
 
     private EntityMetadata md;
     private EntityMetadata md2;
+    private EntityMetadata md3;
     private Merge merge;
     private Merge merge2;
-    private static JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+    private Merge merge3;
+    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     private class Resolver implements MetadataResolver {
         EntityMetadata md;
@@ -68,17 +71,19 @@ public class MergeTest extends AbstractJsonSchemaTest {
         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
         TypeResolver resolver = new DefaultTypes();
         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
-        EntityMetadata md = parser.parseEntityMetadata(node);
-        PredefinedFields.ensurePredefinedFields(md);
-        return md;
+        EntityMetadata emd = parser.parseEntityMetadata(node);
+        PredefinedFields.ensurePredefinedFields(emd);
+        return emd;
     }
 
     @Before
     public void init() throws Exception {
         md = getMd("./testMetadata.json");
         md2 = getMd("./testMetadata2.json");
+        md3 = getMd("./testMetadata3.json");
         merge = new Merge(md);
         merge2 = new Merge(md2);
+        merge3 = new Merge(md3);
     }
 
     @Test
@@ -166,11 +171,27 @@ public class MergeTest extends AbstractJsonSchemaTest {
         DBObject oldDoc = t.toBson(new JsonDoc(node));
         DBObject newDoc = t.toBson(new JsonDoc(node));
         ((List<DBObject>) oldDoc.get("field7")).get(0).put("inv1", "val1");
+
         try {
             merge2.merge(oldDoc, newDoc);
             Assert.fail();
         } catch (Error e) {
         }
+    }
+
+    @Test
+    @Ignore
+    public void merge_notfail_arr_copyinvis() throws Exception {
+        JsonNode node = loadJsonNode("./testdata2.json");
+        Translator t = new Translator(new Resolver(md3), nodeFactory);
+        DBObject oldDoc = t.toBson(new JsonDoc(node));
+        DBObject newDoc = t.toBson(new JsonDoc(node));
+        ((List<DBObject>) oldDoc.get("field7")).get(0).put("inv1", "val1");
+
+        // merge old doc (v3 with invisible field) into new doc (v2) which should copy inv1
+        merge3.merge(oldDoc, newDoc);
+        // verify result
+        Assert.assertEquals("val1", ((List<DBObject>) newDoc.get("field7")).get(0).get("inv1"));
     }
 
     private Object get(List<Merge.IField> list, String path) {

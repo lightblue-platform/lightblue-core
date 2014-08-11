@@ -72,6 +72,7 @@ public final class Merge {
             return value;
         }
 
+        @Override
         public String toString() {
             return path.toString() + ":" + value;
         }
@@ -94,6 +95,7 @@ public final class Merge {
             return field;
         }
 
+        @Override
         public String toString() {
             return path.toString();
         }
@@ -253,6 +255,7 @@ public final class Merge {
         List<PathAndField> idPaths = new ArrayList<>();
         MutablePath mp = new MutablePath();
         getArrayIdentifiers(md.getFieldCursor(arrayElementField), mp, idPaths, new ArrayIdCollector() {
+            @Override
             public boolean isIncluded(SimpleField field) {
                 List<FieldConstraint> constraints = field.getConstraints();
                 if (constraints != null) {
@@ -267,6 +270,7 @@ public final class Merge {
         });
         if (idPaths.isEmpty()) {
             getArrayIdentifiers(md.getFieldCursor(arrayElementField), mp, idPaths, new ArrayIdCollector() {
+                @Override
                 public boolean isIncluded(SimpleField field) {
                     return field.getType().equals(UIDType.TYPE);
                 }
