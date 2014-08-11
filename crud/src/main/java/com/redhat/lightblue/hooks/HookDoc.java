@@ -32,7 +32,6 @@ import java.util.GregorianCalendar;
  * the operation is INSERT or FIND, the pre- version is null.
  */
 public class HookDoc {
-    private final String entityName;
     private final EntityMetadata entityMetadata;
     private final JsonDoc pre;
     private final JsonDoc post;
@@ -45,8 +44,7 @@ public class HookDoc {
      * @param hd hook doc to copy
      */
     public HookDoc(HookDoc hd) {
-        this(hd.getEntityName(),
-                hd.getEntityMetadata(),
+        this(hd.getEntityMetadata(),
                 hd.getPostDoc(),
                 hd.getPreDoc(),
                 hd.getOperation(),
@@ -57,24 +55,16 @@ public class HookDoc {
      * Constructs a hook document with the given pre- and post- update versions
      * of the document, and the operation performed.
      */
-    public HookDoc(String entityName, EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op) {
-        this(entityName, entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime());
+    public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op) {
+        this(entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime());
     }
 
-    private HookDoc(String entityName, EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, Date when) {
-        this.entityName = entityName;
+    private HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, Date when) {
         this.entityMetadata = entityMetadata;
         this.pre = pre;
         this.post = post;
         this.op = op;
         this.when = when;
-    }
-
-    /**
-     * The name of the entity.
-     */
-    public String getEntityName() {
-        return entityName;
     }
 
     /**
