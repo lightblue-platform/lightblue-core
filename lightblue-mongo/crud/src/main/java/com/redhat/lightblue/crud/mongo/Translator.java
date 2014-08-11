@@ -252,7 +252,7 @@ public class Translator {
     }
 
     /**
-     * Add any fields in the old object that are not in the metadata to the new
+     * Add any fields in the old object that are not in the metadata of the new
      * object
      */
     public void addInvisibleFields(DBObject oldDBObject, DBObject newObject, EntityMetadata md) {

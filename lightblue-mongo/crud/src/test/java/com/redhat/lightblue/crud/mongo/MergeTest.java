@@ -43,7 +43,9 @@ import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 public class MergeTest extends AbstractJsonSchemaTest {
 
     private EntityMetadata md;
+    private EntityMetadata md2;
     private Merge merge;
+    private Merge merge2;
     private static JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     private class Resolver implements MetadataResolver {
@@ -74,7 +76,9 @@ public class MergeTest extends AbstractJsonSchemaTest {
     @Before
     public void init() throws Exception {
         md = getMd("./testMetadata.json");
+        md2 = getMd("./testMetadata2.json");
         merge = new Merge(md);
+        merge2 = new Merge(md2);
     }
 
     @Test
@@ -136,6 +140,34 @@ public class MergeTest extends AbstractJsonSchemaTest {
         newDoc.removeField("field6");
         try {
             merge.merge(oldDoc, newDoc);
+            Assert.fail();
+        } catch (Error e) {
+        }
+    }
+
+    @Test
+    public void merge_fail_arr() throws Exception {
+        JsonNode node = loadJsonNode("./testdata1.json");
+        Translator t = new Translator(new Resolver(md), nodeFactory);
+        DBObject oldDoc = t.toBson(new JsonDoc(node));
+        DBObject newDoc = t.toBson(new JsonDoc(node));
+        ((List<DBObject>)oldDoc.get("field7")).get(0).put("inv1","val1");
+        try {
+            merge.merge(oldDoc, newDoc);
+            Assert.fail();
+        } catch (Error e) {
+        }
+    }
+
+    @Test
+    public void merge_notfail_arr() throws Exception {
+        JsonNode node = loadJsonNode("./testdata2.json");
+        Translator t = new Translator(new Resolver(md2), nodeFactory);
+        DBObject oldDoc = t.toBson(new JsonDoc(node));
+        DBObject newDoc = t.toBson(new JsonDoc(node));
+        ((List<DBObject>)oldDoc.get("field7")).get(0).put("inv1","val1");
+        try {
+            merge2.merge(oldDoc, newDoc);
             Assert.fail();
         } catch (Error e) {
         }
