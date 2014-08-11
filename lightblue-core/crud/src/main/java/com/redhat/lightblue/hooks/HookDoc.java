@@ -19,9 +19,9 @@
 package com.redhat.lightblue.hooks;
 
 import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -33,7 +33,7 @@ import java.util.GregorianCalendar;
  */
 public class HookDoc {
     private final String entityName;
-    private final Path identifyingPath;
+    private final EntityMetadata entityMetadata;
     private final JsonDoc pre;
     private final JsonDoc post;
     private final Operation op;
@@ -46,7 +46,7 @@ public class HookDoc {
      */
     public HookDoc(HookDoc hd) {
         this(hd.getEntityName(),
-                hd.getIdentifyingPath(),
+                hd.getEntityMetadata(),
                 hd.getPostDoc(),
                 hd.getPreDoc(),
                 hd.getOperation(),
@@ -57,13 +57,13 @@ public class HookDoc {
      * Constructs a hook document with the given pre- and post- update versions
      * of the document, and the operation performed.
      */
-    public HookDoc(String entityName, Path identifyingPath, JsonDoc pre, JsonDoc post, Operation op) {
-        this(entityName, identifyingPath, pre, post, op, GregorianCalendar.getInstance().getTime());
+    public HookDoc(String entityName, EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op) {
+        this(entityName, entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime());
     }
 
-    private HookDoc(String entityName, Path identifyingPath, JsonDoc pre, JsonDoc post, Operation op, Date when) {
+    private HookDoc(String entityName, EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, Date when) {
         this.entityName = entityName;
-        this.identifyingPath = identifyingPath;
+        this.entityMetadata = entityMetadata;
         this.pre = pre;
         this.post = post;
         this.op = op;
@@ -78,11 +78,11 @@ public class HookDoc {
     }
 
     /**
-     * The path to the one field that identifies the document. Some hooks will
-     * fail if this path cannot resolve to a field in pre or post documents.
+     * The entity metadata for the document. Can be used to retrieve things
+     * about the entity for a hook such as identifying fields.
      */
-    public Path getIdentifyingPath() {
-        return identifyingPath;
+    public EntityMetadata getEntityMetadata() {
+        return entityMetadata;
     }
 
     /**
