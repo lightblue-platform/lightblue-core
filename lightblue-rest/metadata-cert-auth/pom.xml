@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.redhat.lightblue.rest</groupId>
+        <artifactId>rest-pom</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
     <groupId>com.redhat.lightblue.rest</groupId>
-    <artifactId>rest-pom</artifactId>
+    <artifactId>rest-metadata-cert-auth</artifactId>
     <version>0.1-SNAPSHOT</version>
-  </parent>
-  <groupId>com.redhat.lightblue.rest</groupId>
-  <artifactId>rest-metadata-cert-auth</artifactId>
-  <version>0.1-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>lightblue-rest: ${project.groupId}|${project.artifactId}</name>
-  <dependencies>
-    <dependency>
-      <groupId>com.redhat.lightblue.rest</groupId>
-      <artifactId>rest-metadata</artifactId>
-      <version>0.1-SNAPSHOT</version>
-      <type>war</type>
-      <scope>compile</scope>
-    </dependency>
+    <packaging>war</packaging>
+    <name>lightblue-rest: ${project.groupId}|${project.artifactId}</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.redhat.lightblue.rest</groupId>
+            <artifactId>rest-metadata</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <type>war</type>
+            <scope>compile</scope>
+        </dependency>
 <!--     <dependency> -->
 <!--       <groupId>com.redhat.lightblue.rest</groupId> -->
 <!--       <artifactId>auth</artifactId> -->
@@ -27,63 +27,68 @@
 <!--     </dependency> -->
   </dependencies>
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <overlays>
-            <overlay>
-              <groupId>com.redhat.lightblue.rest</groupId>
-              <artifactId>rest-metadata</artifactId>
-              <excludes>
-                <exclude>WEB-INF/jboss-web.xml</exclude> 
-              </excludes>
-            </overlay>           
-          </overlays>
-        </configuration>
-      </plugin>
-      <!-- RPM packing -->
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>rpm-maven-plugin</artifactId>
-          <version>2.1-alpha-3</version>
-          <extensions>true</extensions>
-          <executions>
-              <execution>
-                  <goals>
-                      <goal>rpm</goal>
-                  </goals>
-                  <phase>verify</phase>
-              </execution>
-          </executions>
-          <configuration>
-              <name>lightblue-${project.artifactId}</name>
-              <copyright>Red Hat</copyright>
-              <distribution>RHEL</distribution>
-              <group>Lightblue Platform</group>
-              <packager>${user.name}</packager>
-              <defaultFilemode>744</defaultFilemode>
-              <defaultUsername>jboss</defaultUsername>
-              <defaultGroupname>jboss</defaultGroupname>
-              <!-- 
-              <requires>
-                  <require>eap &gt;= 6.2</require>
-              </requires>
-              -->
-              <mappings>
-                  <mapping>
-                      <directory>${rpm.install.basedir}</directory>
-                      <sources>
-                          <source>
-                              <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
-                          </source>
-                      </sources>
-                  </mapping>
-              </mappings>
-          </configuration>
-      </plugin>      
-    </plugins>  
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-war-plugin</artifactId>
+              <version>2.4</version>
+              <configuration>
+                  <overlays>
+                      <overlay>
+                          <groupId>com.redhat.lightblue.rest</groupId>
+                          <artifactId>rest-metadata</artifactId>
+                          <excludes>
+                              <exclude>WEB-INF/jboss-web.xml</exclude> 
+                          </excludes>
+                      </overlay>           
+                  </overlays>
+              </configuration>
+          </plugin>
+      </plugins>
   </build>
+  <profiles>
+      <profile>
+          <id>rpm</id>
+          <build>
+              <plugins>
+                  <!-- RPM packing -->
+                  <plugin>
+                      <groupId>org.codehaus.mojo</groupId>
+                      <artifactId>rpm-maven-plugin</artifactId>
+                      <version>2.1-alpha-3</version>
+                      <extensions>true</extensions>
+                      <executions>
+                          <execution>
+                              <goals>
+                                  <goal>rpm</goal>
+                              </goals>
+                              <phase>verify</phase>
+                          </execution>
+                      </executions>
+                      <configuration>
+                          <name>lightblue-${project.artifactId}</name>
+                          <copyright>Red Hat</copyright>
+                          <distribution>RHEL</distribution>
+                          <group>Lightblue Platform</group>
+                          <packager>${user.name}</packager>
+                          <defaultFilemode>744</defaultFilemode>
+                          <defaultUsername>jboss</defaultUsername>
+                          <defaultGroupname>jboss</defaultGroupname>
+                          <mappings>
+                              <mapping>
+                                  <directory>${rpm.install.basedir}</directory>
+                                  <directoryIncluded>false</directoryIncluded>
+                                  <sources>
+                                      <source>
+                                          <location>target/${project.artifactId}-${project.version}.${project.packaging}</location>
+                                      </source>
+                                  </sources>
+                              </mapping>
+                          </mappings>
+                      </configuration>
+                  </plugin>      
+              </plugins>  
+          </build>
+      </profile>
+  </profiles>
 </project>
