@@ -5,11 +5,14 @@
         "indexes": [
             {
                 "unique": true,
-                "fields": [{"field":"name", "dir":"$asc"}]
+                "fields": [{
+                        "field": "name",
+                        "dir": "$asc"
+                    }]
             }
         ],
         "datastore": {
-            "backend":"empty"
+            "backend": "empty"
         }
     },
     "schema": {
@@ -28,11 +31,47 @@
             "delete": ["admin"]
         },
         "fields": {
-            "name": {
-                "type": "string"
-            },
-            "counter": {
-                "type": "integer"
+            "address": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "id": {
+                            "type": "uid"
+                        },
+                        "street": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "access": {
+                                "find": [
+                                    "all"
+                                ],
+                                "update": [
+                                    "admin"
+                                ]
+                            }
+                        },
+                        "city": {
+                            "type": "string",
+                            "access": {
+                                "find": [
+                                    "all"
+                                ],
+                                "update": [
+                                    "admin"
+                                ]
+                            }
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "postalCode": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     }
