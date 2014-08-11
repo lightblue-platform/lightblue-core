@@ -169,7 +169,6 @@ public class HookManager {
                 Projector projector = Projector.getInstance(hd.hook.getProjection(), hd.md);
                 for (HookDoc doc : hd.docs) {
                     processedDocuments.add(new HookDoc(
-                            doc.getEntityName(),
                             doc.getEntityMetadata(),
                             project(doc.getPreDoc(), projector),
                             project(doc.getPostDoc(), projector),
@@ -267,7 +266,6 @@ public class HookManager {
                         hookCache.put(hook.getKey(), hd);
                     }
                     hd.docs.add(new HookDoc(
-                            ctx.getEntityName(),
                             hd.md,
                             dh.pre, dh.post, dh.op));
                 }
