@@ -74,9 +74,9 @@ public class IdentityFieldsTest {
         JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
         EntityMetadata md = parser.parseEntityMetadata(node);
 
-        Field[] idf=md.getEntitySchema().getIdentityFields();
-        Assert.assertEquals(1,idf.length);
-        Assert.assertEquals("_id",idf[0].getName());
+        Field[] idf = md.getEntitySchema().getIdentityFields();
+        Assert.assertEquals(1, idf.length);
+        Assert.assertEquals("_id", idf[0].getName());
     }
 
     @Test
@@ -104,9 +104,9 @@ public class IdentityFieldsTest {
         JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermdidf.json"));
         EntityMetadata md = parser.parseEntityMetadata(node);
 
-        Field[] idf=md.getEntitySchema().getIdentityFields();
-        Assert.assertEquals(2,idf.length);
-        Assert.assertEquals("_id",idf[0].getName());
-        Assert.assertEquals("contactPermissions.allowEmailContact",idf[1].getFullPath().toString());
+        Field[] idf = md.getEntitySchema().getIdentityFields();
+        Assert.assertEquals(2, idf.length);
+        Assert.assertEquals("_id", idf[0].getName());
+        Assert.assertEquals("contactPermissions.allowEmailContact", idf[1].getFullPath().toString());
     }
 }

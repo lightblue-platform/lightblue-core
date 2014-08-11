@@ -49,10 +49,10 @@ public class MongoMetadataConfiguration extends AbstractMetadataConfiguration {
             Extensions<BSONObject> parserExtensions = new Extensions<>();
             parserExtensions.addDefaultExtensions();
             parserExtensions.registerDataStoreParser(MongoDataStoreParser.NAME, new MongoDataStoreParser<BSONObject>());
-            
+
             // register any of the common configuration bits from abstract parent
             registerWithExtensions(parserExtensions);
-            
+
             DefaultTypes typeResolver = new DefaultTypes();
             MongoDataStore mdstore = new MongoDataStore();
             mdstore.setDatasourceName(datasource);
@@ -110,7 +110,7 @@ public class MongoMetadataConfiguration extends AbstractMetadataConfiguration {
     public void initializeFromJson(JsonNode node) {
         // init from super (gets hook configuration parsers and anything else that's common)
         super.initializeFromJson(node);
-        
+
         if (node != null) {
             JsonNode x = node.get("dataSource");
             if (x != null) {

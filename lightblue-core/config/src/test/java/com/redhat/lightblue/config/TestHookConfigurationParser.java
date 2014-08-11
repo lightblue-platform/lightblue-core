@@ -25,13 +25,13 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 
 /**
  * Dummy hook config parser for testing.
- * 
+ *
  * @author nmalik
  */
-public class TestHookConfigurationParser implements HookConfigurationParser<JsonNode>{
+public class TestHookConfigurationParser implements HookConfigurationParser<JsonNode> {
 
     public static final String HOOK_NAME = "testHook";
-    
+
     @Override
     public String getName() {
         return HOOK_NAME;

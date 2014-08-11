@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.common.rdbms;
 
 import javax.sql.DataSource;
@@ -26,5 +25,5 @@ import javax.sql.DataSource;
  * @author lcestari
  */
 public interface RDBMSDataSourceResolver {
-    public DataSource get(RDBMSDataStore store) ;    
+    public DataSource get(RDBMSDataStore store);
 }

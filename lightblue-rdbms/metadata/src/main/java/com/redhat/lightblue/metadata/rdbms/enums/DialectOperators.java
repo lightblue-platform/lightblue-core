@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class DialectOperators {
     private static final com.redhat.lightblue.metadata.Enum singleton = new Enum("DialectOperators");
-    
+
     public static final String ORACLE = "oracle";
 
     static {

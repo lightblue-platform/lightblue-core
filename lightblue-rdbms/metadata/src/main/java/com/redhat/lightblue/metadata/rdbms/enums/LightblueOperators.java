@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class LightblueOperators {
     private static final com.redhat.lightblue.metadata.Enum singleton = new Enum("LightblueOperators");
-    
+
     public static final String DELETE = "delete";
     public static final String FETCH = "fetch";
     public static final String INSERT = "insert";

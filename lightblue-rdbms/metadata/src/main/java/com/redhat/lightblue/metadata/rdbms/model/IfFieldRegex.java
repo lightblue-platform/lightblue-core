@@ -22,7 +22,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldRegex extends If<If,If> {
+public class IfFieldRegex extends If<If, If> {
     private Path field;
     private String regex;
     private boolean caseInsensitive;
@@ -111,6 +111,7 @@ public class IfFieldRegex extends If<If,If> {
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
+
     @Override
     public <T> If parse(MetadataParser<T> p, T ifT) {
         If x = null;
@@ -138,6 +139,7 @@ public class IfFieldRegex extends If<If,If> {
         }
         return x;
     }
+
     //to make more readable
     private String str(boolean b) {
         return Boolean.toString(b);

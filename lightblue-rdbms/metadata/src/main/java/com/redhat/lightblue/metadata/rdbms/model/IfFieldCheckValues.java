@@ -25,7 +25,7 @@ import com.redhat.lightblue.util.Path;
 
 import java.util.List;
 
-public class IfFieldCheckValues extends If<If,If> {
+public class IfFieldCheckValues extends If<If, If> {
     private Path field;
     private List<String> values;
     private String op;
@@ -85,7 +85,7 @@ public class IfFieldCheckValues extends If<If,If> {
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
-    
+
     @Override
     public <T> If parse(MetadataParser<T> p, T ifT) {
         If x = null;

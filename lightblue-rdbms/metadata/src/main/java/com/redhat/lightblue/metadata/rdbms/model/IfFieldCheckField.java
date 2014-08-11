@@ -23,7 +23,7 @@ import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldCheckField extends If<If,If> {
+public class IfFieldCheckField extends If<If, If> {
     private Path field;
     private Path rfield;
     private String op;
@@ -80,7 +80,6 @@ public class IfFieldCheckField extends If<If,If> {
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
-
 
     @Override
     public <T> If parse(MetadataParser<T> p, T ifT) {

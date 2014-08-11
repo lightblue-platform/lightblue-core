@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.crud.rdbms;
 
 import com.redhat.lightblue.metadata.rdbms.converter.RowMapper;
@@ -29,7 +28,7 @@ import java.sql.SQLException;
  * @author lcestari
  */
 //TODO Process each row and update the In and OUT field
-public class VariableUpdateRowMapper<T> implements RowMapper<T>  {
+public class VariableUpdateRowMapper<T> implements RowMapper<T> {
 
     public VariableUpdateRowMapper(RDBMSContext rdbmsContext) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -40,5 +39,4 @@ public class VariableUpdateRowMapper<T> implements RowMapper<T>  {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
 }

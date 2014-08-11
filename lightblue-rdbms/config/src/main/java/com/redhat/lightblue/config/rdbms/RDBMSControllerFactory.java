@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.config.rdbms;
 
 import com.redhat.lightblue.common.rdbms.RDBMSDataSourceResolver;
@@ -34,7 +33,7 @@ public class RDBMSControllerFactory implements ControllerFactory {
 
     @Override
     public CRUDController createController(ControllerConfiguration cfg, DataSourcesConfiguration ds) {
-            RDBMSDataSourceResolver rds = new RDBMSDataSourceMap(ds);
-            return new RDBMSCRUDController(rds);
+        RDBMSDataSourceResolver rds = new RDBMSDataSourceMap(ds);
+        return new RDBMSCRUDController(rds);
     }
 }

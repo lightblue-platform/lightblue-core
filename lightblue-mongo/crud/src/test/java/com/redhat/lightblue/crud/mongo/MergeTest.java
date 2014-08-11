@@ -151,7 +151,7 @@ public class MergeTest extends AbstractJsonSchemaTest {
         Translator t = new Translator(new Resolver(md), nodeFactory);
         DBObject oldDoc = t.toBson(new JsonDoc(node));
         DBObject newDoc = t.toBson(new JsonDoc(node));
-        ((List<DBObject>)oldDoc.get("field7")).get(0).put("inv1","val1");
+        ((List<DBObject>) oldDoc.get("field7")).get(0).put("inv1", "val1");
         try {
             merge.merge(oldDoc, newDoc);
             Assert.fail();
@@ -165,7 +165,7 @@ public class MergeTest extends AbstractJsonSchemaTest {
         Translator t = new Translator(new Resolver(md2), nodeFactory);
         DBObject oldDoc = t.toBson(new JsonDoc(node));
         DBObject newDoc = t.toBson(new JsonDoc(node));
-        ((List<DBObject>)oldDoc.get("field7")).get(0).put("inv1","val1");
+        ((List<DBObject>) oldDoc.get("field7")).get(0).put("inv1", "val1");
         try {
             merge2.merge(oldDoc, newDoc);
             Assert.fail();

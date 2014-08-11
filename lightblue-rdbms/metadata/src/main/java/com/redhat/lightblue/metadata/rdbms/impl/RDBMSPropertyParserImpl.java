@@ -53,24 +53,24 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
         T insert = p.getObjectProperty(node, LightblueOperators.INSERT);
         T save = p.getObjectProperty(node, LightblueOperators.SAVE);
         T update = p.getObjectProperty(node, LightblueOperators.UPDATE);
-        
-        if(delete == null && fetch == null && insert == null && save == null && update == null ) {
+
+        if (delete == null && fetch == null && insert == null && save == null && update == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No Operation informed");
         }
-    
+
         RDBMS rdbms = new RDBMS();
         rdbms.setDelete(parseOperation(p, delete, LightblueOperators.DELETE));
         rdbms.setFetch(parseOperation(p, fetch, LightblueOperators.FETCH));
         rdbms.setInsert(parseOperation(p, insert, LightblueOperators.INSERT));
         rdbms.setSave(parseOperation(p, save, LightblueOperators.SAVE));
         rdbms.setUpdate(parseOperation(p, update, LightblueOperators.UPDATE));
-        
+
         SQLMapping s = new SQLMapping();
         s.parse(p, p.getObjectProperty(node, "SQLMapping"));
         rdbms.setSQLMapping(s);
-        
+
         String dialect = p.getStringProperty(node, "dialect");
-        if (dialect == null || dialect.isEmpty() ) {
+        if (dialect == null || dialect.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No field informed");
         }
         rdbms.setDialect(dialect);
@@ -80,13 +80,13 @@ public class RDBMSPropertyParserImpl<T> extends PropertyParser<T> {
 
     @Override
     public void convert(MetadataParser<T> p, T parent, Object object) {
-        if(object == null){
+        if (object == null) {
             throw new IllegalArgumentException("No RDBMS object was informed!");
         }
         RDBMS rdbms = (RDBMS) object;
         rdbms.convert(p, parent);
     }
-    
+
     private Operation parseOperation(MetadataParser<T> p, T operation, String fieldName) {
         if (operation == null) {
             return null;

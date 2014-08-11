@@ -39,8 +39,8 @@ public final class FileUtil {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path)));
         StringBuilder everything = new StringBuilder();
         String line;
-        while( (line = bufferedReader.readLine()) != null) {
-           everything.append(line);
+        while ((line = bufferedReader.readLine()) != null) {
+            everything.append(line);
         }
         return everything.toString().replaceAll("\\s", "").replaceAll("\\r|\\n", "");
     }

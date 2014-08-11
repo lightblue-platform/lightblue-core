@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -31,23 +30,23 @@ public class ProjectionMapping implements SimpleConverter {
     private String column;
     private String field;
     private String sort;
-    
+
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
         T eT = p.newNode();
-        if(column == null || column.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing column field");  
+        if (column == null || column.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing column field");
         }
-        if(field == null || field.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing 'field' field");  
+        if (field == null || field.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing 'field' field");
         }
         p.putString(eT, "column", column);
         p.putString(eT, "field", field);
-        
-        if(sort != null && !sort.isEmpty()){
-           p.putString(eT, "sort", sort);
+
+        if (sort != null && !sort.isEmpty()) {
+            p.putString(eT, "sort", sort);
         }
-        
+
         p.addObjectToArray(expressionsNode, eT);
     }
 
@@ -55,18 +54,18 @@ public class ProjectionMapping implements SimpleConverter {
         String c = p.getStringProperty(t, "column");
         String f = p.getStringProperty(t, "field");
         String s = p.getStringProperty(t, "sort");
-        
-        if(c == null || c.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing column field");  
+
+        if (c == null || c.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing column field");
         }
-        
-        if(f == null || f.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing 'field' field");  
+
+        if (f == null || f.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing 'field' field");
         }
-        
-        column= c;
+
+        column = c;
         field = f;
-        sort  = s;
+        sort = s;
     }
 
     public String getColumn() {
@@ -92,5 +91,5 @@ public class ProjectionMapping implements SimpleConverter {
     public void setSort(String sort) {
         this.sort = sort;
     }
-    
+
 }

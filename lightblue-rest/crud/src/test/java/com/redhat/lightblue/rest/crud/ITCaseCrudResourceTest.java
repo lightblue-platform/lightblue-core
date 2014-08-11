@@ -188,13 +188,13 @@ public class ITCaseCrudResourceTest {
     @Deployment
     public static WebArchive createDeployment() {
         File[] libs = Maven.resolver().loadPomFromFile("pom.xml").importRuntimeDependencies().resolve().withTransitivity().asFile();
-        
+
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File(PATH+MetadataConfiguration.FILENAME), MetadataConfiguration.FILENAME)
-                .addAsResource(new File(PATH+CrudConfiguration.FILENAME), CrudConfiguration.FILENAME)
-                .addAsResource(new File(PATH+DATASOURCESJSON), DATASOURCESJSON)
-                .addAsResource(new File(PATH+CONFIGPROPERTIES), CONFIGPROPERTIES);
+                .addAsResource(new File(PATH + MetadataConfiguration.FILENAME), MetadataConfiguration.FILENAME)
+                .addAsResource(new File(PATH + CrudConfiguration.FILENAME), CrudConfiguration.FILENAME)
+                .addAsResource(new File(PATH + DATASOURCESJSON), DATASOURCESJSON)
+                .addAsResource(new File(PATH + CONFIGPROPERTIES), CONFIGPROPERTIES);
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -203,7 +203,7 @@ public class ITCaseCrudResourceTest {
         return archive;
 
     }
-    
+
     private static final String PATH = "src/test/resources/it/it-";
     private static final String CONFIGPROPERTIES = "config.properties";
     private static final String DATASOURCESJSON = "datasources.json";

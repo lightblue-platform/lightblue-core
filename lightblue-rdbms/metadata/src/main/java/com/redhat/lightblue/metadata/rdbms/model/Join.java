@@ -36,16 +36,16 @@ public class Join implements SimpleConverter {
     public <T> void parse(MetadataParser<T> p, T t) {
         List<T> tst = p.getObjectList(t, "tables");
         List<Table> ts = parseTables(p, tst);
-        
+
         String jts = p.getStringProperty(t, "joinTablesStatement");
-        
+
         List<T> pmsT = p.getObjectList(t, "projectionMappings");
         List<ProjectionMapping> pms = parseProjectionMappings(p, pmsT);
-        
+
         this.tables = ts;
         this.joinTablesStatement = jts;
         this.projectionMappings = pms;
-        
+
     }
 
     @Override
@@ -53,9 +53,9 @@ public class Join implements SimpleConverter {
         T eT = p.newNode();
         Object ts = p.newArrayField(eT, "tables");
         convertTables(p, ts);
-        
+
         p.putString(eT, "joinTablesStatement", joinTablesStatement);
-        
+
         Object ps = p.newArrayField(eT, "projectionMappings");
         convertProjectionMappings(p, ps);
 
@@ -63,17 +63,17 @@ public class Join implements SimpleConverter {
     }
 
     private <T> void convertTables(MetadataParser<T> p, Object array) {
-        if(this.tables == null || this.tables.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing tables field");  
+        if (this.tables == null || this.tables.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing tables field");
         }
         for (Table t : this.tables) {
             t.convert(p, array);
         }
     }
-    
+
     private <T> void convertProjectionMappings(MetadataParser<T> p, Object array) {
-        if(this.projectionMappings == null || this.projectionMappings.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing projectionMappings field");  
+        if (this.projectionMappings == null || this.projectionMappings.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing projectionMappings field");
         }
         for (ProjectionMapping pm : this.projectionMappings) {
             pm.convert(p, array);
@@ -87,7 +87,7 @@ public class Join implements SimpleConverter {
         }
         for (T t : tst) {
             Table x = new Table();
-            x.parse(p,t);
+            x.parse(p, t);
             r.add(x);
         }
         return r;
@@ -100,7 +100,7 @@ public class Join implements SimpleConverter {
         }
         for (T t : pmsT) {
             ProjectionMapping x = new ProjectionMapping();
-            x.parse(p,t);
+            x.parse(p, t);
             r.add(x);
         }
         return r;

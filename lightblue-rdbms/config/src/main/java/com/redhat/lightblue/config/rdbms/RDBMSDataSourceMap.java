@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.config.rdbms;
 
 import com.redhat.lightblue.common.rdbms.RDBMSDataSourceResolver;
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lcestari
  */
-public class RDBMSDataSourceMap implements RDBMSDataSourceResolver{
+public class RDBMSDataSourceMap implements RDBMSDataSourceResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSDataSourceMap.class);
 
@@ -56,11 +55,11 @@ public class RDBMSDataSourceMap implements RDBMSDataSourceResolver{
         try {
             if (store.getDatasourceName() != null) {
                 LOGGER.debug("datasource:{}", store.getDatasourceName());
-                getAndPut(dsMap, datasources,store.getDatasourceName());
+                getAndPut(dsMap, datasources, store.getDatasourceName());
 
             } else if (store.getDatabaseName() != null) {
                 LOGGER.debug("databaseName:{}", store.getDatabaseName());
-                getAndPut(dbMap, databases,store.getDatabaseName());
+                getAndPut(dbMap, databases, store.getDatabaseName());
             }
         } catch (RuntimeException re) {
             LOGGER.error("Cannot get {}:{}", store, re);
@@ -75,8 +74,8 @@ public class RDBMSDataSourceMap implements RDBMSDataSourceResolver{
         LOGGER.debug("Returning {} for {}", ds, store);
         return ds;
     }
-    
-    private DataSource getAndPut(Map<String, DataSource> mds, Map<String, DataSourceConfiguration> mdsc,  String name){
+
+    private DataSource getAndPut(Map<String, DataSource> mds, Map<String, DataSourceConfiguration> mdsc, String name) {
         DataSource ds = mds.get(name);
         if (ds == null) {
             RDBMSDataSourceConfiguration cfg = (RDBMSDataSourceConfiguration) mdsc.get(name);
@@ -88,5 +87,5 @@ public class RDBMSDataSourceMap implements RDBMSDataSourceResolver{
         }
         return ds;
     }
-    
+
 }

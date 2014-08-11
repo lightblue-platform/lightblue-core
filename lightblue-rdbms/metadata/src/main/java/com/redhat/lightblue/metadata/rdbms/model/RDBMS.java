@@ -32,42 +32,41 @@ public class RDBMS implements RootConverter {
     private Operation insert;
     private Operation save;
     private Operation update;
-    
+
     private SQLMapping sQLMapping;
     private String dialect;
 
     @Override
     public <T> void convert(MetadataParser<T> p, T parent) {
         T rdbms = p.newNode();
-        
-        if(this.getDelete() == null && this.getFetch() == null && this.getInsert() == null && this.getSave() == null && this.getUpdate() == null ) {
+
+        if (this.getDelete() == null && this.getFetch() == null && this.getInsert() == null && this.getSave() == null && this.getUpdate() == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No operation informed");
         }
-        
-        if(this.getDelete() != null){
-            this.getDelete().convert(p,rdbms );
+
+        if (this.getDelete() != null) {
+            this.getDelete().convert(p, rdbms);
         }
-        if(this.getFetch() != null){
-            this.getFetch().convert(p,rdbms );
+        if (this.getFetch() != null) {
+            this.getFetch().convert(p, rdbms);
         }
-        if(this.getInsert() != null){
-            this.getInsert().convert(p,rdbms );
+        if (this.getInsert() != null) {
+            this.getInsert().convert(p, rdbms);
         }
-        if(this.getSave() != null){
-            this.getSave().convert(p,rdbms );
+        if (this.getSave() != null) {
+            this.getSave().convert(p, rdbms);
         }
-        if(this.getUpdate() != null){
-            this.getUpdate().convert(p, rdbms);  
+        if (this.getUpdate() != null) {
+            this.getUpdate().convert(p, rdbms);
         }
-        if(dialect == null){
+        if (dialect == null) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "No dialect informed");
         }
         p.putString(rdbms, "dialect", dialect);
-        this.getSQLMapping().convert(p, rdbms);  
+        this.getSQLMapping().convert(p, rdbms);
         p.putObject(parent, "rdbms", rdbms);
     }
 
-    
     public void setDelete(Operation delete) {
         this.delete = delete;
     }
@@ -106,8 +105,8 @@ public class RDBMS implements RootConverter {
 
     public Operation getUpdate() {
         return update;
-    }    
-    
+    }
+
     public String getDialect() {
         return dialect;
     }
@@ -118,7 +117,7 @@ public class RDBMS implements RootConverter {
         }
         this.dialect = dialect;
     }
-    
+
     public SQLMapping getSQLMapping() {
         return sQLMapping;
     }
@@ -126,22 +125,22 @@ public class RDBMS implements RootConverter {
     public void setSQLMapping(SQLMapping sQLMapping) {
         this.sQLMapping = sQLMapping;
     }
-    
-    public Operation getOperationByName(String operation){
-        switch(operation){
+
+    public Operation getOperationByName(String operation) {
+        switch (operation) {
             case LightblueOperators.DELETE:
-                    return delete;
+                return delete;
             case LightblueOperators.FETCH:
-                    return fetch;
+                return fetch;
             case LightblueOperators.INSERT:
-                    return insert;
+                return insert;
             case LightblueOperators.SAVE:
-                    return save;
+                return save;
             case LightblueOperators.UPDATE:
-                    return update;
-            default: 
-                    throw new IllegalArgumentException("Not valid operation -> "+operation);
+                return update;
+            default:
+                throw new IllegalArgumentException("Not valid operation -> " + operation);
         }
-        
+
     }
 }
