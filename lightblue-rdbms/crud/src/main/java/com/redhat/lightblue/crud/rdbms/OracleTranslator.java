@@ -25,22 +25,7 @@ import java.util.List;
  *
  * @author lcestari
  */
-class OracleTranslator extends Translator {
-
-    public OracleTranslator() {
-    }
-
-    @Override
-    protected void translateFromToDependencies(TranslationContext t) {
-        if(t.hasJoins){
-            for (String s : t.sortDependencies.getOrderBy()) {
-
-            }
-        } else {
-
-        }
-
-    }
+public class OracleTranslator extends Translator {
 
     protected void recursiveTranslateArrayContainsAll(TranslationContext c) {
         Path array = c.tmpArray;

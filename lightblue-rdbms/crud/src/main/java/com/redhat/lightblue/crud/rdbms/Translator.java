@@ -28,7 +28,6 @@ import com.redhat.lightblue.util.*;
 
 import java.util.*;
 
-import com.redhat.lightblue.util.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,6 @@ abstract class Translator {
         CRUDOperationContext c;
         RDBMSContext r;
         FieldTreeNode f;
-        LinkedList<SelectStmt> stmts;
         Map<String, ProjectionMapping> fieldToProjectionMap;
         Map<ProjectionMapping, Join> projectionToJoinMap;
         Map<String, ColumnToField> fieldToTableMap;
@@ -61,22 +59,29 @@ abstract class Translator {
         public boolean hasJoins;
         public boolean hasSortOrLimit;
 
-        public List<SelectStmt> generateFinalTranslation(){
-            ArrayList<SelectStmt> result = new ArrayList<>();
-            return result;
-        }
+
+        LinkedList<SelectStmt> firstStmts;
+        SelectStmt lastStmt;
+
+
 
         public TranslationContext(CRUDOperationContext c, RDBMSContext r, FieldTreeNode f) {
-            this.stmts = new LinkedList<>();
+            this.firstStmts = new LinkedList<>();
             this.fieldToProjectionMap = new HashMap<>();
             this.fieldToTableMap = new HashMap<>();
             this.sortDependencies = new SelectStmt();
             this.sortDependencies.setOrderBy(new ArrayList<String>());
             this.nameOfTables = new HashSet<>();
+            this.lastStmt =  new SelectStmt()
             this.c = c;
             this.r = r;
             this.f = f;
             index();
+        }
+
+        public List<SelectStmt> generateFinalTranslation(){
+            ArrayList<SelectStmt> result = new ArrayList<>();
+            return result;
         }
 
         private void index() {
@@ -99,9 +104,9 @@ abstract class Translator {
         }
         
         public void clearAll(){
-            stmts.clear();
+            firstStmts.clear();
             fieldToProjectionMap.clear();
-            this.stmts = null;
+            this.firstStmts = null;
             this.c = null;
             this.r = null;
             this.f = null;
@@ -126,6 +131,7 @@ abstract class Translator {
             TranslationContext translationContext = new TranslationContext(c, r, f);
             preProcess(translationContext);
             recursiveTranslateQuery(translationContext,r.getQueryExpression());
+            posProcess(translationContext);
             List<SelectStmt> translation = translationContext.generateFinalTranslation();
             return translation;
         } catch (com.redhat.lightblue.util.Error e) {
@@ -140,28 +146,21 @@ abstract class Translator {
         }
     }
 
+    private void posProcess(TranslationContext t) {
+        t.checkJoins();
+        t.lastStmt.getFromTables().addAll(t.nameOfTables);
+    }
+
     private void preProcess(TranslationContext t) {
         translateSort(t);
-        CheckForJoins(t);
         translateFromTo(t);
     }
 
-    protected void CheckForJoins(TranslationContext t){
-        if(t.r.getFrom() != null && t.r.getTo() != null){
-            if (t.sortDependencies.getOrderBy().size() > 1) {
-                t.hasJoins = true;
-            }else {
-                new FindField().recursiveTranslateQuery(t, t.r.getQueryExpression());
-                t.checkJoins();
-            }
+    protected void translateFromTo(TranslationContext t) {
+        if(t.r.getTo() != null || t.r.getFrom() != null){
+            t.hasSortOrLimit = true;
         }
     }
-
-    protected void translateFromTo(TranslationContext t) {
-        translateFromToDependencies(t);
-    }
-
-    protected abstract void translateFromToDependencies(TranslationContext t);
 
     protected void translateSort(TranslationContext translationContext) {
         Sort sort = translationContext.r.getSort();
@@ -284,8 +283,7 @@ abstract class Translator {
                 c.f = el;
                 recursiveTranslateQuery(c, expr.getElemMatch());
                 String path = translatePath(expr.getArray());
-
-                // TODO Need to define what would happen in this scenario
+                // TODO Need to define what would happen in this scenario (not supported yet)
                 c.f = tmp;
             }
         }
@@ -300,11 +298,25 @@ abstract class Translator {
         int rn = rField.nAnys();
         int ln = lField.nAnys();
         if (rn > 0 && ln > 0) {
-            // TODO Need to define what would happen in this scenario. SQL we can intersect two sets
+            // TODO Need to define what would happen in this scenario
         } else if (rn > 0 || ln > 0) {
-            // TODO Need to define what would happen in this scenario. SQL we can intersect two sets
+            // TODO Need to define what would happen in this scenario
         } else {
             // No ANYs, direct comparison
+            String f = expr.getField().toString();
+            String r = expr.getRfield().toString();
+
+            ColumnToField fTable = c.fieldToTableMap.get(f);
+            ColumnToField rTable = c.fieldToTableMap.get(r);
+
+
+            SelectStmt s = new SelectStmt();
+            s.setFromTables(new ArrayList<String>());
+            s.getFromTables().add(fTable);
+            s.getFromTables().add(rTable);
+            s.setWhereConditionals();
+            c.nameOfTables.add();
+            c.stmts.add(s);
             //TODO put a comparison clause in the statement, which can turn into more than one in case of join tables with pagination
 //            str.append(LITERAL_THIS_DOT).
 //                    append(translateJsPath(expr.getField())).

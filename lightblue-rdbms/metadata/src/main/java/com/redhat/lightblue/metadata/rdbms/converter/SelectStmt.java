@@ -19,6 +19,7 @@
 
 package com.redhat.lightblue.metadata.rdbms.converter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,12 +28,12 @@ import java.util.List;
  */
 public class SelectStmt {
     private String distic;
-    private List<String> resultColumns;
-    private List<String> fromTables;
-    private List<String> whereConditionals;
-    private List<String> groupBy; // TODO Future implementation
-    private List<String> having; // TODO Future implementation
-    private List<String> orderBy;
+    private List<String> resultColumns = new ArrayList<>();
+    private List<String> fromTables = new ArrayList<>();
+    private List<String> whereConditionals = new ArrayList<>();
+    private List<String> groupBy = new ArrayList<>(); // TODO Future implementation
+    private List<String> having = new ArrayList<>(); // TODO Future implementation
+    private List<String> orderBy = new ArrayList<>();
     private Integer limit;
     private Integer offset;
 
