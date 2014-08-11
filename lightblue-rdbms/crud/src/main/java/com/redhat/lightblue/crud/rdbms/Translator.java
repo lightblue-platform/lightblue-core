@@ -57,7 +57,9 @@ abstract class Translator {
         Path tmpArray;
         Type tmpType;
         List<Value> tmpValues;
+
         public boolean hasJoins;
+        public boolean hasSortOrLimit;
 
         public List<SelectStmt> generateFinalTranslation(){
             ArrayList<SelectStmt> result = new ArrayList<>();
@@ -106,6 +108,13 @@ abstract class Translator {
             this.clearTmp();
 
         }
+
+
+        public void checkJoins(){
+            if(nameOfTables.size() >1){
+                hasJoins = true;
+            }
+        }
     }
 
     public List<SelectStmt> translate(CRUDOperationContext c, RDBMSContext r) {
@@ -115,11 +124,9 @@ abstract class Translator {
 
         try {
             TranslationContext translationContext = new TranslationContext(c, r, f);
-            //translationContext.s.
             preProcess(translationContext);
             recursiveTranslateQuery(translationContext,r.getQueryExpression());
             List<SelectStmt> translation = translationContext.generateFinalTranslation();
-            // TODO test translationContext.clearAll(); for moved the objects ahead to GC , maybe it will be better make this call from the class that called this method
             return translation;
         } catch (com.redhat.lightblue.util.Error e) {
             // rethrow lightblue error
@@ -145,9 +152,7 @@ abstract class Translator {
                 t.hasJoins = true;
             }else {
                 new FindField().recursiveTranslateQuery(t, t.r.getQueryExpression());
-                if(t.nameOfTables.size() >1){
-                    t.hasJoins = true;
-                }
+                t.checkJoins();
             }
         }
     }
@@ -181,6 +186,7 @@ abstract class Translator {
             field = projectionMapping.getColumn();
         }
         t.sortDependencies.getOrderBy().add(field);
+        t.hasSortOrLimit = true;
 
     }
 
@@ -279,7 +285,7 @@ abstract class Translator {
                 recursiveTranslateQuery(c, expr.getElemMatch());
                 String path = translatePath(expr.getArray());
 
-                // TODO
+                // TODO Need to define what would happen in this scenario
                 c.f = tmp;
             }
         }
@@ -294,12 +300,12 @@ abstract class Translator {
         int rn = rField.nAnys();
         int ln = lField.nAnys();
         if (rn > 0 && ln > 0) {
-            // TODO Need to define what would happen in this scenario
+            // TODO Need to define what would happen in this scenario. SQL we can intersect two sets
         } else if (rn > 0 || ln > 0) {
-            // TODO Need to define what would happen in this scenario
+            // TODO Need to define what would happen in this scenario. SQL we can intersect two sets
         } else {
             // No ANYs, direct comparison
-            //TODO put a comparison clause in the statenent, which can turn into more than one in case of join tables with pagination
+            //TODO put a comparison clause in the statement, which can turn into more than one in case of join tables with pagination
 //            str.append(LITERAL_THIS_DOT).
 //                    append(translateJsPath(expr.getField())).
 //                    append(BINARY_COMPARISON_OPERATOR_JS_MAP.get(expr.getOp())).
