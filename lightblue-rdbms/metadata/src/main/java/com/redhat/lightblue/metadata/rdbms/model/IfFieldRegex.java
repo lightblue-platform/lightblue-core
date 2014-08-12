@@ -104,10 +104,10 @@ public class IfFieldRegex extends If<If, If> {
         }
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$field-regex", s);
+            p.putObject(node, "$fieldRegex", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$field-regex", s);
+            p.putObject(iT, "$fieldRegex", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
@@ -115,16 +115,16 @@ public class IfFieldRegex extends If<If, If> {
     @Override
     public <T> If parse(MetadataParser<T> p, T ifT) {
         If x = null;
-        T pathregex = p.getObjectProperty(ifT, "$field-regex");
+        T pathregex = p.getObjectProperty(ifT, "$fieldRegex");
         if (pathregex != null) {
             x = new IfFieldRegex();
             String path = p.getStringProperty(pathregex, "field");
             String regex = p.getStringProperty(pathregex, "regex");
             if (path == null || path.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: field not informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$fieldRegex: field not informed");
             }
             if (regex == null || regex.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: regex not informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$fieldRegex: regex not informed");
             }
             String caseInsensitive = p.getStringProperty(pathregex, "caseInsensitive");
             String multiline = p.getStringProperty(pathregex, "multiline");
