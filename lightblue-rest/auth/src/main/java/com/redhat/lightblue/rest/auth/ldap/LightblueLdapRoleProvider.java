@@ -35,15 +35,16 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import com.redhat.lightblue.rest.auth.LightblueRoleProvider;
+import org.jboss.logging.Logger;
 
 public class LightblueLdapRoleProvider implements LightblueRoleProvider {
+    private final Logger LOGGER = Logger.getLogger(LightblueLdapRoleProvider.class);
 
     LdapContext ldapContext;
     String ldapSearchBase;
 
     public LightblueLdapRoleProvider(String server, String searchBase, String bindDn, String bindDNPwd) throws NamingException {
-
-        Hashtable<String, Object> env = new Hashtable<String, Object>();
+        Hashtable<String, Object> env = new Hashtable<>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         if (bindDn != null) {
             env.put(Context.SECURITY_PRINCIPAL, bindDn);
@@ -57,17 +58,18 @@ public class LightblueLdapRoleProvider implements LightblueRoleProvider {
         ldapContext = new InitialLdapContext(env, null);
     }
 
+    @Override
     public List<String> getUserRoles(String userName) {
-        List<String> userRoles = new ArrayList<String>();
+        List<String> userRoles = new ArrayList<>();
 
         try {
             userRoles.addAll(getUserRolesFromCache(userName));
 
-            if (userRoles.size() == 0) {
+            if (userRoles.isEmpty()) {
                 userRoles.addAll(getUserRolesFromLdap(findUserByUid(userName)));
             }
         } catch (NamingException ne) {
-            System.err.println("Problem getting roles for user: " + userName);
+            LOGGER.error("Problem getting roles for user: " + userName, ne);
         }
 
         return userRoles;
@@ -94,7 +96,6 @@ public class LightblueLdapRoleProvider implements LightblueRoleProvider {
     }
 
     private SearchResult findUserByUid(String uid) throws NamingException {
-
         String searchFilter = "(uid=" + uid + ")";
 
         SearchControls searchControls = new SearchControls();
@@ -108,7 +109,7 @@ public class LightblueLdapRoleProvider implements LightblueRoleProvider {
 
             //make sure there is not another item available, there should be only 1 match
             if (results.hasMoreElements()) {
-                System.err.println("Matched multiple users for the accountName: " + uid);
+                LOGGER.error("Matched multiple users for the accountName: " + uid);
                 return null;
             }
         }
@@ -117,7 +118,7 @@ public class LightblueLdapRoleProvider implements LightblueRoleProvider {
     }
 
     private List<String> getUserRolesFromLdap(SearchResult ldapUser) throws NamingException {
-        List<String> groups = new ArrayList<String>();
+        List<String> groups = new ArrayList<>();
 
         NamingEnumeration<?> groupAttributes = ldapUser.getAttributes().get("memberOf").getAll();
 
@@ -134,5 +135,4 @@ public class LightblueLdapRoleProvider implements LightblueRoleProvider {
 
         return groups;
     }
-
 }
