@@ -21,5 +21,5 @@ package com.redhat.lightblue.metadata.rdbms.parser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 
 public interface SimpleParser<N> {
-    public abstract<T> N parse(MetadataParser<T> p, T node);
+    public abstract <T> N parse(MetadataParser<T> p, T node);
 }

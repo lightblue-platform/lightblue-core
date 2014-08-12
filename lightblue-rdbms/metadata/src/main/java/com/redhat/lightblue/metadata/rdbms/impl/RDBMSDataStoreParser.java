@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.metadata.rdbms.impl;
 
 import com.redhat.lightblue.common.rdbms.RDBMSDataStore;
@@ -29,7 +28,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
  *
  * @author lcestari
  */
-public class RDBMSDataStoreParser <T> implements DataStoreParser<T> {
+public class RDBMSDataStoreParser<T> implements DataStoreParser<T> {
 
     public static final String COLLECTION_REQUIRED = "COLLECTION_REQUIRED";
 
@@ -60,5 +59,5 @@ public class RDBMSDataStoreParser <T> implements DataStoreParser<T> {
     @Override
     public String getDefaultName() {
         return NAME;
-    }    
+    }
 }

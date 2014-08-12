@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.metadata.rdbms.enums;
 
 import java.util.Arrays;
@@ -27,7 +26,7 @@ import java.util.Set;
  * @author lcestari
  */
 public class ExpressionOperators {
-private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("ExpressionOperators");
+    private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("ExpressionOperators");
 
     //public static final String CONDITIONAL = Conditional.class.getSimpleName(); //-> error constant string expression required 
     public static final String CONDITIONAL = "Conditional";

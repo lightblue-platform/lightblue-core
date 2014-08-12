@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 
 public class RDBMSUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSUtils.class);
-    
+
     public static DataSource getDataSource(String name) {
         LOGGER.debug("getDataSource() start");
         Error.push("RDBMSUtils");

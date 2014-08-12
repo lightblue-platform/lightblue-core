@@ -26,8 +26,8 @@ import com.redhat.lightblue.util.Path;
 public class InOut implements ComplexConverter {
     private String column;
     private Path field;
-    
-        @Override
+
+    @Override
     public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
         boolean col = this.getColumn() == null || this.getColumn().isEmpty();
         boolean path = this.getField() == null || this.getField().toString().isEmpty();

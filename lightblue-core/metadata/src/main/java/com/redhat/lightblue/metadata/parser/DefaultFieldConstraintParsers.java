@@ -31,8 +31,9 @@ import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
 
-/**import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
-
+/**
+ * import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
+ *
  * Convenience class to register all predefined constraint parsers to
  * MetadataParser
  */

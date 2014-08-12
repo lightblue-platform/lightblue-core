@@ -28,12 +28,12 @@ import java.util.List;
  *
  * @author lcestari
  */
-public class SQLMapping implements RootConverter{
-    
+public class SQLMapping implements RootConverter {
+
     private List<Join> joins;
     private List<ColumnToField> columnToFieldMap;
 
-    public <T> void parse(MetadataParser<T> p, T node){
+    public <T> void parse(MetadataParser<T> p, T node) {
         List<T> joinsT = p.getObjectList(node, "joins");
         List<T> ctfmT = p.getObjectList(node, "columnToFieldMap");
 
@@ -61,7 +61,7 @@ public class SQLMapping implements RootConverter{
         List<Join> js = new ArrayList<>();
         for (T t : joinsT) {
             Join j = new Join();
-            j.parse(p,t);
+            j.parse(p, t);
             js.add(j);
         }
         return js;
@@ -78,11 +78,11 @@ public class SQLMapping implements RootConverter{
     }
 
     private <T> void convertColumnToFieldMap(MetadataParser<T> p, Object c) {
-        if(this.columnToFieldMap == null || this.columnToFieldMap.isEmpty()){
+        if (this.columnToFieldMap == null || this.columnToFieldMap.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing columnToFieldMap field");
         }
         for (ColumnToField columnToField : columnToFieldMap) {
-            columnToField.convert(p,c);
+            columnToField.convert(p, c);
         }
     }
 
@@ -91,7 +91,6 @@ public class SQLMapping implements RootConverter{
             j.convert(p, array);
         }
     }
-
 
     public List<Join> getJoins() {
         return joins;

@@ -79,11 +79,9 @@ abstract class Translator {
         public boolean hasJoins;
         public boolean hasSortOrLimit;
 
-
         LinkedList<SelectStmt> firstStmts; // Useful for complex queries which need to run before the  main one
         SelectStmt baseStmt;
         List<Map.Entry<String,List<String>>> logicalStmt;
-
 
         public TranslationContext(CRUDOperationContext c, RDBMSContext r, FieldTreeNode f) {
             this.firstStmts = new LinkedList<>();
@@ -110,7 +108,7 @@ abstract class Translator {
                 for (ProjectionMapping projectionMapping : join.getProjectionMappings()) {
                     String field = projectionMapping.getField();
                     fieldToProjectionMap.put(field, projectionMapping);
-                    projectionToJoinMap.put(projectionMapping,join);
+                    projectionToJoinMap.put(projectionMapping, join);
                 }
                 needDistinct = join.isNeedDistinct() || needDistinct;
             }
@@ -119,12 +117,12 @@ abstract class Translator {
             }
         }
 
-        public void clearTmp(){
+        public void clearTmp() {
             this.tmpArray = null;
             this.tmpType = null;
             this.tmpValues = null;
         }
-        
+
         public void clearAll(){
             firstStmts.clear();
             fieldToProjectionMap.clear();
@@ -133,12 +131,10 @@ abstract class Translator {
             this.r = null;
             this.f = null;
             this.clearTmp();
-
         }
 
-
-        public void checkJoins(){
-            if(nameOfTables.size() >1){
+        public void checkJoins() {
+            if (nameOfTables.size() > 1) {
                 hasJoins = true;
             }
         }
@@ -185,22 +181,23 @@ abstract class Translator {
 
     protected void translateSort(TranslationContext translationContext) {
         Sort sort = translationContext.r.getSort();
-        if(sort instanceof CompositeSortKey) {
-            CompositeSortKey c =  (CompositeSortKey) sort;
+        if (sort instanceof CompositeSortKey) {
+            CompositeSortKey c = (CompositeSortKey) sort;
             for (SortKey k : c.getKeys()) {
-                translateSortKey(translationContext, k);            
+                translateSortKey(translationContext, k);
             }
 
         } else {
             SortKey k = (SortKey) sort;
-            translateSortKey(translationContext, k);            
+            translateSortKey(translationContext, k);
         }
     }
+
     protected void translateSortKey(TranslationContext t, SortKey k) {
         String translatePath = translatePath(k.getField());
         ProjectionMapping projectionMapping = t.fieldToProjectionMap.get(translatePath);
         String field;
-        if(projectionMapping.getSort() != null && projectionMapping.getSort().isEmpty()){
+        if (projectionMapping.getSort() != null && projectionMapping.getSort().isEmpty()) {
             field = projectionMapping.getSort();
         } else {
             field = projectionMapping.getColumn();
@@ -320,7 +317,7 @@ abstract class Translator {
 
     //Possible subquery or it will need to run a query before this
     //{ _id: 1, results: [ 82, 85, 88 ] } { _id: 2, results: [ 75, 88, 89 ] } ->{ results: { $elemMatch: { $gte: 80, $lt: 85 } } }->{ "_id" : 1, "results" : [ 82, 85, 88 ] }
-    protected void recursiveTranslateArrayElemMatch(TranslationContext c, ArrayMatchExpression expr){
+    protected void recursiveTranslateArrayElemMatch(TranslationContext c, ArrayMatchExpression expr) {
         FieldTreeNode arrayNode = resolve(c.f, expr.getArray());
         if (arrayNode instanceof ArrayField) {
             ArrayElement el = ((ArrayField) arrayNode).getElement();
@@ -336,7 +333,7 @@ abstract class Translator {
         throw com.redhat.lightblue.util.Error.get("Invalid field", expr.toString());
     }
 
-    protected void recursiveTranslateFieldComparison(TranslationContext c, FieldComparisonExpression expr){
+    protected void recursiveTranslateFieldComparison(TranslationContext c, FieldComparisonExpression expr) {
         StringBuilder str = new StringBuilder();
         // We have to deal with array references here
         Path rField = expr.getRfield();
@@ -472,6 +469,4 @@ abstract class Translator {
             addConditional(c, s);
         }
     }
-
-
 }

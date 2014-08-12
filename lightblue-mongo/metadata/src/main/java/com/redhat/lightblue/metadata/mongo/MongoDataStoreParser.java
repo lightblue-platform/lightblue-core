@@ -40,7 +40,6 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
         }
 
         MongoDataStore ds = new MongoDataStore();
-        ds.setClientJndiName(p.getStringProperty(node, "clientJndiName"));
         ds.setDatabaseName(p.getStringProperty(node, "database"));
         ds.setDatasourceName(p.getStringProperty(node, "datasource"));
         ds.setCollectionName(p.getStringProperty(node, "collection"));
@@ -54,9 +53,6 @@ public class MongoDataStoreParser<T> implements DataStoreParser<T> {
     @Override
     public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
         MongoDataStore ds = (MongoDataStore) object;
-        if (ds.getClientJndiName() != null) {
-            p.putString(emptyNode, "clientJndiName", ds.getClientJndiName());
-        }
         if (ds.getDatabaseName() != null) {
             p.putString(emptyNode, "database", ds.getDatabaseName());
         }

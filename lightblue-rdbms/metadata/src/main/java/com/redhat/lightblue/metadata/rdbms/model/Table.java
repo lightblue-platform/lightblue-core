@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.metadata.rdbms.model;
 
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -27,34 +26,34 @@ import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
  *
  * @author lcestari
  */
-public class Table  implements SimpleConverter {
+public class Table implements SimpleConverter {
     private String name;
     private String alias;
 
     @Override
     public <T> void convert(MetadataParser<T> p, Object expressionsNode) {
         T eT = p.newNode();
-        if(name == null || name.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing name field");  
+        if (name == null || name.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing name field");
         }
         p.putString(eT, "name", name);
-        
-        if(alias != null && !alias.isEmpty()){
-           p.putString(eT, "alias", alias);
+
+        if (alias != null && !alias.isEmpty()) {
+            p.putString(eT, "alias", alias);
         }
-        
+
         p.addObjectToArray(expressionsNode, eT);
     }
 
     public <T> void parse(MetadataParser<T> p, T t) {
         String n = p.getStringProperty(t, "name");
         String a = p.getStringProperty(t, "alias");
-        
-        if(n == null || n.isEmpty()){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing name field");  
+
+        if (n == null || n.isEmpty()) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Missing name field");
         }
-        
-        name  = n;
+
+        name = n;
         alias = a;
     }
 

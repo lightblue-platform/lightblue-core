@@ -72,6 +72,7 @@ public final class Merge {
             return value;
         }
 
+        @Override
         public String toString() {
             return path.toString() + ":" + value;
         }
@@ -80,10 +81,10 @@ public final class Merge {
     public static final class PathAndField {
         private final Path path;
         private final SimpleField field;
-        
-        public PathAndField(Path path,SimpleField field) {
-            this.path=path;
-            this.field=field;
+
+        public PathAndField(Path path, SimpleField field) {
+            this.path = path;
+            this.field = field;
         }
 
         public Path getPath() {
@@ -94,13 +95,14 @@ public final class Merge {
             return field;
         }
 
+        @Override
         public String toString() {
             return path.toString();
         }
     }
 
     private final List<IField> invisibleFields = new ArrayList<>();
-    private final Map<Path,List<PathAndField>> arrayIdentifiers = new HashMap<>();
+    private final Map<Path, List<PathAndField>> arrayIdentifiers = new HashMap<>();
 
     public Merge(EntityMetadata md) {
         this.md = md;
@@ -163,32 +165,34 @@ public final class Merge {
 
                     // field points to arrayElement (e.g. x.y.z.1)
                     // arrayField points to array (e.g. x.y.z)
-                    Path arrayField=field.prefix(-1);
-                    List<PathAndField> identifiers=arrayIdentifiers.get(arrayField);
-                    if(identifiers==null) {
-                        identifiers=getArrayIdentifiers(field);
-                        if(!identifiers.isEmpty())
-                            arrayIdentifiers.put(arrayField,identifiers);
+                    Path arrayField = field.prefix(-1);
+                    List<PathAndField> identifiers = arrayIdentifiers.get(arrayField);
+                    if (identifiers == null) {
+                        identifiers = getArrayIdentifiers(field);
+                        if (!identifiers.isEmpty()) {
+                            arrayIdentifiers.put(arrayField, identifiers);
+                        }
                     }
-                    LOGGER.debug("Identifiers for array field {}: {}",field,identifiers);
-                    if(identifiers.isEmpty()) {
-                        fail=true;
+                    LOGGER.debug("Identifiers for array field {}: {}", field, identifiers);
+                    if (identifiers.isEmpty()) {
+                        fail = true;
                         break;
                     } else {
                         // Retrieve identifying content
-                        List<IField> identifyingContent=getIdentifyingContent(identifiers,
-                                                                              ((List<DBObject>)oldParent).
-                                                                              get(field.getIndex(segment)));
-                        LOGGER.debug("Identifying content: {}",identifyingContent);
+                        List<IField> identifyingContent = getIdentifyingContent(identifiers,
+                                ((List<DBObject>) oldParent).
+                                get(field.getIndex(segment)));
+                        LOGGER.debug("Identifying content: {}", identifyingContent);
                         // Find the array element in the new copy
-                        DBObject newArrayElement=findArrayElement((DBObject)parent,identifyingContent);
-                        if(newArrayElement!=null) {
+                        DBObject newArrayElement = findArrayElement((DBObject) parent, identifyingContent);
+                        if (newArrayElement != null) {
                             // Found new array element.
-                            LOGGER.debug("Found element in newCopy: {} ",newArrayElement);
-                            oldParent=((List<DBObject>)oldParent).get(field.getIndex(segment));
-                            parent=newArrayElement;
-                        } else
-                            LOGGER.debug("Not found element in newCopy with identifiers {}",identifyingContent);
+                            LOGGER.debug("Found element in newCopy: {} ", newArrayElement);
+                            oldParent = ((List<DBObject>) oldParent).get(field.getIndex(segment));
+                            parent = newArrayElement;
+                        } else {
+                            LOGGER.debug("Not found element in newCopy with identifiers {}", identifyingContent);
+                        }
                     }
                 } else {
                     if (parent instanceof DBObject) {
@@ -222,49 +226,56 @@ public final class Merge {
         return ret;
     }
 
-    public List<IField> getIdentifyingContent(List<PathAndField> identifiers,DBObject parent) {
-        List<IField> values=new ArrayList<>(identifiers.size());
-        for(PathAndField pf:identifiers) {
-            Object value=getValue(parent,pf.getPath());
-            values.add(new IField(pf.getPath(),value));
+    public List<IField> getIdentifyingContent(List<PathAndField> identifiers, DBObject parent) {
+        List<IField> values = new ArrayList<>(identifiers.size());
+        for (PathAndField pf : identifiers) {
+            Object value = getValue(parent, pf.getPath());
+            values.add(new IField(pf.getPath(), value));
         }
         return values;
     }
 
-    private Object getValue(Object parent,Path relpath) {
-        int n=relpath.numSegments();
-        for(int i=0;i<n;i++) {
-            parent=((DBObject)parent).get(relpath.head(i));
-            if(parent==null)
+    private Object getValue(Object parent, Path relpath) {
+        int n = relpath.numSegments();
+        for (int i = 0; i < n; i++) {
+            parent = ((DBObject) parent).get(relpath.head(i));
+            if (parent == null) {
                 break;
+            }
         }
         return parent;
     }
 
     /**
-     * Returns all array element ids. If there are none, returns all
-     * UID fields. Search starts from the array element, and does not
-     * descend into any nested arrays.
+     * Returns all array element ids. If there are none, returns all UID fields.
+     * Search starts from the array element, and does not descend into any
+     * nested arrays.
      */
     public List<PathAndField> getArrayIdentifiers(Path arrayElementField) {
-        List<PathAndField> idPaths=new ArrayList<>();
-        MutablePath mp=new MutablePath();
-        getArrayIdentifiers(md.getFieldCursor(arrayElementField),mp,idPaths,new ArrayIdCollector() {
+        List<PathAndField> idPaths = new ArrayList<>();
+        MutablePath mp = new MutablePath();
+        getArrayIdentifiers(md.getFieldCursor(arrayElementField), mp, idPaths, new ArrayIdCollector() {
+            @Override
+            public boolean isIncluded(SimpleField field) {
+                List<FieldConstraint> constraints = field.getConstraints();
+                if (constraints != null) {
+                    for (FieldConstraint x : constraints) {
+                        if (x instanceof ArrayElementIdConstraint) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+        if (idPaths.isEmpty()) {
+            getArrayIdentifiers(md.getFieldCursor(arrayElementField), mp, idPaths, new ArrayIdCollector() {
+                @Override
                 public boolean isIncluded(SimpleField field) {
-                    List<FieldConstraint> constraints=field.getConstraints();
-                    if(constraints!=null)
-                        for(FieldConstraint x:constraints)
-                            if(x instanceof ArrayElementIdConstraint)
-                                return true;
-                    return false;
+                    return field.getType().equals(UIDType.TYPE);
                 }
             });
-        if(idPaths.isEmpty())
-            getArrayIdentifiers(md.getFieldCursor(arrayElementField),mp,idPaths,new ArrayIdCollector() {
-                    public boolean isIncluded(SimpleField field) {
-                        return field.getType().equals(UIDType.TYPE);
-                    }
-                });
+        }
         return idPaths;
     }
 
@@ -272,40 +283,42 @@ public final class Merge {
         boolean isIncluded(SimpleField field);
     }
 
-    private void getArrayIdentifiers(FieldCursor cursor,MutablePath mp,
+    private void getArrayIdentifiers(FieldCursor cursor, MutablePath mp,
                                      List<PathAndField> paths, ArrayIdCollector collector) {
-        if(cursor.firstChild()) {
+        if (cursor.firstChild()) {
             mp.push("x");
             do {
-                FieldTreeNode fn=cursor.getCurrentNode();
+                FieldTreeNode fn = cursor.getCurrentNode();
                 mp.setLast(fn.getName());
-                if(fn instanceof ObjectField)
-                    getArrayIdentifiers(cursor,mp,paths,collector);
-                else if(fn instanceof SimpleField) {
-                    if(collector.isIncluded((SimpleField)fn))
-                        paths.add(new PathAndField(mp.immutableCopy(),(SimpleField)fn));
+                if (fn instanceof ObjectField) {
+                    getArrayIdentifiers(cursor, mp, paths, collector);
+                } else if (fn instanceof SimpleField) {
+                    if (collector.isIncluded((SimpleField) fn)) {
+                        paths.add(new PathAndField(mp.immutableCopy(), (SimpleField) fn));
+                    }
                 }
-            } while(cursor.nextSibling());
+            } while (cursor.nextSibling());
             cursor.parent();
             mp.pop();
         }
     }
 
-    private DBObject findArrayElement(DBObject array,List<IField> identifiers) {
-        int size=((List)array).size();
-        for(int i=0;i<size;i++) {
-            DBObject elem=((List<DBObject>)array).get(i);
-            boolean found=true;
-            for(IField ifld:identifiers) {
-                Object value=getValue(array,ifld.getPath());
-                if( !((value==null&&ifld.getValue()==null) ||
-                      (value!=null&&ifld.getValue()!=null&&value.equals(ifld.getValue()))) ) {
-                    found=false;
+    private DBObject findArrayElement(DBObject array, List<IField> identifiers) {
+        int size = ((List) array).size();
+        for (int i = 0; i < size; i++) {
+            DBObject elem = ((List<DBObject>) array).get(i);
+            boolean found = true;
+            for (IField ifld : identifiers) {
+                Object value = getValue(array, ifld.getPath());
+                if (!((value == null && ifld.getValue() == null)
+                        || (value != null && ifld.getValue() != null && value.equals(ifld.getValue())))) {
+                    found = false;
                     break;
                 }
             }
-            if(found)
+            if (found) {
                 return elem;
+            }
         }
         return null;
     }

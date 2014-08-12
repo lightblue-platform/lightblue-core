@@ -27,7 +27,6 @@ public class MongoDataStore implements DataStore, Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private String clientJndiName;
     private String datasourceName;
     private String databaseName;
     private String collectionName;
@@ -35,11 +34,9 @@ public class MongoDataStore implements DataStore, Serializable {
     public MongoDataStore() {
     }
 
-    public MongoDataStore(String clientJndiName,
-                          String databaseName,
+    public MongoDataStore(String databaseName,
                           String datasourceName,
                           String collectionName) {
-        this.clientJndiName = clientJndiName;
         this.databaseName = databaseName;
         this.datasourceName = datasourceName;
         this.collectionName = collectionName;
@@ -48,26 +45,6 @@ public class MongoDataStore implements DataStore, Serializable {
     @Override
     public String getBackend() {
         return "mongo";
-    }
-
-    /**
-     * Gets the value of clientJndiName
-     *
-     * @return the value of clientJndiName
-     *  
-     */
-    // TODO Do we use it?
-    public String getClientJndiName() {
-        return this.clientJndiName;
-    }
-
-    /**
-     * Sets the value of clientJndiName
-     *
-     * @param argClientJndiName Value to assign to this.clientJndiName
-     */
-    public void setClientJndiName(String argClientJndiName) {
-        this.clientJndiName = argClientJndiName;
     }
 
     /**
@@ -136,9 +113,6 @@ public class MongoDataStore implements DataStore, Serializable {
         if (collectionName != null) {
             bld.append("collection:").append(collectionName);
         }
-        if (clientJndiName != null) {
-            bld.append('@').append(clientJndiName);
-        }
         return bld.toString();
     }
 
@@ -148,8 +122,7 @@ public class MongoDataStore implements DataStore, Serializable {
             if (x instanceof MongoDataStore) {
                 MongoDataStore mds = (MongoDataStore) x;
                 try {
-                    return Objects.equals(clientJndiName, mds.getClientJndiName())
-                            && Objects.equals(datasourceName, mds.getDatasourceName())
+                    return Objects.equals(datasourceName, mds.getDatasourceName())
                             && Objects.equals(databaseName, mds.getDatabaseName())
                             && Objects.equals(collectionName, mds.getCollectionName());
                 } catch (ClassCastException e) {
@@ -162,8 +135,7 @@ public class MongoDataStore implements DataStore, Serializable {
 
     @Override
     public int hashCode() {
-        return (clientJndiName == null ? 1 : clientJndiName.hashCode())
-                * (databaseName == null ? 1 : databaseName.hashCode())
+        return (databaseName == null ? 1 : databaseName.hashCode())
                 * (collectionName == null ? 1 : collectionName.hashCode())
                 * (datasourceName == null ? 1 : datasourceName.hashCode());
     }

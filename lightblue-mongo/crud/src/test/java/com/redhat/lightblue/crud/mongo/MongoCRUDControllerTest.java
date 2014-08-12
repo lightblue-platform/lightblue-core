@@ -365,7 +365,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex1"));
+        e.setDataStore(new MongoDataStore(null, null, "testCollectionIndex1"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
@@ -403,7 +403,7 @@ public class MongoCRUDControllerTest extends AbstractMongoTest {
         EntityMetadata e = new EntityMetadata("testEntity");
         e.setVersion(new Version("1.0.0", null, "some text blah blah"));
         e.setStatus(MetadataStatus.ACTIVE);
-        e.setDataStore(new MongoDataStore(null, null, null, "testCollectionIndex2"));
+        e.setDataStore(new MongoDataStore(null, null, "testCollectionIndex2"));
         e.getFields().put(new SimpleField("field1", StringType.TYPE));
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));

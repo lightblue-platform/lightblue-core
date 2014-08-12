@@ -89,7 +89,8 @@
                 "biginteger",
                 "bigdecimal",
                 "date",
-                "binary"
+                "binary",
+                "uid"
             ]
         },
         "types_complex": {

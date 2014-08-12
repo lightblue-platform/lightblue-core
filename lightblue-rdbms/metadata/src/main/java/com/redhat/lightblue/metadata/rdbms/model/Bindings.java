@@ -26,7 +26,7 @@ import java.util.List;
 public class Bindings implements RootConverter {
     private List<InOut> inList;
     private List<InOut> outList;
-    
+
     @Override
     public <T> void convert(MetadataParser<T> p, T parent) {
         boolean bIn = this.getInList() == null || this.getInList().isEmpty();

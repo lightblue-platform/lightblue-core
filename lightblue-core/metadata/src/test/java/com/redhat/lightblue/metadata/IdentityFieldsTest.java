@@ -18,20 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.metadata.types.UIDType;
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -39,10 +30,6 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 
-import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
-
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonUtils;
 
 public class IdentityFieldsTest {
@@ -51,21 +38,25 @@ public class IdentityFieldsTest {
 
     @Test
     public void userTest1() throws Exception {
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
         extensions.registerDataStoreParser("mongo", new DataStoreParser<JsonNode>() {
+            @Override
             public String getDefaultName() {
                 return "mongo";
             }
 
+            @Override
             public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
                 return new DataStore() {
+                    @Override
                     public String getBackend() {
                         return "mongo";
                     }
                 };
             }
 
+            @Override
             public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
             }
         });
@@ -74,28 +65,32 @@ public class IdentityFieldsTest {
         JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
         EntityMetadata md = parser.parseEntityMetadata(node);
 
-        Field[] idf=md.getEntitySchema().getIdentityFields();
-        Assert.assertEquals(1,idf.length);
-        Assert.assertEquals("_id",idf[0].getName());
+        Field[] idf = md.getEntitySchema().getIdentityFields();
+        Assert.assertEquals(1, idf.length);
+        Assert.assertEquals("_id", idf[0].getName());
     }
 
     @Test
     public void userTest2() throws Exception {
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
         extensions.registerDataStoreParser("mongo", new DataStoreParser<JsonNode>() {
+            @Override
             public String getDefaultName() {
                 return "mongo";
             }
 
+            @Override
             public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
                 return new DataStore() {
+                    @Override
                     public String getBackend() {
                         return "mongo";
                     }
                 };
             }
 
+            @Override
             public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
             }
         });
@@ -104,9 +99,9 @@ public class IdentityFieldsTest {
         JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermdidf.json"));
         EntityMetadata md = parser.parseEntityMetadata(node);
 
-        Field[] idf=md.getEntitySchema().getIdentityFields();
-        Assert.assertEquals(2,idf.length);
-        Assert.assertEquals("_id",idf[0].getName());
-        Assert.assertEquals("contactPermissions.allowEmailContact",idf[1].getFullPath().toString());
+        Field[] idf = md.getEntitySchema().getIdentityFields();
+        Assert.assertEquals(2, idf.length);
+        Assert.assertEquals("_id", idf[0].getName());
+        Assert.assertEquals("contactPermissions.allowEmailContact", idf[1].getFullPath().toString());
     }
 }

@@ -42,9 +42,10 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                                 FieldConstraint constraint,
                                 JsonDoc doc) {
         if (((RequiredConstraint) constraint).getValue()) {
-            List<Path> errors=getMissingFields(fieldMetadataPath,doc);
-            for(Path x:errors)
+            List<Path> errors = getMissingFields(fieldMetadataPath, doc);
+            for (Path x : errors) {
                 validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED, x.toString()));
+            }
         }
     }
 
@@ -59,7 +60,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
     public static List<Path> getMissingFields(Path fieldMetadataPath,
                                               JsonDoc doc) {
         int nAnys = fieldMetadataPath.nAnys();
-        List<Path> errors=new ArrayList<Path>();
+        List<Path> errors = new ArrayList<Path>();
         if (nAnys == 0) {
             if (doc.get(fieldMetadataPath) == null) {
                 errors.add(fieldMetadataPath);
@@ -74,7 +75,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                 cursor.next();
                 JsonNode parentObject = cursor.getCurrentValue();
                 if (parentObject.get(fieldName) == null) {
-                    errors.add(new Path(cursor.getCurrentKey()+"."+fieldName));
+                    errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
                 }
             }
         }

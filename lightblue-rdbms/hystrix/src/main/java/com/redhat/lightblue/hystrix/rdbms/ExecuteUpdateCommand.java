@@ -34,21 +34,21 @@ public class ExecuteUpdateCommand<T> extends HystrixCommand<Void> {
     private List<SelectStmt> inputStmt;
 
     public ExecuteUpdateCommand(RDBMSContext<T> rdbmsContext) {
-        this(rdbmsContext,null);
+        this(rdbmsContext, null);
     }
-    
+
     public ExecuteUpdateCommand(RDBMSContext rdbmsContext, List<SelectStmt> inputStmt) {
-        this(rdbmsContext, inputStmt, null);       
+        this(rdbmsContext, inputStmt, null);
     }
-        
+
     /**
      * @param threadPoolKey OPTIONAL defaults to groupKey value
      */
-    public ExecuteUpdateCommand(RDBMSContext<T> rdbmsContext, List<SelectStmt> inputStmt, String threadPoolKey) {    
+    public ExecuteUpdateCommand(RDBMSContext<T> rdbmsContext, List<SelectStmt> inputStmt, String threadPoolKey) {
         super(HystrixCommand.Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(ExecuteUpdateCommand.class.getSimpleName()))
                 .andCommandKey(HystrixCommandKey.Factory.asKey(ExecuteUpdateCommand.class.getSimpleName()))
                 .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey == null ? ExecuteUpdateCommand.class.getSimpleName() : threadPoolKey)));
-        
+
         this.rdbmsContext = rdbmsContext;
         this.inputStmt = inputStmt;
     }
@@ -70,7 +70,7 @@ public class ExecuteUpdateCommand<T> extends HystrixCommand<Void> {
     @Override
     protected Void run() {
         try {
-            if(this.inputStmt == null) {
+            if (this.inputStmt == null) {
                 RDBMSUtilsMetadata.buildAllMappedList(rdbmsContext);
             } else {
                 RDBMSUtilsMetadata.executeUpdate(rdbmsContext);//TODO

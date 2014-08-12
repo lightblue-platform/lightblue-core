@@ -70,14 +70,14 @@ public class RDBMSUtilsMetadata {
         if (context.getSql() == null) {
             throw new IllegalArgumentException("No sql statement supplied");
         }
-        if (context.getType()== null) {
+        if (context.getType() == null) {
             throw new IllegalArgumentException("No sql statement type supplied");
         }
         LOGGER.debug("getPreparedStatement() start");
         Error.push("RDBMSUtils");
         Error.push("getStatement");
         PreparedStatement ps = null;
-        try { 
+        try {
             ps = context.getConnection().prepareStatement(context.getSql());
         } catch (SQLException e) {
             // throw new Error (preserves current error context)
@@ -91,7 +91,7 @@ public class RDBMSUtilsMetadata {
         LOGGER.debug("getPreparedStatement() stop");
         return ps;
     }
-    
+
     public static PreparedStatement getStatement(RDBMSContext context) {
         if (context.getConnection() == null) {
             throw new IllegalArgumentException("No connection supplied");
@@ -99,14 +99,14 @@ public class RDBMSUtilsMetadata {
         if (context.getSql() == null) {
             throw new IllegalArgumentException("No sql statement supplied");
         }
-        if (context.getType()== null) {
+        if (context.getType() == null) {
             throw new IllegalArgumentException("No sql statement type supplied");
         }
         LOGGER.debug("getStatement() start");
         Error.push("RDBMSUtils");
         Error.push("getStatement");
         PreparedStatement ps = null;
-        try { 
+        try {
             NamedParameterStatement nps = new NamedParameterStatement(context.getConnection(), context.getSql());
             //ps = .prepareStatement();
         } catch (SQLException e) {
@@ -141,15 +141,15 @@ public class RDBMSUtilsMetadata {
             Error.pop();
         }
         context.setResultInteger(r);
-        context.setResultSetList(new ArrayList()); 
-        
+        context.setResultSetList(new ArrayList());
+
         ResultSet rs;
         try {
             rs = context.getPreparedStatement().getResultSet();
-            if(rs != null){
+            if (rs != null) {
                 context.getResultSetList().add(rs);
                 try {
-                    while(context.getPreparedStatement().getMoreResults()){
+                    while (context.getPreparedStatement().getMoreResults()) {
                         context.getResultSetList().add(context.getPreparedStatement().getResultSet());
                     }
                 } catch (SQLException ex) {
@@ -160,12 +160,12 @@ public class RDBMSUtilsMetadata {
         } catch (SQLException ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
-                
+
         LOGGER.debug("executeUpdate() stop");
         return r;
 
     }
-    
+
     public static void close(RDBMSContext context) {
         if (context.getConnection() != null) {
             try {
@@ -183,7 +183,7 @@ public class RDBMSUtilsMetadata {
             }
         }
     }
-    
+
     public static <T> List<T> buildAllMappedList(RDBMSContext<T> context) {
         if (context.getPreparedStatement() == null) {
             throw new IllegalArgumentException("No statement supplied");
@@ -199,7 +199,7 @@ public class RDBMSUtilsMetadata {
         context.setResultList(list);
         executeUpdate(context);
         List<ResultSet> resultSetList = context.getResultSetList();
-        for(ResultSet rs : resultSetList){
+        for (ResultSet rs : resultSetList) {
             try {
                 while (rs.next()) {
                     T o = context.getRowMapper().map(rs);
@@ -209,7 +209,7 @@ public class RDBMSUtilsMetadata {
             } catch (SQLException ex) {
                 LOGGER.error(ex.getMessage(), ex);
             }
-        }                
+        }
         Error.pop();
         close(context);
         return list;

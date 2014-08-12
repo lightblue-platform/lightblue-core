@@ -22,7 +22,7 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
 
-public class IfFieldEmpty extends If<If,If> {
+public class IfFieldEmpty extends If<If, If> {
     private Path field;
 
     public void setField(Path field) {

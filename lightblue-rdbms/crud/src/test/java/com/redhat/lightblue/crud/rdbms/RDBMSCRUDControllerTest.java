@@ -72,21 +72,21 @@ public class RDBMSCRUDControllerTest {
     @Test
     public void testFind() throws Exception {
         /*
-        String json = new Scanner(this.getClass().getClassLoader().getResourceAsStream("metadata.json")).useDelimiter("\\Z").next();
-        JsonNode node = JsonUtils.json(json);
-        Extensions<JsonNode> extensions = new Extensions<>();
-        extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
-        TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, JsonNodeFactory.withExactBigDecimals(true));
-        EntityMetadata md = parser.parseEntityMetadata(node);
-        PredefinedFields.ensurePredefinedFields(md);
+         String json = new Scanner(this.getClass().getClassLoader().getResourceAsStream("metadata.json")).useDelimiter("\\Z").next();
+         JsonNode node = JsonUtils.json(json);
+         Extensions<JsonNode> extensions = new Extensions<>();
+         extensions.addDefaultExtensions();
+         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
+         TypeResolver resolver = new DefaultTypes();
+         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, JsonNodeFactory.withExactBigDecimals(true));
+         EntityMetadata md = parser.parseEntityMetadata(node);
+         PredefinedFields.ensurePredefinedFields(md);
 
-        int id = 10;
-        Factory factory = new Factory();
-        factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
-        factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
-        final Map<String, EntityMetadata> map = new HashMap<>();
+         int id = 10;
+         Factory factory = new Factory();
+         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
+         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
+         final Map<String, EntityMetadata> map = new HashMap<>();
         
          CRUDOperationContext ctx = new CRUDOperationContext(Operation.FIND, "test", factory, JsonNodeFactory.withExactBigDecimals(true), new HashSet<String>(), null){
          @Override

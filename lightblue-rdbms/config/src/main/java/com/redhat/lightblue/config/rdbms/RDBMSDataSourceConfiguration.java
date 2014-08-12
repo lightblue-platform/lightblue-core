@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.config.rdbms;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,7 +38,7 @@ public class RDBMSDataSourceConfiguration implements DataSourceConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RDBMSDataSourceConfiguration.class);
 
-    private final Map<String,String> dataSourceJDNIMap = new HashMap<>();
+    private final Map<String, String> dataSourceJDNIMap = new HashMap<>();
     private String databaseName;
     private Class metadataDataStoreParser = RDBMSDataStoreParser.class;
 
@@ -69,32 +68,32 @@ public class RDBMSDataSourceConfiguration implements DataSourceConfiguration {
                     if (x != null) {
                         datasourceName = x.asText();
                     } else {
-                        throw new IllegalStateException("No datasourceName was found: " + node.toString() );
+                        throw new IllegalStateException("No datasourceName was found: " + node.toString());
                     }
 
                     x = next.get("JNDI");
                     if (x != null) {
                         JNDI = x.asText();
                     } else {
-                        throw new IllegalStateException("No datasourceName was found: " + node.toString() );
+                        throw new IllegalStateException("No datasourceName was found: " + node.toString());
                     }
                     dataSourceJDNIMap.put(datasourceName, JNDI);
                 }
             } else {
-                throw new IllegalStateException("No connection was found: " + node.toString() );
-            } 
+                throw new IllegalStateException("No connection was found: " + node.toString());
+            }
         }
     }
 
     public DataSource getDataSource(String name) {
         DataSource ds = null;
         String datasource = null;
-        if(databaseName.equals(name)){
+        if (databaseName.equals(name)) {
             datasource = dataSourceJDNIMap.entrySet().iterator().next().getValue();
         } else {
             datasource = name;
         }
-        ds = RDBMSUtils.getDataSource(datasource);        
+        ds = RDBMSUtils.getDataSource(datasource);
         return ds;
     }
 

@@ -16,7 +16,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.redhat.lightblue.metadata.rdbms.enums;
 
 import java.util.Arrays;
@@ -27,7 +26,7 @@ import java.util.Set;
  * @author lcestari
  */
 public class IfOperators {
-private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("ExpressionOperators");
+    private static final com.redhat.lightblue.metadata.Enum singleton = new com.redhat.lightblue.metadata.Enum("ExpressionOperators");
 
     //public static final String IFAND = IfAnd.class.getSimpleName(); //-> error constant string expression required 
     public static final String IFAND = "IfAnd";
@@ -38,8 +37,9 @@ private static final com.redhat.lightblue.metadata.Enum singleton = new com.redh
     public static final String IFFIELDREGEX = "IfFieldRegex";
     public static final String IFNOT = "IfNot";
     public static final String IFOR = "IfOr";
+
     static {
-        singleton.setValues(Arrays.asList(IFAND, IFFIELDCHECKFIELD, IFFIELDCHECKVALUE, IFFIELDCHECKVALUES,IFFIELDEMPTY,IFFIELDREGEX,IFNOT,IFOR));
+        singleton.setValues(Arrays.asList(IFAND, IFFIELDCHECKFIELD, IFFIELDCHECKVALUE, IFFIELDCHECKVALUES, IFFIELDEMPTY, IFFIELDREGEX, IFNOT, IFOR));
     }
 
     public static Set<String> getValues() {

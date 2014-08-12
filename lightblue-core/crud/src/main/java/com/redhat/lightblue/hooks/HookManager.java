@@ -36,7 +36,6 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
 
 /**
  * This class manages hooks. As operations are performed, queueHooks() is called
@@ -170,8 +169,7 @@ public class HookManager {
                 Projector projector = Projector.getInstance(hd.hook.getProjection(), hd.md);
                 for (HookDoc doc : hd.docs) {
                     processedDocuments.add(new HookDoc(
-                            doc.getEntityName(),
-                            doc.getIdentifyingPath(),
+                            doc.getEntityMetadata(),
                             project(doc.getPreDoc(), projector),
                             project(doc.getPostDoc(), projector),
                             doc.getOperation()));
@@ -268,8 +266,7 @@ public class HookManager {
                         hookCache.put(hook.getKey(), hd);
                     }
                     hd.docs.add(new HookDoc(
-                            ctx.getEntityName(),
-                            new Path("_id"), // TODO need to pass a valid path!!!!!
+                            hd.md,
                             dh.pre, dh.post, dh.op));
                 }
             }

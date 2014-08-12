@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lightblue-platform/lightblue.svg?branch=master)](https://travis-ci.org/lightblue-platform/lightblue)
+[![Build Status](https://travis-ci.org/lightblue-platform/lightblue.svg?branch=master)](https://travis-ci.org/lightblue-platform/lightblue) [![Coverage Status](https://coveralls.io/repos/lightblue-platform/lightblue/badge.png)](https://coveralls.io/r/lightblue-platform/lightblue) [![Stories in Ready](https://badge.waffle.io/lightblue-platform/lightblue.svg?label=ready&title=Ready)](http://waffle.io/lightblue-platform/lightblue)
 
 # Books!
 

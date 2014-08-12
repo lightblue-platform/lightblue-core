@@ -29,7 +29,7 @@ public class MongoDataStoreTest {
 
     @Before
     public void setUp() throws Exception {
-        dataStore = new MongoDataStore("jndiName", "databaseName", "datasourceName", "collectionName");
+        dataStore = new MongoDataStore("databaseName", "datasourceName", "collectionName");
     }
 
     @After
@@ -44,18 +44,6 @@ public class MongoDataStoreTest {
     @Test
     public void testGetBackend() {
         Assert.assertEquals("mongo", dataStore.getBackend());
-    }
-
-    @Test
-    public void testGetClientJndiName() {
-        Assert.assertEquals("jndiName", dataStore.getClientJndiName());
-    }
-
-    @Test
-    public void testSetClientJndiName() {
-        dataStore.setClientJndiName("newJndiName");
-
-        Assert.assertEquals("newJndiName", dataStore.getClientJndiName());
     }
 
     @Test
@@ -85,7 +73,6 @@ public class MongoDataStoreTest {
     @Test
     public void testEqualsObject() {
         MongoDataStore dataStore2 = new MongoDataStore();
-        dataStore2.setClientJndiName("jndiName");
         dataStore2.setCollectionName("collectionName");
         dataStore2.setDatabaseName("databaseName");
         dataStore2.setDatasourceName("datasourceName");

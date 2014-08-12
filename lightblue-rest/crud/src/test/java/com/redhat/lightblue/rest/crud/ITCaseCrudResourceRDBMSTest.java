@@ -177,22 +177,24 @@ public class ITCaseCrudResourceRDBMSTest {
     }
 
     @Before
-    public void setup() throws Exception {       
+    public void setup() throws Exception {
         File folder = new File("/tmp");
-        File[] files = folder.listFiles( new FilenameFilter() {@Override public boolean accept( final File dir,final String name ) {
-            return name.startsWith("test.db" );
-        }});
-        for ( final File file : files ) {
-            if ( !file.delete() ) {
-                System.out.println( "Failed to remove " + file.getAbsolutePath() );
+        File[] files = folder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(final File dir, final String name) {
+                return name.startsWith("test.db");
+            }
+        });
+        for (final File file : files) {
+            if (!file.delete()) {
+                System.out.println("Failed to remove " + file.getAbsolutePath());
             }
         }
         db.createCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION, null);
         BasicDBObject index = new BasicDBObject("name", 1);
         index.put("version.value", 1);
         db.getCollection(MongoMetadata.DEFAULT_METADATA_COLLECTION).ensureIndex(index, "name", true);
-        
-        
+
         try {
             // Create initial context
             System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.naming.java.javaURLContextFactory");
@@ -206,7 +208,7 @@ public class ITCaseCrudResourceRDBMSTest {
             ic.createSubcontext("java:/comp/env/jdbc");
 
             JdbcConnectionPool ds = JdbcConnectionPool.create("jdbc:h2:file:/tmp/test.db;FILE_LOCK=NO;MVCC=TRUE;DB_CLOSE_ON_EXIT=TRUE", "sa", "sasasa");
-            
+
             ic.bind("java:/mydatasource", ds);
         } catch (NamingException ex) {
             throw new IllegalStateException(ex);
@@ -237,10 +239,10 @@ public class ITCaseCrudResourceRDBMSTest {
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
-                .addAsResource(new File(PATH+MetadataConfiguration.FILENAME), MetadataConfiguration.FILENAME)
-                .addAsResource(new File(PATH+CrudConfiguration.FILENAME), CrudConfiguration.FILENAME)
-                .addAsResource(new File(PATH+DATASOURCESJSON), DATASOURCESJSON)
-                .addAsResource(new File(PATH+CONFIGPROPERTIES), CONFIGPROPERTIES);
+                .addAsResource(new File(PATH + MetadataConfiguration.FILENAME), MetadataConfiguration.FILENAME)
+                .addAsResource(new File(PATH + CrudConfiguration.FILENAME), CrudConfiguration.FILENAME)
+                .addAsResource(new File(PATH + DATASOURCESJSON), DATASOURCESJSON)
+                .addAsResource(new File(PATH + CONFIGPROPERTIES), CONFIGPROPERTIES);
 
         for (File file : libs) {
             archive.addAsLibrary(file);
@@ -248,7 +250,7 @@ public class ITCaseCrudResourceRDBMSTest {
         archive.addPackages(true, "com.redhat.lightblue");
         return archive;
     }
-    
+
     private static final String PATH = "src/test/resources/it-rdbms/rdbms-";
     private static final String CONFIGPROPERTIES = "config.properties";
     private static final String DATASOURCESJSON = "datasources.json";
@@ -264,17 +266,19 @@ public class ITCaseCrudResourceRDBMSTest {
             Connection conn = ds.getConnection();
             Statement stmt = conn.createStatement();
             stmt.execute("CREATE TABLE People ( PersonID int, Name varchar(255) );");
-            
+
             // Good resource for examples of procedure with h2 https://code.google.com/p/h2database/source/browse/trunk/h2/src/test/org/h2/samples/Function.java
             stmt.execute("CREATE ALIAS getVersion FOR \"org.h2.engine.Constants.getVersion\"");
             ResultSet rs = stmt.executeQuery("CALL getVersion()");
-            if (rs.next()) System.out.println("Version: " + rs.getString(1));
+            if (rs.next()) {
+                System.out.println("Version: " + rs.getString(1));
+            }
             stmt.close();
 
             Assert.assertNotNull("CrudResource was not injected by the container", cutCrudResource);
             RestConfiguration.setDatasources(new DataSourcesConfiguration(JsonUtils.json(readFile(DATASOURCESJSON))));
             RestConfiguration.setFactory(new LightblueFactory(RestConfiguration.getDatasources()));
-            
+
             String expectedCreated = readFile("expectedCreated.json");
             String metadata = readFile("metadata.json");
             EntityMetadata em = RestConfiguration.getFactory().getJSONParser().parseEntityMetadata(JsonUtils.json(metadata));
@@ -282,7 +286,7 @@ public class ITCaseCrudResourceRDBMSTest {
             EntityMetadata em2 = RestConfiguration.getFactory().getMetadata().getEntityMetadata("country", "1.0.0");
             String resultCreated = RestConfiguration.getFactory().getJSONParser().convert(em2).toString();
             JSONAssert.assertEquals(expectedCreated, resultCreated, false);
-            
+
             String expectedInserted = readFile("expectedInserted.json");
             String resultInserted = cutCrudResource.insert("country", "1.0.0", readFile("resultInserted.json"));
             JSONAssert.assertEquals(expectedInserted, resultInserted, false);

@@ -28,13 +28,13 @@ public class Operation implements RootConverter {
     private String name;
     private List<Expression> expressionList;
     private Bindings bindings;
-    
+
     @Override
     public <T> void convert(MetadataParser<T> p, T parent) {
-        if(this.getName() == null){
-          throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Operation malformated");  
+        if (this.getName() == null) {
+            throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Operation malformated");
         }
-        
+
         T oT = p.newNode();
         if (this.getBindings() != null) {
             this.getBindings().convert(p, oT);
@@ -43,7 +43,7 @@ public class Operation implements RootConverter {
         convertExpressions(p, this.getExpressionList(), expressions);
         p.putObject(parent, this.getName(), oT);
     }
-    
+
     public <T> void convertExpressions(MetadataParser<T> p, List<Expression> expressionList, Object expressions) {
         if (expressionList == null || expressionList.isEmpty()) {
             throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "Expressions not informed");
@@ -68,7 +68,7 @@ public class Operation implements RootConverter {
     public Bindings getBindings() {
         return bindings;
     }
-    
+
     public String getName() {
         return name;
     }

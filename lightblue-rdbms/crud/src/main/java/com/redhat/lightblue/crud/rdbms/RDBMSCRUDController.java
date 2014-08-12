@@ -139,9 +139,9 @@ public class RDBMSCRUDController implements CRUDController {
             EntityMetadata md = crudOperationContext.getEntityMetadata(crudOperationContext.getEntityName());
             if (md.getAccess().getFind().hasAccess(crudOperationContext.getCallerRoles())) {
                 FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(md, crudOperationContext.getCallerRoles());
-                RDBMSContext rdbmsContext = new RDBMSContext();             
-                RDBMS rdbms = (RDBMS)md.getEntitySchema().getProperties().get("rdbms");
-                if(rdbms == null){
+                RDBMSContext rdbmsContext = new RDBMSContext();
+                RDBMS rdbms = (RDBMS) md.getEntitySchema().getProperties().get("rdbms");
+                if (rdbms == null) {
                     throw new IllegalStateException("Configured to use RDBMS but no RDBMS definition was found for the entity");
                 }
                 rdbmsContext.setRdbms(rdbms);
@@ -151,7 +151,7 @@ public class RDBMSCRUDController implements CRUDController {
                 rdbmsContext.setRowMapper(new VariableUpdateRowMapper(rdbmsContext));
                 rdbmsContext.setEntityMetadata(md);
                 RDBMSProcessor.process(crudOperationContext, rdbmsContext, "find");
-                
+
                 crudOperationContext.getHookManager().queueHooks(crudOperationContext);
             } else {
                 crudOperationContext.addError(Error.get("No access", "find:" + crudOperationContext.getEntityName()));

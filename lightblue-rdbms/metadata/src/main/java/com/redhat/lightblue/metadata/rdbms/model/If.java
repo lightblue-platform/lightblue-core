@@ -25,18 +25,24 @@ import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class If<Z extends If,N extends If> implements ComplexConverter, SimpleParser<N> {
+public abstract class If<Z extends If, N extends If> implements ComplexConverter, SimpleParser<N> {
 
     private static If ifChain;
     private If next;
+
     static {
         ifChain = new If() {
-            @Override public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {throw new UnsupportedOperationException("Not supported yet.");}
-            @Override public If parse(MetadataParser p, Object node) {
+            @Override
+            public <T> void convert(MetadataParser<T> p, Object lastArrayNode, T node) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public If parse(MetadataParser p, Object node) {
                 If n = this.next();
-                while (n != null){
+                while (n != null) {
                     If parsed = (If) n.parse(p, node);
-                    if(parsed != null) {
+                    if (parsed != null) {
                         return parsed;
                     }
                     n = n.next();
@@ -44,7 +50,7 @@ public abstract class If<Z extends If,N extends If> implements ComplexConverter,
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_WRONG_FIELD, "No valid if field was set ->" + node.toString());
             }
         };
-        
+
         ifChain.next = new IfOr();
         ifChain.next.next = new IfAnd();
         ifChain.next.next.next = new IfNot();
@@ -52,14 +58,14 @@ public abstract class If<Z extends If,N extends If> implements ComplexConverter,
         ifChain.next.next.next.next.next = new IfFieldCheckField();
         ifChain.next.next.next.next.next.next = new IfFieldCheckValue();
         ifChain.next.next.next.next.next.next.next = new IfFieldCheckValues();
-        ifChain.next.next.next.next.next.next.next.next = new IfFieldRegex();        
+        ifChain.next.next.next.next.next.next.next.next = new IfFieldRegex();
     }
-    
-    public static If getChain(){
+
+    public static If getChain() {
         return ifChain;
     }
-    
-    public static <T,Z extends If> Z parseIfs(MetadataParser<T> p, List<T> orArray, Z ifC) {
+
+    public static <T, Z extends If> Z parseIfs(MetadataParser<T> p, List<T> orArray, Z ifC) {
         List<If> l = new ArrayList<>();
         for (T t : orArray) {
             If eiIf = (If) getChain().parse(p, t);
@@ -68,13 +74,13 @@ public abstract class If<Z extends If,N extends If> implements ComplexConverter,
         ifC.setConditions(l);
         return ifC;
     }
-    
+
     private List<Z> conditions;
-    
-    If next(){
+
+    If next() {
         return this.next;
     }
-    
+
     public void setConditions(List<Z> conditions) {
         this.conditions = conditions;
     }
