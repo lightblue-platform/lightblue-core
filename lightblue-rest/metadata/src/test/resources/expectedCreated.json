@@ -37,7 +37,7 @@
             "iso2code": {
                 "type": "string"
             },
-            "object_type": {
+            "objectType": {
                 "type": "string",
                 "access": {
                     "find": ["anyone"],

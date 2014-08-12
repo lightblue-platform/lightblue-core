@@ -53,7 +53,7 @@ POST queries:
 login:bserdar
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -65,7 +65,7 @@ Logical operations:
 login:bserdar and site.0.streetAddress.state:CO
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
   "query":  { "$and" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"sites.0.streetAddress.state","op":"$eq","rvalue":"CO"} ] },
@@ -77,7 +77,7 @@ login:bserdar and site.0.streetAddress.state:CO
 login=bserdar or login!=bserdar
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "$or" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"login","op":"$neq","rvalue":"bserdar"} ] },
@@ -88,7 +88,7 @@ login=bserdar or login!=bserdar
 Regex search:
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*"},
@@ -96,7 +96,7 @@ Regex search:
 }'  ${host}/data/find/user/1.0.0|tee /tmp/out.json
 
   curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "caseInsensitive":1},
@@ -108,7 +108,7 @@ Field as rvalue, not supported directly by mongo:
 personalInfo.firstName!=sites.0.firstName
 
  curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "op":"$neq", "rfield":"sites.0.firstName"},
@@ -119,7 +119,7 @@ personalInfo.firstName!=sites.0.firstName
 Array search: users with active sites, list only active sites
 
  curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"}, {"field":"sites","project":{"field":"*"}} ],
   "query":  { "array":"sites","elemMatch":{"field":"active","op":"$eq","rvalue":1} },
   "range" : [0,10]
@@ -131,7 +131,7 @@ More involved projections:
 Return a few fields:
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"}],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -141,7 +141,7 @@ Return a few fields:
 Exclude some of "personalInfo":
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"},{"field":"personalInfo.email","include":false}],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -151,7 +151,7 @@ Exclude some of "personalInfo":
 Exclude sites:
 
  curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"*","recursive":1}, {"field":"sites","include":false} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -163,7 +163,7 @@ Array projections:
 Sites[0,1]:
 
   curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"sites", "range":[0,1] } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -174,7 +174,7 @@ Sites[0,1]:
 Get only active sites:
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"sites", "match":{ "field":"active", "op":"=","rvalue":true }, "project":{"field":"*","recursive":1} } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -184,7 +184,7 @@ Get only active sites:
 Get only default sites, project description:
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X POST  -d '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"sites", "match":{ "field":"defaultSite", "op":"=","rvalue":true }, "project":{"field":"description"} } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -202,7 +202,7 @@ Save user:
 Update some fields of user:
 
  curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-"object_type":"user",
+"objectType":"user",
 "projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -212,7 +212,7 @@ Update some fields of user:
 Remove an array element (sites[0])
 
  curl -H Content-Type:application/json  -u lbadmin:123qweasd! -X POST  -d '{
-"object_type":"user",
+"objectType":"user",
 "projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -222,7 +222,7 @@ Remove an array element (sites[0])
 Inactivate non-default site:
 
  curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-"object_type":"user",
+"objectType":"user",
 "projection": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -234,7 +234,7 @@ Inactivate non-default site:
 Delete inactive sites:
 
  curl -H Content-Type:application/json -u lbadmin:123qweasd!  -X POST  -d '{
-"object_type":"user",
+"objectType":"user",
 "projection": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -245,7 +245,7 @@ Delete inactive sites:
 Add a new empty site:
 
  curl -H Content-Type:application/json   -u lbadmin:123qweasd! -X POST  -d '{
-"object_type":"user",
+"objectType":"user",
 "projection": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -256,7 +256,7 @@ Add a new empty site:
 Delete:
 
  curl -H Content-Type:application/json   -u lbadmin:123qweasd! -X POST  -d '{
-"object_type":"user",
+"objectType":"user",
 "query":  { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"}, 
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] }
 }'  ${host}/data/delete/user/1.0.0|tee /tmp/out.json
@@ -303,7 +303,7 @@ Users whose first site is NC, sorted by login, ascending, then descending, fetch
 
 Find login=bserdar:
   ./POST  ${host}/data/find/user/1.0.0  '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -311,7 +311,7 @@ Find login=bserdar:
 }' 
 
 login=bserdar and site.0.streetAddress.state=CO:
-  ./POST  ${host}/data/find/user/1.0.0 '{ "object_type":"user",
+  ./POST  ${host}/data/find/user/1.0.0 '{ "objectType":"user",
   "projection": { "field":"*","recursive":1},
   "sort" : { "login":"$asc"},
   "query":  { "$and" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -320,21 +320,21 @@ login=bserdar and site.0.streetAddress.state=CO:
 ./GET "${host}/data/find/user/1.0.0?Q=login:bserdar,sites.0.streetAddress.state:CO"
 
 login=bserdar or login!=bserdar (return everything):
-  ./POST  ${host}/data/find/user/1.0.0  '{ "object_type":"user",
+  ./POST  ${host}/data/find/user/1.0.0  '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "$or" : [ { "field":"login", "op":"$eq", "rvalue":"bserdar" }, {"field":"login","op":"$neq","rvalue":"bserdar"} ] },
   "range" : [0,10]}'
 
 Search for firstName starting with "burak":
- ./POST ${host}/data/find/user/1.0.0 '{ "object_type":"user",
+ ./POST ${host}/data/find/user/1.0.0 '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*"},
   "range" : [0,10] }' 
 
 Search for firstName starting with "burak", case insensitive:
-  ./POST ${host}/data/find/user/1.0.0 '{ "object_type":"user",
+  ./POST ${host}/data/find/user/1.0.0 '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "caseInsensitive":1},
@@ -342,7 +342,7 @@ Search for firstName starting with "burak", case insensitive:
 
 
 personalInfo.firstName!=sites.0.firstName
-  ./POST  ${host}/data/find/user/1.0.0 '{ "object_type":"user",
+  ./POST  ${host}/data/find/user/1.0.0 '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"personalInfo.firstName", "op":"$neq", "rfield":"sites.0.firstName"},
@@ -353,20 +353,20 @@ No direct support for this in MongoDB. It is translated to a Javascript query, a
 
 
 users with active sites, list only active sites
-  ./POST ${host}/data/find/user/1.0.0 '{ "object_type":"user",
+  ./POST ${host}/data/find/user/1.0.0 '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"_id"}, {"field":"sites","project":{"field":"*"}} ],
   "query":  { "array":"sites","elemMatch":{"field":"active","op":"$eq","rvalue":1} },
   "range" : [0,10]
 }' 
 Return a few fields:
- ./POST ${host}/data/find/user/1.0.0 '{ "object_type":"user",
+ ./POST ${host}/data/find/user/1.0.0 '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"createdDate"},{"field":"personalInfo.*"}],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
   "range" : [0,10] }'
 
 Exclude some of "personalInfo":
-  ./POST  ${host}/data/find/user/1.0.0  '{ "object_type":"user",
+  ./POST  ${host}/data/find/user/1.0.0  '{ "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"createdDate"},
 {"field":"personalInfo.*"},{"field":"personalInfo.email","include":false}],
   "sort" : { "login":"$asc"},
@@ -374,7 +374,7 @@ Exclude some of "personalInfo":
   "range" : [0,10] }'  
 Exclude sites:
  ./POST ${host}/data/find/user/1.0.0 '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"*","recursive":1}, {"field":"sites","include":false} ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -383,7 +383,7 @@ Exclude sites:
 Sites[0,1]:
 
  ./POST ${host}/data/find/user/1.0.0 '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, {"field":"sites", "range":[0,1] } ],
   "sort" : { "login":"$asc"},
   "query":  { "field":"login", "op":"$eq", "rvalue":"bserdar" },
@@ -391,7 +391,7 @@ Sites[0,1]:
 }' 
 Get only active sites:
  ./POST ${host}/data/find/user/1.0.0 '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, 
       {"field":"sites", "match":
            { "field":"active", "op":"=","rvalue":true }, 
@@ -402,7 +402,7 @@ Get only active sites:
 }' 
 Get only default sites, project notes:
   ./POST  ${host}/data/find/user/1.0.0 '{
-  "object_type":"user",
+  "objectType":"user",
   "projection": [ { "field":"login"}, 
     {"field":"sites", "match":{ "field":"defaultSite", "op":"=","rvalue":true },                          
                        "project":{"field":"notes"} } ],
@@ -415,7 +415,7 @@ Save user:
   ./POST ${host}/data/save/user/1.0.0 @save-v1-user.json
 
 Update some fields of user (set contactPermissions.allowEmailContact for user whose first name starts with "Burak" and last name is "Serdar"):
-  ./POST ${host}/data/update/user/1.0.0 '{ "object_type":"user",
+  ./POST ${host}/data/update/user/1.0.0 '{ "objectType":"user",
 "projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -423,14 +423,14 @@ Update some fields of user (set contactPermissions.allowEmailContact for user wh
 }'
 
 Remove an array element (sites[0])
-  ./POST  ${host}/data/update/user/1.0.0 '{"object_type":"user",
+  ./POST  ${host}/data/update/user/1.0.0 '{"objectType":"user",
 "projection": { "field":"_id"},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
  "update": [ {"$unset": "sites.0" } ]
 }'
 Inactivate non-default sites:
-  ./POST ${host}/data/update/user/1.0.0 '{"object_type":"user",
+  ./POST ${host}/data/update/user/1.0.0 '{"objectType":"user",
 "projection": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -439,7 +439,7 @@ Inactivate non-default sites:
 }'
 
 Delete inactive sites:
-  ./POST ${host}/data/update/user/1.0.0 '{ "object_type":"user",
+  ./POST ${host}/data/update/user/1.0.0 '{ "objectType":"user",
 "projection": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
@@ -447,14 +447,14 @@ Delete inactive sites:
                             "$update" : "$remove" }}
 }'
 Add a new empty site:
-  ./POST ${host}/data/update/user/1.0.0 '{ "object_type":"user",
+  ./POST ${host}/data/update/user/1.0.0 '{ "objectType":"user",
 "projection": { "field":"*","recursive":1},
 "query": { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] },
 "update": { "$append" : {"sites":{ } } }
 }'
   ./POST ${host}/data/delete/user/1.0.0 '{
-"object_type":"user",
+"objectType":"user",
 "query":  { "$and" : [ {"field":"personalInfo.firstName","regex":"Burak.*"},
                       {"field":"personalInfo.lastName","op":"=","rvalue":"Serdar"} ] }
 }' 

@@ -3,7 +3,7 @@
     "clientId": "asdf",
     "request": {
         "update": {
-            "object_type": "some_entity",
+            "objectType": "some_entity",
             "clientId": "asdf",
             "execution": {
                 "timeLimit": 5000,
@@ -27,7 +27,7 @@
         }
     },
     "response": {
-        "object_type": "some_entity",
+        "objectType": "some_entity",
         "firstname": "new name"
     },
     "before": {

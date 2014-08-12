@@ -33,7 +33,7 @@
                 "constraints" : {
                      "identity":1
                 }},
-        "object_type": {"type": "string"},
+        "objectType": {"type": "string"},
         "login": {
             "type": "string",
             "constraints": {

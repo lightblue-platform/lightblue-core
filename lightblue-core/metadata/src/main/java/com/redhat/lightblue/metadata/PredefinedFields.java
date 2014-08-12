@@ -42,7 +42,7 @@ import com.redhat.lightblue.util.Path;
  * <ul>
  * <li> _id, type is string, int or biginteger. Unique constraint, roles setup
  * to allow read by anyone, noone updates</li>
- * <li> object_type, type is string. required and minimum length=1, roles setup
+ * <li> objectType, type is string. required and minimum length=1, roles setup
  * to allow read by anyone, noone updates</li>
  * <li> for every array field with name "x", a field "x#" of type int, roles
  * setup to allow read by anyone, noone updates</li>
@@ -50,7 +50,7 @@ import com.redhat.lightblue.util.Path;
  */
 public final class PredefinedFields {
 
-    public static final String OBJECTTYPE_FIELD = "object_type";
+    public static final String OBJECTTYPE_FIELD = "objectType";
 
     public static final Path OBJECTTYPE_PATH = new Path(OBJECTTYPE_FIELD);
 

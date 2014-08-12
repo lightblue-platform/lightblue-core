@@ -4,11 +4,11 @@
 
 ./run.sh dbName=test dbHost=localhost cmd=getEntityMetadata entityName=user version=0.1
 
-./run.sh dbName=test dbHost=localhost cmd=insert req='{"entity":"user","entityVersion":"0.1","data":{"object_type":"user","login":"testlogin1","firstName":"fname","lastName":"lname"},"returning":{"field":"_id"}}'
+./run.sh dbName=test dbHost=localhost cmd=insert req='{"entity":"user","entityVersion":"0.1","data":{"objectType":"user","login":"testlogin1","firstName":"fname","lastName":"lname"},"returning":{"field":"_id"}}'
 
-./run.sh dbName=test dbHost=localhost cmd=insert req='{"entity":"user","entityVersion":"0.1","data":{"object_type":"user","login":"","firstName":"fname","lastName":"lname"},"returning":{"field":"_id"}}'
+./run.sh dbName=test dbHost=localhost cmd=insert req='{"entity":"user","entityVersion":"0.1","data":{"objectType":"user","login":"","firstName":"fname","lastName":"lname"},"returning":{"field":"_id"}}'
 
-./run.sh dbName=test dbHost=localhost cmd=save req='{"entity":"user","entityVersion":"0.1","data":{"object_type":"user","_id":"52c709f0ca8a6becb733dc69","login":"xyz","firstName":"fnamemodified","lastName":"lnamemodified"},"returning":{"field":"_id"}}'
+./run.sh dbName=test dbHost=localhost cmd=save req='{"entity":"user","entityVersion":"0.1","data":{"objectType":"user","_id":"52c709f0ca8a6becb733dc69","login":"xyz","firstName":"fnamemodified","lastName":"lnamemodified"},"returning":{"field":"_id"}}'
 
 ./run.sh dbName=test dbHost=localhost cmd=find req='{"entity":"user","entityVersion":"0.1","query":{"field":"firstName","op":"=","rvalue":"fname"},"returning":{"field":"*","recursive":1}}'
 

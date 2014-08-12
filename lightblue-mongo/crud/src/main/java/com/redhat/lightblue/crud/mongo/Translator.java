@@ -86,7 +86,7 @@ import com.redhat.lightblue.util.Util;
  */
 public class Translator {
 
-    public static final String OBJECT_TYPE_STR = "object_type";
+    public static final String OBJECT_TYPE_STR = "objectType";
     public static final Path OBJECT_TYPE = new Path(OBJECT_TYPE_STR);
 
     public static final Path ID_PATH = new Path("_id");

@@ -4,12 +4,12 @@
     "matchCount": 0,
     "processed": [{
         "role": "anyone",
-        "find": ["country", "country.object_type"],
+        "find": ["country", "country.objectType"],
         "insert": ["country"],
         "update": ["country"],
         "delete": ["country"]
     }, {
         "role": "noone",
-        "update": ["country.object_type"]
+        "update": ["country.objectType"]
     }]
 }

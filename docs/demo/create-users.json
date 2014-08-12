@@ -1,11 +1,11 @@
 {
-  "object_type":"user",
+  "objectType":"user",
   "version":"2.0.0",
   "projection": { "field":"_id"},
   "data": {"$array" : { "length":100,
                         "element":
 {
-        "object_type": "user",
+        "objectType": "user",
         "login": { "$str":{"minlength":3,"maxlength":64}},
         "password" : { 
             "hashed": { "$str": {"length":256,"charset":"0123456789ABCDEF"}},
