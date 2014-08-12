@@ -99,7 +99,7 @@ Regex search:
   "object_type":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
-  "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "case_insensitive":1},
+  "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "caseInsensitive":1},
   "range" : [0,10]
 }'  ${host}/data/find/user/1.0.0|tee /tmp/out.json
 
@@ -337,7 +337,7 @@ Search for firstName starting with "burak", case insensitive:
   ./POST ${host}/data/find/user/1.0.0 '{ "object_type":"user",
   "projection": [ { "field":"login"}, {"field":"_id"} ],
   "sort" : { "login":"$asc"},
-  "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "case_insensitive":1},
+  "query":  { "field":"personalInfo.firstName", "regex":"burak.*", "caseInsensitive":1},
   "range" : [0,10]}'
 
 
