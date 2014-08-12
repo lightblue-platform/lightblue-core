@@ -35,6 +35,8 @@ import org.jboss.security.auth.spi.CertRolesLoginModule;
 
 import com.redhat.lightblue.rest.auth.LightblueRoleProvider;
 import com.redhat.lightblue.rest.auth.ldap.LightblueLdapRoleProvider;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author dhaynes
@@ -51,6 +53,8 @@ public class CertLdapLoginModule extends CertRolesLoginModule {
     public static final String SEARCH_BASE = "searchBase";
     public static final String BIND_DN = "bindDn";
     public static final String BIND_PWD = "bindPassword";
+
+    private Logger ACCESS_LOGGER = Logger.getLogger(CertLdapLoginModule.class, "access");
 
     /* (non-Javadoc)
      * @see org.jboss.security.auth.spi.AbstractServerLoginModule#getRoleSets()
@@ -90,6 +94,10 @@ public class CertLdapLoginModule extends CertRolesLoginModule {
                 Principal role = super.createIdentity(groupName);
                 LOGGER.debug("Found role: " + groupName);
                 userRoles.addMember(role);
+            }
+
+            if (ACCESS_LOGGER.isInfoEnabled()) {
+                ACCESS_LOGGER.info("Principal username: " + getUsername() + ", roles: " + Arrays.toString(groupNames.toArray()));
             }
 
             LOGGER.debug("Assign principal [" + p.getName() + "] to role [" + roleName + "]");
