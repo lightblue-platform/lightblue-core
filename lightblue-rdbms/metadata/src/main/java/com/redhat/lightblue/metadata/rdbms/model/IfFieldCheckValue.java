@@ -22,7 +22,6 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.rdbms.enums.OpOperators;
 import com.redhat.lightblue.metadata.rdbms.util.RDBMSMetadataConstants;
 import com.redhat.lightblue.util.Path;
-import java.util.List;
 
 public class IfFieldCheckValue extends If<If, If> {
     private Path field;
@@ -88,21 +87,21 @@ public class IfFieldCheckValue extends If<If, If> {
         T pathvalue = p.getObjectProperty(ifT, "$field-check-value");
         if (pathvalue != null) {
             x = new IfFieldCheckValue();
-            String conditional = p.getStringProperty(pathvalue, "op");
-            String path1 = p.getStringProperty(pathvalue, "field");
-            String value2 = p.getStringProperty(pathvalue, "value");
-            if (path1 == null || path1.isEmpty()) {
+            String fieldString = p.getStringProperty(pathvalue, "field");
+            String valueString = p.getStringProperty(pathvalue, "value");
+            String opString = p.getStringProperty(pathvalue, "op");
+            if (fieldString == null || fieldString.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: field not informed");
             }
-            if (value2 == null || value2.isEmpty()) {
+            if (valueString == null || valueString.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: value not informed");
             }
-            if (conditional == null || conditional.isEmpty()) {
+            if (opString == null || opString.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: op not informed");
             }
-            ((IfFieldCheckValue) x).setField(new Path(path1));
-            ((IfFieldCheckValue) x).setValue(value2);
-            ((IfFieldCheckValue) x).setOp(conditional);
+            ((IfFieldCheckValue) x).setField(new Path(fieldString));
+            ((IfFieldCheckValue) x).setValue(valueString);
+            ((IfFieldCheckValue) x).setOp(opString);
         }
         return x;
     }
