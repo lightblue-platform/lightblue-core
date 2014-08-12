@@ -5,3 +5,9 @@ jdk:
 
 after_success:
   - mvn clean test jacoco:report coveralls:jacoco
+
+notifications:
+  email: false
+  irc:
+    channels:
+      - "chat.freenode.net#lightblue"
