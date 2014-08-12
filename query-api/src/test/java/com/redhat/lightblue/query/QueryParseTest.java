@@ -45,7 +45,7 @@ public class QueryParseTest {
     final String naryQuery2 = "{\"field\":\"x.y.x\", \"op\":\"$nin\", \"values\":[\"x\",\"y\",\"z\"]}";
 
     final String regexQuery1 = "{\"field\":\"x.y\", \"regex\":\"*pat*\"}";
-    final String regexQuery2 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"case_insensitive\":true}";
+    final String regexQuery2 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"caseInsensitive\":true}";
     final String regexQuery3 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"multiline\":true}";
     final String regexQuery4 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"extended\":true}";
     final String regexQuery5 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"dotall\":true}";
