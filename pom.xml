@@ -156,7 +156,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         <sourceDirectory>${project.basedir}/query-api/src/main/java</sourceDirectory>
                         <sourceDirectory>${project.basedir}/util/src/main/java</sourceDirectory>
                     </sourceDirectories>
-                    <jacocoFile>${project.basedir}/crud/target/site/jacoco/jacoco.xml</jacocoFile> <!-- #2 alternative to fix coveralls problem -->
+                    <coverageFile>${project.basedir}/crud/target/site/jacoco/jacoco.xml</coverageFile> <!-- #2 alternative to fix coveralls problem -->
                     <coverallsFile>${project.basedir}/crud/target/coveralls.json</coverallsFile> <!-- #2 alternative to fix coveralls problem -->
                 </configuration>
             </plugin>
