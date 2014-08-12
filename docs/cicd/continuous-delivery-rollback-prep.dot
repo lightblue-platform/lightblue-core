@@ -1,0 +1,24 @@
+strict digraph lightblue_cicd {
+compound=true;
+overlap=false;
+splines=true;
+//concentrate=true;
+//node [shape=circle,width=1];
+subgraph cluster_rollback {
+    label="Continuous Delivery: Rollback Prep";
+    rollback -> puppet_stop -> git_revert_puppet -> juicer_delete_cart;
+    rollback -> juicer_delete_cart;
+    rollback -> git_revert_tests;
+    rollback -> update_change_failed;
+    rollback -> notification;
+}
+start [label="",shape="circle",width=0.2];
+success [shape="point",width=0.2];
+failure [shape="point",width=0.2,color="red"];
+start -> rollback [label="params: {env,AZs}"];
+juicer_delete_cart -> success;
+notification -> success;
+update_change_failed -> success;
+git_revert_tests -> success;
+juicer_delete_cart -> failure [ltail=cluster_rollback,color="red"];
+}

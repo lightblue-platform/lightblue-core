@@ -1,0 +1,3 @@
+{
+    "$unset": "field6.nf1"
+}

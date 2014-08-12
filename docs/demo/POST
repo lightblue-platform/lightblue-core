@@ -1,0 +1,27 @@
+#!/bin/bash
+
+url=$1
+
+body=$2
+if [ "${body:0:1}" != "@" ]; then
+  tmp=`mktemp`
+  echo $2 > /$tmp
+  body="@${tmp}"
+fi
+
+if [ "$#" == 3 ]; then
+  upwd=$3
+else
+  upwd=${unamepwd}
+fi
+
+if [ -z "$body" ] ; then
+  echo curl -s -H  Content-Type:application/json  -u ${upwd} -X POST $url
+  curl -s -H  Content-Type:application/json  -u ${upwd} -X POST $url> /tmp/out
+else
+  echo curl -s -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url
+  curl -s -H  Content-Type:application/json  -u ${upwd} -d $body -X POST $url> /tmp/out
+fi
+mv /tmp/out /tmp/out.json
+
+

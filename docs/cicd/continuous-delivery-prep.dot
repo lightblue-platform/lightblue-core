@@ -1,0 +1,21 @@
+strict digraph lightblue_cicd {
+compound=true;
+overlap=false;
+splines=true;
+subgraph cluster_CD {
+    label="Continous Delivery: Prep";
+    juicer_create_cart -> puppet_stop -> juicer_push_cart;
+    juicer_create_cart -> snapshot_puppet_hashes -> juicer_push_cart;
+    juicer_create_cart -> snapshot_rpm_versions -> juicer_push_cart;
+    juicer_create_cart -> snapshot_test_hashes -> juicer_push_cart;
+    juicer_push_cart -> git_push_puppet;
+}
+start [label="",shape="circle",width=0.2];
+success [shape="point",width=0.2];
+failure [shape="point",width=0.2,color="red"];
+start -> juicer_create_cart [label="params: {env}"];
+git_push_puppet -> success;
+notification -> failure [color="red"];
+// when prep fails
+juicer_push_cart -> notification [ltail=cluster_CD,color="red"];
+}

@@ -1,0 +1,15 @@
+{
+    "status": "COMPLETE",
+    "modifiedCount": 0,
+    "matchCount": 0,
+    "processed": [{
+        "role": "anyone",
+        "find": ["country", "country.object_type"],
+        "insert": ["country"],
+        "update": ["country"],
+        "delete": ["country"]
+    }, {
+        "role": "noone",
+        "update": ["country.object_type"]
+    }]
+}

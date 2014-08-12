@@ -1,0 +1,9 @@
+{
+    "documentation": [
+        "type - the class implementing MetadataConfiguration interface",
+        "The remainder of the file is parsed by the implementation class"
+    ],
+    "type" : "com.redhat.lightblue.mongo.config.MongoMetadataConfiguration",
+    "dataSource" : "mongo",
+    "collection": "metadata"
+}

@@ -1,0 +1,118 @@
+[
+    {
+        "entityInfo": {
+            "name": "test1",
+            "defaultVersion": "1.0.0",
+            "datastore": {
+                "backend":"mongo",
+                "collection": "test1"
+            }
+        },
+        "schema": {
+            "name": "test1",
+            "version": {
+                "value": "1.0.0",
+                "changelog": "Initial version"
+            },
+            "status": {
+                "value": "active"
+            },
+            "access": {
+                "insert": ["entity.insert"],
+                "find": ["entity.find"],
+                "update": ["entity.update"],
+                "delete": ["entity.delete"]
+            },
+            "fields": {
+                "name": {
+                    "type": "string",
+                    "access": {
+                        "find": ["field.find"],
+                        "update": ["field.update"],
+                        "insert": ["field.insert"]
+                    }
+                },
+                "counter": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    {
+        "entityInfo": {
+            "name": "test2",
+            "datastore": {
+                "backend":"mongo",
+                "collection": "test2"
+            }
+        },
+        "schema": {
+            "name": "test2",
+            "version": {
+                "value": "1.0.0",
+                "changelog": "Initial version"
+            },
+            "status": {
+                "value": "active"
+            },
+            "access": {
+                "insert": ["entity.insert"],
+                "find": ["entity.find"],
+                "update": ["entity.update"],
+                "delete": ["entity.delete"]
+            },
+            "fields": {
+                "name": {
+                    "type": "string",
+                    "access": {
+                        "find": ["field.find"],
+                        "update": ["field.update"],
+                        "insert": ["field.insert"]
+                    }
+                },
+                "counter": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    {
+        "entityInfo": {
+            "name": "test3",
+            "defaultVersion": "1.0.0",
+            "datastore": {
+                "backend":"mongo",
+                "collection": "test3"
+            }
+        },
+        "schema": {
+            "name": "test3",
+            "version": {
+                "value": "1.0.0",
+                "changelog": "Initial version"
+            },
+            "status": {
+                "value": "active"
+            },
+            "access": {
+                "insert": ["entity.insert"],
+                "find": ["entity.find"],
+                "update": ["entity.update"],
+                "delete": ["entity.delete"]
+            },
+            "fields": {
+                "name": {
+                    "type": "string",
+                    "access": {
+                        "find": ["field.find"],
+                        "update": ["field.update"],
+                        "insert": ["field.insert"]
+                    }
+                },
+                "counter": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+]

@@ -1,0 +1,25 @@
+{
+   "mongo" : {
+     "type" : "com.redhat.lightblue.mongo.config.MongoConfiguration",
+     "metadataBackendParser" : "com.redhat.lightblue.metadata.mongo.MongoBackendParser",
+     "ssl" : false,
+     "database" : "mongo",
+     "servers" : [
+        {
+           "host" : "localhost",
+           "port" : "27777"
+        }
+     ]
+   },
+   "rdbms" : {
+     "type" : "com.redhat.lightblue.config.rdbms.RDBMSDataSourceConfiguration",
+     "metadataBackendParser" : "com.redhat.lightblue.metadata.rdbms.impl.RDBMSDataStoreParser",
+     "database" : "inmemory",
+     "connections" : [
+        {
+           "datasourceName" : "simplefile",
+           "JNDI" : "java:/mydatasource"
+        }
+     ]
+   }
+}

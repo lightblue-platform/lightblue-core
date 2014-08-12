@@ -1,0 +1,33 @@
+{
+    "name": "user",
+    "enums" : [
+       {
+          "name":"site_type_enum",
+          "values": [ "billing", "marketing", "service", "shipping" ]
+       }
+    ],
+  "indexes" : [
+      { 
+        "name":"login_ix",
+        "unique": true,
+        "fields": [ { "field":"login","dir":"$asc" } ]
+      },
+      { 
+        "name":"firstname_ix",
+        "fields": [ { "field":"personalInfo.firstName","dir":"$asc" } ]
+      },
+      { 
+        "name":"lastName_ix",
+        "fields": [ { "field":"personalInfo.lastName","dir":"$asc" } ]
+      },
+      { 
+        "name":"state_ix",
+        "fields": [ { "field":"sites.streetAddress.state","dir":"$asc" } ]
+      }
+    ],
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "user"
+    }
+}

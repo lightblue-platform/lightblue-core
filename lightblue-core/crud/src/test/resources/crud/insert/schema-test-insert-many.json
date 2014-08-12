@@ -1,0 +1,25 @@
+{
+    "insert": {
+        "object_type": "some_entity",
+        "client": {"id": "1"},
+        "execution": {
+            "timeLimit": 5000,
+            "asynchronous": 4500
+        },
+        "projection": {
+            "field": "firstname",
+            "include": true,
+            "recursive": true
+        },
+        "data": [
+            {
+                "object_type": "some_entity",
+                "login": "nmalik1"
+            },
+            {
+                "object_type": "some_entity",
+                "login": "nmalik2"
+            }
+        ]
+    }
+}

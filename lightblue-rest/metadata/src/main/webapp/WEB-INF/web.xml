@@ -1,0 +1,31 @@
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+    <servlet-mapping>
+       <servlet-name>com.redhat.lightblue.rest.metadata.RestApplication</servlet-name>
+       <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <description></description>
+        <display-name>HystrixMetricsStreamServlet</display-name>
+        <servlet-name>HystrixMetricsStreamServlet</servlet-name>
+        <servlet-class>com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>HystrixMetricsStreamServlet</servlet-name>
+        <url-pattern>/hystrix.stream</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>health</servlet-name>
+        <jsp-file>/health.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>health</servlet-name>
+        <url-pattern>/health</url-pattern>
+    </servlet-mapping>
+
+</web-app>

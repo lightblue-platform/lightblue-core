@@ -1,0 +1,9 @@
+#!/bin/sh
+
+FILENAME_DOT=$HOME/Documents/lightblue-cicd.dot
+FILENAME_PNG=$HOME/Documents/lightblue-cicd.png
+
+for x in `ls -1 *.dot`; do
+    PREFIX=`echo $x | cut -d. -f1`
+    dot -Tpng -o ${PREFIX}.png ${PREFIX}.dot
+done

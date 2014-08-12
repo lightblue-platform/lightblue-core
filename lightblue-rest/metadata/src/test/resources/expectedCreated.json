@@ -1,0 +1,53 @@
+{
+    "entityInfo": {
+        "name": "country",
+        "indexes": [{
+            "name": null,
+            "unique": true,
+            "fields": [{"field":"name","dir": "$asc"}]
+        }],
+        "datastore": {
+            "backend":"mongo",
+            "datasource" : "mongo",
+            "collection": "country"
+        }
+    },
+    "schema": {
+        "name": "country",
+        "version": {
+            "value": "1.0.0",
+            "changelog": "blahblah"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": ["anyone"],
+            "update": ["anyone"],
+            "find": ["anyone"],
+            "delete": ["anyone"]
+        },
+        "fields": {
+            "iso3code": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "iso2code": {
+                "type": "string"
+            },
+            "object_type": {
+                "type": "string",
+                "access": {
+                    "find": ["anyone"],
+                    "update": ["noone"]
+                },
+                "constraints": {
+                    "required": true,
+                    "minLength": 1
+                }
+            }
+        }
+    }
+}

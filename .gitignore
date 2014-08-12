@@ -1,4 +1,5 @@
 target
+nb-configuration.xml
 target/*
 logs
 www/www-app/*/src/main/webapp/gwt
@@ -27,3 +28,7 @@ mf.pom.xml
 bin
 bin/*
 *.bak
+util/nb-configuration.xml
+nb-configuration.xml
+metadata/nb-configuration.xml
+docs/cicd/*.png

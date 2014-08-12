@@ -1,0 +1,144 @@
+{
+    "entityInfo": {
+        "name": "test",
+        "hooks": [
+            {
+                "name": "PublishHook",
+                "projection": {
+                    "field": "address",
+                    "include": true,
+                    "recursive": true
+                },
+                "configuration": {
+                    "something": "foo"
+                },
+                "actions": [
+                    "insert",
+                    "update"
+                ]
+            },
+            {
+                "name": "AuditHook",
+                "projection": [
+                    {
+                        "field": "credentials.login",
+                        "include": true,
+                        "recursive": false
+                    },
+                    {
+                        "field": "address",
+                        "include": true,
+                        "recursive": true
+                    }
+                ],
+                "actions": [
+                    "insert",
+                    "update",
+                    "delete"
+                ]
+            }
+        ],
+        "indexes": [
+            {
+                "unique": true,
+                "fields": [{"field":"name","dir": "$asc"}]
+            }
+        ],
+        "enums": [
+            {
+                "name": "cusotmerType",
+                "values": ["person", "organization"]
+            }
+        ],
+        "datastore": {
+            "backend":"empty"
+        }
+    },
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "Initial version"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": ["admin"],
+            "find": ["admin", "all"],
+            "update": ["admin"],
+            "delete": ["admin"]
+        },
+        "fields": {
+            "name": {
+                "type": "string"
+            },
+            "customerType": {
+                "type": "string",
+                "constraints": {
+                    "enum": "customerType"
+                }
+            },
+            "creationDate": {
+                "type": "date",
+                "constraints": {
+                    "required": true
+                }
+            },
+            "lastUpdateDate": {
+                "type": "date"
+            },
+            "credentials": {
+                "type": "object",
+                "fields": {
+                    "login": {
+                        "type": "string",
+                        "constraints": {
+                            "required": true
+                        }
+                    },
+                    "password": {
+                        "type": "string",
+                        "constraints": {
+                            "required": true
+                        }
+                    }
+                },
+                "constraints": {
+                    "required": true
+                }
+            },
+            "address": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "street": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "access": {
+                                "find": ["all"],
+                                "update": ["admin"]
+                            }
+                        },
+                        "city": {
+                            "type": "string",
+                            "access": {
+                                "find": ["all"],
+                                "update": ["admin"]
+                            }
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "postalCode": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

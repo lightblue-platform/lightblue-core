@@ -1,0 +1,6 @@
+{
+    "object_type": "error",
+    "context": "GetDependenciesCommand",
+    "errorCode": "rest-metadata:RestError",
+    "msg": "java.lang.UnsupportedOperationException: Not supported yet."
+}

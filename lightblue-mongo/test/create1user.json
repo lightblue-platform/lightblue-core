@@ -1,0 +1,64 @@
+{
+  "object_type":"user",
+  "version":"2.0",
+  "projection": { "field":"_id"},
+  "data": {
+  "object_type":"user",
+  "login":"testuser",
+  "active":true,
+  "contactPermissions":{
+    "allowEmailContact":false,
+    "allowFaxContact":false,
+    "allowMailContact":true,
+    "allowPhoneContact":false,
+    "allowThirdPartyContact":true
+    },
+  "personalInfo":{
+    "company":"Red Hat",
+    "greeting":"Mr.",
+    "firstName":"burak",
+    "lastName":"serdar",
+    "email":"bserdar@redhat.com",
+    "emailConfirmed":true,
+    "phoneNumber":"1234567890",
+    "faxNumber":"0123456789",
+    "locale":"en_us",
+    "timezone":"MST",
+    "department":"IT"
+    },
+  "sites":[{
+      "streetAddress":{
+        "address1":"123 some street",
+        "city":"Denver",
+        "state":"CO",
+        "country":"USA",
+        "countryCode":"US",
+        "postalCode":"85939",
+        "poBox":false
+        },
+      "contactInfo":{
+        "emailAddress":"bserdar@redhat.com",
+        "faxNumber":"9283817655",
+        "phoneNumber":"1899962924",
+        "url":"redhat.com"
+        },
+      "notes":".Yeo7JEwap,sGEpbNTHjR5iY7",
+      "siteType":"shipping",
+      "firstName":"burak",
+      "lastName":"serdar",
+      "description":"VAp7dnt3TMKf9R0oAAxdS8",
+      "defaultSite":true,
+      "active":true,
+      "usages":[{
+          "usage":"billing",
+          "lastUsedOn":"20100830T18:25:44.452-0600"
+          },
+          {
+          "usage":"shipping",
+          "lastUsedOn":"20110303T10:00:00.000-0600"
+          }]
+      }],
+  "createdDate":"20130910T15:25:13.251-0600",
+  "updatedDate":"20130616T05:16:41.906-0600"
+  }
+}

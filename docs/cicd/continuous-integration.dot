@@ -1,0 +1,21 @@
+strict digraph lightblue_cicd {
+compound=true;
+overlap=false;
+splines=true;
+subgraph cluster_CI {
+    label="Continuous Integration";
+    maven_clean -> maven_compile -> maven_test -> maven_package -> maven_install;
+    maven_package -> rpm_build;
+    maven_package -> maven_deploy;
+    maven_test -> sonar -> sonar_analysis;
+}
+start [label="",shape="circle",width=0.2];
+success [shape="point",width=0.2];
+failure [shape="point",width=0.2,color="red"];
+start -> maven_clean;
+rpm_build -> success;
+sonar_analysis -> success;
+notification -> failure [color="red"];
+// when ci fails:
+maven_package -> notification [ltail=cluster_CI,color="red"];
+}

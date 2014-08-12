@@ -1,0 +1,19 @@
+Run
+
+ export host=<hostname>:8080
+ export unamepwd=bign:123qweasd!
+ export PATH=$PATH:.
+
+and then run the GET, PUT, POST scripts.
+
+To cleanup db:
+Metadata:
+
+db.metadata.remove()
+
+data:
+
+db.user.remove( {login:"bserdar"} )
+db.user.remove( {login:"nmalik"} )
+db.user.remove( {login:"bserdar2"} )
+db.user.remove( {login:"dhaynes"} )

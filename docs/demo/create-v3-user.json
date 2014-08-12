@@ -1,0 +1,98 @@
+{
+"object_type":"user",
+"version":"3.0.0",
+"projection":{
+  "field":"_id"
+  },
+"data":[{
+    "object_type":"user",
+    "login":"dhaynes",
+    "password":{
+      "hashed":"9F2938406AC8F4B3B081A99464CF4B02E65AFB8E7C721BE87EDF72A95B5EFCB1BF481FC069E328C9AC8D0739ABBF3224F9EB5ACA575A27175C37D125181C5ECE016687BAF3FB431D6CBE1A794282E5430F3DD5210B6773F664DEE684FD112109A0E4249B013576E102A1F5EB3F7D80A12A55C653E3EBE3A40680E092C0260D7F",
+      "salt":"80FED7B01330A517CC3AD6423917605B15515143DD7E6609D4783FF2E2E5247619B35FAEC6AF3944D901816673BEBB27D4DC851A0C3DD8A22BFEBAB5C65ED3D1F3C53497C0A107AB61BAAB918B396A43ED465B550CFC10675E4D712CF6AE3BA873BF31C5CCE1CC0A63BCFFD889C9CBE72DC822AAB9E3A432A45061169412E619"
+      },
+    "active":true,
+    "contactPermissions":{
+      "allowEmailContact":true,
+      "allowFaxContact":false,
+      "allowMailContact":false,
+      "allowPhoneContact":false,
+      "allowThirdPartyContact":false
+      },
+    "personalInfo":{
+      "company":"Red Hat",
+      "greeting":"Mr.",
+      "firstName":"Derek",
+      "lastName":"Haynes",
+      "title":"Developer",
+      "email":"dhaynes@redhat.com",
+      "emailConfirmed":false,
+      "phoneNumber":"123-1234 2222",
+      "locale":"en_us",
+      "timezone":"America/Raleigh",
+      "department":"IT"
+      },
+    "sites":[{
+        "siteId":"1",
+        "streetAddress":{
+          "address1":"123 Some street",
+          "city":"Raleigh",
+          "state":"NC",
+          "country":"US",
+          "countryCode":"US",
+          "postalCode":"27617",
+          "poBox":false
+          },
+        "contactInfo":{
+          "emailAddress":"dhaynes@redhat.com",
+          "phoneNumber":"123-1234 2222"
+          },
+        "notes":"Blah blah",
+        "siteType":"shipping",
+        "firstName":"Derek",
+        "lastName":"Haynes",
+        "defaultSite":true,
+        "active":true,
+        "usages":[{
+            "usage":"shipping",
+            "lastUsedOn":"20100425T01:59:57.416-0600"
+            },{
+            "usage":"service",
+            "lastUsedOn":"20121102T16:45:39.429-0600"
+            },{
+            "usage":"marketing",
+            "lastUsedOn":"20130804T10:03:40.621-0600"
+            }]
+        },{
+        "siteId":"2",
+        "streetAddress":{
+          "address1":"123 Some other street",
+          "city":"Chapel Hill",
+          "state":"NC",
+          "country":"US",
+          "countryCode":"US",
+          "postalCode":"27514",
+          "poBox":false
+          },
+        "contactInfo":{
+          "emailAddress":"a@b.com"
+          },
+        "notes":"H9YX0y",
+        "siteType":"billing",
+        "firstName":"someone2",
+        "lastName":"lastname2",
+        "description":"tSZtyRdu5ge808EJswmuNpw1mmPHPUtX",
+        "defaultSite":false,
+        "active":true,
+        "usages":[{
+            "usage":"service",
+            "lastUsedOn":"20120312T11:27:02.094-0600"
+            },{
+            "usage":"marketing",
+            "lastUsedOn":"20130912T11:52:05.173-0600"
+            }]
+        }
+    ],
+    "createdDate":"20120328T03:19:34.295-0600"
+    }]
+}

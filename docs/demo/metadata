@@ -1,0 +1,70 @@
+export host=<hostname>
+
+Create user metadata v1.0.0:
+ 
+ curl -H Content-Type:application/json -X PUT   -d @usermd-v1.0.0.json ${host}/metadata/user/1.0.0|tee /tmp/out.json
+
+Get all entity names:
+  curl -H Content-Type:application/json ${host}/metadata|tee /tmp/out.json
+
+Get user versions:
+  curl -H Content-Type:application/json ${host}/metadata/user|tee /tmp/out.json
+
+Get user 1.0.0
+  curl -H Content-Type:application/json ${host}/metadata/user/1.0.0|tee /tmp/out.json
+
+No index in user 1.0.0, add unique index:
+
+  curl -H Content-Type:application/json -X PUT  -d@usermd-ei-index.json ${host}/metadata/user|tee /tmp/out.json
+
+Get user 1.0.0
+  curl -H Content-Type:application/json ${host}/metadata/user/1.0.0|tee /tmp/out.json
+
+
+Create new user schema v2.0.0, add new field lastLoginDate:
+
+  curl -H Content-Type:application/json -X PUT  -d@usermd-v2.0.0.json ${host}/metadata/user/schema=2.0.0|tee /tmp/out.json
+
+Get user versions:
+  curl -H Content-Type:application/json ${host}/metadata/user|tee /tmp/out.json
+
+Get user 2.0
+  curl -H Content-Type:application/json ${host}/metadata/user/2.0.0|tee /tmp/out.json
+
+
+Set v2 as default
+
+  curl -H Content-Type:application/json -X POST ${host}/metadata/user/2.0.0/default|tee /tmp/out.json
+
+
+
+
+
+Create user metadata v1.0.0:
+  ./PUT ${host}/metadata/user/1.0.0 @usermd-v1.0.0.json
+
+Get all entity names:
+  ./GET ${host}/metadata
+
+Get user versions:
+  ./GET ${host}/metadata/user
+
+Get user 1.0.0:
+  ./GET ${host}/metadata/user/1.0.0
+
+No index in user 1.0.0, add unique index:
+  ./PUT ${host}/metadata/user @usermd-ei-index.json
+
+Create new user schema v2.0.0, add new field lastLoginDate:
+  ./PUT ${host}/metadata/user/schema=2.0.0 @usermd-v2.0.0.json
+
+Get user versions:
+  ./GET ${host}/metadata/user
+
+Get user 2.0
+  ./GET ${host}/metadata/user/2.0.0
+
+Set v2 as default
+  ./POST ${host}/metadata/user/2.0.0/default
+
+

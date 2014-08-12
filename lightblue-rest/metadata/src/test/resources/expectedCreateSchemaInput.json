@@ -1,0 +1,41 @@
+{
+    "name": "country",
+    "version": {
+        "value": "1.1.0",
+        "changelog": "blahblah"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access": {
+        "insert": ["anyone"],
+        "update": ["anyone"],
+        "find": ["anyone"],
+        "delete": ["anyone"]
+    },
+    "fields": {
+        "iso3code": {
+            "type": "string"
+        },
+        "iso2code": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "elementx": {
+            "type": "string"
+        },
+        "object_type": {
+            "type": "string",
+            "access": {
+                "find": ["anyone"],
+                "update": ["noone"]
+            },
+            "constraints": {
+                "required": true,
+                "minLength": 1
+            }
+        }
+    }
+}

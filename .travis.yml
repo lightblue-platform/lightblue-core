@@ -1,0 +1,14 @@
+language: java
+jdk:
+  - openjdk7
+  - oraclejdk8
+
+after_success:
+  - mvn clean test jacoco:report coveralls:jacoco
+
+notifications:
+  email: false
+  irc:
+    channels:
+      - "chat.freenode.net#lightblue"
+    on_success: always

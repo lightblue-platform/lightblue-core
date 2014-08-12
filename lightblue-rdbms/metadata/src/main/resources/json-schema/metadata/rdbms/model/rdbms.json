@@ -1,0 +1,166 @@
+{
+    "copyright": [
+        "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+        "This file is part of lightblue.",
+        "This program is free software: you can redistribute it and/or modify",
+        "it under the terms of the GNU General Public License as published by",
+        "the Free Software Foundation, either version 3 of the License, or",
+        "(at your option) any later version.",
+        "This program is distributed in the hope that it will be useful,",
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+        "GNU General Public License for more details.",
+        "You should have received a copy of the GNU General Public License",
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>."
+    ],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "id": "rdbms",
+    "properties": {
+        "delete": {
+            "$ref": "operation.json#",
+            "id": "delete"
+        },
+        "fetch": {
+            "$ref": "operation.json#",
+            "id": "fetch"
+        },
+        "insert": {
+            "$ref": "operation.json#",
+            "id": "insert"
+        },
+        "save": {
+            "$ref": "operation.json#",
+            "id": "save"
+        },
+        "update": {
+            "$ref": "operation.json#",
+            "id": "update"
+        },
+        "SQLMapping": {
+            "type": "object",
+            "properties": {
+                "joins": {
+                    "description": "Defines the relationship between one or more fields to one or more tables/columns",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "tables": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "description": "Table's name and its alias (if it have one). If alias is defined, it is expected that it will be used in the joins and where",
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "alias": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "name"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            },
+                            "joinTablesStatement": {
+                                "description": "Statement that will be used in the where clause with the necessary joins between tables of this set of fields",
+                                "type": "string"
+                            },
+                            "needDistinct": {
+                                "description": "Describe if this specific join needs distinct in the SQL statement, where if any Join used in that statement defined it as true, all the other are going to use distinct.",
+                                "type": "boolean"
+                            },
+                            "projectionMappings": {
+                                "description": "Describe the fields and columns related to the specific join",
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "column": {
+                                            "type": "string"
+                                        },
+                                        "field": {
+                                            "type": "string"
+                                        },
+                                        "sort": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "column",
+                                        "field"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            }
+                        },
+                        "required": [
+                            "tables",
+                            "projectionMappings"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "columnToFieldMap":{
+                    "description": "Use this to map the tables PKs with field for paging",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "table": {
+                                "type": "string"
+                            },
+                            "column": {
+                                "type": "string"
+                            },
+                            "field": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "tables",
+                            "column",
+                            "field"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "required": [
+                "columnToFieldMap"
+            ],
+            "additionalProperties": false
+        },
+        "dialoect": {
+            "type": "string"
+        }
+    },
+    "anyOf": [
+        {
+            "required": [
+                "delete"
+            ],
+            "required": [
+                "insert"
+            ],
+            "required": [
+                "save"
+            ],
+            "required": [
+                "update"
+            ]
+        }
+    ],
+    "required": [
+        "SQLMapping",
+        "dialect"
+    ],
+    "additionalProperties": false
+}
