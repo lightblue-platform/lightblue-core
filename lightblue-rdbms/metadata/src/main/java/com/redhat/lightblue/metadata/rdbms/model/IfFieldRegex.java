@@ -91,7 +91,7 @@ public class IfFieldRegex extends If<If, If> {
         p.putString(s, "field", field.toString());
         p.putString(s, "regex", regex);
         if (!caseInsensitive) { // different than the default value
-            p.putString(s, "case_insensitive", str(caseInsensitive));
+            p.putString(s, "caseInsensitive", str(caseInsensitive));
         }
         if (!multiline) {
             p.putString(s, "multiline", str(multiline));
@@ -126,7 +126,7 @@ public class IfFieldRegex extends If<If, If> {
             if (regex == null || regex.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-regex: regex not informed");
             }
-            String caseInsensitive = p.getStringProperty(pathregex, "case_insensitive");
+            String caseInsensitive = p.getStringProperty(pathregex, "caseInsensitive");
             String multiline = p.getStringProperty(pathregex, "multiline");
             String extended = p.getStringProperty(pathregex, "extended");
             String dotall = p.getStringProperty(pathregex, "dotall");

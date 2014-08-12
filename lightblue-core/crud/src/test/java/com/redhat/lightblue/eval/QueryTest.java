@@ -124,7 +124,7 @@ public class QueryTest extends AbstractJsonNodeTest {
         new QTestCase("{'field':'field6.nf1','op':'$in','values':['blah','yada','nvalue1']}", true),
         new QTestCase("{'field':'field6.nf1','regex':'nvalue.*'}", true),
         new QTestCase("{'field':'field6.nf1','regex':'Nvalue.*'}", false),
-        new QTestCase("{'field':'field6.nf1','regex':'Nvalue.*','case_insensitive':true}", true)
+        new QTestCase("{'field':'field6.nf1','regex':'Nvalue.*','caseInsensitive':true}", true)
     };
 
     @Test

@@ -46,7 +46,7 @@ public class RegexEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void regex_on_field_partial_string_case_insensitive_match_works() throws Exception {
-        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field1','regex':'Val.*','case_insensitive':1}");
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field1','regex':'Val.*','caseInsensitive':1}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
         QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         ctx = qe.evaluate(jsonDoc);
@@ -72,7 +72,7 @@ public class RegexEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void one_$parent_regex_on_field_partial_string_case_insensitive_match_works() throws Exception {
-        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field2.$parent.field1','regex':'Val.*','case_insensitive':1}");
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field2.$parent.field1','regex':'Val.*','caseInsensitive':1}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
         QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         ctx = qe.evaluate(jsonDoc);

@@ -61,11 +61,11 @@
             }
         },
         "fields": {
-            "$ref": "#/definitions/field_single"
+            "$ref": "#/definitions/fieldSingle"
         }
     },
     "definitions": {
-        "access_field": {
+        "accessField": {
             "type": "object",
             "description": "Defines what roles are required for specific operations on this field.",
             "properties": {
@@ -80,7 +80,7 @@
             },
             "additionalProperties": false
         },
-        "types_simple": {
+        "typesSimple": {
             "enum": [
                 "boolean",
                 "integer",
@@ -93,23 +93,23 @@
                 "uid"
             ]
         },
-        "types_complex": {
+        "typesComplex": {
             "enum": [
                 "object",
                 "array"
             ]
         },
-        "types_any": {
+        "typesAny": {
             "oneOf": [
                 {
-                    "$ref": "#/definitions/types_complex"
+                    "$ref": "#/definitions/typesComplex"
                 },
                 {
-                    "$ref": "#/definitions/types_simple"
+                    "$ref": "#/definitions/typesSimple"
                 }
             ]
         },
-        "field_constraint": {
+        "fieldConstraint": {
             "properties": {
                 "maximum": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/maximum",
@@ -157,7 +157,7 @@
                 }
             }
         },
-        "field_single": {
+        "fieldSingle": {
             "description": "Control non-fields objects",
             "type": "object",
             "patternProperties": {
@@ -173,10 +173,10 @@
                                     "description": "Array items can be simple types.",
                                     "properties": {
                                         "type": {
-                                            "$ref": "#/definitions/types_simple"
+                                            "$ref": "#/definitions/typesSimple"
                                         },
                                         "constraints": {
-                                            "$ref": "#/definitions/field_constraint"
+                                            "$ref": "#/definitions/fieldConstraint"
                                         }
                                     },
                                     "additionalProperties": false,
@@ -190,7 +190,7 @@
                                             "enum": ["object"]
                                         },
                                         "fields": {
-                                            "$ref": "#/definitions/field_single"
+                                            "$ref": "#/definitions/fieldSingle"
                                         }
                                     },
                                     "description": "Support for object items.",
@@ -202,16 +202,16 @@
                             ]
                         },
                         "type": {
-                            "$ref": "#/definitions/types_any"
+                            "$ref": "#/definitions/typesAny"
                         },
                         "access": {
-                            "$ref": "#/definitions/access_field"
+                            "$ref": "#/definitions/accessField"
                         },
                         "fields": {
-                            "$ref": "#/definitions/field_single"
+                            "$ref": "#/definitions/fieldSingle"
                         },
                         "constraints": {
-                            "$ref": "#/definitions/field_constraint"
+                            "$ref": "#/definitions/fieldConstraint"
                         }
                     },
                     "required": [

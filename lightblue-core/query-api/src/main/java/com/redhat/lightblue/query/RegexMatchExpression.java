@@ -28,7 +28,7 @@ import com.redhat.lightblue.util.Error;
  * Represents a regular expression match query of the form
  * <pre>
  * { field: <field>, regex: <pattern>,
- *      case_insensitive: false, extended: false, multiline: false, dotall: false }
+ *      caseInsensitive: false, extended: false, multiline: false, dotall: false }
  * </pre>
  *
  */
@@ -112,7 +112,7 @@ public class RegexMatchExpression extends RelationalExpression {
                 put("field", field.toString()).
                 put("regex", regex);
         if (caseInsensitive) {
-            node.put("case_insensitive", true);
+            node.put("caseInsensitive", true);
         }
         if (multiline) {
             node.put("multiline", true);
@@ -134,7 +134,7 @@ public class RegexMatchExpression extends RelationalExpression {
             if (x != null) {
                 String regex = x.asText();
                 return new RegexMatchExpression(field, regex,
-                        asBoolean(node.get("case_insensitive")),
+                        asBoolean(node.get("caseInsensitive")),
                         asBoolean(node.get("multiline")),
                         asBoolean(node.get("extended")),
                         asBoolean(node.get("dotall")));
