@@ -44,22 +44,20 @@ import com.redhat.lightblue.rest.auth.ldap.LightblueLdapRoleProvider;
  *
  */
 public class CertLdapLoginModule extends CertRolesLoginModule {
+    private final Logger LOGGER = Logger.getLogger(CertLdapLoginModule.class);
+
     public static final String AUTH_ROLE_NAME = "authRoleName";
     public static final String LDAP_SERVER = "ldapServer";
     public static final String SEARCH_BASE = "searchBase";
     public static final String BIND_DN = "bindDn";
     public static final String BIND_PWD = "bindPassword";
 
-    private Logger logger = Logger.getLogger(CertLdapLoginModule.class);
-    private static final String[] ALL_VALID_OPTIONS = {AUTH_ROLE_NAME, LDAP_SERVER, SEARCH_BASE, BIND_DN, BIND_PWD};
-
     /* (non-Javadoc)
      * @see org.jboss.security.auth.spi.AbstractServerLoginModule#getRoleSets()
      */
     @Override
     protected Group[] getRoleSets() throws LoginException {
-        System.out.println("getRoleSets() begin");
-        logger.debug("staticRoleLoginModule getRoleSets()");
+        LOGGER.debug("staticRoleLoginModule getRoleSets()");
         String roleName = (String) options.get(AUTH_ROLE_NAME);
         String ldapServer = (String) options.get(LDAP_SERVER);
         String searchBase = (String) options.get(SEARCH_BASE);
@@ -72,7 +70,7 @@ public class CertLdapLoginModule extends CertRolesLoginModule {
         try {
             LightblueRoleProvider lbLdap = new LightblueLdapRoleProvider(ldapServer, searchBase, bindDn, bindPwd);
 
-            logger.info("Prinicipal username:" + getUsername());
+            LOGGER.info("Prinicipal username:" + getUsername());
 
             LdapName name = new LdapName(getUsername());
             String searchName = new String();
@@ -90,17 +88,16 @@ public class CertLdapLoginModule extends CertRolesLoginModule {
             userRoles.addMember(p);
             for (String groupName : groupNames) {
                 Principal role = super.createIdentity(groupName);
-                logger.debug("Found role: " + groupName);
+                LOGGER.debug("Found role: " + groupName);
                 userRoles.addMember(role);
             }
 
-            logger.debug("Assign principal [" + p.getName() + "] to role [" + roleName + "]");
+            LOGGER.debug("Assign principal [" + p.getName() + "] to role [" + roleName + "]");
         } catch (Exception e) {
             String principalName = p == null ? "null" : p.getName();
-            logger.info("Failed to assign principal [" + principalName + "] to role [" + roleName + "]", e);
+            LOGGER.info("Failed to assign principal [" + principalName + "] to role [" + roleName + "]", e);
         }
         Group[] roleSets = {userRoles};
         return roleSets;
     }
-
 }
