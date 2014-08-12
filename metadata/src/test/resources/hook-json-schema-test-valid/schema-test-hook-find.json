@@ -3,7 +3,7 @@
     "clientId": "asdf",
     "request": {
         "find": {
-            "object_type": "some_entity",
+            "objectType": "some_entity",
             "clientId": "1",
             "execution": {
                 "timeLimit": 5000,
@@ -29,7 +29,7 @@
         }
     },
     "response": {
-        "object_type": "some_entity",
+        "objectType": "some_entity",
         "login": "asdf",
         "somefield": "asdf"
     }

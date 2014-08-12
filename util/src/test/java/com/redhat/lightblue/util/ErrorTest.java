@@ -230,7 +230,7 @@ public class ErrorTest {
     public void toJson_full() throws JSONException {
         Error e = Error.get("a", "b", "c");
         JsonNode node = e.toJson();
-        JSONAssert.assertEquals("{object_type:error,context:a,errorCode:b,msg:c}", node.toString(), false);
+        JSONAssert.assertEquals("{objectType:error,context:a,errorCode:b,msg:c}", node.toString(), false);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class ErrorTest {
         // alias for toJson, so not going to test all cases
         Error e = Error.get("a", "b", "c");
         String s = e.toString();
-        JSONAssert.assertEquals("{object_type:error,context:a,errorCode:b,msg:c}", s, false);
+        JSONAssert.assertEquals("{objectType:error,context:a,errorCode:b,msg:c}", s, false);
     }
 
     @Test

@@ -25,7 +25,7 @@
             "properties": {
                 "client": {
                 },
-                "object_type": {
+                "objectType": {
                 },
                 "version": {
                 },
@@ -51,7 +51,7 @@
             "properties": {
                 "client": {
                 },
-                "object_type": {
+                "objectType": {
                 },
                 "version": {
                 },
@@ -84,7 +84,7 @@
             "properties": {
                 "client": {
                 },
-                "object_type": {
+                "objectType": {
                 },
                 "version": {
                 },
@@ -121,7 +121,7 @@
             "properties": {
                 "client": {
                 },
-                "object_type": {
+                "objectType": {
                 },
                 "version": {
                 },
@@ -162,7 +162,7 @@
             "properties": {
                 "client": {
                 },
-                "object_type": {
+                "objectType": {
                 },
                 "version": {
                 },
@@ -210,16 +210,16 @@
                     "type": "string",
                     "description": "The id of the entity."
                 },
-                "object_type": {
+                "objectType": {
                     "type": "string",
-                    "description": "The name of the entity to be operated on.  Should match 'object_type' set at higher level."
+                    "description": "The name of the entity to be operated on.  Should match 'objectType' set at higher level."
                 },
                 "version": {
                     "$ref": "#/definitions/version"
                 }
             },
             "required": [
-                "object_type"
+                "objectType"
             ],
             "additionalProperties": true
         },
@@ -257,7 +257,7 @@
         },
         "common": {
             "properties": {
-                "object_type": {
+                "objectType": {
                     "type": "string",
                     "description": "The name of the entity being operated on."
                 },
@@ -275,7 +275,7 @@
                 }
             },
             "required": [
-                "object_type"
+                "objectType"
             ]
         },
         "updateChoice": {

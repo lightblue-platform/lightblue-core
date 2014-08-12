@@ -1,6 +1,6 @@
 {
     "update": {
-        "object_type": "some_entity",
+        "objectType": "some_entity",
         "client": {"id": "1"},
         "execution": {
             "timeLimit": 5000,
