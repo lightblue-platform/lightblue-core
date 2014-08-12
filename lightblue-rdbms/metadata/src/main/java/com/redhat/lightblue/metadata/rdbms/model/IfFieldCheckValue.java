@@ -73,10 +73,10 @@ public class IfFieldCheckValue extends If<If, If> {
         p.putString(s, "op", op);
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$field-check-value", s);
+            p.putObject(node, "$fieldCheckValue", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$field-check-value", s);
+            p.putObject(iT, "$fieldCheckValue", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
@@ -84,20 +84,20 @@ public class IfFieldCheckValue extends If<If, If> {
     @Override
     public <T> If parse(MetadataParser<T> p, T ifT) {
         If x = null;
-        T pathvalue = p.getObjectProperty(ifT, "$field-check-value");
+        T pathvalue = p.getObjectProperty(ifT, "$fieldCheckValue");
         if (pathvalue != null) {
             x = new IfFieldCheckValue();
             String fieldString = p.getStringProperty(pathvalue, "field");
             String valueString = p.getStringProperty(pathvalue, "value");
             String opString = p.getStringProperty(pathvalue, "op");
             if (fieldString == null || fieldString.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: field not informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$fieldCheckValue: field not informed");
             }
             if (valueString == null || valueString.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: value not informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$fieldCheckValue: value not informed");
             }
             if (opString == null || opString.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-check-value: op not informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$fieldCheckValue: op not informed");
             }
             ((IfFieldCheckValue) x).setField(new Path(fieldString));
             ((IfFieldCheckValue) x).setValue(valueString);

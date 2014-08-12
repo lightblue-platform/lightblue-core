@@ -41,7 +41,7 @@
             "description": "Charge the evaluation from true to false vice versa",
             "$ref": "if.json#/definitions/if"
         },
-        "$field-empty": {
+        "$fieldEmpty": {
             "type": "object",
             "properties": {
                 "field": {
@@ -53,7 +53,7 @@
             ],
             "additionalProperties": false
         },
-        "$field-check-field": {
+        "$fieldCheckField": {
             "type": "object",
             "properties": {
                 "op": {
@@ -73,7 +73,7 @@
             ],
             "additionalProperties": false
         },
-        "$field-check-value": {
+        "$fieldCheckValue": {
             "type": "object",
             "properties": {
                 "op": {
@@ -93,7 +93,7 @@
             ],
             "additionalProperties": false
         },
-        "$field-check-values": {
+        "$fieldCheckValues": {
             "type": "object",
             "properties": {
                 "op": {
@@ -118,7 +118,7 @@
             ],
             "additionalProperties": false
         },
-        "$field-regex": {
+        "$fieldRegex": {
             "type": "object",
             "properties": {
                 "field": {
@@ -128,7 +128,7 @@
                     "type": "string",
                     "format": "regex"
                 },
-                "case_insensitive": {
+                "caseInsensitive": {
                     "type": "boolean"
                 },
                 "multiline": {

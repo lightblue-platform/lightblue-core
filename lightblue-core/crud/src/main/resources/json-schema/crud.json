@@ -136,12 +136,12 @@
                 "update": {
                     "oneOf": [
                         {
-                            "$ref": "#/definitions/update_choice"
+                            "$ref": "#/definitions/updateChoice"
                         },
                         {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/update_choice"
+                                "$ref": "#/definitions/updateChoice"
                             }
                         }
                     ]
@@ -278,12 +278,12 @@
                 "object_type"
             ]
         },
-        "update_choice": {
+        "updateChoice": {
             "oneOf": [
                 {
                     "properties": {
                         "$set": {
-                            "$ref": "#/definitions/update_field_set"
+                            "$ref": "#/definitions/updateFieldSet"
                         }
                     },
                     "additionalProperties": false
@@ -291,7 +291,7 @@
                 {
                     "properties": {
                         "$unset": {
-                            "$ref": "#/definitions/update_field_unset"
+                            "$ref": "#/definitions/updateFieldUnset"
                         }
                     },
                     "additionalProperties": false
@@ -299,7 +299,7 @@
                 {
                     "properties": {
                         "$add": {
-                            "$ref": "#/definitions/update_field_add"
+                            "$ref": "#/definitions/updateFieldAdd"
                         }
                     },
                     "additionalProperties": false
@@ -307,7 +307,7 @@
                 {
                     "properties": {
                         "$pop": {
-                            "$ref": "#/definitions/update_array_pop"
+                            "$ref": "#/definitions/updateArrayPop"
                         }
                     },
                     "additionalProperties": false
@@ -315,7 +315,7 @@
                 {
                     "properties": {
                         "$remove": {
-                            "$ref": "#/definitions/update_array_remove"
+                            "$ref": "#/definitions/updateArrayRemove"
                         }
                     },
                     "additionalProperties": false
@@ -323,19 +323,19 @@
                 {
                     "properties": {
                         "$push": {
-                            "$ref": "#/definitions/update_array_push"
+                            "$ref": "#/definitions/updateArrayPush"
                         }
                     },
                     "additionalProperties": false
                 }
             ]
         },
-        "update_field_set": {
+        "updateFieldSet": {
             "type": "object",
             "description": "Attribute name is field to set, value is the new value to assign.",
             "additionalProperties": true
         },
-        "update_field_unset": {
+        "updateFieldUnset": {
             "type": "array",
             "description": "Name of fields to unset",
             "minItems": 1,
@@ -345,7 +345,7 @@
                 }
             ]
         },
-        "update_field_add": {
+        "updateFieldAdd": {
             "type": "object",
             "description": "Attribute name is field to modify, value is the integer to add to existing value.  If field has no value, TBD.",
             "patternProperties": {
@@ -356,7 +356,7 @@
             },
             "additionalProperties": false
         },
-        "update_array_pop": {
+        "updateArrayPop": {
             "type": "object",
             "description": "Attribute name is field to modify and value indicates where off the array to remove the value.",
             "patternProperties": {
@@ -369,7 +369,7 @@
             },
             "additionalProperties": false
         },
-        "update_array_remove": {
+        "updateArrayRemove": {
             "type": "object",
             "description": "Removes given values from the field (attribute name).  If value is missing in the array it is ignored.",
             "patternProperties": {
@@ -395,7 +395,7 @@
             },
             "additionalProperties": false
         },
-        "update_array_push": {
+        "updateArrayPush": {
             "type": "object",
             "description": "Pushes (adds) given values to the field (attribute name).  Values are added at the end of the array.  Doesn't check for uniqueness before adding.",
             "patternProperties": {

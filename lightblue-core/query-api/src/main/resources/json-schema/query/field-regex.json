@@ -23,7 +23,7 @@
             "type": "string",
             "format": "regex"
         },
-        "case_insensitive": {
+        "caseInsensitive": {
             "type": "boolean"
         },
         "multiline": {

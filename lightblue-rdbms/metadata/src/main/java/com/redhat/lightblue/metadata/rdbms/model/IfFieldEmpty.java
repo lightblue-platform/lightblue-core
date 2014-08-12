@@ -43,10 +43,10 @@ public class IfFieldEmpty extends If<If, If> {
         p.putString(s, "field", field.toString());
 
         if (lastArrayNode == null) {
-            p.putObject(node, "$field-empty", s);
+            p.putObject(node, "$fieldEmpty", s);
         } else {
             T iT = p.newNode();
-            p.putObject(iT, "$field-empty", s);
+            p.putObject(iT, "$fieldEmpty", s);
             p.addObjectToArray(lastArrayNode, iT);
         }
     }
@@ -54,12 +54,12 @@ public class IfFieldEmpty extends If<If, If> {
     @Override
     public <T> If parse(MetadataParser<T> p, T ifT) {
         If x = null;
-        T pathEmpty = p.getObjectProperty(ifT, "$field-empty");
+        T pathEmpty = p.getObjectProperty(ifT, "$fieldEmpty");
         if (pathEmpty != null) {
             x = new IfFieldEmpty();
             String pathString = p.getStringProperty(pathEmpty, "field");
             if (pathString == null || pathString.isEmpty()) {
-                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-empty: field not informed");
+                throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$fieldEmpty: field not informed");
             }
             ((IfFieldEmpty) x).setField(new Path(pathString));
         }
