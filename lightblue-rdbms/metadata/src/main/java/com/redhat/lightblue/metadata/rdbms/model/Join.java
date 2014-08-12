@@ -32,12 +32,15 @@ public class Join implements SimpleConverter {
     private List<Table> tables;
     private String joinTablesStatement;
     private List<ProjectionMapping> projectionMappings;
+    private boolean needDistinct;
+
 
     public <T> void parse(MetadataParser<T> p, T t) {
         List<T> tst = p.getObjectList(t, "tables");
         List<Table> ts = parseTables(p, tst);
         
         String jts = p.getStringProperty(t, "joinTablesStatement");
+        Boolean needDistinct = (Boolean) p.getValueProperty(t, "needDistinct");
         
         List<T> pmsT = p.getObjectList(t, "projectionMappings");
         List<ProjectionMapping> pms = parseProjectionMappings(p, pmsT);
@@ -45,6 +48,7 @@ public class Join implements SimpleConverter {
         this.tables = ts;
         this.joinTablesStatement = jts;
         this.projectionMappings = pms;
+        this.needDistinct = needDistinct;
         
     }
 
@@ -55,7 +59,11 @@ public class Join implements SimpleConverter {
         convertTables(p, ts);
         
         p.putString(eT, "joinTablesStatement", joinTablesStatement);
-        
+
+        if(needDistinct) {
+            p.putValue(eT, "needDistinct", needDistinct);
+        }
+
         Object ps = p.newArrayField(eT, "projectionMappings");
         convertProjectionMappings(p, ps);
 
@@ -128,5 +136,13 @@ public class Join implements SimpleConverter {
 
     public void setProjectionMappings(List<ProjectionMapping> projectionMappings) {
         this.projectionMappings = projectionMappings;
+    }
+
+    public boolean isNeedDistinct() {
+        return needDistinct;
+    }
+
+    public void setNeedDistinct(boolean needDistinct) {
+        this.needDistinct = needDistinct;
     }
 }

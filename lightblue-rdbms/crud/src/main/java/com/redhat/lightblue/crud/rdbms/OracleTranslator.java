@@ -27,23 +27,9 @@ import java.util.List;
  */
 public class OracleTranslator extends Translator {
 
-    protected void recursiveTranslateArrayContainsAll(TranslationContext c) {
-        Path array = c.tmpArray;
-        Type t =  c.tmpType;
-        List<Value> values = c.tmpValues;
-        
-        String translatePath = translatePath(array);
-        List<Object> translateValueList = translateValueList(t, values);
-        
-        //TODO return new BasicDBObject(translatePath, new BasicDBObject("$all", translateValueList));
-    }
-
-    protected void recursiveTranslateArrayContainsAny(TranslationContext c) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    protected void recursiveTranslateArrayContainsNone(TranslationContext c) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override
+    protected void recursiveTranslateRegexMatchExpression(TranslationContext c, RegexMatchExpression regexMatchExpression) {
+        //TODO implement 'REGEXP_LIKE' source  http://www.regular-expressions.info/oracle.html
     }
     
 }

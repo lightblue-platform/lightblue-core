@@ -20,6 +20,7 @@
 package com.redhat.lightblue.metadata.rdbms.converter;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ public class SelectStmt {
     private String distic;
     private List<String> resultColumns = new ArrayList<>();
     private List<String> fromTables = new ArrayList<>();
-    private List<String> whereConditionals = new ArrayList<>();
+    private LinkedList<String> whereConditionals = new LinkedList<>();
     private List<String> groupBy = new ArrayList<>(); // TODO Future implementation
     private List<String> having = new ArrayList<>(); // TODO Future implementation
     private List<String> orderBy = new ArrayList<>();
@@ -61,11 +62,11 @@ public class SelectStmt {
         this.fromTables = fromTables;
     }
 
-    public List<String> getWhereConditionals() {
+    public LinkedList<String> getWhereConditionals() {
         return whereConditionals;
     }
 
-    public void setWhereConditionals(List<String> whereConditionals) {
+    public void setWhereConditionals(LinkedList<String> whereConditionals) {
         this.whereConditionals = whereConditionals;
     }
 
