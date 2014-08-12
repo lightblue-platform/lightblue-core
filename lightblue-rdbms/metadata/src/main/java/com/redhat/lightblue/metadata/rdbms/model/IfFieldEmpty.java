@@ -57,11 +57,11 @@ public class IfFieldEmpty extends If<If, If> {
         T pathEmpty = p.getObjectProperty(ifT, "$field-empty");
         if (pathEmpty != null) {
             x = new IfFieldEmpty();
-            String path1 = p.getStringProperty(pathEmpty, "field");
-            if (path1 == null || path1.isEmpty()) {
+            String pathString = p.getStringProperty(pathEmpty, "field");
+            if (pathString == null || pathString.isEmpty()) {
                 throw com.redhat.lightblue.util.Error.get(RDBMSMetadataConstants.ERR_FIELD_REQUIRED, "$field-empty: field not informed");
             }
-            ((IfFieldEmpty) x).setField(new Path(path1));
+            ((IfFieldEmpty) x).setField(new Path(pathString));
         }
         return x;
     }
