@@ -40,15 +40,11 @@ import org.slf4j.LoggerFactory;
 // TODO Need to define some details how complex queries will be handles, for example: which expression would produce a query which joins two tables with 1->N relationship with paging (limit, offfset and sort), how would needs will be mapped by rdbms' json schema (it would need to map PK (or PKS in case of compose) and know which ones it would need to do a query before (to not brute force and do for all tables)) (in other words the example could be expressed as "find the first X customer after Y and get its first address", where customer 1 -> N addresses)
 abstract class Translator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
-
     public static Translator ORACLE = new OracleTranslator();
+    private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
     private static final Map<BinaryComparisonOperator, String> BINARY_TO_SQL = new HashMap<>();
     private static final Map<BinaryComparisonOperator, String> NOTBINARY_TO_SQL = new HashMap<>();
-
-
     private static final HashMap<NaryLogicalOperator, String> NARY_TO_SQL = new HashMap<>();
-
     static {
         BINARY_TO_SQL.put(BinaryComparisonOperator._eq, "=");
         BINARY_TO_SQL.put(BinaryComparisonOperator._neq, "<>");
@@ -57,12 +53,12 @@ abstract class Translator {
         BINARY_TO_SQL.put(BinaryComparisonOperator._lte, "<=");
         BINARY_TO_SQL.put(BinaryComparisonOperator._gte, ">=");
 
-        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._eq, "=");
-        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._neq, "<>");
-        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._lt, "<");
-        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._gt, ">");
-        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._lte, "<=");
-        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._gte, ">=");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._eq, "<>");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._neq, "=");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._lt, ">");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._gt, "<");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._lte, ">=");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._gte, "<=");
 
         NARY_TO_SQL.put(NaryLogicalOperator._and, "and");
         NARY_TO_SQL.put(NaryLogicalOperator._or, "or");
@@ -369,7 +365,8 @@ abstract class Translator {
             fillTables(c, c.baseStmt.getFromTables(), rJoin);
             fillWhere(c, c.baseStmt.getWhereConditionals(), rJoin);
 
-            String s = fpm.getColumn() + " " + BINARY_TO_SQL.get(expr.getOp()) + " " + rpm.getColumn();
+            String s1 = !c.notOp? BINARY_TO_SQL.get(expr.getOp()): NOTBINARY_TO_SQL.get(expr.getOp());
+            String s = fpm.getColumn() + " " + s1 + " " + rpm.getColumn();
             addConditional(c, s);
         }
     }
@@ -478,7 +475,8 @@ abstract class Translator {
             fillTables(c, c.baseStmt.getFromTables(), fJoin);
             fillWhere(c, c.baseStmt.getWhereConditionals(), fJoin);
 
-            String s = fpm.getColumn() + " " + BINARY_TO_SQL.get(expr.getOp()) + " " + r;
+            String s1 = !c.notOp? BINARY_TO_SQL.get(expr.getOp()): NOTBINARY_TO_SQL.get(expr.getOp());
+            String s = fpm.getColumn() + " " + s1 + " " + r;
             addConditional(c, s);
         }
     }
