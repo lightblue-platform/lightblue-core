@@ -149,7 +149,7 @@ public class BasicDocSaver implements DocSaver {
                     return r;
                 } catch (MongoException.DuplicateKey dke) {
                     LOGGER.error("saveOrInsert failed: {}", dke);
-                    inputDoc.addError(Error.get("insert", MongoCrudConstants.ERR_DUPLICATE, dke.toString()));
+                    inputDoc.addError(Error.get("insert", MongoCrudConstants.ERR_DUPLICATE, dke));
                 }
             } else {
                 inputDoc.addError(Error.get("insert", CrudConstants.ERR_NO_FIELD_INSERT_ACCESS, paths.toString()));

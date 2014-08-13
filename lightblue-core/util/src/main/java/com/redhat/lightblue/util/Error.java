@@ -18,15 +18,16 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.ArrayDeque;
-
-import java.util.StringTokenizer;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayDeque;
+import java.util.StringTokenizer;
 
 /**
  * Error object. Maintains an error code, message, and context of the error. The
@@ -96,10 +97,30 @@ public final class Error extends RuntimeException {
     }
 
     /**
+     * Helper that gets a new Error with msg set to the stack trace of the given Throwable.
+     */
+    public static Error get(String ctx, String errorCode, Throwable msg) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        msg.printStackTrace(pw);
+        return get(ctx, errorCode, sw.toString());
+    }
+
+    /**
      * Constructs a new error object using the current context
      */
     public static Error get(String errorCode, String msg) {
         return new Error(THREAD_CONTEXT.get(), errorCode, msg);
+    }
+
+    /**
+     * Helper that gets a new Error with msg set to the stack trace of the given Throwable.
+     */
+    public static Error get(String errorCode, Throwable msg) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        msg.printStackTrace(pw);
+        return get(errorCode, sw.toString());
     }
 
     /**
