@@ -16,26 +16,15 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud.rdbms;
+package com.redhat.lightblue.metadata.rdbms.converter;
 
-import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.rdbms.model.Join;
 import com.redhat.lightblue.metadata.rdbms.model.ProjectionMapping;
-import com.redhat.lightblue.query.ArrayContainsExpression;
-import com.redhat.lightblue.query.ArrayMatchExpression;
-import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.RegexMatchExpression;
-import com.redhat.lightblue.query.UnaryLogicalExpression;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.util.*;
 import com.redhat.lightblue.util.Error;
 
-import java.util.List;
+import java.util.LinkedList;
 
 /**
  *
@@ -43,6 +32,26 @@ import java.util.List;
  * @author lcestari
  */
 public class OracleTranslator extends Translator {
+
+    @Override
+    protected void generateWhere(SelectStmt s, StringBuilder queryStr, LinkedList<String> whereConditionals) {
+        super.generateWhere(s,queryStr,whereConditionals);
+        Long limit = s.getLimit();
+        Long offset = s.getOffset();
+        if (s.getLimit() != null && offset != null) {
+            offset = offset +limit;
+            queryStr.append("AND ROWNUM BETWEEN ").append(Long.toString(limit)).append(" AND ").append(Long.toString(offset)).append(" ");
+        } else if (limit != null) {
+            queryStr.append("AND ROWNUM <= ").append(Long.toString(limit)).append(" ");
+        } else if (offset != null) {
+            queryStr.append("AND ROWNUM <=").append(Long.toString(offset)).append(" ");
+        }
+    }
+
+    @Override
+    protected void generateLimitOffset(SelectStmt s, StringBuilder queryStr, Long limit, Long offset) {
+        //Do nothing
+    }
 
     @Override
     protected void recursiveTranslateRegexMatchExpression(TranslationContext c, RegexMatchExpression expr) {

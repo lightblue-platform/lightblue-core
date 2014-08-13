@@ -4,18 +4,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
-import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
 import com.redhat.lightblue.metadata.rdbms.converter.SelectStmt;
+import com.redhat.lightblue.metadata.rdbms.converter.Translator;
 import com.redhat.lightblue.metadata.rdbms.model.*;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,8 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class TranslatorTest {
     final String valueQuery1 = "{\"field\":\"x.\", \"op\":\"$eq\", \"rvalue\":\"string\"}";
@@ -113,7 +112,9 @@ public class TranslatorTest {
     public void testRecursiveTranslateArrayContains() throws Exception {
         rdbmsContext.setQueryExpression(generateQuery(arrContains2));
         List<SelectStmt> translate = cut.translate(crud, rdbmsContext);
-        System.out.println(translate);
+        Assert.assertNotNull(translate);
+        Assert.assertTrue("translate size is different than 1", translate.size() == 1);
+        System.out.println("XXAAXX "+translate.get(0).generateStatement());
 
     }
 
