@@ -74,7 +74,7 @@ abstract class Translator {
         SelectStmt sortDependencies;
         Set<String> nameOfTables;
         boolean needDistinct;
-        Boolean notOp;
+        boolean notOp;
 
         // temporary variables
         Path tmpArray;
@@ -94,6 +94,7 @@ abstract class Translator {
             this.fieldToTablePkMap = new HashMap<>();
             this.sortDependencies = new SelectStmt();
             this.sortDependencies.setOrderBy(new ArrayList<String>());
+            this.projectionToJoinMap = new HashMap<>();
             this.nameOfTables = new HashSet<>();
             this.baseStmt =  new SelectStmt();
             this.logicalStmt =  new ArrayList<>();
@@ -199,12 +200,13 @@ abstract class Translator {
             posProcess(translationContext);
             List<SelectStmt> translation = translationContext.generateFinalTranslation();
             return translation;
-        } catch (com.redhat.lightblue.util.Error e) {
-            // rethrow lightblue error
-            throw e;
+
         } catch (Exception e) {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
+            if(e instanceof com.redhat.lightblue.util.Error){
+                throw e;
+            }
             throw com.redhat.lightblue.util.Error.get("Invalid Object!", e.getMessage());
         } finally {
             com.redhat.lightblue.util.Error.pop();
@@ -228,14 +230,16 @@ abstract class Translator {
 
     protected void translateSort(TranslationContext translationContext) {
         Sort sort = translationContext.r.getSort();
-        if (sort instanceof CompositeSortKey) {
-            CompositeSortKey c = (CompositeSortKey) sort;
-            for (SortKey k : c.getKeys()) {
+        if(sort != null) {
+            if (sort instanceof CompositeSortKey) {
+                CompositeSortKey c = (CompositeSortKey) sort;
+                for (SortKey k : c.getKeys()) {
+                    translateSortKey(translationContext, k);
+                }
+            } else {
+                SortKey k = (SortKey) sort;
                 translateSortKey(translationContext, k);
             }
-        } else {
-            SortKey k = (SortKey) sort;
-            translateSortKey(translationContext, k);
         }
     }
 
@@ -267,8 +271,10 @@ abstract class Translator {
             recursiveTranslateRegexMatchExpression(c, (RegexMatchExpression) q);
         } else if (q instanceof UnaryLogicalExpression) {
             recursiveTranslateUnaryLogicalExpression(c, (UnaryLogicalExpression) q);
-        } else {
+        } else if (q instanceof ValueComparisonExpression) {
             recursiveTranslateValueComparisonExpression(c, (ValueComparisonExpression) q);
+        } else {
+            throw Error.get("Not supported query", q!=null?q.toString():"q=null");
         }
     }
 
@@ -330,7 +336,7 @@ abstract class Translator {
                 default:
                     throw com.redhat.lightblue.util.Error.get("Not mapped field", expr.toString());
             }
-            Type t = resolve(c.f, expr.getArray()).getType();
+            Type t = ((ArrayField)resolve(c.f, expr.getArray())).getElement().getType();
             if(op != null) {
                 List<Object> values = translateValueList(t, expr.getValues());
                 String f = expr.getArray().toString();

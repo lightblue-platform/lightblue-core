@@ -39,7 +39,6 @@ public class RDBMSUtils {
             InitialContext context = new InitialContext();
             ds = (DataSource) context.lookup(name);
         } catch (NamingException e) {
-            // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
             throw Error.get(RDBMSConstants.ERR_DATASOURCE_NOT_FOUND, e.getMessage());
         } finally {
