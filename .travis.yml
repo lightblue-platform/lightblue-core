@@ -11,3 +11,4 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#lightblue"
+    on_success: always

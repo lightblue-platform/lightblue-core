@@ -147,6 +147,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>2.2.0</version>
+                <configuration>
+                    <sourceDirectories>
+                        <sourceDirectory>${project.basedir}/config/src/main/java</sourceDirectory> <!-- #1 alternative to fix coveralls problem -->
+                        <sourceDirectory>${project.basedir}/core-api/src/main/java</sourceDirectory>
+                        <sourceDirectory>${project.basedir}/crud/src/main/java</sourceDirectory>
+                        <sourceDirectory>${project.basedir}/metadata/src/main/java</sourceDirectory>
+                        <sourceDirectory>${project.basedir}/query-api/src/main/java</sourceDirectory>
+                        <sourceDirectory>${project.basedir}/util/src/main/java</sourceDirectory>
+                    </sourceDirectories>
+                    <coverageFile>${project.basedir}/crud/target/site/jacoco/jacoco.xml</coverageFile> <!-- #2 alternative to fix coveralls problem -->
+                    <coverallsFile>${project.basedir}/crud/target/coveralls.json</coverallsFile> <!-- #2 alternative to fix coveralls problem -->
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -160,6 +172,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.17</version>
             </plugin>
         </plugins>
     </build>

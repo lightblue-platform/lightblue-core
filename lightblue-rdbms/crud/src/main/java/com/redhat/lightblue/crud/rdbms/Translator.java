@@ -40,13 +40,11 @@ import org.slf4j.LoggerFactory;
 // TODO Need to define some details how complex queries will be handles, for example: which expression would produce a query which joins two tables with 1->N relationship with paging (limit, offfset and sort), how would needs will be mapped by rdbms' json schema (it would need to map PK (or PKS in case of compose) and know which ones it would need to do a query before (to not brute force and do for all tables)) (in other words the example could be expressed as "find the first X customer after Y and get its first address", where customer 1 -> N addresses)
 abstract class Translator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
-
     public static Translator ORACLE = new OracleTranslator();
+    private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
     private static final Map<BinaryComparisonOperator, String> BINARY_TO_SQL = new HashMap<>();
-
+    private static final Map<BinaryComparisonOperator, String> NOTBINARY_TO_SQL = new HashMap<>();
     private static final HashMap<NaryLogicalOperator, String> NARY_TO_SQL = new HashMap<>();
-
     static {
         BINARY_TO_SQL.put(BinaryComparisonOperator._eq, "=");
         BINARY_TO_SQL.put(BinaryComparisonOperator._neq, "<>");
@@ -54,6 +52,13 @@ abstract class Translator {
         BINARY_TO_SQL.put(BinaryComparisonOperator._gt, ">");
         BINARY_TO_SQL.put(BinaryComparisonOperator._lte, "<=");
         BINARY_TO_SQL.put(BinaryComparisonOperator._gte, ">=");
+
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._eq, "<>");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._neq, "=");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._lt, ">");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._gt, "<");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._lte, ">=");
+        NOTBINARY_TO_SQL.put(BinaryComparisonOperator._gte, "<=");
 
         NARY_TO_SQL.put(NaryLogicalOperator._and, "and");
         NARY_TO_SQL.put(NaryLogicalOperator._or, "or");
@@ -186,7 +191,6 @@ abstract class Translator {
             for (SortKey k : c.getKeys()) {
                 translateSortKey(translationContext, k);
             }
-
         } else {
             SortKey k = (SortKey) sort;
             translateSortKey(translationContext, k);
@@ -204,7 +208,6 @@ abstract class Translator {
         }
         t.sortDependencies.getOrderBy().add(field);
         t.hasSortOrLimit = true;
-
     }
 
     protected void recursiveTranslateQuery(TranslationContext c, QueryExpression q) {
@@ -274,13 +277,13 @@ abstract class Translator {
             String op;
             switch (expr.getOp()) {
                 case _all:
-                    op = "IN";
+                    op = !c.notOp?"IN":"NOT IN";
                     break;
                 case _any:
                     op = null; //OR
                     break;
                 case _none:
-                    op = "IN";
+                    op = !c.notOp?"NOT IN":"IN";
                     break;
                 default:
                     throw com.redhat.lightblue.util.Error.get("Not mapped field", expr.toString());
@@ -307,7 +310,7 @@ abstract class Translator {
                 }
                 addConditional(c, s);
             } else {
-                throw Error.get("invalid field", expr.toString());
+                throw Error.get("not supported operator", expr.toString());
             }
             c.clearTmp();
         } else {
@@ -328,6 +331,7 @@ abstract class Translator {
                 String path = translatePath(expr.getArray());
                 // TODO Need to define what would happen in this scenario (not supported yet)
                 c.f = tmp;
+                throw Error.get("not supported operator", expr.toString());
             }
         }
         throw com.redhat.lightblue.util.Error.get("Invalid field", expr.toString());
@@ -342,8 +346,10 @@ abstract class Translator {
         int ln = lField.nAnys();
         if (rn > 0 && ln > 0) {
             // TODO Need to define what would happen in this scenario
+            throw Error.get("not supported operator", expr.toString());
         } else if (rn > 0 || ln > 0) {
             // TODO Need to define what would happen in this scenario
+            throw Error.get("not supported operator", expr.toString());
         } else {
             // No ANYs, direct comparison
             String f = expr.getField().toString();
@@ -359,12 +365,13 @@ abstract class Translator {
             fillTables(c, c.baseStmt.getFromTables(), rJoin);
             fillWhere(c, c.baseStmt.getWhereConditionals(), rJoin);
 
-            String s = fpm.getColumn() + " " + BINARY_TO_SQL.get(expr.getOp()) + " " + rpm.getColumn();
+            String s1 = !c.notOp? BINARY_TO_SQL.get(expr.getOp()): NOTBINARY_TO_SQL.get(expr.getOp());
+            String s = fpm.getColumn() + " " + s1 + " " + rpm.getColumn();
             addConditional(c, s);
         }
     }
 
-    private void addConditional(TranslationContext c, String s) {
+    protected void addConditional(TranslationContext c, String s) {
         if(c.logicalStmt.size() > 0){
             c.logicalStmt.get(c.logicalStmt.size()-1).getValue().add(s);
         } else {
@@ -372,11 +379,11 @@ abstract class Translator {
         }
     }
 
-    private void fillWhere(TranslationContext c, List<String> wheres, Join fJoin) {
+    protected void fillWhere(TranslationContext c, List<String> wheres, Join fJoin) {
         wheres.add(fJoin.getJoinTablesStatement());
     }
 
-    private void fillTables(TranslationContext c, List<String> fromTables, Join fJoin) {
+    protected void fillTables(TranslationContext c, List<String> fromTables, Join fJoin) {
         for (Table table : fJoin.getTables()) {
             if(c.nameOfTables.add(table.getName())){
                 LOGGER.warn("Table mentioned more than once in the same query. Possible N+1 problem");
@@ -437,12 +444,13 @@ abstract class Translator {
     }
 
     protected void recursiveTranslateRegexMatchExpression(TranslationContext c,RegexMatchExpression expr){
-        throw Error.get("invalid operator", expr.toString());
+        throw Error.get("not supported operator", expr.toString());
     }
 
     protected void recursiveTranslateUnaryLogicalExpression(TranslationContext c, UnaryLogicalExpression expr){
-        c.notOp = true; //TODO invert the logic when the flag is true and turn it to false once again
+        c.notOp = !c.notOp;
         recursiveTranslateQuery(c, expr.getQuery());
+        c.notOp = !c.notOp;
     }
 
     protected void recursiveTranslateValueComparisonExpression(TranslationContext c, ValueComparisonExpression expr){
@@ -453,8 +461,10 @@ abstract class Translator {
         int ln = lField.nAnys();
         if (ln > 0) {
             // TODO Need to define what would happen in this scenario
+            throw Error.get("not supported operator", expr.toString());
         } else if (ln > 0) {
             // TODO Need to define what would happen in this scenario
+            throw Error.get("not supported operator", expr.toString());
         } else {
             // No ANYs, direct comparison
             String f = lField.toString();
@@ -465,7 +475,8 @@ abstract class Translator {
             fillTables(c, c.baseStmt.getFromTables(), fJoin);
             fillWhere(c, c.baseStmt.getWhereConditionals(), fJoin);
 
-            String s = fpm.getColumn() + " " + BINARY_TO_SQL.get(expr.getOp()) + " " + r;
+            String s1 = !c.notOp? BINARY_TO_SQL.get(expr.getOp()): NOTBINARY_TO_SQL.get(expr.getOp());
+            String s = fpm.getColumn() + " " + s1 + " " + r;
             addConditional(c, s);
         }
     }
