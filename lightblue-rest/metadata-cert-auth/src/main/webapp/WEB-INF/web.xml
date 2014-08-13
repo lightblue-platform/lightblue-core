@@ -27,11 +27,7 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
 
     <auth-constraint>
       <role-name>authenticated</role-name>
-    </auth-constraint>
-
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint> 
+    </auth-constraint> 
   </security-constraint>
 
   <login-config> 
