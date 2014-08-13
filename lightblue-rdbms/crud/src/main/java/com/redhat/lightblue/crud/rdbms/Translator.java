@@ -105,7 +105,49 @@ abstract class Translator {
 
         public List<SelectStmt> generateFinalTranslation(){
             ArrayList<SelectStmt> result = new ArrayList<>();
+            SelectStmt lastStmt = new SelectStmt();
+
+            for (SelectStmt stmt : firstStmts) {
+                fillDefault(stmt);
+                result.add(stmt);
+            }
+
+            Projection p = r.getProjection();
+            List<String> l = new ArrayList<>();
+            processProjection(p,l);
+            lastStmt.setResultColumns(l);
+            fillDefault(lastStmt);
+            result.add(lastStmt);
+
             return result;
+        }
+
+        private void fillDefault(SelectStmt stmt) {
+            stmt.setFromTables(baseStmt.getFromTables());
+            stmt.setWhereConditionals(baseStmt.getWhereConditionals());
+            stmt.setOrderBy(sortDependencies.getOrderBy());
+            stmt.setLimit(r.getTo());
+            stmt.setOffset(r.getFrom());
+        }
+
+        private void processProjection(Projection p, List<String> l) {
+            if(p instanceof ProjectionList){
+                ProjectionList i = (ProjectionList) p;
+                for (Projection pi : i.getItems()) {
+                    processProjection(pi,l);
+                }
+            }else if (p instanceof ArrayRangeProjection) {
+                ArrayRangeProjection i = (ArrayRangeProjection) p;
+                throw Error.get("not supported projection", p.toString());
+            }else if (p instanceof ArrayQueryMatchProjection) {
+                ArrayQueryMatchProjection i = (ArrayQueryMatchProjection) p;
+                throw Error.get("not supported projection", p.toString());
+            }else if (p instanceof FieldProjection) {
+                FieldProjection i = (FieldProjection) p;
+                String sField = translatePath(i.getField());
+                String column = fieldToProjectionMap.get(sField).getColumn();
+                l.add(column);
+            }
         }
 
         private void index() {

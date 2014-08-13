@@ -34,8 +34,8 @@ public class SelectStmt {
     private List<String> groupBy = new ArrayList<>(); // TODO Future implementation
     private List<String> having = new ArrayList<>(); // TODO Future implementation
     private List<String> orderBy = new ArrayList<>();
-    private Integer limit;
-    private Integer offset;
+    private Long limit;
+    private Long offset;
 
     public String getDistic() {
         return distic;
@@ -93,19 +93,19 @@ public class SelectStmt {
         this.orderBy = orderBy;
     }
 
-    public Integer getLimit() {
+    public Long getLimit() {
         return limit;
     }
 
-    public void setLimit(Integer limit) {
+    public void setLimit(Long limit) {
         this.limit = limit;
     }
 
-    public Integer getOffset() {
+    public Long getOffset() {
         return offset;
     }
 
-    public void setOffset(Integer offset) {
+    public void setOffset(Long offset) {
         this.offset = offset;
     }
 }
