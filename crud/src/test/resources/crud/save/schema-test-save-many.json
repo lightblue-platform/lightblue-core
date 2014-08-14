@@ -1,6 +1,6 @@
 {
     "save": {
-        "object_type": "some_entity",
+        "objectType": "some_entity",
         "client": {"id": "1"},
         "execution": {
             "timeLimit": 5000,
@@ -13,11 +13,11 @@
         },
         "data": [
             {
-                "object_type": "some_entity",
+                "objectType": "some_entity",
                 "login": "nmalik1"
             },
             {
-                "object_type": "some_entity",
+                "objectType": "some_entity",
                 "login": "nmalik2"
             }
         ],

@@ -22,7 +22,7 @@
              "find" : ["test-find"]
         },
         "fields": {
-            "object_type": {"type": "string"},
+            "objectType": {"type": "string"},
             "field1": {
                 "type": "string",
                 "access" : {  

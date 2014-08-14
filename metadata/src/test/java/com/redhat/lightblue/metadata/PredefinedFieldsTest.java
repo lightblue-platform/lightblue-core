@@ -64,7 +64,7 @@ public class PredefinedFieldsTest {
 
         entityMetadata.getFields().addNew(new SimpleField("simpleInteger", IntegerType.TYPE));
         entityMetadata.getFields().addNew(new SimpleField("simpleString", StringType.TYPE));
-        entityMetadata.getFields().addNew(new SimpleField("object_type", StringType.TYPE));
+        entityMetadata.getFields().addNew(new SimpleField("objectType", StringType.TYPE));
         entityMetadata.getFields().addNew(new SimpleField("_id", IntegerType.TYPE));
         ObjectField objectField1 = new ObjectField("obj1");
         entityMetadata.getFields().addNew(objectField1);
@@ -91,7 +91,7 @@ public class PredefinedFieldsTest {
     public void testAddPredef() throws Exception {
         EntityMetadata md = getMD1();
         try {
-            md.resolve(new Path("object_type"));
+            md.resolve(new Path("objectType"));
             Assert.fail();
         } catch (Exception e) {
         }
@@ -110,7 +110,7 @@ public class PredefinedFieldsTest {
         JSONMetadataParser p = new JSONMetadataParser(x, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
         System.out.println(p.convert(md).toString());
 
-        Field f = (SimpleField) md.resolve(new Path("object_type"));
+        Field f = (SimpleField) md.resolve(new Path("objectType"));
         Assert.assertEquals(StringType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
 
@@ -129,7 +129,7 @@ public class PredefinedFieldsTest {
 
         PredefinedFields.ensurePredefinedFields(md);
 
-        Field f = (SimpleField) md.resolve(new Path("object_type"));
+        Field f = (SimpleField) md.resolve(new Path("objectType"));
         Assert.assertEquals(StringType.TYPE, f.getType());
         Assert.assertTrue(f.getAccess().getFind().getRoles().contains(MetadataConstants.ROLE_ANYONE));
         Assert.assertTrue(f.getAccess().getUpdate().getRoles().contains(MetadataConstants.ROLE_NOONE));
@@ -146,7 +146,7 @@ public class PredefinedFieldsTest {
     @Test
     public void testInvalidObjectType() throws Exception {
         EntityMetadata md = new EntityMetadata("test");
-        md.getFields().addNew(new SimpleField("object_type", IntegerType.TYPE));
+        md.getFields().addNew(new SimpleField("objectType", IntegerType.TYPE));
         try {
             PredefinedFields.ensurePredefinedFields(md);
             Assert.fail();

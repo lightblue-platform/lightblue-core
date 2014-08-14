@@ -3,7 +3,7 @@
     "clientId": "asdf",
     "request": {
         "insert": {
-            "object_type": "some_entity",
+            "objectType": "some_entity",
             "clientId": "asdf",
             "execution": {
                 "timeLimit": 5000,
@@ -15,7 +15,7 @@
                 "recursive": true
             },
             "data": {
-                "object_type": "some_entity",
+                "objectType": "some_entity",
                 "login": "jdoe",
                 "firstname": "John",
                 "lastname": "Doe"
@@ -26,7 +26,7 @@
         "firstname": "John"
     },
     "after": {
-        "object_type": "some_entity",
+        "objectType": "some_entity",
         "login": "jdoe",
         "firstname": "John",
         "lastname": "Doe"

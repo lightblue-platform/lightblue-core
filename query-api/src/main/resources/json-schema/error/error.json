@@ -15,7 +15,7 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-        "object_type": {
+        "objectType": {
             "enum": [
                 "error"
             ],
@@ -35,7 +35,7 @@
         }
     },
     "required": [
-        "object_type",
+        "objectType",
         "context",
         "errorCode",
         "msg"
