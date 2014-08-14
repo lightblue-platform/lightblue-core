@@ -29,9 +29,9 @@ import java.util.List;
  * @author lcestari
  */
 public class Join implements SimpleConverter {
-    private List<Table> tables;
+    private List<Table> tables = new ArrayList<>();
     private String joinTablesStatement;
-    private List<ProjectionMapping> projectionMappings;
+    private List<ProjectionMapping> projectionMappings = new ArrayList<>();
     private boolean needDistinct;
 
 

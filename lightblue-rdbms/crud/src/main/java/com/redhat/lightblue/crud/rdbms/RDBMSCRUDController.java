@@ -140,6 +140,10 @@ public class RDBMSCRUDController implements CRUDController {
             if (md.getAccess().getFind().hasAccess(crudOperationContext.getCallerRoles())) {
                 FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(md, crudOperationContext.getCallerRoles());
                 RDBMSContext rdbmsContext = new RDBMSContext();
+                rdbmsContext.setFrom(from);
+                rdbmsContext.setTo(to);
+                rdbmsContext.setQueryExpression(queryExpression);
+                rdbmsContext.setProjection(projection);
                 RDBMS rdbms = (RDBMS) md.getEntitySchema().getProperties().get("rdbms");
                 if (rdbms == null) {
                     throw new IllegalStateException("Configured to use RDBMS but no RDBMS definition was found for the entity");

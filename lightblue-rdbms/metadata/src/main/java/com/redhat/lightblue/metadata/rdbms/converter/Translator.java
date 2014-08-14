@@ -16,12 +16,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.crud.rdbms;
+package com.redhat.lightblue.metadata.rdbms.converter;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.metadata.rdbms.converter.RDBMSContext;
-import com.redhat.lightblue.metadata.rdbms.converter.SelectStmt;
 import com.redhat.lightblue.metadata.rdbms.model.*;
 import com.redhat.lightblue.query.*;
 import com.redhat.lightblue.util.*;
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author lcestari
  */
 // TODO Need to define some details how complex queries will be handles, for example: which expression would produce a query which joins two tables with 1->N relationship with paging (limit, offfset and sort), how would needs will be mapped by rdbms' json schema (it would need to map PK (or PKS in case of compose) and know which ones it would need to do a query before (to not brute force and do for all tables)) (in other words the example could be expressed as "find the first X customer after Y and get its first address", where customer 1 -> N addresses)
-abstract class Translator {
+public abstract class Translator {
 
     public static Translator ORACLE = new OracleTranslator();
     private static final Logger LOGGER = LoggerFactory.getLogger(Translator.class);
@@ -64,7 +62,84 @@ abstract class Translator {
         NARY_TO_SQL.put(NaryLogicalOperator._or, "or");
     }
 
-    protected static class TranslationContext {
+    public String generateStatement(SelectStmt s) {
+        StringBuilder queryStr = new StringBuilder();
+        generatePre(s, queryStr);
+        generateResultColumns(s, queryStr, s.getResultColumns());
+        generateFrom(s, queryStr, s.getFromTables());
+        generateWhere(s, queryStr, s.getWhereConditionals());
+        generateGroupBy(s, queryStr, s.getGroupBy());
+        generateOrderBy(s, queryStr, s.getOrderBy());
+        generateLimitOffset(s, queryStr, s.getLimit(), s.getOffset());
+        generatePos(s, queryStr);
+
+        return queryStr.toString();
+    }
+
+    protected void generatePre(SelectStmt s, StringBuilder queryStr) {
+        queryStr.append("SELECT ");
+        if(s.getDistic()){
+            queryStr.append("DISTINCT ");
+        }
+    }
+
+    protected void generateResultColumns(SelectStmt s, StringBuilder queryStr, List<String> resultColumns) {
+        for (String resultColumn : resultColumns) {
+            queryStr.append(resultColumn).append(" ,");
+        }
+        queryStr.deleteCharAt(queryStr.length() - 1); //remove the last ','
+    }
+
+    protected void generateFrom(SelectStmt s, StringBuilder queryStr, List<String> fromTables) {
+        queryStr.append("FROM ");
+        for (String table : fromTables) {
+            queryStr.append(table).append(" ,");
+        }
+        queryStr.deleteCharAt(queryStr.length()-1); //remove the last ','
+    }
+
+    protected void generateWhere(SelectStmt s, StringBuilder queryStr, LinkedList<String> whereConditionals) {
+        queryStr.append("WHERE ");
+        for (String where : whereConditionals) {
+            queryStr.append(where).append(" AND ");
+        }
+        queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
+        queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
+        queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
+        queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
+    }
+
+    protected void generateGroupBy(SelectStmt s, StringBuilder queryStr, List<String> groupBy) {
+        if(groupBy != null && groupBy.size() < 0){
+            throw Error.get("GroupBy not supported", "no handler");
+        }
+    }
+
+    protected void generateOrderBy(SelectStmt s, StringBuilder queryStr, List<String> orderBy) {
+        if(orderBy != null && orderBy.size() < 0) {
+            queryStr.append("ORDER BY ");
+            for (String order : orderBy) {
+                queryStr.append(order).append(" ,");
+            }
+            queryStr.deleteCharAt(queryStr.length() - 1); //remove the last ',
+        }
+    }
+
+    protected void generateLimitOffset(SelectStmt s, StringBuilder queryStr, Long limit, Long offset) {
+        if (limit != null && offset != null) {
+            queryStr.append("LIMIT ").append(Long.toString(limit)).append(" OFFSET ").append(Long.toString(offset)).append(" ");
+        } else if (limit != null) {
+            queryStr.append("LIMIT ").append(Long.toString(limit)).append(" ");
+        } else if (offset != null) {
+            queryStr.append("OFFSET ").append(Long.toString(offset)).append(" ");
+        }
+    }
+
+    protected void generatePos(SelectStmt s, StringBuilder queryStr) {
+        // by default, intend nothing
+    }
+
+    protected class TranslationContext {
         CRUDOperationContext c;
         RDBMSContext r;
         FieldTreeNode f;
@@ -74,7 +149,7 @@ abstract class Translator {
         SelectStmt sortDependencies;
         Set<String> nameOfTables;
         boolean needDistinct;
-        Boolean notOp;
+        boolean notOp;
 
         // temporary variables
         Path tmpArray;
@@ -92,10 +167,11 @@ abstract class Translator {
             this.firstStmts = new LinkedList<>();
             this.fieldToProjectionMap = new HashMap<>();
             this.fieldToTablePkMap = new HashMap<>();
-            this.sortDependencies = new SelectStmt();
+            this.sortDependencies = new SelectStmt(Translator.this);
             this.sortDependencies.setOrderBy(new ArrayList<String>());
+            this.projectionToJoinMap = new HashMap<>();
             this.nameOfTables = new HashSet<>();
-            this.baseStmt =  new SelectStmt();
+            this.baseStmt =  new SelectStmt(Translator.this);
             this.logicalStmt =  new ArrayList<>();
             this.c = c;
             this.r = r;
@@ -105,7 +181,56 @@ abstract class Translator {
 
         public List<SelectStmt> generateFinalTranslation(){
             ArrayList<SelectStmt> result = new ArrayList<>();
+            SelectStmt lastStmt = new SelectStmt(Translator.this);
+
+            for (SelectStmt stmt : firstStmts) {
+                fillDefault(stmt);
+                result.add(stmt);
+            }
+
+            Projection p = r.getProjection();
+            List<String> l = new ArrayList<>();
+            processProjection(p,l);
+            if(l.size() == 0){
+                throw Error.get("no projection", p.toString());
+            }
+            lastStmt.setResultColumns(l);
+            fillDefault(lastStmt);
+            result.add(lastStmt);
+
             return result;
+        }
+
+        private void fillDefault(SelectStmt stmt) {
+            stmt.setFromTables(baseStmt.getFromTables());
+            stmt.setWhereConditionals(baseStmt.getWhereConditionals());
+            stmt.setOrderBy(sortDependencies.getOrderBy());
+            stmt.setOffset(r.getFrom());
+            if(r.getTo() != null) {
+                stmt.setLimit(r.getTo() - r.getFrom()); // after the offset (M rows skipped), the remaining will be limited
+            }else{
+                stmt.setLimit(r.getTo());
+            }
+        }
+
+        private void processProjection(Projection p, List<String> l) {
+            if(p instanceof ProjectionList){
+                ProjectionList i = (ProjectionList) p;
+                for (Projection pi : i.getItems()) {
+                    processProjection(pi,l);
+                }
+            }else if (p instanceof ArrayRangeProjection) {
+                ArrayRangeProjection i = (ArrayRangeProjection) p;
+                throw Error.get("not supported projection", p.toString());
+            }else if (p instanceof ArrayQueryMatchProjection) {
+                ArrayQueryMatchProjection i = (ArrayQueryMatchProjection) p;
+                throw Error.get("not supported projection", p.toString());
+            }else if (p instanceof FieldProjection) {
+                FieldProjection i = (FieldProjection) p;
+                String sField = translatePath(i.getField());
+                String column = fieldToProjectionMap.get(sField).getColumn();
+                l.add(column);
+            }
         }
 
         private void index() {
@@ -157,12 +282,13 @@ abstract class Translator {
             posProcess(translationContext);
             List<SelectStmt> translation = translationContext.generateFinalTranslation();
             return translation;
-        } catch (com.redhat.lightblue.util.Error e) {
-            // rethrow lightblue error
-            throw e;
+
         } catch (Exception e) {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
+            if(e instanceof com.redhat.lightblue.util.Error){
+                throw e;
+            }
             throw com.redhat.lightblue.util.Error.get("Invalid Object!", e.getMessage());
         } finally {
             com.redhat.lightblue.util.Error.pop();
@@ -186,14 +312,16 @@ abstract class Translator {
 
     protected void translateSort(TranslationContext translationContext) {
         Sort sort = translationContext.r.getSort();
-        if (sort instanceof CompositeSortKey) {
-            CompositeSortKey c = (CompositeSortKey) sort;
-            for (SortKey k : c.getKeys()) {
+        if(sort != null) {
+            if (sort instanceof CompositeSortKey) {
+                CompositeSortKey c = (CompositeSortKey) sort;
+                for (SortKey k : c.getKeys()) {
+                    translateSortKey(translationContext, k);
+                }
+            } else {
+                SortKey k = (SortKey) sort;
                 translateSortKey(translationContext, k);
             }
-        } else {
-            SortKey k = (SortKey) sort;
-            translateSortKey(translationContext, k);
         }
     }
 
@@ -225,8 +353,10 @@ abstract class Translator {
             recursiveTranslateRegexMatchExpression(c, (RegexMatchExpression) q);
         } else if (q instanceof UnaryLogicalExpression) {
             recursiveTranslateUnaryLogicalExpression(c, (UnaryLogicalExpression) q);
-        } else {
+        } else if (q instanceof ValueComparisonExpression) {
             recursiveTranslateValueComparisonExpression(c, (ValueComparisonExpression) q);
+        } else {
+            throw Error.get("Not supported query", q!=null?q.toString():"q=null");
         }
     }
 
@@ -288,7 +418,7 @@ abstract class Translator {
                 default:
                     throw com.redhat.lightblue.util.Error.get("Not mapped field", expr.toString());
             }
-            Type t = resolve(c.f, expr.getArray()).getType();
+            Type t = ((ArrayField)resolve(c.f, expr.getArray())).getElement().getType();
             if(op != null) {
                 List<Object> values = translateValueList(t, expr.getValues());
                 String f = expr.getArray().toString();
@@ -380,7 +510,9 @@ abstract class Translator {
     }
 
     protected void fillWhere(TranslationContext c, List<String> wheres, Join fJoin) {
-        wheres.add(fJoin.getJoinTablesStatement());
+        if(fJoin.getJoinTablesStatement() != null && !fJoin.getJoinTablesStatement().isEmpty()) {
+            wheres.add(fJoin.getJoinTablesStatement());
+        }
     }
 
     protected void fillTables(TranslationContext c, List<String> fromTables, Join fJoin) {
@@ -388,7 +520,7 @@ abstract class Translator {
             if(c.nameOfTables.add(table.getName())){
                 LOGGER.warn("Table mentioned more than once in the same query. Possible N+1 problem");
             }
-            if(table.getAlias() != null && table.getAlias().isEmpty() ){
+            if(table.getAlias() != null && !table.getAlias().isEmpty() ){
                 fromTables.add(table.getName() + " AS " + table.getAlias() );
             } else {
                 fromTables.add(table.getName());
@@ -400,19 +532,21 @@ abstract class Translator {
         String ops = NARY_TO_SQL.get(naryLogicalExpression.getOp());
         boolean b = c.logicalStmt.size() == 0;
         c.logicalStmt.add( new AbstractMap.SimpleEntry<String,List<String>>(ops, new ArrayList<String>()));
-        recursiveTranslateQuery(c,naryLogicalExpression);
+        for (QueryExpression queryExpression : naryLogicalExpression.getQueries()) {
+            recursiveTranslateQuery(c,queryExpression);
+        }
         Map.Entry<String, List<String>> remove = c.logicalStmt.remove(c.logicalStmt.size()-1);
-        List<String> op = remove.getValue();
+        String op = remove.getKey() + " ";
         StringBuilder sb = new StringBuilder();
-        if(!b){
+        if(!b || c.baseStmt.getWhereConditionals().size() > 0){
             sb.append("(");
         }
         for (int i = 0; i < remove.getValue().size() ; i++) {
             String s = remove.getValue().get(i);
             if(i == (remove.getValue().size()-1)) {
                 sb.append(s);
-                if(!b){
-                    sb.append(")");
+                if(!b || c.baseStmt.getWhereConditionals().size() > 0){
+                    sb.append(") ");
                 }
             } else {
                 sb.append(s).append(" ").append(op);

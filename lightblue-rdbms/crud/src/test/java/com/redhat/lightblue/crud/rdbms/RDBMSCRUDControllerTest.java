@@ -26,8 +26,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RDBMSCRUDControllerTest {
 
@@ -40,11 +38,6 @@ public class RDBMSCRUDControllerTest {
     @Before
     public void setUp() throws Exception {
         cut = new RDBMSCRUDController(null);
-        dsMock = mock(DataSource.class);
-        cMock = mock(Connection.class);
-        psMock = mock(PreparedStatement.class);
-        when(dsMock.getConnection()).thenReturn(cMock);
-        when(cMock.prepareStatement(statement)).thenReturn(psMock);
 
     }
 
@@ -53,53 +46,4 @@ public class RDBMSCRUDControllerTest {
 
     }
 
-    @Test
-    public void testSave() throws Exception {
-
-    }
-
-    @Test
-    public void testUpdate() throws Exception {
-
-    }
-
-    @Test
-    public void testDelete() throws Exception {
-
-    }
-
-    @Ignore
-    @Test
-    public void testFind() throws Exception {
-        /*
-         String json = new Scanner(this.getClass().getClassLoader().getResourceAsStream("metadata.json")).useDelimiter("\\Z").next();
-         JsonNode node = JsonUtils.json(json);
-         Extensions<JsonNode> extensions = new Extensions<>();
-         extensions.addDefaultExtensions();
-         extensions.registerDataStoreParser("mongo", new MongoDataStoreParser<JsonNode>());
-         TypeResolver resolver = new DefaultTypes();
-         JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, JsonNodeFactory.withExactBigDecimals(true));
-         EntityMetadata md = parser.parseEntityMetadata(node);
-         PredefinedFields.ensurePredefinedFields(md);
-
-         int id = 10;
-         Factory factory = new Factory();
-         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
-         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
-         final Map<String, EntityMetadata> map = new HashMap<>();
-        
-         CRUDOperationContext ctx = new CRUDOperationContext(Operation.FIND, "test", factory, JsonNodeFactory.withExactBigDecimals(true), new HashSet<String>(), null){
-         @Override
-         public EntityMetadata getEntityMetadata(String entityName) {
-         return map.get(entityName);
-         }
-         };
-         map.put(md.getName(), md);
-         cut.find(ctx,
-         QueryExpression.fromJson(JsonUtils.json(("{'field':'_id','op':'=','rvalue':'" + id + "'}").replace('\'', '\"'))),
-         Projection.fromJson(JsonUtils.json("{'field':'*','recursive':1}".replace('\'', '\"'))),
-         null, null, null);
-         JsonDoc readDoc = ctx.getDocuments().get(0);
-         */
-    }
 }

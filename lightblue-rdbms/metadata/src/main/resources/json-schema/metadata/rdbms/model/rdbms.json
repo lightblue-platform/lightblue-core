@@ -134,7 +134,8 @@
                 }
             },
             "required": [
-                "columnToFieldMap"
+                "columnToFieldMap",
+                "joins"
             ],
             "additionalProperties": false
         },
