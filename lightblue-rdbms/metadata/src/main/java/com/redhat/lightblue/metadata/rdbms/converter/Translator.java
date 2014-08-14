@@ -101,8 +101,9 @@ public abstract class Translator {
     protected void generateWhere(SelectStmt s, StringBuilder queryStr, LinkedList<String> whereConditionals) {
         queryStr.append("WHERE ");
         for (String where : whereConditionals) {
-            queryStr.append(where).append(" AND");
+            queryStr.append(where).append(" AND ");
         }
+        queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
         queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
         queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
         queryStr.deleteCharAt(queryStr.length()-1); //remove the last 'AND'
@@ -115,11 +116,13 @@ public abstract class Translator {
     }
 
     protected void generateOrderBy(SelectStmt s, StringBuilder queryStr, List<String> orderBy) {
-        queryStr.append("ORDER BY ");
-        for (String order : orderBy) {
-            queryStr.append(order).append(" ,");
+        if(orderBy != null && orderBy.size() < 0) {
+            queryStr.append("ORDER BY ");
+            for (String order : orderBy) {
+                queryStr.append(order).append(" ,");
+            }
+            queryStr.deleteCharAt(queryStr.length() - 1); //remove the last ',
         }
-        queryStr.deleteCharAt(queryStr.length()-1); //remove the last ',
     }
 
     protected void generateLimitOffset(SelectStmt s, StringBuilder queryStr, Long limit, Long offset) {
@@ -507,7 +510,9 @@ public abstract class Translator {
     }
 
     protected void fillWhere(TranslationContext c, List<String> wheres, Join fJoin) {
-        wheres.add(fJoin.getJoinTablesStatement());
+        if(fJoin.getJoinTablesStatement() != null && !fJoin.getJoinTablesStatement().isEmpty()) {
+            wheres.add(fJoin.getJoinTablesStatement());
+        }
     }
 
     protected void fillTables(TranslationContext c, List<String> fromTables, Join fJoin) {
@@ -515,7 +520,7 @@ public abstract class Translator {
             if(c.nameOfTables.add(table.getName())){
                 LOGGER.warn("Table mentioned more than once in the same query. Possible N+1 problem");
             }
-            if(table.getAlias() != null && table.getAlias().isEmpty() ){
+            if(table.getAlias() != null && !table.getAlias().isEmpty() ){
                 fromTables.add(table.getName() + " AS " + table.getAlias() );
             } else {
                 fromTables.add(table.getName());
@@ -527,19 +532,21 @@ public abstract class Translator {
         String ops = NARY_TO_SQL.get(naryLogicalExpression.getOp());
         boolean b = c.logicalStmt.size() == 0;
         c.logicalStmt.add( new AbstractMap.SimpleEntry<String,List<String>>(ops, new ArrayList<String>()));
-        recursiveTranslateQuery(c,naryLogicalExpression);
+        for (QueryExpression queryExpression : naryLogicalExpression.getQueries()) {
+            recursiveTranslateQuery(c,queryExpression);
+        }
         Map.Entry<String, List<String>> remove = c.logicalStmt.remove(c.logicalStmt.size()-1);
-        List<String> op = remove.getValue();
+        String op = remove.getKey() + " ";
         StringBuilder sb = new StringBuilder();
-        if(!b){
+        if(!b || c.baseStmt.getWhereConditionals().size() > 0){
             sb.append("(");
         }
         for (int i = 0; i < remove.getValue().size() ; i++) {
             String s = remove.getValue().get(i);
             if(i == (remove.getValue().size()-1)) {
                 sb.append(s);
-                if(!b){
-                    sb.append(")");
+                if(!b || c.baseStmt.getWhereConditionals().size() > 0){
+                    sb.append(") ");
                 }
             } else {
                 sb.append(s).append(" ").append(op);

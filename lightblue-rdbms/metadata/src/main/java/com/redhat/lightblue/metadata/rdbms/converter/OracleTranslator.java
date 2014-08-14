@@ -40,9 +40,9 @@ public class OracleTranslator extends Translator {
         Long offset = s.getOffset();
         if (s.getLimit() != null && offset != null) {
             offset = offset +limit;
-            queryStr.append("AND ROWNUM BETWEEN ").append(Long.toString(limit)).append(" AND ").append(Long.toString(offset)).append(" ");
+            queryStr.append("AND ROWNUM BETWEEN ").append(Long.toString(offset)).append(" AND ").append(Long.toString(limit)).append(" ");
         } else if (limit != null) {
-            queryStr.append("AND ROWNUM <= ").append(Long.toString(limit)).append(" ");
+            queryStr.append("AND ROWNUM >= ").append(Long.toString(limit)).append(" ");
         } else if (offset != null) {
             queryStr.append("AND ROWNUM <=").append(Long.toString(offset)).append(" ");
         }
