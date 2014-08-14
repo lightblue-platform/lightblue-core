@@ -1,5 +1,5 @@
 {
-  "object_type":"test",
+  "objectType":"test",
   "field1":"f1",
   "field2":"f2",
   "field3":1,

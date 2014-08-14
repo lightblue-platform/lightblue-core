@@ -80,9 +80,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findAll() throws IOException, ProcessingException {
         String id = "findBasic";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -109,9 +109,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findOneOfMany() throws IOException, ProcessingException {
         String id = "findOneOfMany";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -141,9 +141,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findLimit() throws IOException, ProcessingException {
         String id = "findLimit";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -170,9 +170,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findSort() throws IOException, ProcessingException {
         String id = "findSort";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -207,9 +207,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findSortAndLimit() throws IOException, ProcessingException {
         String id = "findSortAndLimit";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -243,9 +243,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findSkip() throws IOException, ProcessingException {
         String id = "findSkip";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -276,9 +276,9 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findSortAndSkip() throws IOException, ProcessingException {
         String id = "findSortAndSkip";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 3, coll.find(null).count());
 
@@ -312,10 +312,10 @@ public class BasicDocFinderTest extends AbstractMongoTest {
     @Test
     public void findSortSkipAndLimit() throws IOException, ProcessingException {
         String id = "findSortSkipAndLimit";
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "2");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "1");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "4");
-        insert("{\"_id\":\"%s\",\"object_type\":\"test\"}", id + "3");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "2");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "1");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "4");
+        insert("{\"_id\":\"%s\",\"objectType\":\"test\"}", id + "3");
 
         Assert.assertEquals("count on collection", 4, coll.find(null).count());
 

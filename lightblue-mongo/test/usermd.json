@@ -25,7 +25,7 @@
     },
     "fields": {
         "_id": {"type": "string"},
-        "object_type": {"type": "string"},
+        "objectType": {"type": "string"},
         "login": {
             "type": "string",
             "constraints": {

@@ -597,7 +597,7 @@ public class MongoMetadataTest {
         // verify data
         Assert.assertNotNull(response.getEntityData());
         String jsonEntityData = response.getEntityData().toString();
-        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.objectType\"]},{\"role\":\"anyone\",\"find\":[\"test.objectType\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
 
@@ -667,7 +667,7 @@ public class MongoMetadataTest {
         // verify data
         Assert.assertNotNull(response.getEntityData());
         String jsonEntityData = response.getEntityData().toString();
-        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.objectType\"]},{\"role\":\"anyone\",\"find\":[\"test.objectType\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
 
@@ -706,7 +706,7 @@ public class MongoMetadataTest {
         // verify data
         Assert.assertNotNull(response.getEntityData());
         String jsonEntityData = response.getEntityData().toString();
-        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.object_type\"]},{\"role\":\"anyone\",\"find\":[\"test.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test.name\"]},{\"role\":\"field.update\",\"update\":[\"test.name\"]},{\"role\":\"noone\",\"update\":[\"test.objectType\"]},{\"role\":\"anyone\",\"find\":[\"test.objectType\"]},{\"role\":\"entity.insert\",\"insert\":[\"test\"]},{\"role\":\"entity.update\",\"update\":[\"test\"]},{\"role\":\"entity.find\",\"find\":[\"test\"]},{\"role\":\"entity.delete\",\"delete\":[\"test\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
 
@@ -747,13 +747,13 @@ public class MongoMetadataTest {
         Assert.assertEquals(OperationStatus.PARTIAL, response.getStatus());
         Assert.assertFalse(response.getDataErrors().isEmpty());
         Assert.assertEquals(1, response.getDataErrors().size());
-        String jsonErrorExpected = "[{\"data\":{\"name\":\"test2\"},\"errors\":[{\"object_type\":\"error\",\"errorCode\":\"ERR_NO_METADATA\",\"msg\":\"Could not get metadata for given input. Error message: version\"}]}]";
+        String jsonErrorExpected = "[{\"data\":{\"name\":\"test2\"},\"errors\":[{\"objectType\":\"error\",\"errorCode\":\"ERR_NO_METADATA\",\"msg\":\"Could not get metadata for given input. Error message: version\"}]}]";
         JSONAssert.assertEquals(jsonErrorExpected, response.getDataErrors().toString(), false);
 
         // verify data
         Assert.assertNotNull(response.getEntityData());
         String jsonEntityData = response.getEntityData().toString();
-        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.object_type\",\"test3.object_type\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
+        String jsonExpected = "[{\"role\":\"field.find\",\"find\":[\"test1.name\",\"test3.name\"]},{\"role\":\"noone\",\"update\":[\"test1.objectType\",\"test3.objectType\"]},{\"role\":\"field.update\",\"update\":[\"test1.name\",\"test3.name\"]},{\"role\":\"anyone\",\"find\":[\"test1.objectType\",\"test3.objectType\"]},{\"role\":\"entity.insert\",\"insert\":[\"test1\",\"test3\"]},{\"role\":\"entity.update\",\"update\":[\"test1\",\"test3\"]},{\"role\":\"entity.find\",\"find\":[\"test1\",\"test3\"]},{\"role\":\"entity.delete\",\"delete\":[\"test1\",\"test3\"]}]";
         JSONAssert.assertEquals(jsonExpected, jsonEntityData, false);
     }
 

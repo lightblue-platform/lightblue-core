@@ -1,5 +1,5 @@
 {
-    "object_type": "error",
+    "objectType": "error",
     "context": "GetDependenciesCommand/country/1.0.0",
     "errorCode": "rest-metadata:RestError",
     "msg": "java.lang.UnsupportedOperationException: Not supported yet."

@@ -18,7 +18,7 @@
             },
             "errors": [
                 {
-                    "object_type": "error",
+                    "objectType": "error",
                     "context": "c1/c2/c3/...",
                     "errorCode": "SomeErrorCode",
                     "msg": "Error message"
@@ -28,7 +28,7 @@
     ],
     "otherErrors": [
         {
-            "object_type": "error",
+            "objectType": "error",
             "context": "c1/c2/c3/...",
             "errorCode": "SomeErrorCode",
             "msg": "Error message"

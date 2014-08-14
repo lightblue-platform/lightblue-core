@@ -77,7 +77,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertEquals("test", newDoc.get(new Path("object_type")).asText());
+        Assert.assertEquals("test", newDoc.get(new Path("objectType")).asText());
         Assert.assertEquals("value1", newDoc.get(new Path("field1")).asText());
         Assert.assertEquals("value2", newDoc.get(new Path("field2")).asText());
         Assert.assertEquals(3, newDoc.get(new Path("field3")).asInt());
@@ -103,7 +103,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertEquals("test", newDoc.get(new Path("object_type")).asText());
+        Assert.assertEquals("test", newDoc.get(new Path("objectType")).asText());
         Assert.assertEquals("value1", newDoc.get(new Path("field1")).asText());
         Assert.assertEquals("value2", newDoc.get(new Path("field2")).asText());
         Assert.assertEquals(3, newDoc.get(new Path("field3")).asInt());
@@ -139,7 +139,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertEquals("test", newDoc.get(new Path("object_type")).asText());
+        Assert.assertEquals("test", newDoc.get(new Path("objectType")).asText());
         Assert.assertEquals("value1", newDoc.get(new Path("field1")).asText());
         Assert.assertEquals("value2", newDoc.get(new Path("field2")).asText());
         Assert.assertEquals(3, newDoc.get(new Path("field3")).asInt());
@@ -171,7 +171,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertNull(newDoc.get(new Path("object_type")));
+        Assert.assertNull(newDoc.get(new Path("objectType")));
         Assert.assertNull(newDoc.get(new Path("field1")));
         Assert.assertNull(newDoc.get(new Path("field2")));
         Assert.assertNull(newDoc.get(new Path("field3")));
@@ -197,7 +197,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         System.out.println(projector.toString());
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertNull(newDoc.get(new Path("object_type")));
+        Assert.assertNull(newDoc.get(new Path("objectType")));
         Assert.assertNull(newDoc.get(new Path("field1")));
         Assert.assertNull(newDoc.get(new Path("field2")));
         Assert.assertNull(newDoc.get(new Path("field3")));
@@ -224,7 +224,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Projector projector = projector(pr, md);
         JsonDoc newDoc = projector.project(doc, factory);
         System.out.println(pr + ":" + newDoc.getRoot());
-        Assert.assertNull(newDoc.get(new Path("object_type")));
+        Assert.assertNull(newDoc.get(new Path("objectType")));
         Assert.assertNull(newDoc.get(new Path("field1")));
         Assert.assertNull(newDoc.get(new Path("field2")));
         Assert.assertNull(newDoc.get(new Path("field3")));

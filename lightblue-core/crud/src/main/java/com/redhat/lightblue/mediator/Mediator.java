@@ -61,7 +61,7 @@ public class Mediator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
 
-    private static final Path OBJECT_TYPE_PATH = new Path("object_type");
+    private static final Path OBJECT_TYPE_PATH = new Path("objectType");
 
     private final Metadata metadata;
     private final Factory factory;
