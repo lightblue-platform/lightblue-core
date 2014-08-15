@@ -127,7 +127,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -192,7 +192,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -254,7 +254,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -296,7 +296,7 @@ public class Mediator {
             response.getErrors().add(e);
             response.setStatus(OperationStatus.ERROR);
         } catch (Exception e) {
-            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
             response.setStatus(OperationStatus.ERROR);
         } finally {
             Error.pop();
@@ -356,7 +356,7 @@ public class Mediator {
             response.getErrors().add(e);
         } catch (Exception e) {
             LOGGER.debug("Exception during find:{}", e);
-            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e.toString()));
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
         } finally {
             Error.pop();
         }

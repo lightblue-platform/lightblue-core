@@ -183,7 +183,7 @@ public class MongoCRUDController implements CRUDController {
                         ctx.getHookManager().queueHooks(ctx);
                     } catch (Exception e) {
                         LOGGER.error("saveOrInsert failed: {}", e);
-                        inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, e.toString()));
+                        inputDoc.addError(Error.get(operation, MongoCrudConstants.ERR_SAVE_ERROR, e));
                     }
                     if (projector != null) {
                         JsonDoc jsonDoc = translator.toJson(dbObject);

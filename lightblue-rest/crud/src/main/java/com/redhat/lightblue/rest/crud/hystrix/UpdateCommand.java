@@ -54,6 +54,7 @@ public class UpdateCommand extends AbstractRestCommand {
     protected String run() {
         LOGGER.debug("run: entity={}, version={}", entity, version);
         Error.reset();
+        Error.push("rest");
         Error.push(getClass().getSimpleName());
         Error.push(entity);
         try {
