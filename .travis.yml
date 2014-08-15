@@ -7,7 +7,7 @@ before_install:
   - cp ./settings.xml ~/.m2/
 
 after_success:
-  - mvn clean test jacoco:report coveralls:jacoco
+  - mvn clean cobertura:cobertura coveralls:cobertura
 
 notifications:
   email: false
