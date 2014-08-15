@@ -1,0 +1,18 @@
+language: java
+jdk:
+  - openjdk7
+  - oraclejdk8
+
+before_install:
+  - cp ./settings.xml ~/.m2/
+
+after_success:
+  - mvn clean cobertura:cobertura coveralls:cobertura
+
+notifications:
+  email: false
+  irc:
+    channels:
+      - "chat.freenode.net#lightblue"
+    on_success: always
+
