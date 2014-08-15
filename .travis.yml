@@ -3,6 +3,9 @@ jdk:
   - openjdk7
   - oraclejdk8
 
+before_install:
+  - cp ./settings.xml ~/.m2/
+
 after_success:
   - mvn clean test jacoco:report coveralls:jacoco
 
