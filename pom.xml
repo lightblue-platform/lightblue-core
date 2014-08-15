@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <version>0.1-SNAPSHOT</version>
     <name>lightblue: ${project.groupId}|${project.artifactId}</name>
     <description>metadata driven enterprise data services</description>
-    <url>https://github.com/bserdar/lightblue</url>
+    <url>https://github.com/lightblue-platform/lightblue</url>
     <licenses>
         <license>
             <name>GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
@@ -40,9 +40,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:https://github.com/bserdar/lightblue.git</connection>
-        <developerConnection>scm:git:git@github.com:bserdar/lightblue.git</developerConnection>
-        <url>https://github.com/bserdar/lightblue</url>
+        <connection>scm:git:https://github.com/lightblue-platform/lightblue.git</connection>
+        <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue.git</developerConnection>
+        <url>https://github.com/lightblue-platform/lightblue</url>
     </scm>
     <developers>
         <developer>
