@@ -33,7 +33,12 @@ public class ArrayElementIdConstraintParser<T> implements FieldConstraintParser<
 
         Object value = p.getValueProperty(node, ArrayElementIdConstraint.IDENTITY);
         ArrayElementIdConstraint ret = new ArrayElementIdConstraint();
-        return ret;
+
+        if (value != null) {
+            return ret;
+        } else {
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ret.getType());
+        }
     }
 
     @Override

@@ -33,7 +33,12 @@ public class IdentityConstraintParser<T> implements FieldConstraintParser<T> {
 
         Object value = p.getValueProperty(node, IdentityConstraint.IDENTITY);
         IdentityConstraint ret = new IdentityConstraint();
-        return ret;
+
+        if (value != null) {
+            return ret;
+        } else {
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ret.getType());
+        }
     }
 
     @Override
