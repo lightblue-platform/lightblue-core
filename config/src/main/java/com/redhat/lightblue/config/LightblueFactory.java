@@ -18,36 +18,29 @@
  */
 package com.redhat.lightblue.config;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-
-import java.lang.reflect.InvocationTargetException;
-
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-
+import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-
-import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 /**
  * Manager class that creates instances of Mediator, Factory, Metadata, etc.
@@ -68,20 +61,7 @@ public final class LightblueFactory implements Serializable {
     private volatile Mediator mediator = null;
     private volatile Factory factory;
 
-    private static LightblueFactory instance;
-
-    /**
-     * Sudo-singleton, get the last instantiated instance of LightblueFactory.
-     * In practice expect only one instance to ever exist.
-     *
-     * @return an instance of LightblueFactory
-     */
-    public static LightblueFactory getInstance() {
-        return instance;
-    }
-
     public LightblueFactory(DataSourcesConfiguration datasources) {
-        instance = this;
         this.datasources = datasources;
     }
 
