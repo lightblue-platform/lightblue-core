@@ -15,20 +15,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <http://www.gnu.org/licenses />.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
-        <relativePath></relativePath>
+        <relativePath />
         <version>7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.redhat.lightblue.core</groupId>
     <artifactId>pom</artifactId>
     <packaging>pom</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.9.0</version>
     <name>lightblue core: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Core components</description>
     <licenses>
@@ -42,7 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <connection>scm:git:https://github.com/lightblue-platform/lightblue-core.git</connection>
         <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue-core.git</developerConnection>
         <url>https://github.com/lightblue-platform/lightblue-core</url>
-    </scm>
+      <tag>V0.9.0</tag>
+  </scm>
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
