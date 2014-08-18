@@ -54,10 +54,6 @@ public final class DateType implements Type, Serializable {
         return (DateFormat) DATE_FORMAT.clone();
     }
 
-    public static String toString(Date d) {
-        return DATE_FORMAT.format(d);
-    }
-
     @Override
     public String getName() {
         return NAME;
