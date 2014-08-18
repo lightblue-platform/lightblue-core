@@ -36,11 +36,14 @@ public final class FileUtil {
     }
 
     public static String readFile(String path) throws IOException, URISyntaxException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path)));
         StringBuilder everything = new StringBuilder();
-        String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            everything.append(line);
+
+        try (InputStreamReader isr = new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path));
+             BufferedReader bufferedReader = new BufferedReader(isr);) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                everything.append(line);
+            }
         }
         return everything.toString().replaceAll("\\s", "").replaceAll("\\r|\\n", "");
     }
