@@ -57,8 +57,8 @@ public final class LightblueFactory implements Serializable {
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
     private volatile Metadata metadata = null;
-    private volatile JSONMetadataParser parser = null;
-    private volatile Mediator mediator = null;
+    private transient volatile JSONMetadataParser parser = null;
+    private transient volatile Mediator mediator = null;
     private volatile Factory factory;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {

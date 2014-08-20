@@ -18,5 +18,7 @@
  */
 package com.redhat.lightblue.interceptor;
 
-public interface Interceptor {
+import java.io.Serializable;
+
+public interface Interceptor extends Serializable {
 }

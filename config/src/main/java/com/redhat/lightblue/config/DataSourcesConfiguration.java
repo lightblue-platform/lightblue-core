@@ -40,7 +40,7 @@ public class DataSourcesConfiguration implements JsonInitializable, Serializable
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSourcesConfiguration.class);
 
-    private final Map<String, DataSourceConfiguration> datasources = new HashMap<>();
+    private final HashMap<String, DataSourceConfiguration> datasources = new HashMap<>();
 
     /**
      * Initalize an empty datasource configuration

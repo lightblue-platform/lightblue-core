@@ -20,7 +20,6 @@ package com.redhat.lightblue.interceptor;
 
 import java.io.Serializable;
 
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
 
@@ -38,7 +37,7 @@ public class InterceptorManager implements Serializable {
         for (InterceptPoint x : pt) {
             TreeMap<Integer, Interceptor> tmap = interceptors.get(x);
             if (tmap == null) {
-                interceptors.put(x, tmap = new TreeMap<Integer, Interceptor>());
+                interceptors.put(x, tmap = new TreeMap<>());
             }
             if (x.getInterceptorClass().isAssignableFrom(i.getClass())) {
                 tmap.put(sequence, i);
