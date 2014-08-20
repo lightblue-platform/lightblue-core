@@ -83,7 +83,11 @@
                  "title": {"type": "string"},
                  "email": {"type": "string"},
                  "emailConfirmed": {"type": "boolean"},
-                 "phoneNumber": {"type": "string"},
+                 "phoneNumber": {"type": "string",
+                     "constraints" : {
+                         "matches":"^\\d{3}\\-\\d{4}\\ \\d{4}$"
+                     }
+                 },
                  "faxNumber": {"type": "string"},
                  "locale": {"type": "string"},
                  "timezone": {"type": "string"},
@@ -140,7 +144,11 @@
                          "fields": {
                               "emailAddress":{"type":"string"},
                               "faxNumber": {"type":"string"},
-                              "phoneNumber" : {"type":"string"},
+                              "phoneNumber" : {"type":"string",
+                                 "constraints" : {
+                                    "matches":"^\\d{3}\\-\\d{4}\\ \\d{4}$"
+                                 }
+                              },
                               "url":{"type":"string"}
                           }
                      },

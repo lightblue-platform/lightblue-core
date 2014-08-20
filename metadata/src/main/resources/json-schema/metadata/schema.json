@@ -137,7 +137,7 @@
                 },
                 "minItems": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems",
-                    "description": "Minimum number of itmes in an array field."
+                    "description": "Minimum number of items in an array field."
                 },
                 "maxProperties": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/maxProperties"
@@ -154,6 +154,10 @@
                 },
                 "reference": {
                     "$ref": "common.json#/definitions/reference"
+                },
+                "matches": {
+                    "type": "string",
+                    "description": "Requires string field to match regular expression"
                 }
             }
         },
