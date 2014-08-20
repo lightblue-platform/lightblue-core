@@ -161,7 +161,6 @@ public class Factory implements Serializable {
      */
     public JsonNodeFactory getNodeFactory() {
         if (nodeFactory == null) {
-            // use synchronized setter
             setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
         }
         return nodeFactory;
@@ -170,8 +169,10 @@ public class Factory implements Serializable {
     /**
      * Sets the JsonNodeFactory.
      */
-    public synchronized void setNodeFactory(JsonNodeFactory factory) {
-        nodeFactory = factory;
+    public void setNodeFactory(JsonNodeFactory factory) {
+        synchronized (this) {
+            nodeFactory = factory;
+        }
     }
 
 }
