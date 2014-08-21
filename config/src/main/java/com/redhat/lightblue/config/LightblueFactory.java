@@ -24,6 +24,7 @@ import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
+import com.redhat.lightblue.crud.interceptors.TimestampInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.Metadata;
@@ -106,6 +107,7 @@ public final class LightblueFactory implements Serializable {
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());
+            new TimestampInterceptor().register(f.getInterceptors());
 
             // validate
             if (!configuration.isValid()) {

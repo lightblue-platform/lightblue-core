@@ -189,7 +189,21 @@
         "createdDate": {"type": "date"},
         "updatedDate": {"type": "date"},
         "uids": {"type": "array", "items":{"type":"uid"}},
-        "uid": {"type": "uid"}
+        "uid": {"type": "uid"},
+        "reqtimestamp" : {
+                "type":"timestamp",
+                "constraints" : {
+                      "required":true
+                }
+         },
+         "nonreqtimestamp" :  {
+            "type":"timestamp",
+            "constraints" : {
+                "required":false
+            }
+         },
+         "timestamps": {"type": "array", "items":{"type":"timestamp"}}
+
        }
    }
 }
