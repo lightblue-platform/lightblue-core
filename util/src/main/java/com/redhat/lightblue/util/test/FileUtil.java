@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Created by lcestari on 3/27/14.
@@ -38,8 +36,8 @@ public final class FileUtil {
     public static String readFile(String path) throws IOException, URISyntaxException {
         StringBuilder everything = new StringBuilder();
 
-        try (InputStreamReader isr = new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path));
-             BufferedReader bufferedReader = new BufferedReader(isr);) {
+        try (InputStreamReader isr = new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path), Charset.forName("UTF-8"));
+                BufferedReader bufferedReader = new BufferedReader(isr);) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 everything.append(line);

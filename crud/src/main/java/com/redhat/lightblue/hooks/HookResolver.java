@@ -18,10 +18,12 @@
  */
 package com.redhat.lightblue.hooks;
 
+import java.io.Serializable;
+
 /**
  * Instances of HookResolver are used to get an instance of a hook
  */
-public interface HookResolver {
+public interface HookResolver extends Serializable {
     /**
      * Returns an instance of the hook with the given name
      */
