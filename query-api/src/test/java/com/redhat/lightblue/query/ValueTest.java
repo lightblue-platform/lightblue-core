@@ -29,6 +29,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.FloatNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
@@ -44,9 +45,15 @@ public class ValueTest {
      */
     @Test
     public void testToJson() throws IOException {
+        // if in int range returns IntNode
         Value instance = new Value(10L);
-        JsonNode expResult = new LongNode(10);
+        JsonNode expResult = new IntNode(10);
         JsonNode result = instance.toJson();
+        assertEquals(expResult, result);
+
+        instance = new Value(Long.MAX_VALUE);
+        expResult = new LongNode(Long.MAX_VALUE);
+        result = instance.toJson();
         assertEquals(expResult, result);
 
         instance = new Value(10.0D);
