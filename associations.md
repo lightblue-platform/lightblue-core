@@ -144,7 +144,7 @@ Composite Metadata:
          +-- N_7 (A)
               |
               +-- N_9 (C)
-</pre.      
+</pre>      
 
 As shown above, an entity may appear more than once in the composite
 metadata. 
