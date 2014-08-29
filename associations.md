@@ -5,6 +5,7 @@ entities. Associations allow injecting one entity into another as an
 array field. For instance, order entity and customer entity are
 business entities, and every order includes a customer:
 
+```
 order : {
   ....
   "customerId":{ "type":"string" },
@@ -13,7 +14,7 @@ order : {
                 "version" : "1.0.0",     
                 "query" : { "field":"_id", "op":"=", "rfield":"$parent.customerId" }
    }
-
+```
 
 In this example, the customer field of the order entity is populated
 using customers whose id match order.customerId
@@ -24,30 +25,42 @@ using customers whose id match order.customerId
 
 Let A be defined as:
 
+```
 A: { 
      "b" : { "type":"reference",
              "entity":"B",
              "query": { "field":"a_id", "op":"=", "rfield":"$parent._id"}
            } 
   }
+```
 
 Here, the field 'a_id' is a field of entity B.
 
 If the retrieval criteria is
 
+```
    { "field":"_id", "op":"=", "rvalue":<value> }
+```
 
 then the optimum retrieval is:
+
+```
    retrieve A using  {"field":"_id","op":"=","rvalue":<value>}
      retrieve B using {"field":"a_id","op":"=","rvalue":<_id> }
+```
 
 If the retrieval criteria is
 
+```
    { "field":"b.someField","op":"=","rvalue":<value> }
+```
 
 then the optimum retrieval is:
+
+```
     retrieve B using {"field":"someField","op":"=","rvalue":<value>}
       retrieve A using {"field":"_id","op":"=","rvalue":<b.a_id>}
+```
 
 ### Sorting requests need to be considered
 
@@ -77,6 +90,7 @@ the entities reached via a reference field.
 
 Example:
 
+```
 A : {
        "b" : { "type":"reference",
                "entity": "B",
@@ -92,9 +106,11 @@ A : {
              },
        ...
     }
+```
 
 Here, the composite metadata is a tree:
 
+<pre>
   N_1 (A)
   |
   +-- N_2 (B)
@@ -106,15 +122,18 @@ Here, the composite metadata is a tree:
       +-- N_5 (B)
       .
       .
+</pre>
 
 The  depth  of the  composite  metadata  depends  on what  fields  are
 requested.   That means,  a  separate instance  of composite  metadata
 needs to be constructed for each retrieval request. Assuming the above
 metadata definition is given:
 
+<pre>
 req: { "field":"b.someField", "op":"=", "rvalue":<value> }
 projection: { "a.a.c" }
 Composite Metadata: 
+
 
    N_1 (A)
     |
@@ -125,7 +144,7 @@ Composite Metadata:
          +-- N_7 (A)
               |
               +-- N_9 (C)
-         
+</pre.      
 
 As shown above, an entity may appear more than once in the composite
 metadata. 
@@ -144,6 +163,7 @@ the entity of that node. We will construct different query plans with
 different node orderings, and score them to pick the best retrieval
 strategy.
 
+<pre>
    (N_1, Q_1)
     |
     +-- (N_2, Q_2)
@@ -151,6 +171,7 @@ strategy.
     |    +-- (N_3, Q_3)
     |
     +-- (N4, Q_4)
+</pre>
 
 Entities are retrieved using a depth-first traversal of the query
 plan. The query that will be evaluated for a node N is the conjunction
@@ -179,26 +200,30 @@ ValueComparisonExpressions once one of the fields can be replaced with
 a value. That happens after an instance of an containing that field is
 retrieved.
 
+```
 { "field":<field1>, "op":<op>, "rfield":<field2> }
+```
 
 Assume field1 refers to a field of entityOf(N_i), and field2 refers to
 a field of an entity of an ancestor of N_i (i.e. field2 values are
 known). Then, the query component can be written as a
 ValueComparisonExpression:
 
+```
   {"field":"<field1>, "op":<operator>, "rvalue":<value> }
+```
 
 (if field and rfield are interchanged and if the operation is not
 commutative, operator should be negated as well, i.e. > should become
 <)
 
-
-
 ### Processing query expressions
 
 Ideally, we'd like to deal with queries in conjunctive normal form.
 
+```
    Q: { "$and": [ q_1, q_2, q_3, ... ] }
+```
 
 If the request query and all the associations queries are in
 conjunctive normal form, all we need to worry about is the query
@@ -214,16 +239,18 @@ These are the query rewrite rules:
 If Q: { "$and" : [ q_1, ... {"$and": [ x, y, ... ] } ] }
 
 then Q can be written as
-
+```
    { "$and": [ q_1, ..., x, y, ... ] }
+```
 
   2) Multiple values in an $or can be written as $in
 
 If Q : { "$or" : [ ..., {"field":X, "op":"=","rvalue":v1},... {"field":X, "op":"=","rvalue":v2}, ... ] }
 
 then Q can be written as
-
+```
    { "$or" : [ ..., {"$in" : {"field":X,"values":[v1,v2]} },... ] }
+```
 
   3) $in can be extended
 
@@ -231,7 +258,9 @@ If Q:  { "$or" : [ ..., {"$in" : {"field":X,"values":[v1,v2]} }, ...  {"field":X
 
 then Q can be written as
 
+```
    { "$or" : [ ..., {"$in": [ "field":X,"values":[v1,v2,v3]} },... ] }
+```
 
 
   4) $or with a single expression can be eliminated
@@ -243,8 +272,9 @@ If Q: { "$or" : [ q ] }, then Q can be written as q
 If Q: { "$not" : { "$or" : [ q_1, q_2, ... ] ] } 
 
 then Q can be written as
-
+```
    {"$and" : [ not(q_1), not(q_2),  ... ] }
+```
 
 provided not(q_i) can be performed for all q_i.
 
@@ -261,6 +291,7 @@ and score them.
 
 This is the entity definition for the following examples:
 
+```
 A : {
   ....
   "_id":{"type":"uid" },
@@ -275,7 +306,7 @@ A : {
          "query" : { "field":"_id", "op":"=", "rfield":"$parent.c_id" }
    }
 }
-
+```
 
 Notation: X < Y means X is an ancestor of Y. That is, X is retrieved
 before Y, and that the two are related.
@@ -312,14 +343,18 @@ Example:
 
 The clause 
 
+```
  {"field":"_id", "op":"=", "rvalue":<value> } 
+```
 
 will be associated to the query plan node for "A".
 
 
 The clause
 
+```
   {"field":"b.someField","op":"=","rvalue":<value>}
+```
 
 will be associated the the query plan node for the field "b".
 
@@ -329,16 +364,22 @@ Example:
 
 The clause
 
+```
  { "field":"b.a_id","op":"=","rfield":"a._id"}
+```
 
 generates two query plans. The first one has query
  
+```
  { "field":"b.a_id", "op":"=", "rvalue":<value> }
+```
 
 associated with node for "b", and "A" is retrieved before "B". The
 second one has query
 
+```
  { "field":"a._id", "op":"=", "rvalue":<value> }
+```
 
 associated with node "a", and "B" is retrieved before "A".
 
@@ -353,4 +394,78 @@ X<A, X<B, X<C, Y<B, Y<C are all true.
   4) Iterate and score all viable query plans.
 
 ### Scoring Query Plans
+
+The score assigned to the query plan should reflect the effort of
+executing it. So smaller score means better performance. We will
+select the query plan with the smallest score.
+
+#### Scoring nodes:
+
+Scores given to individual nodes, in decreasing order:
+
+  - No associated node query
+  - A disjunction clause, score decreases with decreasing number of distinct fields
+  - A conjunction clause, score decreases with increasing number of indexed fields
+  - Fields with unique indexes only
+  
+Scoring algorithm starts from the root, and processes the query plan
+in a depth first manner. The score of the node is the base score
+multiplied with (maxdepth - depth+1). The final score of the query plan is the sum of
+the scores of all nodes.
+
+In these examples, assume the scores are 40, 30, 20, 10.
+
+Example 1:
+
+Request query: { "field":"b.someValue", "op":"=", "rvalue":<value> }
+
+Query plan:
+  A  
+  |
+  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
+         { "field":"b.someValue", "op":"=", "rvalue":<value> }
+
+Node A score: 40 * 2
+Node B score: 20 * 1
+
+Total score: 100
+
+Query plan:
+  B  { "field":"b.someValue", "op":"=", "rvalue":<value> }
+  |
+  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
+
+Node B score: 20 * 2
+Node A score: 10 * 1
+
+Total score: 50
+
+Second query plan wins.
+
+Example 2:
+
+Request query: { "field":"someValue", "op":"=", "rvalue":<value> }
+
+Query plan:
+  A  { "field":"someValue", "op":"=", "rvalue":<value> }
+  |
+  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
+
+Node A score: 20 * 2
+Node B score: 10 * 1
+
+Total score: 50
+
+Query plan:
+  B  
+  |
+  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
+         { "field":"someValue", "op":"=", "rvalue":<value> }
+
+Node B score: 40 * 2
+Node A score: 20 * 1
+
+Total score: 100
+
+First query plan wins.
 
