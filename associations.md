@@ -236,8 +236,10 @@ These are the query rewrite rules:
 
  1) Nested $and's can be combined:
 
-If Q: { "$and" : [ q_1, ... {"$and": [ x, y, ... ] } ] }
-
+If 
+```
+Q: { "$and" : [ q_1, ... {"$and": [ x, y, ... ] } ] }
+```
 then Q can be written as
 ```
    { "$and": [ q_1, ..., x, y, ... ] }
@@ -245,8 +247,10 @@ then Q can be written as
 
   2) Multiple values in an $or can be written as $in
 
-If Q : { "$or" : [ ..., {"field":X, "op":"=","rvalue":v1},... {"field":X, "op":"=","rvalue":v2}, ... ] }
-
+If 
+```
+Q : { "$or" : [ ..., {"field":X, "op":"=","rvalue":v1},... {"field":X, "op":"=","rvalue":v2}, ... ] }
+```
 then Q can be written as
 ```
    { "$or" : [ ..., {"$in" : {"field":X,"values":[v1,v2]} },... ] }
@@ -254,23 +258,29 @@ then Q can be written as
 
   3) $in can be extended
 
-If Q:  { "$or" : [ ..., {"$in" : {"field":X,"values":[v1,v2]} }, ...  {"field":X, "op":"=","rvalue":v3}, ... }
-
+If 
+```
+Q:  { "$or" : [ ..., {"$in" : {"field":X,"values":[v1,v2]} }, ...  {"field":X, "op":"=","rvalue":v3}, ... }
+```
 then Q can be written as
-
 ```
    { "$or" : [ ..., {"$in": [ "field":X,"values":[v1,v2,v3]} },... ] }
 ```
 
-
   4) $or with a single expression can be eliminated
 
-If Q: { "$or" : [ q ] }, then Q can be written as q
+If 
+```
+Q: { "$or" : [ q ] }
+``` 
+then Q can be written as q
 
   5) $not $or can be converted to $and
 
-If Q: { "$not" : { "$or" : [ q_1, q_2, ... ] ] } 
-
+If 
+```
+Q: { "$not" : { "$or" : [ q_1, q_2, ... ] ] } 
+```
 then Q can be written as
 ```
    {"$and" : [ not(q_1), not(q_2),  ... ] }
@@ -400,72 +410,4 @@ executing it. So smaller score means better performance. We will
 select the query plan with the smallest score.
 
 #### Scoring nodes:
-
-Scores given to individual nodes, in decreasing order:
-
-  - No associated node query
-  - A disjunction clause, score decreases with decreasing number of distinct fields
-  - A conjunction clause, score decreases with increasing number of indexed fields
-  - Fields with unique indexes only
-  
-Scoring algorithm starts from the root, and processes the query plan
-in a depth first manner. The score of the node is the base score
-multiplied with (maxdepth - depth+1). The final score of the query plan is the sum of
-the scores of all nodes.
-
-In these examples, assume the scores are 40, 30, 20, 10.
-
-Example 1:
-
-Request query: { "field":"b.someValue", "op":"=", "rvalue":<value> }
-
-Query plan:
-  A  
-  |
-  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
-         { "field":"b.someValue", "op":"=", "rvalue":<value> }
-
-Node A score: 40 * 2
-Node B score: 20 * 1
-
-Total score: 100
-
-Query plan:
-  B  { "field":"b.someValue", "op":"=", "rvalue":<value> }
-  |
-  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
-
-Node B score: 20 * 2
-Node A score: 10 * 1
-
-Total score: 50
-
-Second query plan wins.
-
-Example 2:
-
-Request query: { "field":"someValue", "op":"=", "rvalue":<value> }
-
-Query plan:
-  A  { "field":"someValue", "op":"=", "rvalue":<value> }
-  |
-  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
-
-Node A score: 20 * 2
-Node B score: 10 * 1
-
-Total score: 50
-
-Query plan:
-  B  
-  |
-  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
-         { "field":"someValue", "op":"=", "rvalue":<value> }
-
-Node B score: 40 * 2
-Node A score: 20 * 1
-
-Total score: 100
-
-First query plan wins.
 
