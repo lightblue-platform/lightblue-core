@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.github.fge.jsonschema.exceptions.ProcessingException;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;

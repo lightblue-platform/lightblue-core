@@ -21,11 +21,12 @@ package com.redhat.lightblue.config;
 import com.redhat.lightblue.util.JsonInitializable;
 
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import java.io.Serializable;
 
 /**
  * Base interface for backend configuration
  */
-public interface DataSourceConfiguration extends JsonInitializable {
+public interface DataSourceConfiguration extends JsonInitializable, Serializable {
 
     /**
      * Returns the metadata backend parser class
