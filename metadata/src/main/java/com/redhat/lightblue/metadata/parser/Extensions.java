@@ -18,11 +18,15 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.DataStore;
-import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.HookConfiguration;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -30,9 +34,9 @@ import java.util.Map;
  * JSon, T is JsonNode).
  */
 public class Extensions<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Extensions.class);
 
     private final ParserRegistry<T, DataStore> backendParsers = new ParserRegistry<>();
-
     private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
     private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
     private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<>();
@@ -44,6 +48,44 @@ public class Extensions<T> {
     public void addDefaultExtensions() {
         fieldConstraintParsers.add(new DefaultFieldConstraintParsers<T>());
         entityConstraintParsers.add(new DefaultEntityConstraintParsers<T>());
+
+        LOGGER.debug("Initializing addDefaultExtensions");
+
+        JsonNode root;
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("defaultExtensions.json")) {
+            if(is == null){
+                return;
+            }
+            root = JsonUtils.json(is);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        LOGGER.debug("Config root:{}", root);
+
+        ArrayNode backendParsersJs = (ArrayNode) root.get("backendParsers");
+
+        for (int i = 0; i < backendParsersJs.size(); i++) {
+            JsonNode jsonNode = backendParsersJs.get(i);
+            String name = jsonNode.get("name").asText();
+            String clazz = jsonNode.get("clazz").asText();
+
+            if (name == null || clazz == null) {
+                throw new IllegalStateException("Backend Name/Class not informed: name="+name +" clazz="+clazz);
+            }
+
+            //Only add if it is a it is a not defined backend
+            if(backendParsers.find(name) != null){
+                continue;
+            }
+
+            try {
+                Parser<T, DataStore> instance = (Parser) Class.forName(clazz).newInstance();
+                backendParsers.add(name, instance);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+
     }
 
     /**
