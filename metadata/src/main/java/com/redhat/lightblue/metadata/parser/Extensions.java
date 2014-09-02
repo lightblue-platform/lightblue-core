@@ -63,7 +63,6 @@ public class Extensions<T> {
         LOGGER.debug("Config root:{}", root);
 
         ArrayNode backendParsersJs = (ArrayNode) root.get("backendParsers");
-
         for (int i = 0; i < backendParsersJs.size(); i++) {
             JsonNode jsonNode = backendParsersJs.get(i);
             String name = jsonNode.get("name").asText();
@@ -86,6 +85,28 @@ public class Extensions<T> {
             }
         }
 
+        ArrayNode propertyParserJs = (ArrayNode) root.get("propertyParser");
+        for (int i = 0; i < propertyParserJs.size(); i++) {
+            JsonNode jsonNode = propertyParserJs.get(i);
+            String name = jsonNode.get("name").asText();
+            String clazz = jsonNode.get("clazz").asText();
+
+            if (name == null || clazz == null) {
+                throw new IllegalStateException("PropertyParser Name/Class not informed: name="+name +" clazz="+clazz);
+            }
+
+            //Only add if it is a it is a not defined
+            if(propertyParsers.find(name) != null){
+                continue;
+            }
+
+            try {
+                PropertyParser instance = (PropertyParser) Class.forName(clazz).newInstance();
+                propertyParsers.add(name, instance);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     /**
