@@ -79,14 +79,15 @@ the request query.
 
 ## Composite Metadata
 
-Composite metedata is a tree computed from the metadata of the entity
-that is being retrieved by extending that entity using the fields of
-associated entities. The composite metadata computation should take
-into account the request projection and request query fields, so all
-the queried and projected fields should be in the composite
-metadata. The root node of the composite metadata corresponds to the
-requested entity. Child nodes of the composite metadata correspond to
-the entities reached via a reference field.
+Composite metedata is a directed tree. The requested entity is at the
+root of the composite metadata. Every entity arrived by following an
+association is another node in the composite metadata, and the edge
+points to the destination of the association. The composite metadata
+computation should take into account the request projection and
+request query fields, so all the queried and projected fields should
+be in the composite metadata. The root node of the composite metadata
+corresponds to the requested entity. Child nodes of the composite
+metadata correspond to the entities reached via a reference field.
 
 Example:
 
@@ -157,40 +158,46 @@ Implementation considerations:
 
 ## Query Plans
 
-A query plan is a tree where each node contains a node of composite
-metadata, and a query that will be executed to retrieve entities for
-the entity of that node. We will construct different query plans with
-different node orderings, and score them to pick the best retrieval
-strategy.
+A query plan is a directed graph where each node contains a node of
+composite metadata, and a query that will be executed to retrieve
+entities for the entity of that node. We will construct different
+query plans with different node orderings, and score them to pick the
+best retrieval strategy.
+
+The underlying undirected graph of a query plan is isomorphic to the
+underlying undirected graph of its composite metadata. In other words,
+query plan may reverse the direction of edges of the composite
+metadata, but cannot add or remove edges.
 
 <pre>
-   (N_1, Q_1)
-    |
-    +-- (N_2, Q_2)
-    |    |
-    |    +-- (N_3, Q_3)
-    |
-    +-- (N4, Q_4)
+   (N_1, Q_1) --+ 
+                |
+                +--> (N_3, Q_3) --> (N_4, Q_4)
+                |
+   (N_2, Q_2) --+
 </pre>
 
-Entities are retrieved using a depth-first traversal of the query
-plan. The query that will be evaluated for a node N is the conjunction
-of all queries containing the variables of N and the entities of all
-ancestors of N. If a query clause contains variables referring to the
-ancestors of N, that query clause will be rewritten to replace that
-variable with a value.
+In the above query plan, entities for N_1 and N_2 are retrieved first,
+then using those results, a query to retrieve N_3 is written and
+executed. For every N_3 retrieved, N_4 queries are evaluated and
+executed.
+
+Entities are retrieved starting from the source nodes (nodes with no
+incoming edges). Execution continues until all the sink nodes of the
+query plan are retrieved. A node is evaluated after all the ancestors
+of it are evaluated.
+
+The queries assigned to each node are the clauses of the conjunctive
+normal form of all queries. A query Q is assigned to a node N if Q has
+variables referring to N, and all other variables of Q refer to an
+ancestor of N.
+
+Future consideration: Paths starting from different sources can be
+executed in parallel.
 
 Implementation considerations: Some queries can be converted to $in
 expressions for bulk retrieval, or retrival can be performed one by
 one.
-
-In the above tree, the execution goes like this:
- - Q_1 is run, and an instance of entityOf(N_1) is retrieved. Remember, 
-   Q_1 is a query that only depends on fields of entityOf(N_1).
- - Q_2 is a query that depends on only fields from entityOf(N_1) and entityOf(N_2). 
-   So, Q_2 is rewritten to replace fields in entityOf(N_1) with values, and 
-   N_2 values are retrieved. 
- - ... and so on
 
 
 ### Rewriting queries:
@@ -321,8 +328,10 @@ A : {
 Notation: X < Y means X is an ancestor of Y. That is, X is retrieved
 before Y, and that the two are related.
 
-Valid relation sets: The valid relation sets of composite metadata is
-constructed for each leaf node X as follows:
+### Valid relation sets 
+
+The valid relation sets of composite metadata is constructed for each
+leaf node X as follows:
 
   - X is in the valid relation set of X
   - Ancestors of X are in the valid relation set of X
@@ -337,6 +346,14 @@ In the above example, (A,B) and (A,C) are valids relation sets. That
 means, any relation between A and B, and A and C form viable query
 plans. A relation containing fields from different relations sets form
 nonviable query plans, such as B<C or C<B.
+
+### Request query restrictions
+
+We don't want to evaluate queries and filter out unwanted items from a
+result set. That means, the requested entity must be retrieved using a
+query that will retrieve all relevant objects.
+
+### Algorithm
 
 The overview of the algorithm is:
 
@@ -409,5 +426,79 @@ The score assigned to the query plan should reflect the effort of
 executing it. So smaller score means better performance. We will
 select the query plan with the smallest score.
 
+Ideally, score should reflect how quickly the next item in the
+resultset can be retrieved. For instance, a query that retrieves all
+elements of a collection without any filtering has the same, or
+similar score to a query that retrieves one row using a unique index.
+
+
 #### Scoring nodes:
+
+Scores given to individual nodes, in decreasing order:
+
+  - No associated node query
+  - A disjunction clause, score decreases with decreasing number of distinct fields
+  - A conjunction clause, score decreases with increasing number of indexed fields
+  - Fields with unique indexes only
+  
+Scoring algorithm starts from the root, and processes the query plan
+in a depth first manner. The score of the node is the base score
+multiplied with (maxdepth - depth+1). The final score of the query plan is the sum of
+the scores of all nodes.
+
+In these examples, assume the scores are 40, 30, 20, 10.
+
+Example 1:
+
+Request query: { "field":"b.someValue", "op":"=", "rvalue":<value> }
+
+Query plan:
+  A  
+  |
+  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
+         { "field":"b.someValue", "op":"=", "rvalue":<value> }
+
+Node A score: 40 * 2
+Node B score: 20 * 1
+
+Total score: 100
+
+Query plan:
+  B  { "field":"b.someValue", "op":"=", "rvalue":<value> }
+  |
+  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
+
+Node B score: 20 * 2
+Node A score: 10 * 1
+
+Total score: 50
+
+Second query plan wins.
+
+Example 2:
+
+Request query: { "field":"someValue", "op":"=", "rvalue":<value> }
+
+Query plan:
+  A  { "field":"someValue", "op":"=", "rvalue":<value> }
+  |
+  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
+
+Node A score: 20 * 2
+Node B score: 10 * 1
+
+Total score: 50
+
+Query plan:
+  B  
+  |
+  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
+         { "field":"someValue", "op":"=", "rvalue":<value> }
+
+Node B score: 40 * 2
+Node A score: 20 * 1
+
+Total score: 100
+
+First query plan wins.
 
