@@ -158,11 +158,13 @@ Implementation considerations:
 
 ## Query Plans
 
-A query plan is a directed graph where each node contains a node of
+A query plan is a directed graph and a set of constraints of the form
+(X before Y) where X and Y are nodes. Each node contains a node of
 composite metadata, and a query that will be executed to retrieve
 entities for the entity of that node. We will construct different
 query plans with different node orderings, and score them to pick the
-best retrieval strategy.
+best retrieval strategy. The additionan constraints will be used to
+order the execution of unrelated nodes.
 
 The underlying undirected graph of a query plan is isomorphic to the
 underlying undirected graph of its composite metadata. In other words,
@@ -175,6 +177,8 @@ metadata, but cannot add or remove edges.
                 +--> (N_3, Q_3) --> (N_4, Q_4)
                 |
    (N_2, Q_2) --+
+
+   (N_1 before N_2)
 </pre>
 
 In the above query plan, entities for N_1 and N_2 are retrieved first,
@@ -193,7 +197,7 @@ variables referring to N, and all other variables of Q refer to an
 ancestor of N.
 
 Future consideration: Paths starting from different sources can be
-executed in parallel.
+executed in parallel, depending on the before constraints.
 
 Implementation considerations: Some queries can be converted to $in
 expressions for bulk retrieval, or retrival can be performed one by
@@ -325,100 +329,133 @@ A : {
 }
 ```
 
-Notation: X < Y means X is an ancestor of Y. That is, X is retrieved
-before Y, and that the two are related.
-
-### Valid relation sets 
-
-The valid relation sets of composite metadata is constructed for each
-leaf node X as follows:
-
-  - X is in the valid relation set of X
-  - Ancestors of X are in the valid relation set of X
-
-That is, the nodes of all maximal paths from the root to a leaf forms
-a valid relation set. Within a query plan, only relations between the
-members of a valid relation set is allowed. If there is a relation
-between two members of different valid relation sets, that query plan
-is non-viable.
-
-In the above example, (A,B) and (A,C) are valids relation sets. That
-means, any relation between A and B, and A and C form viable query
-plans. A relation containing fields from different relations sets form
-nonviable query plans, such as B<C or C<B.
-
-### Request query restrictions
-
-We don't want to evaluate queries and filter out unwanted items from a
-result set. That means, the requested entity must be retrieved using a
-query that will retrieve all relevant objects.
+Notation: X < Y means X is an ancestor of Y in query plan. 
 
 ### Algorithm
 
-The overview of the algorithm is:
+Enumerate all permutations of edge directions of composite metadata. For each option:
+ * Assign queries to each node
+ * Rewrite queries based on the query plan
+    * Determine node ordering based on queries with multiple fields
+    * Eliminate query plan if there are queries that cannot be rewritten.
+ * Score query plan, and keep the best score
 
-  1) Convert RQ to conjunctive normal form to get CRQ. Also, convert
-  all association queries to their conjunctive normal forms.
-  
-  2) For each clause:
+Complexity: If there are N nodes in composite metadata, there are
+(N-1) edges in the query plan. Query plans are obtained by flipping
+edges, so there are 2^(N-1) distinct query plans. This is the baseline
+complexity. Further query plans can be created based on query
+structure.
 
-    - If a clause refers to one variable of a node in composite
-      metadata, associate that clause with the query plan node
-      corresponding to that composite metadata node.
+Example: The above example has 3 nodes, so 4 distinct query plans:
 
-Example:
+1)
+<pre>
+A --+--> B
+    |
+    +--> C
+</pre>
 
-The clause 
+2)
+<pre>
+B --> A --> C
+</pre>
 
-```
- {"field":"_id", "op":"=", "rvalue":<value> } 
-```
+3)
+<pre>
+C --> A --> B
+</pre>
 
-will be associated to the query plan node for "A".
+4)
+<pre>
+C--+
+   |
+   +--> A
+   |
+B--+
+</pre>
 
 
-The clause
+#### Query assignments
 
-```
-  {"field":"b.someField","op":"=","rvalue":<value>}
-```
+Below, let nodeOf(f) denote the query plan node of the path f. In the
+above example, nodeOf("c._id")=C. For a query Q, nodesOf(Q) is the
+union of nodeOf(f) for all fields f in Q.
 
-will be associated the the query plan node for the field "b".
+ * If q is one of
+<pre>
+{ "field":f, "op":o, "rvalue":r }
+{ "field":f, "regex":... }
+{ "array":f, "contains":... }
+</pre>
+then q is assigned to nodeOf(f)
 
-     - If a clause has two fields referring to different entities,
+ * If q is 
+<pre>
+ { "field":f, "op":o, "rfield":g }
+</pre>
+then 
+     * If nodeOf(f) < nodeOf(g), q is assigned to nodeOf(g)
+     * If nodeOf(g) < nodeOf(f), q is assigned to nodeOf(f)
+     * otherwise, generate a copy of the query plan. In the first copy, 
+       add (nodeOf(f) before nodeOf(g)) and assign q to nodeOf(g). In 
+       the second copy, add (nodeOf(g) before nodeOf(f)) and assign q 
+       to nodeOf(f).
 
-Example:
+ * If q is
+<pre>
+{ "array":f, "elemtMatch":R }
+</pre>
+then we work with the node set nodeOf(f) and nodesOf(R). For every 
+possible ordering of the nodes of the query:
+   * Create a copy of the query plan.
+   * Assign query to the highest node with respect to <
+   * Add "before" constraints for all unrelated nodes
 
-The clause
+Warning: This process has the potential to become too costly to be
+practical. Need some heuristics...
 
-```
- { "field":"b.a_id","op":"=","rfield":"a._id"}
-```
+### Query rewriting
 
-generates two query plans. The first one has query
- 
-```
- { "field":"b.a_id", "op":"=", "rvalue":<value> }
-```
+If a query clause q depends on multiple nodes, that clause needs to be
+rewritten. Assume nodesOf(q) is {N_1, N_2, ... }. q is associated with
+all of these nodes. The clause q is rewritten for each node as follows:
 
-associated with node for "b", and "A" is retrieved before "B". The
-second one has query
+Assume we're rewriting q for node N:
 
-```
- { "field":"a._id", "op":"=", "rvalue":<value> }
-```
+  * If there is a field f in q with nodeOf(f) < N, then replace the
+    clause containing f with a value clause, where the value of f is
+    bound to the value retrieved by the execution of node
+    nodeOf(f). If f is already a value clause, eliminate query plan,
+    as this requires manual filtering of ancestors.
 
-associated with node "a", and "B" is retrieved before "A".
+  * If there is a field f in q with N < nodeOf(f), then eliminate
+    query plan, it cannot be evaluated.
 
-  3) Eliminate query plans that are not viable. A query plan is not
-  viable if one of the following is correct:
-    - there exists nodes X and Y such that X<Y and Y<X, or
-    - X<Y and X and Y are in different valid relation sets.
+  * Otherwise, add a constraint that all nodes other than N must be
+    retrieved before N. Once all queries are processed, test the
+    constraints for conflicts, i.e. an implication that for nodes X,
+    Y, (X before Y) and (Y before X).
 
-Note: Take into account transitivity. If X<Y<Z and A<B<C and Y<A, then
-X<A, X<B, X<C, Y<B, Y<C are all true.
 
-  4) Iterate and score all viable query plans.
+### Node ordering
+
+During query rewriting, we collect constraints of the form (X before
+Y) for nodes X and Y. These constraints will be used to order the
+execution of nodes that are not of the same lineage. If all
+constraints cannot be satisfied, then the query plan is not viable,
+and discarded.
+
+Some observations:
+  * Node ordering is essentially assigning indexes 1, 2, ... to each 
+    node. 
+  * For any node N, index of N is always larger than the number of 
+    its descendants.
+  * For any node N, index of N is always one more that the maximum
+    index of its descendants.
+
+These should limit the search space. The first ordering that satisfies
+all the constraints wins.
+
 
 ### Scoring Query Plans
 
@@ -428,77 +465,8 @@ select the query plan with the smallest score.
 
 Ideally, score should reflect how quickly the next item in the
 resultset can be retrieved. For instance, a query that retrieves all
-elements of a collection without any filtering has the same, or
-similar score to a query that retrieves one row using a unique index.
+elements of a collection without any filtering should have the same,
+or similar score to a query that retrieves one row using a unique
+index.
 
-
-#### Scoring nodes:
-
-Scores given to individual nodes, in decreasing order:
-
-  - No associated node query
-  - A disjunction clause, score decreases with decreasing number of distinct fields
-  - A conjunction clause, score decreases with increasing number of indexed fields
-  - Fields with unique indexes only
-  
-Scoring algorithm starts from the root, and processes the query plan
-in a depth first manner. The score of the node is the base score
-multiplied with (maxdepth - depth+1). The final score of the query plan is the sum of
-the scores of all nodes.
-
-In these examples, assume the scores are 40, 30, 20, 10.
-
-Example 1:
-
-Request query: { "field":"b.someValue", "op":"=", "rvalue":<value> }
-
-Query plan:
-  A  
-  |
-  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
-         { "field":"b.someValue", "op":"=", "rvalue":<value> }
-
-Node A score: 40 * 2
-Node B score: 20 * 1
-
-Total score: 100
-
-Query plan:
-  B  { "field":"b.someValue", "op":"=", "rvalue":<value> }
-  |
-  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
-
-Node B score: 20 * 2
-Node A score: 10 * 1
-
-Total score: 50
-
-Second query plan wins.
-
-Example 2:
-
-Request query: { "field":"someValue", "op":"=", "rvalue":<value> }
-
-Query plan:
-  A  { "field":"someValue", "op":"=", "rvalue":<value> }
-  |
-  +-- B  { "field":"a_id", "op":"=", "rvalue":<$parent.id>}
-
-Node A score: 20 * 2
-Node B score: 10 * 1
-
-Total score: 50
-
-Query plan:
-  B  
-  |
-  +-- A  { "field":"_id", "op":"=", "rvalue":<$parent.a_id>}
-         { "field":"someValue", "op":"=", "rvalue":<value> }
-
-Node B score: 40 * 2
-Node A score: 20 * 1
-
-Total score: 100
-
-First query plan wins.
 
