@@ -63,48 +63,52 @@ public class Extensions<T> {
         LOGGER.debug("Config root:{}", root);
 
         ArrayNode backendParsersJs = (ArrayNode) root.get("backendParsers");
-        for (int i = 0; i < backendParsersJs.size(); i++) {
-            JsonNode jsonNode = backendParsersJs.get(i);
-            String name = jsonNode.get("name").asText();
-            String clazz = jsonNode.get("clazz").asText();
+        if(backendParsersJs != null) {
+            for (int i = 0; i < backendParsersJs.size(); i++) {
+                JsonNode jsonNode = backendParsersJs.get(i);
+                String name = jsonNode.get("name").asText();
+                String clazz = jsonNode.get("clazz").asText();
 
-            if (name == null || clazz == null) {
-                throw new IllegalStateException("Backend Name/Class not informed: name="+name +" clazz="+clazz);
-            }
+                if (name == null || clazz == null) {
+                    throw new IllegalStateException("Backend Name/Class not informed: name=" + name + " clazz=" + clazz);
+                }
 
-            //Only add if it is a it is a not defined backend
-            if(backendParsers.find(name) != null){
-                continue;
-            }
+                //Only add if it is a it is a not defined backend
+                if (backendParsers.find(name) != null) {
+                    continue;
+                }
 
-            try {
-                Parser<T, DataStore> instance = (Parser) Class.forName(clazz).newInstance();
-                backendParsers.add(name, instance);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException(e);
+                try {
+                    Parser<T, DataStore> instance = (Parser) Class.forName(clazz).newInstance();
+                    backendParsers.add(name, instance);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         }
 
         ArrayNode propertyParserJs = (ArrayNode) root.get("propertyParser");
-        for (int i = 0; i < propertyParserJs.size(); i++) {
-            JsonNode jsonNode = propertyParserJs.get(i);
-            String name = jsonNode.get("name").asText();
-            String clazz = jsonNode.get("clazz").asText();
+        if(propertyParserJs != null) {
+            for (int i = 0; i < propertyParserJs.size(); i++) {
+                JsonNode jsonNode = propertyParserJs.get(i);
+                String name = jsonNode.get("name").asText();
+                String clazz = jsonNode.get("clazz").asText();
 
-            if (name == null || clazz == null) {
-                throw new IllegalStateException("PropertyParser Name/Class not informed: name="+name +" clazz="+clazz);
-            }
+                if (name == null || clazz == null) {
+                    throw new IllegalStateException("PropertyParser Name/Class not informed: name=" + name + " clazz=" + clazz);
+                }
 
-            //Only add if it is a it is a not defined
-            if(propertyParsers.find(name) != null){
-                continue;
-            }
+                //Only add if it is a it is a not defined
+                if (propertyParsers.find(name) != null) {
+                    continue;
+                }
 
-            try {
-                PropertyParser instance = (PropertyParser) Class.forName(clazz).newInstance();
-                propertyParsers.add(name, instance);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException(e);
+                try {
+                    PropertyParser instance = (PropertyParser) Class.forName(clazz).newInstance();
+                    propertyParsers.add(name, instance);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         }
     }
