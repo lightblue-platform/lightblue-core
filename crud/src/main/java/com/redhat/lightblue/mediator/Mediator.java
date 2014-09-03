@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
