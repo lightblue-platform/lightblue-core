@@ -28,7 +28,6 @@ import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
-import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
 
 /**
@@ -49,7 +48,6 @@ public class DefaultFieldConstraintParsers<N>
         addValue(RequiredConstraint.REQUIRED, new RequiredConstraintParser<N>());
         addValue(StringLengthConstraint.MINLENGTH, new StringLengthConstraintParser<N>());
         addValue(StringLengthConstraint.MAXLENGTH, new StringLengthConstraintParser<N>());
-        addValue(ReferencesConstraint.REFERENCES, new ReferencesConstraintParser<N>());
         addValue(IdentityConstraint.IDENTITY, new IdentityConstraintParser<N>());
         addValue(ArrayElementIdConstraint.IDENTITY, new ArrayElementIdConstraintParser<N>());
     }
