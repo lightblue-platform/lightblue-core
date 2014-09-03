@@ -41,34 +41,6 @@
                 "changelog"
             ]
         },
-        "reference": {
-            "type": "object",
-            "properties": {
-                "entityName": {
-                    "type": "string",
-                    "description": "The name of the referenced entity"
-                },
-                "versionValue": {
-                    "$ref": "#/definitions/version/properties/value",
-                    "description": "The version of the entity [optional]"
-                },
-                "projection": {
-                    "$ref": "/json-schema/projection/choice.json#/definitions/projection"
-                },
-                "query": {
-                    "$ref": "/json-schema/query/choice.json#/definitions/query"
-                },
-                "sort": {
-                    "$ref": "/json-schema/sort/choice.json#/definitions/sort"
-                }
-            },
-            "required": [
-                "entityName",
-                "projection",
-                "query",
-                "sort"
-            ]
-        },
         "roleArray": {
             "type": "array",
             "description": "An array of roles",
