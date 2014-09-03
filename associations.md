@@ -414,6 +414,21 @@ possible ordering of the nodes of the query:
 Warning: This process has the potential to become too costly to be
 practical. Need some heuristics...
 
+We can't filter the results of a search. All entries returned from a
+seach should either appear in the result set, or be fed into another
+search criteria. So: if there is a query associated with a node that
+would require filtering out the results obtained from one of the
+ancestors of that node, that query plan will be eliminated. 
+
+Assume N is a node with a query q with a value clause (a clause that
+defines a relation between a field and a value).  If M < N, M has to
+be retrieved first with no queries. Then, N will be retrieved with a
+query, and the result set for M needs to be filtered out based on the
+matching elements in N. So, such query plans should be discarded.
+
+That means, nodes with queries with value clauses must be ordered to
+be before nodes without queries with value clauses.
+
 ### Query rewriting
 
 If a query clause q depends on multiple nodes, that clause needs to be
@@ -469,4 +484,13 @@ elements of a collection without any filtering should have the same,
 or similar score to a query that retrieves one row using a unique
 index.
 
+Heuristics for scoring a query plan:
+  * Only include nodes with value clauses. If node, only include the first node.
+  * Node scoring, in increasing order
+     * Node with no queries
+     * Node with value query on fields with unique index
+     * Node with value query on field with non-unique index
+     * Node with value query on field without index
+     * Node without value query
+  * Final score: sum ( (numNodes - nodeIndex) * nodeScore )
 
