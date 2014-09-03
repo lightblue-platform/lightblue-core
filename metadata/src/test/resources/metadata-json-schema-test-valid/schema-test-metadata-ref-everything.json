@@ -5,10 +5,12 @@
             {
                 "unique": true,
                 "fields": [{"field":"name","dir": "$asc"}]
-            },
+            }
+        ],
+        "enums": [
             {
-                "unique": true,
-                "fields": [{"field":"counter","dir": "$asc"}]
+                "name": "streetArray",
+                "values": ["one", "two"]
             }
         ],
         "datastore": {
@@ -30,16 +32,15 @@
             "update": ["admin"],
             "delete": ["admin"]
         },
-        "constraints": [
-            {
-           }
-        ],
         "fields": {
-            "name": {
-                "type": "string"
-            },
-            "counter": {
-                "type": "integer"
+            "_id" : { "type":"string" },
+            "something": {
+                "type": "reference",
+                "entity": "otherEntity",
+                "versionValue": "1.0.0",
+                "projection": { "field":"*", "recursive":true, "include":true },
+                "query": {"field":"_id","op":"$eq","rfield":"$parent._id"}
+                }
             }
         }
     }
