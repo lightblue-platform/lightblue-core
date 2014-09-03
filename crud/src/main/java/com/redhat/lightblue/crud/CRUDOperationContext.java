@@ -163,7 +163,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         if (documents != null) {
             List<JsonDoc> list = new ArrayList<>(documents.size());
             for (DocCtx doc : documents) {
-                if (!doc.hasErrors()) {
+                if (!doc.hasErrors() && doc.getOutputDocument() != null) {
                     list.add(doc.getOutputDocument());
                 }
             }
