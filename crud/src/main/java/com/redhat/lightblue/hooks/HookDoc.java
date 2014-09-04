@@ -22,6 +22,7 @@ import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.util.JsonDoc;
+
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -37,6 +38,7 @@ public class HookDoc {
     private final JsonDoc post;
     private final Operation op;
     private final Date when;
+    private final String who;
 
     /**
      * Deep copy.
@@ -48,7 +50,8 @@ public class HookDoc {
                 hd.getPostDoc(),
                 hd.getPreDoc(),
                 hd.getOperation(),
-                hd.when);
+                hd.when,
+                hd.who);
     }
 
     /**
@@ -56,15 +59,20 @@ public class HookDoc {
      * of the document, and the operation performed.
      */
     public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op) {
-        this(entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime());
+        this(entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime(), null);
     }
 
-    private HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, Date when) {
+    public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, String who) {
+        this(entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime(), who);
+    }
+
+    private HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, Date when, String who) {
         this.entityMetadata = entityMetadata;
         this.pre = pre;
         this.post = post;
         this.op = op;
         this.when = when;
+        this.who = who;
     }
 
     /**
@@ -102,5 +110,12 @@ public class HookDoc {
      */
     public Date getWhen() {
         return when;
+    }
+
+    /**
+     * Who updated the object causing this hook to be fired.
+     */
+    public String getWho() {
+        return who;
     }
 }
