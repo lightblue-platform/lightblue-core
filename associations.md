@@ -12,12 +12,30 @@ order : {
   "customer": { "type":"reference",
                 "entity" : "customer",
                 "version" : "1.0.0",     
-                "query" : { "field":"_id", "op":"=", "rfield":"$parent.customerId" }
+                "query" : { "field":"_id", "op":"=", "rfield":"$parent.customerId" },
+                "projection": { "field":"*","include":true,"recursive":true},
+                "sort" : { "_id":"asc" }
    }
 ```
 
+  * type: "reference": Identifies the field as a reference type.
+  * entity: The name of the entity referred from the current entity
+  * version: The particular version of the entity that is being referenced
+  * query: A query to select the referenced entity. The query expression is 
+    expected to relate some fields of the referenced entity with some fields 
+    of the referencing entity. The query is evaluated relative to the current
+    field. So, a field reference of the form "fieldName" refers to a field in 
+    the referenced entity. A field reference of the form "$parent.fieldName" 
+    refers to a field in the referencing entity.
+  * projection: Determines which fields of the referenced entity will be
+    injected into the referencing entity.
+  * sort: An optional sort to order the referenced entity instances
+
 In this example, the customer field of the order entity is populated
-using customers whose id match order.customerId
+using customers whose _id match order.customerId. All fields of the
+matching customers are injected into the order entity. If there are
+multiple customers matching that criteria, they are sorted by their
+_id, in ascending order.
 
 ## Considerations:
 
@@ -89,6 +107,28 @@ be in the composite metadata. The root node of the composite metadata
 corresponds to the requested entity. Child nodes of the composite
 metadata correspond to the entities reached via a reference field.
 
+Cyclic references are possible. We deal with these as follows:
+  * Composite metadata is computed based on the request projection and
+    request query. Composite metadata will be constructed with sufficient 
+    depth to retrieve all required fields, and nothing more.
+  * The interpretation of recursive inclusion projections will be changed to
+    not cross entity boundaries. So, in the example below if the request 
+    projection is {"field":"*","include":true,"recursive":true}, the projection
+    will not include contents of "b", "c", and "a". To include "a", the request
+    must ask for
+```
+ [ {"field":"*","include":true,"recursive":true},
+      {"field":"a.*","include":"true","recursive":true} ]
+```
+    This will include only one level of "a". To include "a.a", another projection 
+    must be added:
+```
+ [ {"field":"*","include":true,"recursive":true},
+      {"field":"a.*","include":true,"recursive":true},
+      {"field":"a.a.*","include":true,"recursive":true}  ]
+```
+
+
 Example:
 
 ```
@@ -151,10 +191,10 @@ As shown above, an entity may appear more than once in the composite
 metadata. 
 
 Implementation considerations: 
- - Composite metadata should provide an EntityScheme instance containing 
+ - Composite metadata should provide an EntitySchema instance containing 
    all the fields. Ideally,  composite metadata should extend EntityMetadata.
- - Composite metadata should provide additional APIs to expose the tree 
-   structure of entities.
+ - CompositeMetadata implementation should provide additional APIs to expose 
+   the tree structure of entities.
 
 ## Query Plans
 
