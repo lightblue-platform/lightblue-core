@@ -34,6 +34,14 @@ public class ObjectArrayElement extends ArrayElement {
         fields = new Fields(this);
     }
 
+    /**
+     * Internal ctor to set fields to another object. Used in ResolvedReferenceField
+     */
+    ObjectArrayElement(Fields fields) {
+        super(ObjectType.TYPE);
+        this.fields = fields;
+    }
+
     public Fields getFields() {
         return fields;
     }

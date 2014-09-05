@@ -107,5 +107,6 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return properties;
     }
 
+
     public abstract FieldTreeNode resolve(Path p, int level);
 }
