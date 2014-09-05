@@ -49,13 +49,14 @@ public class EntitySchema implements Serializable {
     private final String name;
     private Version version;
     private MetadataStatus status;
-    private final ArrayList<StatusChange> statusChangeLog = new ArrayList<>();
+    private final ArrayList<StatusChange> statusChangeLog;
     //hooks
-    private final EntityAccess access = new EntityAccess();
-    private final ArrayList<EntityConstraint> constraints = new ArrayList<>();
-    private final Fields fields;
-    private final FieldTreeNode fieldRoot;
-    private final Map<String, Object> properties = new HashMap<>();
+    private final EntityAccess access;
+    private final ArrayList<EntityConstraint> constraints;
+    // We let a subclass reset the fields of this object. 
+    protected Fields fields;
+    protected final FieldTreeNode fieldRoot;
+    private final Map<String, Object> properties;
 
     private class RootNode implements FieldTreeNode, Serializable {
 
@@ -111,6 +112,25 @@ public class EntitySchema implements Serializable {
         this.name = name;
         this.fieldRoot = new RootNode();
         this.fields = new Fields(fieldRoot);
+        this.statusChangeLog=new ArrayList<>();
+        this.access=new EntityAccess();
+        this.constraints=new ArrayList<>();
+        this.properties=new HashMap<>();
+    }
+
+    /**
+     * Copy ctor with shallow copy
+     */
+    protected EntitySchema(EntitySchema source) {
+        this.name=source.name;
+        this.version=source.version;
+        this.status=source.status;
+        this.statusChangeLog=source.statusChangeLog;
+        this.access=source.access;
+        this.constraints=source.constraints;
+        this.fields=source.fields;
+        this.fieldRoot=source.fieldRoot;
+        this.properties=source.properties;
     }
 
     /**
