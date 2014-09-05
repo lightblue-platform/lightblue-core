@@ -37,9 +37,19 @@ public class ObjectArrayElement extends ArrayElement {
     /**
      * Internal ctor to set fields to another object. Used in ResolvedReferenceField
      */
-    ObjectArrayElement(Fields fields) {
+    private ObjectArrayElement(Fields fields) {
         super(ObjectType.TYPE);
         this.fields = fields;
+    }
+
+    /**
+     * Creates a new object array element with the given fields. A
+     * reference to the given fields object is stored in the instance,
+     * so caller can create an object array element, and then add the
+     * fields.
+     */
+    public static ObjectArrayElement withFields(Fields fields) {
+        return new ObjectArrayElement(fields);
     }
 
     public Fields getFields() {

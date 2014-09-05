@@ -40,7 +40,7 @@ public class ResolvedReferenceField extends ArrayField {
         super(reference.getName());
         this.reference=reference;
         this.metadata=metadata;
-        setElement(new ObjectArrayElement(metadata.getFields()));
+        setElement(ObjectArrayElement.withFields(metadata.getFields()));
     }
 
     public ReferenceField getReferenceField() {
