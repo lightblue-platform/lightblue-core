@@ -34,6 +34,7 @@ public class CompositeSchema extends EntitySchema {
      */
     private CompositeSchema(EntitySchema root) {
         super(root);
+        fieldRoot=new RootNode();
         this.fields=new Fields(fieldRoot);
     }
 
