@@ -55,10 +55,10 @@ public class EntitySchema implements Serializable {
     private final ArrayList<EntityConstraint> constraints;
     // We let a subclass reset the fields of this object. 
     protected Fields fields;
-    protected final FieldTreeNode fieldRoot;
+    protected FieldTreeNode fieldRoot;
     private final Map<String, Object> properties;
 
-    private class RootNode implements FieldTreeNode, Serializable {
+    protected class RootNode implements FieldTreeNode, Serializable {
 
         private static final long serialVersionUID = 1L;
 

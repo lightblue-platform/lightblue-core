@@ -49,6 +49,14 @@ public class ListProjector extends Projector {
     }
 
     @Override
+    public boolean exactMatch() {
+        for(Projector p:items)
+            if(p.exactMatch())
+                return true;
+        return false;
+    }
+
+    @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
         for (int n = items.size() - 1; n >= 0; n--) {

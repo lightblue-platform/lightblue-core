@@ -30,6 +30,8 @@ public class FieldProjector extends Projector {
     private final boolean include;
     private final boolean recursive;
 
+    private boolean exactMatch=false;
+
     public FieldProjector(FieldProjection p, Path ctxPath, FieldTreeNode ctx) {
         super(ctxPath, ctx);
         field = new Path(ctxPath, p.getField());
@@ -43,14 +45,36 @@ public class FieldProjector extends Projector {
     }
 
     @Override
+    public boolean exactMatch() {
+        return exactMatch;
+    }
+
+    @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
+        exactMatch=false;
         if (p.matchingPrefix(field)) {
+            // If this is true, we're checking an ancestor of the
+            // projection field, or the projection field itself, but
+            // not a field that is a descendant of the projection
+            // field
             if (include) {
+                exactMatch=true;
                 return Boolean.TRUE;
+                // Inclusion implies, because if we're going to
+                // include a descendant of this field, this field
+                // should also be included
             } else if (p.equals(field)) {
+                exactMatch=true;
                 return Boolean.FALSE;
+                // If this field is exclusively excluded, exclude it
             }
-        } else if (recursive && p.numSegments() > field.numSegments() && p.prefix(field.numSegments()).matches(field)) {
+            // Otherwise, this projection does not tell anything about this particular field.
+        } else if (recursive &&  // If this is a recursive projection
+                   p.numSegments() > field.numSegments() &&   // If we're checking a field deeper than our field
+                   p.prefix(field.numSegments()).matches(field) // And if we're checking a field under the subtree of our field
+                   ) {
+            // This is an implied inclusion or exclusion, because the
+            // projection is for an ancestor of this field.
             return include ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;
