@@ -156,6 +156,13 @@ public class QueryPlan implements Serializable {
             connect(x.from,x.to);
     }
 
+    /**
+     * Returns the size (number of nodes) of the query plan
+     */
+    public int getSize() {
+        return nodes.length;
+    }
+
     private void traverseInit(List<CompositeMetadata> md,CompositeMetadata root,List<Edge> edges) {
         LOGGER.debug("Traverse {}",root.getName());
         int from=md.size();
@@ -217,11 +224,15 @@ public class QueryPlan implements Serializable {
     /**
      * Flips the direction of a node.
      */
-    public void flip(QueryPlanNode from,
-                     QueryPlanNode to) {
-        if(isOwned(from)&&isOwned(to)) {
-            flip( ((QueryPlanNodeImpl)from).nodeIndex,
-                  ((QueryPlanNodeImpl)to).nodeIndex);
+    public void flip(QueryPlanNode x,
+                     QueryPlanNode y) {
+        if(isOwned(x)&&isOwned(y)) {
+            int ix1=((QueryPlanNodeImpl)x).nodeIndex;
+            int ix2=((QueryPlanNodeImpl)y).nodeIndex;
+            if(connMx[ix1][ix2])
+                flip(ix1,ix2);
+            else
+                flip(ix2,ix1);
         } else
             throw new IllegalArgumentException();
     }
