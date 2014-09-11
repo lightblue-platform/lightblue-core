@@ -114,7 +114,7 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
      * the given version of the given entity
      */
     protected abstract EntityMetadata retrieveMetadata(Path injectionField,
-                                                       String enitityName,
+                                                       String entityName,
                                                        String version);
 
     private boolean isProjected(Path field) {
