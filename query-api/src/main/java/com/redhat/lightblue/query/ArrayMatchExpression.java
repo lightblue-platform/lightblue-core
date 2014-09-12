@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
@@ -57,6 +60,23 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
      */
     public QueryExpression getElemMatch() {
         return this.elemMatch;
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {
+        if(bindRequest.contains(new Path(ctx,array)))
+            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
+        QueryExpression q=elemMatch.bind(new Path(new Path(ctx,array),Path.ANYPATH),
+                                         bindingResult,
+                                         bindRequest);
+        return q!=elemMatch?new ArrayMatchExpression(array,q):this;
+    }
+
+    @Override
+    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
+        elemMatch.getBindableClauses(list,new Path(new Path(ctx,array),Path.ANYPATH));
     }
 
     /**

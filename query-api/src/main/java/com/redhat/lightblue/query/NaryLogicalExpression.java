@@ -19,6 +19,7 @@
 package com.redhat.lightblue.query;
 
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Represents a query of the form
@@ -62,6 +64,36 @@ public class NaryLogicalExpression extends LogicalExpression {
      */
     public List<QueryExpression> getQueries() {
         return this.queries;
+    }
+
+    @Override
+    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
+        for(QueryExpression q:queries)
+            q.getBindableClauses(list,ctx);
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {        
+        List<QueryExpression> qlist=queries;
+        boolean copied=false;
+        int i=0;
+        // Copy on write
+        for(QueryExpression q:qlist) {
+            QueryExpression newq=q.bind(ctx,bindingResult,bindRequest);
+            if(newq!=q) {
+                // We have a new query object for q
+                if(!copied) {
+                    // Create a new copy of the query list
+                    qlist=new ArrayList<>(queries);
+                    copied=true;
+                }
+                qlist.set(i,newq);
+            }
+            i++;
+        }
+        return copied?new NaryLogicalExpression(op,qlist):this;
     }
 
     /**

@@ -81,6 +81,22 @@ public enum BinaryComparisonOperator {
         }
     }
 
+    /**
+     * Returns the inverted operation. No change for = and !=, > becomes <, etc.
+     */
+    public BinaryComparisonOperator invert() {
+        if(this==_eq||this==_neq)
+            return this;
+        else if(this==_lt)
+            return _gt;
+        else if(this==_gt)
+            return _lt;
+        else if(this==_lte) 
+            return _gte;
+        else
+            return _lte;           
+    }
+
     @Override
     public String toString() {
         return ops[0];

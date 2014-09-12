@@ -18,7 +18,12 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.Set;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
+import com.redhat.lightblue.util.Path;
 
 /**
  * Query expression that matches everything
@@ -28,11 +33,18 @@ public class AllMatchExpression extends UpdateQueryExpression {
     private static final long serialVersionUID = 1L;
 
     @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {
+        return this;
+    }
+
+    @Override
     public JsonNode toJson() {
         return getFactory().textNode("$all");
     }
 
-    @Override
+   @Override
     public int hashCode() {
         return 5;
     }

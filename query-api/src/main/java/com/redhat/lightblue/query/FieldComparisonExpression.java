@@ -18,9 +18,13 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Represents a field comparison query of the form
@@ -68,6 +72,42 @@ public class FieldComparisonExpression extends BinaryRelationalExpression {
      */
     public Path getRfield() {
         return this.rfield;
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {
+        Path l=new Path(ctx,field);
+        Path r=new Path(ctx,rfield);
+        boolean bindl=bindRequest.contains(l);
+        boolean bindr=bindRequest.contains(r);
+        if(bindl&&bindr)
+            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
+        if(!bindl&&!bindr)
+            return this;
+        // If we're here, only one of the fields is bound
+        Path newf;
+        Path boundf;
+        BinaryComparisonOperator newop;
+        BoundValue newValue=new BoundValue();
+        if(bindr) {
+            newf=field;
+            newop=op;
+            boundf=r;
+        } else {
+            newf=rfield;
+            newop=op.invert();
+            boundf=l;
+        }
+        QueryExpression newq=new ValueComparisonExpression(newf,newop,newValue);
+        bindingResult.add(new FieldBinding(boundf,newValue,this,newq));
+        return newq;
+    }
+
+   @Override
+    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
+        list.add(new QueryInContext(ctx,this));
     }
 
     /**
