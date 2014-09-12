@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -104,6 +107,15 @@ public class RegexMatchExpression extends RelationalExpression {
      */
     public boolean isDotAll() {
         return dotall;
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {        
+        if(bindRequest.contains(new Path(ctx,field)))
+            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
+        return this;
     }
 
     @Override

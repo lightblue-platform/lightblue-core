@@ -36,7 +36,7 @@ public class Value extends JsonObject {
 
     private static final long serialVersionUID = 1L;
 
-    private final Object value;
+    protected Object value;
 
     /**
      * Creates a Value with value=o

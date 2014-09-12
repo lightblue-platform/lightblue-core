@@ -18,9 +18,13 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Expression of the form
@@ -60,6 +64,25 @@ public class UnaryLogicalExpression extends LogicalExpression {
     @Override
     public JsonNode toJson() {
         return getFactory().objectNode().set(op.toString(), query.toJson());
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {
+        QueryExpression q=query.bind(ctx,bindingResult,bindRequest);
+        if(q==query) {
+            // Binding didn't change anything in this expression, return the same
+            return this;
+        } else {
+            // Binding changed this expression, return a new copy
+            return new UnaryLogicalExpression(op,q);
+        }
+    }
+
+    @Override
+    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
+        query.getBindableClauses(list,ctx);
     }
 
     /**

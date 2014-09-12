@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Path;
@@ -51,6 +54,12 @@ public class ForEachExpressionTest {
             @Override
             public JsonNode toJson() {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+            @Override
+            protected QueryExpression bind(Path ctx,
+                                           List<FieldBinding> bindingResult,
+                                           Set<Path> bindRequest) {
+                return this;
             }
         };
         ForEachExpression instance = new ForEachExpression(Path.EMPTY, expResult, null);

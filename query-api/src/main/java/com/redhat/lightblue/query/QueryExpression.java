@@ -18,9 +18,15 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.List;
+import java.util.Set;
+import java.util.Collection;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
@@ -30,6 +36,45 @@ import com.redhat.lightblue.util.JsonObject;
 public abstract class QueryExpression extends JsonObject {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Returns the query expressions tnat can be bound to a value
+     */
+    public List<QueryInContext> getBindableClauses() {
+        List<QueryInContext> list=new ArrayList<>(8);
+        getBindableClauses(list,Path.EMPTY);
+        return list;
+    }
+
+
+    /**
+     * Adds the query expressions that can be bound to a value to the given list
+     */
+    public void getBindableClauses(List<QueryInContext> list,Path ctx) {}
+
+    public QueryExpression bind(List<FieldBinding> bindingResult,
+                                Set<Path> bindRequest) {
+        return bind(Path.EMPTY,bindingResult,bindRequest);
+    }
+
+    /**
+     * Binds all the bindable fields in the bindRequest, populates the
+     * bindingResult with binding information, and return a new
+     * QueryExpression with bound values.
+     *
+     * @param ctx Context
+     * @param bindingResult The results of the bindings will be added to this list
+     * @param bindRequest Full paths to the fields to be bound. If
+     * there are array elements, '*' must be used
+     *
+     * @return A new instance of the query object with bound
+     * values. If there are no bindable values, the same query object
+     * will be returned.
+     */
+    protected abstract QueryExpression bind(Path ctx,
+                                            List<FieldBinding> bindingResult,
+                                            Set<Path> bindRequest);
+
+    
     /**
      * Parses a query expression from the given json node
      */

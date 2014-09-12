@@ -18,9 +18,13 @@
  */
 package com.redhat.lightblue.query;
 
+import java.util.Set;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Represents an expression of the form
@@ -40,7 +44,7 @@ public class ValueComparisonExpression extends BinaryRelationalExpression {
 
     private final Path field;
     private final BinaryComparisonOperator op;
-    private final Value rvalue;
+    protected Value rvalue;
 
     /**
      * Initializes all fields
@@ -72,6 +76,15 @@ public class ValueComparisonExpression extends BinaryRelationalExpression {
      */
     public Value getRvalue() {
         return this.rvalue;
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {
+        if(bindRequest.contains(new Path(ctx,field)))
+            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
+        return this;
     }
 
     /**

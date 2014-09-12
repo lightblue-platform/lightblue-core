@@ -19,6 +19,7 @@
 package com.redhat.lightblue.query;
 
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -75,6 +76,15 @@ public class NaryRelationalExpression extends RelationalExpression {
      */
     public List<Value> getValues() {
         return values;
+    }
+
+    @Override
+    protected QueryExpression bind(Path ctx,
+                                   List<FieldBinding> bindingResult,
+                                   Set<Path> bindRequest) {        
+        if(bindRequest.contains(new Path(ctx,field)))
+            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
+        return this; // Nothing to bind
     }
 
     /**
