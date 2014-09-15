@@ -48,69 +48,7 @@ public class Extensions<T> {
     public void addDefaultExtensions() {
         fieldConstraintParsers.add(new DefaultFieldConstraintParsers<T>());
         entityConstraintParsers.add(new DefaultEntityConstraintParsers<T>());
-
-        LOGGER.debug("Initializing addDefaultExtensions");
-
-        JsonNode root;
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("defaultExtensions.json")) {
-            if(is == null){
-                return;
-            }
-            root = JsonUtils.json(is);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-        LOGGER.debug("Config root:{}", root);
-
-        ArrayNode backendParsersJs = (ArrayNode) root.get("backendParsers");
-        if(backendParsersJs != null) {
-            for (int i = 0; i < backendParsersJs.size(); i++) {
-                JsonNode jsonNode = backendParsersJs.get(i);
-                String name = jsonNode.get("name").asText();
-                String clazz = jsonNode.get("clazz").asText();
-
-                if (name == null || clazz == null) {
-                    throw new IllegalStateException("Backend Name/Class not informed: name=" + name + " clazz=" + clazz);
-                }
-
-                //Only add if it is a it is a not defined backend
-                if (backendParsers.find(name) != null) {
-                    continue;
-                }
-
-                try {
-                    Parser<T, DataStore> instance = (Parser) Class.forName(clazz).newInstance();
-                    backendParsers.add(name, instance);
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-
-        ArrayNode propertyParserJs = (ArrayNode) root.get("propertyParser");
-        if(propertyParserJs != null) {
-            for (int i = 0; i < propertyParserJs.size(); i++) {
-                JsonNode jsonNode = propertyParserJs.get(i);
-                String name = jsonNode.get("name").asText();
-                String clazz = jsonNode.get("clazz").asText();
-
-                if (name == null || clazz == null) {
-                    throw new IllegalStateException("PropertyParser Name/Class not informed: name=" + name + " clazz=" + clazz);
-                }
-
-                //Only add if it is a it is a not defined
-                if (propertyParsers.find(name) != null) {
-                    continue;
-                }
-
-                try {
-                    PropertyParser instance = (PropertyParser) Class.forName(clazz).newInstance();
-                    propertyParsers.add(name, instance);
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
+        LOGGER.debug("Initialized addDefaultExtensions");
     }
 
     /**
