@@ -148,9 +148,6 @@ public abstract class MetadataParser<T> {
 
             EntityMetadata md = new EntityMetadata(info, schema);
 
-            // validate EntityMetadata (right now just enum constraint validation)
-            md.validate();
-
             return md;
         } catch (Error e) {
             // rethrow lightblue error

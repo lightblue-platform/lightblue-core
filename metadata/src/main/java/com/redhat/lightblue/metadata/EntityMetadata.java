@@ -41,13 +41,15 @@ public class EntityMetadata implements Serializable {
     private final EntitySchema schema;
 
     public EntityMetadata(String name) {
-        info = new EntityInfo(name);
-        schema = new EntitySchema(name);
+        this(new EntityInfo(name), new EntitySchema(name));
     }
 
     public EntityMetadata(EntityInfo info, EntitySchema schema) {
         this.info = info;
         this.schema = schema;
+
+        // validate EntityMetadata (right now just enum constraint validation)
+        validate();
     }
 
     public EntityInfo getEntityInfo() {
