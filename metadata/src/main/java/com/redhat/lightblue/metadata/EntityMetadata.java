@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @author nmalik
  */
-public final class EntityMetadata implements Serializable {
+public class EntityMetadata implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
