@@ -20,6 +20,7 @@ package com.redhat.lightblue.metadata;
 
 import java.util.List;
 
+import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +132,8 @@ public final class UIDFields {
             for (FieldConstraint c : constraints) {
                 if (c instanceof RequiredConstraint) {
                     return ((RequiredConstraint) c).getValue();
+                } else if (c instanceof IdentityConstraint) {
+                    return ((IdentityConstraint) c).isValidForFieldType(f.getType());
                 }
             }
         }
