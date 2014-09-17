@@ -149,7 +149,20 @@ public class QueryRewriterTest {
         Assert.assertTrue(exists(newq,inq("f2","1","2","3","4")));
     }
 
-    @Test
+     @Test
+    public void testExtendInsNinsInOr() throws Exception {
+        QueryExpression in1=inq("f2","1","2","3");
+        QueryExpression v1=vcmp("f2","=","4");
+        QueryExpression q=_or(v1,in1);
+
+        QueryExpression newq=rw.rewrite(q);
+        System.out.println(q+"  ->\n"+newq);
+        Assert.assertFalse(exists(newq,v1));
+        Assert.assertFalse(exists(newq,in1));
+        Assert.assertTrue(exists(newq,inq("f2","1","2","3","4")));
+    }
+
+   @Test
     public void testCombineORsToIn() throws Exception {
         QueryExpression v1=vcmp("f1","=","1");
         QueryExpression v2= vcmp("f3","!=","2");
@@ -166,6 +179,23 @@ public class QueryRewriterTest {
         Assert.assertTrue(exists(newq,v5));
         Assert.assertTrue(exists(newq,v2));
         Assert.assertTrue(exists(newq,inq("f1","1","2","3")));
+    }
+
+   @Test
+    public void testNestedAnd() throws Exception {
+        QueryExpression v1=vcmp("f1","=","1");
+        QueryExpression v2= vcmp("f3","!=","2");
+        QueryExpression v3=vcmp("f1","=","2");
+        QueryExpression v4=vcmp("f2","=","3");
+        QueryExpression nestedand=_and(v3,v4);
+        QueryExpression q=_and(v1,v2,nestedand);
+
+        QueryExpression newq=rw.rewrite(q);
+        System.out.println(q+"  ->\n"+newq);
+        Assert.assertTrue(exists(newq,v1));
+        Assert.assertTrue(exists(newq,v2));
+        Assert.assertTrue(exists(newq,v3));
+        Assert.assertTrue(exists(newq,v4));
     }
 
 
@@ -202,6 +232,30 @@ public class QueryRewriterTest {
         Assert.assertTrue(exists(newq,vcmp("f2","=","2")));
         Assert.assertTrue(exists(newq,vcmp("f3","<=","3")));
         Assert.assertTrue(exists(newq,fcmp("f4","<=","f5")));
+    }
+
+    @Test
+    public void testEliminateNotNot() throws Exception {
+        QueryExpression v1=_not(new RegexMatchExpression(new Path("f1"),"X",false,false,false,false));
+        QueryExpression q=_not(v1);
+
+        QueryExpression newq=rw.rewrite(q);
+        System.out.println(q+"  ->\n"+newq);
+        Assert.assertTrue(newq instanceof RegexMatchExpression);
+    }
+
+    @Test
+    public void testEliminateNotOr() throws Exception {
+        QueryExpression v1=vcmp("f1","!=","1");
+        QueryExpression v2=vcmp("f2","<","2");
+        QueryExpression qor=_or(v1,v2);
+        QueryExpression qnot=_not(qor);
+
+        QueryExpression newq=rw.rewrite(qnot);
+        System.out.println(qnot+"  ->\n"+newq);
+        Assert.assertTrue( ((NaryLogicalExpression)newq).getOp()==NaryLogicalOperator._and);
+        Assert.assertTrue(exists(newq,vcmp("f1","=","1")));
+        Assert.assertTrue(exists(newq,vcmp("f2",">=","2")));
     }
 
     /**
