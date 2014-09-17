@@ -97,6 +97,20 @@ public enum BinaryComparisonOperator {
             return _lte;           
     }
 
+    /**
+     * Returns the negated operator: for = returns !=, for < returns >=, etc.
+     */
+    public BinaryComparisonOperator negate() {
+        switch(this) {
+        case _eq:return _neq;
+        case _neq:return _eq;
+        case _lt: return _gte;
+        case _gt: return _lte;
+        case _lte:return _gt;
+        }
+        return _lt;
+    }
+
     @Override
     public String toString() {
         return ops[0];

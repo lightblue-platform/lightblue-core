@@ -53,6 +53,16 @@ public class NaryLogicalExpression extends LogicalExpression {
     }
 
     /**
+     * Ctor with the given values
+     */
+    public NaryLogicalExpression(NaryLogicalOperator op,
+                                 QueryExpression...queries) {
+        this(op,new ArrayList<QueryExpression>(queries.length));
+        for(QueryExpression q:queries)
+            this.queries.add(q);
+    }
+
+    /**
      * The operator
      */
     public NaryLogicalOperator getOp() {
