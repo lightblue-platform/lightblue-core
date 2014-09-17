@@ -41,7 +41,7 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
     public CopyOnWriteIterator(List<T> list) {
         this.list=list;
         this.readItr=list.iterator();
-        ix=0;
+        ix=-1;
     }
 
     @Override
@@ -67,8 +67,10 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
 
     /**
      * Creates a copy of the underlying list, and sets the element
-     * with the given value in the new copy. Original list remains
-     * unchanged.
+     * that was just read in the new copy. Original list remains
+     * unchanged. Note that this modifies the current element, that
+     * is, if next() is called once, set(x) sets 0th element to x not
+     * the 1st element
      */
     public void set(T object) {
         copy();

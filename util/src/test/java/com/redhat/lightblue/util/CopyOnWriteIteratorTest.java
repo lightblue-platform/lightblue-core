@@ -65,7 +65,7 @@ public class CopyOnWriteIteratorTest {
 
         i=0;
         for(String x:newList) {
-            if(i==50)
+            if(i==49)
                 Assert.assertEquals("changed",x);
             else
                 Assert.assertEquals(Integer.toString(i),x);

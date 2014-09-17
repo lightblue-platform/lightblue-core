@@ -37,6 +37,7 @@ import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
+import com.redhat.lightblue.query.UnaryLogicalOperator;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
 import com.redhat.lightblue.util.JsonUtils;
@@ -72,12 +73,22 @@ public class QueryRewriterTest {
                                              new Value(value));
     }
 
+    private QueryExpression fcmp(String field,String op,String rfield) {
+        return new FieldComparisonExpression(new Path(field),
+                                             BinaryComparisonOperator.fromString(op),
+                                             new Path(rfield));
+    }
+
     private QueryExpression _and(QueryExpression...q) {
         return new NaryLogicalExpression(NaryLogicalOperator._and,q);
     }
 
     private QueryExpression _or(QueryExpression...q) {
         return new NaryLogicalExpression(NaryLogicalOperator._or,q);
+    }
+
+    private QueryExpression _not(QueryExpression q) {
+        return new UnaryLogicalExpression(UnaryLogicalOperator._not,q);
     }
 
 
@@ -158,7 +169,7 @@ public class QueryRewriterTest {
     }
 
 
-     @Test
+    @Test
     public void testCombineANDsToNin() throws Exception {
         QueryExpression v1=vcmp("f1","!=","1");
         QueryExpression v2= vcmp("f3","!=","2");
@@ -175,6 +186,22 @@ public class QueryRewriterTest {
         Assert.assertFalse(exists(newq,v5));
         Assert.assertTrue(exists(newq,v2));
         Assert.assertTrue(exists(newq,ninq("f1","1","2","3")));
+    }
+
+    @Test
+    public void testEliminateNot() throws Exception {
+        QueryExpression v1=_not(vcmp("f1","!=","1"));
+        QueryExpression v2= _not(vcmp("f2","!=","2"));
+        QueryExpression v3= _not(vcmp("f3",">","3"));
+        QueryExpression v4= _not(fcmp("f4",">","f5"));
+        QueryExpression q=_and(v1,v2,v3,v4);
+
+        QueryExpression newq=rw.rewrite(q);
+        System.out.println(q+"  ->\n"+newq);
+        Assert.assertTrue(exists(newq,vcmp("f1","=","1")));
+        Assert.assertTrue(exists(newq,vcmp("f2","=","2")));
+        Assert.assertTrue(exists(newq,vcmp("f3","<=","3")));
+        Assert.assertTrue(exists(newq,fcmp("f4","<=","f5")));
     }
 
     /**

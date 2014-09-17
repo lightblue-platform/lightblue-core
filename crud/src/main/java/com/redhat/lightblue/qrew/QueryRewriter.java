@@ -57,6 +57,7 @@ public class QueryRewriter {
         register(CombineINsInOR.INSTANCE);
         register(CombineNINsInAND.INSTANCE);
         register(CombineORsToIN.INSTANCE);
+        register(EliminateNOT.INSTANCE);
         register(EliminateNOTNOT.INSTANCE);
         register(EliminateNOTOR.INSTANCE);
         register(EliminateSingleANDOR.INSTANCE);

@@ -66,4 +66,11 @@ public enum NaryRelationalOperator {
             return null;
         }
     }
+
+    public NaryRelationalOperator negate() {
+	if(this==_in)
+	    return _not_in;
+	else
+	    return _in;
+    }
 }
