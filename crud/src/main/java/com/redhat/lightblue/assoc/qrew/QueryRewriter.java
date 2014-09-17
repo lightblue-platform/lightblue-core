@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew;
+package com.redhat.lightblue.assoc.qrew;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -31,7 +31,7 @@ import com.redhat.lightblue.query.ArrayMatchExpression;
 
 import com.redhat.lightblue.util.CopyOnWriteIterator;
 
-import com.redhat.lightblue.qrew.rules.*;
+import com.redhat.lightblue.assoc.qrew.rules.*;
 
 public class QueryRewriter {
 

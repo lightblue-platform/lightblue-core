@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
+package com.redhat.lightblue.assoc.qrew.rules;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -25,33 +25,40 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.NaryRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
-import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.Value;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 import com.redhat.lightblue.util.Path;
 
 /**
- * Base class that combines value comparison expressions to in/not-in expressions.
+ * If 
+ * <pre>
+ *   q={$or:{...,{$in:{field:x,values:[v]},..,{$in:{field:x,values=[w]}...}}
+ * </pre>
+ * this rewrites q as
+ * <pre>
+ *   q={$or:{...,{$in:{field:x,values:[v w]}},...}}
+ * </pre>
  */
-abstract class CombineComparisonsToInNotIn extends Rewriter {
+abstract class CombineInsNotIns extends Rewriter {
 
-    private final NaryLogicalOperator logicalOp;
-    private final BinaryComparisonOperator binaryOp;
-    private final NaryRelationalOperator relationalOp;
+    private static final Logger LOGGER=LoggerFactory.getLogger(CombineInsNotIns.class);
 
-    protected CombineComparisonsToInNotIn(NaryLogicalOperator logicalOp,
-                                      BinaryComparisonOperator binaryOp,
-                                      NaryRelationalOperator relationalOp) {
+    private NaryLogicalOperator logicalOp;
+    private NaryRelationalOperator relationalOp;
+
+    protected CombineInsNotIns(NaryLogicalOperator logicalOp,
+                               NaryRelationalOperator relationalOp) {
         this.logicalOp=logicalOp;
-        this.binaryOp=binaryOp;
         this.relationalOp=relationalOp;
     }
 
@@ -60,43 +67,48 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
         NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
         if(le!=null) {
             if(le.getOp()==logicalOp) {
-                // group value comparison expressions with operation =
+                LOGGER.debug("Processing q={}",le);
+                // group in and not_in expressions
                 boolean needCombine=false;
-                Map<Path,List<ValueComparisonExpression>> map=new HashMap<>();
+                Map<Path,List<NaryRelationalExpression>> map=new HashMap<>();
                 for(QueryExpression x:le.getQueries()) {
-                    ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,x);
-                    if(vce!=null&&vce.getOp()==binaryOp) {
-                        List<ValueComparisonExpression> values=map.get(vce.getField());
+                    NaryRelationalExpression nre=dyncast(NaryRelationalExpression.class,x);
+                    if(nre!=null&&nre.getOp()==relationalOp) {
+                        List<NaryRelationalExpression> values=map.get(nre.getField());
                         if(values==null)
-                            map.put(vce.getField(),values=new ArrayList<>());
-                        else if(!needCombine)
-                            needCombine=true; // There exists more than one value with =, so combine
-                        values.add(vce);
+                            map.put(nre.getField(),values=new ArrayList<>());
+                        else 
+                            needCombine=true; // There exists more than one N-ary expression=, so combine
+                        values.add(nre);
                     }
                 }
+                LOGGER.debug("Grouped expressions={}",map);
                 if(needCombine) {
+                    LOGGER.debug("Query expressions can be combined");
                     List<QueryExpression> newList=new ArrayList<>(le.getQueries().size());
-                    for(Map.Entry<Path,List<ValueComparisonExpression>> entry:map.entrySet()) {
+                    for(Map.Entry<Path,List<NaryRelationalExpression>> entry:map.entrySet()) {
                         if(entry.getValue().size()>1) {
-                            // Combine them into an $in expression
+                            // Combine expressions
                             Set<Value> valueList=new HashSet<Value>();
-                            for(ValueComparisonExpression x:entry.getValue())
-                                valueList.add(x.getRvalue());
-                            newList.add(new NaryRelationalExpression(entry.getKey(),relationalOp,
+                            for(NaryRelationalExpression x:entry.getValue())
+                                valueList.addAll(x.getValues());
+                            newList.add(new NaryRelationalExpression(entry.getKey(),
+                                                                     relationalOp,
                                                                      new ArrayList<Value>(valueList)));
                         } else {
                             newList.addAll(entry.getValue());
                         }
                     }
-                    // Add all the expressions that are not value comparison expressions
+                    // Add all the expressions that are not n-ary relational expressions
                     for(QueryExpression x:le.getQueries())
-                        if(x instanceof ValueComparisonExpression) {
-                            if(((ValueComparisonExpression)x).getOp()!=binaryOp)
+                        if(x instanceof NaryRelationalExpression) {
+                            if( ((NaryRelationalExpression)x).getOp()!=relationalOp)
                                 newList.add(x);
                         } else
                             newList.add(x);
+                    LOGGER.debug("Combined expression list={}",newList);
                     return new NaryLogicalExpression(logicalOp,newList);
-                } 
+                }
             }
         }
         return q;

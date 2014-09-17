@@ -16,44 +16,49 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
-
-import java.util.List;
-import java.util.ArrayList;
+package com.redhat.lightblue.assoc.qrew.rules;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.query.FieldComparisonExpression;
+import com.redhat.lightblue.query.NaryRelationalExpression;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
  * If 
  * <pre>
- *   q={$not:{$or:[q1,q2,...]}}
+ *   q={$not:{w}}
  * </pre>
- * this rewrites q as
+ * and w can be negatable, then this rewrites q as
  * <pre>
- *   q={$and:{$not:{q1},$not:{q2}...}}
+ *   q=negation of w
  * </pre>
  */
-public class EliminateNOTOR extends Rewriter {
+public class EliminateNOT extends Rewriter {
 
-    public static final Rewriter INSTANCE=new EliminateNOTOR();
+    public static final Rewriter INSTANCE=new EliminateNOT();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
         UnaryLogicalExpression le=dyncast(UnaryLogicalExpression.class,q);
         if(le!=null&&le.getOp()==UnaryLogicalOperator._not) {
-            NaryLogicalExpression oreq=dyncast(NaryLogicalExpression.class,le.getQuery());
-            if(oreq!=null&&oreq.getOp()==NaryLogicalOperator._or) {
-                List<QueryExpression> newList=new ArrayList<>(oreq.getQueries().size());
-                for(QueryExpression x:oreq.getQueries())
-                    newList.add(new UnaryLogicalExpression(UnaryLogicalOperator._not,x));
-                return new NaryLogicalExpression(NaryLogicalOperator._and,newList);
-            }
+	    ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,le.getQuery());
+	    if(vce!=null) {
+		return new ValueComparisonExpression(vce.getField(),vce.getOp().negate(),vce.getRvalue());
+	    } else {
+		FieldComparisonExpression fce=dyncast(FieldComparisonExpression.class,le.getQuery());
+		if(fce!=null) {
+		    return new FieldComparisonExpression(fce.getField(),fce.getOp().negate(),fce.getRfield());
+		} else {
+		    NaryRelationalExpression nre=dyncast(NaryRelationalExpression.class,le.getQuery());
+		    if(nre!=null) {
+			return new NaryRelationalExpression(nre.getField(),nre.getOp().negate(),nre.getValues());
+		    }
+		}
+	    }
         }
         return q;
     }

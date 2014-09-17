@@ -16,33 +16,31 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
+package com.redhat.lightblue.assoc.qrew.rules;
 
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.NaryLogicalExpression;
+import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.NaryRelationalOperator;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
  * If 
  * <pre>
- *   q={$or:{x}} or q={$and:{x}}
+ *   q={$or:{...,{$in:{field:x,values:[v]},..,{field:x,op:=,rvalue:w}...}}
  * </pre>
  * this rewrites q as
  * <pre>
- *   q={x} 
+ *   q={$or:{...,{$in:{field:x,values:[v, w]}},...}}
  * </pre>
  */
-public class EliminateSingleANDOR extends Rewriter {
+public class ExtendINsInOR extends ExtendRelationalInLogical {
 
-    public static final Rewriter INSTANCE=new EliminateSingleANDOR();
+    public static final Rewriter INSTANCE=new ExtendINsInOR();
 
-    @Override
-    public QueryExpression rewrite(QueryExpression q) {
-        NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) 
-            if(le.getQueries().size()==1)
-                return le.getQueries().get(0);
-        return q;
+    public ExtendINsInOR() {
+        super(NaryLogicalOperator._or,
+              BinaryComparisonOperator._eq,
+              NaryRelationalOperator._in);
     }
 }

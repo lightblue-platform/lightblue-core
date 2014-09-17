@@ -16,31 +16,33 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
+package com.redhat.lightblue.assoc.qrew.rules;
 
-import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.NaryRelationalOperator;
-import com.redhat.lightblue.query.BinaryComparisonOperator;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.NaryLogicalExpression;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
  * If 
  * <pre>
- *   q={$and:{...,{$nin:{field:x,values:[v]},..,{field:x,op:!=,rvalue:w}...}}
+ *   q={$or:{x}} or q={$and:{x}}
  * </pre>
  * this rewrites q as
  * <pre>
- *   q={$and:{...,{$nin:{field:x,values:[v, w]}},...}}
+ *   q={x} 
  * </pre>
  */
-public class ExtendNINsInAND extends ExtendRelationalInLogical {
+public class EliminateSingleANDOR extends Rewriter {
 
-    public static final Rewriter INSTANCE=new ExtendNINsInAND();
+    public static final Rewriter INSTANCE=new EliminateSingleANDOR();
 
-    public ExtendNINsInAND() {
-        super(NaryLogicalOperator._and,
-              BinaryComparisonOperator._neq,
-              NaryRelationalOperator._not_in);
+    @Override
+    public QueryExpression rewrite(QueryExpression q) {
+        NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
+        if(le!=null) 
+            if(le.getQueries().size()==1)
+                return le.getQueries().get(0);
+        return q;
     }
 }

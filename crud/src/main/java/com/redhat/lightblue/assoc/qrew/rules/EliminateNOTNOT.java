@@ -16,49 +16,36 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
+package com.redhat.lightblue.assoc.qrew.rules;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
-import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
  * If 
  * <pre>
- *   q={$not:{w}}
+ *   q={$not:{$not:{x}]}
  * </pre>
- * and w can be negatable, then this rewrites q as
+ * this rewrites q as
  * <pre>
- *   q=negation of w
+ *   q=x
  * </pre>
  */
-public class EliminateNOT extends Rewriter {
+public class EliminateNOTNOT extends Rewriter {
 
-    public static final Rewriter INSTANCE=new EliminateNOT();
+    public static final Rewriter INSTANCE=new EliminateNOTNOT();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
         UnaryLogicalExpression le=dyncast(UnaryLogicalExpression.class,q);
         if(le!=null&&le.getOp()==UnaryLogicalOperator._not) {
-	    ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,le.getQuery());
-	    if(vce!=null) {
-		return new ValueComparisonExpression(vce.getField(),vce.getOp().negate(),vce.getRvalue());
-	    } else {
-		FieldComparisonExpression fce=dyncast(FieldComparisonExpression.class,le.getQuery());
-		if(fce!=null) {
-		    return new FieldComparisonExpression(fce.getField(),fce.getOp().negate(),fce.getRfield());
-		} else {
-		    NaryRelationalExpression nre=dyncast(NaryRelationalExpression.class,le.getQuery());
-		    if(nre!=null) {
-			return new NaryRelationalExpression(nre.getField(),nre.getOp().negate(),nre.getValues());
-		    }
-		}
-	    }
+            UnaryLogicalExpression oreq=dyncast(UnaryLogicalExpression.class,le.getQuery());
+            if(oreq!=null&&oreq.getOp()==UnaryLogicalOperator._not) {
+                return oreq.getQuery();
+            }
         }
         return q;
     }

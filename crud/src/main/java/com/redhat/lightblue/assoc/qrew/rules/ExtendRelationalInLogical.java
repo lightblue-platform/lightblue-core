@@ -16,7 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
+package com.redhat.lightblue.assoc.qrew.rules;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -34,7 +34,7 @@ import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.Value;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 import com.redhat.lightblue.util.Path;
 

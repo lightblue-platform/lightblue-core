@@ -16,28 +16,31 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.qrew.rules;
+package com.redhat.lightblue.assoc.qrew.rules;
 
 import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.NaryRelationalOperator;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
 
-import com.redhat.lightblue.qrew.Rewriter;
+import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
  * If 
  * <pre>
- *   q={$or:{...,{$in:{field:x,values:[v]},..,{$in:{field:x,values=[w]}...}}
+ *   q={$or:{...,{field:x,op:=,rvalue=v},..,{field:x,op:=,rvalue=w}...}}
  * </pre>
  * this rewrites q as
  * <pre>
- *   q={$or:{...,{$in:{field:x,values:[v w]}},...}}
+ *   q={$or:{...,{$in:{field:x,values:[v,w]}},...}}
  * </pre>
  */
-public class CombineINsInOR extends CombineInsNotIns {
+public class CombineORsToIN extends CombineComparisonsToInNotIn {
 
-    public static final Rewriter INSTANCE=new CombineINsInOR();
+    public static final Rewriter INSTANCE=new CombineORsToIN();
 
-    public CombineINsInOR() {
-        super(NaryLogicalOperator._or,NaryRelationalOperator._in);
+    public CombineORsToIN() {
+        super(NaryLogicalOperator._or,
+              BinaryComparisonOperator._eq,
+              NaryRelationalOperator._in);
     }
 }
