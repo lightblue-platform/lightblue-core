@@ -37,6 +37,29 @@ public abstract class QueryExpression extends JsonObject {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Returns field information about the query
+     */
+    public List<FieldInfo> getQueryFields() {
+        List<FieldInfo> list=new ArrayList<FieldInfo>(16);
+        getQueryFields(list);
+        return list;
+    }
+
+    /**
+     * Returns field information about the query
+     *
+     * @param fields The call adds the field information to this list
+     */
+    public void getQueryFields(List<FieldInfo> fields) {
+        getQueryFields(fields,Path.EMPTY);
+    }
+
+    /**
+     * The implementation should populate the list with the field information
+     */
+    protected abstract void getQueryFields(List<FieldInfo> fields,Path ctx);
+
+    /**
      * Returns the query expressions tnat can be bound to a value
      */
     public List<QueryInContext> getBindableClauses() {

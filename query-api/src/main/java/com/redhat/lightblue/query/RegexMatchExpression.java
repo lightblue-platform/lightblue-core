@@ -110,6 +110,11 @@ public class RegexMatchExpression extends RelationalExpression {
     }
 
     @Override
+    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
+        fields.add(new FieldInfo(new Path(ctx,field),ctx,this));
+    }
+
+    @Override
     protected QueryExpression bind(Path ctx,
                                    List<FieldBinding> bindingResult,
                                    Set<Path> bindRequest) {        

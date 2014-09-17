@@ -67,6 +67,11 @@ public class UnaryLogicalExpression extends LogicalExpression {
     }
 
     @Override
+    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
+        query.getQueryFields(fields,ctx);
+    }
+
+    @Override
     protected QueryExpression bind(Path ctx,
                                    List<FieldBinding> bindingResult,
                                    Set<Path> bindRequest) {

@@ -78,6 +78,11 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
     }
 
     @Override
+    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
+        fields.add(new FieldInfo(new Path(ctx,array),ctx,this));
+    }
+
+    @Override
     protected QueryExpression bind(Path ctx,
                                    List<FieldBinding> bindingResult,
                                    Set<Path> bindRequest) {

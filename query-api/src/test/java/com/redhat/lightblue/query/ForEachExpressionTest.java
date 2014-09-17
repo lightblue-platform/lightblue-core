@@ -61,7 +61,9 @@ public class ForEachExpressionTest {
                                            Set<Path> bindRequest) {
                 return this;
             }
-        };
+            @Override
+            protected void getQueryFields(List<FieldInfo> fields,Path ctx) {}
+       };
         ForEachExpression instance = new ForEachExpression(Path.EMPTY, expResult, null);
         QueryExpression result = instance.getQuery();
         assertEquals(expResult, result);

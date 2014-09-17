@@ -40,6 +40,10 @@ public class AllMatchExpression extends UpdateQueryExpression {
     }
 
     @Override
+    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
+    }
+
+    @Override
     public JsonNode toJson() {
         return getFactory().textNode("$all");
     }

@@ -77,6 +77,12 @@ public class NaryLogicalExpression extends LogicalExpression {
     }
 
     @Override
+    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
+        for(QueryExpression q:queries)
+            q.getQueryFields(fields,ctx);
+    }
+
+    @Override
     public void getBindableClauses(List<QueryInContext> list,Path ctx) {
         for(QueryExpression q:queries)
             q.getBindableClauses(list,ctx);

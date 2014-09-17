@@ -63,6 +63,13 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
     }
 
     @Override
+    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
+        Path arrayPath=new Path(ctx,array);
+        fields.add(new FieldInfo(arrayPath,ctx,this));
+        elemMatch.getQueryFields(fields,new Path(arrayPath,Path.ANYPATH));
+    }
+
+    @Override
     protected QueryExpression bind(Path ctx,
                                    List<FieldBinding> bindingResult,
                                    Set<Path> bindRequest) {
