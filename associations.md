@@ -14,7 +14,7 @@ order : {
                 "version" : "1.0.0",     
                 "query" : { "field":"_id", "op":"=", "rfield":"$parent.customerId" },
                 "projection": { "field":"*","include":true,"recursive":true},
-                "sort" : { "_id":"asc" }
+                "sort" : { "$parent._id":"asc" }
    }
 ```
 
@@ -38,6 +38,12 @@ multiple customers matching that criteria, they are sorted by their
 _id, in ascending order.
 
 ## Considerations:
+
+### Reference projection is optional
+
+If no projection is given, assume all fields are included,
+recursively. Note that recursive inclusions don't cross entity
+boundaries.
 
 ### Query plan depends both on association queries and the search query.
 
@@ -203,7 +209,7 @@ A query plan is a directed graph and a set of constraints of the form
 composite metadata, and a query that will be executed to retrieve
 entities for the entity of that node. We will construct different
 query plans with different node orderings, and score them to pick the
-best retrieval strategy. The additionan constraints will be used to
+best retrieval strategy. The additional constraints will be used to
 order the execution of unrelated nodes.
 
 The underlying undirected graph of a query plan is isomorphic to the
@@ -225,6 +231,13 @@ In the above query plan, entities for N_1 and N_2 are retrieved first,
 then using those results, a query to retrieve N_3 is written and
 executed. For every N_3 retrieved, N_4 queries are evaluated and
 executed.
+
+"before" constraints: "before" constraints determine the ordering of
+independent nodes. In the above example, there are no structural
+constraints on wheter to evaluate node N_1 first or node N_2
+first. Different query plans can add "before" constraints to force a
+particular ordering. In the above query plan with "before" constraint
+(N_1 before N_2), node N_1 is to be evaluated before node N_2.
 
 Entities are retrieved starting from the source nodes (nodes with no
 incoming edges). Execution continues until all the sink nodes of the
