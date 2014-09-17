@@ -34,8 +34,8 @@ public class EntityMetadata implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    private final EntityInfo info;
-    private final EntitySchema schema;
+    protected final EntityInfo info;
+    protected final EntitySchema schema;
 
     public EntityMetadata(String name) {
         info = new EntityInfo(name);

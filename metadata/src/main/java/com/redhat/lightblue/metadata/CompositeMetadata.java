@@ -93,22 +93,83 @@ public class CompositeMetadata extends EntityMetadata {
         this.parent=parent;
     }
 
+    /**
+     * If this composite metadata is the root of an entity metadata
+     * tree, returns empty path. Otherwise, this composite metadata is
+     * a descendant of another composite metadata, and this call
+     * returns the full path to the reference field containing this
+     * metadata.
+     */
     public Path getEntityPath() {
         return entityPath;
     }
 
+    /**
+     * If this composite metadata is the root of an entity metadata
+     * tree, returns null. Otherwiase, returns the metadata containing
+     * this metadata.
+     */
     public CompositeMetadata getParent() {
         return parent;
     }
-
+    
+    /**
+     * Returns a direct child metadata of this metadata.
+     *
+     * @param entityPath The absolute path to the field containing the
+     * requested child
+     */
     public CompositeMetadata getChild(Path entityPath) {
         return children.get(entityPath);
     }
 
+    /**
+     * Returns the absolute paths of the direct children of this metadata
+     */
     public Set<Path> getChildNames() {
         return children.keySet();
     }
 
+    /**
+     * Returns the entity tree structure as a string
+     */
+    public String toTreeString() {
+        StringBuilder bld=new StringBuilder();
+        toTreeString(0, bld);
+        return bld.toString();
+    }
+
+    /**
+     * Returns the composite metadata containing the field pointed by the given path
+     */
+    public CompositeMetadata getEntityOfPath(Path path) {
+        // Resolve the path
+        FieldTreeNode node=resolve(path);
+        // Find the entity of the node
+        return getEntityOfField(node);
+    }
+
+    /**
+     * Returns the composite metadata containing the field
+     */
+    public CompositeMetadata getEntityOfField(FieldTreeNode field) {
+        CompositeMetadata ret=null;
+        if(field!=null) {
+            do {
+                if(field instanceof ResolvedReferenceField)
+                    ret=((ResolvedReferenceField)field).getReferencedMetadata();
+                else if(field==schema.fieldRoot)
+                    ret=this;
+                else
+                    field=field.getParent();
+            } while(field!=null&&ret==null);                
+        } 
+        return ret;
+    }
+
+    /**
+     * Builds a composite metadata rooted at the given entity metadata.
+     */
     public static CompositeMetadata buildCompositeMetadata(EntityMetadata root,
                                                            GetMetadata gmd) {
         return buildCompositeMetadata(root,gmd,new Path(),null,new MutablePath());
@@ -218,12 +279,6 @@ public class CompositeMetadata extends EntityMetadata {
         da.getInsert().setRoles(sa.getInsert());
         dest.setConstraints(source.getConstraints());
         dest.getProperties().putAll(source.getProperties());
-    }
-
-    public String toTreeString() {
-        StringBuilder bld=new StringBuilder();
-        toTreeString(0, bld);
-        return bld.toString();
     }
 
     private void toTreeString(int depth,StringBuilder bld) {
