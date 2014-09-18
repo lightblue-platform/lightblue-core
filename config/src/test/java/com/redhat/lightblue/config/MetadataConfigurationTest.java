@@ -129,5 +129,8 @@ public class MetadataConfigurationTest {
 
         // verify extensions
         Assert.assertNotNull(metadata.extensions.getHookConfigurationParser(TestHookConfigurationParser.HOOK_NAME));
+
+        Assert.assertNotNull(metadata.extensions.getPropertyParser("TestPropertyParser"));
+        Assert.assertNotNull(metadata.extensions.getDataStoreParser("TestDataStoreParser"));
     }
 }
