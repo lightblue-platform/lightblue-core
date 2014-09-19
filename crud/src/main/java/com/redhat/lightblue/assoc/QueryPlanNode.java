@@ -44,8 +44,8 @@ public abstract class QueryPlanNode implements Serializable {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(QueryPlanNode.class);
 
-    private final CompositeMetadata md;
-    private final List<QueryExpression> qClauses;
+    protected final CompositeMetadata md;
+    protected final List<Conjunct> conjuncts;
 
     /**
      * Creates a query plan node using the given composite metadata,
@@ -53,17 +53,7 @@ public abstract class QueryPlanNode implements Serializable {
      */
     public QueryPlanNode(CompositeMetadata md) {
         this.md=md;
-        this.qClauses=new ArrayList<>();
-    }
-
-    /**
-     * Creates a query plan node using the given composite metadata,
-     * and the given query clauses list. A reference to the given list
-     * is stored.
-     */
-    public QueryPlanNode(CompositeMetadata md,List<QueryExpression> qClauses) {
-        this.md=md;
-        this.qClauses=qClauses;
+        conjuncts=new ArrayList<>();
     }
 
     /**
@@ -72,13 +62,14 @@ public abstract class QueryPlanNode implements Serializable {
      */
     public QueryPlanNode(QueryPlanNode source) {
         this.md=source.md;
-        this.qClauses=new ArrayList<>();
-        this.qClauses.addAll(source.qClauses);
+        this.conjuncts=new ArrayList<>(source.conjuncts.size());
+        this.conjuncts.addAll(source.conjuncts);
     }
 
-    /**
-     * Returns the composite metadata corresponding to this node
-     */
+    public List<Conjunct> getConjuncts() {
+        return conjuncts;
+    }
+
     public CompositeMetadata getMetadata() {
         return md;
     }

@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +57,7 @@ import com.redhat.lightblue.util.Path;
  * </ul>
  */
 public class QueryPlan implements Serializable {
-
+    
     private static final long serialVersionUID=1l;
 
     private static final Logger LOGGER=LoggerFactory.getLogger(QueryPlan.class);
@@ -113,7 +115,7 @@ public class QueryPlan implements Serializable {
         public String getName() {
             if(name==null) {
                 StringBuilder bld=new StringBuilder();
-                bld.append(getMetadata().getName()).append('_').append(nodeIndex);
+                bld.append(md.getName()).append('_').append(nodeIndex);
                 name=bld.toString();
             }
             return name;
@@ -130,6 +132,23 @@ public class QueryPlan implements Serializable {
         }
     }
 
+    private final Map<Integer,List<Conjunct>> edgeData=new HashMap<>();
+
+
+    private Integer getEdgeId(int ix1,int ix2) {
+        if(ix1<ix2)
+            return (ix1*nodes.length)+ix2;
+        else
+            return (ix2*nodes.length)+ix1;
+    }
+
+    private List<Conjunct> getEdgeData(int ix1,int ix2) {
+        return edgeData.get(getEdgeId(ix1,ix2));
+    }
+
+    private void setEdgeData(int ix1,int ix2,List<Conjunct> list) {
+        edgeData.put(getEdgeId(ix1,ix2),list);
+    }
 
     /**
      * Constructs a query plan from the composite metadata by
@@ -184,6 +203,8 @@ public class QueryPlan implements Serializable {
         nodes=new QueryPlanNodeImpl[source.nodes.length];
         for(int i=0;i<nodes.length;i++)
             nodes[i]=new QueryPlanNodeImpl(source.nodes[i]);
+        for(Map.Entry<Integer,List<Conjunct>> entry:source.edgeData.entrySet())
+            edgeData.put(entry.getKey(),new ArrayList<Conjunct>(entry.getValue()));
     }
 
     private QueryPlan(QueryPlanNodeImpl[] nodes) {
@@ -213,6 +234,33 @@ public class QueryPlan implements Serializable {
                 sources[k++]=nodes[x];
         return sources;
     }
+
+    /**
+     * Returns the list of conjuncts associated with the undirected edge between the two nodes
+     */
+    public List<Conjunct> getEdgeData(QueryPlanNode x,
+                                      QueryPlanNode y) {
+        if(isOwned(x)&&isOwned(y)) 
+            return getEdgeData(((QueryPlanNodeImpl)x).nodeIndex,
+                               ((QueryPlanNodeImpl)y).nodeIndex);
+        else
+            throw new IllegalArgumentException();
+    }
+
+    /**
+     * Sets the list of conjuncts associated with the undirected edge between the two nodes
+     */
+    public void setEdgeData(QueryPlanNode x,
+                            QueryPlanNode y,
+                            List<Conjunct> l) {
+        if(isOwned(x)&&isOwned(y))
+            setEdgeData( ((QueryPlanNodeImpl)x).nodeIndex,
+                         ((QueryPlanNodeImpl)y).nodeIndex,
+                         l);
+        else
+            throw new IllegalArgumentException();
+    }
+            
 
     /**
      * Returns a deep copy of the query plan. 
@@ -265,6 +313,20 @@ public class QueryPlan implements Serializable {
             bld.append(toN[i]).append(' ');
         }
         return bld.toString();
+    }
+
+    /**
+     * Returns the query plan node corresponding to the given
+     * composite metadata instance.
+     *
+     * This checks object identity to find the node containing the
+     * composite metadata
+     */
+    public QueryPlanNode getNode(CompositeMetadata md) {
+        for(QueryPlanNode n:nodes)
+            if(n.md==md)
+                return n;
+        return null;
     }
 
     public String treeToString() {
