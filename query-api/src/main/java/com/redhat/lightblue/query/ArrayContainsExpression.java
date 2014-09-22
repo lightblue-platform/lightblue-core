@@ -77,20 +77,6 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
         return values;
     }
 
-    @Override
-    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
-        fields.add(new FieldInfo(new Path(ctx,array),ctx,this));
-    }
-
-    @Override
-    protected QueryExpression bind(Path ctx,
-                                   List<FieldBinding> bindingResult,
-                                   Set<Path> bindRequest) {
-        if(bindRequest.contains(new Path(ctx,array)))
-            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
-        return this;
-    }
-
    /**
      * Returns a json representation of the query
      */

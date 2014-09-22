@@ -66,30 +66,6 @@ public class UnaryLogicalExpression extends LogicalExpression {
         return getFactory().objectNode().set(op.toString(), query.toJson());
     }
 
-    @Override
-    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
-        query.getQueryFields(fields,ctx);
-    }
-
-    @Override
-    protected QueryExpression bind(Path ctx,
-                                   List<FieldBinding> bindingResult,
-                                   Set<Path> bindRequest) {
-        QueryExpression q=query.bind(ctx,bindingResult,bindRequest);
-        if(q==query) {
-            // Binding didn't change anything in this expression, return the same
-            return this;
-        } else {
-            // Binding changed this expression, return a new copy
-            return new UnaryLogicalExpression(op,q);
-        }
-    }
-
-    @Override
-    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
-        query.getBindableClauses(list,ctx);
-    }
-
     /**
      * Parses a unary logical expression using the given object node
      */

@@ -55,14 +55,6 @@ public class ForEachExpressionTest {
             public JsonNode toJson() {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
-            @Override
-            protected QueryExpression bind(Path ctx,
-                                           List<FieldBinding> bindingResult,
-                                           Set<Path> bindRequest) {
-                return this;
-            }
-            @Override
-            protected void getQueryFields(List<FieldInfo> fields,Path ctx) {}
        };
         ForEachExpression instance = new ForEachExpression(Path.EMPTY, expResult, null);
         QueryExpression result = instance.getQuery();

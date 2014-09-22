@@ -89,20 +89,6 @@ public class NaryRelationalExpression extends RelationalExpression {
         return values;
     }
 
-    @Override
-    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
-        fields.add(new FieldInfo(new Path(ctx,field),ctx,this));
-    }
-
-    @Override
-    protected QueryExpression bind(Path ctx,
-                                   List<FieldBinding> bindingResult,
-                                   Set<Path> bindRequest) {        
-        if(bindRequest.contains(new Path(ctx,field)))
-            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
-        return this; // Nothing to bind
-    }
-
     /**
      * Returns a json representation of this query
      */

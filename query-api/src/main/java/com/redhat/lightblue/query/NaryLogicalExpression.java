@@ -76,42 +76,6 @@ public class NaryLogicalExpression extends LogicalExpression {
         return this.queries;
     }
 
-    @Override
-    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
-        for(QueryExpression q:queries)
-            q.getQueryFields(fields,ctx);
-    }
-
-    @Override
-    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
-        for(QueryExpression q:queries)
-            q.getBindableClauses(list,ctx);
-    }
-
-    @Override
-    protected QueryExpression bind(Path ctx,
-                                   List<FieldBinding> bindingResult,
-                                   Set<Path> bindRequest) {        
-        List<QueryExpression> qlist=queries;
-        boolean copied=false;
-        int i=0;
-        // Copy on write
-        for(QueryExpression q:qlist) {
-            QueryExpression newq=q.bind(ctx,bindingResult,bindRequest);
-            if(newq!=q) {
-                // We have a new query object for q
-                if(!copied) {
-                    // Create a new copy of the query list
-                    qlist=new ArrayList<>(queries);
-                    copied=true;
-                }
-                qlist.set(i,newq);
-            }
-            i++;
-        }
-        return copied?new NaryLogicalExpression(op,qlist):this;
-    }
-
     /**
      * Returns a json representation of this query
      */

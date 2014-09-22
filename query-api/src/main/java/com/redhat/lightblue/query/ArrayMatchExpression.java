@@ -62,30 +62,6 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
         return this.elemMatch;
     }
 
-    @Override
-    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
-        Path arrayPath=new Path(ctx,array);
-        fields.add(new FieldInfo(arrayPath,ctx,this));
-        elemMatch.getQueryFields(fields,new Path(arrayPath,Path.ANYPATH));
-    }
-
-    @Override
-    protected QueryExpression bind(Path ctx,
-                                   List<FieldBinding> bindingResult,
-                                   Set<Path> bindRequest) {
-        if(bindRequest.contains(new Path(ctx,array)))
-            throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING,this.toString());
-        QueryExpression q=elemMatch.bind(new Path(new Path(ctx,array),Path.ANYPATH),
-                                         bindingResult,
-                                         bindRequest);
-        return q!=elemMatch?new ArrayMatchExpression(array,q):this;
-    }
-
-    @Override
-    public void getBindableClauses(List<QueryInContext> list,Path ctx) {
-        elemMatch.getBindableClauses(list,new Path(new Path(ctx,array),Path.ANYPATH));
-    }
-
     /**
      * Returns JSON representation of this query
      */

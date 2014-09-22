@@ -33,17 +33,6 @@ public class AllMatchExpression extends UpdateQueryExpression {
     private static final long serialVersionUID = 1L;
 
     @Override
-    protected QueryExpression bind(Path ctx,
-                                   List<FieldBinding> bindingResult,
-                                   Set<Path> bindRequest) {
-        return this;
-    }
-
-    @Override
-    protected void getQueryFields(List<FieldInfo> fields,Path ctx) {
-    }
-
-    @Override
     public JsonNode toJson() {
         return getFactory().textNode("$all");
     }
