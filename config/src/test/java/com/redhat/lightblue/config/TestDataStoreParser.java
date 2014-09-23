@@ -16,27 +16,25 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+package com.redhat.lightblue.config;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+public class TestDataStoreParser implements DataStoreParser {
+    @Override
+    public String getDefaultName() {
+        return null;
+    }
 
-public class JsonUtilsTest {
+    @Override
+    public Object parse(String name, MetadataParser p, Object node) {
+        return null;
+    }
 
+    @Override
+    public void convert(MetadataParser p, Object emptyNode, Object object) {
 
-    @Test
-    public void testPrettyPrint_JsonNode() {
-        System.out.println("prettyPrint");
-        JsonNode node = JsonNodeFactory.withExactBigDecimals(true).objectNode();
-        String expResult = "{\n}";
-        String result = JsonUtils.prettyPrint(node);
-        assertEquals(expResult, result);
     }
 }
