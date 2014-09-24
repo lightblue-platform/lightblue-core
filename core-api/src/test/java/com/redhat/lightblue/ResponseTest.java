@@ -18,17 +18,6 @@
  */
 package com.redhat.lightblue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -36,6 +25,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Response.ResponseBuilder;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class ResponseTest {
 
@@ -46,8 +43,9 @@ public class ResponseTest {
 
     @Before
     public void setUp() throws Exception {
-        response = new Response();
-        builder = new Response.ResponseBuilder();
+        JsonNodeFactory jnf = JsonNodeFactory.withExactBigDecimals(true);
+        response = new Response(jnf);
+        builder = new Response.ResponseBuilder(jnf);
     }
 
     @After
@@ -122,9 +120,21 @@ public class ResponseTest {
     }
 
     @Test
-    public void testWithEntityData() {
+    public void testWithEntityDataObject() {
         node = JsonNodeFactory.withExactBigDecimals(true).objectNode();
         builder.withEntityData(node);
+        // note, entityData is treated as an array always.  in this case we have to extract the first element of the array for validation
+        assertTrue(node.equals(builder.buildResponse().getEntityData().get(0)));
+    }
+
+    @Test
+    public void testWithEntityDataArray() {
+        node = JsonNodeFactory.withExactBigDecimals(true).arrayNode();
+        ArrayNode anode = (ArrayNode) node;
+        anode.add(anode.objectNode());
+        anode.add(anode.objectNode());
+        builder.withEntityData(node);
+        assertEquals(2, builder.buildResponse().getEntityData().size());
         assertTrue(node.equals(builder.buildResponse().getEntityData()));
     }
 

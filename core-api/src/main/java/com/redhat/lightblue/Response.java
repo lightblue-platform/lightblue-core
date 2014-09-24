@@ -18,15 +18,16 @@
  */
 package com.redhat.lightblue;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Response information from mediator APIs
@@ -52,6 +53,20 @@ public class Response extends JsonObject {
     private transient JsonNode entityData;
     private final List<DataError> dataErrors = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
+
+    private final JsonNodeFactory jsonNodeFactory;
+
+    /**
+     * @deprecated use Response(JsonNodeFactory)
+     */
+    @Deprecated
+    public Response() {
+        jsonNodeFactory = JsonNodeFactory.withExactBigDecimals(true);
+    }
+
+    public Response(JsonNodeFactory jsonNodeFactory) {
+        this.jsonNodeFactory = jsonNodeFactory;
+    }
 
     /**
      * Status of the completed operation
@@ -140,7 +155,14 @@ public class Response extends JsonObject {
      * Returns the entity data resulting from the call.
      */
     public void setEntityData(JsonNode node) {
-        entityData = node;
+        // if the node is not an array then wrap it in an array
+        if (node != null && !node.isArray()) {
+            ArrayNode arrayNode = new ArrayNode(jsonNodeFactory);
+            arrayNode.add(node);
+            entityData = arrayNode;
+        } else {
+            entityData = node;
+        }
     }
 
     /**
@@ -155,24 +177,6 @@ public class Response extends JsonObject {
      */
     public List<Error> getErrors() {
         return errors;
-    }
-
-    /**
-     * Parses a response from a Json object
-     */
-    public static Response fromJson(ObjectNode node) {
-        ResponseBuilder builder = new Response.ResponseBuilder();
-
-        builder.withStatus(node.get(PROPERTY_STATUS));
-        builder.withModifiedCount(node.get(PROPERTY_MOD_COUNT));
-        builder.withMatchCount(node.get(PROPERTY_MATCH_COUNT));
-        builder.withTaskHandle(node.get(PROPERTY_TASK_HANDLE));
-        builder.withSession(node.get(PROPERTY_SESSION));
-        builder.withEntityData(node.get(PROPERTY_PROCESSED));
-        builder.withDataErrors(node.get(PROPERTY_DATA_ERRORS));
-        builder.withErrors(node.get(PROPERTY_ERRORS));
-
-        return builder.buildResponse();
     }
 
     /**
@@ -203,8 +207,10 @@ public class Response extends JsonObject {
         private List<DataError> dataErrors = new ArrayList<>();
         private List<Error> errors = new ArrayList<>();
 
-        public ResponseBuilder() {
+        private final JsonNodeFactory jsonNodeFactory;
 
+        public ResponseBuilder(JsonNodeFactory jsonNodeFactory) {
+            this.jsonNodeFactory = jsonNodeFactory;
         }
 
         public ResponseBuilder(Response response) {
@@ -216,6 +222,7 @@ public class Response extends JsonObject {
             entityData = response.getEntityData();
             dataErrors = response.getDataErrors();
             errors = response.getErrors();
+            jsonNodeFactory = response.jsonNodeFactory;
         }
 
         public ResponseBuilder withStatus(JsonNode node) {
@@ -265,7 +272,7 @@ public class Response extends JsonObject {
         public ResponseBuilder withDataErrors(JsonNode node) {
             if (node instanceof ArrayNode) {
                 for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
-                        itr.hasNext();) {
+                     itr.hasNext(); ) {
                     dataErrors.add(DataError.fromJson((ObjectNode) itr.next()));
                 }
             }
@@ -275,7 +282,7 @@ public class Response extends JsonObject {
         public ResponseBuilder withErrors(JsonNode node) {
             if (node instanceof ArrayNode) {
                 for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
-                        itr.hasNext();) {
+                     itr.hasNext(); ) {
                     errors.add(Error.fromJson(itr.next()));
                 }
             }
@@ -283,7 +290,7 @@ public class Response extends JsonObject {
         }
 
         public Response buildResponse() {
-            Response response = new Response();
+            Response response = new Response(jsonNodeFactory);
 
             response.setStatus(status);
             response.setModifiedCount(modifiedCount);

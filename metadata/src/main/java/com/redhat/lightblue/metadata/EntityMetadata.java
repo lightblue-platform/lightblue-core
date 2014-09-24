@@ -18,11 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.metadata.constraints.EnumConstraint;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-
-import com.redhat.lightblue.util.Path;
 
 /**
  * Container for info and schema metadata, gives details of a single version of
@@ -38,13 +41,15 @@ public class EntityMetadata implements Serializable {
     protected final EntitySchema schema;
 
     public EntityMetadata(String name) {
-        info = new EntityInfo(name);
-        schema = new EntitySchema(name);
+        this(new EntityInfo(name), new EntitySchema(name));
     }
 
     public EntityMetadata(EntityInfo info, EntitySchema schema) {
         this.info = info;
         this.schema = schema;
+
+        // validate EntityMetadata (right now just enum constraint validation)
+        validate();
     }
 
     public EntityInfo getEntityInfo() {
@@ -181,5 +186,32 @@ public class EntityMetadata implements Serializable {
 
     public FieldTreeNode resolve(Path p) {
         return schema.resolve(p);
+    }
+
+    /**
+     * Verifies that the entity info and entity schema as a whole are valid.  For example, are all enum constraints
+     * in entity schema referencing an enum defined in entity info?  Execution is intended to be generic but could be
+     * extended if necessary.
+     *
+     * @throws Error on any validation errors
+     */
+    public void validate() {
+        // Check enum in schema against entity info
+        Iterator<Field> fields = getEntitySchema().getFields().getFields();
+
+        while (fields.hasNext()) {
+            // for each field verify enum constraints
+            Field field = fields.next();
+
+            for (FieldConstraint fc : field.getConstraints()) {
+                if (fc instanceof EnumConstraint) {
+                    // check that this field's enum name is valid
+                    String enumName = ((EnumConstraint) fc).getName();
+                    if (getEntityInfo().getEnums().getEnum(enumName) == null) {
+                        throw Error.get(MetadataConstants.ERR_INVALID_ENUM, enumName);
+                    }
+                }
+            }
+        }
     }
 }
