@@ -19,8 +19,12 @@
 package com.redhat.lightblue.assoc;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.FieldInfo;
@@ -30,6 +34,9 @@ import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.util.Path;
 
 public class Conjunct {
+    
+    private static final Logger LOGGER=LoggerFactory.getLogger(Conjunct.class);
+    
     /**
      * The query clause
      */
@@ -45,22 +52,18 @@ public class Conjunct {
      * containing that field
      */
     private final Map<Path,QueryPlanNode> fieldNodeMap=new HashMap();
-    
+
     /**
-     * If non-null, then the query refers to the fields in only
-     * one entity, and this is the query plan node containing that
-     * entity. If null, query has fields from more than one
-     * entity.
+     * The list of distinct query plan nodes referred by the clause
      */
-    private final QueryPlanNode onlyReferredNode;
+    private final List<QueryPlanNode> referredNodes=new ArrayList<>();
     
     public Conjunct(QueryExpression q,
                     CompositeMetadata compositeMetadata,
                     QueryPlan qplan) {
         this.clause=q;
         this.fieldInfo=clause.getQueryFields();
-        QueryPlanNode uniqueNode=null;
-        boolean hasMultipleNodes=false;
+        LOGGER.debug("Conjunct for query {} with fields {}",q,fieldInfo);
         for(FieldInfo fi:fieldInfo) {
             CompositeMetadata cmd=compositeMetadata.getEntityOfPath(fi.getAbsFieldName());
             if(cmd==null)
@@ -69,20 +72,32 @@ public class Conjunct {
             if(qnode==null)
                 throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata. Query:"+clause+" fieldInfo:"+fi+" Composite metadata:"+cmd);
             
-            if(uniqueNode==null)
-                uniqueNode=qnode;
-            else if(uniqueNode!=qnode)
-                hasMultipleNodes=true;
-            
+            boolean found=false;
+            for(QueryPlanNode n:referredNodes)
+                if(n==qnode) {
+                    found=true;
+                    break;
+                }
+            if(!found)
+                referredNodes.add(qnode);
             fieldNodeMap.put(fi.getAbsFieldName(),qnode);
         }
-        if(hasMultipleNodes)
-            onlyReferredNode=null;
-        else
-            onlyReferredNode=uniqueNode;
     }
 
-    public QueryPlanNode getOnlyReferredNode() {
-        return onlyReferredNode;
+    /**
+     * Returns the nodes referenced by this clause
+     */
+    public List<QueryPlanNode> getReferredNodes() {
+        return referredNodes;
+    }
+
+    public String toString() {
+        StringBuilder bld=new StringBuilder();
+        bld.append("clause=").append(clause.toString()).
+            append(" entities=");
+        for(QueryPlanNode n:referredNodes)
+            bld.append(' ').append(n.getName());
+        
+        return bld.toString();
     }
 }

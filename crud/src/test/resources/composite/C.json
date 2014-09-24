@@ -35,7 +35,7 @@
                     "type":"reference",
                     "entity":"D",
                     "versionValue":"1.0.0",
-                    "query":{"field":"_id","op":"$eq","rfield":"$parent.c_ref"}
+                    "query":{"field":"_id","op":"$eq","rfield":"$parent.d_ref"}
                  }
             }
         },

@@ -18,11 +18,6 @@
  */
 package com.redhat.lightblue.assoc;
 
-import java.io.Serializable;
-
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  * Iterates over possible query plans by rearranging the query plan graph.
  *
@@ -31,58 +26,20 @@ import java.util.ArrayList;
  * tree. Once all possible query plans are iterated, <code>next</code>
  * returns false.
  */
-public class QueryPlanIterator implements Serializable {
-
-    private static final long serialVersionUID=1l;
-
-    private final QueryPlan qp;
-
-    private final Edge[] edges;
-
-    private final class Edge {
-        private final QueryPlanNode n1;
-        private final QueryPlanNode n2;
-        private boolean v;
-
-        public Edge(QueryPlanNode n1,
-                    QueryPlanNode n2) {
-            this.n1=n1;
-            this.n2=n2;
-        }
-
-        public void flip() {
-            v=!v;
-            qp.flip(n1,n2);
-        }
-    }
+public interface QueryPlanIterator {
 
     /**
-     * Construct a query plan iterator that operates on the given
-     * query plan
+     * Resets the query plan iterator with the given copy of the query
+     * plan. The query iterator must assume that this given query plan
+     * is in its initial state, and should iterate through different
+     * query plans, modifying the given copy.
      */
-    public QueryPlanIterator(QueryPlan qp) {
-        this.qp=qp;
-        List<Edge> edgeList=new ArrayList<>(16);
-        QueryPlanNode[] sources=qp.getSources();
-        for(QueryPlanNode x:sources)
-            findEdges(edgeList,x);
-        edges=edgeList.toArray(new Edge[edgeList.size()]);
-    }
-
-    private void findEdges(List<Edge> l,QueryPlanNode from) {
-        QueryPlanNode[] dests=from.getDestinations();
-        for(QueryPlanNode to:dests) {
-            l.add(new Edge(from,to));
-            findEdges(l,to);
-        }
-    }
+    void reset(QueryPlan p);
 
     /**
-     * Returns the query plan
+     * Returns the query plan in its current state
      */
-    public QueryPlan getQueryPlan() {
-        return qp;
-    }
+    QueryPlan getQueryPlan();
 
     /**
      * Modifies the query plan into a unique tree.
@@ -92,22 +49,6 @@ public class QueryPlanIterator implements Serializable {
      * state during iterator construction, and the iteration is
      * expected to stop.
      */
-    public boolean next() {
-        int i;
-        for(i=edges.length-1;i>=0;i--) {
-            edges[i].flip();
-            if(edges[i].v)
-                break;
-        }
-        return i>=0;
-    }
-
-    public String toString() {
-        StringBuilder bld=new StringBuilder();
-        for(Edge e:edges)
-            bld.append(e.v?'0':'1');
-        return bld.toString();
-    }
-
+    public boolean next();
 }
 

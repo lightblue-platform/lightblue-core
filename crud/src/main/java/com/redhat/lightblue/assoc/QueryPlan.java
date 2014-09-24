@@ -71,6 +71,9 @@ public class QueryPlan implements Serializable {
     private final int[] fromN;
     private final int[] toN;
 
+    private final List<Conjunct> unassignedClauses=new ArrayList<>();
+    private final Map<Integer,List<Conjunct>> edgeData=new HashMap<>();
+
     private class QueryPlanNodeImpl extends QueryPlanNode {
 
         private final int nodeIndex;
@@ -132,8 +135,6 @@ public class QueryPlan implements Serializable {
         }
     }
 
-    private final Map<Integer,List<Conjunct>> edgeData=new HashMap<>();
-
 
     private Integer getEdgeId(int ix1,int ix2) {
         if(ix1<ix2)
@@ -189,7 +190,7 @@ public class QueryPlan implements Serializable {
         Set<Path> children=root.getChildNames();
         LOGGER.debug("Children:{}",children);
         for(Path p:children) {
-            CompositeMetadata child=root.getChild(p);
+            CompositeMetadata child=root.getChildMetadata(p);
             edges.add(new Edge(from,md.size()));
             traverseInit(md,child,edges);
         }
@@ -205,6 +206,7 @@ public class QueryPlan implements Serializable {
             nodes[i]=new QueryPlanNodeImpl(source.nodes[i]);
         for(Map.Entry<Integer,List<Conjunct>> entry:source.edgeData.entrySet())
             edgeData.put(entry.getKey(),new ArrayList<Conjunct>(entry.getValue()));
+        unassignedClauses.addAll(source.unassignedClauses);
     }
 
     private QueryPlan(QueryPlanNodeImpl[] nodes) {
@@ -233,6 +235,15 @@ public class QueryPlan implements Serializable {
             if(toN[x]==0)
                 sources[k++]=nodes[x];
         return sources;
+    }
+
+    /**
+     * Returns the list containing clauses that cannot be associated
+     * with a node or an edge (i.e. clauses refer to more than two
+     * nodes).
+     */
+    public List<Conjunct> getUnassignedClauses() {
+        return unassignedClauses;
     }
 
     /**
@@ -295,6 +306,37 @@ public class QueryPlan implements Serializable {
                     (QueryPlanNodeImpl)to);
         } else
             throw new IllegalArgumentException();
+    }
+
+    /**
+     * Returns all nodes
+     */
+    public QueryPlanNode[] getAllNodes() {
+        return nodes;
+    }
+
+    /**
+     * Returns if there exists a directed edge between the nodes,
+     * directed from <code>from</code> to <code>to</code>
+     */
+    public boolean isDirectedConnected(QueryPlanNode from,
+                                       QueryPlanNode to) {
+        if(isOwned(from)&&isOwned(to)) {
+            return connMx[ ((QueryPlanNodeImpl)from).nodeIndex ] [ ((QueryPlanNodeImpl)to).nodeIndex ];
+        }
+        return false;
+    }
+
+    /**
+     * Returns if there exists an edge between the two nodes, pointing either way
+     */
+    public boolean isUndirectedConnected(QueryPlanNode from,
+                                         QueryPlanNode to) {
+        if(isOwned(from)&&isOwned(to)) {
+            return connMx[ ((QueryPlanNodeImpl)from).nodeIndex ] [ ((QueryPlanNodeImpl)to).nodeIndex ]||
+                connMx[ ((QueryPlanNodeImpl)to).nodeIndex ] [ ((QueryPlanNodeImpl)from).nodeIndex ];
+        }
+        return false;
     }
 
     public String mxToString() {

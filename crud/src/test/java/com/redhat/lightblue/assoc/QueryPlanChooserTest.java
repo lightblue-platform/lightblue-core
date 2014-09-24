@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.assoc;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -37,19 +39,16 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.TestDataStoreParser;
-
 import com.redhat.lightblue.assoc.iterators.*;
 
-import java.io.IOException;
-
-public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
+public class QueryPlanChooserTest extends AbstractJsonNodeTest {
 
     private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
     private static JsonNode json(String q) {
         try {
             return JsonUtils.json(q.replace('\'', '\"'));
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -90,39 +89,32 @@ public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void simpleTest() throws Exception {
+    public void constructionTest() throws Exception {
         GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
         CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md);
-        QueryPlanIterator itr=new BruteForceQueryPlanIterator();
-        itr.reset(qp);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      query("{'field':'field1','op':'=','rvalue':'s'}"));
 
-        // There is only one edge, two iterations are possible
-        System.out.println(qp.treeToString());
-        Assert.assertEquals("A",qp.getSources()[0].getMetadata().getName());
+        QueryPlanNode[] nodes=chooser.getQueryPlan().getAllNodes();
+        QueryPlanNode anode=null;
+        QueryPlanNode cnode=null;
+        for(QueryPlanNode node:nodes)
+            if(node.getMetadata().getName().equals("A"))
+                anode=node;
+            else if(node.getMetadata().getName().equals("C"))
+                cnode=node;
+        Assert.assertNotNull(anode);
+        Assert.assertNotNull(cnode);
+        Assert.assertTrue(chooser.getQueryPlan().isUndirectedConnected(anode,cnode));
+        List<Conjunct> edgeData=chooser.getQueryPlan().getEdgeData(anode,cnode);
+        Assert.assertEquals(edgeData,chooser.getQueryPlan().getEdgeData(cnode,anode));
+        // The request query must be associated with A
+        Assert.assertTrue(anode.getConjuncts().size()==1);
 
-        Assert.assertTrue(itr.next());
-        System.out.println(qp.treeToString());
-        Assert.assertEquals("C",qp.getSources()[0].getMetadata().getName());
-
-        Assert.assertFalse(itr.next());
-    }
-
-    @Test
-    public void two_level_test() throws Exception {
-        GMD gmd=new GMD(projection("[{'field':'r.*.r.*','include':1},{'field':'b.*.','include':1}]"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/R.json"),gmd);
-        QueryPlan qp=new QueryPlan(md);
-        QueryPlanIterator itr=new BruteForceQueryPlanIterator();
-        itr.reset(qp);
-
-        // 3 edges, 8 query plans
-        System.out.println(qp.treeToString());
-        for(int i=0;i<7;i++) {
-            Assert.assertTrue(itr.next());
-            System.out.println(qp.treeToString());
-        }
-        Assert.assertFalse(itr.next());
+        System.out.println(chooser.getQueryPlan().treeToString());
+        for(QueryPlanNode node:chooser.getQueryPlan().getAllNodes())
+            System.out.println(node.getName()+":"+node.getConjuncts());
+        
     }
 }
-
