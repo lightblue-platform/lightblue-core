@@ -91,8 +91,8 @@ public class Fields implements Serializable {
             }
         } else {
             fields.add(f);
-            f.setParent(parent);
         }
+        f.setParent(parent);
         fieldMap.put(name, f);
     }
 

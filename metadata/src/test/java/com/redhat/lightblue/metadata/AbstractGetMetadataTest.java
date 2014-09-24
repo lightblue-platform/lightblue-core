@@ -111,8 +111,8 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
 
         System.out.println(a.toTreeString());
-        Assert.assertNull(a.getChild(new Path("b")));
-        Assert.assertNull(a.getChild(new Path("obj1.c")));
+        Assert.assertNull(a.getChildMetadata(new Path("b")));
+        Assert.assertNull(a.getChildMetadata(new Path("obj1.c")));
     }
 
 
@@ -123,8 +123,8 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(query("{'field':'b.0.field1','op':'=','rvalue':'x'}"));
         CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(a.toTreeString());
-        Assert.assertNotNull(a.getChild(new Path("b")));
-        Assert.assertNull(a.getChild(new Path("obj1.c")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("b")));
+        Assert.assertNull(a.getChildMetadata(new Path("obj1.c")));
 
     }
 
@@ -135,8 +135,8 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(query("{'field':'b.field1','op':'=','rfield':'obj1.c.0._id'}"));
         CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(a.toTreeString());
-        Assert.assertNotNull(a.getChild(new Path("b")));
-        Assert.assertNotNull(a.getChild(new Path("obj1.c")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("b")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("obj1.c")));
 
     }
 
@@ -148,8 +148,8 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(projection("{'field':'b','include':1}"));
         CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(a.toTreeString());
-        Assert.assertNotNull(a.getChild(new Path("b")));
-        Assert.assertNull(a.getChild(new Path("obj1.c")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("b")));
+        Assert.assertNull(a.getChildMetadata(new Path("obj1.c")));
     }
 
     @Test
@@ -159,8 +159,8 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(projection("[{'field':'b','include':1},{'field':'obj1.c','include':1}]"));
         CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(a.toTreeString());
-        Assert.assertNotNull(a.getChild(new Path("b")));
-        Assert.assertNotNull(a.getChild(new Path("obj1.c")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("b")));
+        Assert.assertNotNull(a.getChildMetadata(new Path("obj1.c")));
     }
 
     @Test
@@ -170,10 +170,10 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(projection("{'field':'r','include':1}"));
         CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(r.toTreeString());
-        Assert.assertNull(r.getChild(new Path("b")));
-        Assert.assertNull(r.getChild(new Path("obj1.c")));
-        Assert.assertNotNull(r.getChild(new Path("r")));
-        Assert.assertNull(r.getChild(new Path("r.0.b")));
+        Assert.assertNull(r.getChildMetadata(new Path("b")));
+        Assert.assertNull(r.getChildMetadata(new Path("obj1.c")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")));
+        Assert.assertNull(r.getChildMetadata(new Path("r.0.b")));
     }
    
     @Test
@@ -183,15 +183,15 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(projection("{'field':'r.*.r.*.r.*.b','include':1}"));
         CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(r.toTreeString());
-        Assert.assertNull(r.getChild(new Path("b")));
-        Assert.assertNull(r.getChild(new Path("obj1.c")));
-        Assert.assertNotNull(r.getChild(new Path("r")));
-        Assert.assertNull(r.getChild(new Path("r.*.b")));
-        Assert.assertNotNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")));
-        Assert.assertNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")).getChild(new Path("r.*.r.*.b")));
-        Assert.assertNotNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")).getChild(new Path("r.*.r.*.r")));
-        Assert.assertNotNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")).getChild(new Path("r.*.r.*.r")).
-                             getChild(new Path("r.*.r.*.r.*.b")));
+        Assert.assertNull(r.getChildMetadata(new Path("b")));
+        Assert.assertNull(r.getChildMetadata(new Path("obj1.c")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")));
+        Assert.assertNull(r.getChildMetadata(new Path("r.*.b")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")));
+        Assert.assertNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.b")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")).
+                             getChildMetadata(new Path("r.*.r.*.r.*.b")));
     }
     @Test
     public void only_3r_in_r_proj_nomask() throws Exception {
@@ -200,15 +200,15 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         gmd.add(projection("{'field':'r.1.r.0.r.2.b','include':1}"));
         CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,gmd);
         System.out.println(r.toTreeString());
-        Assert.assertNull(r.getChild(new Path("b")));
-        Assert.assertNull(r.getChild(new Path("obj1.c")));
-        Assert.assertNotNull(r.getChild(new Path("r")));
-        Assert.assertNull(r.getChild(new Path("r.*.b")));
-        Assert.assertNotNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")));
-        Assert.assertNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")).getChild(new Path("r.*.r.*.b")));
-        Assert.assertNotNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")).getChild(new Path("r.*.r.*.r")));
-        Assert.assertNotNull(r.getChild(new Path("r")).getChild(new Path("r.*.r")).getChild(new Path("r.*.r.*.r")).
-                             getChild(new Path("r.*.r.*.r.*.b")));
+        Assert.assertNull(r.getChildMetadata(new Path("b")));
+        Assert.assertNull(r.getChildMetadata(new Path("obj1.c")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")));
+        Assert.assertNull(r.getChildMetadata(new Path("r.*.b")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")));
+        Assert.assertNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.b")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")));
+        Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")).
+                             getChildMetadata(new Path("r.*.r.*.r.*.b")));
     }
 
 }

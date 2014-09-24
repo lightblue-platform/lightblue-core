@@ -23,6 +23,17 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.QueryIterator;
+import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.query.FieldComparisonExpression;
+import com.redhat.lightblue.query.ArrayMatchExpression;
+import com.redhat.lightblue.query.ArrayContainsExpression;
+import com.redhat.lightblue.query.RegexMatchExpression;
+
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
 
@@ -45,9 +56,11 @@ import com.redhat.lightblue.util.MutablePath;
  */
 public class CompositeMetadata extends EntityMetadata {
 
+    private static final Logger LOGGER=LoggerFactory.getLogger(CompositeMetadata.class);
+
     private final Path entityPath;
     private final CompositeMetadata parent;
-    private final Map<Path,CompositeMetadata> children=new HashMap<>();
+    private final Map<Path,ResolvedReferenceField> children=new HashMap<>();
 
     /**
      * Interface that returns an instance of entity metadata given the
@@ -119,7 +132,18 @@ public class CompositeMetadata extends EntityMetadata {
      * @param entityPath The absolute path to the field containing the
      * requested child
      */
-    public CompositeMetadata getChild(Path entityPath) {
+    public CompositeMetadata getChildMetadata(Path entityPath) {
+        ResolvedReferenceField rf=children.get(entityPath);
+        return rf==null?null:rf.getReferencedMetadata();
+    }
+
+    /**
+     * Returns a direct child resolved reference of this metadata.
+     *
+     * @param entityPath The absolute path to the field containing the
+     * requested child
+     */
+    public ResolvedReferenceField getChildReference(Path entityPath) {
         return children.get(entityPath);
     }
 
@@ -172,7 +196,10 @@ public class CompositeMetadata extends EntityMetadata {
      */
     public static CompositeMetadata buildCompositeMetadata(EntityMetadata root,
                                                            GetMetadata gmd) {
-        return buildCompositeMetadata(root,gmd,new Path(),null,new MutablePath());
+        CompositeMetadata cmd=buildCompositeMetadata(root,gmd,new Path(),null,new MutablePath());
+        // Re-process all resolved references, rewrite their queries in absolute form
+        rewriteAssociationQueries(cmd);
+        return cmd;
     }
 
     private static CompositeMetadata buildCompositeMetadata(EntityMetadata root,
@@ -184,9 +211,101 @@ public class CompositeMetadata extends EntityMetadata {
         // metadata for references
         CompositeSchema cschema=CompositeSchema.newSchemaWithEmptyFields(root.getEntitySchema());
         CompositeMetadata cmd=new CompositeMetadata(root.getEntityInfo(),cschema,entityPath,parentEntity);
-        // Shallow-copy replace references
+        // copy fields, resolve references
         copyFields(cschema.getFields(),root.getEntitySchema().getFields(),path,cmd,gmd);
         return cmd;
+    }
+
+    private static final class AbsRewriteItr extends QueryIterator {
+        /**
+         * we'll interpret field names with respect to this entity
+         */
+        private FieldTreeNode interpretWRTEntity;
+
+        public AbsRewriteItr(FieldTreeNode root) {
+            interpretWRTEntity=root;
+        }
+        
+        @Override
+        protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q,Path context) {
+            Path p=rewrite(q.getField());
+            if(!p.equals(q.getField()))
+                return new ValueComparisonExpression(p,q.getOp(),q.getRvalue());
+            else
+                return q;
+        }
+
+        @Override
+        protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q,Path context) {
+            Path p=rewrite(q.getField());
+            if(!p.equals(q.getField()))
+                return new RegexMatchExpression(p,q.getRegex(),
+                                                q.isCaseInsensitive(),
+                                                q.isMultiline(),
+                                                q.isExtended(),
+                                                q.isDotAll());
+            else
+                return q;
+        }
+
+        @Override
+        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q,Path context) {
+            Path left=rewrite(q.getField());
+            Path right=rewrite(q.getRfield());
+            if(!left.equals(q.getField())||!right.equals(q.getRfield()))
+                return new FieldComparisonExpression(left,q.getOp(),right);
+            else
+                return q;
+        }
+
+        @Override
+        protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q,Path context) {
+            Path p=rewrite(q.getArray());
+            if(!p.equals(q.getArray()))
+                return new ArrayContainsExpression(p,q.getOp(),q.getValues());
+            else
+                return q;
+        }
+
+        @Override
+        protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q,Path context) {
+            Path p=rewrite(q.getArray());
+            if(!p.equals(q.getArray()))
+                return new ArrayMatchExpression(p,q.getElemMatch());
+            else
+                return q;
+        }
+
+        private Path rewrite(Path field) {
+            LOGGER.debug("rewriting {}",field);
+            // We interpret field name with respect to the current entity
+            FieldTreeNode fieldNode=interpretWRTEntity.resolve(field);
+                
+            Path absFieldPath=fieldNode.getFullPath();
+            LOGGER.debug("Field full path={}",absFieldPath);
+            return absFieldPath;
+        }
+    }
+
+    private static QueryExpression rewriteQuery(QueryExpression q,ResolvedReferenceField rr) {
+        return new AbsRewriteItr(rr.getElement()).iterate(q);
+    }
+
+    /**
+     * Recursively rewrites the association queries to replace all
+     * relative field references to absolute field references
+     */
+    private static void rewriteAssociationQueries(CompositeMetadata root) {
+        Set<Path> children=root.getChildNames();
+        for(Path child:children) {
+            ResolvedReferenceField rr=root.getChildReference(child);
+            QueryExpression aq=rr.getReferenceField().getQuery();
+            if(aq!=null) {
+                rr.setAbsQuery(rewriteQuery(aq,rr));
+                LOGGER.debug("Rewrote association query {} from root {} as {}",aq,root.getName(),rr.getAbsQuery());
+            }
+            rewriteAssociationQueries(rr.getReferencedMetadata());
+        }
     }
 
     private static void copyFields(Fields dest,
@@ -197,7 +316,9 @@ public class CompositeMetadata extends EntityMetadata {
         for(Iterator<Field> itr=source.getFields();itr.hasNext();) {
             Field field=itr.next();            
             if(field instanceof SimpleField) {
-                dest.put(field);
+                SimpleField newField=new SimpleField(field.getName(),field.getType());
+                shallowCopy(newField,field);
+                dest.put(newField);
             } else {
                 path.push(field.getName());
                 if(field instanceof ObjectField) {
@@ -211,30 +332,31 @@ public class CompositeMetadata extends EntityMetadata {
                     dest.put(newField);
                 } else if(field instanceof ArrayField) {
                     ArrayElement sourceEl=((ArrayField)field).getElement();
-                    if(sourceEl instanceof SimpleArrayElement) {
-                        // No need to copy a simple array
-                        dest.put(field);
-                    } else {
-                        // Need to copy an Object array, there is a Fields object in it
+                    ArrayElement newElement;
+                    if(sourceEl instanceof ObjectArrayElement) {
                         path.push(Path.ANY);
-                        ObjectArrayElement newEl=new ObjectArrayElement();
-                        newEl.getProperties().putAll(sourceEl.getProperties());
-                        copyFields(newEl.getFields(),
+                        // Need to copy an Object array, there is a Fields object in it
+                        newElement=new ObjectArrayElement();
+                        copyFields(((ObjectArrayElement)newElement).getFields(),
                                    ((ObjectArrayElement)sourceEl).getFields(),
                                    path,
                                    parentEntity,
                                    gmd);
-                        ArrayField newField=new ArrayField(field.getName(),newEl);
-                        shallowCopy(newField,field);
-                        dest.put(newField);
                         path.pop();
+                    } else {
+                        newElement=new SimpleArrayElement(((SimpleArrayElement)sourceEl).getType());
                     }
+                    newElement.getProperties().putAll(sourceEl.getProperties());
+                    ArrayField newField=new ArrayField(field.getName(),newElement);
+                    shallowCopy(newField,field);
+                    dest.put(newField);
                 } else {
                     // Field is a reference
                     ReferenceField reference=(ReferenceField)field;
                     ResolvedReferenceField newField=resolveReference(dest,reference,path,parentEntity,gmd);
-                    if(newField!=null)
+                    if(newField!=null) {
                         dest.put(newField);
+                    }
                 }
                 path.pop();
             }
@@ -262,8 +384,8 @@ public class CompositeMetadata extends EntityMetadata {
             path.push(Path.ANY);
             CompositeMetadata cmd=buildCompositeMetadata(md,gmd,fpath,parentEntity,path);
             path.pop();
-            parentEntity.children.put(fpath,cmd);
-            ResolvedReferenceField newField=new ResolvedReferenceField(source,cmd);
+            ResolvedReferenceField newField=new ResolvedReferenceField(source,md,cmd);
+            parentEntity.children.put(fpath,newField);
             return newField;
         } 
         return null;
@@ -285,7 +407,7 @@ public class CompositeMetadata extends EntityMetadata {
         for(int i=0;i<depth;i++)
             bld.append("  ");
         bld.append(getName()).append(':').append(entityPath.toString()).append('\n');
-        for(CompositeMetadata ch:children.values())
-            ch.toTreeString(depth+1,bld);
+        for(ResolvedReferenceField ch:children.values())
+            ch.getReferencedMetadata().toTreeString(depth+1,bld);
     }
 }

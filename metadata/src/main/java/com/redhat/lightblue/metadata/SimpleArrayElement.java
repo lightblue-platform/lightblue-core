@@ -49,7 +49,7 @@ public class SimpleArrayElement extends ArrayElement {
         if (p.numSegments() == level) {
             return this;
         } else if (p.head(level).equals(Path.PARENT)) {
-            return this.getParent().resolve(p, level + 1);
+            return this.getParent().getParent().resolve(p, level + 1);
         } else {
             throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
         }

@@ -110,9 +110,9 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         System.out.println(c.toTreeString());
         Assert.assertEquals("",c.getEntityPath().toString());
         Assert.assertEquals(2,c.getChildNames().size());
-        CompositeMetadata b=c.getChild(new Path("b"));
+        CompositeMetadata b=c.getChildMetadata(new Path("b"));
         Assert.assertNotNull(b);
-        CompositeMetadata d=c.getChild(new Path("obj1.d"));
+        CompositeMetadata d=c.getChildMetadata(new Path("obj1.d"));
         Assert.assertNotNull(d);
         Assert.assertNull(c.getParent());
         
@@ -145,9 +145,9 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         Assert.assertEquals("",a.getEntityPath().toString());
         Assert.assertEquals(2,a.getChildNames().size());
         Assert.assertNull(a.getParent());
-        CompositeMetadata b=a.getChild(new Path("b"));
+        CompositeMetadata b=a.getChildMetadata(new Path("b"));
         Assert.assertNotNull(b);
-        CompositeMetadata c=a.getChild(new Path("obj1.c"));
+        CompositeMetadata c=a.getChildMetadata(new Path("obj1.c"));
         Assert.assertNotNull(c);
         
         Assert.assertEquals(0,b.getChildNames().size());
@@ -155,9 +155,9 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         Assert.assertEquals("b",b.getEntityPath().toString());
 
         Assert.assertEquals(2,c.getChildNames().size());
-        CompositeMetadata cb=c.getChild(new Path("obj1.c.*.b"));
+        CompositeMetadata cb=c.getChildMetadata(new Path("obj1.c.*.b"));
         Assert.assertNotNull(cb);
-        CompositeMetadata cd=c.getChild(new Path("obj1.c.*.obj1.d"));
+        CompositeMetadata cd=c.getChildMetadata(new Path("obj1.c.*.obj1.d"));
         Assert.assertNotNull(cd);
         Assert.assertEquals("obj1.c.*.obj1.d",cd.getEntityPath().toString());
         Assert.assertEquals(0,cd.getChildNames().size());
@@ -182,12 +182,12 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         Assert.assertEquals(3,r.getChildNames().size());
         Assert.assertNull(r.getParent());
 
-        CompositeMetadata b=r.getChild(new Path("b"));
+        CompositeMetadata b=r.getChildMetadata(new Path("b"));
         Assert.assertNotNull(b);
-        CompositeMetadata c=r.getChild(new Path("obj1.c"));
+        CompositeMetadata c=r.getChildMetadata(new Path("obj1.c"));
         Assert.assertNotNull(c);
 
-        CompositeMetadata rr=r.getChild(new Path("r"));
+        CompositeMetadata rr=r.getChildMetadata(new Path("r"));
         Assert.assertNotNull(rr);
     }
 
@@ -208,9 +208,22 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,new LimitingGMD(9));
 
         ResolvedReferenceField ref=(ResolvedReferenceField)r.resolve(new Path("obj1.c"));
-        Assert.assertEquals(r.getChild(new Path("obj1.c")),ref.getReferencedMetadata());
+        Assert.assertEquals(r.getChildMetadata(new Path("obj1.c")),ref.getReferencedMetadata());
         
         ref=(ResolvedReferenceField)r.resolve(new Path("obj1.c.*.b"));
-        Assert.assertEquals(r.getChild(new Path("obj1.c")).getChild(new Path("obj1.c.*.b")),ref.getReferencedMetadata());
+        Assert.assertEquals(r.getChildMetadata(new Path("obj1.c")).getChildMetadata(new Path("obj1.c.*.b")),ref.getReferencedMetadata());
+    }
+
+    @Test
+    public void fieldResolutionTest() throws Exception {
+        EntityMetadata md=getMd("composite/A.json");
+        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+
+        ResolvedReferenceField ref=(ResolvedReferenceField)a.resolve(new Path("obj1.c"));
+        Assert.assertNotNull(ref);
+
+        SimpleField field=(SimpleField)ref.getElement().resolve(new Path("_id"));
+        Assert.assertTrue(field==a.resolve(new Path("obj1.c.*._id")));
+        Assert.assertEquals("obj1.c.*._id",field.getFullPath().toString());
     }
 }

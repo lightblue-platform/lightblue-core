@@ -40,6 +40,8 @@ public class ObjectArrayElement extends ArrayElement {
     private ObjectArrayElement(Fields fields) {
         super(ObjectType.TYPE);
         this.fields = fields;
+        for(Iterator<Field> itr=fields.getFields();itr.hasNext();)
+            itr.next().setParent(this);
     }
 
     /**
@@ -71,7 +73,7 @@ public class ObjectArrayElement extends ArrayElement {
         if (p.numSegments() == level) {
             return this;
         } else if (Path.PARENT.equals(p.head(level))) {
-            return this.getParent().resolve(p, level + 1);
+            return this.getParent().getParent().resolve(p, level + 1);
         } else {
             return fields.resolve(p, level);
         }
