@@ -21,8 +21,13 @@ package com.redhat.lightblue.metadata;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collection;
 
 import com.redhat.lightblue.query.SortKey;
+
+import com.redhat.lightblue.util.Path;
 
 /**
  * Specifies that the combined value of one or more fields must be unique
@@ -39,6 +44,11 @@ public class Index implements Serializable {
      * Default ctor
      */
     public Index() {
+    }
+
+    public Index(SortKey... f) {
+        for(SortKey k:f)
+            fields.add(k);
     }
 
     /**
@@ -87,6 +97,35 @@ public class Index implements Serializable {
         if (f != null) {
             fields.addAll(f);
         }
+    }
+
+    /*
+     * Return the set of fields for which this index can be useful
+     * during a search involving those fields.
+     */
+    public Set<Path> getUsefulness(Collection<Path> searchFields) {
+        Set<Path> ret=new HashSet<>();
+        for(SortKey key:fields) {
+            boolean found=false;
+            for(Path searchField:searchFields) {
+                if(key.getField().equals(searchField)) {
+                    found=true;
+                    break;
+                }
+            }
+            if(found) {
+                ret.add(key.getField());
+            } else
+                break;
+        }
+        return ret;
+    }
+    
+    /**
+     * Returns if this index can be useful to search the given field
+     */
+    public boolean isUseful(Path field) {
+        return !fields.isEmpty()&&fields.get(0).getField().equals(field);
     }
 
 }
