@@ -94,6 +94,15 @@ public class QueryPlanChooser {
             iterateReferences(compositeMetadata,qplan.getUnassignedClauses());
             
             reset();
+
+            // Check unimplemented features. If there is anything in
+            // unassigned clauses list, we fail
+            for(Conjunct x:qplan.getUnassignedClauses())
+                switch(x.getReferredNodes().size()) {
+                case 2: throw Error.get(AssocConstants.ERR_UNRELATED_ENTITY_Q);
+                default: throw Error.get(AssocConstants.ERR_MORE_THAN_TWO_Q);
+                }
+
         } catch(Error e) {
             throw e;
         } catch(RuntimeException re) {
@@ -107,7 +116,10 @@ public class QueryPlanChooser {
      * Rewrites the query expression in its conjunctive normal form,
      * and adds clauses to the end of the clause list
      */
-    private void rewriteQuery(FieldTreeNode root,QueryExpression q,List<Conjunct> clauseList,QueryPlan qplan) {
+    private void rewriteQuery(FieldTreeNode root,
+                              QueryExpression q,
+                              List<Conjunct> clauseList,
+                              QueryPlan qplan) {
         QueryExpression cnf=qrewriter.rewrite(q);
         LOGGER.debug("Query in conjunctive normal form:{}",cnf);
         if(cnf instanceof NaryLogicalExpression&&

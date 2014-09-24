@@ -40,6 +40,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.TestDataStoreParser;
 import com.redhat.lightblue.assoc.iterators.*;
+import com.redhat.lightblue.assoc.scorers.*;
 
 public class QueryPlanChooserTest extends AbstractJsonNodeTest {
 
@@ -94,6 +95,7 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
         QueryPlanChooser chooser=new QueryPlanChooser(md,
                                                       new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
                                                       query("{'field':'field1','op':'=','rvalue':'s'}"));
 
         QueryPlanNode[] nodes=chooser.getQueryPlan().getAllNodes();

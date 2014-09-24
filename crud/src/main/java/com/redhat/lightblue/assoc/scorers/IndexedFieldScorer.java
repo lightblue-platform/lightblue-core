@@ -30,5 +30,6 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
     @Override
     public Comparable score(QueryPlan qp) {
+        return null;
     }
 }
