@@ -21,71 +21,22 @@ package com.redhat.lightblue.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- *
- * @author lcestari
- */
-@Ignore
 public class JsonUtilsTest {
-    @Test
-    public void testGetObjectMapper() {
-        System.out.println("getObjectMapper");
-        ObjectMapper expResult = null;
-        ObjectMapper result = JsonUtils.getObjectMapper();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
-    @Test
-    public void testJson() throws Exception {
-        System.out.println("json");
-        String s = "";
-        JsonNode expResult = null;
-        JsonNode result = JsonUtils.json(s);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 
     @Test
     public void testPrettyPrint_JsonNode() {
         System.out.println("prettyPrint");
-        JsonNode node = null;
-        String expResult = "";
+        JsonNode node = JsonNodeFactory.withExactBigDecimals(true).objectNode();
+        String expResult = "{\n}";
         String result = JsonUtils.prettyPrint(node);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    @Test
-    public void testPrettyPrint_StringBuilder_JsonNode() {
-        System.out.println("prettyPrint");
-        StringBuilder bld = null;
-        JsonNode node = null;
-        JsonUtils.prettyPrint(bld, node);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    @Test
-    public void testJsonWithNoInput() throws Exception {
-        JsonUtils.json((String) null);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    @Test
-    public void testJsonWithInvalidJSONInput() throws Exception {
-        JsonUtils.json("a");
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 }
