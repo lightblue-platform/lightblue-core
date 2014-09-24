@@ -29,7 +29,12 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public abstract class ClientIdentification extends JsonObject {
     private static final long serialVersionUID = 1L;
-
+    
+    /**
+     * Get the principal identifying the client.
+     */
+    public abstract String getPrincipal();
+    
     /**
      * Return the roles the caller is in.
      */
@@ -38,6 +43,7 @@ public abstract class ClientIdentification extends JsonObject {
     /**
      * Default implementation of toJson() returns an empty object node
      */
+    @Override
     public JsonNode toJson() {
         return getFactory().objectNode();
     }

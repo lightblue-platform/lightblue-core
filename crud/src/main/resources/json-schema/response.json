@@ -42,7 +42,7 @@
             "additionalProperties": true,
             "description": "Session information for the client. How this is used is implementation dependent, and TBD"
         },
-        "response": {
+        "processed": {
             "type": "array",
             "items": {
                 "type": "object",

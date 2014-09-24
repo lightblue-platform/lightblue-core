@@ -6,7 +6,7 @@
     "session": {
         "content": "TBD"
     },
-    "response": [
+    "processed": [
         {
             "foo": "bar"
         }

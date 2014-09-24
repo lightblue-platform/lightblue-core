@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
@@ -84,7 +83,7 @@ public class Mediator {
     public Response insert(InsertionRequest req) {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response();
+        Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
@@ -150,7 +149,7 @@ public class Mediator {
     public Response save(SaveRequest req) {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response();
+        Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
@@ -216,7 +215,7 @@ public class Mediator {
     public Response update(UpdateRequest req) {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response();
+        Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.UPDATE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
@@ -265,7 +264,7 @@ public class Mediator {
     public Response delete(DeleteRequest req) {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response();
+        Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.DELETE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
@@ -314,7 +313,7 @@ public class Mediator {
     public Response find(FindRequest req) {
         LOGGER.debug("find {}", req.getEntityVersion());
         Error.push("find(" + req.getEntityVersion().toString() + ")");
-        Response response = new Response();
+        Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         try {
             OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.FIND);

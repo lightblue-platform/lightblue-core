@@ -114,15 +114,21 @@ public class MediatorTest extends AbstractJsonSchemaTest {
 
     private static final class RestClientIdentification extends ClientIdentification {
 
-        private Set<String> clientRoles;
+        private final Set<String> clientRoles;
 
         public RestClientIdentification(List<String> roles) {
             clientRoles = new HashSet<>();
             clientRoles.addAll(roles);
         }
 
+        @Override
+        public String getPrincipal() {
+            return "";
+        }
+
+        @Override
         public boolean isUserInRole(String role) {
-            return clientRoles.contains(role) ? true : false;
+            return clientRoles.contains(role);
         }
 
         @Override
@@ -339,6 +345,5 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
-
     }
 }
