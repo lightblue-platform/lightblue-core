@@ -47,6 +47,13 @@ public class FieldInfo  implements Serializable {
         this.context=context;
         this.clause=clause;
     }
+
+    /**
+     * Copy ctor, shallow copy
+     */
+    public FieldInfo(FieldInfo f) {
+        this(f.absFieldName,f.context,f.clause);
+    }
     
     /**
      * Returns the absolute field name

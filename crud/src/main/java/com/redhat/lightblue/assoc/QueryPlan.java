@@ -72,15 +72,17 @@ public class QueryPlan implements Serializable {
     private final int[] toN;
 
     private final List<Conjunct> unassignedClauses=new ArrayList<>();
-    private final Map<Integer,List<Conjunct>> edgeData=new HashMap<>();
+    private final Map<Integer,QueryPlanData> edgeData=new HashMap<>();
+
+    private final QueryPlanScorer qdf;
 
     private class QueryPlanNodeImpl extends QueryPlanNode {
 
         private final int nodeIndex;
         private String name;
 
-        public QueryPlanNodeImpl(CompositeMetadata md,int index) {
-            super(md);
+        public QueryPlanNodeImpl(CompositeMetadata md,QueryPlanData data,int index) {
+            super(md,data);
             this.nodeIndex=index;
         }
 
@@ -143,20 +145,23 @@ public class QueryPlan implements Serializable {
             return (ix2*nodes.length)+ix1;
     }
 
-    private List<Conjunct> getEdgeData(int ix1,int ix2) {
+    private QueryPlanData getEdgeData(int ix1,int ix2) {
         return edgeData.get(getEdgeId(ix1,ix2));
     }
 
-    private void setEdgeData(int ix1,int ix2,List<Conjunct> list) {
-        edgeData.put(getEdgeId(ix1,ix2),list);
+    private void setEdgeData(int ix1,int ix2,QueryPlanData data) {
+        edgeData.put(getEdgeId(ix1,ix2),data);
     }
+
 
     /**
      * Constructs a query plan from the composite metadata by
      * recursively descending through the associated entities, and
      * creating a node for every entity.
      */
-    public QueryPlan(CompositeMetadata root) {
+    public QueryPlan(CompositeMetadata root,
+                     QueryPlanScorer qdf) {
+        this.qdf=qdf;
         LOGGER.debug("Constructing query plan for {}",root.getName());
         List<CompositeMetadata> md=new ArrayList<>(16);
         List<Edge> edges=new ArrayList<>(16);
@@ -164,7 +169,7 @@ public class QueryPlan implements Serializable {
         nodes=new QueryPlanNodeImpl[md.size()];
         int i=0;
         for(CompositeMetadata m:md) {
-            nodes[i]=new QueryPlanNodeImpl(m,i);
+            nodes[i]=new QueryPlanNodeImpl(m,qdf.newDataInstance(),i);
             i++;
         }
         connMx=new boolean[nodes.length][];
@@ -198,24 +203,30 @@ public class QueryPlan implements Serializable {
 
 
     private QueryPlan(QueryPlan source) {
+        qdf=source.qdf;
         connMx=source.connMx.clone();
         fromN=source.fromN.clone();
         toN=source.toN.clone();
         nodes=new QueryPlanNodeImpl[source.nodes.length];
         for(int i=0;i<nodes.length;i++)
             nodes[i]=new QueryPlanNodeImpl(source.nodes[i]);
-        for(Map.Entry<Integer,List<Conjunct>> entry:source.edgeData.entrySet())
-            edgeData.put(entry.getKey(),new ArrayList<Conjunct>(entry.getValue()));
+        for(Map.Entry<Integer,QueryPlanData> entry:source.edgeData.entrySet()) {
+            QueryPlanData data;
+            if(entry.getValue()!=null) {
+                data=entry.getValue().newInstance();
+                data.copyFrom(entry.getValue());
+            } else
+                data=null;
+            edgeData.put(entry.getKey(),data);
+        }
         unassignedClauses.addAll(source.unassignedClauses);
     }
 
-    private QueryPlan(QueryPlanNodeImpl[] nodes) {
-        this.nodes=nodes;
-        connMx=new boolean[nodes.length][];
-        for(int i=0;i<nodes.length;i++)
-            connMx[i]=new boolean[nodes.length];
-        fromN=new int[nodes.length];
-        toN=new int[nodes.length];
+    /**
+     * Creates a new instance of QueryPlanData
+     */
+    public QueryPlanData newData() {
+        return qdf.newDataInstance();
     }
 
     /**
@@ -249,8 +260,8 @@ public class QueryPlan implements Serializable {
     /**
      * Returns the list of conjuncts associated with the undirected edge between the two nodes
      */
-    public List<Conjunct> getEdgeData(QueryPlanNode x,
-                                      QueryPlanNode y) {
+    public QueryPlanData getEdgeData(QueryPlanNode x,
+                                     QueryPlanNode y) {
         if(isOwned(x)&&isOwned(y)) 
             return getEdgeData(((QueryPlanNodeImpl)x).nodeIndex,
                                ((QueryPlanNodeImpl)y).nodeIndex);
@@ -263,15 +274,15 @@ public class QueryPlan implements Serializable {
      */
     public void setEdgeData(QueryPlanNode x,
                             QueryPlanNode y,
-                            List<Conjunct> l) {
+                            QueryPlanData d) {
         if(isOwned(x)&&isOwned(y))
             setEdgeData( ((QueryPlanNodeImpl)x).nodeIndex,
                          ((QueryPlanNodeImpl)y).nodeIndex,
-                         l);
+                         d);
         else
             throw new IllegalArgumentException();
     }
-            
+
 
     /**
      * Returns a deep copy of the query plan. 

@@ -74,7 +74,7 @@ public class QueryPlanChooser {
             this.compositeMetadata=cmd;
             this.qplanIterator=qpitr;
             this.scorer=scorer;
-            qplan=new QueryPlan(compositeMetadata);
+            qplan=new QueryPlan(compositeMetadata,scorer);
             LOGGER.debug("Initial query plan:{}",qplan);
             
             this.requestQuery=requestQuery;
@@ -104,8 +104,10 @@ public class QueryPlanChooser {
                 }
 
         } catch(Error e) {
+            LOGGER.error("During construction:{}",e);
             throw e;
         } catch(RuntimeException re) {
+            LOGGER.error("Durinf=g construction:{}",re);
             throw Error.get(AssocConstants.ERR_CANNOT_CREATE_CHOOSER,re.toString());
         } finally {
             Error.pop();
@@ -171,7 +173,7 @@ public class QueryPlanChooser {
                 // depend on multiple entities, their assignments may change
                 // based on the query plan.
                 LOGGER.debug("Conjunct has one entity");
-                nodes.get(0).getConjuncts().add(c);
+                nodes.get(0).getData().getConjuncts().add(c);
                 break;
 
             case 2:
@@ -181,10 +183,10 @@ public class QueryPlanChooser {
                 QueryPlanNode node2=nodes.get(1);
                 if(qplan.isUndirectedConnected(node1,node2)) {
                     LOGGER.debug("Conjunct is assigned to an edge");
-                    List<Conjunct> l=qplan.getEdgeData(node1,node2);
-                    if(l==null)
-                        qplan.setEdgeData(node1,node2,l=new ArrayList<>());
-                    l.add(c);
+                    QueryPlanData qd=qplan.getEdgeData(node1,node2);
+                    if(qd==null)
+                        qplan.setEdgeData(node1,node2,qd=qplan.newData());
+                    qd.getConjuncts().add(c);
                     break;
                 }
                 // No break, falls through to default
@@ -231,9 +233,15 @@ public class QueryPlanChooser {
      * Resets the query chooser to a state where it can start evaluating the query plans again
      */
     public void reset() {
+        bestPlan=null;
+        bestPlanScore=null;
+        
         qplanIterator.reset(qplan);
+        scorer.reset(this);
+
         bestPlan=qplan.deepCopy();
         bestPlanScore=scorer.score(bestPlan);
+        
     }
 
     /**
@@ -254,5 +262,4 @@ public class QueryPlanChooser {
         } else
             return false;
     }
-
 }

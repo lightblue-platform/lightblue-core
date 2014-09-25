@@ -20,9 +20,6 @@ package com.redhat.lightblue.assoc;
 
 import java.io.Serializable;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,15 +42,15 @@ public abstract class QueryPlanNode implements Serializable {
     private static final Logger LOGGER=LoggerFactory.getLogger(QueryPlanNode.class);
 
     protected final CompositeMetadata md;
-    protected final List<Conjunct> conjuncts;
+    protected final QueryPlanData data;
 
     /**
      * Creates a query plan node using the given composite metadata,
      * and an empty query clauses list
      */
-    public QueryPlanNode(CompositeMetadata md) {
+    public QueryPlanNode(CompositeMetadata md,QueryPlanData data) {
         this.md=md;
-        conjuncts=new ArrayList<>();
+        this.data=data;
     }
 
     /**
@@ -62,16 +59,16 @@ public abstract class QueryPlanNode implements Serializable {
      */
     public QueryPlanNode(QueryPlanNode source) {
         this.md=source.md;
-        this.conjuncts=new ArrayList<>(source.conjuncts.size());
-        this.conjuncts.addAll(source.conjuncts);
-    }
-
-    public List<Conjunct> getConjuncts() {
-        return conjuncts;
+        this.data=source.data.newInstance();
+        this.data.copyFrom(source.data);
     }
 
     public CompositeMetadata getMetadata() {
         return md;
+    }
+
+    public QueryPlanData getData() {
+        return data;
     }
 
     /**

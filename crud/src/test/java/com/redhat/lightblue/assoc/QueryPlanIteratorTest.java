@@ -39,6 +39,7 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.TestDataStoreParser;
 
 import com.redhat.lightblue.assoc.iterators.*;
+import com.redhat.lightblue.assoc.scorers.*;
 
 import java.io.IOException;
 
@@ -93,7 +94,7 @@ public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
     public void simpleTest() throws Exception {
         GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
         CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md);
+        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
         QueryPlanIterator itr=new BruteForceQueryPlanIterator();
         itr.reset(qp);
 
@@ -112,7 +113,7 @@ public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
     public void two_level_test() throws Exception {
         GMD gmd=new GMD(projection("[{'field':'r.*.r.*','include':1},{'field':'b.*.','include':1}]"),null);
         CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/R.json"),gmd);
-        QueryPlan qp=new QueryPlan(md);
+        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
         QueryPlanIterator itr=new BruteForceQueryPlanIterator();
         itr.reset(qp);
 

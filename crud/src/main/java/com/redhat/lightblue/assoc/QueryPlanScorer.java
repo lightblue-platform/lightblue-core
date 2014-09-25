@@ -22,8 +22,23 @@ package com.redhat.lightblue.assoc;
  * The implementation should assign a score to the query plan, and
  * return it in a structure that can be compared using Comparable
  * interface methods.
+ *
+ * It is up to the implementation to decide whether this will be a
+ * stateful or stateless implementation.
  */
 public interface QueryPlanScorer {
+
+    /**
+     * Returns a new instance for an implementation of QueryPlanData
+     * used by this scorer
+     */
+    QueryPlanData newDataInstance();
+
+    /**
+     * Initialize the scorer instance before the iteration of possible
+     * query plans
+     */
+    void reset(QueryPlanChooser c);
 
     /**
      * Returns a score for the query plan

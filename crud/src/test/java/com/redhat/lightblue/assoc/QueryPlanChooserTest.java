@@ -109,14 +109,14 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(anode);
         Assert.assertNotNull(cnode);
         Assert.assertTrue(chooser.getQueryPlan().isUndirectedConnected(anode,cnode));
-        List<Conjunct> edgeData=chooser.getQueryPlan().getEdgeData(anode,cnode);
-        Assert.assertEquals(edgeData,chooser.getQueryPlan().getEdgeData(cnode,anode));
+        List<Conjunct> edgeData=chooser.getQueryPlan().getEdgeData(anode,cnode).getConjuncts();
+        Assert.assertEquals(edgeData,chooser.getQueryPlan().getEdgeData(cnode,anode).getConjuncts());
         // The request query must be associated with A
-        Assert.assertTrue(anode.getConjuncts().size()==1);
+        Assert.assertTrue(anode.getData().getConjuncts().size()==1);
 
         System.out.println(chooser.getQueryPlan().treeToString());
         for(QueryPlanNode node:chooser.getQueryPlan().getAllNodes())
-            System.out.println(node.getName()+":"+node.getConjuncts());
+            System.out.println(node.getName()+":"+node.getData().getConjuncts());
         
     }
 }

@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,14 +179,26 @@ public class CompositeMetadata extends EntityMetadata {
      * Returns the composite metadata containing the field
      */
     public CompositeMetadata getEntityOfField(FieldTreeNode field) {
-        CompositeMetadata ret=null;
+        if(field!=null) {
+            ResolvedReferenceField rr=getResolvedReferenceOfField(field);
+            if(rr==null)
+                return this;
+            else
+                return rr.getReferencedMetadata();
+        } else
+            return null;
+    }
+    
+    /**
+     * Returns the resolved reference containing the field
+     */
+    public ResolvedReferenceField getResolvedReferenceOfField(FieldTreeNode field) {
+        ResolvedReferenceField ret=null;
         if(field!=null) {
             do {
                 if(field instanceof ResolvedReferenceField)
-                    ret=((ResolvedReferenceField)field).getReferencedMetadata();
-                else if(field==schema.fieldRoot)
-                    ret=this;
-                else
+                    ret=(ResolvedReferenceField)field;
+                else 
                     field=field.getParent();
             } while(field!=null&&ret==null);                
         } 
@@ -192,6 +206,41 @@ public class CompositeMetadata extends EntityMetadata {
     }
 
     /**
+     * Returns the field name for the given absolute field relative to
+     * the entity it is contained in
+     */
+    public Path getEntityRelativeFieldName(Path absField) {
+        FieldTreeNode node=resolve(absField);
+        return getEntityRelativeFieldName(node);
+    }
+
+    /**
+     * Returns the field name for the given field node relative to the
+     * entity it is contained in
+     */
+    public Path getEntityRelativeFieldName(FieldTreeNode fieldNode) {
+        MutablePath mp=new MutablePath();
+        if(fieldNode!=null) {
+            List<String> list=new ArrayList<>();
+            FieldTreeNode trc=fieldNode;
+            do {
+                if(trc instanceof ArrayElement && trc.getParent() instanceof ResolvedReferenceField) {
+                    int n=list.size();
+                    for(int i=n-1;i>=0;i--)
+                        mp.push(list.get(i));
+                    return mp.immutableCopy();
+                } else if(trc!=getEntitySchema().fieldRoot) {
+                    list.add(trc.getName());
+                }
+                trc=trc.getParent();
+            } while(trc!=null);
+            // If we're here, field is in the root
+            return fieldNode.getFullPath();
+        }
+        return null;
+    }
+
+   /**
      * Builds a composite metadata rooted at the given entity metadata.
      */
     public static CompositeMetadata buildCompositeMetadata(EntityMetadata root,

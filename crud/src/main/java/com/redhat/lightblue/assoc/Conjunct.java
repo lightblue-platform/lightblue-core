@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.assoc;
 
+import java.io.Serializable;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -33,7 +35,24 @@ import com.redhat.lightblue.metadata.CompositeMetadata;
 
 import com.redhat.lightblue.util.Path;
 
-public class Conjunct {
+/**
+ * A query clause that cannot be further broken into conjuncts of a
+ * conjunctive normal form query. This class also keeps metadata
+ * related to that clause, such as the referred nodes of query plan,
+ * fieldinfo, etc.
+ *
+ * Object identify of conjuncts are preserved during query plan
+ * processing. That is, a Conjunct object created for a particular
+ * query plan is used again for other incarnation of that query plan,
+ * only node associations are changed. So, it is possible to keep maps
+ * that map a Conjunct to some other piece of data. This is important
+ * in query scoring. Scoring can process conjuncts, and keep data
+ * internally to prevent recomputing the cost associated with the
+ * conjunct for every possible query plan.
+ */
+public class Conjunct implements Serializable {
+
+    private static final long serialVersionUID=1l;
     
     private static final Logger LOGGER=LoggerFactory.getLogger(Conjunct.class);
     
@@ -45,7 +64,7 @@ public class Conjunct {
     /**
      * Field info for the fields in the clause
      */
-    private final List<FieldInfo> fieldInfo;
+    private final List<ResolvedFieldInfo> fieldInfo=new ArrayList<>();
     
     /**
      * A mapping from absolute field names to the query plan nodes
@@ -62,15 +81,18 @@ public class Conjunct {
                     CompositeMetadata compositeMetadata,
                     QueryPlan qplan) {
         this.clause=q;
-        this.fieldInfo=clause.getQueryFields();
+        List<FieldInfo> fInfo=clause.getQueryFields();
         LOGGER.debug("Conjunct for query {} with fields {}",q,fieldInfo);
-        for(FieldInfo fi:fieldInfo) {
-            CompositeMetadata cmd=compositeMetadata.getEntityOfPath(fi.getAbsFieldName());
+        for(FieldInfo fi:fInfo) {
+            ResolvedFieldInfo rfi=new ResolvedFieldInfo(fi,compositeMetadata);
+            fieldInfo.add(rfi);
+            CompositeMetadata cmd=compositeMetadata.getEntityOfPath(rfi.getAbsFieldName());
             if(cmd==null)
-                throw new IllegalArgumentException("Cannot find field in composite metadata "+fi.getAbsFieldName()); 
+                throw new IllegalArgumentException("Cannot find field in composite metadata "+rfi.getAbsFieldName()); 
             QueryPlanNode qnode=qplan.getNode(cmd);
             if(qnode==null)
-                throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata. Query:"+clause+" fieldInfo:"+fi+" Composite metadata:"+cmd);
+                throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata. Query:"+
+                                                   clause+" fieldInfo:"+rfi+" Composite metadata:"+cmd);
             
             boolean found=false;
             for(QueryPlanNode n:referredNodes)
@@ -80,7 +102,7 @@ public class Conjunct {
                 }
             if(!found)
                 referredNodes.add(qnode);
-            fieldNodeMap.put(fi.getAbsFieldName(),qnode);
+            fieldNodeMap.put(rfi.getAbsFieldName(),qnode);
         }
     }
 
@@ -89,6 +111,14 @@ public class Conjunct {
      */
     public List<QueryPlanNode> getReferredNodes() {
         return referredNodes;
+    }
+
+
+    /**
+     * Returns the field information about the fields in the conjunct
+     */
+    public List<ResolvedFieldInfo> getFieldInfo() {
+        return fieldInfo;
     }
 
     public String toString() {
