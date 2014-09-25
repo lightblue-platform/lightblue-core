@@ -221,7 +221,7 @@ public final class JsonUtils {
             indent(bld, depth);
             newLine = false;
         }
-        if (node.size() > 0) {
+        if (node.size() >= 0){
             bld.append("{\n");
             newLine = true;
         }
