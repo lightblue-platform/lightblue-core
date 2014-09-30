@@ -107,7 +107,7 @@ public class QueryPlanChooser {
             LOGGER.error("During construction:{}",e);
             throw e;
         } catch(RuntimeException re) {
-            LOGGER.error("Durinf=g construction:{}",re);
+            LOGGER.error("During construction:{}",re);
             throw Error.get(AssocConstants.ERR_CANNOT_CREATE_CHOOSER,re.toString());
         } finally {
             Error.pop();
@@ -241,6 +241,7 @@ public class QueryPlanChooser {
 
         bestPlan=qplan.deepCopy();
         bestPlanScore=scorer.score(bestPlan);
+        LOGGER.debug("Storing initial plan as the best plan:{}",bestPlan);
         
     }
 
@@ -253,10 +254,13 @@ public class QueryPlanChooser {
      */
     public boolean next() {
         if(qplanIterator.next()) {
+            LOGGER.debug("Scoring plan {}",qplan);
             Comparable score=scorer.score(qplan);
             if(score.compareTo(bestPlanScore)<0) {
+                LOGGER.debug("Score is better, storing this plan");
                 bestPlan=qplan.deepCopy();
                 bestPlanScore=score;
+                LOGGER.debug("Stored plan:{}",bestPlan);
             }
             return true;
         } else

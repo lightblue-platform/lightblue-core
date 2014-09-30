@@ -64,12 +64,7 @@ public class QueryPlan implements Serializable {
     
     private final QueryPlanNodeImpl[] nodes;
 
-    /**
-     * Connection matrix. connMx[i][j] is true if there is an edge from i to j
-     */
-    private final boolean[][] connMx;
-    private final int[] fromN;
-    private final int[] toN;
+    private final ConnMx mx;
 
     private final List<Conjunct> unassignedClauses=new ArrayList<>();
     private final Map<Integer,QueryPlanData> edgeData=new HashMap<>();
@@ -92,29 +87,11 @@ public class QueryPlan implements Serializable {
         }
 
         public QueryPlanNode[] getSources() {
-            QueryPlanNode[] sources=new QueryPlanNode[toN[nodeIndex]];
-            if(sources.length>0) {
-                int k=0;
-                for(int i=0;i<connMx.length;i++) {
-                    if(connMx[i][nodeIndex]) {
-                        sources[k++]=nodes[i];
-                    }
-                }
-            }
-            return sources;
+            return map(mx.getSources(nodeIndex));
         }
 
         public QueryPlanNode[] getDestinations() {
-            QueryPlanNode[] dests=new QueryPlanNode[fromN[nodeIndex]];
-            if(dests.length>0) {
-                int k=0;
-                for(int i=0;i<connMx.length;i++) {
-                    if(connMx[nodeIndex][i]) {
-                        dests[k++]=nodes[i];
-                    }
-                }
-            }
-            return dests;
+            return map(mx.getDestinations(nodeIndex));
         }
 
         public String getName() {
@@ -134,6 +111,11 @@ public class QueryPlan implements Serializable {
         public Edge(int from,int to) {
             this.from=from;
             this.to=to;
+        }
+
+        @Override
+        public String toString() {
+            return from+"->"+to;
         }
     }
 
@@ -166,19 +148,17 @@ public class QueryPlan implements Serializable {
         List<CompositeMetadata> md=new ArrayList<>(16);
         List<Edge> edges=new ArrayList<>(16);
         traverseInit(md,root,edges);
+        LOGGER.debug("edges:{}",edges);
         nodes=new QueryPlanNodeImpl[md.size()];
         int i=0;
         for(CompositeMetadata m:md) {
             nodes[i]=new QueryPlanNodeImpl(m,qdf.newDataInstance(),i);
             i++;
         }
-        connMx=new boolean[nodes.length][];
-        for(i=0;i<connMx.length;i++)
-            connMx[i]=new boolean[nodes.length];
-        fromN=new int[nodes.length];
-        toN=new int[nodes.length];
+        mx=new ConnMx(nodes.length);
         for(Edge x:edges)
-            connect(x.from,x.to);
+            mx.connect(x.from,x.to);
+        LOGGER.debug("constructed plan:{}",this);
     }
 
     /**
@@ -204,9 +184,7 @@ public class QueryPlan implements Serializable {
 
     private QueryPlan(QueryPlan source) {
         qdf=source.qdf;
-        connMx=source.connMx.clone();
-        fromN=source.fromN.clone();
-        toN=source.toN.clone();
+        mx=new ConnMx(source.mx);
         nodes=new QueryPlanNodeImpl[source.nodes.length];
         for(int i=0;i<nodes.length;i++)
             nodes[i]=new QueryPlanNodeImpl(source.nodes[i]);
@@ -235,17 +213,7 @@ public class QueryPlan implements Serializable {
      * case, it will return the root entity.
      */
     public QueryPlanNode[] getSources() {
-        // Source nodes are those with no incoming edges.
-        int n=0;
-        for(int x=0;x<toN.length;x++)
-            if(toN[x]==0)
-                n++;
-        QueryPlanNode[] sources=new QueryPlanNode[n];
-        int k=0;
-        for(int x=0;x<toN.length;x++)
-            if(toN[x]==0)
-                sources[k++]=nodes[x];
-        return sources;
+        return map(mx.getSources());
     }
 
     /**
@@ -297,12 +265,7 @@ public class QueryPlan implements Serializable {
     public void flip(QueryPlanNode x,
                      QueryPlanNode y) {
         if(isOwned(x)&&isOwned(y)) {
-            int ix1=((QueryPlanNodeImpl)x).nodeIndex;
-            int ix2=((QueryPlanNodeImpl)y).nodeIndex;
-            if(connMx[ix1][ix2])
-                flip(ix1,ix2);
-            else
-                flip(ix2,ix1);
+            mx.flip( ((QueryPlanNodeImpl)x).nodeIndex,((QueryPlanNodeImpl)y).nodeIndex);
         } else
             throw new IllegalArgumentException();
     }
@@ -313,8 +276,8 @@ public class QueryPlan implements Serializable {
     public void connect(QueryPlanNode from,
                         QueryPlanNode to) {
         if(isOwned(from)&&isOwned(to)) {
-            connect((QueryPlanNodeImpl)from,
-                    (QueryPlanNodeImpl)to);
+            mx.connect( ((QueryPlanNodeImpl)from).nodeIndex,
+                        ((QueryPlanNodeImpl)to).nodeIndex);
         } else
             throw new IllegalArgumentException();
     }
@@ -333,7 +296,7 @@ public class QueryPlan implements Serializable {
     public boolean isDirectedConnected(QueryPlanNode from,
                                        QueryPlanNode to) {
         if(isOwned(from)&&isOwned(to)) {
-            return connMx[ ((QueryPlanNodeImpl)from).nodeIndex ] [ ((QueryPlanNodeImpl)to).nodeIndex ];
+            return mx.isDirectedConnected( ((QueryPlanNodeImpl)from).nodeIndex, ((QueryPlanNodeImpl)to).nodeIndex );
         }
         return false;
     }
@@ -344,28 +307,13 @@ public class QueryPlan implements Serializable {
     public boolean isUndirectedConnected(QueryPlanNode from,
                                          QueryPlanNode to) {
         if(isOwned(from)&&isOwned(to)) {
-            return connMx[ ((QueryPlanNodeImpl)from).nodeIndex ] [ ((QueryPlanNodeImpl)to).nodeIndex ]||
-                connMx[ ((QueryPlanNodeImpl)to).nodeIndex ] [ ((QueryPlanNodeImpl)from).nodeIndex ];
+            return mx.isUndirectedConnected( ((QueryPlanNodeImpl)from).nodeIndex,((QueryPlanNodeImpl)to).nodeIndex);
         }
         return false;
     }
 
     public String mxToString() {
-        StringBuilder bld=new StringBuilder(128);
-        for(QueryPlanNodeImpl n:nodes) {
-            bld.append(n.getName()).append(" ");
-        }
-        bld.append('\n');
-        for(int i=0;i<connMx.length;i++) {
-            for(int j=0;j<connMx.length;j++) {
-                bld.append(connMx[i][j]?'1':'0').append(' ');
-            }
-            bld.append(':').append(fromN[i]).append('\n');
-        }
-        for(int i=0;i<toN.length;i++) {
-            bld.append(toN[i]).append(' ');
-        }
-        return bld.toString();
+        return mx.toString();
     }
 
     /**
@@ -396,9 +344,9 @@ public class QueryPlan implements Serializable {
         return bld;
     }
 
-    private void connect(QueryPlanNodeImpl from,
-                         QueryPlanNodeImpl to) {
-        connect(from.nodeIndex,to.nodeIndex);
+    @Override
+    public String toString() {
+        return mxToString()+"\n"+treeToString();
     }
 
     private void treeToString(QueryPlanNode start, StringBuilder bld) {
@@ -417,23 +365,11 @@ public class QueryPlan implements Serializable {
         return false;
     }
     
-    private void connect(int from,int to) {
-        if(!connMx[from][to]) {
-            connMx[from][to]=true;
-            fromN[from]++;
-            toN[to]++;
-        }
-    }
-    
-    private void flip(int from,int to) {
-        if(connMx[from][to]) {
-            connMx[from][to]=false;
-            connMx[to][from]=true;
-            fromN[from]--;
-            fromN[to]++;
-            toN[to]--;
-            toN[from]++;
-        }
+    private QueryPlanNode[] map(int[] nodeIx) {
+        QueryPlanNode[] ret=new QueryPlanNode[nodeIx.length];
+        for(int i=0;i<nodeIx.length;i++)
+            ret[i]=nodes[nodeIx[i]];
+        return ret;
     }
     
 }

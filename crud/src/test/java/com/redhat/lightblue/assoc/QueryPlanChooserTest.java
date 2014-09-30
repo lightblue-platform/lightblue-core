@@ -117,6 +117,40 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         System.out.println(chooser.getQueryPlan().treeToString());
         for(QueryPlanNode node:chooser.getQueryPlan().getAllNodes())
             System.out.println(node.getName()+":"+node.getData().getConjuncts());
-        
+    }
+
+    @Test
+    public void iterationTestA() throws Exception {
+        GMD gmd=new GMD(projection("[{'field':'obj1.c','include':1},{'field':'b','include':1}]"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
+                                                      query("{'field':'field1','op':'=','rvalue':'s'}"));
+        // Iterate
+        while(chooser.next());
+        Assert.assertNotNull(chooser.getBestPlan());
+        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        // Best plan should have A first
+        Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
+        Assert.assertEquals("A",chooser.getBestPlan().getSources()[0].getMetadata().getName());
+    }
+
+    @Test
+    public void iterationTestC() throws Exception {
+        GMD gmd=new GMD(projection("[{'field':'obj1.c','include':1},{'field':'b','include':1}]"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
+                                                      query("{'field':'obj1.c.*.field1','op':'=','rvalue':'s'}"));
+        // Iterate
+        while(chooser.next());
+        Assert.assertNotNull(chooser.getBestPlan());
+        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        // Best plan should have C first
+        Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
+        Assert.assertEquals("C",chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
 }

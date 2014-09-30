@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.Indexes;
 import com.redhat.lightblue.metadata.Index;
@@ -44,6 +47,8 @@ import com.redhat.lightblue.util.Path;
 public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
     private static final long serialVersionUID=1l;
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(IndexedFieldScorer.class);
 
     private CompositeMetadata cmd;
 
@@ -76,6 +81,10 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
                 return ret;
             } else
                 throw new IllegalArgumentException("Expecting a score, got "+t);
+        }
+
+        public String toString() {
+            return "Indexes distances:"+indexed+" Unindexed:"+unindexed;
         }
 
         private int compare(List<Integer> l1,List<Integer> l2) {
@@ -116,6 +125,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
     @Override
     public Comparable score(QueryPlan qp) {
+        LOGGER.debug("score begin");
         Score score=new Score();
         // Scoring is done by the distance of index using queries to
         // the source nodes If there are no index using queries, then
@@ -125,11 +135,14 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
         for(QueryPlanNode node:nodes) {
             addNode(score,node,0);
         }
+        LOGGER.debug("score={}",score);
         return score.numDistances()==0?MAX:score;
     }
 
     private void addNode(Score score,QueryPlanNode node,int distance) {
+        LOGGER.debug("Add node to score {}",node);
         IndexedFieldScorerData data=(IndexedFieldScorerData)node.getData();
+        LOGGER.debug("Node data for node {}:{}",node.getName(),data);
         if(data.getIndexMap().isEmpty()) {
             // No useful indexes in this node
             // Any queries?
@@ -146,6 +159,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
     @Override
     public void reset(QueryPlanChooser c) {
+        LOGGER.debug("reset");
         cmd=c.getMetadata();
         // Conjuncts associated with nodes will not move from one node to another
         // So we can measure the cost associated with them from the start
@@ -166,6 +180,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
                 data.setIndexMap(indexes.getUsefulIndexes(indexableFields));
             else
                 data.setIndexMap(new HashMap<Index,Set<Path>>());
+            LOGGER.debug("Node data for node {} is {}",node.getName(),data);
         }
     }
 

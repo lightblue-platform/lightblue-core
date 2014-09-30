@@ -19,7 +19,9 @@
 package com.redhat.lightblue.assoc.scorers;
 
 import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.HashMap;
 
 import com.redhat.lightblue.metadata.Index;
 
@@ -64,6 +66,20 @@ public class IndexedFieldScorerData extends QueryPlanData {
      */
     public void setIndexMap(Map<Index,Set<Path>> map) {
         indexMap=map;
+    }
+
+    @Override
+    public QueryPlanData newInstance() {
+        return new IndexedFieldScorerData();
+    }
+
+    @Override
+    public void copyFrom(QueryPlanData source) {
+        super.copyFrom(source);
+        if( ((IndexedFieldScorerData)source).indexableFields!=null)
+            indexableFields=new HashSet<>(((IndexedFieldScorerData)source).indexableFields);
+        if( ((IndexedFieldScorerData)source).indexMap!=null)
+            indexMap=new HashMap<>(((IndexedFieldScorerData)source).indexMap);
     }
 
     @Override
