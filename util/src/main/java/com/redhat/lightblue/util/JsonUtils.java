@@ -19,19 +19,9 @@
 package com.redhat.lightblue.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.util.Map;
-import java.util.Iterator;
-
-import java.nio.charset.Charset;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
@@ -40,8 +30,18 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
-import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.junit.Assert;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Map;
+
+import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
 /**
  * Generic utilities for dealing with JSON
@@ -62,7 +62,9 @@ public final class JsonUtils {
      */
     public static JsonNode json(String s)
             throws IOException {
-        return getObjectMapper().readTree(s);
+        // do system property expansion
+        String jsonString = StrSubstitutor.replaceSystemProperties(s);
+        return getObjectMapper().readTree(jsonString);
     }
 
     /**
@@ -138,7 +140,7 @@ public final class JsonUtils {
      * reported, else returns string representing violations.
      *
      * @param schema the json schema (see #loadSchema)
-     * @param node the json node to validate
+     * @param node   the json node to validate
      * @return null if there are no errors, else string with all errors and
      * warnings
      * @throws ProcessingException
@@ -198,7 +200,7 @@ public final class JsonUtils {
         bld.append("[");
         boolean first = true;
         for (Iterator<JsonNode> itr = node.elements();
-                itr.hasNext();) {
+             itr.hasNext(); ) {
             if (first) {
                 first = false;
             } else {
@@ -227,7 +229,7 @@ public final class JsonUtils {
         }
         boolean first = true;
         for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields();
-                itr.hasNext();) {
+             itr.hasNext(); ) {
             if (first) {
                 first = false;
             } else {

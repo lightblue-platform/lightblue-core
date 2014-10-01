@@ -18,24 +18,23 @@
  */
 package com.redhat.lightblue.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
  * @author lcestari
  */
-@Ignore
 public class JsonUtilsTest {
     @Test
+    @Ignore
     public void testGetObjectMapper() {
-        System.out.println("getObjectMapper");
         ObjectMapper expResult = null;
         ObjectMapper result = JsonUtils.getObjectMapper();
         assertEquals(expResult, result);
@@ -44,8 +43,8 @@ public class JsonUtilsTest {
     }
 
     @Test
+    @Ignore
     public void testJson() throws Exception {
-        System.out.println("json");
         String s = "";
         JsonNode expResult = null;
         JsonNode result = JsonUtils.json(s);
@@ -55,8 +54,24 @@ public class JsonUtilsTest {
     }
 
     @Test
+    public void testJson_system_properties() throws Exception {
+        String jvmVersion = System.getProperty("java.vm.version");
+        String s = "{\"test\":\"${java.vm.version}\"}";
+        JsonNode result = JsonUtils.json(s);
+        Assert.assertNotNull(result);
+        Assert.assertEquals(jvmVersion, result.get("test").asText());
+    }
+    @Test
+    public void testJson_system_properties_no_match() throws Exception {
+        String s = "{\"test\":\"${something.that.does.not.exist}\"}";
+        JsonNode result = JsonUtils.json(s);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("${something.that.does.not.exist}", result.get("test").asText());
+    }
+
+    @Test
+    @Ignore
     public void testPrettyPrint_JsonNode() {
-        System.out.println("prettyPrint");
         JsonNode node = null;
         String expResult = "";
         String result = JsonUtils.prettyPrint(node);
@@ -66,8 +81,8 @@ public class JsonUtilsTest {
     }
 
     @Test
+    @Ignore
     public void testPrettyPrint_StringBuilder_JsonNode() {
-        System.out.println("prettyPrint");
         StringBuilder bld = null;
         JsonNode node = null;
         JsonUtils.prettyPrint(bld, node);
@@ -76,6 +91,7 @@ public class JsonUtilsTest {
     }
 
     @Test
+    @Ignore
     public void testJsonWithNoInput() throws Exception {
         JsonUtils.json((String) null);
         // TODO review the generated test code and remove the default call to fail.
@@ -83,6 +99,7 @@ public class JsonUtilsTest {
     }
 
     @Test
+    @Ignore
     public void testJsonWithInvalidJSONInput() throws Exception {
         JsonUtils.json("a");
         // TODO review the generated test code and remove the default call to fail.
