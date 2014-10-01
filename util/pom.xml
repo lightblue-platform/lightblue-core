@@ -55,6 +55,10 @@
             <groupId>com.netflix.servo</groupId>
             <artifactId>servo-graphite</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
         <!--dependency>
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-servo-metrics-publisher</artifactId>
