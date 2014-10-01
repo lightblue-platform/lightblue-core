@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.hooks.HookManager;
@@ -43,7 +44,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
 
     private final Factory factory;
     private final String entityName;
-    private Set<String> callerRoles;
+    private Set<String> callerRoles=new HashSet<>();
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
@@ -53,12 +54,10 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     public CRUDOperationContext(Operation op,
                                 String entityName,
                                 Factory f,
-                                Set<String> callerRoles,
                                 List<JsonDoc> docs) {
         this.operation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.callerRoles = callerRoles;
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         if (docs != null) {
             documents = new ArrayList<>(docs.size());

@@ -85,7 +85,7 @@ public class Mediator {
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.INSERT);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -151,7 +151,7 @@ public class Mediator {
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -217,7 +217,7 @@ public class Mediator {
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.UPDATE);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.UPDATE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -266,7 +266,7 @@ public class Mediator {
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.DELETE);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.DELETE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -316,7 +316,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.FIND);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.FIND);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -363,7 +363,7 @@ public class Mediator {
     }
 
     /**
-     * Runs constraint violation
+     * Runs constraint validation
      */
     private void runBulkConstraintValidation(OperationContext ctx) {
         LOGGER.debug("Bulk constraint validation");
