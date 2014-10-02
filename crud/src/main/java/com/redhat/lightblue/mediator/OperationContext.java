@@ -124,6 +124,14 @@ public final class OperationContext extends CRUDOperationContext {
     }
 
     /**
+     * Returns true if the operation context is for a simple entity,
+     * an entity with no associations
+     */
+    public boolean isSimple() {
+        return resolver.getCompositeMetadata().isSimple();
+    }
+
+    /**
      * Returns the entity metadata with the version used in this call
      */
     @Override

@@ -120,6 +120,13 @@ public class CompositeMetadata extends EntityMetadata {
     }
 
     /**
+     * Returns if this is a simple metadata, one that has no children
+     */
+    public boolean isSimple() {
+        return children.isEmpty();
+    }
+
+    /**
      * If this composite metadata is the root of an entity metadata
      * tree, returns null. Otherwiase, returns the metadata containing
      * this metadata.

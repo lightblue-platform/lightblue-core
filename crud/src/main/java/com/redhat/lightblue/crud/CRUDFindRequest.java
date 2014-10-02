@@ -18,62 +18,70 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.redhat.lightblue.Request;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 
+
 /**
  * Request to find documents
  */
-public class FindRequest extends Request {
+public class CRUDFindRequest implements Serializable {
 
-    private final CRUDFindRequest cfr=new CRUDFindRequest();
+    private static final long serialVersionUID=1;
+
+    private QueryExpression query;
+    private Projection projection;
+    private Sort sort;
+    private Long from;
+    private Long to;
 
     /**
      * The query
      */
     public QueryExpression getQuery() {
-        return cfr.getQuery();
+        return query;
     }
 
     /**
      * The query
      */
     public void setQuery(QueryExpression q) {
-        cfr.setQuery(q);
+        query = q;
     }
 
     /**
      * Specifies what fields of the documents to return
      */
     public Projection getProjection() {
-        return cfr.getProjection();
+        return projection;
     }
 
     /**
      * Specifies what fields of the documents to return
      */
     public void setProjection(Projection x) {
-        ctr.setProjection(x);
+        projection = x;
     }
 
     /**
      * Specifies the order in which the documents will be returned
      */
     public Sort getSort() {
-        return cfr.getSort();
+        return sort;
     }
 
     /**
      * Specifies the order in which the documents will be returned
      */
     public void setSort(Sort s) {
-        cfr.setSort(s);
+        sort = s;
     }
 
     /**
@@ -81,7 +89,7 @@ public class FindRequest extends Request {
      * Meaningful only if sort is given. Starts from 0.
      */
     public Long getFrom() {
-        return cfr.getFrom();
+        return from;
     }
 
     /**
@@ -89,7 +97,7 @@ public class FindRequest extends Request {
      * Meaningful only if sort is given. Starts from 0.
      */
     public void setFrom(Long l) {
-        cfr.setFrom(l);
+        from = l;
     }
 
     /**
@@ -97,7 +105,7 @@ public class FindRequest extends Request {
      * returned. Meaningful only if sort is given. Starts from 0.
      */
     public Long getTo() {
-        return cfr.getTo();
+        return to;
     }
 
     /**
@@ -105,31 +113,52 @@ public class FindRequest extends Request {
      * returned. Meaningful only if sort is given. Starts from 0.
      */
     public void setTo(Long l) {
-        cfr.setTo(l);
-    }
-
-    public CRUDFindRequest getFindRequest() {
-        return cfr;
+        to = l;
     }
 
     /**
-     * Returns JSON representation of this
+     * Populates an object node with the JSON representation of this
      */
-    @Override
-    public JsonNode toJson() {
-        ObjectNode node = (ObjectNode) super.toJson();
-        cfr.toJson(node);
-        return node;
+    public void toJson(ObjectNode node) {
+        if (query != null) {
+            node.set("query", query.toJson());
+        }
+        if (projection != null) {
+            node.set("projection", projection.toJson());
+        }
+        if (sort != null) {
+            node.set("sort", sort.toJson());
+        }
+        if (from != null && to != null) {
+            ArrayNode arr = getFactory().arrayNode();
+            arr.add(from);
+            arr.add(to);
+            node.set("range", arr);
+        }
     }
 
     /**
      * Parses a find request from a json object. Unrecognized elements are
      * ignored.
      */
-    public static FindRequest fromJson(ObjectNode node) {
-        FindRequest req = new FindRequest();
-        req.parse(node);
-        req.cfr.fromJson(node);
-        return req;
+    public void fromJson(ObjectNode node) {
+        JsonNode x = node.get("query");
+        if (x != null) {
+            req.query = QueryExpression.fromJson(x);
+        }
+        x = node.get("projection");
+        if (x != null) {
+            req.projection = Projection.fromJson(x);
+        }
+        x = node.get("sort");
+        if (x != null) {
+            req.sort = Sort.fromJson(x);
+        }
+        x = node.get("range");
+        if (x instanceof ArrayNode && ((ArrayNode) x).size() == 2) {
+            req.from = ((ArrayNode) x).get(0).asLong();
+            req.to = ((ArrayNode) x).get(1).asLong();
+        }
     }
+
 }
