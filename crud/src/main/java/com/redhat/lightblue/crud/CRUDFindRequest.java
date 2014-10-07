@@ -23,6 +23,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
@@ -117,9 +118,20 @@ public class CRUDFindRequest implements Serializable {
     }
 
     /**
+     * Shallow copy from r to this
+     */
+    public void shallowCopyFrom(CRUDFindRequest r) {
+        query=r.query;
+        projection=r.projection;
+        sort=r.sort;
+        from=r.from;
+        to=r.to;
+    }
+
+    /**
      * Populates an object node with the JSON representation of this
      */
-    public void toJson(ObjectNode node) {
+    public void toJson(JsonNodeFactory factory,ObjectNode node) {
         if (query != null) {
             node.set("query", query.toJson());
         }
@@ -130,7 +142,7 @@ public class CRUDFindRequest implements Serializable {
             node.set("sort", sort.toJson());
         }
         if (from != null && to != null) {
-            ArrayNode arr = getFactory().arrayNode();
+            ArrayNode arr = factory.arrayNode();
             arr.add(from);
             arr.add(to);
             node.set("range", arr);
@@ -144,20 +156,20 @@ public class CRUDFindRequest implements Serializable {
     public void fromJson(ObjectNode node) {
         JsonNode x = node.get("query");
         if (x != null) {
-            req.query = QueryExpression.fromJson(x);
+            query = QueryExpression.fromJson(x);
         }
         x = node.get("projection");
         if (x != null) {
-            req.projection = Projection.fromJson(x);
+            projection = Projection.fromJson(x);
         }
         x = node.get("sort");
         if (x != null) {
-            req.sort = Sort.fromJson(x);
+            sort = Sort.fromJson(x);
         }
         x = node.get("range");
         if (x instanceof ArrayNode && ((ArrayNode) x).size() == 2) {
-            req.from = ((ArrayNode) x).get(0).asLong();
-            req.to = ((ArrayNode) x).get(1).asLong();
+            from = ((ArrayNode) x).get(0).asLong();
+            to = ((ArrayNode) x).get(1).asLong();
         }
     }
 

@@ -113,12 +113,26 @@ public class Conjunct implements Serializable {
         return referredNodes;
     }
 
+    /**
+     * Returns the query plan node referenced by the field. Null if the field is not in this conjunct
+     */
+    public QueryPlanNode getFieldNode(Path field) {
+        return fieldNodeMap.get(field);
+    }
+
 
     /**
      * Returns the field information about the fields in the conjunct
      */
     public List<ResolvedFieldInfo> getFieldInfo() {
         return fieldInfo;
+    }
+
+    /**
+     * Returns the query clause
+     */
+    public QueryExpression getClause() {
+        return clause;
     }
 
     public String toString() {

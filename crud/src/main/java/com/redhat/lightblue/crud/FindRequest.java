@@ -59,7 +59,7 @@ public class FindRequest extends Request {
      * Specifies what fields of the documents to return
      */
     public void setProjection(Projection x) {
-        ctr.setProjection(x);
+        cfr.setProjection(x);
     }
 
     /**
@@ -112,13 +112,18 @@ public class FindRequest extends Request {
         return cfr;
     }
 
+    public void shallowCopyFrom(FindRequest r) {
+        super.shallowCopyFrom(r);
+        cfr.shallowCopyFrom(r.cfr);
+    }
+
     /**
      * Returns JSON representation of this
      */
     @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
-        cfr.toJson(node);
+        cfr.toJson(getFactory(),node);
         return node;
     }
 

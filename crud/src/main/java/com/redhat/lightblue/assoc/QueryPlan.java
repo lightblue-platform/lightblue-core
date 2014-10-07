@@ -312,6 +312,35 @@ public class QueryPlan implements Serializable {
         return false;
     }
 
+    public QueryPlanNode[] getBreadthFirstNodeOrdering() {
+        QueryPlanNode[] ret=new QueryPlanNode[nodes.length];
+        int k=0;
+        for(QueryPlanNode x:getSources())
+            ret[k++]=x;
+        while(k<ret.length) {
+            for(int i=k-1;i>=0;i--) {
+                QueryPlanNode[] dests=ret[i].getDestinations();
+                for(QueryPlanNode x:dests)
+                    k=addBreadthFirstNode(ret,k,x);
+            }
+        }
+        return ret;
+    }
+
+    private int addBreadthFirstNode(QueryPlanNode[] arr,int n,QueryPlanNode node) {
+        // Already in array?
+        for(int i=0;i<n;i++)
+            if(arr[i]==node)
+                return n;
+        // Make sure all sources are in the array
+        QueryPlanNode[] sources=node.getSources();
+        for(QueryPlanNode x:sources)
+            n=addBreadthFirstNode(arr,n,x);
+        // Add it to the array
+        arr[n++]=node;
+        return n;
+    }
+
     public String mxToString() {
         return mx.toString();
     }

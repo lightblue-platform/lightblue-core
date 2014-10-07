@@ -20,6 +20,9 @@ package com.redhat.lightblue.assoc;
 
 import java.io.Serializable;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +46,8 @@ public abstract class QueryPlanNode implements Serializable {
 
     protected final CompositeMetadata md;
     protected final QueryPlanData data;
+    
+    private final Map<String,Object> properties=new HashMap<>();
 
     /**
      * Creates a query plan node using the given composite metadata,
@@ -61,14 +66,49 @@ public abstract class QueryPlanNode implements Serializable {
         this.md=source.md;
         this.data=source.data.newInstance();
         this.data.copyFrom(source.data);
+        this.properties.putAll(source.properties);
     }
 
+    /**
+     * Returns the composite metadata associated with this node
+     */
     public CompositeMetadata getMetadata() {
         return md;
     }
 
+    /**
+     * Returns the quey plan data used by the scorer
+     */
     public QueryPlanData getData() {
         return data;
+    }
+
+    /**
+     * Returns the property with the given property name
+     */
+    public Object getProperty(String propertyName) {
+        return properties.get(propertyName);
+    }
+
+    /**
+     * Sets the property with the given property name
+     */
+    public void setProperty(String propertyName,Object value) {
+        properties.put(propertyName,value);
+    }
+
+    /**
+     * Returns the property whose property name is the given class name
+     */
+    public <T> T getProperty(Class<T> propertyClass) {
+        return (T)properties.get(propertyClass.getName());
+    }
+
+    /**
+     * Sets the property whose property name is the given class name
+     */
+    public <T> void setProperty(Class<T> propertyClass, T propertyValue) {
+        properties.put(propertyClass.getName(),propertyValue);
     }
 
     /**
