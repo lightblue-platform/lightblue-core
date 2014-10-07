@@ -333,7 +333,7 @@ public class Mediator {
                     finder=null;
                 }
 
-                finder.find(ctx,req.getFindRequest());
+                CRUDFindResponse result=finder.find(ctx,req.getFindRequest());
 
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());

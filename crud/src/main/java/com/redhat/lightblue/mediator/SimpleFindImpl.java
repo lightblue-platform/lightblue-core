@@ -22,8 +22,11 @@ package com.redhat.lightblue.mediator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redhat.lightblue.OperationStatus;
+
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDFindRequest;
+import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.Factory;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -33,19 +36,19 @@ public class SimpleFindImpl implements Finder {
     private static final Logger LOGGER=LoggerFactory.getLogger(SimpleFindImpl.class);
 
     private final EntityMetadata md;
-    private final CRUDComtroller controller;
+    private final CRUDController controller;
 
 
     public SimpleFindImpl(EntityMetadata md,
                           Factory factory) {
         this.md=md;
         this.controller = factory.getCRUDController(md);
-        LOGGER.debug("Controller: {}", controller.getClass().getName());
+        LOGGER.debug("Controller for {}:{}", md.getName(),controller.getClass().getName());
     }
 
     @Override
-    public void find(OperationContext ctx,
-                     CRUDFindRequest req) {,
+    public CRUDFindResponse find(OperationContext ctx,
+                                 CRUDFindRequest req) {
         CRUDFindResponse result = controller.find(ctx,
                                                   req.getQuery(),
                                                   req.getProjection(),
@@ -54,5 +57,6 @@ public class SimpleFindImpl implements Finder {
                                                   req.getTo());
         ctx.getHookManager().queueMediatorHooks(ctx);
         ctx.setStatus(OperationStatus.COMPLETE);
+        return result;
     }
 }

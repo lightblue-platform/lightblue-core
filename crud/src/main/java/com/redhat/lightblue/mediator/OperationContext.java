@@ -21,6 +21,7 @@ package com.redhat.lightblue.mediator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +37,9 @@ import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.CRUDFindRequest;
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
@@ -87,6 +91,47 @@ public final class OperationContext extends CRUDOperationContext {
         LOGGER.debug("Caller roles:{}", getCallerRoles());
     }
 
+    /**
+     * Construct an operation context drived from another operation context
+     */
+    private OperationContext(Request request,
+                            Metadata metadata,
+                            Factory factory,
+                            Operation operation,
+                            DefaultMetadataResolver resolver,
+                            List<DocCtx> docs,
+                            Set<String> callerRoles,
+                            HookManager hookManager) {
+        super(operation,
+              request.getEntityVersion().getEntity(),
+              factory,
+              docs,
+              callerRoles,
+              hookManager);
+
+        this.request=request;
+        this.metadata=metadata;
+        this.resolver=resolver;
+    }
+
+    public OperationContext getDerivedOperationContext(CRUDFindRequest req) {
+        // Create a new request with same header information, but different query information
+        FindRequest newReq=new FindRequest();
+        newReq.shallowCopyFrom( (Request)request );
+        newReq.getFindRequest().shallowCopyFrom(req);
+        // At this point, newReq has header information from the
+        // original request, but query information from the argument
+        // 'req'
+
+        return new OperationContext(newReq,
+                                    metadata,
+                                    getFactory(),
+                                    Operation.FIND,
+                                    resolver,
+                                    new ArrayList<DocCtx>(),
+                                    getCallerRoles(),
+                                    getHookManager());
+    }
 
     /**
      * Returns the top level entity name
