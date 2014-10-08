@@ -26,12 +26,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
+
 import com.redhat.lightblue.interceptor.InterceptPoint;
+
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.Operation;
@@ -43,9 +46,17 @@ import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
+
+import com.redhat.lightblue.assoc.QueryPlanChooser;
+import com.redhat.lightblue.assoc.QueryPlan;
+import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
+import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
+
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
+import com.redhat.lightblue.metadata.CompositeMetadata;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -317,7 +328,7 @@ public class Mediator {
         response.setStatus(OperationStatus.ERROR);
         try {
             OperationContext ctx = new OperationContext(req, metadata, factory, Operation.FIND);
-            EntityMetadata md = ctx.getTopLevelEntityMetadata();
+            CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 LOGGER.debug("No access");
@@ -330,7 +341,12 @@ public class Mediator {
                     finder=new SimpleFindImpl(md,factory);
                 } else {
                     LOGGER.debug("Composite entity");
-                    finder=null;
+                    QueryPlanChooser qpChooser=new QueryPlanChooser(md,
+                                                                    new BruteForceQueryPlanIterator(),
+                                                                    new IndexedFieldScorer(),
+                                                                    ((FindRequest)ctx.getRequest()).getQuery());
+                    QueryPlan qplan=qpChooser.choose();
+                    finder=new CompositeFindImpl(md,qplan,factory);
                 }
 
                 CRUDFindResponse result=finder.find(ctx,req.getFindRequest());

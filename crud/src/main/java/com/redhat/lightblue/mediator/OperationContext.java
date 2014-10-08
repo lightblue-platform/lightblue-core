@@ -43,6 +43,7 @@ import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 
 public final class OperationContext extends CRUDOperationContext {
@@ -150,7 +151,7 @@ public final class OperationContext extends CRUDOperationContext {
     /**
      * Returns the top level entity metadata
      */
-    public EntityMetadata getTopLevelEntityMetadata() {
+    public CompositeMetadata getTopLevelEntityMetadata() {
         return resolver.getTopLevelEntityMetadata();
     }
 
