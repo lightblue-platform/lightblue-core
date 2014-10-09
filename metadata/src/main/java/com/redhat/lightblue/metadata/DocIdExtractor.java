@@ -26,7 +26,9 @@ import com.redhat.lightblue.util.Path;
 /**
  * Convenience class to extract document ids from a
  * document. Construct this class once using the metadata, and then
- * use it for the documents of that metadata to extract DocId ojbects.
+ * use it for the documents of that metadata to extract DocId
+ * ojbects. The extracted DocId objects contain the object type, and
+ * all the identity fields.
  */
 public final class DocIdExtractor implements Serializable {
 
@@ -37,7 +39,19 @@ public final class DocIdExtractor implements Serializable {
     public DocIdExtractor(Path[] identityFields) {
         if(identityFields==null||identityFields.length==0)
             throw new IllegalArgumentException("Empty identity fields");
-        this.identityFields=identityFields;
+        boolean objectTypePresent=false;
+        for(Path x:identityFields)
+            if(x.equals(PredefinedFields.OBJECTTYPE_PATH)) {
+                objectTypePresent=true;
+                break;
+            }
+        if(objectTypePresent)
+            this.identityFields=identityFields.clone();
+        else {
+            this.identityFields=new Path[identityFields.length+1];
+            System.arraycopy(identityFields,0,this.identityFields,0,identityFields.length);
+            this.identityFields[this.identityFields.length-1]=PredefinedFields.OBJECTTYPE_PATH;
+        }
     }
 
     /**
