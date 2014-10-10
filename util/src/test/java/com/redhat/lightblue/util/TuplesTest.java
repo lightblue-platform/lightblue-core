@@ -42,7 +42,6 @@ public class TuplesTest {
             for(String x2:l2) {
                 Assert.assertTrue(itr.hasNext());
                 List<String> item=itr.next();
-                System.out.println(item);
                 Assert.assertEquals(x1,item.get(0));
                 Assert.assertEquals(x2,item.get(1));
             }
@@ -69,7 +68,6 @@ public class TuplesTest {
                     for(String x4:l4) {
                         Assert.assertTrue(itr.hasNext());
                         List<String> item=itr.next();
-                        System.out.println(item);
                         Assert.assertEquals(x1,item.get(0));
                         Assert.assertEquals(x2,item.get(1));
                         Assert.assertEquals(x3,item.get(2));

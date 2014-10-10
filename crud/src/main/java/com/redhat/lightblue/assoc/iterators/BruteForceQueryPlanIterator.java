@@ -108,7 +108,7 @@ public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializa
         }
         return i>=0;
     }
-
+    
     @Override
     public String toString() {
         StringBuilder bld=new StringBuilder();

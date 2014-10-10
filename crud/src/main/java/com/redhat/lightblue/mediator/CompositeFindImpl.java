@@ -1,4 +1,3 @@
-
 /*
  Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
@@ -24,9 +23,16 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import com.redhat.lightblue.OperationStatus;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.FieldBinding;
@@ -46,11 +52,18 @@ import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
 
+import com.redhat.lightblue.assoc.scorers.SimpleScorer;
+import com.redhat.lightblue.assoc.iterators.First;
+
 import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.metadata.DocId;
+import com.redhat.lightblue.metadata.DocIdExtractor;
+import com.redhat.lightblue.metadata.PredefinedFields;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Tuples;
+import com.redhat.lightblue.util.JsonDoc;
 
 public class CompositeFindImpl implements Finder {
 
@@ -58,24 +71,63 @@ public class CompositeFindImpl implements Finder {
 
     private final CompositeMetadata root;
     private final QueryPlan qplan;
+    private final Factory factory;
 
     private final QueryPlanNode[] sources;
+
+    private final Map<DocId,JsonDoc> documentCache=new HashMap<>();
     
+    private final List<Error> errors=new ArrayList<>();
 
     /**
      * Represents a document in a data graph node. It contains the
      * document, and its children and parents
      */
     private static final class DataGraphDoc {
-        final DocCtx doc;
-        final List<DataGraphDoc> parents=new ArrayList<DataGraphDoc>();
-        final List<DataGraphDoc> children=new ArrayList<DataGraphDoc>();
-
-        public DataGraphDoc(DocCtx doc) {
+        
+        private final JsonDoc doc;
+        private final DocId id;
+        private final List<Error> errors=new ArrayList<>();
+        private final QueryPlanNode node;
+        // Parent documents of this doc. Multiple parents are
+        // possible, one parent document for each incoming node
+        private final List<DataGraphDoc> parents=new ArrayList<>();
+        // Child documents of this doc.
+        private final Map<QueryPlanNode,List<DataGraphDoc>> children=new HashMap<>();
+        
+        public DataGraphDoc(JsonDoc doc,
+                            List<Error> errors,
+                            DocId id,
+                            QueryPlanNode node) {
             this.doc=doc;
+            if(errors!=null)
+                this.errors.addAll(errors);
+            this.id=id;
+            this.node=node;
+        }
+
+        public void addChildren(QueryPlanNode node,List<DataGraphDoc> list) {
+            List<DataGraphDoc> clist=children.get(node);
+            if(clist==null) {
+                children.put(node,list);
+            } else {
+                clist.addAll(list);
+            }
+        }
+
+        public void addChild(QueryPlanNode node,DataGraphDoc doc) {
+            List<DataGraphDoc> clist=children.get(node);
+            if(clist==null) {
+                children.put(node,clist=new ArrayList<>());
+            } 
+            clist.add(doc);
+        }
+
+        public List<DataGraphDoc> getChildren(QueryPlanNode node) {
+            return children.get(node);
         }
     }
-        
+
     /**
      * Stores all information about an edge of the query plan. These
      * are destination node, edge queries, and binding information. 
@@ -166,7 +218,7 @@ public class CompositeFindImpl implements Finder {
             for(FieldBinding binding:bindings) {
                 Path field=binding.getField();
                 LOGGER.debug("Binding {} for node between {} and {}",field,sourceNode.getName(),destNode.getName());
-                binding.getValue().setValue(doc.doc.getOutputDocument().get(field));
+                binding.getValue().setValue(doc.doc.get(field));
             }
         }
 
@@ -181,19 +233,24 @@ public class CompositeFindImpl implements Finder {
      * operation context, and reused for subsequend executions of this
      * node, and the data retrieved at each execution.
      */
-    private static final class Execution {
+    private final class Execution {
 
         private final QueryPlanNode node;
         private final List<Edge> outgoingEdges=new ArrayList();
         private final List<Edge> incomingEdges=new ArrayList();
-        private final List<DataGraphDoc> docs=new ArrayList<>();
-        private final List<Error> errors=new ArrayList<>();
+        private final List<Error> errors;
+        private final DocIdExtractor docIdx;
         private final Finder finder;
+        private List<DataGraphDoc> docs;
 
         public Execution(QueryPlanNode node,
-                         Factory factory) {
+                         Factory factory,
+                         List<Error> errors) {
+            docs=new ArrayList<>();
             this.node=node;
             this.finder=new SimpleFindImpl(node.getMetadata(),factory);
+            this.errors=errors;
+            docIdx=new DocIdExtractor(node.getMetadata());
         }
 
         public void initEdges(QueryPlan qplan) {
@@ -219,7 +276,8 @@ public class CompositeFindImpl implements Finder {
             for(Edge e:incomingEdges)
                 if(e.boundEdgeQuery!=null)
                     clauses.add(e.boundEdgeQuery);
-            clauses.add(req.getQuery());
+            if(req.getQuery()!=null)
+                clauses.add(req.getQuery());
             QueryExpression nodeQuery;
             if(clauses.size()==1)
                 nodeQuery=clauses.get(0);
@@ -248,11 +306,21 @@ public class CompositeFindImpl implements Finder {
             if(incomingEdges.isEmpty()) {
                 OperationContext nodeCtx=ctx.getDerivedOperationContext(findRequest);
                 LOGGER.debug("execute {}: executing search", node.getName());
-                CRUDFindResponse response=finder.find(nodeCtx,req);
+                CRUDFindResponse response=finder.find(nodeCtx,findRequest);
                 LOGGER.debug("execute {}: storing documents", node.getName());
                
                 for(DocCtx doc:nodeCtx.getDocuments()) {
-                    DataGraphDoc dtd=new DataGraphDoc(doc);
+                    DocId id=docIdx.getDocId(doc.getOutputDocument());
+                    JsonDoc jdoc=documentCache.get(id);
+                    if(jdoc==null) {
+                        jdoc=doc.getOutputDocument();
+                        documentCache.put(id,jdoc);
+                    }
+                    DataGraphDoc dtd=new DataGraphDoc(doc.getOutputDocument(),
+                                                      doc.getErrors(),
+                                                      id,
+                                                      node);
+                    docs.add(dtd);
                     errors.addAll(nodeCtx.getErrors());
                 }
                 
@@ -281,15 +349,26 @@ public class CompositeFindImpl implements Finder {
                     }
                     
                     OperationContext nodeCtx=ctx.getDerivedOperationContext(findRequest);
-                    LOGGER.debug("execute {}: executing search with query", node.getName(),findRequest.getQuery());
-                    CRUDFindResponse response=finder.find(nodeCtx,req);
+                    LOGGER.debug("execute {}: executing search with query", 
+                                 node.getName(),findRequest.getQuery());
+                    CRUDFindResponse response=finder.find(nodeCtx,findRequest);
                     LOGGER.debug("execute {}: storing documents", node.getName());
                     
                     for(DocCtx doc:nodeCtx.getDocuments()) {
-                        DataGraphDoc dtd=new DataGraphDoc(doc);
+                        DocId id=docIdx.getDocId(doc.getOutputDocument());
+                        JsonDoc jdoc=documentCache.get(id);
+                        if(jdoc==null) {
+                            jdoc=doc.getOutputDocument();
+                            documentCache.put(id,jdoc);
+                        }
+                        DataGraphDoc dtd=new DataGraphDoc(doc.getOutputDocument(),
+                                                          doc.getErrors(),
+                                                          id,
+                                                          node);
+                        docs.add(dtd);
                         dtd.parents.addAll(tuple);
                         for(DataGraphDoc x:tuple)
-                            x.children.add(dtd);
+                            x.addChild(node,dtd);
                         errors.addAll(nodeCtx.getErrors());
                     }
                 }
@@ -304,23 +383,29 @@ public class CompositeFindImpl implements Finder {
                              Factory factory) {
         this.root=md;
         this.qplan=qplan;
-        
-        sources=qplan.getSources();
+        this.factory=factory;
 
+        sources=qplan.getSources();
+        init(qplan,factory,errors);
+    }
+
+
+    private void init(QueryPlan q,
+                      Factory factory,
+                      List<Error> errors) {
         // We need two separate for loops below. First associates an
         // Execution to each query plan node. Second adds the edges
         // between those execution data. Setting up the edges requires
         // all execution information readily available.
-
+        
         //  Setup execution data for each node
-        for(QueryPlanNode x:qplan.getAllNodes())
-            x.setProperty(Execution.class,new Execution(x,factory));
+        for(QueryPlanNode x:q.getAllNodes())
+            x.setProperty(Execution.class,new Execution(x,factory,errors));
         
         // setup edges between execution data
-        for(QueryPlanNode x:qplan.getAllNodes()) {
-            x.getProperty(Execution.class).initEdges(qplan);
+        for(QueryPlanNode x:q.getAllNodes()) {
+            x.getProperty(Execution.class).initEdges(q);
         }
-        
     }
 
     /**
@@ -336,15 +421,90 @@ public class CompositeFindImpl implements Finder {
 
         // Put the executions in order
         QueryPlanNode[] nodeOrdering=qplan.getBreadthFirstNodeOrdering();
-        // Execute nodes
+        // Execute nodes. Only the nodes up to and including the root
+        // node needs to be executed. The query choose makes sure that
+        // any query plan descendands of the root node don't have any
+        // queries associated with them, so they will be retrieved
+        // only using edge conditions
+        QueryPlanNode rootNode=null;
         for(QueryPlanNode node:nodeOrdering) {
             LOGGER.debug("Composite find: {}",node.getName());
             Execution exec=node.getProperty(Execution.class);
             exec.execute(ctx,req);
+            if(node.getMetadata().getParent()==null) {
+                // Reached the root node. Terminate execution, and build documents
+                rootNode=node;
+                break;
+            }
         }
 
+        LOGGER.debug("Composite find: retrieval of result set is complete, now building documents");
+        
+        CRUDFindResponse response=new CRUDFindResponse();
+        List<DocCtx> resultDocuments=retrieveDocuments(ctx,rootNode.getProperty(Execution.class));
+        response.setSize(resultDocuments.size());
+        ctx.setDocuments(resultDocuments);
+        ctx.addErrors(errors);
+        
         LOGGER.debug("Composite find: end");
-        return null;
+        ctx.getHookManager().queueMediatorHooks(ctx);
+        ctx.setStatus(OperationStatus.COMPLETE);
+        return response;
+    }
+    
+    private List<DocCtx> retrieveDocuments(OperationContext ctx,
+                                           Execution rootNode) {
+        LOGGER.debug("Retrieving {} documents",rootNode.docs.size());
+
+        // Create a new query plan for retrieval. This one will have
+        // the root document at the root.
+        QueryPlan retrievalQPlan=new QueryPlan(root,new SimpleScorer());
+        // This query plan has only one source
+        QueryPlanNode retrievalPlanRoot=retrievalQPlan.getSources()[0];
+        CompositeFindImpl cfi=new CompositeFindImpl(root,retrievalQPlan,factory);
+        // The root node documents are already known
+        retrievalPlanRoot.getProperty(Execution.class).docs=rootNode.docs;
+
+        // Now execute rest of the retrieval plan
+        QueryPlanNode[] nodeOrdering=qplan.getBreadthFirstNodeOrdering();
+        
+        CRUDFindRequest req=new CRUDFindRequest();
+        for(int i=1;i<nodeOrdering.length;i++) {
+            LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());
+            Execution exec=nodeOrdering[i].getProperty(Execution.class);
+            exec.execute(ctx,req);
+        }
+
+        List<DocCtx> ret=new ArrayList<>(rootNode.docs.size());
+        for(DataGraphDoc dgd:rootNode.docs) {
+            retrieveFragments(dgd,rootNode);
+            PredefinedFields.updateArraySizes(factory.getNodeFactory(),dgd.doc);
+            DocCtx dctx=new DocCtx(dgd.doc);
+            dctx.setOutputDocument(dgd.doc);
+            dctx.addErrors(dgd.errors);
+            ret.add(dctx);
+        }
+        
+        return ret;
+    }
+
+    private void retrieveFragments(DataGraphDoc doc,
+                                   Execution execution) {
+        // We only process child nodes.
+        for(Edge outgoingEdge:execution.outgoingEdges) {
+            QueryPlanNode childNode=outgoingEdge.destNode;
+            Execution childExecution=childNode.getProperty(Execution.class);
+            CompositeMetadata childMd=childNode.getMetadata();
+            Path insertInto=childMd.getEntityPath();
+            JsonNode insertionNode=doc.doc.get(insertInto);
+            if(insertionNode==null)
+                doc.doc.modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
+            List<DataGraphDoc> children=doc.getChildren(childNode);
+            for(DataGraphDoc childDoc:children) {
+                ((ArrayNode)insertionNode).add(childDoc.doc.getRoot());
+                retrieveFragments(doc,childExecution);
+            }
+        }
     }
 
 }

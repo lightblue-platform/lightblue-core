@@ -34,24 +34,11 @@ public final class DocIdExtractor implements Serializable {
 
     private static final long serialVersionUID=1l;
     
-    private final Path[] identityFields;
+    private Path[] identityFields;
+    private int objectTypeIx;
 
     public DocIdExtractor(Path[] identityFields) {
-        if(identityFields==null||identityFields.length==0)
-            throw new IllegalArgumentException("Empty identity fields");
-        boolean objectTypePresent=false;
-        for(Path x:identityFields)
-            if(x.equals(PredefinedFields.OBJECTTYPE_PATH)) {
-                objectTypePresent=true;
-                break;
-            }
-        if(objectTypePresent)
-            this.identityFields=identityFields.clone();
-        else {
-            this.identityFields=new Path[identityFields.length+1];
-            System.arraycopy(identityFields,0,this.identityFields,0,identityFields.length);
-            this.identityFields[this.identityFields.length-1]=PredefinedFields.OBJECTTYPE_PATH;
-        }
+        init(identityFields);
     }
 
     /**
@@ -60,9 +47,10 @@ public final class DocIdExtractor implements Serializable {
     public DocIdExtractor(Field[] identityFields) {
         if(identityFields == null||identityFields.length==0)
             throw new IllegalArgumentException("Empty identity fields");
-        this.identityFields=new Path[identityFields.length];
-        for(int i=0;i<identityFields.length;i++)
-            this.identityFields[i]=identityFields[i].getFullPath();
+        Path[] f=new Path[identityFields.length];
+        for(int i=0;i<f.length;i++)
+            f[i]=identityFields[i].getFullPath();
+        init(f);
     }
 
     /**
@@ -87,7 +75,27 @@ public final class DocIdExtractor implements Serializable {
         int i=0;
         for(Path x:identityFields)
             values[i++]=doc.get(x);
-        return new DocId(values);
+        return new DocId(values,objectTypeIx);
     }
 
+    private void init(Path[] f) {
+        if(f==null||f.length==0)
+            throw new IllegalArgumentException("Empty identity fields");
+        boolean objectTypePresent=false;
+        for(int i=0;i<f.length;i++) {
+            if(f[i].equals(PredefinedFields.OBJECTTYPE_PATH)) {
+                objectTypePresent=true;
+                objectTypeIx=i;
+                break;
+            }
+        }
+        if(objectTypePresent)
+            this.identityFields=f.clone();
+        else {
+            objectTypeIx=f.length;
+            this.identityFields=new Path[f.length+1];
+            System.arraycopy(f,0,this.identityFields,0,f.length);
+            this.identityFields[this.identityFields.length-1]=PredefinedFields.OBJECTTYPE_PATH;
+        }
+    }
 }

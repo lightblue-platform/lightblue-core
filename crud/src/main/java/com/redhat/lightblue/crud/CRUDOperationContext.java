@@ -136,6 +136,10 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         return documents;
     }
 
+    public void setDocuments(List<DocCtx> docs) {
+        documents=docs;
+    }
+
     /**
      * Adds a new document to the context
      *

@@ -30,9 +30,15 @@ public final class DocId implements Serializable {
     private static final long serialVersionUID=1l;
     
     private final Object[] values;
+    private final int objectTypeIx;
 
-    public DocId(Object[] values) {
+    public DocId(Object[] values,int objectTypeIx) {
         this.values=values;
+        this.objectTypeIx=objectTypeIx;
+    }
+
+    public String getObjectType() {
+        return values[objectTypeIx].toString();
     }
 
     @Override
