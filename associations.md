@@ -37,6 +37,27 @@ matching customers are injected into the order entity. If there are
 multiple customers matching that criteria, they are sorted by their
 _id, in ascending order.
 
+## Modifications to existing operation
+
+### For projections, implied inclusions don't cross entity boundaries
+
+For a projection
+
+```
+{ 'field':'x.*','recursive':1,'include':1}
+```
+the field 'x' is included explicitly, and anything under 'x' is included 
+implicitly, because of the recursive flag. The modification to the current
+ semantics of such projections is that 'x.*' only includes fields under 
+'x' as long as those fields belong to the same entity as 'x'. So if, say, 
+'x.y.z' is a reference to another entity, the above projection won't include 
+'x.y.z'. To include that field, you have to
+```
+[{'field':'x.*','recursive':1,'include':1},{'field':'x.y.z.*','recursive':1','include':1}]
+```
+This is to eliminate infinite loops in case of cyclic references. If 'x' belongs to entity A, 
+and if also 'x.y.z' is of type entity A, such restriction prevents an infinite loop. 
+
 ## Considerations:
 
 ### Reference projection is optional
@@ -196,26 +217,39 @@ Composite Metadata:
 As shown above, an entity may appear more than once in the composite
 metadata. 
 
-Implementation considerations: 
- - Composite metadata should provide an EntitySchema instance containing 
-   all the fields. Ideally,  composite metadata should extend EntityMetadata.
- - CompositeMetadata implementation should provide additional APIs to expose 
-   the tree structure of entities.
+Implementation: 
+
+CompositeMetadata extends EntityMetadata. It provides two views on the entity:
+   * An entity tree view where the requested entity is at the root, and all the 
+     other entities reached by following references are child entities.
+   * A field tree view where the root entity fields are replicated, and any
+     ReferenceField is replaced with a ResolvedReferenceField. A resolved reference
+     is an ArrayField that also contains the CompositeMetadata for the entity 
+     reached through that reference.
 
 ## Query Plans
 
-A query plan is a directed graph and a set of constraints of the form
-(X before Y) where X and Y are nodes. Each node contains a node of
-composite metadata, and a query that will be executed to retrieve
-entities for the entity of that node. We will construct different
-query plans with different node orderings, and score them to pick the
-best retrieval strategy. The additional constraints will be used to
-order the execution of unrelated nodes.
+A query plan determines which entities will be retrieved in what order
+using what criteria. The query submitted with the retrieval request is
+converted into its conjunctive normal form. Each conjunct of the
+request query is then assigned to the nodes and edges of the query
+plan. If a conjunct refers to only one entity, that conjunct is
+assigned to the node corresponding to that entity. If a conjunct
+refers to two entities, the conjunct is assigned to the edge between
+those entities. Same is done for association queries.
+
+  - Current implementation does not support query clauses
+    referring to entities that are not directly connected. 
+  - Current implementation does not support query clauses that refer 
+    to more than two entities.
+  - The actual query clause assignment is done by QueryPlanChooser. 
+    Edge queries are rewritten for every incarnation of the query plan.
+
 
 The underlying undirected graph of a query plan is isomorphic to the
-underlying undirected graph of its composite metadata. In other words,
-query plan may reverse the direction of edges of the composite
-metadata, but cannot add or remove edges.
+underlying undirected graph of its composite metadata. Query plan may
+reverse the direction of edges of the composite metadata, but cannot
+add or remove edges.
 
 <pre>
    (N_1, Q_1) --+ 
@@ -223,21 +257,12 @@ metadata, but cannot add or remove edges.
                 +--> (N_3, Q_3) --> (N_4, Q_4)
                 |
    (N_2, Q_2) --+
-
-   (N_1 before N_2)
 </pre>
 
 In the above query plan, entities for N_1 and N_2 are retrieved first,
 then using those results, a query to retrieve N_3 is written and
 executed. For every N_3 retrieved, N_4 queries are evaluated and
 executed.
-
-"before" constraints: "before" constraints determine the ordering of
-independent nodes. In the above example, there are no structural
-constraints on wheter to evaluate node N_1 first or node N_2
-first. Different query plans can add "before" constraints to force a
-particular ordering. In the above query plan with "before" constraint
-(N_1 before N_2), node N_1 is to be evaluated before node N_2.
 
 Entities are retrieved starting from the source nodes (nodes with no
 incoming edges). Execution continues until all the sink nodes of the
@@ -250,11 +275,11 @@ variables referring to N, and all other variables of Q refer to an
 ancestor of N.
 
 Future consideration: Paths starting from different sources can be
-executed in parallel, depending on the before constraints.
+executed in parallel.
 
 Implementation considerations: Some queries can be converted to $in
 expressions for bulk retrieval, or retrival can be performed one by
-one.
+one. (This is not currently done.)
 
 
 ### Rewriting queries:
@@ -393,11 +418,18 @@ Enumerate all permutations of edge directions of composite metadata. For each op
     * Eliminate query plan if there are queries that cannot be rewritten.
  * Score query plan, and keep the best score
 
+Implementation: This algorithm is implemented in QueryPlanChooser class. It gets
+two plugins: QueryPlanIterator and QueryPlanScorer. The QueryPlanIterator determines
+the different query plans that will be scored. The BruteForceQueryPlanIterator
+iterates through all possible permutations of edge directions. The QueryPlanScorer 
+scores a query plan. The IndexedFieldScorer gives better scores to query plans
+that keep nodes with queries on indexed fields closer to the root.
+
 Complexity: If there are N nodes in composite metadata, there are
 (N-1) edges in the query plan. Query plans are obtained by flipping
 edges, so there are 2^(N-1) distinct query plans. This is the baseline
-complexity. Further query plans can be created based on query
-structure.
+complexity. Better iterators can be written to prune the exhaustive
+search tree.
 
 Example: The above example has 3 nodes, so 4 distinct query plans:
 
@@ -447,82 +479,16 @@ then q is assigned to nodeOf(f)
  { "field":f, "op":o, "rfield":g }
 </pre>
 then 
-     * If nodeOf(f) < nodeOf(g), q is assigned to nodeOf(g)
-     * If nodeOf(g) < nodeOf(f), q is assigned to nodeOf(f)
-     * otherwise, generate a copy of the query plan. In the first copy, 
-       add (nodeOf(f) before nodeOf(g)) and assign q to nodeOf(g). In 
-       the second copy, add (nodeOf(g) before nodeOf(f)) and assign q 
-       to nodeOf(f).
+     * If there is an edge between nodeOf(f) and nodeOf(g), assign q to 
+       that edge.
+     * If there is no such edge, fail (this probably can be improved)
 
  * If q is
 <pre>
 { "array":f, "elemtMatch":R }
 </pre>
-then we work with the node set nodeOf(f) and nodesOf(R). For every 
-possible ordering of the nodes of the query:
-   * Create a copy of the query plan.
-   * Assign query to the highest node with respect to <
-   * Add "before" constraints for all unrelated nodes
-
-Warning: This process has the potential to become too costly to be
-practical. Need some heuristics...
-
-We can't filter the results of a search. All entries returned from a
-seach should either appear in the result set, or be fed into another
-search criteria. So: if there is a query associated with a node that
-would require filtering out the results obtained from one of the
-ancestors of that node, that query plan will be eliminated. 
-
-Assume N is a node with a query q with a value clause (a clause that
-defines a relation between a field and a value).  If M < N, M has to
-be retrieved first with no queries. Then, N will be retrieved with a
-query, and the result set for M needs to be filtered out based on the
-matching elements in N. So, such query plans should be discarded.
-
-That means, nodes with queries with value clauses must be ordered to
-be before nodes without queries with value clauses.
-
-### Query rewriting
-
-If a query clause q depends on multiple nodes, that clause needs to be
-rewritten. Assume nodesOf(q) is {N_1, N_2, ... }. q is associated with
-all of these nodes. The clause q is rewritten for each node as follows:
-
-Assume we're rewriting q for node N:
-
-  * If there is a field f in q with nodeOf(f) < N, then replace the
-    clause containing f with a value clause, where the value of f is
-    bound to the value retrieved by the execution of node
-    nodeOf(f). If f is already a value clause, eliminate query plan,
-    as this requires manual filtering of ancestors.
-
-  * If there is a field f in q with N < nodeOf(f), then eliminate
-    query plan, it cannot be evaluated.
-
-  * Otherwise, add a constraint that all nodes other than N must be
-    retrieved before N. Once all queries are processed, test the
-    constraints for conflicts, i.e. an implication that for nodes X,
-    Y, (X before Y) and (Y before X).
-
-
-### Node ordering
-
-During query rewriting, we collect constraints of the form (X before
-Y) for nodes X and Y. These constraints will be used to order the
-execution of nodes that are not of the same lineage. If all
-constraints cannot be satisfied, then the query plan is not viable,
-and discarded.
-
-Some observations:
-  * Node ordering is essentially assigning indexes 1, 2, ... to each 
-    node. 
-  * For any node N, index of N is always larger than the number of 
-    its descendants.
-  * For any node N, index of N is always one more that the maximum
-    index of its descendants.
-
-These should limit the search space. The first ordering that satisfies
-all the constraints wins.
+then we work with the node set nodeOf(f) and nodesOf(R), and apply the above
+rules.
 
 
 ### Scoring Query Plans
@@ -538,12 +504,7 @@ or similar score to a query that retrieves one row using a unique
 index.
 
 Heuristics for scoring a query plan:
-  * Only include nodes with value clauses. If node, only include the first node.
-  * Node scoring, in increasing order
-     * Node with no queries
-     * Node with value query on fields with unique index
-     * Node with value query on field with non-unique index
-     * Node with value query on field without index
-     * Node without value query
-  * Final score: sum ( (numNodes - nodeIndex) * nodeScore )
-
+  * If query plan nodes has queries for fields with indexes, query plan score 
+    is better as those nodes get closer to the sources.
+  * If query plan nodes has queries, query plan score is better as 
+    those nodes get closer to the sources.
