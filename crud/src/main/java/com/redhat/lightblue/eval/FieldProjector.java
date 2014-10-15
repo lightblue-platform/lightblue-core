@@ -63,7 +63,7 @@ public class FieldProjector extends Projector {
                 // Inclusion implies, because if we're going to
                 // include a descendant of this field, this field
                 // should also be included
-            } else if (p.equals(field)) {
+            } else if (p.matches(field)) {
                 exactMatch=true;
                 return Boolean.FALSE;
                 // If this field is exclusively excluded, exclude it
