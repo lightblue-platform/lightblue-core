@@ -41,6 +41,7 @@ import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.QueryInContext;
 import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.RelativeRewriteIterator;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
@@ -51,6 +52,7 @@ import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
+import com.redhat.lightblue.assoc.QueryPlanChooser;
 
 import com.redhat.lightblue.assoc.scorers.SimpleScorer;
 import com.redhat.lightblue.assoc.iterators.First;
@@ -59,6 +61,7 @@ import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.DocId;
 import com.redhat.lightblue.metadata.DocIdExtractor;
 import com.redhat.lightblue.metadata.PredefinedFields;
+import com.redhat.lightblue.metadata.Type;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
@@ -128,11 +131,21 @@ public class CompositeFindImpl implements Finder {
         }
     }
 
+    private static final class BindingAndType {
+        private final FieldBinding binding;
+        private final Type t;
+
+        public BindingAndType(FieldBinding b,Type t) {
+            this.binding=b;
+            this.t=t;
+        }
+    }
+
     /**
      * Stores all information about an edge of the query plan. These
      * are destination node, edge queries, and binding information. 
      */
-    private static final class Edge {
+    private final class Edge {
         final QueryPlanNode sourceNode;
         // The destination node
         final QueryPlanNode destNode;
@@ -142,8 +155,13 @@ public class CompositeFindImpl implements Finder {
         final QueryExpression edgeQuery;
         // The bound query expression
         final QueryExpression boundEdgeQuery;
+        // clone of boundEdgeQuery that can be used to run a search.
+        // This is necessary, because boundEdgeQuery contains fields relative to the root entity
+        // What we need here is queries whose fields are relative to the root of the entity for the destNode
+        // The trick here is that when you bind values to boundEdgeQuery, runExpression values are also bound.
+        final QueryExpression runExpression;
         // Field bindings in boundEdgeQuery
-        final List<FieldBinding> bindings=new ArrayList<FieldBinding>();
+        final List<BindingAndType> bindings=new ArrayList<>();
 
         public Edge(QueryPlanNode sourceNode,
                     QueryPlanNode destNode,
@@ -169,6 +187,7 @@ public class CompositeFindImpl implements Finder {
                 
                 LOGGER.debug("Building bind request");
                 Set<Path> bindRequest=new HashSet<Path>();
+
                 for(QueryInContext qic:bindable) {
                     FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
                     // Find the field that refers to a node before
@@ -187,24 +206,35 @@ public class CompositeFindImpl implements Finder {
                         if(rfieldNode!=null)
                             break;
                     }
+                    LOGGER.debug("lfield={}, rfield={}",lfieldNode==null?null:lfieldNode.getName(),
+                                 rfieldNode==null?null:rfieldNode.getName());
                     // If lfieldNode points to the destination node,
                     // rfieldNode points to an ancestor, or vice versa
-                    if(lfieldNode==destNode) {
+                    if(lfieldNode.getName().equals(destNode.getName())) {
                         bindRequest.add(rfield);
                     } else {
                         bindRequest.add(lfield);
                     }
                 }
                 LOGGER.debug("Bind fields:{}",bindRequest);
-                boundEdgeQuery=edgeQuery.bind(bindings,bindRequest);
+                List<FieldBinding> fb=new ArrayList<>();
+                boundEdgeQuery=edgeQuery.bind(fb,bindRequest);
+                for(FieldBinding b:fb) {
+                    bindings.add(new BindingAndType(b,root.resolve(b.getField()).getType()));
+                }
                 LOGGER.debug("Bound query:{}",boundEdgeQuery);
+                
+                runExpression=new RelativeRewriteIterator(new Path(destNode.getMetadata().getEntityPath(),
+                                                                   Path.ANYPATH)).iterate(boundEdgeQuery);
+                LOGGER.debug("Run expression:{}",runExpression);
                 
             } else {
                 edgeQuery=null;
                 boundEdgeQuery=null;
+                runExpression=null;
             }
         }
-
+        
         /**
          * Adds this edge to the incoming/outgoing edges list of the
          * dest/source node Execution object
@@ -215,10 +245,14 @@ public class CompositeFindImpl implements Finder {
         }
 
         public void refreshBinding(DataGraphDoc doc) {
-            for(FieldBinding binding:bindings) {
-                Path field=binding.getField();
+            for(BindingAndType binding:bindings) {
+                Path field=binding.binding.getField();
                 LOGGER.debug("Binding {} for node between {} and {}",field,sourceNode.getName(),destNode.getName());
-                binding.getValue().setValue(doc.doc.get(field));
+                JsonNode node=doc.doc.get(field);
+                if(node==null)
+                    binding.binding.getValue().setValue(null);
+                else
+                    binding.binding.getValue().setValue(binding.t.fromJson(node));
             }
         }
 
@@ -275,7 +309,7 @@ public class CompositeFindImpl implements Finder {
             List<QueryExpression> clauses=new ArrayList<>();
             for(Edge e:incomingEdges)
                 if(e.boundEdgeQuery!=null)
-                    clauses.add(e.boundEdgeQuery);
+                    clauses.add(e.runExpression);
             if(req.getQuery()!=null)
                 clauses.add(req.getQuery());
             QueryExpression nodeQuery;
@@ -304,7 +338,7 @@ public class CompositeFindImpl implements Finder {
             }
 
             if(incomingEdges.isEmpty()) {
-                OperationContext nodeCtx=ctx.getDerivedOperationContext(findRequest);
+                OperationContext nodeCtx=ctx.getDerivedOperationContext(node.getMetadata().getName(),findRequest);
                 LOGGER.debug("execute {}: executing search", node.getName());
                 CRUDFindResponse response=finder.find(nodeCtx,findRequest);
                 LOGGER.debug("execute {}: storing documents", node.getName());
@@ -337,6 +371,7 @@ public class CompositeFindImpl implements Finder {
                 for(Iterator<List<DataGraphDoc>> tupleItr=tuples.tuples();tupleItr.hasNext();) {
                     
                     List<DataGraphDoc> tuple=tupleItr.next();
+                    LOGGER.debug("Processing an {}-tuple",tuple.size());
                     // Tuple elements are ordered the same way as the
                     // incoming edges. tuple[i] is from incomingEdge[i]
                     
@@ -348,9 +383,9 @@ public class CompositeFindImpl implements Finder {
                         incomingEdge.refreshBinding(parentDoc);
                     }
                     
-                    OperationContext nodeCtx=ctx.getDerivedOperationContext(findRequest);
-                    LOGGER.debug("execute {}: executing search with query", 
-                                 node.getName(),findRequest.getQuery());
+                    OperationContext nodeCtx=ctx.getDerivedOperationContext(node.getMetadata().getName(),findRequest);
+                    LOGGER.debug("execute {}: executing search with query {} for entity {}", 
+                                 node.getName(),findRequest.getQuery(),nodeCtx.getEntityName());
                     CRUDFindResponse response=finder.find(nodeCtx,findRequest);
                     LOGGER.debug("execute {}: storing documents", node.getName());
                     
@@ -458,7 +493,8 @@ public class CompositeFindImpl implements Finder {
 
         // Create a new query plan for retrieval. This one will have
         // the root document at the root.
-        QueryPlan retrievalQPlan=new QueryPlan(root,new SimpleScorer());
+        QueryPlanChooser chooser=new QueryPlanChooser(root,new First(),new SimpleScorer(),null);
+        QueryPlan retrievalQPlan=chooser.choose();
         // This query plan has only one source
         QueryPlanNode retrievalPlanRoot=retrievalQPlan.getSources()[0];
         CompositeFindImpl cfi=new CompositeFindImpl(root,retrievalQPlan,factory);

@@ -89,48 +89,48 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
         }
     }
 
-    @Test
-    public void basicPlanTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
-        System.out.println(qp.mxToString());
-        System.out.println(qp.treeToString());
+    // @Test
+    // public void basicPlanTest() throws Exception {
+    //     GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
+    //     CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+    //     QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
+    //     System.out.println(qp.mxToString());
+    //     System.out.println(qp.treeToString());
 
-        QueryPlanNode[] sources=qp.getSources();
-        Assert.assertEquals(1,sources.length);
-        Assert.assertEquals("A",sources[0].getMetadata().getName());
+    //     QueryPlanNode[] sources=qp.getSources();
+    //     Assert.assertEquals(1,sources.length);
+    //     Assert.assertEquals("A",sources[0].getMetadata().getName());
 
-        QueryPlanNode[] dests=sources[0].getDestinations();
-        Assert.assertEquals(1,dests.length);
-        Assert.assertEquals("C",dests[0].getMetadata().getName());
-        Assert.assertEquals(0,dests[0].getDestinations().length);
-        Assert.assertEquals(1,dests[0].getSources().length);
-        Assert.assertEquals("A",dests[0].getSources()[0].getMetadata().getName());
-    }
+    //     QueryPlanNode[] dests=sources[0].getDestinations();
+    //     Assert.assertEquals(1,dests.length);
+    //     Assert.assertEquals("C",dests[0].getMetadata().getName());
+    //     Assert.assertEquals(0,dests[0].getDestinations().length);
+    //     Assert.assertEquals(1,dests[0].getSources().length);
+    //     Assert.assertEquals("A",dests[0].getSources()[0].getMetadata().getName());
+    // }
 
-    @Test
-    public void basicFlipTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
-        System.out.println(qp.mxToString());
-        System.out.println(qp.treeToString());
-        qp.flip(qp.getSources()[0],qp.getSources()[0].getDestinations()[0]);
-        System.out.println(qp.mxToString());
-        System.out.println(qp.treeToString());
+    // @Test
+    // public void basicFlipTest() throws Exception {
+    //     GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
+    //     CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+    //     QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
+    //     System.out.println(qp.mxToString());
+    //     System.out.println(qp.treeToString());
+    //     qp.flip(qp.getSources()[0],qp.getSources()[0].getDestinations()[0]);
+    //     System.out.println(qp.mxToString());
+    //     System.out.println(qp.treeToString());
 
-        QueryPlanNode[] sources=qp.getSources();
-        Assert.assertEquals(1,sources.length);
-        Assert.assertEquals("C",sources[0].getMetadata().getName());
+    //     QueryPlanNode[] sources=qp.getSources();
+    //     Assert.assertEquals(1,sources.length);
+    //     Assert.assertEquals("C",sources[0].getMetadata().getName());
 
-        QueryPlanNode[] dests=sources[0].getDestinations();
-        Assert.assertEquals(1,dests.length);
-        Assert.assertEquals("A",dests[0].getMetadata().getName());
-        Assert.assertEquals(0,dests[0].getDestinations().length);
-        Assert.assertEquals(1,dests[0].getSources().length);
-        Assert.assertEquals("C",dests[0].getSources()[0].getMetadata().getName());
-    }
+    //     QueryPlanNode[] dests=sources[0].getDestinations();
+    //     Assert.assertEquals(1,dests.length);
+    //     Assert.assertEquals("A",dests[0].getMetadata().getName());
+    //     Assert.assertEquals(0,dests[0].getDestinations().length);
+    //     Assert.assertEquals(1,dests[0].getSources().length);
+    //     Assert.assertEquals("C",dests[0].getSources()[0].getMetadata().getName());
+    // }
 
     @Test
     public void two_level_test() throws Exception {

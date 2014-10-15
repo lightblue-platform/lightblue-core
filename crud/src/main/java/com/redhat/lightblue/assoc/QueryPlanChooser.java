@@ -271,7 +271,6 @@ public class QueryPlanChooser {
      * Runs the query plan chooser loop, and returns the best plan
      */
     public QueryPlan choose() {
-        reset();
         while(next());
         return bestPlan;
     }

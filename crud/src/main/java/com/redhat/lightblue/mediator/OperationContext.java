@@ -28,6 +28,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
@@ -96,13 +97,13 @@ public final class OperationContext extends CRUDOperationContext {
      * Construct an operation context drived from another operation context
      */
     private OperationContext(Request request,
-                            Metadata metadata,
-                            Factory factory,
-                            Operation operation,
-                            DefaultMetadataResolver resolver,
-                            List<DocCtx> docs,
-                            Set<String> callerRoles,
-                            HookManager hookManager) {
+                             Metadata metadata,
+                             Factory factory,
+                             Operation operation,
+                             DefaultMetadataResolver resolver,
+                             List<DocCtx> docs,
+                             Set<String> callerRoles,
+                             HookManager hookManager) {
         super(operation,
               request.getEntityVersion().getEntity(),
               factory,
@@ -115,11 +116,12 @@ public final class OperationContext extends CRUDOperationContext {
         this.resolver=resolver;
     }
 
-    public OperationContext getDerivedOperationContext(CRUDFindRequest req) {
+    public OperationContext getDerivedOperationContext(String entityName,CRUDFindRequest req) {
         // Create a new request with same header information, but different query information
         FindRequest newReq=new FindRequest();
         newReq.shallowCopyFrom( (Request)request );
         newReq.getFindRequest().shallowCopyFrom(req);
+        newReq.setEntityVersion(new EntityVersion(entityName,resolver.getEntityMetadata(entityName).getVersion().getValue()));
         // At this point, newReq has header information from the
         // original request, but query information from the argument
         // 'req'
