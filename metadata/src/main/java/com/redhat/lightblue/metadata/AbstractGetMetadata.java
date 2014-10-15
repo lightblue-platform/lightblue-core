@@ -173,24 +173,29 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
     private Boolean isFieldProjected(Path field,ArrayQueryMatchProjection p,Path context) {
         Path absField=new Path(context,toMask(p.getField()));
         LOGGER.debug("Checking if array query match projection on {} projects {}",absField,field);
-        if(!field.matchingPrefix(absField)) {
+        Projection.Inclusion inc=Projection.isFieldIncluded(field,absField,p.isInclude(),false);
+        if(inc==Projection.Inclusion.undecided) {
             LOGGER.debug("No match, checking if query requires the field");
             return isRequired(field,p.getMatch(),new Path(absField,Path.ANYPATH));
         } else {
-            LOGGER.debug("array query match projection on {} projects {}: yes",absField,field);
-            return Boolean.TRUE;
+            LOGGER.debug("array query match projection on {} projects {}: {}",absField,field,inc);
+            switch(inc) {
+            case explicit_inclusion: return Boolean.TRUE;
+            case explicit_exclusion: return Boolean.FALSE;
+            default: return null;
+            }
         }
     }
 
     private Boolean isFieldProjected(Path field,ArrayRangeProjection p,Path context) {
         Path absField=new Path(context,toMask(p.getField()));
         LOGGER.debug("Checking if array range projection on {} projects {}",absField,field);
-        if(field.matchingPrefix(absField)) {
-            LOGGER.debug("array range projection on {} projects {}: yes",absField,field);
-            return Boolean.TRUE;
-        } else {
-            LOGGER.debug("array range projection on {} projects {}: unknown",absField,field);
-            return null;
+        Projection.Inclusion inc=Projection.isFieldIncluded(field,absField,p.isInclude(),false);
+        LOGGER.debug("array range projection on {} projects {}: {}",absField,field,inc);
+        switch(inc) {
+        case explicit_inclusion: return Boolean.TRUE;
+        case explicit_exclusion: return Boolean.FALSE;
+        default: return null;
         }
     }
 
@@ -210,11 +215,13 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
     private Boolean isFieldProjected(Path field,FieldProjection p,Path context) {
         Path absField=new Path(context,toMask(p.getField()));
         LOGGER.debug("Checking if field projection on {} projects {}",absField,field);
-        if(field.matchingPrefix(absField)) {
-            LOGGER.debug("Field projection on {} projects {}: {}",absField,field,p.isInclude()?"yes":"no");
-            return p.isInclude();
+        Projection.Inclusion inc=Projection.isFieldIncluded(field,absField,p.isInclude(),false);
+        LOGGER.debug("Field projection on {} projects {}: {}",absField,field,inc);
+        switch(inc) {
+        case explicit_inclusion: return Boolean.TRUE;
+        case explicit_exclusion: return Boolean.FALSE;
+        default: return null;
         }
-        return null;
     }
 
     private boolean isFieldQueried(Path field,Path qField,Path context) {
