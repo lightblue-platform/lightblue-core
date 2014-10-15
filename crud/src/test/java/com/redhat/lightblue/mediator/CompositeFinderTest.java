@@ -114,16 +114,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return Projection.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
     }
 
-   // @Test
-   //  public void sanityCheck() throws Exception {
-   //      FindRequest fr=new FindRequest();
-   //      fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
-   //      fr.setProjection(projection("{'field':'*','recursive':1}"));
-   //      fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-   //      Response response=mediator.find(fr);
-   //      Assert.assertEquals(1,response.getEntityData().size());
-   //      Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
-   //  }
+   @Test
+    public void sanityCheck() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
+        fr.setProjection(projection("{'field':'*','recursive':1}"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
+    }
 
     @Test
     public void retrieveAandBonly() throws Exception {
