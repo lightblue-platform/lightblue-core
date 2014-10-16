@@ -20,6 +20,8 @@ package com.redhat.lightblue.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,6 +34,9 @@ import static org.junit.Assert.fail;
  * @author lcestari
  */
 public class JsonUtilsTest {
+
+    static JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
+
     @Test
     @Ignore
     public void testGetObjectMapper() {
@@ -70,6 +75,15 @@ public class JsonUtilsTest {
     }
 
     @Test
+    public void testPrettyPrint_nullNode() {
+        ObjectNode node = nodeFactory.objectNode();
+        node.set("value",nodeFactory.objectNode());
+        Assert.assertEquals("{\n"+
+                            "\"value\":{}\n"+
+                            "}",JsonUtils.prettyPrint(node));
+    }
+
+   @Test
     @Ignore
     public void testPrettyPrint_JsonNode() {
         JsonNode node = null;
