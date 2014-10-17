@@ -20,12 +20,12 @@ package com.redhat.lightblue.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.redhat.lightblue.metadata.parser.*;
+
+import java.util.*;
+
 import com.redhat.lightblue.util.Error;
 
 /**
@@ -37,6 +37,8 @@ import com.redhat.lightblue.util.Error;
 public abstract class AbstractMetadataConfiguration implements MetadataConfiguration {
 
     private final List<HookConfigurationParser> hookConfigurationParsers = new ArrayList<>();
+    private final List<Map.Entry<String,DataStoreParser>> backendParsers = new ArrayList<>();
+    private final List<Map.Entry<String,PropertyParser>> propertyParsers = new ArrayList<>();
 
     /**
      * Register any common bits with the given Extensions instance.
@@ -44,6 +46,12 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
     protected void registerWithExtensions(Extensions ext) {
         for (HookConfigurationParser parser : hookConfigurationParsers) {
             ext.registerHookConfigurationParser(parser.getName(), parser);
+        }
+        for (Map.Entry<String, DataStoreParser> parser : backendParsers) {
+            ext.registerDataStoreParser(parser.getKey(), parser.getValue());
+        }
+        for (Map.Entry<String, PropertyParser> parser : propertyParsers) {
+            ext.registerPropertyParser(parser.getKey(), parser.getValue());
         }
     }
 
@@ -72,6 +80,50 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                         hookConfigurationParsers.add((HookConfigurationParser) o);
                     } else {
                         throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "Class not instance of HookConfigurationParser: " + clazz);
+                    }
+                }
+            }
+
+
+            ArrayNode backendParsersJs = (ArrayNode) node.get("backendParsers");
+            if(backendParsersJs != null) {
+                for (int i = 0; i < backendParsersJs.size(); i++) {
+                    JsonNode jsonNode = backendParsersJs.get(i);
+                    String name = jsonNode.get("name").asText();
+                    String clazz = jsonNode.get("clazz").asText();
+
+                    if (name == null || clazz == null) {
+                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "Backend/DataStoreParser class was not informed: name='" + name + "' clazz=" + clazz);
+                    }
+
+                    try {
+                        DataStoreParser instance = (DataStoreParser) Class.forName(clazz).newInstance();
+                        AbstractMap.SimpleEntry<String, DataStoreParser> stringDataStoreParserSimpleEntry = new AbstractMap.SimpleEntry<>(name, instance);
+                        backendParsers.add(stringDataStoreParserSimpleEntry);
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "Class not instance of Backend/DataStoreParser: " + clazz);
+                    }
+                }
+            }
+
+            ArrayNode propertyParserJs = (ArrayNode) node.get("propertyParsers");
+            if(propertyParserJs != null) {
+                for (int i = 0; i < propertyParserJs.size(); i++) {
+                    JsonNode jsonNode = propertyParserJs.get(i);
+                    String name = jsonNode.get("name").asText();
+                    String clazz = jsonNode.get("clazz").asText();
+
+                    if (name == null || clazz == null) {
+                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "PropertyParser Name/Class not informed: name=" + name + " clazz=" + clazz);
+                    }
+
+                    try {
+                        PropertyParser instance = (PropertyParser) Class.forName(clazz).newInstance();
+
+                        AbstractMap.SimpleEntry<String, PropertyParser> stringPropertyParserSimpleEntry = new AbstractMap.SimpleEntry<>(name, instance);
+                        propertyParsers.add(stringPropertyParserSimpleEntry);
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "Class not instance of PropertyParser: " + clazz);
                     }
                 }
             }
