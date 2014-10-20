@@ -134,10 +134,27 @@ public class CompositeFindImpl implements Finder {
     private static final class BindingAndType {
         private final FieldBinding binding;
         private final Type t;
+        private final Path valueField;
 
-        public BindingAndType(FieldBinding b,Type t) {
+        public BindingAndType(FieldBinding b,
+                              Type t,
+                              CompositeMetadata relativeToEntity) {
             this.binding=b;
             this.t=t;
+            if(relativeToEntity.getParent()==null) {
+                // This is the root entity. The value field is the same as the binding field
+                valueField=binding.getField();
+            } else {
+                // This is not the root entity. The value field is the
+                // field that is interpreted relative to the entity
+                Path rel=relativeToEntity.getEntityPath();
+                LOGGER.debug("Binding field {} will be evaluated relative to {}",binding.getField(),rel);
+                if(rel.matchingPrefix(binding.getField()))
+                    valueField=binding.getField().suffix(-(rel.numSegments()+1)); // +1 to take into account *
+                else
+                    throw new IllegalStateException("Cannot interpret "+binding.getField()+" relative to "+rel);
+            }
+            LOGGER.debug("Binding field:{} valueRetrievalField:{}",binding.getField(),valueField);
         }
     }
 
@@ -220,12 +237,18 @@ public class CompositeFindImpl implements Finder {
                 List<FieldBinding> fb=new ArrayList<>();
                 boundEdgeQuery=edgeQuery.bind(fb,bindRequest);
                 for(FieldBinding b:fb) {
-                    bindings.add(new BindingAndType(b,root.resolve(b.getField()).getType()));
+                    bindings.add(new BindingAndType(b,root.resolve(b.getField()).getType(),sourceNode.getMetadata()));
                 }
                 LOGGER.debug("Bound query:{}",boundEdgeQuery);
                 
-                runExpression=new RelativeRewriteIterator(new Path(destNode.getMetadata().getEntityPath(),
-                                                                   Path.ANYPATH)).iterate(boundEdgeQuery);
+                // If destination node is not the root node, we need to rewrite the query relative to that node
+                // Otherwise, absolute query will work for the root node
+                if(destNode.getMetadata().getParent()==null) {
+                    runExpression=boundEdgeQuery;
+                } else {
+                    runExpression=new RelativeRewriteIterator(new Path(destNode.getMetadata().getEntityPath(),
+                                                                       Path.ANYPATH)).iterate(boundEdgeQuery);
+                }
                 LOGGER.debug("Run expression:{}",runExpression);
                 
             } else {
@@ -247,8 +270,9 @@ public class CompositeFindImpl implements Finder {
         public void refreshBinding(DataGraphDoc doc) {
             for(BindingAndType binding:bindings) {
                 Path field=binding.binding.getField();
-                LOGGER.debug("Binding {} for node between {} and {}",field,sourceNode.getName(),destNode.getName());
-                JsonNode node=doc.doc.get(field);
+                LOGGER.debug("Binding {} for node between {} and {} using {}",
+                             field,sourceNode.getName(),destNode.getName(),binding.valueField);
+                JsonNode node=doc.doc.get(binding.valueField);
                 if(node==null)
                     binding.binding.getValue().setValue(null);
                 else
@@ -308,10 +332,16 @@ public class CompositeFindImpl implements Finder {
             // Create a query using the node query and the incoming edge queries
             List<QueryExpression> clauses=new ArrayList<>();
             for(Edge e:incomingEdges)
-                if(e.boundEdgeQuery!=null)
-                    clauses.add(e.runExpression);
-            if(req.getQuery()!=null)
-                clauses.add(req.getQuery());
+                if(e.boundEdgeQuery!=null) 
+                   clauses.add(e.runExpression);
+            for(Conjunct c:node.getData().getConjuncts())
+                if(node.getMetadata().getParent()==null) {
+                    clauses.add(c.getClause());
+                } else {
+                    clauses.add(new RelativeRewriteIterator(new Path(node.getMetadata().getEntityPath(),
+                                                                     Path.ANYPATH)).iterate(c.getClause()));
+                }
+            
             QueryExpression nodeQuery;
             if(clauses.size()==1)
                 nodeQuery=clauses.get(0);
@@ -409,7 +439,7 @@ public class CompositeFindImpl implements Finder {
                 }
             }
             
-            LOGGER.debug("execute {}: complete",node.getName());
+            LOGGER.debug("execute {}: complete, docs:{}",node.getName(),docs.size());
         }
     }
 
@@ -444,8 +474,7 @@ public class CompositeFindImpl implements Finder {
     }
 
     /**
-     * Initialization associated Execution to every query plan
-     * node. The operation starts by evaluating source nodes, and
+     * The operation starts by evaluating source nodes, and
      * moves on by going to the destination nodes.
      */
     @Override
@@ -505,10 +534,12 @@ public class CompositeFindImpl implements Finder {
         QueryPlanNode[] nodeOrdering=qplan.getBreadthFirstNodeOrdering();
         
         CRUDFindRequest req=new CRUDFindRequest();
-        for(int i=1;i<nodeOrdering.length;i++) {
-            LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());
-            Execution exec=nodeOrdering[i].getProperty(Execution.class);
-            exec.execute(ctx,req);
+        for(int i=0;i<nodeOrdering.length;i++) {
+            if(nodeOrdering[i].getMetadata().getParent()!=null) {
+                LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());
+                Execution exec=nodeOrdering[i].getProperty(Execution.class);
+                exec.execute(ctx,req);
+            }
         }
 
         List<DocCtx> ret=new ArrayList<>(rootNode.docs.size());
