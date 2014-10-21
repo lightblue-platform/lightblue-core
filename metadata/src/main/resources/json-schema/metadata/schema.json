@@ -48,14 +48,6 @@
                 }
             }
         },
-        "constraints": {
-            "type": "array",
-            "description": "Entity constraints.",
-            "items": {
-                "properties": {},
-                "additionalProperties": false
-            }
-        },
         "fields": {
             "$ref": "#/definitions/fieldSingle"
         }
