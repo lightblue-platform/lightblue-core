@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.*;
 import com.redhat.lightblue.crud.*;
+import com.redhat.lightblue.crud.interceptors.*;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.metadata.*;
@@ -65,11 +66,14 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         CRUDUpdateResponse updateResponse;
         CRUDDeleteResponse deleteResponse;
         CRUDFindResponse findResponse;
+        CRUDInsertionResponse insertResponse;
+        CRUDOperationContext ctx;
 
         @Override
         public CRUDInsertionResponse insert(CRUDOperationContext ctx,
                                             Projection projection) {
-            return null;
+            this.ctx=ctx;
+            return insertResponse;
         }
 
         @Override
@@ -154,6 +158,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
+        new UIDInterceptor().register(factory.getInterceptors());
         factory.addCRUDController("mongo", mockCrudController);
         mdManager.md = getMd("./testMetadata.json");
         mediator = new Mediator(mdManager, factory);
@@ -345,5 +350,20 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
+    }
+
+    @Test
+    public void uidTest() throws Exception {
+        mdManager.md = getMd("./usermd.json");
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("user", "5.0.0"));
+        req.setEntityData(loadJsonNode("./userdata.json"));
+        req.setReturnFields(null);
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        Response response = mediator.insert(req);
+        System.out.println(response.getDataErrors());
+        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(0,response.getDataErrors().size());
+        System.out.println(mockCrudController.ctx.getDocuments().get(0));
     }
 }

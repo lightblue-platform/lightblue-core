@@ -29,7 +29,7 @@
         "delete":["anyone"]
     },
     "fields": {
-        "_id": {"type": "string",
+        "_id": {"type": "uid",
                 "constraints" : {
                      "identity":1
                 }},
