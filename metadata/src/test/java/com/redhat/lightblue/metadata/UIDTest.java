@@ -194,5 +194,6 @@ public class UIDTest {
         Assert.assertTrue(doc.get(new Path("sites.1.usages.0.requid")).asText().length() > 0);
         Assert.assertTrue(doc.get(new Path("sites.1.usages.1.requid")).asText().length() > 0);
         Assert.assertTrue(doc.get(new Path("uid")).asText().length() > 0);
+        Assert.assertTrue(doc.get(new Path("iduid")).asText().length() > 0);
     }
 }
