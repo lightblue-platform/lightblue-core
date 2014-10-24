@@ -64,6 +64,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
 
     private static final class MockCrudController implements CRUDController {
         CRUDUpdateResponse updateResponse;
+        CRUDSaveResponse saveResponse;
         CRUDDeleteResponse deleteResponse;
         CRUDFindResponse findResponse;
         CRUDInsertionResponse insertResponse;
@@ -80,7 +81,8 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         public CRUDSaveResponse save(CRUDOperationContext ctx,
                                      boolean upsert,
                                      Projection projection) {
-            return null;
+            this.ctx=ctx;
+            return saveResponse;
         }
 
         @Override
@@ -88,6 +90,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
                                          QueryExpression query,
                                          UpdateExpression update,
                                          Projection projection) {
+            this.ctx=ctx;
             return updateResponse;
         }
 
@@ -362,6 +365,38 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         mockCrudController.insertResponse=new CRUDInsertionResponse();
         Response response = mediator.insert(req);
         System.out.println(response.getDataErrors());
+        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(0,response.getDataErrors().size());
+        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+    }
+
+    @Test
+    public void uidTermsTest() throws Exception {
+        mdManager.md = getMd("./termsmd.json");
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("terms", "0.14.1-SNAPSHOT"));
+        req.setEntityData(loadJsonNode("./termsdata.json"));
+        req.setReturnFields(null);
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        Response response = mediator.insert(req);
+        System.out.println(response.getDataErrors());
+        System.out.println(response.getErrors());
+        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(0,response.getDataErrors().size());
+        System.out.println(mockCrudController.ctx.getDocuments().get(0));
+    }
+
+    @Test
+    public void uidTermsSaveTest() throws Exception {
+        mdManager.md = getMd("./termsmd.json");
+        SaveRequest req = new SaveRequest();
+        req.setEntityVersion(new EntityVersion("terms", "0.14.1-SNAPSHOT"));
+        req.setEntityData(loadJsonNode("./termsdata.json"));
+        req.setReturnFields(null);
+        mockCrudController.saveResponse=new CRUDSaveResponse();
+        Response response = mediator.save(req);
+        System.out.println(response.getDataErrors());
+        System.out.println(response.getErrors());
         Assert.assertEquals(0,response.getErrors().size());
         Assert.assertEquals(0,response.getDataErrors().size());
         System.out.println(mockCrudController.ctx.getDocuments().get(0));
