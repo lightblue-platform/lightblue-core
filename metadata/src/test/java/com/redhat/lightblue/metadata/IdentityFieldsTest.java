@@ -66,8 +66,9 @@ public class IdentityFieldsTest {
         EntityMetadata md = parser.parseEntityMetadata(node);
 
         Field[] idf = md.getEntitySchema().getIdentityFields();
-        Assert.assertEquals(1, idf.length);
-        Assert.assertEquals("_id", idf[0].getName());
+        Assert.assertEquals(2, idf.length);
+        Assert.assertTrue("_id".equals( idf[0].getName()) || "_id".equals(idf[1].getName()));
+        Assert.assertTrue("iduid".equals(idf[0].getName()) || "iduid".equals(idf[1].getName()));
     }
 
     @Test
