@@ -67,6 +67,8 @@ import com.redhat.lightblue.util.Path;
  */
 public class Mediator {
 
+    public static final String CTX_QPLAN="meditor:qplan";
+
     public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
@@ -75,6 +77,11 @@ public class Mediator {
 
     private final Metadata metadata;
     private final Factory factory;
+
+    /**
+     * Used for testing. Keep the last context here, so unit tests can inspect it
+     */
+    private transient OperationContext lastContext;
 
     public Mediator(Metadata md,
                     Factory factory) {
@@ -97,6 +104,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = new OperationContext(req, metadata, factory, Operation.INSERT);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -163,6 +171,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = new OperationContext(req, metadata, factory, Operation.SAVE);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -229,6 +238,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = new OperationContext(req, metadata, factory, Operation.UPDATE);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -278,6 +288,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         try {
             OperationContext ctx = new OperationContext(req, metadata, factory, Operation.DELETE);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -328,6 +339,7 @@ public class Mediator {
         response.setStatus(OperationStatus.ERROR);
         try {
             OperationContext ctx = new OperationContext(req, metadata, factory, Operation.FIND);
+            lastContext=ctx;
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -339,6 +351,7 @@ public class Mediator {
                 if(ctx.isSimple()) {
                     LOGGER.debug("Simple entity");
                     finder=new SimpleFindImpl(md,factory);
+                    ctx.setStatus(OperationStatus.COMPLETE);
                 } else {
                     LOGGER.debug("Composite entity");
                     QueryPlanChooser qpChooser=new QueryPlanChooser(md,
@@ -346,6 +359,7 @@ public class Mediator {
                                                                     new IndexedFieldScorer(),
                                                                     ((FindRequest)ctx.getRequest()).getQuery());
                     QueryPlan qplan=qpChooser.choose();
+                    ctx.setProperty(CTX_QPLAN,qplan);
                     finder=new CompositeFindImpl(md,qplan,factory);
                 }
 
@@ -363,7 +377,10 @@ public class Mediator {
                 }
 
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
+                ctx.setStatus(OperationStatus.COMPLETE);
             }
+            ctx.getHookManager().queueMediatorHooks(ctx);
+
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
             if (response.getStatus() != OperationStatus.ERROR) {
@@ -379,6 +396,11 @@ public class Mediator {
             Error.pop();
         }
         return response;
+    }
+
+
+    public OperationContext getLastContext() {
+        return lastContext;
     }
 
     /**

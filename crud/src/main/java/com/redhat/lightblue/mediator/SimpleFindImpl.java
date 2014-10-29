@@ -55,8 +55,6 @@ public class SimpleFindImpl implements Finder {
                                                   req.getSort(),
                                                   req.getFrom(),
                                                   req.getTo());
-        ctx.getHookManager().queueMediatorHooks(ctx);
-        ctx.setStatus(OperationStatus.COMPLETE);
         return result;
     }
 }

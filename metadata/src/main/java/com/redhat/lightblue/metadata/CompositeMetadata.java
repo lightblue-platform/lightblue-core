@@ -199,6 +199,13 @@ public class CompositeMetadata extends EntityMetadata {
     /**
      * Returns the resolved reference containing the field
      */
+    public ResolvedReferenceField getResolvedReferenceOfField(Path field) {
+        return getResolvedReferenceOfField(resolve(field));
+    }
+
+    /**
+     * Returns the resolved reference containing the field
+     */
     public ResolvedReferenceField getResolvedReferenceOfField(FieldTreeNode field) {
         ResolvedReferenceField ret=null;
         if(field!=null) {

@@ -141,8 +141,12 @@ public abstract class Projection extends JsonObject {
                                             boolean inclusion,
                                             boolean recursive) {
         Boolean v=fieldMatchesPattern(field,pattern,inclusion);
-        if(v!=null)
-            return v?Inclusion.explicit_inclusion:Inclusion.explicit_exclusion;
+        if(v!=null) {
+            if(pattern.tail(0).equals(Path.ANY))
+                return v?Inclusion.implicit_inclusion:Inclusion.implicit_exclusion;
+            else
+                return v?Inclusion.explicit_inclusion:Inclusion.explicit_exclusion;
+        }
         v=fieldAncestorOfPattern(field,pattern,inclusion);
         if(v!=null)
             return v?Inclusion.explicit_inclusion:Inclusion.explicit_exclusion;

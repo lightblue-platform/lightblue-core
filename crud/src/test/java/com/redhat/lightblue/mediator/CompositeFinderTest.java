@@ -43,6 +43,8 @@ import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
+import com.redhat.lightblue.assoc.QueryPlan;
+
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 
@@ -124,6 +126,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
     }
+
     @Test
     public void retrieveAandBonly() throws Exception {
         FindRequest fr=new FindRequest();
@@ -133,6 +136,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
+        QueryPlan qplan=(QueryPlan)mediator.getLastContext().getProperty(Mediator.CTX_QPLAN);
+        // This one must have A -> B
+        Assert.assertEquals(1,qplan.getSources().length);
+        Assert.assertEquals("A",qplan.getSources()[0].getMetadata().getName());
     }
 
     @Test
@@ -144,6 +151,25 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
-    }
+        QueryPlan qplan=(QueryPlan)mediator.getLastContext().getProperty(Mediator.CTX_QPLAN);
+         // This one must have B -> A
+        Assert.assertEquals(1,qplan.getSources().length);
+        Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
+   }
+
+    // @Test
+    // public void retrieveAandBonly_2q() throws Exception {
+    //     FindRequest fr=new FindRequest();
+    //     fr.setQuery(query("{'$and': [ {'field':'_id','op':'=','rvalue':'A09'}, {'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'} ] }"));
+    //     fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+    //     fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+    //     Response response=mediator.find(fr);
+    //     Assert.assertEquals(1,response.getEntityData().size());
+    //     Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
+    //     QueryPlan qplan=(QueryPlan)mediator.getLastContext().getProperty(Mediator.CTX_QPLAN);
+    //      // This one must have B -> A
+    //     Assert.assertEquals(1,qplan.getSources().length);
+    //     Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
+    // }
 
 }
