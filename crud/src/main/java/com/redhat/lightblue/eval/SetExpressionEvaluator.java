@@ -216,6 +216,7 @@ public class SetExpressionEvaluator extends Updater {
         JsonNode oldValueNode = null;
         Path fieldPath = new Path(contextPath, df.field);
         if (op == UpdateOperator._set) {
+            LOGGER.debug("set fieldPath={}, newValue={}",fieldPath,newValueNode);
             oldValueNode = doc.modify(fieldPath, newValueNode, true);
         } else if (op == UpdateOperator._add) {
             oldValueNode = doc.get(fieldPath);
