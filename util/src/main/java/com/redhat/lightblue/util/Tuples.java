@@ -39,7 +39,24 @@ import java.util.NoSuchElementException;
  */
 public class Tuples<T> {
 
-    private final ArrayList<Collection<T>> collections=new ArrayList<>();
+    public interface Iteratable<X> {
+        Iterator<X> iterator();
+    }
+
+    private static final class CollectionAdapter<X> implements Iteratable<X> {
+        private final Collection<X> coll;
+
+        public CollectionAdapter(Collection<X> coll) {
+            this.coll=coll;
+        }
+
+        @Override
+        public Iterator<X> iterator() {
+            return coll.iterator();
+        }
+    }
+
+    private final ArrayList<Iteratable<T>> collections=new ArrayList<>();
 
     /**
      * Default ctor. Creates an empty tuples object that can
@@ -71,6 +88,13 @@ public class Tuples<T> {
      * Adds a new collection to the tuples
      */
     public void add(Collection<T> c) {
+        add(new CollectionAdapter<T>(c));
+    }
+    
+    /**
+     * Adds a new collection to the tuples
+     */
+    public void add(Iteratable<T> c) {
         collections.add(c);
     }
 
@@ -87,17 +111,17 @@ public class Tuples<T> {
     }
 
     private static final class TupleItr<X> implements Iterator<List<X>> {
-        private final List<Collection<X>> coll;
+        private final List<Iteratable<X>> coll;
         private final List<Iterator<X>> itrList;
         private final List<X> tuple;
         private Boolean nextExists=null;
         private boolean first=true;
 
-        public TupleItr(List<Collection<X>> list) {
+        public TupleItr(List<Iteratable<X>> list) {
             coll=new ArrayList<>(list);
             itrList=new ArrayList<>(coll.size());
             tuple=new ArrayList<>(coll.size());
-            for(Collection<X> c:coll) {
+            for(Iteratable<X> c:coll) {
                 tuple.add(null);
                 itrList.add(null);
             }
