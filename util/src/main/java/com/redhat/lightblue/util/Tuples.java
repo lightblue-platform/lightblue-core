@@ -39,23 +39,6 @@ import java.util.NoSuchElementException;
  */
 public class Tuples<T> {
 
-    public interface Iteratable<X> {
-        Iterator<X> iterator();
-    }
-
-    private static final class CollectionAdapter<X> implements Iteratable<X> {
-        private final Collection<X> coll;
-
-        public CollectionAdapter(Collection<X> coll) {
-            this.coll=coll;
-        }
-
-        @Override
-        public Iterator<X> iterator() {
-            return coll.iterator();
-        }
-    }
-
     private final ArrayList<Iteratable<T>> collections=new ArrayList<>();
 
     /**
@@ -88,7 +71,7 @@ public class Tuples<T> {
      * Adds a new collection to the tuples
      */
     public void add(Collection<T> c) {
-        add(new CollectionAdapter<T>(c));
+        add(new IteratableCollectionAdapter<T>(c));
     }
     
     /**
