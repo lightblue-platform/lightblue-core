@@ -200,7 +200,7 @@ public class QueryPlanNodeExecutor {
                     QueryPlanDoc parentDoc=tuple.get(i);
                     ResolvedFieldBinding.refresh(sourceBindings,parentDoc);
                 }
-                execute(ctx,findRequest,tuple);
+               execute(ctx,findRequest,tuple);
             }
        }
     }
@@ -221,7 +221,9 @@ public class QueryPlanNodeExecutor {
                          CRUDFindRequest findRequest,
                          List<QueryPlanDoc> parents) {
         OperationContext nodeCtx=ctx.getDerivedOperationContext(node.getMetadata().getName(),findRequest);
-        LOGGER.debug("execute {}: executing search, entity={}", node.getName(),nodeCtx.getEntityName());
+        LOGGER.debug("execute {}: entity={}, findRequest.query={}, projection={}, sort={}", node.getName(),
+                     nodeCtx.getEntityName(),
+                     findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
         CRUDFindResponse response=finder.find(nodeCtx,findRequest);
         LOGGER.debug("execute {}: storing documents", node.getName());
         for(DocCtx doc:nodeCtx.getDocuments()) {
