@@ -86,7 +86,7 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
         qe = QueryEvaluator.getInstance(q, md);
         ctx = qe.evaluate(jsonDoc);
         Assert.assertFalse(ctx.getResult());
-        q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field1','regex':'Val.*'},{'field':'field3','op':'$eq','rvalue':3}]}}");
+        q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field1','regex':'Val.*'},{'field':'field3','op':'$eq','rvalue':4}]}}");
         qe = QueryEvaluator.getInstance(q, md);
         ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
