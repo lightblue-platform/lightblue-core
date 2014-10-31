@@ -28,6 +28,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import com.redhat.lightblue.util.JsonUtils;
 
 public class UpdaterTest extends AbstractJsonNodeTest {
     EntityMetadata md;
@@ -160,5 +161,25 @@ public class UpdaterTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
         Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+    }
+
+    @Test
+    public void array_foreach_append() throws Exception {
+        jsonDoc = EvalTestContext.getDoc("./termsdata.json");
+        md = EvalTestContext.getMd("./termsmd.json");
+        UpdateExpression expr = EvalTestContext.
+            updateExpressionFromJson("{ '$foreach' : { 'termsVerbiage' : { 'field':'uid','op':'=','rvalue':1} ,"+
+                                     "'$update' : [ "+
+                                     "{ '$insert': { 'termsVerbiageTranslation.0': {}}},"+
+                                     "{ '$set': {'termsVerbiageTranslation.0.localeCode':'lg','termsVerbiageTranslation.0.localeText':'Lang' } }"+
+                                     " ] }}");
+        
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        System.out.println("before:"+JsonUtils.prettyPrint(jsonDoc.getRoot()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        System.out.println("After:"+JsonUtils.prettyPrint(jsonDoc.getRoot()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation")).size());
+        Assert.assertEquals("lg", jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation.0.localeCode")).asText());
     }
 }
