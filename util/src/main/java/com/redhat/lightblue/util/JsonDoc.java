@@ -141,7 +141,11 @@ public class JsonDoc implements Serializable {
                     continue;
                 } else if (output instanceof ArrayNode) {
                     int index = Integer.valueOf(name);
-                    newOutput = ((ArrayNode) output).get(index);
+                    if(index<0) {
+                        newOutput = ((ArrayNode)output).get( ((ArrayNode)output).size() + index );
+                    } else {
+                        newOutput = ((ArrayNode) output).get(index);
+                    }
                 } else if (output instanceof ObjectNode) {
                     newOutput = output.get(name);
                 } else {
@@ -537,6 +541,8 @@ public class JsonDoc implements Serializable {
             arr.addNull();
             size++;
         }
+        if(index<0)
+            index=size+index;
         if (index < size && newValue != null) {
             oldValue = arr.get(index);
             arr.set(index, newValue);
