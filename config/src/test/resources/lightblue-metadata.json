@@ -7,5 +7,17 @@
     "type": "com.redhat.lightblue.config.TestConfig",
     "hookConfigurationParsers": ["com.redhat.lightblue.config.TestHookConfigurationParser"],
     "dataSource": "mongo",
-    "collection": "metadata"
+    "collection": "metadata",
+    "backendParsers": [
+        {
+            "name": "TestDataStoreParser",
+            "clazz": "com.redhat.lightblue.config.TestDataStoreParser"
+        }
+    ],
+    "propertyParsers": [
+        {
+            "name": "TestPropertyParser",
+            "clazz": "com.redhat.lightblue.config.TestPropertyParser"
+        }
+    ]
 }

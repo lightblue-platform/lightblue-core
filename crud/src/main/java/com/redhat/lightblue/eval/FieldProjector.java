@@ -47,7 +47,7 @@ public class FieldProjector extends Projector {
         if (p.matchingPrefix(field)) {
             if (include) {
                 return Boolean.TRUE;
-            } else if (p.equals(field)) {
+            } else if (p.matches(field)) {
                 return Boolean.FALSE;
             }
         } else if (recursive && p.numSegments() > field.numSegments() && p.prefix(field.numSegments()).matches(field)) {

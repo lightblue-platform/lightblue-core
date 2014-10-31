@@ -125,4 +125,39 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field6.nf3")));
     }
 
+    @Test
+    public void fieldProjectorTest_includeArrayExcludeFields() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','include':true,'match':{'field':'elemf3','op':'>','rvalue':4},'project':[{'field':'*'},{'field':'elemf1','include':false}]}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        Assert.assertNull(pdoc.get(new Path("field1")));
+        Assert.assertNull(pdoc.get(new Path("field2")));
+        Assert.assertNull(pdoc.get(new Path("field3")));
+        Assert.assertNull(pdoc.get(new Path("field4")));
+        Assert.assertNull(pdoc.get(new Path("field5")));
+        Assert.assertNull(pdoc.get(new Path("field6")));
+        Assert.assertEquals(2, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(5, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(6, pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertNull(pdoc.get(new Path("field7.0.elemf1")));
+        Assert.assertEquals("elvalue2_2", pdoc.get(new Path("field7.0.elemf2")).asText());
+        Assert.assertNull(pdoc.get(new Path("field7.1.elemf1")));
+        Assert.assertEquals("elvalue3_2", pdoc.get(new Path("field7.1.elemf2")).asText());
+    }
+
+    @Test
+    public void fieldProjectorTest_includeArrayExcludeFields2() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("[{'field':'*'},{'field':'field7.*.*'},{'field':'field7.*.elemf1','include':0}]");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        Assert.assertEquals("value1",pdoc.get(new Path("field1")).asText());
+        Assert.assertEquals("value2",pdoc.get(new Path("field2")).asText());
+        Assert.assertEquals(3,pdoc.get(new Path("field3")).asInt());
+        Assert.assertEquals(4.0,pdoc.get(new Path("field4")).asDouble(),0.1);
+        Assert.assertTrue(pdoc.get(new Path("field5")).asBoolean());
+        Assert.assertNotNull(pdoc.get(new Path("field6")));
+        Assert.assertEquals(4, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(3, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertNull(pdoc.get(new Path("field7.0.elemf1")));
+    }
 }
