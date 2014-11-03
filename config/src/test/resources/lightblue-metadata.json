@@ -19,5 +19,18 @@
             "name": "TestPropertyParser",
             "clazz": "com.redhat.lightblue.config.TestPropertyParser"
         }
-    ]
+    ],
+    "roleMap":{
+        "GET_DEPENDENCIES": ["read"],
+        "GET_ROLES": ["read"],
+        "GET_ENTITY_NAMES": ["read"],
+        "GET_ENTITY_VERSIONS": ["read"],
+        "GET_ENTITY_METADATA": ["read"],
+        "CREATE_METADATA": ["create"],
+        "CREATE_SCHEMA": ["create"],
+        "UPDATE_ENTITYINFO": ["update"],
+        "UPDATE_ENTITY_SCHEMA_STATUS": ["update"],
+        "SET_DEFAULT_VERSION": ["update"],
+        "REMOVE_ENTITY": ["delete"]
+    }
 }

@@ -1,0 +1,15 @@
+package com.redhat.lightblue.metadata;
+
+public enum MetadataRoles {
+    GET_DEPENDENCIES,
+    GET_ROLES,
+    GET_ENTITY_NAMES,
+    GET_ENTITY_VERSIONS,
+    GET_ENTITY_METADATA,
+    CREATE_METADATA,
+    CREATE_SCHEMA,
+    UPDATE_ENTITYINFO,
+    UPDATE_ENTITY_SCHEMA_STATUS,
+    SET_DEFAULT_VERSION,
+    REMOVE_ENTITY
+}
