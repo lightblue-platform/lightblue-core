@@ -25,6 +25,9 @@ import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.VersionInfo;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author nmalik
@@ -90,5 +93,10 @@ public class DatabaseMetadata implements Metadata {
     @Override
     public void removeEntity(String entityName) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Map<String, List<String>> getMappedRoles() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

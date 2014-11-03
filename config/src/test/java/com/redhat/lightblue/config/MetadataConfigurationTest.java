@@ -32,6 +32,9 @@ import com.redhat.lightblue.util.test.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Test the AbstractMetadataConfiguration functionality.
  *
@@ -100,6 +103,11 @@ public class MetadataConfigurationTest {
         @Override
         public void removeEntity(String entityName) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Map<String, List<String>> getMappedRoles() {
+            return null;
         }
 
     }

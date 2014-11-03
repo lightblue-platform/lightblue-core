@@ -58,6 +58,10 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
         }
     }
 
+    protected Map<String,List<String>> getMappedRoles() {
+        return  roleMap;
+    }
+
     @Override
     public void initializeFromJson(JsonNode node) {
         if (node != null) {
