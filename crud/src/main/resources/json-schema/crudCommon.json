@@ -1,0 +1,105 @@
+{
+    "copyright": [
+        "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+        "This file is part of lightblue.",
+        "This program is free software: you can redistribute it and/or modify",
+        "it under the terms of the GNU General Public License as published by",
+        "the Free Software Foundation, either version 3 of the License, or",
+        "(at your option) any later version.",
+        "This program is distributed in the hope that it will be useful,",
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+        "GNU General Public License for more details.",
+        "You should have received a copy of the GNU General Public License",
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>."],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "definitions": {
+        "query": {
+            "$ref": "/json-schema/query/choice.json#/definitions/query"
+        },
+        "projection": {
+            "$ref": "/json-schema/projection/choice.json#/definitions/projection",
+            "description": "A projection expression specifying what fields of entities to return once the insert/update/delete is performed. For insert/update operations, the projection is performed on the updated entity. For deletion, projection is performed on the entity currently in db. Empty projection list is allowed. WARN: Requesting more than the unique IDs of entities might require a re-fetch of entities."
+        },
+        "version": {
+            "$ref": "/json-schema/metadata/common.json#/definitions/version/value",
+            "description": "The version of metadata. Defaults to latest version."
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The id of the entity."
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "The name of the entity to be operated on.  Should match 'objectType' set at higher level."
+                },
+                "version": {
+                    "$ref": "#/definitions/version"
+                }
+            },
+            "required": [
+                "objectType"
+            ],
+            "additionalProperties": true
+        },
+        "dataArray": {
+            "type": "array",
+            "description": "Array of entity objects. If object ids are given, entities will be inserted with the given object id, otherwise object id will be auto-generated.",
+            "items": {
+                "$ref": "#/definitions/data"
+            }
+        },
+        "execution": {
+            "type": "object",
+            "properties": {
+                "timeLimit": {
+                    "type": "integer",
+                    "description": "The upper time limit for the call in milliseconds. If the call does not complete before the limit expires, call fails with partial results written. The return status will contain what items are written."
+                },
+                "asynchronous": {
+                    "type": "integer",
+                    "description": "Given as a time limit in milliseconds. Once that limit is exceeded, the call returns, but execution continues. The return value will contain a task handle that can be used to check for execution status."
+                }
+            },
+            "additionalProperties": false
+        },
+        "client": {
+            "description": "If omitted, the call executes as role 'anyone'. This field contains the authentication information for the caller, which is auth implementation specific, or a session identifier obtained from an earlier call.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Identifier for the client"
+                }
+            },
+            "additionalProperties": true
+        },
+        "common": {
+            "properties": {
+                "objectType": {
+                    "type": "string",
+                    "description": "The name of the entity being operated on."
+                },
+                "client": {
+                    "$ref": "#/definitions/client"
+                },
+                "version": {
+                    "$ref": "#/definitions/version"
+                },
+                "execution": {
+                    "$ref": "#/definitions/execution"
+                },
+                "projection": {
+                    "$ref": "#/definitions/projection"
+                }
+            },
+            "required": [
+                "objectType"
+            ]
+        }
+    }
+}

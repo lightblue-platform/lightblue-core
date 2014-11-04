@@ -39,4 +39,9 @@ public class TestConfig implements MetadataConfiguration {
     @Override
     public void initializeFromJson(JsonNode node) {
     }
+
+    @Override
+    public boolean isValidateRequests() {
+        return true;
+    }
 }
