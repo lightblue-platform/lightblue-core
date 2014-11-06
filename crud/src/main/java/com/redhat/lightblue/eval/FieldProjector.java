@@ -30,6 +30,8 @@ public class FieldProjector extends Projector {
     private final boolean include;
     private final boolean recursive;
 
+    private Projector decidingProjector=null;
+    
     public FieldProjector(FieldProjection p, Path ctxPath, FieldTreeNode ctx) {
         super(ctxPath, ctx);
         field = new Path(ctxPath, p.getField());
@@ -43,14 +45,23 @@ public class FieldProjector extends Projector {
     }
 
     @Override
+    public Projector getDecidingProjector() {
+        return decidingProjector;
+    }
+
+    @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
+        decidingProjector=null;
         if (p.matchingPrefix(field)) {
             if (include) {
+                decidingProjector=this;
                 return Boolean.TRUE;
             } else if (p.matches(field)) {
+                decidingProjector=this;
                 return Boolean.FALSE;
             }
         } else if (recursive && p.numSegments() > field.numSegments() && p.prefix(field.numSegments()).matches(field)) {
+            decidingProjector=this;
             return include ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;

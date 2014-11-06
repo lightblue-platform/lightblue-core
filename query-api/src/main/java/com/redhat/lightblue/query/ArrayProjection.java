@@ -30,13 +30,16 @@ public abstract class ArrayProjection extends BasicProjection {
     private final Path field;
     private final boolean include;
     private final Projection project;
+    private final Sort sort;
 
     public ArrayProjection(Path field,
                            boolean include,
-                           Projection project) {
+                           Projection project,
+                           Sort sort) {
         this.field = field;
         this.include = include;
         this.project = project == null ? FieldProjection.ALL : project;
+        this.sort = sort;
     }
 
     public Path getField() {
@@ -51,12 +54,18 @@ public abstract class ArrayProjection extends BasicProjection {
         return this.project;
     }
 
+    public Sort getSort() {
+        return sort;
+    }
+
     @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode().
                 put("field", field.toString()).
                 put("include", include);
         node.set("project", project.toJson());
+        if(sort!=null)
+            node.set("sort", sort.toJson());
         return node;
     }
 
