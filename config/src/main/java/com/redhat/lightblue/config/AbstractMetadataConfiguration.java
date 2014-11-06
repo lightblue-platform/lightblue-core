@@ -140,7 +140,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                 // If the roleMap element is defined, it is expected to have all the roles mapped
                 MetadataRoles[] values = MetadataRoles.values();
                 for (int i = 0; i < values.length; i++) {
-                    String name = values[i].name();
+                    String name = values[i].toString();
                     ArrayNode rolesJs =  (ArrayNode) roleMapJs.get(name);
 
                     if (rolesJs == null || rolesJs.size() == 0) {
