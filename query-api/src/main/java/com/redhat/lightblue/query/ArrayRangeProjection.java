@@ -34,11 +34,20 @@ public class ArrayRangeProjection extends ArrayProjection {
     public ArrayRangeProjection(Path field,
                                 boolean include,
                                 Projection project,
+                                Sort sort,
                                 int from,
                                 int to) {
-        super(field, include, project);
+        super(field, include, project,sort);
         this.from = from;
         this.to = to;
+    }
+
+    public ArrayRangeProjection(Path field,
+                                boolean include,
+                                Projection project,
+                                int from,
+                                int to) {
+        this(field, include, project,null,from,to);
     }
 
     public int getFrom() {

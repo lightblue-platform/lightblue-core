@@ -60,6 +60,15 @@ public abstract class BasicProjection extends Projection {
         } else {
             projection = null;
         }
+        
+        x = node.get("sort");
+        Sort sort;
+        if(x!=null) {
+            sort=Sort.fromJson(x);
+        } else {
+            sort=null;
+        }
+        
         x = node.get("range");
         if (x != null) {
             if (x instanceof ArrayNode
@@ -67,9 +76,10 @@ public abstract class BasicProjection extends Projection {
                 int from = ((ArrayNode) x).get(0).asInt();
                 int to = ((ArrayNode) x).get(1).asInt();
                 return new ArrayRangeProjection(path,
-                        include,
-                        projection,
-                        from, to);
+                                                include,
+                                                projection,
+                                                sort,
+                                                from, to);
             } else {
                 throw Error.get(QueryConstants.ERR_INVALID_ARRAY_RANGE_PROJECTION, node.toString());
             }
@@ -77,9 +87,10 @@ public abstract class BasicProjection extends Projection {
         x = node.get("match");
         if (x != null) {
             return new ArrayQueryMatchProjection(path,
-                    include,
-                    projection,
-                    QueryExpression.fromJson(x));
+                                                 include,
+                                                 projection,
+                                                 sort,
+                                                 QueryExpression.fromJson(x));
         }
         x = node.get("recursive");
         return new FieldProjection(path, include,

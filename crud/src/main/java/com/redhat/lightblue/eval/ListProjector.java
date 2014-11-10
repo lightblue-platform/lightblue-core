@@ -33,6 +33,7 @@ public class ListProjector extends Projector {
     private final List<Projector> items;
 
     private Projector nestedProjector;
+    private Projector decidingProjector;
 
     public ListProjector(ProjectionList l, Path ctxPath, FieldTreeNode ctx) {
         super(ctxPath, ctx);
@@ -49,12 +50,19 @@ public class ListProjector extends Projector {
     }
 
     @Override
+    public Projector getDecidingProjector() {
+        return decidingProjector;
+    }
+
+    @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
+        decidingProjector=null;
         for (int n = items.size() - 1; n >= 0; n--) {
             Boolean projectionResult = items.get(n).project(p, ctx);
             if (projectionResult != null) {
                 nestedProjector = items.get(n).getNestedProjector();
+                decidingProjector = items.get(n).getDecidingProjector();
                 return projectionResult;
             }
         }
