@@ -4,6 +4,7 @@
         "hookConfigurationParsers - array of classes implementing HookConfigurationParser interface",
         "The remainder of the file is parsed by the implementation class"
     ],
+    "validateRequests" : false,
     "type": "com.redhat.lightblue.config.TestConfig",
     "hookConfigurationParsers": ["com.redhat.lightblue.config.TestHookConfigurationParser"],
     "dataSource": "mongo",

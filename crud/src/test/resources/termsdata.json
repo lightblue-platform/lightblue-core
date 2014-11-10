@@ -1,1 +1,31 @@
-{"termsVerbiage":[{"statusCode":"active","termsVerbiageTranslation":[{"statusCode":"inactive","localeCode":"en","localeText":"English","version":1},{"statusCode":"inactive","localeCode":"en","localeText":"English","version":2},{"localeCode":"en","statusCode":"inactive","localeText":"English","version":3}],"name":"New Term","termsVerbiageTranslation#":2}],"lastUpdateDate":"20141021T20:51:26.973+0000","statusCode":"active","creationDate":"20141021T20:51:26.973+0000","termsCategoryCode":"user","termsTypeCode":"NDA","createdBy":"Marek","_id":"5446c74fe4b02251a5376918","termsVerbiage#":1,"lastUpdatedBy":"Marek","objectType":"terms"}
+{
+  "termsVerbiage":[
+     {
+       "uid":"1",
+       "statusCode":"active",
+       "termsVerbiageTranslation":[
+          {"statusCode":"inactive",
+           "localeCode":"en",
+           "localeText":"English",
+           "version":1},
+          {"statusCode":"inactive",
+           "localeCode":"en",
+           "localeText":"English",
+           "version":2},
+          {"localeCode":"en",
+           "statusCode":"inactive",
+           "localeText":"English",
+           "version":3}],
+        "name":"New Term",
+        "termsVerbiageTranslation#":2}],
+  "lastUpdateDate":"20141021T20:51:26.973+0000",
+  "statusCode":"active",
+  "creationDate":"20141021T20:51:26.973+0000",
+  "termsCategoryCode":"user",
+  "termsTypeCode":"NDA",
+  "createdBy":"Marek",
+  "_id":"5446c74fe4b02251a5376918",
+  "termsVerbiage#":1,
+  "lastUpdatedBy":"Marek",
+  "objectType":"terms"
+}

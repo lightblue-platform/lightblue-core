@@ -33,6 +33,7 @@ public final class UtilConstants {
     public static final String ERR_UNEXPECTED_DOT = "util:UnexpectedDot";
     public static final String ERR_UNEXPECTED_WHITESPACE = "util:UnexpectedWhitespace";
     public static final String ERR_UNEXPECTED_CHARACTER = "util:UnexpectedCharacter";
+    public static final String ERR_JSON_SCHEMA_INVALID = "util:JsonSchemaInvalid";
 
     private UtilConstants() {
 

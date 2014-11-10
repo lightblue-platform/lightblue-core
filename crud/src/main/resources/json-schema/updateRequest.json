@@ -1,0 +1,202 @@
+{
+    "copyright": [
+        "Copyright 2013 Red Hat, Inc. and/or its affiliates.",
+        "This file is part of lightblue.",
+        "This program is free software: you can redistribute it and/or modify",
+        "it under the terms of the GNU General Public License as published by",
+        "the Free Software Foundation, either version 3 of the License, or",
+        "(at your option) any later version.",
+        "This program is distributed in the hope that it will be useful,",
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of",
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+        "GNU General Public License for more details.",
+        "You should have received a copy of the GNU General Public License",
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>."],
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+     "allOf": [
+         {
+             "$ref": "/json-schema/crudCommon.json#/definitions/common"
+         }
+     ],
+     "additionalProperties": false,
+     "properties": {
+         "client": {
+         },
+         "objectType": {
+         },
+         "version": {
+         },
+         "execution": {
+         },
+         "projection": {
+         },
+         "query": {
+             "$ref": "/json-schema/crudCommon.json#/definitions/query",
+             "description": "Query expression that identifies docs to update"
+         },
+         "update": {
+             "oneOf": [
+                 {
+                     "$ref": "#/definitions/updateChoice"
+                 },
+                 {
+                     "type": "array",
+                     "items": {
+                         "$ref": "#/definitions/updateChoice"
+                     }
+                 }
+             ]
+         }
+     },
+     "required": [
+         "query",
+         "update"
+     ],
+    "definitions": {
+        "updateChoice": {
+            "oneOf": [
+                {
+                    "properties": {
+                        "$set": {
+                            "$ref": "#/definitions/updateFieldSet"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "$unset": {
+                            "$ref": "#/definitions/updateFieldUnset"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "$add": {
+                            "$ref": "#/definitions/updateFieldAdd"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "$append": {
+                            "$ref": "#/definitions/updateArrayAppend"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "$insert": {
+                            "$ref": "#/definitions/updateArrayInsert"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                {
+                    "properties": {
+                        "$foreach": {
+                            "$ref": "#/definitions/updateArrayForEach"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "updateFieldSet": {
+            "type": "object",
+            "description": "Attribute name is field to set, value is the new value to assign.",
+            "additionalProperties": true
+        },
+        "updateFieldUnset": {
+            "oneOf" : [
+                {
+                   "type": "array",
+                   "description": "Name of fields to unset",
+                   "minItems": 1,
+                   "items": [
+                       {
+                          "type": "string"
+                       }
+                   ]
+                },
+                {
+                   "type": "string"
+                }
+            ]
+        },
+        "updateFieldAdd": {
+            "type": "object",
+            "description": "Attribute name is field to modify, value is a $valueof expression.",
+            "additionalProperties": true
+        },
+        "updateArrayAppend": {
+            "type": "object",
+            "description": "Appends given values to the field (attribute name).  Values are added at the end of the array.  Doesn't check for uniqueness before adding.",
+            "patternProperties": {
+                ".*": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "updateArrayInsert": {
+            "type": "object",
+            "description": "Inserts given values to the field (attribute name).  Values are added to the index as given in the field names,  Doesn't check for uniqueness before adding.",
+            "patternProperties": {
+                ".*": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "updateArrayForEach": {
+            "type": "object",
+            "description": "Iterates over array elements, checking for elements matching a query, and operating on them",
+            "properties" : {
+               "$update": {
+                   "oneOf" : [ 
+                      {
+                         "type":"string"
+                      },
+                      {
+                         "$ref": "#/definitions/updateChoice"
+                      },
+                      {
+                         "type": "array",
+                         "items": {
+                              "$ref": "#/definitions/updateChoice"
+                          }
+                      }
+                   ]
+               }
+            },
+            "additionalProperties": { 
+               "$ref": "/json-schema/crudCommon.json#/definitions/query"
+            }
+        }
+    }
+}

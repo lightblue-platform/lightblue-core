@@ -44,6 +44,15 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
     public static final transient String FILENAME = "lightblue-crud.json";
 
     private ControllerConfiguration controllers[];
+    private boolean validateRequests=false;
+
+    public boolean isValidateRequests() {
+        return validateRequests;
+    }
+
+    public void setValidateRequests(boolean b) {
+        validateRequests=b;
+    }
 
     /**
      * @return the controllers
@@ -90,6 +99,10 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
             } else {
                 throw new IllegalArgumentException("'controllers' must be instanceof ArrayNode: " + node.toString());
             }
+
+            x=node.get("validateRequests");
+            if(x!=null)
+                validateRequests=x.booleanValue();
         }
     }
 }
