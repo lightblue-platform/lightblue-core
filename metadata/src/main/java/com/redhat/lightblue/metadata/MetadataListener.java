@@ -29,35 +29,39 @@ public interface MetadataListener {
     /**
      * Called before creating a new schema
      *
+     * @param m The metadata implementation
      * @param md The entity metadata
      */
-    void beforeCreateNewSchema(EntityMetadata md);
+    void beforeCreateNewSchema(Metadata m,EntityMetadata md);
 
     /**
      * Called after creating a new schema
      *
+     * @param m The metadata implementation
      * @param md The entity metadata
      */
-    void afterCreateNewSchema(EntityMetadata md);
+    void afterCreateNewSchema(Metadata m,EntityMetadata md);
     
     /**
      * Called before entity info is created or updated
      *
-     * @param md The entity metadata
+     * @param m The metadata implementation
+     * @param md The entity info
      * @param newEntity If <code>true</code>, this is a call to create
      * a new entity. Otherwise, this is a call to modify an existing
      * entity.
      */
-    void beforeUpdateEntityInfo(EntityMetadata md,boolean newEntity);
+    void beforeUpdateEntityInfo(Metadata m,EntityInfo ei,boolean newEntity);
 
     /**
      * Called after entity info is created or updated
      *
-     * @param md The entity metadata
+     * @param m The metadata implementation
+     * @param md The entity info
      * @param newEntity If <code>true</code>, this is a call to create
      * a new entity. Otherwise, this is a call to modify an existing
      * entity.
      */
-    void afterUpdateEntityInfo(EntityMetadata md,boolean newEntity);
+    void afterUpdateEntityInfo(Metadata m,EntityInfo ei,boolean newEntity);
 
 }
