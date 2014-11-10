@@ -31,7 +31,6 @@ import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,10 +126,14 @@ public final class JsonUtils {
         JsonNode node = loadJsonNode(resourceName);
 
         ProcessingReport report = validator.validateSchema(node);
-        Assert.assertTrue("Schema is not valid!", report.isSuccess());
+        if (!report.isSuccess()) {
+            throw Error.get(UtilConstants.ERR_JSON_SCHEMA_INVALID);
+        }
 
         JsonSchema schema = factory.getJsonSchema("resource:/" + resourceName);
-        Assert.assertNotNull(schema);
+        if (null == schema) {
+            throw Error.get(UtilConstants.ERR_JSON_SCHEMA_INVALID);
+        }
 
         return schema;
     }
