@@ -19,13 +19,23 @@
 package com.redhat.lightblue.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
+import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
@@ -60,6 +70,7 @@ public final class LightblueFactory implements Serializable {
     private transient volatile JSONMetadataParser parser = null;
     private transient volatile Mediator mediator = null;
     private volatile Factory factory;
+    private transient volatile JsonTranslator jsonTranslator=null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this.datasources = datasources;
@@ -101,6 +112,9 @@ public final class LightblueFactory implements Serializable {
             CrudConfiguration configuration = new CrudConfiguration();
             configuration.initializeFromJson(root);
 
+            // Set validation flag for all crud requests
+            getJsonTranslator().setValidation(Request.class,configuration.isValidateRequests());
+
             Factory f = new Factory();
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
 
@@ -140,7 +154,78 @@ public final class LightblueFactory implements Serializable {
             MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
             cfg.initializeFromJson(root);
 
+            // Set validation flag for all metadata requests
+            getJsonTranslator().setValidation(EntityMetadata.class,cfg.isValidateRequests());
+            getJsonTranslator().setValidation(EntitySchema.class,cfg.isValidateRequests());
+            getJsonTranslator().setValidation(EntityInfo.class,cfg.isValidateRequests());
+
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
+        }
+    }
+
+    private synchronized void initializeJsonTranslator() {
+        if(jsonTranslator==null) {
+            LOGGER.debug("Initializing JsonTranslator");
+
+            JsonTranslator tx=new JsonTranslator();
+
+            tx.registerTranslation(EntityMetadata.class,new JsonTranslator.FromJson() {
+                @Override public Object fromJson(JsonNode node) {
+                    try {
+                        return getJSONParser().parseEntityMetadata(node);
+                    } catch (RuntimeException re) {
+                        throw re;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            },"json-schema/metadata/metadata.json");
+            tx.registerTranslation(EntityInfo.class,new JsonTranslator.FromJson() {
+                @Override public Object fromJson(JsonNode node) {
+                    try {
+                        return getJSONParser().parseEntityInfo(node);
+                    } catch (RuntimeException re) {
+                        throw re;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            },"json-schema/metadata/entityInfo.json");
+            tx.registerTranslation(EntitySchema.class,new JsonTranslator.FromJson() {
+                @Override public Object fromJson(JsonNode node) {
+                    try {
+                        return getJSONParser().parseEntitySchema(node);
+                    } catch (RuntimeException re) {
+                        throw re;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            },"json-schema/metadata/schema.json");
+
+            try {
+                tx.registerTranslation(FindRequest.class,
+                                       new JsonTranslator.StaticFactoryMethod(FindRequest.class,"fromJson",ObjectNode.class),
+                                       "json-schema/findRequest.json");
+                tx.registerTranslation(InsertionRequest.class,
+                                       new JsonTranslator.StaticFactoryMethod(InsertionRequest.class,"fromJson",ObjectNode.class),
+                                       "json-schema/insertRequest.json");
+                tx.registerTranslation(DeleteRequest.class,
+                                       new JsonTranslator.StaticFactoryMethod(DeleteRequest.class,"fromJson",ObjectNode.class),
+                                       "json-schema/deleteRequest.json");
+                tx.registerTranslation(SaveRequest.class,
+                                       new JsonTranslator.StaticFactoryMethod(SaveRequest.class,"fromJson",ObjectNode.class),
+                                       "json-schema/saveRequest.json");
+                tx.registerTranslation(UpdateRequest.class,
+                                       new JsonTranslator.StaticFactoryMethod(UpdateRequest.class,"fromJson",ObjectNode.class),
+                                       "json-schema/updateRequest.json");
+            } catch (RuntimeException re) {
+                throw re;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            jsonTranslator=tx;
         }
     }
 
@@ -177,5 +262,12 @@ public final class LightblueFactory implements Serializable {
         }
 
         return mediator;
+    }
+
+    public JsonTranslator getJsonTranslator() {
+        if(jsonTranslator==null) {
+            initializeJsonTranslator();
+        }
+        return jsonTranslator;
     }
 }

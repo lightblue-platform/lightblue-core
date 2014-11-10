@@ -1,5 +1,4 @@
 {
-    "save": {
         "objectType": "some_entity",
         "client": {"id": "1"},
         "execution": {
@@ -22,5 +21,4 @@
             }
         ],
         "upsert": true
-    }
 }

@@ -1,5 +1,4 @@
 {
-    "find": {
         "objectType": "some_entity",
         "client": {"id": "1"},
         "execution": {
@@ -23,5 +22,4 @@
         "sort": {
             "login": "$asc"
         }
-    }
-}
+ }

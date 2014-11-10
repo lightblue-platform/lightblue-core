@@ -9,10 +9,5 @@
             "field": "firstname",
             "include": true,
             "recursive": true
-        },
-        "data": {
-            "objectType": "some_entity",
-            "login": "nmalik"
-        },
-        "upsert": true
+        }
 }

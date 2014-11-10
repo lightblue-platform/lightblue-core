@@ -57,7 +57,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field1','regex':'Val.*'},{'field':'field3','op':'$eq','rvalue':3}]}}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
         QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
-        Assert.assertTrue(ctx.getResult());
+        Assert.assertFalse(ctx.getResult());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field2.$parent.field1','regex':'Val.*'},{'field':'field2.$parent.field3','op':'$eq','rvalue':3}]}}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
         QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
-        Assert.assertTrue(ctx.getResult());
+        Assert.assertFalse(ctx.getResult());
     }
 
 }

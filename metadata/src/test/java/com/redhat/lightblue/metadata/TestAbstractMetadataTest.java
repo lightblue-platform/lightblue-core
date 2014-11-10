@@ -23,6 +23,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Named a bit strangely in case we exclude tests that begin with "Abstract",
  * the test is intended to test functionality defined on the AbstractMetadata
@@ -101,6 +104,11 @@ public class TestAbstractMetadataTest {
             @Override
             public void removeEntity(String entityName) {
                 throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public Map<String, List<String>> getMappedRoles() {
+                return null;
             }
         };
 

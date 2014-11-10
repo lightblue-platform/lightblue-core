@@ -1,4 +1,5 @@
 {
+   "validateRequests" : false,
    "controllers" : [
       {
         "backend" : "mongo",
