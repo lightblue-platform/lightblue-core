@@ -1,5 +1,4 @@
 {
-    "update": {
         "objectType": "some_entity",
         "client": {"id": "1"},
         "execution": {
@@ -32,39 +31,28 @@
                 }
             },
             {
-                "$push": {
+                "$append": {
                     "arrayFieldName": "first",
                     "otherArray": "last"
                 }
             },
             {
-                "$pop": {
+                "$insert": {
                     "arrayFieldName": "first",
                     "otherArray": "last"
                 }
             },
             {
-                "$remove": {
-                    "fieldName": "singleValue"
+                "$foreach": {
+                    "fieldName": { "field":"f", "op":"$eq","rvalue":"value" },
+                    "$update": { "$set" : {"x":"y"} } 
                 }
             },
             {
-                "$remove": {
-                    "fieldName": [
-                        "v1",
-                        "v2"
-                    ]
-                }
-            },
-            {
-                "$remove": {
-                    "fieldName": {
-                        "field": "something",
-                        "op": "$gt",
-                        "rvalue": "10"
-                    }
+                "$foreach": {
+                    "fieldName": { "field":"f", "op":"$eq","rvalue":"value" },
+                    "$update": "$remove"
                 }
             }
         ]
-    }
 }

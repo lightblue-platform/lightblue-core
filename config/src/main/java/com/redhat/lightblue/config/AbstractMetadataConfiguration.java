@@ -40,6 +40,16 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
     private final List<Map.Entry<String,DataStoreParser>> backendParsers = new ArrayList<>();
     private final List<Map.Entry<String,PropertyParser>> propertyParsers = new ArrayList<>();
 
+    private boolean validateRequests=false;
+
+    public boolean isValidateRequests() {
+        return validateRequests;
+    }
+
+    public void setValidateRequests(boolean b) {
+        validateRequests=b;
+    }
+
     /**
      * Register any common bits with the given Extensions instance.
      */
@@ -127,6 +137,10 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     }
                 }
             }
+
+            x=node.get("validateRequests");
+            if(x!=null)
+                validateRequests=x.booleanValue();
         }
     }
 }
