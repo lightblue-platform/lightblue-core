@@ -72,6 +72,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <!-- don't make scope test, is needed by abstract test(s) in src/main -->
+            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
