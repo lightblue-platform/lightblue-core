@@ -18,7 +18,7 @@
     "properties": {
         "$or": {
             "type": "array",
-            "minItems": 2,
+            "minItems": 1,
             "items": {
                 "$ref": "choice.json#/definitions/query"
             },
@@ -29,7 +29,7 @@
         },
         "$and": {
             "type": "array",
-            "minItems": 2,
+            "minItems": 1,
             "items": {
                 "$ref": "choice.json#/definitions/query"
             },
