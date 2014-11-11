@@ -211,7 +211,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <configuration>
-                            <useAgent>true</useAgent>
+                            <useAgent>false</useAgent>
                         </configuration>
                     </plugin>
                     <plugin>
