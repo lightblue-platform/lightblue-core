@@ -204,7 +204,7 @@ public class JsonTranslator {
             try {
                 String validationErrors=JsonUtils.jsonSchemaValidation(t.getSchema(),node);
                 if(validationErrors!=null) {
-                    throw Error.get("validation:fail",validationErrors);
+                    throw Error.get(ConfigConstants.ERR_VAILDATION_FAILED,validationErrors);
                 }
             } catch (RuntimeException re) {
                 throw re;
