@@ -18,28 +18,26 @@
  */
 package com.redhat.lightblue.crud;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Registry;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.KeyValueCursor;
-
-import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldCursor;
+import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.KeyValueCursor;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Registry;
 
 public class ConstraintValidator {
 
@@ -60,8 +58,8 @@ public class ConstraintValidator {
     private EntityConstraint currentEntityConstraint;
 
     protected ConstraintValidator(Registry<String, FieldConstraintChecker> r,
-                                  Registry<String, EntityConstraintChecker> e,
-                                  EntityMetadata md) {
+            Registry<String, EntityConstraintChecker> e,
+            EntityMetadata md) {
         this.fRegistry = r;
         this.eRegistry = e;
         this.md = md;
@@ -144,10 +142,8 @@ public class ConstraintValidator {
                 validateDoc(doc);
             }
         } catch (Error e) {
-            // rethrow lightblue error
             throw e;
         } catch (Exception e) {
-            // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
             throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
@@ -170,10 +166,8 @@ public class ConstraintValidator {
             currentEntityConstraint = null;
             checkConstraints(doc, currentValuePath, currentValue);
         } catch (Error e) {
-            // rethrow lightblue error
             throw e;
         } catch (Exception e) {
-            // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
             throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
         } finally {
@@ -200,10 +194,8 @@ public class ConstraintValidator {
                 }
                 checker.checkConstraint(this, currentEntityConstraint, doc);
             } catch (Error e) {
-                // rethrow lightblue error
                 throw e;
             } catch (Exception e) {
-                // throw new Error (preserves current error context)
                 LOGGER.error(e.getMessage(), e);
                 throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
@@ -229,10 +221,8 @@ public class ConstraintValidator {
                     checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
                 }
             } catch (Error e) {
-                // rethrow lightblue error
                 throw e;
             } catch (Exception e) {
-                // throw new Error (preserves current error context)
                 LOGGER.error(e.getMessage(), e);
                 throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
@@ -258,13 +248,11 @@ public class ConstraintValidator {
                     checkFieldContraints(doc, (FieldConstraintDocChecker) checker);
                 } else if (checker instanceof FieldConstraintValueChecker) {
                     // Constraint needs to be checked for all the values in the doc
-                    checkValueContraints(doc, (FieldConstraintChecker) checker, currentValuePath, currentValue);
+                    checkValueContraints(doc, checker, currentValuePath, currentValue);
                 }
             } catch (Error e) {
-                // rethrow lightblue error
                 throw e;
             } catch (Exception e) {
-                // throw new Error (preserves current error context)
                 LOGGER.error(e.getMessage(), e);
                 throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
@@ -274,7 +262,7 @@ public class ConstraintValidator {
     }
 
     private void checkFieldContraints(JsonDoc doc, FieldConstraintDocChecker checker) {
-        ((FieldConstraintDocChecker) checker).checkConstraint(this,
+        checker.checkConstraint(this,
                 currentFieldNode,
                 currentFieldPath,
                 currentFieldConstraint,
@@ -297,10 +285,8 @@ public class ConstraintValidator {
                         doc,
                         currentValue);
             } catch (Error e) {
-                // rethrow lightblue error
                 throw e;
             } catch (Exception e) {
-                // throw new Error (preserves current error context)
                 LOGGER.error(e.getMessage(), e);
                 throw Error.get(CrudConstants.ERR_CRUD, e.getMessage());
             } finally {
