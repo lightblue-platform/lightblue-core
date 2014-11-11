@@ -199,8 +199,20 @@ public abstract class ArrayProjector extends Projector {
            return ret;
        }
        return null;
-   }
+    }
 
+    /**
+     * Sorts the given array node using the sort criteria given in this ArrayProjector
+     *
+     * @param array The array node to sort
+     * @param factory Json node factory
+     *
+     * If there is a sort criteria defined in <code>this</code>, the array elements are
+     * sorted using that.
+     *
+     * @return A new ArrayNode containing the sorted elements, or if
+     * there is no sort defined, the <code>array</code> itself
+     */
     public ArrayNode sortArray(ArrayNode array,JsonNodeFactory factory) {
         if(sort==null) {
             return array;
