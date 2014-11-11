@@ -32,6 +32,7 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.MetadataListener;
 
 /**
  *
@@ -69,10 +70,7 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public void updateEntityInfo(Metadata md, EntityInfo ei) {
-    }
-
-    @Override
-    public void newSchema(Metadata md, EntityMetadata emd) {
+    public MetadataListener getMetadataListener() {
+        return null;
     }
 }
