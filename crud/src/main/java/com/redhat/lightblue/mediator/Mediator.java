@@ -92,10 +92,10 @@ public class Mediator {
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert " + ctx.getTopLevelEntityName()));
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_INSERT, ctx);
-                updatePredefinedFields(ctx.getDocuments(), md.getName());
+                CRUDController controller = factory.getCRUDController(md);
+                updatePredefinedFields(controller,ctx.getDocuments(), md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
-                    CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.insert(ctx, req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
@@ -159,10 +159,10 @@ public class Mediator {
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "insert/update " + ctx.getTopLevelEntityName()));
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_SAVE, ctx);
-                updatePredefinedFields(ctx.getDocuments(), md.getName());
+                CRUDController controller = factory.getCRUDController(md);
+                updatePredefinedFields(controller,ctx.getDocuments(), md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
-                    CRUDController controller = factory.getCRUDController(md);
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
                     controller.save(ctx, req.isUpsert(), req.getReturnFields());
                     ctx.getHookManager().queueMediatorHooks(ctx);
@@ -386,7 +386,7 @@ public class Mediator {
         LOGGER.debug("Constraint validation complete");
     }
 
-    private void updatePredefinedFields(List<DocCtx> docs, String entity) {
+    private void updatePredefinedFields(CRUDController controller,List<DocCtx> docs, String entity) {
         for (JsonDoc doc : docs) {
             PredefinedFields.updateArraySizes(factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
@@ -395,6 +395,7 @@ public class Mediator {
             } else if (!node.asText().equals(entity)) {
                 throw Error.get(CrudConstants.ERR_INVALID_ENTITY, node.asText());
             }
+            controller.updatePredefinedFields(doc);
         }
     }
 }

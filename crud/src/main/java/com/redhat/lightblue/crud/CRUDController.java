@@ -28,6 +28,8 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.MetadataListener;
 
+import com.redhat.lightblue.util.JsonDoc;
+
 public interface CRUDController {
 
     /**
@@ -118,4 +120,9 @@ public interface CRUDController {
      * notifications
      */
     MetadataListener getMetadataListener();
+
+    /**
+     * The back end should update the predefined fields of the document
+     */
+    void updatePredefinedFields(JsonDoc doc);
 }

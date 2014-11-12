@@ -35,6 +35,8 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 
+import com.redhat.lightblue.util.JsonDoc;
+
 /**
  *
  * @author nmalik
@@ -78,4 +80,8 @@ public class TestCRUDController implements CRUDController {
     public MetadataListener getMetadataListener() {
         return null;
     }
+
+    @Override
+    public void updatePredefinedFields(JsonDoc doc) {}
+
 }

@@ -33,6 +33,7 @@ import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.MetadataListener;
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  *
@@ -73,4 +74,7 @@ public class TestCRUDController implements CRUDController {
     public MetadataListener getMetadataListener() {
         return null;
     }
+
+    @Override
+    public void updatePredefinedFields(JsonDoc doc) {}
 }
