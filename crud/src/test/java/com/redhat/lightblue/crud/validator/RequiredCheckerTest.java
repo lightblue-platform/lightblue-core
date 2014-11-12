@@ -32,8 +32,8 @@ public class RequiredCheckerTest {
     public void testCheckConstraint_Deactivated(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        RequiredConstraint constraint = mock(RequiredConstraint.class);
-        when(constraint.getValue()).thenReturn(false);
+        RequiredConstraint constraint = new RequiredConstraint();
+        constraint.setValue(false);
 
         new RequiredChecker().checkConstraint(validator, null, null, constraint, null);
 
@@ -47,8 +47,8 @@ public class RequiredCheckerTest {
         Path path = mock(Path.class);
         when(path.nAnys()).thenReturn(0);
 
-        RequiredConstraint constraint = mock(RequiredConstraint.class);
-        when(constraint.getValue()).thenReturn(true);
+        RequiredConstraint constraint = new RequiredConstraint();
+        constraint.setValue(true);
 
         JsonDoc doc = mock(JsonDoc.class);
         when(doc.get(path)).thenReturn(mock(JsonNode.class));
@@ -65,8 +65,8 @@ public class RequiredCheckerTest {
         Path path = mock(Path.class);
         when(path.nAnys()).thenReturn(0);
 
-        RequiredConstraint constraint = mock(RequiredConstraint.class);
-        when(constraint.getValue()).thenReturn(true);
+        RequiredConstraint constraint = new RequiredConstraint();
+        constraint.setValue(true);
 
         JsonDoc doc = mock(JsonDoc.class);
         when(doc.get(path)).thenReturn(null);

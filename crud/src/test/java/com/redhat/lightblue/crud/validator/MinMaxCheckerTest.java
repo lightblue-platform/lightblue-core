@@ -26,6 +26,10 @@ import com.redhat.lightblue.util.Error;
 @RunWith(value = Parameterized.class)
 public class MinMaxCheckerTest {
 
+    /**
+     * Col1: For debugging purposes to know which test case had issues
+     * Col2: A instantiation to test with. Should always represent 2.
+     */
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
@@ -95,9 +99,8 @@ public class MinMaxCheckerTest {
     public void testCheckConstraint_MIN_TooSmall(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        MinMaxConstraint constraint = mock(MinMaxConstraint.class);
-        when(constraint.getValue()).thenReturn(number);
-        when(constraint.getType()).thenReturn(MinMaxConstraint.MIN);
+        MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
+        constraint.setValue(number);
 
         JsonNode fieldValue = mock(JsonNode.class);
         mockFieldValue(fieldValue, 0);
@@ -111,9 +114,8 @@ public class MinMaxCheckerTest {
     public void testCheckConstraint_MIN_Equal_Pass(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        MinMaxConstraint constraint = mock(MinMaxConstraint.class);
-        when(constraint.getValue()).thenReturn(number);
-        when(constraint.getType()).thenReturn(MinMaxConstraint.MIN);
+        MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
+        constraint.setValue(number);
 
         JsonNode fieldValue = mock(JsonNode.class);
         mockFieldValue(fieldValue, 2);
@@ -127,9 +129,8 @@ public class MinMaxCheckerTest {
     public void testCheckConstraint_MIN_Pass(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        MinMaxConstraint constraint = mock(MinMaxConstraint.class);
-        when(constraint.getValue()).thenReturn(convertInt(0));
-        when(constraint.getType()).thenReturn(MinMaxConstraint.MIN);
+        MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
+        constraint.setValue(number);
 
         JsonNode fieldValue = mock(JsonNode.class);
         mockFieldValue(fieldValue, 2);
@@ -143,9 +144,8 @@ public class MinMaxCheckerTest {
     public void testCheckConstraint_MAX_TooLarge(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        MinMaxConstraint constraint = mock(MinMaxConstraint.class);
-        when(constraint.getValue()).thenReturn(convertInt(0));
-        when(constraint.getType()).thenReturn("Fake Type");
+        MinMaxConstraint constraint = new MinMaxConstraint("Fake Type");
+        constraint.setValue(convertInt(0));
 
         JsonNode fieldValue = mock(JsonNode.class);
         mockFieldValue(fieldValue, 2);
@@ -159,9 +159,8 @@ public class MinMaxCheckerTest {
     public void testCheckConstraint_MAX_Equal_Pass(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        MinMaxConstraint constraint = mock(MinMaxConstraint.class);
-        when(constraint.getValue()).thenReturn(number);
-        when(constraint.getType()).thenReturn("Fake Type");
+        MinMaxConstraint constraint = new MinMaxConstraint("Fake Type");
+        constraint.setValue(number);
 
         JsonNode fieldValue = mock(JsonNode.class);
         mockFieldValue(fieldValue, 2);
@@ -175,9 +174,8 @@ public class MinMaxCheckerTest {
     public void testCheckConstraint_MAX_Pass(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        MinMaxConstraint constraint = mock(MinMaxConstraint.class);
-        when(constraint.getValue()).thenReturn(number);
-        when(constraint.getType()).thenReturn("Fake Type");
+        MinMaxConstraint constraint = new MinMaxConstraint("Fake Type");
+        constraint.setValue(number);
 
         JsonNode fieldValue = mock(JsonNode.class);
         mockFieldValue(fieldValue, 0);

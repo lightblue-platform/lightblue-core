@@ -7,7 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -16,18 +16,16 @@ import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Enum;
-import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.util.Error;
 
 public class EnumCheckerTest {
 
-    protected ConstraintValidator mockEnum(ConstraintValidator validator, String name, Enum e){
-        Enums enums = mock(Enums.class);
-        when(enums.getEnum(name)).thenReturn(e);
-
-        EntityInfo entityInfo = mock(EntityInfo.class);
-        when(entityInfo.getEnums()).thenReturn(enums);
+    protected ConstraintValidator mockEnum(ConstraintValidator validator, Enum e){
+        EntityInfo entityInfo = new EntityInfo("fake name");
+        if(e != null){
+            entityInfo.getEnums().addEnum(e);
+        }
 
         EntityMetadata entityMetadata = mock(EntityMetadata.class);
         when(entityMetadata.getEntityInfo()).thenReturn(entityInfo);
@@ -41,19 +39,18 @@ public class EnumCheckerTest {
      * If the fieldValue's text value is in the returned Enum's values, then an error should
      * not be created.
      */
-    @SuppressWarnings("serial")
     @Test
     public void testCheckConstraint_WithEnum_FieldValueIsInSet(){
         final String name = "Fake Name";
 
-        Enum e = mock(Enum.class);
-        when(e.getValues()).thenReturn(new HashSet<String>(){{add(name);}});
+        Enum e = new Enum(name);
+        e.setValues(Arrays.asList(name));
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
-        mockEnum(validator, name, e);
+        mockEnum(validator, e);
 
-        EnumConstraint constraint = mock(EnumConstraint.class);
-        when(constraint.getName()).thenReturn(name);
+        EnumConstraint constraint = new EnumConstraint();
+        constraint.setName(name);
 
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn(name);
@@ -71,14 +68,13 @@ public class EnumCheckerTest {
     public void testCheckConstraint_WithEnum_ButFieldValueNotInSet(){
         final String name = "Fake Name";
 
-        Enum e = mock(Enum.class);
-        when(e.getValues()).thenReturn(new HashSet<String>());
+        Enum e = new Enum("Fake Enum");
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
-        mockEnum(validator, name, e);
+        mockEnum(validator, e);
 
-        EnumConstraint constraint = mock(EnumConstraint.class);
-        when(constraint.getName()).thenReturn(name);
+        EnumConstraint constraint = new EnumConstraint();
+        constraint.setName(name);
 
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn(name);
@@ -96,10 +92,10 @@ public class EnumCheckerTest {
         String name = "Fake Name";
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
-        mockEnum(validator, name, null);
+        mockEnum(validator, null);
 
-        EnumConstraint constraint = mock(EnumConstraint.class);
-        when(constraint.getName()).thenReturn(name);
+        EnumConstraint constraint = new EnumConstraint();
+        constraint.setName(name);
 
         JsonNode fieldValue = mock(JsonNode.class);
 
@@ -115,8 +111,8 @@ public class EnumCheckerTest {
     public void testCheckConstraint_NullName(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        EnumConstraint constraint = mock(EnumConstraint.class);
-        when(constraint.getName()).thenReturn(null);
+        EnumConstraint constraint = new EnumConstraint();
+        constraint.setName(null);
 
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn("String value");

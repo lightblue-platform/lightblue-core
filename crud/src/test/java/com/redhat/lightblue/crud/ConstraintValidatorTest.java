@@ -251,12 +251,11 @@ public class ConstraintValidatorTest {
         FieldConstraint constaintForDoc = mock(FieldConstraint.class);
         when(constaintForDoc.getType()).thenReturn("KEY DOES NOT EXIST");
 
-        Path path = mock(Path.class);
         FieldCursor cursor = mockFieldCursor(
                 mock(FieldCursor.class),
                 new FieldCursorNode(
                         mockFieldTreeNode(mock(Field.class), Arrays.asList(constaintForDoc)),
-                        mockPath_toString(path, "Fake Path"))
+                        mockPath_toString(mock(Path.class), "Fake Path"))
                 );
 
         when(entityMetadata.getFieldCursor()).thenReturn(cursor);

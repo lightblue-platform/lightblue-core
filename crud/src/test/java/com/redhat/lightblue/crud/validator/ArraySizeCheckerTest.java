@@ -20,9 +20,8 @@ public class ArraySizeCheckerTest {
     public void testCheckConstraint_TooLarge(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        ArraySizeConstraint constraint = mock(ArraySizeConstraint.class);
-        when(constraint.getValue()).thenReturn(2);
-        when(constraint.getType()).thenReturn("Fake Type");
+        ArraySizeConstraint constraint = new ArraySizeConstraint("Fake Type");
+        constraint.setValue(2);
 
         ArrayNode fieldValue = mock(ArrayNode.class);
         when(fieldValue.size()).thenReturn(3);
@@ -36,9 +35,8 @@ public class ArraySizeCheckerTest {
     public void testCheckConstraint_NotMin_NoErrors(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        ArraySizeConstraint constraint = mock(ArraySizeConstraint.class);
-        when(constraint.getValue()).thenReturn(2);
-        when(constraint.getType()).thenReturn("Fake Type");
+        ArraySizeConstraint constraint = new ArraySizeConstraint("Fake Type");
+        constraint.setValue(2);
 
         ArrayNode fieldValue = mock(ArrayNode.class);
         when(fieldValue.size()).thenReturn(1);
@@ -52,9 +50,8 @@ public class ArraySizeCheckerTest {
     public void testCheckConstraint_Min_TooSmall(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        ArraySizeConstraint constraint = mock(ArraySizeConstraint.class);
-        when(constraint.getValue()).thenReturn(2);
-        when(constraint.getType()).thenReturn(ArraySizeConstraint.MIN);
+        ArraySizeConstraint constraint = new ArraySizeConstraint(ArraySizeConstraint.MIN);
+        constraint.setValue(2);
 
         ArrayNode fieldValue = mock(ArrayNode.class);
         when(fieldValue.size()).thenReturn(1);
@@ -68,9 +65,8 @@ public class ArraySizeCheckerTest {
     public void testCheckConstraint_Min_NoErrors(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        ArraySizeConstraint constraint = mock(ArraySizeConstraint.class);
-        when(constraint.getValue()).thenReturn(2);
-        when(constraint.getType()).thenReturn(ArraySizeConstraint.MIN);
+        ArraySizeConstraint constraint = new ArraySizeConstraint(ArraySizeConstraint.MIN);
+        constraint.setValue(2);
 
         ArrayNode fieldValue = mock(ArrayNode.class);
         when(fieldValue.size()).thenReturn(3);

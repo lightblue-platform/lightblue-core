@@ -20,9 +20,7 @@ public class StringLengthCheckerTest {
     public void testCheckConstraint_MINLENGTH_TooShort(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        StringLengthConstraint constraint = mock(StringLengthConstraint.class);
-        when(constraint.getValue()).thenReturn(5);
-        when(constraint.getType()).thenReturn(StringLengthConstraint.MINLENGTH);
+        StringLengthConstraint constraint = new StringLengthConstraint(StringLengthConstraint.MINLENGTH, 5);
 
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn("1234");
@@ -36,10 +34,7 @@ public class StringLengthCheckerTest {
     public void testCheckConstraint_MINLENGTH(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        StringLengthConstraint constraint = mock(StringLengthConstraint.class);
-        when(constraint.getValue()).thenReturn(5);
-        when(constraint.getType()).thenReturn(StringLengthConstraint.MINLENGTH);
-
+        StringLengthConstraint constraint = new StringLengthConstraint(StringLengthConstraint.MINLENGTH, 5);
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn("12345");
 
@@ -52,9 +47,7 @@ public class StringLengthCheckerTest {
     public void testCheckConstraint_MAXLENGTH_TooLong(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        StringLengthConstraint constraint = mock(StringLengthConstraint.class);
-        when(constraint.getValue()).thenReturn(5);
-        when(constraint.getType()).thenReturn("fake type");
+        StringLengthConstraint constraint = new StringLengthConstraint("fake type", 5);
 
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn("123456");
@@ -68,10 +61,7 @@ public class StringLengthCheckerTest {
     public void testCheckConstraint_MAXLENGTH(){
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
-        StringLengthConstraint constraint = mock(StringLengthConstraint.class);
-        when(constraint.getValue()).thenReturn(5);
-        when(constraint.getType()).thenReturn("fake type");
-
+        StringLengthConstraint constraint = new StringLengthConstraint("fake type", 5);
         JsonNode fieldValue = mock(JsonNode.class);
         when(fieldValue.asText()).thenReturn("12345");
 
