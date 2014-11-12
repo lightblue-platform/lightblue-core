@@ -76,5 +76,5 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public void updatePredefinedFields(JsonDoc doc) {}
+    public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
 }

@@ -93,7 +93,7 @@ public class Mediator {
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_INSERT, ctx);
                 CRUDController controller = factory.getCRUDController(md);
-                updatePredefinedFields(controller,ctx.getDocuments(), md.getName());
+                updatePredefinedFields(ctx,controller,md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -160,7 +160,7 @@ public class Mediator {
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_SAVE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
-                updatePredefinedFields(controller,ctx.getDocuments(), md.getName());
+                updatePredefinedFields(ctx,controller,md.getName());
                 runBulkConstraintValidation(ctx);
                 if (!ctx.hasErrors() && ctx.hasDocumentsWithoutErrors()) {
                     LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -386,8 +386,8 @@ public class Mediator {
         LOGGER.debug("Constraint validation complete");
     }
 
-    private void updatePredefinedFields(CRUDController controller,List<DocCtx> docs, String entity) {
-        for (JsonDoc doc : docs) {
+    private void updatePredefinedFields(OperationContext ctx,CRUDController controller, String entity) {
+        for (JsonDoc doc : ctx.getDocuments()) {
             PredefinedFields.updateArraySizes(factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
             if (node == null) {
@@ -395,7 +395,7 @@ public class Mediator {
             } else if (!node.asText().equals(entity)) {
                 throw Error.get(CrudConstants.ERR_INVALID_ENTITY, node.asText());
             }
-            controller.updatePredefinedFields(doc);
+            controller.updatePredefinedFields(ctx,doc);
         }
     }
 }

@@ -117,7 +117,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         }
 
         @Override
-        public void updatePredefinedFields(JsonDoc doc) {}
+        public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
 
     }
 

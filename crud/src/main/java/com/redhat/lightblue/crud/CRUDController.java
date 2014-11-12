@@ -124,5 +124,5 @@ public interface CRUDController {
     /**
      * The back end should update the predefined fields of the document
      */
-    void updatePredefinedFields(JsonDoc doc);
+    void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc);
 }
