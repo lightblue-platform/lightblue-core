@@ -22,7 +22,7 @@
                     "minLength": 5,
                     "required": true
                 }
-        	}
+            }
         }
     },
     "field1":"12345"
