@@ -6,12 +6,14 @@ RELEASE_VERSION=$1
 DEVEL_VERSION=$2
 
 if [ $1"x" == "x" ] || [ $2"x" == "x" ]; then
-    echo "Usage: ./release.sh <release version> <new snapshot version>\nExample: ./release 1.1.0 1.2.0-SNAPSHOT"
+    echo "Usage: ./release.sh <release version> <new snapshot version>"
+    echo "Example: ./release 1.1.0 1.2.0-SNAPSHOT"
     exit 1
 fi
 
 # prepare and verify state
 git fetch --all
+rm -rf ~/.m2/repository/com/redhat/lightblue/
 
 BRANCH=`git branch | grep ^* | awk '{print $2}'`
 
