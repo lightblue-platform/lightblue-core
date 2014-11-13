@@ -1,0 +1,29 @@
+{
+    "entityInfo": {
+        "name": "test",
+        "datastore": {
+            "backend":"mongo",
+            "collection": "test"
+        }
+    },
+    "schema": {
+    	"name": "validationTest",
+    	"version": {
+            "value": "1.0",
+            "changelog": "blahblah"
+        },
+        "status": {
+            "value": "active"
+        },
+        "fields": {
+            "field1": {
+                "type": "string",
+                "constraints": {
+                    "minLength": 5,
+                    "required": true
+                }
+            }
+        }
+    },
+    "field1":"12345"
+}
