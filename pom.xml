@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
     <groupId>com.redhat.lightblue.core</groupId>
     <artifactId>pom</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>lightblue core: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Core components</description>
     <licenses>
@@ -76,6 +76,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.skyscreamer</groupId>
@@ -134,7 +135,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.netflix.servo</groupId>
@@ -212,7 +212,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <configuration>
-                            <useAgent>true</useAgent>
+                            <useAgent>false</useAgent>
                         </configuration>
                     </plugin>
                     <plugin>

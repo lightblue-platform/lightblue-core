@@ -12,36 +12,39 @@
         "GNU General Public License for more details.",
         "You should have received a copy of the GNU General Public License",
         "along with this program.  If not, see <http://www.gnu.org/licenses/>."],
-    "id": "#root",
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
-    "properties": {
-        "field": {
-            "type": "string"
-        },
-        "include": {
-            "type": "boolean"
-        },
-        "range": {
-            "type": "array",
-            "minItems": 2,
-            "maxItems": 2,
-            "items": {
-                "type": "integer"
-            }
-        },
-        "project": {
-            "$ref": "choice.json#/definitions/projection"
-        },
-        "sort": {
-            "$ref": "/json-schema/sort/choice.json#" 
-        }
-    },
-    "required": [
-        "field",
-        "include",
-        "range",
-        "project"
-    ],
-    "additionalProperties": false
+     "allOf": [
+         {
+             "$ref": "/json-schema/crudCommon.json#/definitions/common"
+         }
+     ],
+     "additionalProperties": false,
+     "properties": {
+         "client": {
+         },
+         "objectType": {
+         },
+         "version": {
+         },
+         "execution": {
+         },
+         "projection": {
+         },
+         "query": {
+             "description": "A non-empty query expression",
+             "$ref": "/json-schema/crudCommon.json#/definitions/query"
+         },
+         "range": {
+             "type": "array",
+             "minItems": 2,
+             "maxItems": 2,
+             "items": {
+                 "type": "integer"
+             }
+         },
+         "sort": {
+             "$ref": "/json-schema/sort/choice.json#/definitions/sort"
+         }
+     }
 }

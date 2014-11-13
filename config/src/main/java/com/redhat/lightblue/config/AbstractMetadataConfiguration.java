@@ -22,11 +22,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.MetadataRoles;
 import com.redhat.lightblue.metadata.parser.*;
 
 import java.util.*;
 
 import com.redhat.lightblue.util.Error;
+import org.json.JSONObject;
 
 /**
  * Basic implementation of MetadataConfiguration that handles common
@@ -39,6 +41,16 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
     private final List<HookConfigurationParser> hookConfigurationParsers = new ArrayList<>();
     private final List<Map.Entry<String,DataStoreParser>> backendParsers = new ArrayList<>();
     private final List<Map.Entry<String,PropertyParser>> propertyParsers = new ArrayList<>();
+    private final Map<String,List<String>> roleMap = new HashMap<>();
+    private boolean validateRequests=false;
+
+    public boolean isValidateRequests() {
+        return validateRequests;
+    }
+
+    public void setValidateRequests(boolean b) {
+        validateRequests=b;
+    }
 
     /**
      * Register any common bits with the given Extensions instance.
@@ -53,6 +65,10 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
         for (Map.Entry<String, PropertyParser> parser : propertyParsers) {
             ext.registerPropertyParser(parser.getKey(), parser.getValue());
         }
+    }
+
+    protected Map<String,List<String>> getMappedRoles() {
+        return  roleMap;
     }
 
     @Override
@@ -127,6 +143,30 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     }
                 }
             }
+
+            JsonNode roleMapJs = node.get("roleMap");
+            if(roleMapJs != null) {
+                // If the roleMap element is defined, it is expected to have all the roles mapped
+                MetadataRoles[] values = MetadataRoles.values();
+                for (int i = 0; i < values.length; i++) {
+                    String name = values[i].toString();
+                    ArrayNode rolesJs =  (ArrayNode) roleMapJs.get(name);
+
+                    if (rolesJs == null || rolesJs.size() == 0) {
+                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "roleMap missing the role \"" + name + "\"");
+                    }
+
+                    roleMap.put(name, new ArrayList<String>());
+                    for (int j = 0; j < rolesJs.size(); j++) {
+                        JsonNode jsonNode = rolesJs.get(j);
+                        roleMap.get(name).add(jsonNode.textValue());
+                    }
+                }
+            }
+
+            x=node.get("validateRequests");
+            if(x!=null)
+                validateRequests=x.booleanValue();
         }
     }
 }

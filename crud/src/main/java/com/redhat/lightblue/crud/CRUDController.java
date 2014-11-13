@@ -26,6 +26,9 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.MetadataListener;
+
+import com.redhat.lightblue.util.JsonDoc;
 
 public interface CRUDController {
 
@@ -111,12 +114,15 @@ public interface CRUDController {
                           Long to);
 
     /**
-     * Called by Metadata whenever entity info is created or updated
+     * Return an implementation of MetadataListener interface to
+     * receive notifications about metadata operations. Returns null
+     * if this implementation is not interested in receiving metadata
+     * notifications
      */
-    void updateEntityInfo(Metadata md, EntityInfo ei);
+    MetadataListener getMetadataListener();
 
     /**
-     * Called by Metadata whenever a new version of schema is created.
+     * The back end should update the predefined fields of the document
      */
-    void newSchema(Metadata md, EntityMetadata emd);
+    void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc);
 }
