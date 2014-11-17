@@ -56,7 +56,7 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
     }
 
     /**
-     * The nested query that will be matched agains array elements
+     * The nested query that will be matched against array elements
      */
     public QueryExpression getElemMatch() {
         return this.elemMatch;

@@ -25,12 +25,12 @@ import com.redhat.lightblue.util.CopyOnWriteIterator;
  * Traverses the query nodes in a recursive descend manner, optionally
  * replacing query nodes as it goes through them. If a query node is
  * replaced, all its ancestors are also replaced. The implementations
- * of this iterator is expected to override the base functionality
+ * of this iterator are expected to override the base functionality
  * defined in the method bodies. For value comparison, field
  * comparison, regex match, n-nary relational, and array contains
- * expressions, the default behavior is to simply return the original
- * query. For unary, n-ary logical operations and array match, the
- * default behavior recursively descends into the child nodes, and
+ * expressions the default behavior is to simply return the original
+ * query. For unary, n-ary logical operations, and array match the
+ * default behavior recursively descends into the child nodes and
  * creates new instances of the query clauses if child nodes are
  * different than the originals.
  */
@@ -108,7 +108,7 @@ public abstract class QueryIterator {
      * Default behavior is to recursively iterate the nested
      * quereies. If nested processing returns objects different from
      * the original nested queries, this method creates a new n-ary
-     * logical expression using the new query expressions, and returns
+     * logical expression using the new query expressions and returns
      * that.
      */
     protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q,Path context) {
