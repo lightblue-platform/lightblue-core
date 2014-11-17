@@ -44,7 +44,7 @@ public class ValueComparisonExpression extends BinaryRelationalExpression {
 
     private final Path field;
     private final BinaryComparisonOperator op;
-    protected Value rvalue;
+    private final Value rvalue;
 
     /**
      * Initializes all fields
