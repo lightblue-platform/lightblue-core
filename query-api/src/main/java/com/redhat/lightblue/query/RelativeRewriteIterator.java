@@ -70,6 +70,7 @@ public class RelativeRewriteIterator extends QueryIterator {
     
     private Path toRelative(Path field,Path context) {
         Path abs=context.isEmpty()?field:new Path(context,field);
+        // TODO write unit test to prove abs should be arg to matchingPrefix instead of field
         if(relativeTo.matchingPrefix(field))
             return field.suffix(-relativeTo.numSegments());
         else 
