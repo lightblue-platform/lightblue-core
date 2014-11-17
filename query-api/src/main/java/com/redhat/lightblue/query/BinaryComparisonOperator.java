@@ -93,7 +93,7 @@ public enum BinaryComparisonOperator {
             return _lt;
         else if(this==_lte) 
             return _gte;
-        else
+        else // _gte
             return _lte;           
     }
 
@@ -108,6 +108,7 @@ public enum BinaryComparisonOperator {
         case _gt: return _lte;
         case _lte:return _gt;
         }
+        // _gte:
         return _lt;
     }
 
