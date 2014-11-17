@@ -71,6 +71,8 @@ public abstract class Projection extends JsonObject {
      *
      * @param field The field name
      * @param pattern The projection pattern
+     * @param inclusion flag to return if the field matches the given pattern
+     * @return value of <code>inclusion</code> if field matches the pattern, else null
      *
      * <pre>
      *     field    pattern   result
@@ -96,10 +98,15 @@ public abstract class Projection extends JsonObject {
     }
 
     /**
-     * If the field is an ancestor of the patter, and if
+     * If the field is an ancestor of the pattern, and if
      * <code>inclusion</code> is true, returns true. Otherwise,
      * returns null, meaning that whether the field is included or not
-     * cannot be decided
+     * cannot be decided.
+     *
+     * @param field The field name
+     * @param pattern The projection pattern
+     * @param inclusion flag to return if the field matches the given pattern
+     * @return TRUE if field is ancestor of the pattern and <code>inclusion</code> is true, else null
      */
     public static Boolean fieldAncestorOfPattern(Path field,Path pattern,boolean inclusion) {
         if(field.matchingPrefix(pattern))
@@ -112,7 +119,12 @@ public abstract class Projection extends JsonObject {
     }
 
     /**
-     * Returns if the field should be included based on the recursive pattern
+     * Returns if the field should be included based on the recursive pattern.
+     *
+     * @param field The field name
+     * @param pattern The projection pattern
+     * @param inclusion flag to return if the field matches the given pattern
+     * @return Boolean value of <code>inclusion</code> if field is in subtree of <code>pattern</code> else null
      */
     public static Boolean impliedInclusion(Path field,Path pattern,boolean inclusion) {
         if(field.numSegments() > pattern.numSegments() &&   // If we're checking a field deeper than the pattern
@@ -128,8 +140,7 @@ public abstract class Projection extends JsonObject {
      *
      * @param field The field whose inclusion is to be decided
      * @param pattern The field pattern of projection
-     * @param inclusion If the projection expression includes the
-     * field. If false, the projection is for exclusion
+     * @param inclusion If the projection expression includes the field. If false, the projection is for exclusion
      * @param recursive If the projection is recursive
      *
      * @return implicit or explicit inclusion/exclusion, or undecided
@@ -140,20 +151,30 @@ public abstract class Projection extends JsonObject {
                                             Path pattern,
                                             boolean inclusion,
                                             boolean recursive) {
+        // field match first, most specific type of check
         Boolean v=fieldMatchesPattern(field,pattern,inclusion);
         if(v!=null) {
+            // if the last segment is ANY then inclusion/exclusion is implicit.  else, inclusion/exclusion is explicit
             if(pattern.tail(0).equals(Path.ANY))
                 return v?Inclusion.implicit_inclusion:Inclusion.implicit_exclusion;
             else
                 return v?Inclusion.explicit_inclusion:Inclusion.explicit_exclusion;
         }
+
+        // check field ancestor
         v=fieldAncestorOfPattern(field,pattern,inclusion);
-        if(v!=null)
+        if(v!=null) {
+            // is always explicit
             return v?Inclusion.explicit_inclusion:Inclusion.explicit_exclusion;
+        }
+
+        // if recursive, check for implied inclusion/exclusion
         if(recursive) {
             v=impliedInclusion(field,pattern,inclusion);
-            if(v!=null)
+            if(v!=null) {
+                // recursive is always implicit
                 return v?Inclusion.implicit_inclusion:Inclusion.implicit_exclusion;
+            }
         }
         return Inclusion.undecided;
     }
