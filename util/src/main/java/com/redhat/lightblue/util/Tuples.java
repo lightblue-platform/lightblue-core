@@ -66,13 +66,6 @@ public class Tuples<T> {
     /**
      * Adds a new collection to the tuples
      */
-    public void add(Collection<T> c) {
-        add(new IteratableCollectionAdapter<>(c));
-    }
-
-    /**
-     * Adds a new collection to the tuples
-     */
     public void add(Iterable<T> c) {
         collections.add(c);
     }
