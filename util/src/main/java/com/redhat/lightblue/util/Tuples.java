@@ -136,6 +136,11 @@ public class Tuples<T> {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * Seeks to next available data (tuple) and constructs that result list.
+         *
+         * @return true if next values exist, else false
+         */
         private boolean seekNext() {
             int itrLength=itrList.size();
 
