@@ -34,7 +34,7 @@ public class CopyOnWriteIteratorTest {
         }
 
         int i = 0;
-        CopyOnWriteIterator itr = new CopyOnWriteIterator(list);
+        CopyOnWriteIterator<String> itr = new CopyOnWriteIterator<>(list);
         for (; itr.hasNext();) {
             Assert.assertEquals(Integer.toString(i++), itr.next());
         }
@@ -51,7 +51,7 @@ public class CopyOnWriteIteratorTest {
         }
 
         int i = 0;
-        CopyOnWriteIterator itr = new CopyOnWriteIterator(list);
+        CopyOnWriteIterator<String> itr = new CopyOnWriteIterator<>(list);
         for (; itr.hasNext();) {
             Assert.assertEquals(Integer.toString(i++), itr.next());
             if (i == 50) {
