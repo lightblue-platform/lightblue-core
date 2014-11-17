@@ -24,7 +24,7 @@ import java.util.Collection;
 /**
  * An adapter to present a collection as a Iteratable
  */
-public class IteratableCollectionAdapter<X> implements Iteratable<X> {
+public class IteratableCollectionAdapter<X> implements Iterable<X> {
     private final Collection<X> coll;
 
     public IteratableCollectionAdapter(Collection<X> coll) {

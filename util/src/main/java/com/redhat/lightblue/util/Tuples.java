@@ -36,7 +36,7 @@ import java.util.NoSuchElementException;
  */
 public class Tuples<T> {
 
-    private final ArrayList<Iteratable<T>> collections = new ArrayList<>();
+    private final ArrayList<Iterable<T>> collections = new ArrayList<>();
 
     /**
      * Default ctor. Creates an empty tuples object that can subsequently be
@@ -77,7 +77,7 @@ public class Tuples<T> {
     /**
      * Adds a new collection to the tuples
      */
-    public void add(Iteratable<T> c) {
+    public void add(Iterable<T> c) {
         collections.add(c);
     }
 
@@ -93,17 +93,17 @@ public class Tuples<T> {
     }
 
     private static final class TupleItr<X> implements Iterator<List<X>> {
-        private final List<Iteratable<X>> coll;
+        private final List<Iterable<X>> coll;
         private final List<Iterator<X>> itrList;
         private final List<X> tuple;
         private Boolean nextExists = null;
         private boolean first = true;
 
-        public TupleItr(List<Iteratable<X>> list) {
+        public TupleItr(List<Iterable<X>> list) {
             coll = new ArrayList<>(list);
             itrList = new ArrayList<>(coll.size());
             tuple = new ArrayList<>(coll.size());
-            for (Iteratable<X> c : coll) {
+            for (Iterable<X> c : coll) {
                 tuple.add(null);
                 itrList.add(null);
             }
