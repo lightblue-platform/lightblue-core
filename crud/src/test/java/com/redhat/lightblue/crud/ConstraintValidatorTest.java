@@ -23,7 +23,6 @@ import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -40,20 +39,20 @@ public class ConstraintValidatorTest {
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
 
-    protected ConstraintValidator createConstraintValidator(EntityMetadata metadata){
+    protected ConstraintValidator createConstraintValidator(EntityMetadata metadata) {
         return createConstraintValidator(metadata, null, null);
     }
 
     protected ConstraintValidator createConstraintValidator(
             EntityMetadata metadata,
             Map<String, ? extends FieldConstraintChecker> fieldConstraintCheckers,
-            Map<String, ? extends EntityConstraintChecker> entityConstraintCheckers){
+            Map<String, ? extends EntityConstraintChecker> entityConstraintCheckers) {
 
         Registry<String, FieldConstraintChecker> fieldCheckerRegistry =
                 new DefaultRegistry<String, FieldConstraintChecker>();
         fieldCheckerRegistry.add(new DefaultFieldConstraintValidators());
-        if(fieldConstraintCheckers != null){
-            for(Entry<String, ? extends FieldConstraintChecker> checker : fieldConstraintCheckers.entrySet()){
+        if (fieldConstraintCheckers != null) {
+            for (Entry<String, ? extends FieldConstraintChecker> checker : fieldConstraintCheckers.entrySet()) {
                 fieldCheckerRegistry.add(checker.getKey(), checker.getValue());
             }
         }
@@ -61,8 +60,8 @@ public class ConstraintValidatorTest {
         Registry<String, EntityConstraintChecker> entityCheckerRegistry =
                 new DefaultRegistry<String, EntityConstraintChecker>();
         entityCheckerRegistry.add(new EmptyEntityConstraintValidators());
-        if(entityConstraintCheckers != null){
-            for(Entry<String, ? extends EntityConstraintChecker> checker : entityConstraintCheckers.entrySet()){
+        if (entityConstraintCheckers != null) {
+            for (Entry<String, ? extends EntityConstraintChecker> checker : entityConstraintCheckers.entrySet()) {
                 entityCheckerRegistry.add(checker.getKey(), checker.getValue());
             }
         }
@@ -73,15 +72,15 @@ public class ConstraintValidatorTest {
     protected EntityMetadata createEntityMetadata(
             JsonNode node,
             List<? extends EntityConstraint> entityConstraints,
-            Map<String, ? extends FieldConstraintParser<JsonNode>> fieldConstraintParsers){
+            Map<String, ? extends FieldConstraintParser<JsonNode>> fieldConstraintParsers) {
 
         TestDataStoreParser<JsonNode> dsParser = new TestDataStoreParser<JsonNode>();
 
         Extensions<JsonNode> extensions = new Extensions<JsonNode>();
         extensions.registerDataStoreParser(dsParser.getDefaultName(), dsParser);
         extensions.addDefaultExtensions();
-        if(fieldConstraintParsers != null){
-            for(Entry<String, ? extends FieldConstraintParser<JsonNode>> checker : fieldConstraintParsers.entrySet()){
+        if (fieldConstraintParsers != null) {
+            for (Entry<String, ? extends FieldConstraintParser<JsonNode>> checker : fieldConstraintParsers.entrySet()) {
                 extensions.registerFieldConstraintParser(checker.getKey(), checker.getValue());
             }
         }
@@ -92,7 +91,7 @@ public class ConstraintValidatorTest {
                 JsonNodeFactory.withExactBigDecimals(false));
 
         EntityMetadata entityMetadata = jsonParser.parseEntityMetadata(node);
-        if((entityConstraints != null) && !entityConstraints.isEmpty()){
+        if ((entityConstraints != null) && !entityConstraints.isEmpty()) {
             entityMetadata.setConstraints(new ArrayList<EntityConstraint>(entityConstraints));
         }
 
@@ -105,11 +104,10 @@ public class ConstraintValidatorTest {
      * No {@link Error}s should be generated for this test.
      */
     @Test
-    public void testValidate_WithAllConstraintTypes_NoErrors() throws IOException{
+    public void testValidate_WithAllConstraintTypes_NoErrors() throws IOException {
         JsonNode validatorNode = JsonUtils.json(getClass().getResourceAsStream(
                 "/crud/validator/schema-test-validation-simple.json"));
-        EntityMetadata entityMetadata = createEntityMetadata(validatorNode,
-                Arrays.asList(new TestEntityConstraint(ReferencesConstraint.REFERENCES)), null);
+        EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
         ConstraintValidator validator = createConstraintValidator(entityMetadata);
 
         validator.validateDocs(Arrays.asList(new JsonDoc(validatorNode)));
@@ -122,7 +120,7 @@ public class ConstraintValidatorTest {
      * A {@link Error} is expected.
      */
     @Test
-    public void testValidate_WithInvalidEntityConstraint_ExpectError() throws IOException{
+    public void testValidate_WithInvalidEntityConstraint_ExpectError() throws IOException {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"validateDocs/validateDoc/Does Not Exist\",\"errorCode\":\"crud:NoConstraint\"}");
 
@@ -140,7 +138,7 @@ public class ConstraintValidatorTest {
      * A {@link Error} is expected.
      */
     @Test
-    public void testValidate_WithNullFieldConstraint_ExpectError() throws IOException{
+    public void testValidate_WithNullFieldConstraint_ExpectError() throws IOException {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"validateDocs/validateDoc/field1/testFieldConstraintChecker\",\"errorCode\":\"crud:NoConstraint\"");
 
@@ -163,7 +161,7 @@ public class ConstraintValidatorTest {
      * No {@link Error} is thrown for this.
      */
     @Test
-    public void testValidate_WithUnsupportedFieldConstraint() throws IOException{
+    public void testValidate_WithUnsupportedFieldConstraint() throws IOException {
         String fieldConstraintCheckerName = "testFieldConstraintChecker";
 
         JsonNode validatorNode = JsonUtils.json(getClass().getResourceAsStream(
@@ -175,7 +173,8 @@ public class ConstraintValidatorTest {
         EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, fieldConstraintParsers);
 
         Map<String, FieldConstraintChecker> fieldConstraintCheckers = new HashMap<String, FieldConstraintChecker>();
-        fieldConstraintCheckers.put(fieldConstraintCheckerName, new FieldConstraintChecker(){});
+        fieldConstraintCheckers.put(fieldConstraintCheckerName, new FieldConstraintChecker() {
+        });
 
         ConstraintValidator validator = createConstraintValidator(entityMetadata, fieldConstraintCheckers, null);
 
@@ -185,11 +184,11 @@ public class ConstraintValidatorTest {
     }
 
     @SuppressWarnings("serial")
-    protected static class TestEntityConstraint implements EntityConstraint{
+    protected static class TestEntityConstraint implements EntityConstraint {
 
         private final String type;
 
-        public TestEntityConstraint(String type){
+        public TestEntityConstraint(String type) {
             this.type = type;
         }
 
@@ -200,33 +199,33 @@ public class ConstraintValidatorTest {
 
     }
 
-    protected static class TestFieldConstraintParser implements FieldConstraintParser<JsonNode>{
+    protected static class TestFieldConstraintParser implements FieldConstraintParser<JsonNode> {
 
         private final FieldConstraint constraint;
 
-        public TestFieldConstraintParser(FieldConstraint constraint){
+        public TestFieldConstraintParser(FieldConstraint constraint) {
             this.constraint = constraint;
         }
 
         @Override
         public FieldConstraint parse(String name, MetadataParser<JsonNode> p,
-                JsonNode node) {
+                                     JsonNode node) {
             return constraint;
         }
 
         @Override
         public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode,
-                FieldConstraint object) {
+                            FieldConstraint object) {
             throw new UnsupportedOperationException();
         }
 
     }
 
-    protected static class TestFieldConstraint implements FieldConstraint{
+    protected static class TestFieldConstraint implements FieldConstraint {
 
         private final String type;
 
-        public TestFieldConstraint(String type){
+        public TestFieldConstraint(String type) {
             this.type = type;
         }
 
