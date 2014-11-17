@@ -18,11 +18,7 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * Provides a way to iterate through all possible n-tuples of a cartesian
@@ -71,7 +67,7 @@ public class Tuples<T> {
      * Adds a new collection to the tuples
      */
     public void add(Collection<T> c) {
-        add(new IteratableCollectionAdapter<T>(c));
+        add(new IteratableCollectionAdapter<>(c));
     }
 
     /**
@@ -89,7 +85,7 @@ public class Tuples<T> {
      * the tuple is an element from the i'th collection of the tuple.
      */
     public Iterator<List<T>> tuples() {
-        return new TupleItr<T>(collections);
+        return new TupleItr<>(collections);
     }
 
     private static final class TupleItr<X> implements Iterator<List<X>> {
@@ -101,12 +97,8 @@ public class Tuples<T> {
 
         public TupleItr(List<Iterable<X>> list) {
             coll = new ArrayList<>(list);
-            itrList = new ArrayList<>(coll.size());
-            tuple = new ArrayList<>(coll.size());
-            for (Iterable<X> c : coll) {
-                tuple.add(null);
-                itrList.add(null);
-            }
+            tuple = new ArrayList<X>(Collections.nCopies(coll.size(), (X) null));
+            itrList = new ArrayList<Iterator<X>>(Collections.nCopies(coll.size(), (Iterator<X>) null));
         }
 
         @Override
