@@ -28,14 +28,16 @@ public class CopyOnWriteIteratorTest {
 
     @Test
     public void noCopy() {
-        ArrayList<String> list=new ArrayList<>();
-        for(int i=0;i<100;i++) 
+        ArrayList<String> list = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
             list.add(Integer.toString(i));
+        }
 
-        int i=0;
-        CopyOnWriteIterator itr=new CopyOnWriteIterator(list);
-        for(;itr.hasNext(); )
-            Assert.assertEquals(Integer.toString(i++),itr.next());
+        int i = 0;
+        CopyOnWriteIterator itr = new CopyOnWriteIterator(list);
+        for (; itr.hasNext();) {
+            Assert.assertEquals(Integer.toString(i++), itr.next());
+        }
 
         Assert.assertFalse(itr.isCopied());
         Assert.assertNull(itr.getCopiedList());
@@ -43,32 +45,36 @@ public class CopyOnWriteIteratorTest {
 
     @Test
     public void oneMod() {
-        ArrayList<String> list=new ArrayList<>();
-        for(int i=0;i<100;i++) 
+        ArrayList<String> list = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
             list.add(Integer.toString(i));
+        }
 
-        int i=0;
-        CopyOnWriteIterator itr=new CopyOnWriteIterator(list);
-        for(;itr.hasNext(); ) {
-            Assert.assertEquals(Integer.toString(i++),itr.next());
-            if(i==50)
+        int i = 0;
+        CopyOnWriteIterator itr = new CopyOnWriteIterator(list);
+        for (; itr.hasNext();) {
+            Assert.assertEquals(Integer.toString(i++), itr.next());
+            if (i == 50) {
                 itr.set("changed");
+            }
         }
 
         Assert.assertTrue(itr.isCopied());
-        List<String> newList=itr.getCopiedList();
+        List<String> newList = itr.getCopiedList();
         Assert.assertNotNull(newList);
 
-        i=0;
-        for(String x:list) 
-            Assert.assertEquals(Integer.toString(i++),x);
+        i = 0;
+        for (String x : list) {
+            Assert.assertEquals(Integer.toString(i++), x);
+        }
 
-        i=0;
-        for(String x:newList) {
-            if(i==49)
-                Assert.assertEquals("changed",x);
-            else
-                Assert.assertEquals(Integer.toString(i),x);
+        i = 0;
+        for (String x : newList) {
+            if (i == 49) {
+                Assert.assertEquals("changed", x);
+            } else {
+                Assert.assertEquals(Integer.toString(i), x);
+            }
             i++;
         }
     }

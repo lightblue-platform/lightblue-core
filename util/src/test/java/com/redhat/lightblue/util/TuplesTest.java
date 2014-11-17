@@ -30,10 +30,10 @@ public class TuplesTest {
 
     @Test
     public void test2() {
-        List<String> l1=new ArrayList<>();
-        List<String> l2=new ArrayList<>();
-        Collections.addAll(l1,"0","1","2","3","4","5","6","7","8","9");
-        Collections.addAll(l2,"A","B","C","D","E","F","G","H","I","J");
+        List<String> l1 = new ArrayList<>();
+        List<String> l2 = new ArrayList<>();
+        Collections.addAll(l1, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+        Collections.addAll(l2, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
 
         Tuples<String> t = new Tuples(l1, l2);
         Iterator<List<String>> itr = t.tuples();

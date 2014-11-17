@@ -26,11 +26,11 @@ import java.util.Collection;
  */
 public class IteratableCollectionAdapter<X> implements Iteratable<X> {
     private final Collection<X> coll;
-    
+
     public IteratableCollectionAdapter(Collection<X> coll) {
-        this.coll=coll;
+        this.coll = coll;
     }
-    
+
     @Override
     public Iterator<X> iterator() {
         return coll.iterator();
