@@ -19,10 +19,9 @@
 package com.redhat.lightblue.util;
 
 import java.io.Serializable;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a path in a tree, of the form

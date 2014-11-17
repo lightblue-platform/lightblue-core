@@ -18,9 +18,9 @@
  */
 package com.redhat.lightblue.util;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Iterator extension that copies the underlying list when it is modified

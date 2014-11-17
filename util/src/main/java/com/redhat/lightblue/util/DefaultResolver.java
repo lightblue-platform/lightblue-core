@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultResolver<K, V> implements Resolver<K, V> {
 
