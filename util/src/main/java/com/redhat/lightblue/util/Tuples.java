@@ -18,105 +18,89 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
- * Provides a way to iterate through all possible n-tuples of a
- * cartesian product of several collections. When constructed with
- * collections
+ * Provides a way to iterate through all possible n-tuples of a cartesian
+ * product of several collections. When constructed with collections
  * <pre>
  *    coll_1, coll_2, coll_3, ...
- * </pre>
- * iterates through n-tuples of the form
+ * </pre> iterates through n-tuples of the form
  * <pre>
  *     x_{1,i}, x_{2,j}, x_{3,k},...
- * </pre>
- * where x_{m,n} denotes the n'th element of collection m.
+ * </pre> where x_{m,n} denotes the n'th element of collection m.
  */
 public class Tuples<T> {
 
-    private final ArrayList<Iteratable<T>> collections=new ArrayList<>();
+    private final ArrayList<Iterable<T>> collections = new ArrayList<>();
 
     /**
-     * Default ctor. Creates an empty tuples object that can
-     * subsequently be populated with calls to <code>add</code>
+     * Default ctor. Creates an empty tuples object that can subsequently be
+     * populated with calls to <code>add</code>
      */
-    public Tuples() {}
-
-    /**
-     * Creates a Tuples object with the given collections. The results
-     * will be n-tuples, where each element i of the resulting tuple
-     * is from the i'th collection.
-     */
-    public Tuples(Collection<T>...coll) {
-        for(Collection<T> c:coll)
-            add(c);
+    public Tuples() {
     }
-    
+
     /**
-     * Creates a Tuples object with the given collections. The results
-     * will be n-tuples, where each element i of the resulting tuple
-     * is from the i'th collection.
+     * Creates a Tuples object with the given collections. The results will be
+     * n-tuples, where each element i of the resulting tuple is from the i'th
+     * collection.
+     */
+    public Tuples(Collection<T>... coll) {
+        for (Collection<T> c : coll) {
+            add(c);
+        }
+    }
+
+    /**
+     * Creates a Tuples object with the given collections. The results will be
+     * n-tuples, where each element i of the resulting tuple is from the i'th
+     * collection.
      */
     public Tuples(List<Collection<T>> collections) {
-        for(Collection<T> c:collections)
+        for (Collection<T> c : collections) {
             add(c);
+        }
     }
 
     /**
      * Adds a new collection to the tuples
      */
-    public void add(Collection<T> c) {
-        add(new IteratableCollectionAdapter<T>(c));
-    }
-    
-    /**
-     * Adds a new collection to the tuples
-     */
-    public void add(Iteratable<T> c) {
+    public void add(Iterable<T> c) {
         collections.add(c);
     }
 
     /**
-     * Returns an iterator that iterates through the cartesian product
-     * of all the collections in the Tuples object.
+     * Returns an iterator that iterates through the cartesian product of all
+     * the collections in the Tuples object.
      *
-     * @return An iterator where each element is an n-tuple. The i'th
-     * element of the tuple is an element from the i'th collection of
-     * the tuple.
+     * @return An iterator where each element is an n-tuple. The i'th element of
+     * the tuple is an element from the i'th collection of the tuple.
      */
     public Iterator<List<T>> tuples() {
-        return new TupleItr<T>(collections);
+        return new TupleItr<>(collections);
     }
 
     private static final class TupleItr<X> implements Iterator<List<X>> {
-        private final List<Iteratable<X>> coll;
+        private final List<Iterable<X>> coll;
         private final List<Iterator<X>> itrList;
         private final List<X> tuple;
-        private Boolean nextExists=null;
-        private boolean first=true;
+        private Boolean nextExists = null;
+        private boolean first = true;
 
-        public TupleItr(List<Iteratable<X>> list) {
-            coll=new ArrayList<>(list);
-            itrList=new ArrayList<>(coll.size());
-            tuple=new ArrayList<>(coll.size());
-            for(Iteratable<X> c:coll) {
-                tuple.add(null);
-                itrList.add(null);
-            }
+        public TupleItr(List<Iterable<X>> list) {
+            coll = new ArrayList<>(list);
+            tuple = new ArrayList<X>(Collections.nCopies(coll.size(), (X) null));
+            itrList = new ArrayList<Iterator<X>>(Collections.nCopies(coll.size(), (Iterator<X>) null));
         }
 
         @Override
         public List<X> next() {
-            if(nextExists==null) {
-                nextExists=seekNext();
+            if (nextExists == null) {
+                nextExists = seekNext();
             }
-            if(nextExists) {
-                nextExists=null;
+            if (nextExists) {
+                nextExists = null;
                 return tuple;
             } else {
                 throw new NoSuchElementException();
@@ -125,8 +109,8 @@ public class Tuples<T> {
 
         @Override
         public boolean hasNext() {
-            if(nextExists==null) {
-                nextExists=seekNext();
+            if (nextExists == null) {
+                nextExists = seekNext();
             }
             return nextExists;
         }
@@ -136,30 +120,36 @@ public class Tuples<T> {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * Seeks to next available data (tuple) and constructs that result list.
+         *
+         * @return true if next values exist, else false
+         */
         private boolean seekNext() {
-            int itrLength=itrList.size();
+            int itrLength = itrList.size();
 
-            if(first) {
-                first=false;
-                for(int i=0;i<itrLength;i++) {
-                    Iterator<X> itr=coll.get(i).iterator();
-                    if(itr.hasNext()) {
-                        itrList.set(i,itr);
-                        tuple.set(i,itr.next());
-                    } else
+            if (first) {
+                first = false;
+                for (int i = 0; i < itrLength; i++) {
+                    Iterator<X> itr = coll.get(i).iterator();
+                    if (itr.hasNext()) {
+                        itrList.set(i, itr);
+                        tuple.set(i, itr.next());
+                    } else {
                         return false;
+                    }
                 }
                 return true;
             } else {
-                for(int i=itrLength-1;i>=0;i--) {
-                    Iterator<X> itr=itrList.get(i);
-                    if(itr.hasNext()) {
-                        tuple.set(i,itr.next());
+                for (int i = itrLength - 1; i >= 0; i--) {
+                    Iterator<X> itr = itrList.get(i);
+                    if (itr.hasNext()) {
+                        tuple.set(i, itr.next());
                         return true;
                     } else {
-                        itr=coll.get(i).iterator();
-                        itrList.set(i,itr);
-                        tuple.set(i,itr.next());
+                        itr = coll.get(i).iterator();
+                        itrList.set(i, itr);
+                        tuple.set(i, itr.next());
                     }
                 }
             }

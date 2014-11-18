@@ -39,6 +39,7 @@ import com.redhat.lightblue.eval.QueryEvaluator;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.eval.QueryEvaluationContext;
 
+import com.redhat.lightblue.metadata.MetadataListener;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.Sort;
@@ -85,12 +86,6 @@ public class TestCrudController implements CRUDController {
                                      QueryExpression query) {return null;}
 
     @Override
-    public void updateEntityInfo(Metadata md, EntityInfo ei) {}
-
-    @Override
-    public void newSchema(Metadata md, EntityMetadata emd) {}
-
-    @Override
     public CRUDFindResponse find(CRUDOperationContext ctx,
                                  QueryExpression query,
                                  Projection projection,
@@ -110,5 +105,15 @@ public class TestCrudController implements CRUDController {
         CRUDFindResponse ret=new CRUDFindResponse();
         ret.setSize(output.size());
         return ret;
+    }
+
+    @Override
+    public MetadataListener getMetadataListener() {
+        return null;
+    }
+
+    @Override
+    public void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc) {
+
     }
 }

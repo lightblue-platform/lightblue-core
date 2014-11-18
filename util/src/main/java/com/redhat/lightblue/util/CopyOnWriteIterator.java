@@ -18,20 +18,19 @@
  */
 package com.redhat.lightblue.util;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
- * Iterator extension that copies the underlying list when it is
- * modified through this iterator. The original list remains
- * unchanged, and the new list can be obtained from the iterator
- * instance.
+ * Iterator extension that copies the underlying list when it is modified
+ * through this iterator. The original list remains unchanged, and the new list
+ * can be obtained from the iterator instance.
  */
 public class CopyOnWriteIterator<T> implements Iterator<T> {
-    
+
     private final List<T> list;
-    private List<T> copiedList=null;
+    private List<T> copiedList = null;
     private int ix;
     private final Iterator<T> readItr;
 
@@ -39,9 +38,9 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
      * Constructs an iterator for the given list
      */
     public CopyOnWriteIterator(List<T> list) {
-        this.list=list;
-        this.readItr=list.iterator();
-        ix=-1;
+        this.list = list;
+        this.readItr = list.iterator();
+        ix = -1;
     }
 
     @Override
@@ -56,8 +55,8 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
     }
 
     /**
-     * Creates a copy of the underlying list, and removes the element
-     * from the new copy. Original list remains unchanged.
+     * Creates a copy of the underlying list, and removes the element from the
+     * new copy. Original list remains unchanged.
      */
     @Override
     public void remove() {
@@ -66,35 +65,34 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
     }
 
     /**
-     * Creates a copy of the underlying list, and sets the element
-     * that was just read in the new copy. Original list remains
-     * unchanged. Note that this modifies the current element, that
-     * is, if next() is called once, set(x) sets 0th element to x not
-     * the 1st element
+     * Creates a copy of the underlying list, and sets the element that was just
+     * read in the new copy. Original list remains unchanged. Note that this
+     * modifies the current element, that is, if next() is called once, set(x)
+     * sets 0th element to x not the 1st element
      */
     public void set(T object) {
         copy();
-        copiedList.set(ix,object);
+        copiedList.set(ix, object);
     }
 
     /**
      * Returns if the original list has been copied.
      */
     public boolean isCopied() {
-        return copiedList!=null;
+        return copiedList != null;
     }
 
     /**
-     * Returns the copied list instance. If the list was not copied
-     * (i.e. was not modified), returns null.
+     * Returns the copied list instance. If the list was not copied (i.e. was
+     * not modified), returns null.
      */
     public List<T> getCopiedList() {
         return copiedList;
     }
 
     private void copy() {
-        if(copiedList==null) {
-            copiedList=new ArrayList<T>(list);
+        if (copiedList == null) {
+            copiedList = new ArrayList<T>(list);
         }
     }
 }

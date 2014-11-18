@@ -35,7 +35,7 @@ import static org.junit.Assert.fail;
  */
 public class JsonUtilsTest {
 
-    static JsonNodeFactory nodeFactory=JsonNodeFactory.withExactBigDecimals(true);
+    static JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(true);
 
     @Test
     @Ignore
@@ -66,6 +66,7 @@ public class JsonUtilsTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(jvmVersion, result.get("test").asText());
     }
+
     @Test
     public void testJson_system_properties_no_match() throws Exception {
         String s = "{\"test\":\"${something.that.does.not.exist}\"}";
@@ -77,13 +78,13 @@ public class JsonUtilsTest {
     @Test
     public void testPrettyPrint_nullNode() {
         ObjectNode node = nodeFactory.objectNode();
-        node.set("value",nodeFactory.objectNode());
-        Assert.assertEquals("{\n"+
-                            "\"value\":{}\n"+
-                            "}",JsonUtils.prettyPrint(node));
+        node.set("value", nodeFactory.objectNode());
+        Assert.assertEquals("{\n"
+                + "\"value\":{}\n"
+                + "}", JsonUtils.prettyPrint(node));
     }
 
-   @Test
+    @Test
     @Ignore
     public void testPrettyPrint_JsonNode() {
         JsonNode node = null;

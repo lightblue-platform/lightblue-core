@@ -33,8 +33,28 @@ public class CrudJsonSchemaTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void validateSchemaCrud() throws ProcessingException, IOException {
-        validateSchema("json-schema/crud.json");
+    public void validateSchemaUpdateReq() throws ProcessingException, IOException {
+        validateSchema("json-schema/updateRequest.json");
+    }
+
+    @Test
+    public void validateSchemaInsertReq() throws ProcessingException, IOException {
+        validateSchema("json-schema/insertRequest.json");
+    }
+
+    @Test
+    public void validateSchemaDeleteReq() throws ProcessingException, IOException {
+        validateSchema("json-schema/deleteRequest.json");
+    }
+
+    @Test
+    public void validateSchemaSaveReq() throws ProcessingException, IOException {
+        validateSchema("json-schema/saveRequest.json");
+    }
+
+    @Test
+    public void validateSchemaFindReq() throws ProcessingException, IOException {
+        validateSchema("json-schema/findRequest.json");
     }
 
     @Test
@@ -44,42 +64,42 @@ public class CrudJsonSchemaTest extends AbstractJsonSchemaTest {
 
     @Test
     public void validDeleteSimple() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/delete/schema-test-delete-simple.json");
+        runValidJsonTest("json-schema/deleteRequest.json", "crud/delete/schema-test-delete-simple.json");
     }
 
     @Test
     public void validInsertSimple() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/insert/schema-test-insert-simple.json");
+        runValidJsonTest("json-schema/insertRequest.json", "crud/insert/schema-test-insert-simple.json");
     }
 
     @Test
     public void validInsertMany() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/insert/schema-test-insert-many.json");
+        runValidJsonTest("json-schema/insertRequest.json", "crud/insert/schema-test-insert-many.json");
     }
 
     @Test
     public void validUpdateSimple() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/update/schema-test-update-simple.json");
+        runValidJsonTest("json-schema/updateRequest.json", "crud/update/schema-test-update-simple.json");
     }
 
     @Test
     public void validUpdateMany() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/update/schema-test-update-many.json");
+        runValidJsonTest("json-schema/updateRequest.json", "crud/update/schema-test-update-many.json");
     }
 
     @Test
     public void validSaveSimple() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/save/schema-test-save-simple.json");
+        runValidJsonTest("json-schema/saveRequest.json", "crud/save/schema-test-save-simple.json");
     }
 
     @Test
     public void validSaveMany() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/save/schema-test-save-many.json");
+        runValidJsonTest("json-schema/saveRequest.json", "crud/save/schema-test-save-many.json");
     }
 
     @Test
     public void validFindSimple() throws IOException, ProcessingException {
-        runValidJsonTest("json-schema/crud.json", "crud/find/schema-test-find-simple.json");
+        runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-simple.json");
     }
 
 }

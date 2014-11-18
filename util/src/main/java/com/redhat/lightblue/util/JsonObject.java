@@ -18,11 +18,10 @@
  */
 package com.redhat.lightblue.util;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
+import java.io.Serializable;
 
 /**
  * Base class for objects constructed from Json nodes. Optionally contains a

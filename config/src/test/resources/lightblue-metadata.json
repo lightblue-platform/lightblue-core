@@ -4,6 +4,7 @@
         "hookConfigurationParsers - array of classes implementing HookConfigurationParser interface",
         "The remainder of the file is parsed by the implementation class"
     ],
+    "validateRequests" : false,
     "type": "com.redhat.lightblue.config.TestConfig",
     "hookConfigurationParsers": ["com.redhat.lightblue.config.TestHookConfigurationParser"],
     "dataSource": "mongo",
@@ -19,5 +20,18 @@
             "name": "TestPropertyParser",
             "clazz": "com.redhat.lightblue.config.TestPropertyParser"
         }
-    ]
+    ],
+    "roleMap":{
+        "metadata.find.dependencies": ["read"],
+        "metadata.find.roles": ["read"],
+        "metadata.find.entityNames": ["read"],
+        "metadata.find.entityVersions": ["read"],
+        "metadata.find.entityMetadata": ["read"],
+        "metadata.insert": ["create"],
+        "metadata.insert.schema": ["create"],
+        "metadata.update.entityInfo": ["update"],
+        "metadata.update.schemaStatus": ["update"],
+        "metadata.update.defaultVersion": ["update"],
+        "metadata.delete.entity": ["delete"]
+    }
 }

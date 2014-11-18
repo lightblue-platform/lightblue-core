@@ -18,15 +18,14 @@
  */
 package com.redhat.lightblue.util.test;
 
-import java.io.IOException;
-
-import org.junit.Assert;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Assert;
+
+import java.io.IOException;
 
 public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
     /**

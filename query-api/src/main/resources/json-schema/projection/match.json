@@ -27,6 +27,9 @@
         },
         "project": {
             "$ref": "choice.json#/definitions/projection"
+        },
+        "sort": {
+            "$ref": "/json-schema/sort/choice.json#" 
         }
     },
     "required": [

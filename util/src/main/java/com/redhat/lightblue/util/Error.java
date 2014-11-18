@@ -97,7 +97,8 @@ public final class Error extends RuntimeException {
     }
 
     /**
-     * Helper that gets a new Error with msg set to the stack trace of the given Throwable.
+     * Helper that gets a new Error with msg set to the stack trace of the given
+     * Throwable.
      */
     public static Error get(String ctx, String errorCode, Throwable msg) {
         StringWriter sw = new StringWriter();
@@ -114,7 +115,8 @@ public final class Error extends RuntimeException {
     }
 
     /**
-     * Helper that gets a new Error with msg set to the stack trace of the given Throwable.
+     * Helper that gets a new Error with msg set to the stack trace of the given
+     * Throwable.
      */
     public static Error get(String errorCode, Throwable msg) {
         StringWriter sw = new StringWriter();

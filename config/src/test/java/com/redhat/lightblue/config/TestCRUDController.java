@@ -32,6 +32,8 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.MetadataListener;
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  *
@@ -69,10 +71,10 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public void updateEntityInfo(Metadata md, EntityInfo ei) {
+    public MetadataListener getMetadataListener() {
+        return null;
     }
 
     @Override
-    public void newSchema(Metadata md, EntityMetadata emd) {
-    }
+    public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
 }

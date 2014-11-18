@@ -97,6 +97,12 @@ public abstract class Projector {
     public abstract boolean exactMatch();
 
     /**
+     * Is the projection is an inclusion or an exclusion, then returns the projector
+     * that decided to include or exclude this field.
+     */
+    public abstract Projector getDecidingProjector();
+
+    /**
      * Returns true, false, or null if the result cannot be determined.
      *
      * @param p The absolute field path
@@ -230,8 +236,8 @@ public abstract class Projector {
 
         if (fieldNode instanceof ArrayNode) {
             LOGGER.debug("Projecting array field {}",fieldPath);
+            Projector deciding=projector.getDecidingProjector();
             ArrayNode newNode = factory.arrayNode();
-            ret.set(fieldPath.tail(0), newNode);
             if (cursor.firstChild()) {
                 do {
                     JsonNode node = projectArrayElement(projector,
@@ -245,12 +251,19 @@ public abstract class Projector {
                     }
                 } while (cursor.nextSibling());
                 cursor.parent();
-            }
+                if(deciding instanceof ArrayProjector&&
+                   ((ArrayProjector)deciding).getSort()!=null) {
+                    LOGGER.debug("Sorting array elements using {}",((ArrayProjector)deciding).getSort());
+                    newNode=((ArrayProjector)deciding).sortArray(newNode,factory);
+                }
+            }            
+            ret.set(fieldPath.tail(0), newNode);
         } else {
             LOGGER.warn("Expecting array node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
         }
         return null;
     }
+
 
     private JsonNode projectArrayElement(Projector projector,
                                          JsonNodeFactory factory,

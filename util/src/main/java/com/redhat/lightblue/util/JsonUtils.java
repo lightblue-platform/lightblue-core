@@ -31,7 +31,6 @@ import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.junit.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,10 +126,14 @@ public final class JsonUtils {
         JsonNode node = loadJsonNode(resourceName);
 
         ProcessingReport report = validator.validateSchema(node);
-        Assert.assertTrue("Schema is not valid!", report.isSuccess());
+        if (!report.isSuccess()) {
+            throw Error.get(UtilConstants.ERR_JSON_SCHEMA_INVALID);
+        }
 
         JsonSchema schema = factory.getJsonSchema("resource:/" + resourceName);
-        Assert.assertNotNull(schema);
+        if (null == schema) {
+            throw Error.get(UtilConstants.ERR_JSON_SCHEMA_INVALID);
+        }
 
         return schema;
     }
@@ -140,7 +143,7 @@ public final class JsonUtils {
      * reported, else returns string representing violations.
      *
      * @param schema the json schema (see #loadSchema)
-     * @param node   the json node to validate
+     * @param node the json node to validate
      * @return null if there are no errors, else string with all errors and
      * warnings
      * @throws ProcessingException
@@ -200,7 +203,7 @@ public final class JsonUtils {
         bld.append("[");
         boolean first = true;
         for (Iterator<JsonNode> itr = node.elements();
-             itr.hasNext(); ) {
+                itr.hasNext();) {
             if (first) {
                 first = false;
             } else {
@@ -230,7 +233,7 @@ public final class JsonUtils {
         }
         boolean first = true;
         for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields();
-             itr.hasNext(); ) {
+                itr.hasNext();) {
             if (first) {
                 first = false;
             } else {

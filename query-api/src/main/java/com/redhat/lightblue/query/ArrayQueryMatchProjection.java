@@ -32,9 +32,17 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
     public ArrayQueryMatchProjection(Path field,
                                      boolean include,
                                      Projection project,
+                                     Sort sort,
                                      QueryExpression match) {
-        super(field, include, project);
+        super(field, include, project,sort);
         this.match = match;
+    }
+
+    public ArrayQueryMatchProjection(Path field,
+                                     boolean include,
+                                     Projection project,
+                                     QueryExpression match) {
+        this(field, include, project,null,match);
     }
 
     public QueryExpression getMatch() {

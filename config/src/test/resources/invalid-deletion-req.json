@@ -1,0 +1,13 @@
+{
+        "objectType": "some_entity",
+        "client": {"id": "1"},
+        "execution": {
+            "timeLimit": 5000,
+            "asynchronous": 4500
+        },
+        "projection": {
+            "field": "firstname",
+            "include": true,
+            "recursive": true
+        }
+}
