@@ -467,7 +467,7 @@ public abstract class MetadataParser<T> {
                         throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, d);
                     }
                     item.setStatus(statusFromString(getRequiredStringProperty(log, STR_VALUE)));
-                    item.setComment(getRequiredStringProperty(log, STR_COMMENT));
+                    item.setComment(getStringProperty(log, STR_COMMENT));
                     list.add(item);
                 }
                 schema.setStatusChangeLog(list);
