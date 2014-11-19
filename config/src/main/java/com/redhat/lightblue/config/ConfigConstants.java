@@ -5,7 +5,7 @@ package com.redhat.lightblue.config;
  */
 public class ConfigConstants {
 
-    public static final String ERR_VAILDATION_FAILED = "validation:fail";
+    public static final String ERR_VALIDATION_FAILED = "validation:fail";
 
     private ConfigConstants() {
 
