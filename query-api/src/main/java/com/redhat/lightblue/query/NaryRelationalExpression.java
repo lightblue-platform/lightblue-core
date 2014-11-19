@@ -62,9 +62,10 @@ public class NaryRelationalExpression extends RelationalExpression {
     public NaryRelationalExpression(Path field,
                                     NaryRelationalOperator op,
                                     Value... values) {
-        this(field,op,new ArrayList<Value>(values.length));
-        for(Value x:values)
+        this(field, op, new ArrayList<Value>(values.length));
+        for (Value x : values) {
             this.values.add(x);
+        }
     }
 
     /**
@@ -99,8 +100,8 @@ public class NaryRelationalExpression extends RelationalExpression {
             arr.add(x.toJson());
         }
         return getFactory().objectNode().put("field", field.toString()).
-            put("op", op.toString()).
-            set("values", arr);
+                put("op", op.toString()).
+                set("values", arr);
     }
 
     /**

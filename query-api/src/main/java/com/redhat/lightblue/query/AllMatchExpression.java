@@ -37,7 +37,7 @@ public class AllMatchExpression extends UpdateQueryExpression {
         return getFactory().textNode("$all");
     }
 
-   @Override
+    @Override
     public int hashCode() {
         return 5;
     }

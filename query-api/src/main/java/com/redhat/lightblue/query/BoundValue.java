@@ -20,9 +20,9 @@ package com.redhat.lightblue.query;
 
 /**
  * A modifiable primitive value. When one of the fields in a
- * FieldComparisonExpression is bound to a value, that expression is
- * rewritten as a ValueComparisonExpression with a BoundValue, so the
- * caller can change the underlying value for every execution.
+ * FieldComparisonExpression is bound to a value, that expression is rewritten
+ * as a ValueComparisonExpression with a BoundValue, so the caller can change
+ * the underlying value for every execution.
  */
 public class BoundValue extends Value {
 
@@ -44,6 +44,6 @@ public class BoundValue extends Value {
      * Sets the value
      */
     public void setValue(Object o) {
-        value=o;
+        value = o;
     }
 }

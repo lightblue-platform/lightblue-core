@@ -34,7 +34,7 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
                                      Projection project,
                                      Sort sort,
                                      QueryExpression match) {
-        super(field, include, project,sort);
+        super(field, include, project, sort);
         this.match = match;
     }
 
@@ -42,7 +42,7 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
                                      boolean include,
                                      Projection project,
                                      QueryExpression match) {
-        this(field, include, project,null,match);
+        this(field, include, project, null, match);
     }
 
     public QueryExpression getMatch() {

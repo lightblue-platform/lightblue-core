@@ -73,7 +73,7 @@ public class Value extends JsonObject {
             }
         } else if (value instanceof Boolean) {
             return getFactory().booleanNode((Boolean) value);
-        } else if(value == null ) {
+        } else if (value == null) {
             return getFactory().nullNode();
         } else {
             return getFactory().textNode(value.toString());

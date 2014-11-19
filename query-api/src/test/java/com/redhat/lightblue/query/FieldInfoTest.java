@@ -33,48 +33,49 @@ import com.redhat.lightblue.util.Path;
 public class FieldInfoTest {
 
     private QueryExpression getq(String s) throws Exception {
-        return QueryExpression.fromJson(JsonUtils.json(s.replace('\'','\"')));
+        return QueryExpression.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
-    
+
     @Test
     public void dotest() throws Exception {
-        List<FieldInfo> fields=getq("{'field':'x','op':'=','rvalue':'value'}").getQueryFields();
-        check(fields,"x","");
+        List<FieldInfo> fields = getq("{'field':'x','op':'=','rvalue':'value'}").getQueryFields();
+        check(fields, "x", "");
 
-        fields=getq("{'$not':{'field':'x','op':'=','rvalue':'value'}}").getQueryFields();
-        check(fields,"x","");
+        fields = getq("{'$not':{'field':'x','op':'=','rvalue':'value'}}").getQueryFields();
+        check(fields, "x", "");
 
-        fields=getq("{'$not':{'field':'x','regex':'value'}}").getQueryFields();
-        check(fields,"x","");
+        fields = getq("{'$not':{'field':'x','regex':'value'}}").getQueryFields();
+        check(fields, "x", "");
 
-        fields=getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rvalue':'value'}]}").getQueryFields();
-        check(fields,"x","","y","");
+        fields = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rvalue':'value'}]}").getQueryFields();
+        check(fields, "x", "", "y", "");
 
-        fields=getq("{'$not':{'array':'x','elemMatch':{'field':'y','op':'=','rvalue':'value'}}}").getQueryFields();
-        check(fields,"x","","x.*.y","x.*");
-        
-        fields=getq("{'field':'x','op':'=','rfield':'y'}").getQueryFields();
-        check(fields,"x","","y","");
+        fields = getq("{'$not':{'array':'x','elemMatch':{'field':'y','op':'=','rvalue':'value'}}}").getQueryFields();
+        check(fields, "x", "", "x.*.y", "x.*");
 
-        fields=getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rfield':'z'}]}").getQueryFields();
-        check(fields,"x","","y","","z","");
+        fields = getq("{'field':'x','op':'=','rfield':'y'}").getQueryFields();
+        check(fields, "x", "", "y", "");
 
-        fields=getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}").getQueryFields();
-        check(fields,"a","","a.*.x","a.*","a.*.y","a.*");
+        fields = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rfield':'z'}]}").getQueryFields();
+        check(fields, "x", "", "y", "", "z", "");
+
+        fields = getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}").getQueryFields();
+        check(fields, "a", "", "a.*.x", "a.*", "a.*.y", "a.*");
     }
 
-    private void check(List<FieldInfo> fields,String...paths) {
-        int n=paths.length/2;
-        Assert.assertEquals(n,fields.size());
-        for(int i=0;i<n;i+=2) {
-            Path field=new Path(paths[i]);
-            Path ctx=new Path(paths[i+1]);
-            boolean found=false;
-            for(FieldInfo fi:fields)
-                if(fi.getAbsFieldName().equals(field)&&fi.getContext().equals(ctx)) {
-                    found=true;
+    private void check(List<FieldInfo> fields, String... paths) {
+        int n = paths.length / 2;
+        Assert.assertEquals(n, fields.size());
+        for (int i = 0; i < n; i += 2) {
+            Path field = new Path(paths[i]);
+            Path ctx = new Path(paths[i + 1]);
+            boolean found = false;
+            for (FieldInfo fi : fields) {
+                if (fi.getAbsFieldName().equals(field) && fi.getContext().equals(ctx)) {
+                    found = true;
                     break;
                 }
+            }
             Assert.assertTrue(found);
         }
     }

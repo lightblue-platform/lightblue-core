@@ -23,17 +23,15 @@ import java.io.Serializable;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Keeps the information about a field binding. When a field is bound
- * to a value, that query clause is replaced with another one
- * containing a BoundValue. The FiendBinding for this instance keeps
- * the field path, the value it is bound to, the original query
- * expression (originalQuery), and the new query expression containing
- * the bound value (boundQuery). For instance, consider the following
- * expression:
+ * Keeps the information about a field binding. When a field is bound to a
+ * value, that query clause is replaced with another one containing a
+ * BoundValue. The FiendBinding for this instance keeps the field path, the
+ * value it is bound to, the original query expression (originalQuery), and the
+ * new query expression containing the bound value (boundQuery). For instance,
+ * consider the following expression:
  * <pre>
  *   { "field":"field1","op":"=","rfield":"field2" }
- * </pre>
- * When <code>field1</code> is bound to a value, the FieldBinding is:
+ * </pre> When <code>field1</code> is bound to a value, the FieldBinding is:
  * <pre>
  *    field: field1
  *    originalQuery:  { "field":"field1","op":"=","rfield":"field2" }
@@ -53,14 +51,14 @@ public class FieldBinding implements Serializable {
                         BoundValue value,
                         QueryExpression originalQ,
                         QueryExpression boundQ) {
-        this.field=field;
-        this.value=value;
-        this.originalQuery=originalQ;
-        this.boundQuery=boundQ;
+        this.field = field;
+        this.value = value;
+        this.originalQuery = originalQ;
+        this.boundQuery = boundQ;
     }
 
     /**
-     * Returns the field bound to a value. 
+     * Returns the field bound to a value.
      */
     public Path getField() {
         return field;

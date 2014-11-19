@@ -77,7 +77,7 @@ public class ArrayContainsExpression extends ArrayComparisonExpression {
         return values;
     }
 
-   /**
+    /**
      * Returns a json representation of the query
      */
     @Override

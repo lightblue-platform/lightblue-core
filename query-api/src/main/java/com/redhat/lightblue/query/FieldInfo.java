@@ -23,10 +23,10 @@ import java.io.Serializable;
 import com.redhat.lightblue.util.Path;
 
 /**
- * This class contains field information: the field name, and the
- * query clause containing the field.
+ * This class contains field information: the field name, and the query clause
+ * containing the field.
  */
-public class FieldInfo  implements Serializable {
+public class FieldInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Path absFieldName;
@@ -43,18 +43,18 @@ public class FieldInfo  implements Serializable {
     public FieldInfo(Path absFieldName,
                      Path context,
                      QueryExpression clause) {
-        this.absFieldName=absFieldName;
-        this.context=context;
-        this.clause=clause;
+        this.absFieldName = absFieldName;
+        this.context = context;
+        this.clause = clause;
     }
 
     /**
      * Copy ctor, shallow copy
      */
     public FieldInfo(FieldInfo f) {
-        this(f.absFieldName,f.context,f.clause);
+        this(f.absFieldName, f.context, f.clause);
     }
-    
+
     /**
      * Returns the absolute field name
      */
@@ -77,6 +77,6 @@ public class FieldInfo  implements Serializable {
     }
 
     public String toString() {
-        return absFieldName +"@("+clause+")";
+        return absFieldName + "@(" + clause + ")";
     }
 }
