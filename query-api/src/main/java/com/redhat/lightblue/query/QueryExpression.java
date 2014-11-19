@@ -38,6 +38,7 @@ public abstract class QueryExpression extends JsonObject {
 
     private static final class BindableClausesItr extends QueryIterator {
         private List<QueryInContext> list;
+
         public BindableClausesItr(List<QueryInContext> l) {
             this.list=l;
         }
@@ -50,7 +51,6 @@ public abstract class QueryExpression extends JsonObject {
     }
 
     private static final class GetQueryFieldsItr extends QueryIterator {
-
         private List<FieldInfo> fields;
 
         public GetQueryFieldsItr(List<FieldInfo> fields) {
@@ -65,8 +65,7 @@ public abstract class QueryExpression extends JsonObject {
 
         @Override
         protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q,Path ctx) {
-            Path arrayPath=new Path(ctx,q.getArray());
-            fields.add(new FieldInfo(arrayPath,ctx,q));
+            fields.add(new FieldInfo(new Path(ctx,q.getArray()),ctx,q));
             return super.itrArrayMatchExpression(q,ctx);
         }
 
@@ -227,7 +226,7 @@ public abstract class QueryExpression extends JsonObject {
      * @param bindRequest Full paths to the fields to be bound. If
      * there are array elements, '*' must be used
      *
-     * @return A new instance of the query object with bound
+     * @return A new instance of the query object with boun
      * values. If there are no bindable values, the same query object
      * will be returned.
      */
