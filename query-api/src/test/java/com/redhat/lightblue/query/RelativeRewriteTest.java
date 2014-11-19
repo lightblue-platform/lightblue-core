@@ -18,12 +18,10 @@
  */
 package com.redhat.lightblue.query;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class RelativeRewriteTest {
 

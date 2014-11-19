@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.query;
 
-import java.math.BigInteger;
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**

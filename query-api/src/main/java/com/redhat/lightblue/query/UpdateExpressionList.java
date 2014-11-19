@@ -18,15 +18,11 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import java.util.Collections;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.*;
 
 /**
  * Represents a list of partial update expressions

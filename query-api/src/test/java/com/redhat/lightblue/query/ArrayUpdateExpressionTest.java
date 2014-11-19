@@ -19,11 +19,14 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.util.JsonUtils;
-import java.io.IOException;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

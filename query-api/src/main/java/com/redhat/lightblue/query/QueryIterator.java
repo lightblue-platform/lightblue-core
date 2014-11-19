@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.query;
 
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.CopyOnWriteIterator;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Traverses the query nodes in a recursive descend manner, optionally replacing

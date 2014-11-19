@@ -18,13 +18,8 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.Set;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
 
 /**
  * Represents an expression of the form

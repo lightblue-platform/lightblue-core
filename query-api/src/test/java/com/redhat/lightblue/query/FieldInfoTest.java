@@ -18,17 +18,12 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.Path;
+import java.util.List;
 
 public class FieldInfoTest {
 

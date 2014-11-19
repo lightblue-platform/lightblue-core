@@ -18,17 +18,15 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.Set;
-import java.util.Collection;
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+import com.redhat.lightblue.util.Path;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Base class for all query expressions

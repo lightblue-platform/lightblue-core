@@ -18,12 +18,7 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.Set;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
-import com.redhat.lightblue.util.Path;
 
 /**
  * Query expression that matches everything

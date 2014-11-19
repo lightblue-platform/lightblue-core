@@ -18,17 +18,16 @@
  */
 package com.redhat.lightblue.query;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonUtils;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
 
 public class QueryParseTest {
 

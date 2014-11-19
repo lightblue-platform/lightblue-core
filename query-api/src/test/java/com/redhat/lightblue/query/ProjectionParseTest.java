@@ -18,12 +18,11 @@
  */
 package com.redhat.lightblue.query;
 
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.Path;
 
 public class ProjectionParseTest {
     final String doc1 = "{\"field\":\"field.x\", \"include\": true}";

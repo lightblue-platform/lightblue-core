@@ -18,20 +18,16 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class BindTest {
 
