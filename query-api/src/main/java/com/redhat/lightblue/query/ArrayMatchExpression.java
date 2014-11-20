@@ -18,13 +18,10 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Represents a query of the form
@@ -56,7 +53,7 @@ public class ArrayMatchExpression extends ArrayComparisonExpression {
     }
 
     /**
-     * The nested query that will be matched agains array elements
+     * The nested query that will be matched against array elements
      */
     public QueryExpression getElemMatch() {
         return this.elemMatch;

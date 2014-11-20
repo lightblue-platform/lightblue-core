@@ -18,9 +18,9 @@
  */
 package com.redhat.lightblue.query;
 
-import java.io.Serializable;
-
 import com.redhat.lightblue.util.Path;
+
+import java.io.Serializable;
 import java.util.Objects;
 
 /**

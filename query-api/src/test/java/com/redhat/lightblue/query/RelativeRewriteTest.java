@@ -18,37 +18,36 @@
  */
 package com.redhat.lightblue.query;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class RelativeRewriteTest {
 
     private QueryExpression getq(String s) throws Exception {
-        return QueryExpression.fromJson(JsonUtils.json(s.replace('\'','\"')));
+        return QueryExpression.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
 
     @Test
     public void testValueRewrite() throws Exception {
-        QueryExpression q=new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rvalue':100}"));
-        Assert.assertEquals("e.f.g",((ValueComparisonExpression)q).getField().toString());
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rvalue':100}"));
+        Assert.assertEquals("e.f.g", ((ValueComparisonExpression) q).getField().toString());
     }
-    
+
     @Test
     public void testFieldRewrite() throws Exception {
-        QueryExpression q=new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rfield':'a.b.c.x.y.z.w'}"));
-        Assert.assertEquals("e.f.g",((FieldComparisonExpression)q).getField().toString());
-        Assert.assertEquals("x.y.z.w",((FieldComparisonExpression)q).getRfield().toString());
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rfield':'a.b.c.x.y.z.w'}"));
+        Assert.assertEquals("e.f.g", ((FieldComparisonExpression) q).getField().toString());
+        Assert.assertEquals("x.y.z.w", ((FieldComparisonExpression) q).getRfield().toString());
     }
 
     @Test
     public void testCantRewrite() throws Exception {
         try {
-            QueryExpression q=new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'x.y.z','op':'=','rvalue':100}"));
+            QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'x.y.z','op':'=','rvalue':100}"));
             Assert.fail();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 }

@@ -18,17 +18,17 @@
  */
 package com.redhat.lightblue.query;
 
-import java.io.Serializable;
-
 import com.redhat.lightblue.util.Path;
 
+import java.io.Serializable;
+
 /**
- * Contains a query expression that needs to be interpreted with
- * respect to the given context. This class is used to return query
- * clauses that contain bindable fields.
+ * Contains a query expression that needs to be interpreted with respect to the
+ * given context. This class is used to return query clauses that contain
+ * bindable fields.
  */
 public class QueryInContext implements Serializable {
-    private static long serialVersionUID=1l;
+    private static long serialVersionUID = 1l;
 
     private final Path context;
     private final QueryExpression query;
@@ -36,9 +36,9 @@ public class QueryInContext implements Serializable {
     /**
      * Ctor
      */
-    public QueryInContext(Path context,QueryExpression query) {
-        this.context=context;
-        this.query=query;
+    public QueryInContext(Path context, QueryExpression query) {
+        this.context = context;
+        this.query = query;
     }
 
     /**
@@ -56,9 +56,10 @@ public class QueryInContext implements Serializable {
     }
 
     public String toString() {
-        if(context.numSegments()>0)
-            return query.toString()+"@"+context.toString();
-        else
+        if (context.numSegments() > 0) {
+            return query.toString() + "@" + context.toString();
+        } else {
             return query.toString();
+        }
     }
 }

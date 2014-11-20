@@ -18,158 +18,159 @@
  */
 package com.redhat.lightblue.query;
 
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.CopyOnWriteIterator;
+import com.redhat.lightblue.util.Path;
 
 /**
- * Traverses the query nodes in a recursive descend manner, optionally
- * replacing query nodes as it goes through them. If a query node is
- * replaced, all its ancestors are also replaced. The implementations
- * of this iterator is expected to override the base functionality
- * defined in the method bodies. For value comparison, field
- * comparison, regex match, n-nary relational, and array contains
- * expressions, the default behavior is to simply return the original
- * query. For unary, n-ary logical operations and array match, the
- * default behavior recursively descends into the child nodes, and
- * creates new instances of the query clauses if child nodes are
- * different than the originals.
+ * Traverses the query nodes in a recursive descend manner, optionally replacing
+ * query nodes as it goes through them. If a query node is replaced, all its
+ * ancestors are also replaced. The implementations of this iterator are
+ * expected to override the base functionality defined in the method bodies. For
+ * value comparison, field comparison, regex match, n-nary relational, and array
+ * contains expressions the default behavior is to simply return the original
+ * query. For unary, n-ary logical operations, and array match the default
+ * behavior recursively descends into the child nodes and creates new instances
+ * of the query clauses if child nodes are different than the originals.
  */
 public abstract class QueryIterator {
 
     /**
-     * Default behavior is to return <code>q</code>. Override the
-     * method if more processing is needed. Return a new
-     * QueryExpression object if this clause is to be modified.
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
      */
-    protected QueryExpression itrAllMatchExpression(AllMatchExpression q,Path context) {
+    protected QueryExpression itrAllMatchExpression(AllMatchExpression q, Path context) {
         return q;
     }
 
     /**
-     * Default behavior is to return <code>q</code>. Override the
-     * method if more processing is needed. Return a new
-     * QueryExpression object if this clause is to be modified.
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
      */
-    protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q,Path context) {
+    protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
         return q;
     }
 
     /**
-     * Default behavior is to return <code>q</code>. Override the
-     * method if more processing is needed. Return a new
-     * QueryExpression object if this clause is to be modified.
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
      */
-    protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q,Path context) {
+    protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
         return q;
     }
 
     /**
-     * Default behavior is to return <code>q</code>. Override the
-     * method if more processing is needed. Return a new
-     * QueryExpression object if this clause is to be modified.
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
      */
-    protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q,Path context) {
+    protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
         return q;
     }
 
     /**
-     * Default behavior is to return <code>q</code>. Override the
-     * method if more processing is needed. Return a new
-     * QueryExpression object if this clause is to be modified.
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
      */
-    protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q,Path context) {
+    protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q, Path context) {
         return q;
     }
 
     /**
-     * Default behavior is to return <code>q</code>. Override the
-     * method if more processing is needed. Return a new
-     * QueryExpression object if this clause is to be modified.
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
      */
-    protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q,Path context) {
+    protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
         return q;
     }
 
     /**
-     * Default behavior is to recursively iterate the nested query. If
-     * nested processing returns an object different from the original
-     * nested query, this method creates a new unary logical
-     * expression using the new query expression, and returns that.
+     * Default behavior is to recursively iterate the nested query. If nested
+     * processing returns an object different from the original nested query,
+     * this method creates a new unary logical expression using the new query
+     * expression, and returns that.
      */
-    protected QueryExpression itrUnaryLogicalExpression(UnaryLogicalExpression q,Path context) {
-        QueryExpression newq=iterate(q.getQuery(),context);
-        if(newq!=q.getQuery()) {
-            return new UnaryLogicalExpression(q.getOp(),newq);
-        } else
+    protected QueryExpression itrUnaryLogicalExpression(UnaryLogicalExpression q, Path context) {
+        QueryExpression newq = iterate(q.getQuery(), context);
+        if (newq != q.getQuery()) {
+            return new UnaryLogicalExpression(q.getOp(), newq);
+        } else {
             return q;
+        }
     }
 
     /**
-     * Default behavior is to recursively iterate the nested
-     * quereies. If nested processing returns objects different from
-     * the original nested queries, this method creates a new n-ary
-     * logical expression using the new query expressions, and returns
-     * that.
+     * Default behavior is to recursively iterate the nested quereies. If nested
+     * processing returns objects different from the original nested queries,
+     * this method creates a new n-ary logical expression using the new query
+     * expressions and returns that.
      */
-    protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q,Path context) {
-        CopyOnWriteIterator<QueryExpression> itr=new CopyOnWriteIterator<QueryExpression>(q.getQueries());
-        while(itr.hasNext()) {
-            QueryExpression nestedq=itr.next();
-            QueryExpression newq=iterate(nestedq,context);
-            if(newq!=nestedq)
+    protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q, Path context) {
+        CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<QueryExpression>(q.getQueries());
+        while (itr.hasNext()) {
+            QueryExpression nestedq = itr.next();
+            QueryExpression newq = iterate(nestedq, context);
+            if (newq != nestedq) {
                 itr.set(newq);
+            }
         }
-        if(itr.isCopied())
-            return new NaryLogicalExpression(q.getOp(),itr.getCopiedList());
-        else
+        if (itr.isCopied()) {
+            return new NaryLogicalExpression(q.getOp(), itr.getCopiedList());
+        } else {
             return q;
+        }
     }
 
     /**
-     * Default behavior is to recursively iterate the nested query. If
-     * nested processing returns an object different from the original
-     * nested query, this method creates a new array match expression
-     * using the new query expression, and returns that.
+     * Default behavior is to recursively iterate the nested query. If nested
+     * processing returns an object different from the original nested query,
+     * this method creates a new array match expression using the new query
+     * expression, and returns that.
      */
-    protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q,Path context) {
-        QueryExpression newq=iterate(q.getElemMatch(),new Path(new Path(context,q.getArray()),Path.ANYPATH));
-        if(newq!=q.getElemMatch())
-            return new ArrayMatchExpression(q.getArray(),newq);
-        else
+    protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
+        QueryExpression newq = iterate(q.getElemMatch(), new Path(new Path(context, q.getArray()), Path.ANYPATH));
+        if (newq != q.getElemMatch()) {
+            return new ArrayMatchExpression(q.getArray(), newq);
+        } else {
             return q;
+        }
     }
 
     /**
-     * Recursively iterates the nodes of the query. The field names
-     * are interpreted relative to the given context
+     * Recursively iterates the nodes of the query. The field names are
+     * interpreted relative to the given context
      */
-    public QueryExpression iterate(QueryExpression q,Path context) {
+    public QueryExpression iterate(QueryExpression q, Path context) {
         if (q instanceof ValueComparisonExpression) {
-            return itrValueComparisonExpression((ValueComparisonExpression)q,context);
+            return itrValueComparisonExpression((ValueComparisonExpression) q, context);
         } else if (q instanceof FieldComparisonExpression) {
-            return itrFieldComparisonExpression((FieldComparisonExpression)q,context);
+            return itrFieldComparisonExpression((FieldComparisonExpression) q, context);
         } else if (q instanceof RegexMatchExpression) {
-            return itrRegexMatchExpression((RegexMatchExpression) q,context);
+            return itrRegexMatchExpression((RegexMatchExpression) q, context);
         } else if (q instanceof NaryRelationalExpression) {
-            return itrNaryRelationalExpression((NaryRelationalExpression)q,context);
+            return itrNaryRelationalExpression((NaryRelationalExpression) q, context);
         } else if (q instanceof UnaryLogicalExpression) {
-            return itrUnaryLogicalExpression((UnaryLogicalExpression)q,context);
+            return itrUnaryLogicalExpression((UnaryLogicalExpression) q, context);
         } else if (q instanceof NaryLogicalExpression) {
-            return itrNaryLogicalExpression((NaryLogicalExpression)q,context);
+            return itrNaryLogicalExpression((NaryLogicalExpression) q, context);
         } else if (q instanceof ArrayContainsExpression) {
-            return itrArrayContainsExpression((ArrayContainsExpression)q,context);
+            return itrArrayContainsExpression((ArrayContainsExpression) q, context);
         } else if (q instanceof ArrayMatchExpression) {
-            return itrArrayMatchExpression((ArrayMatchExpression)q,context);
+            return itrArrayMatchExpression((ArrayMatchExpression) q, context);
         } else if (q instanceof AllMatchExpression) {
-            return itrAllMatchExpression((AllMatchExpression)q,context);
+            return itrAllMatchExpression((AllMatchExpression) q, context);
         }
         return q;
-   }
+    }
 
     /**
-     * Recursively iterates the nodes of the query. 
+     * Recursively iterates the nodes of the query.
      */
     public QueryExpression iterate(QueryExpression q) {
-        return iterate(q,Path.EMPTY);
+        return iterate(q, Path.EMPTY);
     }
 }

@@ -18,13 +18,13 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.Map;
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 
 /**

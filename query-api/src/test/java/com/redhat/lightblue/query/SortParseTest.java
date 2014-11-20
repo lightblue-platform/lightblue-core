@@ -18,11 +18,10 @@
  */
 package com.redhat.lightblue.query;
 
+import com.redhat.lightblue.util.JsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.redhat.lightblue.util.JsonUtils;
 
 public class SortParseTest {
     final String doc1 = "{\"field\":\"$asc\"}";
