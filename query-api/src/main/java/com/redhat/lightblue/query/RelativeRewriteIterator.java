@@ -27,7 +27,7 @@ import com.redhat.lightblue.util.Path;
  */
 public class RelativeRewriteIterator extends QueryIterator {
 
-    private final Path relativeTo;
+    private Path relativeTo;
 
     public RelativeRewriteIterator(Path relativeTo) {
         this.relativeTo = relativeTo;
@@ -65,14 +65,14 @@ public class RelativeRewriteIterator extends QueryIterator {
 
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-        return super.itrArrayMatchExpression(new ArrayMatchExpression(toRelative(q.getArray(), context), q.getElemMatch()), context);
+        // No need to rewrite elemMatch using relative context, because that is already interpreted relative to the array
+        return new ArrayMatchExpression(toRelative(q.getArray(),context), q.getElemMatch());
     }
 
     private Path toRelative(Path field, Path context) {
         Path abs = context.isEmpty() ? field : new Path(context, field);
-        // TODO write unit test to prove abs should be arg to matchingPrefix instead of field
-        if (relativeTo.matchingPrefix(field)) {
-            return field.suffix(-relativeTo.numSegments());
+        if (relativeTo.matchingPrefix(abs)) {
+            return abs.suffix(-relativeTo.numSegments());
         } else {
             throw new IllegalArgumentException("Cannot write " + abs + " relative to " + relativeTo);
         }

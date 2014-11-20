@@ -50,4 +50,11 @@ public class RelativeRewriteTest {
         } catch (Exception e) {
         }
     }
+
+    @Test
+    public void testNonEmptyContextIn_toRelative() throws Exception {
+        QueryExpression q=new RelativeRewriteIterator(new Path("a")).iterate(getq("{'array':'a.b', 'elemMatch':{'field':'c.d','op':'=','rvalue':1}}"));
+        Assert.assertEquals("b",((ArrayMatchExpression)q).getArray().toString());
+        Assert.assertEquals("c.d",((ValueComparisonExpression) ((ArrayMatchExpression)q).getElemMatch()).getField().toString());
+    }
 }
