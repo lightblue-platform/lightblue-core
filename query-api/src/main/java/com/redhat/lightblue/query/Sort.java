@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonObject;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Base class for Sort objects.
@@ -38,5 +39,41 @@ public abstract class Sort extends JsonObject {
         } else {
             return SortKey.fromJson((ObjectNode) node);
         }
+    }
+
+    /**
+     * Returns if the field is referenced in a sort key
+     *
+     * @param field The field
+     */
+    public boolean isRequired(Path field) {
+        return isRequired(field,Path.EMPTY);
+    }
+
+    /**
+     * Returns if the field is referenced in a sort key
+     *
+     * @param field The field
+     * @param ctx The nested context
+     */
+    public boolean isRequired(Path field,Path ctx) {
+        if(this instanceof SortKey) {
+            return isRequired(field,(SortKey)this,ctx);
+        } else if(this instanceof CompositeSortKey) {
+            return isRequired(field,(CompositeSortKey)this,ctx);
+        }
+        return false;
+    }
+
+    private static boolean isRequired(Path field,CompositeSortKey sort,Path ctx) {
+        for(SortKey key:sort.getKeys())
+            if(isRequired(field,key,ctx))
+                return true;
+        return false;
+    }
+
+    private static boolean isRequired(Path field,SortKey sort,Path ctx) {
+        Path absField=new Path(ctx,field);
+        return sort.getField().matchingPrefix(absField);
     }
 }
