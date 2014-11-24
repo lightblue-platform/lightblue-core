@@ -120,8 +120,7 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
     private boolean isProjected(Path field) {
         LOGGER.debug("Checking if {} is projected",field);
         for(Projection p:projections) {
-            Boolean x=isRequired(field,p,Path.EMPTY);
-            if(x!=null&&x)
+            if(p.isRequired(field))
                 return true;
         }
         return false;
@@ -129,171 +128,11 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
 
     private boolean isQueried(Path field) {
         LOGGER.debug("Checking if {} is queried",field);
-        for(QueryExpression q:queries)
-            if(isRequired(field,q,Path.EMPTY))
-                return true;
-        return false;
-    }
-
-    private boolean isRequired(Path field,QueryExpression q,Path ctx) {
-        if (q instanceof ValueComparisonExpression) {
-            return isFieldQueried(field,(ValueComparisonExpression)q,ctx);
-        } else if (q instanceof FieldComparisonExpression) {
-            return isFieldQueried(field,(FieldComparisonExpression)q,ctx);
-        } else if (q instanceof RegexMatchExpression) {
-            return isFieldQueried(field,(RegexMatchExpression)q,ctx);
-        } else if (q instanceof NaryRelationalExpression) {
-            return isFieldQueried(field,(NaryRelationalExpression)q,ctx);
-        } else if (q instanceof UnaryLogicalExpression) {
-            return isFieldQueried(field,(UnaryLogicalExpression)q,ctx);
-        } else if (q instanceof NaryLogicalExpression) {
-            return isFieldQueried(field,(NaryLogicalExpression)q,ctx);
-        } else if (q instanceof ArrayContainsExpression) {
-            return isFieldQueried(field,(ArrayContainsExpression)q,ctx);
-        } else if (q instanceof ArrayMatchExpression) {
-            return isFieldQueried(field,(ArrayMatchExpression)q,ctx);
-        }
-        return false;
-    }
-
-    private Boolean isRequired(Path field,Projection p,Path ctx) {
-        Path mfield=toMask(field);
-        if(p instanceof FieldProjection) {
-            return isFieldProjected(mfield,(FieldProjection)p,ctx);
-        } else if(p instanceof ArrayQueryMatchProjection) {
-            return isFieldProjected(mfield,(ArrayQueryMatchProjection)p,ctx);
-        } else if(p instanceof ArrayRangeProjection) {
-            return isFieldProjected(mfield,(ArrayRangeProjection)p,ctx);
-        } else if(p instanceof ProjectionList) {
-            return isFieldProjected(mfield,(ProjectionList)p,ctx);
-        }
-        return null;
-    }
-
-    private Boolean isFieldProjected(Path field,ArrayQueryMatchProjection p,Path context) {
-        Path absField=new Path(context,toMask(p.getField()));
-        LOGGER.debug("Checking if array query match projection on {} projects {}",absField,field);
-        Projection.Inclusion inc=Projection.isFieldIncluded(field,absField,p.isInclude(),false);
-        if(inc==Projection.Inclusion.undecided) {
-            LOGGER.debug("No match, checking if query requires the field");
-            return isRequired(field,p.getMatch(),new Path(absField,Path.ANYPATH));
-        } else {
-            LOGGER.debug("array query match projection on {} projects {}: {}",absField,field,inc);
-            switch(inc) {
-            case explicit_inclusion: return Boolean.TRUE;
-            case explicit_exclusion: return Boolean.FALSE;
-            default: return null;
-            }
-        }
-    }
-
-    private Boolean isFieldProjected(Path field,ArrayRangeProjection p,Path context) {
-        Path absField=new Path(context,toMask(p.getField()));
-        LOGGER.debug("Checking if array range projection on {} projects {}",absField,field);
-        Projection.Inclusion inc=Projection.isFieldIncluded(field,absField,p.isInclude(),false);
-        LOGGER.debug("array range projection on {} projects {}: {}",absField,field,inc);
-        switch(inc) {
-        case explicit_inclusion: return Boolean.TRUE;
-        case explicit_exclusion: return Boolean.FALSE;
-        default: return null;
-        }
-    }
-
-    private Boolean isFieldProjected(Path field,ProjectionList p,Path context) {
-        LOGGER.debug("Checking if a projection list projects {}",field);
-        Boolean lastResult=null;
-        for(Projection x:p.getItems()) {
-            Boolean ret=isRequired(field,x,context);
-            if(ret!=null) {
-                lastResult=ret;
-            } 
-        }
-        LOGGER.debug("Projection list projects {}: {}",field,lastResult);
-        return lastResult;
-    }
-
-    private Boolean isFieldProjected(Path field,FieldProjection p,Path context) {
-        Path absField=new Path(context,toMask(p.getField()));
-        LOGGER.debug("Checking if field projection on {} projects {}",absField,field);
-        Projection.Inclusion inc=Projection.isFieldIncluded(field,absField,p.isInclude(),false);
-        LOGGER.debug("Field projection on {} projects {}: {}",absField,field,inc);
-        switch(inc) {
-        case explicit_inclusion: return Boolean.TRUE;
-        case explicit_exclusion: return Boolean.FALSE;
-        default: return null;
-        }
-    }
-
-    private boolean isFieldQueried(Path field,Path qField,Path context) {
-        Path absField=new Path(context,qField);
-        if(field.matchingPrefix(absField)) {
-            LOGGER.debug("Field {} is queried",absField);
-            return true; 
-        } else {
-            return false;
-        }
-    }
-
-    private boolean isFieldQueried(Path field,ValueComparisonExpression q,Path context) {
-        LOGGER.debug("Checking if field {} is queried by value comparison {}",field,q);
-        return isFieldQueried(field,q.getField(),context);
-    }
-
-    private boolean isFieldQueried(Path field,FieldComparisonExpression q,Path context) {
-        LOGGER.debug("Checking if field {} is queried by field comparison {}",field,q);
-        return isFieldQueried(field,q.getField(),context)||
-            isFieldQueried(field,q.getRfield(),context);
-    }
-    
-    private boolean isFieldQueried(Path field,RegexMatchExpression q,Path context) {
-        LOGGER.debug("Checking if field {} is queried by regex {}",field,q);
-        return isFieldQueried(field,q.getField(),context);
-    }
-
-    private boolean isFieldQueried(Path field,NaryRelationalExpression q,Path context) {
-        LOGGER.debug("Checking if field {} is queried by expr {}",field,q);
-        return isFieldQueried(field,q.getField(),context);
-    }
-
-    private boolean isFieldQueried(Path field,UnaryLogicalExpression q,Path context) {
-        return isRequired(field,q.getQuery(),context);
-    }
-
-    private boolean isFieldQueried(Path field,NaryLogicalExpression q,Path context) {
-        for(QueryExpression x:q.getQueries()) {
-            if(isRequired(field,x,context))
+        for(QueryExpression q:queries) {
+            if(q.isRequired(field))
                 return true;
         }
         return false;
     }
 
-    private boolean isFieldQueried(Path field,ArrayContainsExpression q,Path context) {
-        LOGGER.debug("Checking if field {} is queried by array expression {}",field,q);
-        return isFieldQueried(field,q.getArray(),context);
-    }
-
-    private boolean isFieldQueried(Path field,ArrayMatchExpression q,Path context) {
-        LOGGER.debug("Checking if field {} is queried by array expression {}",field,q);
-        if(isFieldQueried(field,q.getArray(),context)) {
-            return true;
-        } else {
-            return isRequired(field,q.getElemMatch(),new Path(new Path(context,field),Path.ANYPATH));
-        }
-    }
-
-    /**
-     * If a path includes array indexes, change the indexes into ANY
-     */
-    private static Path toMask(Path p) {
-        int n=p.numSegments();
-        MutablePath mp=null;
-        for(int i=0;i<n;i++)
-            if(p.isIndex(i)) {
-                if(mp==null) {
-                    mp=p.mutableCopy();
-                }
-                mp.set(i,Path.ANY);
-            }
-        return mp==null?p:mp.immutableCopy();
-    }
 }

@@ -193,6 +193,7 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")).
                              getChildMetadata(new Path("r.*.r.*.r.*.b")));
     }
+
     @Test
     public void only_3r_in_r_proj_nomask() throws Exception {
         EntityMetadata md=getMd("composite/R.json");
