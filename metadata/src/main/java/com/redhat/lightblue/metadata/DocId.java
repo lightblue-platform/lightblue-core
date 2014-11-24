@@ -23,13 +23,20 @@ import java.io.Serializable;
 /**
  * This class is used to represent document identities. It
  * encapsulates an array of values that represent the values of the
- * identity fields of a document, and the document type.
+ * identity fields of a document and the objectType.
  */
 public final class DocId implements Serializable {
 
     private static final long serialVersionUID=1l;
-    
+
+    /**
+     * Array of all identity fields AND the objectType field.
+     */
     private final Object[] values;
+
+    /**
+     * Index to the objectType field in the <code>values</code> array.
+     */
     private final int objectTypeIx;
 
     public DocId(Object[] values,int objectTypeIx) {

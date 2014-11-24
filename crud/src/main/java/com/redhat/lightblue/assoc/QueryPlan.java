@@ -172,7 +172,7 @@ public class QueryPlan implements Serializable {
         LOGGER.debug("Traverse {}",root.getName());
         int from=md.size();
         md.add(root);
-        Set<Path> children=root.getChildNames();
+        Set<Path> children=root.getChildPaths();
         LOGGER.debug("Children:{}",children);
         for(Path p:children) {
             CompositeMetadata child=root.getChildMetadata(p);

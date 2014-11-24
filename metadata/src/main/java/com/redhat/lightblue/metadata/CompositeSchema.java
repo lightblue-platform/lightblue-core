@@ -30,7 +30,7 @@ public class CompositeSchema extends EntitySchema {
 
     /**
      * Constructs a composite schema instance as a shallow copy of the
-     * root schema, except that the fields are empty
+     * root schema, except that the fields are empty.
      */
     private CompositeSchema(EntitySchema root) {
         super(root);

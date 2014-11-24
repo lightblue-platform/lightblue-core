@@ -128,7 +128,7 @@ public class CompositeMetadata extends EntityMetadata {
 
     /**
      * If this composite metadata is the root of an entity metadata
-     * tree, returns null. Otherwiase, returns the metadata containing
+     * tree, returns null. Otherwise, returns the metadata containing
      * this metadata.
      */
     public CompositeMetadata getParent() {
@@ -159,7 +159,7 @@ public class CompositeMetadata extends EntityMetadata {
     /**
      * Returns the absolute paths of the direct children of this metadata
      */
-    public Set<Path> getChildNames() {
+    public Set<Path> getChildPaths() {
         return children.keySet();
     }
 
@@ -359,7 +359,7 @@ public class CompositeMetadata extends EntityMetadata {
      * relative field references to absolute field references
      */
     private static void rewriteAssociationQueries(CompositeMetadata root) {
-        Set<Path> children=root.getChildNames();
+        Set<Path> children=root.getChildPaths();
         for(Path child:children) {
             ResolvedReferenceField rr=root.getChildReference(child);
             QueryExpression aq=rr.getReferenceField().getQuery();
