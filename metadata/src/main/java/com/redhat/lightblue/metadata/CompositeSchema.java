@@ -34,8 +34,9 @@ public class CompositeSchema extends EntitySchema {
      */
     private CompositeSchema(EntitySchema root) {
         super(root);
-        fieldRoot=new RootNode();
-        this.fields=new Fields(fieldRoot);
+        // reset FieldTreeRoot and Fields
+        setFieldTreeRoot(new RootNode());
+        setFields(new Fields(getFieldTreeRoot()));
     }
 
     public static CompositeSchema newSchemaWithEmptyFields(EntitySchema schema) {

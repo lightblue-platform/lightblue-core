@@ -53,9 +53,8 @@ public class EntitySchema implements Serializable {
     //hooks
     private final EntityAccess access;
     private final ArrayList<EntityConstraint> constraints;
-    // We let a subclass reset the fields of this object. 
-    protected Fields fields;
-    protected FieldTreeNode fieldRoot;
+    private Fields fields;
+    private FieldTreeNode fieldRoot;
     private final Map<String, Object> properties;
 
     protected class RootNode implements FieldTreeNode, Serializable {
@@ -228,8 +227,16 @@ public class EntitySchema implements Serializable {
         return this.fields;
     }
 
+    protected void setFields(Fields fields) {
+        this.fields = fields;
+    }
+
     public FieldTreeNode getFieldTreeRoot() {
         return fieldRoot;
+    }
+
+    protected void setFieldTreeRoot(FieldTreeNode fieldRoot) {
+        this.fieldRoot = fieldRoot;
     }
 
     public FieldCursor getFieldCursor() {

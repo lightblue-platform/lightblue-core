@@ -243,7 +243,7 @@ public class CompositeMetadata extends EntityMetadata {
                     for(int i=n-1;i>=0;i--)
                         mp.push(list.get(i));
                     return mp.immutableCopy();
-                } else if(trc!=getEntitySchema().fieldRoot) {
+                } else if(trc!=getEntitySchema().getFieldTreeRoot()) {
                     list.add(trc.getName());
                 }
                 trc=trc.getParent();
