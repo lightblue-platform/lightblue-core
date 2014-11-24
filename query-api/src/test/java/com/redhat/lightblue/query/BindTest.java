@@ -68,7 +68,7 @@ public class BindTest {
     }
 
     @Test
-    public void bindErr() throws Exception {
+    public void bindErr_value_comparison() throws Exception {
         Set<Path> paths = new HashSet<>();
         List<FieldBinding> bindingInfo = new ArrayList<>();
         paths.add(new Path("x"));
@@ -78,8 +78,12 @@ public class BindTest {
         } catch (Error e) {
         }
 
-        paths = new HashSet<>();
-        bindingInfo = new ArrayList<>();
+    }
+
+    @Test
+    public void bindErr_not_value_comparison() throws Exception {
+        Set<Path> paths = new HashSet<>();
+        List<FieldBinding> bindingInfo = new ArrayList<>();
         paths.add(new Path("x"));
         try {
             getq("{'$not':{'field':'x','op':'=','rvalue':'value'}}").bind(bindingInfo, paths);
@@ -87,11 +91,16 @@ public class BindTest {
         } catch (Error e) {
         }
 
-        paths = new HashSet<>();
-        bindingInfo = new ArrayList<>();
+    }
+
+    @Test
+    public void bindErr_field_comparison() throws Exception {
+        Set<Path> paths = new HashSet<>();
+        List<FieldBinding> bindingInfo = new ArrayList<>();
         paths.add(new Path("x"));
+        paths.add(new Path("y"));
         try {
-            getq("{'field':'x','op':'=','rvalue':'y'}").bind(bindingInfo, paths);
+            getq("{'field':'x','op':'=','rfield':'y'}").bind(bindingInfo, paths);
             Assert.fail();
         } catch (Error e) {
         }
@@ -114,9 +123,10 @@ public class BindTest {
         Assert.assertTrue(bindingInfo.get(0).getBoundQuery() == newq);
         Assert.assertEquals("x", bindingInfo.get(0).getField().toString());
 
-        bindingInfo.get(0).getValue().setValue("blah");
-        Assert.assertEquals("blah", bindingInfo.get(0).getValue().getValue());
-        Assert.assertEquals("blah", ((ValueComparisonExpression) newq).getRvalue().getValue());
+        String newValue = "blah";
+        bindingInfo.get(0).getValue().setValue(newValue);
+        Assert.assertEquals(newValue, bindingInfo.get(0).getValue().getValue());
+        Assert.assertEquals(newValue, ((ValueComparisonExpression) newq).getRvalue().getValue());
     }
 
     @Test
@@ -137,30 +147,59 @@ public class BindTest {
         Assert.assertTrue(bindingInfo.get(0).getBoundQuery() == newq.getElemMatch());
         Assert.assertEquals("a.*.x", bindingInfo.get(0).getField().toString());
 
-        bindingInfo.get(0).getValue().setValue("blah");
-        Assert.assertEquals("blah", ((ValueComparisonExpression) newq.getElemMatch()).getRvalue().getValue());
+        String newValue = "blah";
+        bindingInfo.get(0).getValue().setValue(newValue);
+        Assert.assertEquals(newValue, ((ValueComparisonExpression) newq.getElemMatch()).getRvalue().getValue());
     }
 
     @Test
-    public void op_inversion() throws Exception {
+    public void op_inversion_gt() throws Exception {
         Set<Path> paths = new HashSet<>();
         List<FieldBinding> bindingInfo = new ArrayList<>();
         paths.add(new Path("a.*.x"));
 
         ArrayMatchExpression q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'>','rfield':'y'}}");
         ArrayMatchExpression newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+        Assert.assertEquals("y", ((ValueComparisonExpression) newq.getElemMatch()).getField().toString());
         Assert.assertEquals(BinaryComparisonOperator._lt, ((ValueComparisonExpression) newq.getElemMatch()).getOp());
 
-        q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}");
-        newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+    }
+
+    @Test
+    public void op_inversion_gte() throws Exception {
+        Set<Path> paths = new HashSet<>();
+        List<FieldBinding> bindingInfo = new ArrayList<>();
+        paths.add(new Path("a.*.x"));
+
+        ArrayMatchExpression q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}");
+        ArrayMatchExpression newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+        Assert.assertEquals("y", ((ValueComparisonExpression) newq.getElemMatch()).getField().toString());
         Assert.assertEquals(BinaryComparisonOperator._lte, ((ValueComparisonExpression) newq.getElemMatch()).getOp());
 
-        q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'<','rfield':'y'}}");
-        newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+    }
+
+    @Test
+    public void op_inversion_lt() throws Exception {
+        Set<Path> paths = new HashSet<>();
+        List<FieldBinding> bindingInfo = new ArrayList<>();
+        paths.add(new Path("a.*.x"));
+
+        ArrayMatchExpression q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'<','rfield':'y'}}");
+        ArrayMatchExpression newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+        Assert.assertEquals("y", ((ValueComparisonExpression) newq.getElemMatch()).getField().toString());
         Assert.assertEquals(BinaryComparisonOperator._gt, ((ValueComparisonExpression) newq.getElemMatch()).getOp());
 
-        q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'<=','rfield':'y'}}");
-        newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+    }
+
+    @Test
+    public void op_inversion_lte() throws Exception {
+        Set<Path> paths = new HashSet<>();
+        List<FieldBinding> bindingInfo = new ArrayList<>();
+        paths.add(new Path("a.*.x"));
+
+        ArrayMatchExpression q = (ArrayMatchExpression) getq("{'array':'a','elemMatch':{'field':'x','op':'<=','rfield':'y'}}");
+        ArrayMatchExpression newq = (ArrayMatchExpression) q.bind(bindingInfo, paths);
+        Assert.assertEquals("y", ((ValueComparisonExpression) newq.getElemMatch()).getField().toString());
         Assert.assertEquals(BinaryComparisonOperator._gte, ((ValueComparisonExpression) newq.getElemMatch()).getOp());
     }
 }
