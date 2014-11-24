@@ -21,6 +21,7 @@ package com.redhat.lightblue.query;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RelativeRewriteIteratorTest {
@@ -30,20 +31,20 @@ public class RelativeRewriteIteratorTest {
     }
 
     @Test
-    public void testValueRewrite() throws Exception {
+    public void rewrite_value_comparison() throws Exception {
         QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rvalue':100}"));
         Assert.assertEquals("e.f.g", ((ValueComparisonExpression) q).getField().toString());
     }
 
     @Test
-    public void testFieldRewrite() throws Exception {
+    public void rewrite_field_comparison() throws Exception {
         QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rfield':'a.b.c.x.y.z.w'}"));
         Assert.assertEquals("e.f.g", ((FieldComparisonExpression) q).getField().toString());
         Assert.assertEquals("x.y.z.w", ((FieldComparisonExpression) q).getRfield().toString());
     }
 
     @Test
-    public void testCantRewrite() throws Exception {
+    public void rewrite_failure() throws Exception {
         try {
             QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'x.y.z','op':'=','rvalue':100}"));
             Assert.fail();
@@ -52,9 +53,30 @@ public class RelativeRewriteIteratorTest {
     }
 
     @Test
-    public void testNonEmptyContextIn_toRelative() throws Exception {
-        QueryExpression q=new RelativeRewriteIterator(new Path("a")).iterate(getq("{'array':'a.b', 'elemMatch':{'field':'c.d','op':'=','rvalue':1}}"));
-        Assert.assertEquals("b",((ArrayMatchExpression)q).getArray().toString());
-        Assert.assertEquals("c.d",((ValueComparisonExpression) ((ArrayMatchExpression)q).getElemMatch()).getField().toString());
+    public void rewrite_array_elemMatch_value_comparison_simple() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a")).iterate(getq("{'array':'a.b', 'elemMatch':{'field':'c.d','op':'=','rvalue':1}}"));
+        Assert.assertEquals("b", ((ArrayMatchExpression) q).getArray().toString());
+        Assert.assertEquals("c.d", ((ValueComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getField().toString());
+    }
+
+    @Test
+    public void rewrite_array_elemMatch_field_comparison_simple() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a")).iterate(getq("{'array':'a.b', 'elemMatch':{'field':'c.d','op':'=','rfield':'c.e'}}"));
+        Assert.assertEquals("b", ((ArrayMatchExpression) q).getArray().toString());
+        Assert.assertEquals("c.d", ((FieldComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getField().toString());
+        Assert.assertEquals("c.e", ((FieldComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getRfield().toString());
+    }
+
+    /**
+     * TODO remove @Ignore once relative paths are rewritten (lightblue-platform/lightblue-core#220)
+     * @throws Exception
+     */
+    @Ignore
+    @Test
+    public void rewrite_array_elemMatch_field_comparison_parent() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b")).iterate(getq("{'array':'a.b', 'elemMatch':{'field':'c.d','op':'=','rfield':'$parent.b.c.e'}}"));
+        Assert.assertEquals("", ((ArrayMatchExpression) q).getArray().toString());
+        Assert.assertEquals("c.d", ((FieldComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getField().toString());
+        Assert.assertEquals("c.e", ((FieldComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getRfield().toString());
     }
 }
