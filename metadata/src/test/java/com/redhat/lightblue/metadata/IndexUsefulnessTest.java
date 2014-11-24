@@ -49,47 +49,55 @@ public class IndexUsefulnessTest {
 
         return entityMetadata;
     }
+
     @Test
     public void simpleIndexTest() {
-        EntityMetadata md=getMD1();
+        EntityMetadata md = getMD1();
         // Add indexes for some fields
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f1"),false)));
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f2"),false)));
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f3"),false)));
+        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f1"), false)));
+        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f2"), false)));
+        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f3"), false)));
 
         // Make sure usefulnes for single field works
         Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f1")));
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f2")));
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f3")));
-        Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(1).isUseful(new Path("f2")));
+
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(1).isUseful(new Path("f1")));
+        Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(1).isUseful(new Path("f2")));
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(1).isUseful(new Path("f3")));
-        Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(2).isUseful(new Path("f3")));
+
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(2).isUseful(new Path("f1")));
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(2).isUseful(new Path("f2")));
+        Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(2).isUseful(new Path("f3")));
     }
 
-   @Test
+    @Test
     public void compositeIndexTest() {
-        EntityMetadata md=getMD1();
+        EntityMetadata md = getMD1();
         // Add indexes for some fields
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f1"),false),
-                                                      new SortKey(new Path("f3"),true),
-                                                      new SortKey(new Path("f5"),false)));
+        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f1"), false),
+                new SortKey(new Path("f3"), true),
+                new SortKey(new Path("f5"), false)));
 
+        // should be useful for f1, f3, and f5
         Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f1")));
         Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f2")));
+        Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f3")));
+        Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f4")));
+        Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f5")));
+        Assert.assertFalse(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f6")));
 
-        List<Path> fieldList=new ArrayList();
+        List<Path> fieldList = new ArrayList();
         fieldList.add(new Path("f1"));
         fieldList.add(new Path("f2"));
         fieldList.add(new Path("f3"));
-        Map<Index,Set<Path>> ix=md.getEntityInfo().getIndexes().getUsefulIndexes(fieldList);
-        Assert.assertEquals(1,ix.size());
-        Set<Path> paths=ix.get(md.getEntityInfo().getIndexes().getIndexes().get(0));
-        Assert.assertEquals(2,paths.size());
-        Iterator<Path> itr=paths.iterator();
-        Assert.assertEquals("f1",itr.next().toString());
-        Assert.assertEquals("f3",itr.next().toString());
-   }
+        Map<Index, Set<Path>> ix = md.getEntityInfo().getIndexes().getUsefulIndexes(fieldList);
+        Assert.assertEquals(1, ix.size());
+        Set<Path> paths = ix.get(md.getEntityInfo().getIndexes().getIndexes().get(0));
+        Assert.assertEquals(2, paths.size());
+        Iterator<Path> itr = paths.iterator();
+        Assert.assertEquals("f1", itr.next().toString());
+        Assert.assertEquals("f3", itr.next().toString());
+    }
 }

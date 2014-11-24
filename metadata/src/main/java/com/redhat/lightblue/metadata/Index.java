@@ -125,7 +125,11 @@ public class Index implements Serializable {
      * Returns if this index can be useful to search the given field
      */
     public boolean isUseful(Path field) {
-        return !fields.isEmpty()&&fields.get(0).getField().equals(field);
+        for (SortKey k:fields) {
+            if (k.getField().equals(field)) {
+                return true;
+            }
+        }
+        return false;
     }
-
 }
