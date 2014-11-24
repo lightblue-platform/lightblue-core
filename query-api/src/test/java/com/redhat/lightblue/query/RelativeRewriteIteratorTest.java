@@ -76,6 +76,6 @@ public class RelativeRewriteIteratorTest {
     public void rewrite_array_elemMatch_value_comparison_parent() throws Exception {
         QueryExpression q = new RelativeRewriteIterator(new Path("a")).iterate(getq("{'array':'a.b', 'elemMatch':{'field':'$parent.b.c.d','op':'=','rvalue':1}}"));
         Assert.assertEquals("b", ((ArrayMatchExpression) q).getArray().toString());
-        Assert.assertEquals("c.d", ((FieldComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getField().toString());
+        Assert.assertEquals("c.d", ((ValueComparisonExpression) ((ArrayMatchExpression) q).getElemMatch()).getField().toString());
     }
 }
