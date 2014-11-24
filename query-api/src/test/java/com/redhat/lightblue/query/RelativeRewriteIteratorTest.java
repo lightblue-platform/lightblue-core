@@ -23,7 +23,7 @@ import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RelativeRewriteTest {
+public class RelativeRewriteIteratorTest {
 
     private QueryExpression getq(String s) throws Exception {
         return QueryExpression.fromJson(JsonUtils.json(s.replace('\'', '\"')));
