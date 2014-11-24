@@ -32,32 +32,81 @@ public class FieldInfoTest {
     }
 
     @Test
-    public void dotest() throws Exception {
+    public void test_value_comparison() throws Exception {
         List<FieldInfo> fields = getq("{'field':'x','op':'=','rvalue':'value'}").getQueryFields();
         check(fields, "x", "");
+    }
 
-        fields = getq("{'$not':{'field':'x','op':'=','rvalue':'value'}}").getQueryFields();
+    @Test
+    public void test_not_value_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$not':{'field':'x','op':'=','rvalue':'value'}}").getQueryFields();
         check(fields, "x", "");
+    }
 
-        fields = getq("{'$not':{'field':'x','regex':'value'}}").getQueryFields();
+    @Test
+    public void test_regex_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'field':'x','regex':'value'}").getQueryFields();
         check(fields, "x", "");
+    }
 
-        fields = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rvalue':'value'}]}").getQueryFields();
+    @Test
+    public void test_not_regex_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$not':{'field':'x','regex':'value'}}").getQueryFields();
+        check(fields, "x", "");
+    }
+
+    @Test
+    public void test_field_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'field':'x','op':'=','rfield':'y'}").getQueryFields();
         check(fields, "x", "", "y", "");
+    }
 
-        fields = getq("{'$not':{'array':'x','elemMatch':{'field':'y','op':'=','rvalue':'value'}}}").getQueryFields();
-        check(fields, "x", "", "x.*.y", "x.*");
-
-        fields = getq("{'field':'x','op':'=','rfield':'y'}").getQueryFields();
+    @Test
+    public void test_not_field_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$not': {'field':'x','op':'=','rfield':'y'}}").getQueryFields();
         check(fields, "x", "", "y", "");
+    }
 
-        fields = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rfield':'z'}]}").getQueryFields();
+    @Test
+    public void test_not_regex_and_value_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rvalue':'value'}]}").getQueryFields();
+        check(fields, "x", "", "y", "");
+    }
+
+    @Test
+    public void test_not_regex_and_field_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'y','op':'=','rfield':'z'}]}").getQueryFields();
         check(fields, "x", "", "y", "", "z", "");
+    }
 
-        fields = getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}").getQueryFields();
+    @Test
+    public void test_array_elemMatch_value_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rvalue':'value'}}").getQueryFields();
+        check(fields, "a", "", "a.*.x", "a.*");
+    }
+
+    @Test
+    public void test_not_array_elemMatch_value_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$not':{'array':'a','elemMatch':{'field':'x','op':'=','rvalue':'value'}}}").getQueryFields();
+        check(fields, "a", "", "a.*.x", "a.*");
+    }
+
+    @Test
+    public void test_array_elemMatch_field_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}").getQueryFields();
         check(fields, "a", "", "a.*.x", "a.*", "a.*.y", "a.*");
     }
 
+    @Test
+    public void test_not_array_elemMatch_field_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'$not':{'array':'a','elemMatch':{'field':'x','op':'=','rfield':'y'}}}").getQueryFields();
+        check(fields, "a", "", "a.*.x", "a.*", "a.*.y", "a.*");
+    }
+
+    /**
+     * @param fields the fields to check
+     * @param paths  pairs of paths where first in pair (odd index, i) is the field path and the second (even index, i+1) is the context
+     */
     private void check(List<FieldInfo> fields, String... paths) {
         int n = paths.length / 2;
         Assert.assertEquals(n, fields.size());
