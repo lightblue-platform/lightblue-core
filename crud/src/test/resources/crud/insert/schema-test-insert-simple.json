@@ -1,5 +1,4 @@
 {
-    "insert": {
         "objectType": "some_entity",
         "client": {"id": "1"},
         "execution": {
@@ -15,5 +14,4 @@
             "objectType": "some_entity",
             "login": "nmalik"
         }
-    }
 }

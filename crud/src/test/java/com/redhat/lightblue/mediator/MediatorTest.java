@@ -35,6 +35,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import com.redhat.lightblue.util.JsonDoc;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,12 +112,13 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         }
 
         @Override
-        public void updateEntityInfo(Metadata md, EntityInfo ei) {
+        public MetadataListener getMetadataListener() {
+            return null;
         }
 
         @Override
-        public void newSchema(Metadata md, EntityMetadata emd) {
-        }
+        public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
+
     }
 
     private static final class RestClientIdentification extends ClientIdentification {

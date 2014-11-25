@@ -28,11 +28,14 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.MetadataListener;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
+
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  *
@@ -74,13 +77,11 @@ public class TestCRUDController implements CRUDController {
     }
 
     @Override
-    public void updateEntityInfo(Metadata md, EntityInfo ei) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public MetadataListener getMetadataListener() {
+        return null;
     }
 
     @Override
-    public void newSchema(Metadata md, EntityMetadata emd) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
 
 }

@@ -196,6 +196,15 @@ public class ModifyDocTest {
     }
 
     @Test
+    public void modify_nested_array_node_element_negix() {
+        doc.modify(new Path("arr.0.x"), factory.textNode("test"), true);
+
+        doc.modify(new Path("arr.1.x"), factory.textNode("result"), true);
+
+        Assert.assertEquals("result", doc.get(new Path("arr.-1.x")).textValue());
+    }
+
+    @Test
     public void remove_basic_number_node_at_root() {
         doc.modify(new Path("x"), factory.numberNode(1), true);
 

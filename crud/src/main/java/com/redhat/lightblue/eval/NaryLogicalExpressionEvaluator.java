@@ -53,22 +53,22 @@ public class NaryLogicalExpressionEvaluator extends QueryEvaluator {
         LOGGER.debug("evaluate {}", operator);
         switch (operator) {
             case _and:
+                ret = true;
                 for (QueryEvaluator q : evaluators) {
                     if (!q.evaluate(ctx)) {
                         ret = false;
                         break;
                     }
                 }
-                ret = true;
                 break;
             case _or:
+                ret = false;
                 for (QueryEvaluator q : evaluators) {
                     if (q.evaluate(ctx)) {
                         ret = true;
                         break;
                     }
                 }
-                ret = false;
                 break;
         }
         ctx.setResult(ret);

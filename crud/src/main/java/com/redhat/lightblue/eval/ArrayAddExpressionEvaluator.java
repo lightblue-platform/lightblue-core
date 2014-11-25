@@ -61,15 +61,17 @@ public class ArrayAddExpressionEvaluator extends Updater {
         private final Path refPath;
         private final Type refType;
         private final Value value;
+        private RValueExpression.RValueType rvalueType;
 
-        public RValueData(Path refPath, Type refType, Value value) {
+        public RValueData(Path refPath, Type refType, Value value,RValueExpression.RValueType rvType) {
             this.refPath = refPath;
             this.refType = refType;
             this.value = value;
+            this.rvalueType=rvType;
         }
 
-        public boolean isNull() {
-            return this.refPath == null && this.refType == null && this.value == null;
+        public String toString() {
+            return "refPath:"+refPath+" refType:"+refType+" value:"+value+" rvType:"+rvalueType;
         }
     }
 
@@ -123,7 +125,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
             ArrayElement element = fieldMd.getElement();
             validateArrayElement(element, refMd, rvalue, refPath);
 
-            values.add(new RValueData(refPath, refMd == null ? null : refMd.getType(), rvalue.getValue()));
+            values.add(new RValueData(refPath, refMd == null ? null : refMd.getType(), rvalue.getValue(), rvalue.getType()));
         }
     }
 
@@ -158,7 +160,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             for (RValueData rvalueData : values) {
-                LOGGER.debug("add element to {}", absPath);
+                LOGGER.debug("add element to {} rvalue:{}", absPath,rvalueData);
                 Object newValue = null;
                 Type newValueType = null;
                 JsonNode newValueNode = null;
@@ -173,12 +175,12 @@ public class ArrayAddExpressionEvaluator extends Updater {
                     newValue = rvalueData.value.getValue();
                     newValueNode = fieldMd.getElement().getType().toJson(factory, newValue);
                     newValueType = fieldMd.getElement().getType();
-                } else if (rvalueData.isNull()) {
+                } else if (rvalueData.rvalueType==RValueExpression.RValueType._null) {
                     newValueNode = factory.nullNode();
                 } else {
                     newValueNode = factory.objectNode();
                 }
-                LOGGER.debug("newValueType: " + newValueType);
+                LOGGER.debug("newValueType:{}, newValue:{}, newValueNode:{} ",newValueType, newValue, newValueNode);
 
                 if (insertTo >= 0) {
                     // If we're inserting, make sure we have that many elements
