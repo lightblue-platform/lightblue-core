@@ -49,6 +49,24 @@ public abstract class Field implements FieldTreeNode, Serializable {
         this.type = type;
     }
 
+    /**
+     * Shallow copy data from source to this Field.
+     *
+     * @param source
+     */
+    public void shallowCopyFrom(Field source) {
+        setType(source.getType());
+
+        FieldAccess da=getAccess();
+        FieldAccess sa=source.getAccess();
+        da.getFind().setRoles(sa.getFind());
+        da.getUpdate().setRoles(sa.getUpdate());
+        da.getInsert().setRoles(sa.getInsert());
+        setConstraints(source.getConstraints());
+        getProperties().putAll(source.getProperties());
+    }
+
+
     public String getName() {
         return name;
     }

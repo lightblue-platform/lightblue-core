@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +37,6 @@ import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.RegexMatchExpression;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
 
 /**
  * Composite metedata is a directed tree. The requested entity is at
@@ -220,15 +219,6 @@ public class CompositeMetadata extends EntityMetadata {
     }
 
     /**
-     * Returns the field name for the given absolute field relative to
-     * the entity it is contained in
-     */
-    public Path getEntityRelativeFieldName(Path absField) {
-        FieldTreeNode node=resolve(absField);
-        return getEntityRelativeFieldName(node);
-    }
-
-    /**
      * Returns the field name for the given field node relative to the
      * entity it is contained in
      */
@@ -265,6 +255,15 @@ public class CompositeMetadata extends EntityMetadata {
         return cmd;
     }
 
+    /**
+     *
+     * @param root the root metadata
+     * @param gmd the GetMetadata for resolving metadata
+     * @param entityPath the path to the metadata
+     * @param parentEntity the parent metadata
+     * @param path relative path in processing, if not a recursive call it should be a new empty MutablePath object
+     * @return
+     */
     private static CompositeMetadata buildCompositeMetadata(EntityMetadata root,
                                                             GetMetadata gmd,
                                                             Path entityPath,
@@ -279,6 +278,10 @@ public class CompositeMetadata extends EntityMetadata {
         return cmd;
     }
 
+    /**
+     * QueryIterator implementation that creates new instances of QueryExpression implementations
+     * when the rewritten absolute path is not used in the query already.
+     */
     private static final class AbsRewriteItr extends QueryIterator {
         /**
          * we'll interpret field names with respect to this entity
@@ -291,7 +294,7 @@ public class CompositeMetadata extends EntityMetadata {
         
         @Override
         protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q,Path context) {
-            Path p=rewrite(q.getField());
+            Path p=rewrite(context, q.getField());
             if(!p.equals(q.getField()))
                 return new ValueComparisonExpression(p,q.getOp(),q.getRvalue());
             else
@@ -300,7 +303,7 @@ public class CompositeMetadata extends EntityMetadata {
 
         @Override
         protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q,Path context) {
-            Path p=rewrite(q.getField());
+            Path p=rewrite(context, q.getField());
             if(!p.equals(q.getField()))
                 return new RegexMatchExpression(p,q.getRegex(),
                                                 q.isCaseInsensitive(),
@@ -313,8 +316,8 @@ public class CompositeMetadata extends EntityMetadata {
 
         @Override
         protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q,Path context) {
-            Path left=rewrite(q.getField());
-            Path right=rewrite(q.getRfield());
+            Path left=rewrite(context, q.getField());
+            Path right=rewrite(context, q.getRfield());
             if(!left.equals(q.getField())||!right.equals(q.getRfield()))
                 return new FieldComparisonExpression(left,q.getOp(),right);
             else
@@ -323,7 +326,7 @@ public class CompositeMetadata extends EntityMetadata {
 
         @Override
         protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q,Path context) {
-            Path p=rewrite(q.getArray());
+            Path p=rewrite(context, q.getArray());
             if(!p.equals(q.getArray()))
                 return new ArrayContainsExpression(p,q.getOp(),q.getValues());
             else
@@ -332,15 +335,20 @@ public class CompositeMetadata extends EntityMetadata {
 
         @Override
         protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q,Path context) {
-            Path p=rewrite(q.getArray());
+            Path p=rewrite(context, q.getArray());
             if(!p.equals(q.getArray()))
                 return new ArrayMatchExpression(p,q.getElemMatch());
             else
                 return q;
         }
 
-        private Path rewrite(Path field) {
+        private Path rewrite(Path context, Path field) {
             LOGGER.debug("rewriting {}",field);
+
+            if (context!=null&&!Path.EMPTY.equals(context)) {
+                throw Error.get(MetadataConstants.ERR_INVALID_CONTEXT, "Expected empty path, got: "+context.toString());
+            }
+
             // We interpret field name with respect to the current entity
             FieldTreeNode fieldNode=interpretWRTEntity.resolve(field);
                 
@@ -371,65 +379,87 @@ public class CompositeMetadata extends EntityMetadata {
         }
     }
 
+    /**
+     * Copy fields from source to dest.
+     *
+     * @param dest where to write copied fields
+     * @param source source for fields to copy
+     * @param path relative path in processing
+     * @param parentEntity the parent metadata
+     * @param gmd impl of GetMetadata for finding metadata for a given field
+     */
     private static void copyFields(Fields dest,
                                    Fields source,
                                    MutablePath path,
                                    CompositeMetadata parentEntity,
                                    GetMetadata gmd) {
+        // Iterate over source fields.
+        // If field is simple
+        //      shallow copy SimpleField
+        //      add result to dest
+        // else if field is object
+        //      shallow copy new ObjectField
+        //      recursively call copyFields on the new ObjectField to copy object fields
+        //      add result to dest
+        // else if field is array
+        //      if elements are objects call copyFields on a new ObjectArrayElement
+        //      else create new SimpleArrayElement
+        //      shallow copy to a new ArrayField created with *Element created above
+        //      add result to dest
+        // else (field is a reference)
+        //      resolve ResolvedReferenceField
+        //      if found, add result to dest
+        // copy all properties from source to dest
         for(Iterator<Field> itr=source.getFields();itr.hasNext();) {
-            Field field=itr.next();            
+            Field field=itr.next();
+            path.push(field.getName()); // push even for simple field since it won't matter in that case
             if(field instanceof SimpleField) {
-                SimpleField newField=new SimpleField(field.getName(),field.getType());
-                shallowCopy(newField,field);
+                SimpleField newField = new SimpleField(field.getName(), field.getType());
+                newField.shallowCopyFrom(field);
                 dest.put(newField);
-            } else {
-                path.push(field.getName());
-                if(field instanceof ObjectField) {
-                    ObjectField newField=new ObjectField(field.getName());
-                    shallowCopy(newField,field);
-                    copyFields(newField.getFields(),
-                               ((ObjectField)field).getFields(),
+            } else if(field instanceof ObjectField) {
+                ObjectField newField=new ObjectField(field.getName());
+                newField.shallowCopyFrom(field);
+                copyFields(newField.getFields(),
+                           ((ObjectField)field).getFields(),
+                           path,
+                           parentEntity,
+                           gmd);
+                dest.put(newField);
+            } else if(field instanceof ArrayField) {
+                ArrayElement sourceEl=((ArrayField)field).getElement();
+                ArrayElement newElement;
+                if(sourceEl instanceof ObjectArrayElement) {
+                    path.push(Path.ANY);
+                    // Need to copy an Object array, there is a Fields object in it
+                    newElement=new ObjectArrayElement();
+                    copyFields(((ObjectArrayElement)newElement).getFields(),
+                               ((ObjectArrayElement)sourceEl).getFields(),
                                path,
                                parentEntity,
                                gmd);
-                    dest.put(newField);
-                } else if(field instanceof ArrayField) {
-                    ArrayElement sourceEl=((ArrayField)field).getElement();
-                    ArrayElement newElement;
-                    if(sourceEl instanceof ObjectArrayElement) {
-                        path.push(Path.ANY);
-                        // Need to copy an Object array, there is a Fields object in it
-                        newElement=new ObjectArrayElement();
-                        copyFields(((ObjectArrayElement)newElement).getFields(),
-                                   ((ObjectArrayElement)sourceEl).getFields(),
-                                   path,
-                                   parentEntity,
-                                   gmd);
-                        path.pop();
-                    } else {
-                        newElement=new SimpleArrayElement(((SimpleArrayElement)sourceEl).getType());
-                    }
-                    newElement.getProperties().putAll(sourceEl.getProperties());
-                    ArrayField newField=new ArrayField(field.getName(),newElement);
-                    shallowCopy(newField,field);
-                    dest.put(newField);
+                    path.pop();
                 } else {
-                    // Field is a reference
-                    ReferenceField reference=(ReferenceField)field;
-                    ResolvedReferenceField newField=resolveReference(dest,reference,path,parentEntity,gmd);
-                    if(newField!=null) {
-                        dest.put(newField);
-                    }
+                    newElement=new SimpleArrayElement(((SimpleArrayElement)sourceEl).getType());
                 }
-                path.pop();
+                newElement.getProperties().putAll(sourceEl.getProperties());
+                ArrayField newField=new ArrayField(field.getName(),newElement);
+                newField.shallowCopyFrom(field);
+                dest.put(newField);
+            } else {
+                // Field is a reference
+                ReferenceField reference=(ReferenceField)field;
+                ResolvedReferenceField newField=resolveReference(reference,path,parentEntity,gmd);
+                if(newField!=null) {
+                    dest.put(newField);
+                }
             }
-
+            path.pop();
         }
         dest.getProperties().putAll(source.getProperties());
     }
 
-    private static ResolvedReferenceField resolveReference(Fields dest,
-                                                           ReferenceField source,
+    private static ResolvedReferenceField resolveReference(ReferenceField source,
                                                            MutablePath path,
                                                            CompositeMetadata parentEntity,
                                                            GetMetadata gmd) {
@@ -452,18 +482,6 @@ public class CompositeMetadata extends EntityMetadata {
             return newField;
         } 
         return null;
-    }
-
-    private static void shallowCopy(Field dest,Field source) {
-        dest.setType(source.getType());
-
-        FieldAccess da=dest.getAccess();
-        FieldAccess sa=source.getAccess();
-        da.getFind().setRoles(sa.getFind());
-        da.getUpdate().setRoles(sa.getUpdate());
-        da.getInsert().setRoles(sa.getInsert());
-        dest.setConstraints(source.getConstraints());
-        dest.getProperties().putAll(source.getProperties());
     }
 
     private void toTreeString(int depth,StringBuilder bld) {
