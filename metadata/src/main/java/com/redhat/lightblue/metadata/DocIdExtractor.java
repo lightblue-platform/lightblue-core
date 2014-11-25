@@ -18,22 +18,21 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
+import java.io.Serializable;
+
 /**
- * Convenience class to extract document ids from a
- * document. Construct this class once using the metadata, and then
- * use it for the documents of that metadata to extract DocId
- * ojbects. The extracted DocId objects contain the object type, and
- * all the identity fields.
+ * Convenience class to extract document ids from a document. Construct this
+ * class once using the metadata, and then use it for the documents of that
+ * metadata to extract DocId ojbects. The extracted DocId objects contain the
+ * object type, and all the identity fields.
  */
 public final class DocIdExtractor implements Serializable {
 
-    private static final long serialVersionUID=1l;
-    
+    private static final long serialVersionUID = 1l;
+
     private Path[] identityFields;
     private int objectTypeIx;
 
@@ -45,11 +44,13 @@ public final class DocIdExtractor implements Serializable {
      * Creates a document ID extractfor with the given identity fields
      */
     public DocIdExtractor(Field[] identityFields) {
-        if(identityFields == null||identityFields.length==0)
+        if (identityFields == null || identityFields.length == 0) {
             throw new IllegalArgumentException("Empty identity fields");
-        Path[] f=new Path[identityFields.length];
-        for(int i=0;i<f.length;i++)
-            f[i]=identityFields[i].getFullPath();
+        }
+        Path[] f = new Path[identityFields.length];
+        for (int i = 0; i < f.length; i++) {
+            f[i] = identityFields[i].getFullPath();
+        }
         init(f);
     }
 
@@ -71,31 +72,33 @@ public final class DocIdExtractor implements Serializable {
      * Gets the unique ID of the document
      */
     public DocId getDocId(JsonDoc doc) {
-        Object[] values=new Object[identityFields.length];
-        int i=0;
-        for(Path x:identityFields)
-            values[i++]=doc.get(x);
-        return new DocId(values,objectTypeIx);
+        Object[] values = new Object[identityFields.length];
+        int i = 0;
+        for (Path x : identityFields) {
+            values[i++] = doc.get(x);
+        }
+        return new DocId(values, objectTypeIx);
     }
 
     private void init(Path[] f) {
-        if(f==null||f.length==0)
+        if (f == null || f.length == 0) {
             throw new IllegalArgumentException("Empty identity fields");
-        boolean objectTypePresent=false;
-        for(int i=0;i<f.length;i++) {
-            if(f[i].equals(PredefinedFields.OBJECTTYPE_PATH)) {
-                objectTypePresent=true;
-                objectTypeIx=i;
+        }
+        boolean objectTypePresent = false;
+        for (int i = 0; i < f.length; i++) {
+            if (f[i].equals(PredefinedFields.OBJECTTYPE_PATH)) {
+                objectTypePresent = true;
+                objectTypeIx = i;
                 break;
             }
         }
-        if(objectTypePresent)
-            this.identityFields=f.clone();
-        else {
-            objectTypeIx=f.length;
-            this.identityFields=new Path[f.length+1];
-            System.arraycopy(f,0,this.identityFields,0,f.length);
-            this.identityFields[this.identityFields.length-1]=PredefinedFields.OBJECTTYPE_PATH;
+        if (objectTypePresent) {
+            this.identityFields = f.clone();
+        } else {
+            objectTypeIx = f.length;
+            this.identityFields = new Path[f.length + 1];
+            System.arraycopy(f, 0, this.identityFields, 0, f.length);
+            this.identityFields[this.identityFields.length - 1] = PredefinedFields.OBJECTTYPE_PATH;
         }
     }
 }

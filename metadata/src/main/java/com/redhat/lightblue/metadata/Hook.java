@@ -18,9 +18,9 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
 import com.redhat.lightblue.query.Projection;
+
+import java.io.Serializable;
 
 public class Hook implements Serializable {
     private static final long serialVersionUID = 1l;

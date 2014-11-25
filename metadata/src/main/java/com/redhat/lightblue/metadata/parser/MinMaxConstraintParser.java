@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
 import com.redhat.lightblue.util.Error;
 

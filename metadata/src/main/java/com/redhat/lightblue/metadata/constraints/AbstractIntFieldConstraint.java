@@ -18,9 +18,9 @@
  */
 package com.redhat.lightblue.metadata.constraints;
 
-import java.io.Serializable;
-
 import com.redhat.lightblue.metadata.FieldConstraint;
+
+import java.io.Serializable;
 
 /**
  * Basic field constaint of the form

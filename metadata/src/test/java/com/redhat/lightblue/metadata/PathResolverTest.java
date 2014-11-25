@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Test;
-import org.junit.Assert;
-
-import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Error;
-
-import com.redhat.lightblue.metadata.types.*;
+import com.redhat.lightblue.util.Path;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class PathResolverTest {
 

@@ -18,15 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
+
+import java.io.Serializable;
+import java.util.*;
 
 public abstract class Field implements FieldTreeNode, Serializable {
 
@@ -57,15 +53,14 @@ public abstract class Field implements FieldTreeNode, Serializable {
     public void shallowCopyFrom(Field source) {
         setType(source.getType());
 
-        FieldAccess da=getAccess();
-        FieldAccess sa=source.getAccess();
+        FieldAccess da = getAccess();
+        FieldAccess sa = source.getAccess();
         da.getFind().setRoles(sa.getFind());
         da.getUpdate().setRoles(sa.getUpdate());
         da.getInsert().setRoles(sa.getInsert());
         setConstraints(source.getConstraints());
         getProperties().putAll(source.getProperties());
     }
-
 
     public String getName() {
         return name;
@@ -124,7 +119,6 @@ public abstract class Field implements FieldTreeNode, Serializable {
     public Map<String, Object> getProperties() {
         return properties;
     }
-
 
     public abstract FieldTreeNode resolve(Path p, int level);
 }

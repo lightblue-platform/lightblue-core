@@ -18,10 +18,13 @@
  */
 package com.redhat.lightblue.metadata.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.util.Error;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -29,14 +32,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.util.Error;
+import static org.junit.Assert.*;
 
 public class DateTypeTest {
 

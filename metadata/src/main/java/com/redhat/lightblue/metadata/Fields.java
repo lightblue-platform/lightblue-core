@@ -18,17 +18,13 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class Fields implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Fields.class);

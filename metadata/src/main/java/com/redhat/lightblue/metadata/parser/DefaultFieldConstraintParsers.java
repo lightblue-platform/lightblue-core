@@ -18,17 +18,9 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.util.DefaultResolver;
-
 import com.redhat.lightblue.metadata.FieldConstraint;
-
-import com.redhat.lightblue.metadata.constraints.ArraySizeConstraint;
-import com.redhat.lightblue.metadata.constraints.EnumConstraint;
-import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
-import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
-import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
-import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
-import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
+import com.redhat.lightblue.metadata.constraints.*;
+import com.redhat.lightblue.util.DefaultResolver;
 
 /**
  * import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;

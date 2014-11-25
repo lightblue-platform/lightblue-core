@@ -75,7 +75,6 @@ public class Access implements Serializable {
         dest.addAll(values);
     }
 
-
     /**
      * Retrieves the roles. A copy of the internal storage is returned.
      */

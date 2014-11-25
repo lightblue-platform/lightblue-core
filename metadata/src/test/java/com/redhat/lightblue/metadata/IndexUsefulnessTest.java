@@ -18,22 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.query.SortKey;
+import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.metadata.Index;
-
-import com.redhat.lightblue.query.SortKey;
-
-import com.redhat.lightblue.util.Path;
+import java.util.*;
 
 public class IndexUsefulnessTest {
 

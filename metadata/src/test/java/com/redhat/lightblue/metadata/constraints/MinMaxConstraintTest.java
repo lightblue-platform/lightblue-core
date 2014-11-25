@@ -18,19 +18,12 @@
  */
 package com.redhat.lightblue.metadata.constraints;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import com.redhat.lightblue.metadata.types.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.redhat.lightblue.metadata.types.BigDecimalType;
-import com.redhat.lightblue.metadata.types.BigIntegerType;
-import com.redhat.lightblue.metadata.types.DoubleType;
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
+import static org.junit.Assert.*;
 
 public class MinMaxConstraintTest {
 

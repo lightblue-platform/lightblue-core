@@ -18,9 +18,8 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.redhat.lightblue.util.DefaultResolver;
-
 import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.util.DefaultResolver;
 
 /**
  * Convenience class to register all predefined constraint parsers to

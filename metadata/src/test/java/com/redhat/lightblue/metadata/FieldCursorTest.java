@@ -18,11 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FieldCursorTest {
 
@@ -53,21 +52,21 @@ public class FieldCursorTest {
 
     @Test
     public void sibTest() {
-        EntityMetadata md=getMD1();
-        FieldCursor cursor=md.getFieldCursor();
+        EntityMetadata md = getMD1();
+        FieldCursor cursor = md.getFieldCursor();
         cursor.firstChild();
-        Assert.assertEquals("simpleInteger",cursor.getCurrentPath().toString());
+        Assert.assertEquals("simpleInteger", cursor.getCurrentPath().toString());
         cursor.nextSibling();
         cursor.nextSibling();
-        Assert.assertEquals("obj1",cursor.getCurrentPath().toString());
-        cursor.firstChild();
-        cursor.nextSibling();
-        cursor.nextSibling();
-        Assert.assertEquals("obj1.nested",cursor.getCurrentPath().toString());
+        Assert.assertEquals("obj1", cursor.getCurrentPath().toString());
         cursor.firstChild();
         cursor.nextSibling();
         cursor.nextSibling();
-        Assert.assertEquals("obj1.nested.objArr",cursor.getCurrentPath().toString());
+        Assert.assertEquals("obj1.nested", cursor.getCurrentPath().toString());
+        cursor.firstChild();
+        cursor.nextSibling();
+        cursor.nextSibling();
+        Assert.assertEquals("obj1.nested.objArr", cursor.getCurrentPath().toString());
     }
 
     @Test
