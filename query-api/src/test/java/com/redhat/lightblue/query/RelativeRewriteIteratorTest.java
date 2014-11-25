@@ -68,7 +68,9 @@ public class RelativeRewriteIteratorTest {
     }
 
     /**
-     * TODO remove @Ignore once relative paths are rewritten (lightblue-platform/lightblue-core#220)
+     * TODO remove @Ignore once relative paths are rewritten
+     * (lightblue-platform/lightblue-core#220)
+     *
      * @throws Exception
      */
     @Ignore

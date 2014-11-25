@@ -66,7 +66,7 @@ public class RelativeRewriteIterator extends QueryIterator {
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
         // No need to rewrite elemMatch using relative context, because that is already interpreted relative to the array
-        return new ArrayMatchExpression(toRelative(q.getArray(),context), q.getElemMatch());
+        return new ArrayMatchExpression(toRelative(q.getArray(), context), q.getElemMatch());
     }
 
     private Path toRelative(Path field, Path context) {

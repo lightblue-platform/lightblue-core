@@ -47,7 +47,7 @@ public abstract class Sort extends JsonObject {
      * @param field The field
      */
     public boolean isRequired(Path field) {
-        return isRequired(field,Path.EMPTY);
+        return isRequired(field, Path.EMPTY);
     }
 
     /**
@@ -56,24 +56,26 @@ public abstract class Sort extends JsonObject {
      * @param field The field
      * @param ctx The nested context
      */
-    public boolean isRequired(Path field,Path ctx) {
-        if(this instanceof SortKey) {
-            return isRequired(field,(SortKey)this,ctx);
-        } else if(this instanceof CompositeSortKey) {
-            return isRequired(field,(CompositeSortKey)this,ctx);
+    public boolean isRequired(Path field, Path ctx) {
+        if (this instanceof SortKey) {
+            return isRequired(field, (SortKey) this, ctx);
+        } else if (this instanceof CompositeSortKey) {
+            return isRequired(field, (CompositeSortKey) this, ctx);
         }
         return false;
     }
 
-    private static boolean isRequired(Path field,CompositeSortKey sort,Path ctx) {
-        for(SortKey key:sort.getKeys())
-            if(isRequired(field,key,ctx))
+    private static boolean isRequired(Path field, CompositeSortKey sort, Path ctx) {
+        for (SortKey key : sort.getKeys()) {
+            if (isRequired(field, key, ctx)) {
                 return true;
+            }
+        }
         return false;
     }
 
-    private static boolean isRequired(Path field,SortKey sort,Path ctx) {
-        Path absField=new Path(ctx,field);
+    private static boolean isRequired(Path field, SortKey sort, Path ctx) {
+        Path absField = new Path(ctx, field);
         return sort.getField().matchingPrefix(absField);
     }
 }
