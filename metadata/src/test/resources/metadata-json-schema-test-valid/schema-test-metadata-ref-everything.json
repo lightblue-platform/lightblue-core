@@ -40,7 +40,6 @@
                 "versionValue": "1.0.0",
                 "projection": { "field":"*", "recursive":true, "include":true },
                 "query": {"field":"_id","op":"$eq","rfield":"$parent._id"}
-                }
             }
         }
     }
