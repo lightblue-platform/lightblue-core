@@ -19,7 +19,6 @@
 package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.util.JsonObject;
 
 /**
@@ -29,12 +28,12 @@ import com.redhat.lightblue.util.JsonObject;
  */
 public abstract class ClientIdentification extends JsonObject {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Get the principal identifying the client.
      */
     public abstract String getPrincipal();
-    
+
     /**
      * Return the roles the caller is in.
      */

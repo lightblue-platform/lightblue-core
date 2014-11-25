@@ -272,7 +272,7 @@ public class Response extends JsonObject {
         public ResponseBuilder withDataErrors(JsonNode node) {
             if (node instanceof ArrayNode) {
                 for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
-                     itr.hasNext(); ) {
+                        itr.hasNext();) {
                     dataErrors.add(DataError.fromJson((ObjectNode) itr.next()));
                 }
             }
@@ -282,7 +282,7 @@ public class Response extends JsonObject {
         public ResponseBuilder withErrors(JsonNode node) {
             if (node instanceof ArrayNode) {
                 for (Iterator<JsonNode> itr = ((ArrayNode) node).elements();
-                     itr.hasNext(); ) {
+                        itr.hasNext();) {
                     errors.add(Error.fromJson(itr.next()));
                 }
             }

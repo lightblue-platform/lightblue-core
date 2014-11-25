@@ -18,16 +18,15 @@
  */
 package com.redhat.lightblue;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents errors related to data in a document
