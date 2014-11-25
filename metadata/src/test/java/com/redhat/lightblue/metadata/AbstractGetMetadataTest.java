@@ -18,47 +18,42 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
 
     private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
     public class TestDataStoreParser<T> implements DataStoreParser<T> {
-        
+
         @Override
-            public DataStore parse(String name, MetadataParser<T> p, T node) {
+        public DataStore parse(String name, MetadataParser<T> p, T node) {
             return new DataStore() {
                 public String getBackend() {
                     return "mongo";
                 }
             };
         }
-        
+
         @Override
-            public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
+        public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
         }
-        
+
         @Override
-            public String getDefaultName() {
+        public String getDefaultName() {
             return "mongo";
         }
     }
@@ -77,13 +72,12 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         }
     }
 
-
     public class GMD extends AbstractGetMetadata {
         @Override
         protected EntityMetadata retrieveMetadata(Path injectionField,
                                                   String entityName,
                                                   String version) {
-            return getMd("composite/"+entityName+".json");
+            return getMd("composite/" + entityName + ".json");
         }
     }
 
@@ -104,84 +98,85 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
     }
 
     @Test
-    public void no_proj() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        GMD gmd=new GMD();
-        gmd.add(projection("{'field':'_id','include':1}"));
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
+    public void no_projection_or_query() throws Exception {
+        EntityMetadata md = getMd("composite/A.json");
+        GMD gmd = new GMD();
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, gmd);
 
         System.out.println(a.toTreeString());
         Assert.assertNull(a.getChildMetadata(new Path("b")));
         Assert.assertNull(a.getChildMetadata(new Path("obj1.c")));
     }
 
-
     @Test
-    public void only_b_in_a_q() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        GMD gmd=new GMD();
+    public void query_b_in_A() throws Exception {
+        EntityMetadata md = getMd("composite/A.json");
+        GMD gmd = new GMD();
         gmd.add(query("{'field':'b.0.field1','op':'=','rvalue':'x'}"));
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(a.toTreeString());
         Assert.assertNotNull(a.getChildMetadata(new Path("b")));
         Assert.assertNull(a.getChildMetadata(new Path("obj1.c")));
-
     }
 
     @Test
-    public void b_and_c_in_a_q() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        GMD gmd=new GMD();
+    public void query_b_and_c_in_A() throws Exception {
+        EntityMetadata md = getMd("composite/A.json");
+        GMD gmd = new GMD();
         gmd.add(query("{'field':'b.field1','op':'=','rfield':'obj1.c.0._id'}"));
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(a.toTreeString());
         Assert.assertNotNull(a.getChildMetadata(new Path("b")));
         Assert.assertNotNull(a.getChildMetadata(new Path("obj1.c")));
-
     }
 
-
     @Test
-    public void only_b_in_a_proj() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        GMD gmd=new GMD();
+    public void project_b_in_A() throws Exception {
+        EntityMetadata md = getMd("composite/A.json");
+        GMD gmd = new GMD();
         gmd.add(projection("{'field':'b','include':1}"));
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(a.toTreeString());
         Assert.assertNotNull(a.getChildMetadata(new Path("b")));
         Assert.assertNull(a.getChildMetadata(new Path("obj1.c")));
     }
 
     @Test
-    public void b_and_c_in_a_proj() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        GMD gmd=new GMD();
+    public void project_b_and_c_in_A() throws Exception {
+        EntityMetadata md = getMd("composite/A.json");
+        GMD gmd = new GMD();
         gmd.add(projection("[{'field':'b','include':1},{'field':'obj1.c','include':1}]"));
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(a.toTreeString());
         Assert.assertNotNull(a.getChildMetadata(new Path("b")));
         Assert.assertNotNull(a.getChildMetadata(new Path("obj1.c")));
     }
 
     @Test
-    public void only_1r_in_r_proj() throws Exception {
-        EntityMetadata md=getMd("composite/R.json");
-        GMD gmd=new GMD();
+    public void project_r1_in_R() throws Exception {
+        EntityMetadata md = getMd("composite/R.json");
+        GMD gmd = new GMD();
         gmd.add(projection("{'field':'r','include':1}"));
-        CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata r = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(r.toTreeString());
         Assert.assertNull(r.getChildMetadata(new Path("b")));
         Assert.assertNull(r.getChildMetadata(new Path("obj1.c")));
         Assert.assertNotNull(r.getChildMetadata(new Path("r")));
         Assert.assertNull(r.getChildMetadata(new Path("r.0.b")));
     }
-   
+
     @Test
-    public void only_3r_in_r_proj() throws Exception {
-        EntityMetadata md=getMd("composite/R.json");
-        GMD gmd=new GMD();
+    public void project_r3_b_in_R() throws Exception {
+        EntityMetadata md = getMd("composite/R.json");
+        GMD gmd = new GMD();
         gmd.add(projection("{'field':'r.*.r.*.r.*.b','include':1}"));
-        CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata r = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(r.toTreeString());
         Assert.assertNull(r.getChildMetadata(new Path("b")));
         Assert.assertNull(r.getChildMetadata(new Path("obj1.c")));
@@ -191,15 +186,16 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         Assert.assertNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.b")));
         Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")));
         Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")).
-                             getChildMetadata(new Path("r.*.r.*.r.*.b")));
+                getChildMetadata(new Path("r.*.r.*.r.*.b")));
     }
 
     @Test
-    public void only_3r_in_r_proj_nomask() throws Exception {
-        EntityMetadata md=getMd("composite/R.json");
-        GMD gmd=new GMD();
+    public void project_r3_b_in_R_nomask() throws Exception {
+        EntityMetadata md = getMd("composite/R.json");
+        GMD gmd = new GMD();
         gmd.add(projection("{'field':'r.1.r.0.r.2.b','include':1}"));
-        CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,gmd);
+        CompositeMetadata r = CompositeMetadata.buildCompositeMetadata(md, gmd);
+
         System.out.println(r.toTreeString());
         Assert.assertNull(r.getChildMetadata(new Path("b")));
         Assert.assertNull(r.getChildMetadata(new Path("obj1.c")));
@@ -209,7 +205,6 @@ public class AbstractGetMetadataTest extends AbstractJsonNodeTest {
         Assert.assertNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.b")));
         Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")));
         Assert.assertNotNull(r.getChildMetadata(new Path("r")).getChildMetadata(new Path("r.*.r")).getChildMetadata(new Path("r.*.r.*.r")).
-                             getChildMetadata(new Path("r.*.r.*.r.*.b")));
+                getChildMetadata(new Path("r.*.r.*.r.*.b")));
     }
-
 }

@@ -21,20 +21,27 @@ package com.redhat.lightblue.metadata;
 import java.io.Serializable;
 
 /**
- * This class is used to represent document identities. It
- * encapsulates an array of values that represent the values of the
- * identity fields of a document, and the document type.
+ * This class is used to represent document identities. It encapsulates an array
+ * of values that represent the values of the identity fields of a document and
+ * the objectType.
  */
 public final class DocId implements Serializable {
 
-    private static final long serialVersionUID=1l;
-    
+    private static final long serialVersionUID = 1l;
+
+    /**
+     * Array of all identity fields AND the objectType field.
+     */
     private final Object[] values;
+
+    /**
+     * Index to the objectType field in the <code>values</code> array.
+     */
     private final int objectTypeIx;
 
-    public DocId(Object[] values,int objectTypeIx) {
-        this.values=values;
-        this.objectTypeIx=objectTypeIx;
+    public DocId(Object[] values, int objectTypeIx) {
+        this.values = values;
+        this.objectTypeIx = objectTypeIx;
     }
 
     public String getObjectType() {
@@ -43,22 +50,26 @@ public final class DocId implements Serializable {
 
     @Override
     public int hashCode() {
-        int value=1;
-        for(Object x:values)
-            if(x!=null)
-                value*=x.hashCode();
+        int value = 1;
+        for (Object x : values) {
+            if (x != null) {
+                value *= x.hashCode();
+            }
+        }
         return value;
     }
 
     @Override
     public boolean equals(Object x) {
-        if(x instanceof DocId) {
-            DocId d=(DocId)x;
-            if(d.values.length==values.length) {
-                for(int i=0;i<values.length;i++)
-                    if( !(values[i]==null&&d.values[i]==null)&&
-                        !(values[i]!=null&&d.values[i]!=null&&d.values[i].equals(values[i])) )
+        if (x instanceof DocId) {
+            DocId d = (DocId) x;
+            if (d.values.length == values.length) {
+                for (int i = 0; i < values.length; i++) {
+                    if (!(values[i] == null && d.values[i] == null)
+                            && !(values[i] != null && d.values[i] != null && d.values[i].equals(values[i]))) {
                         return false;
+                    }
+                }
                 return true;
             }
         }
@@ -67,10 +78,11 @@ public final class DocId implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder bld=new StringBuilder();
-        for(int i=0;i<values.length;i++) {
-            if(i>0)
+        StringBuilder bld = new StringBuilder();
+        for (int i = 0; i < values.length; i++) {
+            if (i > 0) {
                 bld.append(':');
+            }
             bld.append(values.toString());
         }
         return bld.toString();

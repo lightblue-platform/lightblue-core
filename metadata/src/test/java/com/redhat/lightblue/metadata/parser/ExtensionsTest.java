@@ -18,20 +18,15 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityInfo;
-
+import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-
 import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ExtensionsTest {
 

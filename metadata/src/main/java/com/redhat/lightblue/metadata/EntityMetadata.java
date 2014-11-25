@@ -37,8 +37,8 @@ public class EntityMetadata implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    protected final EntityInfo info;
-    protected final EntitySchema schema;
+    private final EntityInfo info;
+    private final EntitySchema schema;
 
     public EntityMetadata(String name) {
         this(new EntityInfo(name), new EntitySchema(name));
@@ -189,8 +189,9 @@ public class EntityMetadata implements Serializable {
     }
 
     /**
-     * Verifies that the entity info and entity schema as a whole are valid.  For example, are all enum constraints
-     * in entity schema referencing an enum defined in entity info?  Execution is intended to be generic but could be
+     * Verifies that the entity info and entity schema as a whole are valid. For
+     * example, are all enum constraints in entity schema referencing an enum
+     * defined in entity info? Execution is intended to be generic but could be
      * extended if necessary.
      *
      * @throws Error on any validation errors

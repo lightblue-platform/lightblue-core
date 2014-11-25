@@ -18,32 +18,27 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.List;
-import java.util.ArrayList;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.metadata.types.IntegerType;
+import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.metadata.types.UIDType;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import com.redhat.lightblue.metadata.types.UIDType;
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-
-import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
-
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UIDTest {
 

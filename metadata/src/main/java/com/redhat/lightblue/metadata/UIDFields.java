@@ -18,23 +18,19 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.List;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
+import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
+import com.redhat.lightblue.metadata.types.UIDType;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.KeyValueCursor;
+import com.redhat.lightblue.util.MutablePath;
+import com.redhat.lightblue.util.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
-import com.redhat.lightblue.util.JsonNodeCursor;
-import com.redhat.lightblue.util.KeyValueCursor;
-
-import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
-import com.redhat.lightblue.metadata.types.UIDType;
+import java.util.List;
 
 /**
  * Initializes UID fields based on required/not-required status, and whether

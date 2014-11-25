@@ -18,16 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
-
 import com.redhat.lightblue.query.QueryExpression;
-
-import com.redhat.lightblue.metadata.types.ArrayType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +36,11 @@ public class ResolvedReferenceField extends ArrayField {
                                   EntityMetadata originalMetadata,
                                   CompositeMetadata metadata) {
         super(reference.getName());
-        this.reference=reference;
-        this.originalMetadata=originalMetadata;
-        this.metadata=metadata;
+        this.reference = reference;
+        this.originalMetadata = originalMetadata;
+        this.metadata = metadata;
         setElement(ObjectArrayElement.withFields(metadata.getFields()));
-    }        
-
+    }
 
     public ReferenceField getReferenceField() {
         return reference;
@@ -61,30 +51,29 @@ public class ResolvedReferenceField extends ArrayField {
     }
 
     /**
-     * Returns the  metadata for the  referenced entity. This  copy of
-     * metadata isn't attached  to the composite metadata  tree, it is
-     * the  unmodified   metadata  of   the  referenced   entity  with
-     * unresolved references.
+     * Returns the metadata for the referenced entity. This copy of metadata
+     * isn't attached to the composite metadata tree, it is the unmodified
+     * metadata of the referenced entity with unresolved references.
      */
     public EntityMetadata getOriginalMetadata() {
         return originalMetadata;
     }
 
     /**
-     * Returns the query of the reference, reinterpreted based on the
-     * resolved reference. All relative references in the original
-     * query are replaced by absolute field references.
+     * Returns the query of the reference, reinterpreted based on the resolved
+     * reference. All relative references in the original query are replaced by
+     * absolute field references.
      */
     public QueryExpression getAbsQuery() {
         return absQuery;
     }
 
     /**
-     * Sets the query of the reference, reinterpreted based on the
-     * resolved reference. All relative references in the original
-     * query are replaced by absolute field references.
+     * Sets the query of the reference, reinterpreted based on the resolved
+     * reference. All relative references in the original query are replaced by
+     * absolute field references.
      */
     public void setAbsQuery(QueryExpression q) {
-        absQuery=q;
+        absQuery = q;
     }
 }

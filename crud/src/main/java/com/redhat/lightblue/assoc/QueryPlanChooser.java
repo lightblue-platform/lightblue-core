@@ -20,8 +20,6 @@ package com.redhat.lightblue.assoc;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -35,7 +33,6 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.FieldInfo;
 
 import com.redhat.lightblue.assoc.qrew.QueryRewriter;
 
@@ -140,9 +137,9 @@ public class QueryPlanChooser {
      */
     private void iterateReferences(CompositeMetadata root,List<Conjunct> unassignedClauses) {
         LOGGER.debug("Iterating references to collect clauses");
-        Set<Path> childrenNames=root.getChildNames();
-        for(Path childName:childrenNames) {
-            ResolvedReferenceField rrf=root.getChildReference(childName);
+        Set<Path> childPaths=root.getChildPaths();
+        for(Path childPath:childPaths) {
+            ResolvedReferenceField rrf=root.getChildReference(childPath);
             ReferenceField ref=rrf.getReferenceField();
             if(ref.getQuery()!=null) {
                 LOGGER.debug("Association query:{} absQuery:{}",ref.getQuery(),rrf.getAbsQuery());

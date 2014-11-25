@@ -18,43 +18,39 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
-
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class CompositeMetadataTest extends AbstractJsonNodeTest {
 
     private static final JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(true);
 
     public class TestDataStoreParser<T> implements DataStoreParser<T> {
-        
+
         @Override
-            public DataStore parse(String name, MetadataParser<T> p, T node) {
+        public DataStore parse(String name, MetadataParser<T> p, T node) {
             return new DataStore() {
                 public String getBackend() {
                     return "mongo";
                 }
             };
         }
-        
+
         @Override
-            public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
+        public void convert(MetadataParser<T> p, T emptyNode, DataStore object) {
         }
-        
+
         @Override
-            public String getDefaultName() {
+        public String getDefaultName() {
             return "mongo";
         }
     }
@@ -74,7 +70,7 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
                                           String entityName,
                                           String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -86,16 +82,17 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         private final int limit;
 
         public LimitingGMD(int limit) {
-            this.limit=limit;
+            this.limit = limit;
         }
 
         public EntityMetadata getMetadata(Path injectionField,
                                           String entityName,
                                           String version) {
             try {
-                if(injectionField.numSegments()>limit)
+                if (injectionField.numSegments() > limit) {
                     return null;
-                return getMd("composite/"+entityName+".json");
+                }
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -105,125 +102,154 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
     @Test
     public void c_test() throws Exception {
         // C has two children, B and D
-        EntityMetadata md=getMd("composite/C.json");
-        CompositeMetadata c=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
-        System.out.println(c.toTreeString());
-        Assert.assertEquals("",c.getEntityPath().toString());
-        Assert.assertEquals(2,c.getChildNames().size());
-        CompositeMetadata b=c.getChildMetadata(new Path("b"));
-        Assert.assertNotNull(b);
-        CompositeMetadata d=c.getChildMetadata(new Path("obj1.d"));
-        Assert.assertNotNull(d);
-        Assert.assertNull(c.getParent());
-        
-        Assert.assertEquals(0,b.getChildNames().size());
-        Assert.assertEquals(c,b.getParent());
-        Assert.assertEquals("b",b.getEntityPath().toString());
+        EntityMetadata md = getMd("composite/C.json");
+        CompositeMetadata c = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
 
-        Assert.assertEquals(0,d.getChildNames().size());
-        Assert.assertEquals(c,d.getParent());
-        Assert.assertEquals("obj1.d",d.getEntityPath().toString());
+        System.out.println(c.toTreeString());
+
+        // verify C
+        Assert.assertEquals("", c.getEntityPath().toString());
+        Assert.assertEquals(2, c.getChildPaths().size());
+        Assert.assertNull(c.getParent());
+
+        // verify B
+        CompositeMetadata b = c.getChildMetadata(new Path("b"));
+        Assert.assertNotNull(b);
+        Assert.assertEquals(0, b.getChildPaths().size());
+        Assert.assertEquals(c, b.getParent());
+        Assert.assertEquals("b", b.getEntityPath().toString());
+
+        // verify D
+        CompositeMetadata d = c.getChildMetadata(new Path("obj1.d"));
+        Assert.assertNotNull(d);
+        Assert.assertEquals(0, d.getChildPaths().size());
+        Assert.assertEquals(c, d.getParent());
+        Assert.assertEquals("obj1.d", d.getEntityPath().toString());
     }
 
     @Test
     public void d_test() throws Exception {
         // D has no children
-        EntityMetadata md=getMd("composite/D.json");
-        CompositeMetadata d=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        EntityMetadata md = getMd("composite/D.json");
+        CompositeMetadata d = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+
         System.out.println(d.toTreeString());
-        Assert.assertEquals("",d.getEntityPath().toString());
-        Assert.assertEquals(0,d.getChildNames().size());
+        Assert.assertEquals("", d.getEntityPath().toString());
+        Assert.assertEquals(0, d.getChildPaths().size());
     }
 
     @Test
     public void a_test() throws Exception {
-        // A has two children
-        EntityMetadata md=getMd("composite/A.json");
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        // A has two children, B and C.  C has two children, D and B
+        EntityMetadata md = getMd("composite/A.json");
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
 
         System.out.println(a.toTreeString());
-        Assert.assertEquals("",a.getEntityPath().toString());
-        Assert.assertEquals(2,a.getChildNames().size());
+
+        // verify A
+        Assert.assertEquals("", a.getEntityPath().toString());
+        Assert.assertEquals(2, a.getChildPaths().size());
         Assert.assertNull(a.getParent());
-        CompositeMetadata b=a.getChildMetadata(new Path("b"));
+
+        // verify A->B
+        CompositeMetadata b = a.getChildMetadata(new Path("b"));
         Assert.assertNotNull(b);
-        CompositeMetadata c=a.getChildMetadata(new Path("obj1.c"));
+        Assert.assertEquals(0, b.getChildPaths().size());
+        Assert.assertEquals(a, b.getParent());
+        Assert.assertEquals("b", b.getEntityPath().toString());
+
+        // verify A->C
+        CompositeMetadata c = a.getChildMetadata(new Path("obj1.c"));
         Assert.assertNotNull(c);
-        
-        Assert.assertEquals(0,b.getChildNames().size());
-        Assert.assertEquals(a,b.getParent());
-        Assert.assertEquals("b",b.getEntityPath().toString());
+        Assert.assertEquals(2, c.getChildPaths().size());
+        Assert.assertEquals(a, c.getParent());
+        Assert.assertEquals("obj1.c", c.getEntityPath().toString());
 
-        Assert.assertEquals(2,c.getChildNames().size());
-        CompositeMetadata cb=c.getChildMetadata(new Path("obj1.c.*.b"));
-        Assert.assertNotNull(cb);
-        CompositeMetadata cd=c.getChildMetadata(new Path("obj1.c.*.obj1.d"));
+        // verify A->C->D
+        CompositeMetadata cd = c.getChildMetadata(new Path("obj1.c.*.obj1.d"));
         Assert.assertNotNull(cd);
-        Assert.assertEquals("obj1.c.*.obj1.d",cd.getEntityPath().toString());
-        Assert.assertEquals(0,cd.getChildNames().size());
+        Assert.assertEquals(c, cd.getParent());
+        Assert.assertEquals("obj1.c.*.obj1.d", cd.getEntityPath().toString());
+        Assert.assertEquals(0, cd.getChildPaths().size());
 
-        Assert.assertEquals(a,c.getParent());
-        Assert.assertEquals("obj1.c",c.getEntityPath().toString());
-
-        Assert.assertEquals("obj1.c.*.b",cb.getEntityPath().toString());
-        Assert.assertEquals(0,cb.getChildNames().size());
+        // verify A->C->B
+        CompositeMetadata cb = c.getChildMetadata(new Path("obj1.c.*.b"));
+        Assert.assertNotNull(cb);
+        Assert.assertEquals(c, cb.getParent());
+        Assert.assertEquals("obj1.c.*.b", cb.getEntityPath().toString());
+        Assert.assertEquals(0, cb.getChildPaths().size());
     }
-
 
     @Test
     public void r_test() throws Exception {
-        // r has three children, and recursive
-        EntityMetadata md=getMd("composite/R.json");
-        CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,new LimitingGMD(9));
+        // R has three children: B, C, and R (recursive)
+        EntityMetadata md = getMd("composite/R.json");
+        CompositeMetadata r = CompositeMetadata.buildCompositeMetadata(md, new LimitingGMD(9));
 
         System.out.println(r.toTreeString());
 
-        Assert.assertEquals("",r.getEntityPath().toString());
-        Assert.assertEquals(3,r.getChildNames().size());
+        // verify R
+        Assert.assertEquals("", r.getEntityPath().toString());
+        Assert.assertEquals(3, r.getChildPaths().size());
         Assert.assertNull(r.getParent());
 
-        CompositeMetadata b=r.getChildMetadata(new Path("b"));
+        // verify R->B
+        CompositeMetadata b = r.getChildMetadata(new Path("b"));
         Assert.assertNotNull(b);
-        CompositeMetadata c=r.getChildMetadata(new Path("obj1.c"));
-        Assert.assertNotNull(c);
+        Assert.assertEquals(0, b.getChildPaths().size());
+        Assert.assertEquals(r, b.getParent());
+        Assert.assertEquals("b", b.getEntityPath().toString());
 
-        CompositeMetadata rr=r.getChildMetadata(new Path("r"));
+        // verify R->C
+        CompositeMetadata c = r.getChildMetadata(new Path("obj1.c"));
+        Assert.assertNotNull(c);
+        Assert.assertEquals(2, c.getChildPaths().size());
+        Assert.assertEquals(r, c.getParent());
+        Assert.assertEquals("obj1.c", c.getEntityPath().toString());
+
+        // verify R->R
+        CompositeMetadata rr = r.getChildMetadata(new Path("r"));
         Assert.assertNotNull(rr);
+        Assert.assertEquals(r, rr.getParent());
+        Assert.assertEquals(3, r.getChildPaths().size());
+        Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.b")));
+        Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.obj1.c")));
+        Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.r")));
     }
 
     @Test
     public void fields_a() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        EntityMetadata md = getMd("composite/A.json");
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
 
-        Assert.assertEquals(6,a.getEntitySchema().getFields().getNumChildren());
-        ArrayField bfields=(ArrayField)a.getEntitySchema().getFields().getField("b");
-        Assert.assertEquals(4,((ObjectArrayElement)bfields.getElement()).getFields().getNumChildren());
+        Assert.assertEquals(6, a.getEntitySchema().getFields().getNumChildren());
+        ArrayField bfields = (ArrayField) a.getEntitySchema().getFields().getField("b");
+        Assert.assertNotNull(bfields);
+        Assert.assertEquals(4, ((ObjectArrayElement) bfields.getElement()).getFields().getNumChildren());
     }
-
 
     @Test
     public void resolvedRefTest() throws Exception {
-        EntityMetadata md=getMd("composite/R.json");
-        CompositeMetadata r=CompositeMetadata.buildCompositeMetadata(md,new LimitingGMD(9));
+        EntityMetadata md = getMd("composite/R.json");
+        CompositeMetadata r = CompositeMetadata.buildCompositeMetadata(md, new LimitingGMD(9));
 
-        ResolvedReferenceField ref=(ResolvedReferenceField)r.resolve(new Path("obj1.c"));
-        Assert.assertEquals(r.getChildMetadata(new Path("obj1.c")),ref.getReferencedMetadata());
-        
-        ref=(ResolvedReferenceField)r.resolve(new Path("obj1.c.*.b"));
-        Assert.assertEquals(r.getChildMetadata(new Path("obj1.c")).getChildMetadata(new Path("obj1.c.*.b")),ref.getReferencedMetadata());
+        ResolvedReferenceField ref = (ResolvedReferenceField) r.resolve(new Path("obj1.c"));
+        Assert.assertEquals(r.getChildMetadata(new Path("obj1.c")), ref.getReferencedMetadata());
+
+        ref = (ResolvedReferenceField) r.resolve(new Path("obj1.c.*.b"));
+        Assert.assertEquals(r.getChildMetadata(new Path("obj1.c")).getChildMetadata(new Path("obj1.c.*.b")), ref.getReferencedMetadata());
     }
 
     @Test
     public void fieldResolutionTest() throws Exception {
-        EntityMetadata md=getMd("composite/A.json");
-        CompositeMetadata a=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        EntityMetadata md = getMd("composite/A.json");
+        CompositeMetadata a = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
 
-        ResolvedReferenceField ref=(ResolvedReferenceField)a.resolve(new Path("obj1.c"));
+        ResolvedReferenceField ref = (ResolvedReferenceField) a.resolve(new Path("obj1.c"));
         Assert.assertNotNull(ref);
 
-        SimpleField field=(SimpleField)ref.getElement().resolve(new Path("_id"));
-        Assert.assertTrue(field==a.resolve(new Path("obj1.c.*._id")));
-        Assert.assertEquals("obj1.c.*._id",field.getFullPath().toString());
+        SimpleField field = (SimpleField) ref.getElement().resolve(new Path("_id"));
+        Assert.assertTrue(field == a.resolve(new Path("obj1.c.*._id")));
+        Assert.assertEquals("obj1.c.*._id", field.getFullPath().toString());
     }
 }

@@ -18,13 +18,13 @@
  */
 package com.redhat.lightblue.metadata.types;
 
-import static org.junit.Assert.*;
-
+import com.redhat.lightblue.metadata.Type;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.redhat.lightblue.metadata.Type;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DefaultTypesTest {
 

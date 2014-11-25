@@ -18,72 +18,59 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
-import java.util.List;
-import java.util.ArrayList;
-
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.util.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.ArrayQueryMatchProjection;
-import com.redhat.lightblue.query.ArrayRangeProjection;
-import com.redhat.lightblue.query.FieldProjection;
-import com.redhat.lightblue.query.ProjectionList;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.RegexMatchExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
-import com.redhat.lightblue.query.UnaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.ArrayContainsExpression;
-import com.redhat.lightblue.query.ArrayMatchExpression;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Default implementation of CompositeMetadata.GetMetadata interface
- * that limits the metadata retrieval using the query and
- * projections. To extend it to a concrete implementation, override
- * the retrieveMetadata method.
+ * Default implementation of CompositeMetadata.GetMetadata interface that limits
+ * the metadata retrieval using the query and projections. To extend it to a
+ * concrete implementation, override the retrieveMetadata method.
  *
- * This implementation will return metadata for entities
- * that are required to evaluate a set of projections and queries. The
- * expected usage of this class is to initialize it using projections
- * and queries from the request. Once initialized and passed to
- * CompositeMetadata, this class limits the depth of the composite
- * metadata to the minimal tree that includes all entities sufficient
- * to evaluate all projections and queries.
+ * This implementation will return metadata for entities that are required to
+ * evaluate a set of projections and queries. The expected usage of this class
+ * is to initialize it using projections and queries from the request. Once
+ * initialized and passed to CompositeMetadata, this class limits the depth of
+ * the composite metadata to the minimal tree that includes all entities
+ * sufficient to evaluate all projections and queries.
  *
  */
 public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetadata, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGetMetadata.class);
 
-    private final List<Projection> projections=new ArrayList<>();
-    private final List<QueryExpression> queries=new ArrayList<>();
+    private final List<Projection> projections = new ArrayList<>();
+    private final List<QueryExpression> queries = new ArrayList<>();
 
-    public AbstractGetMetadata() {}
+    public AbstractGetMetadata() {
+    }
 
     public AbstractGetMetadata(Projection projection,
                                QueryExpression query) {
-        if(projection!=null)
+        if (projection != null) {
             projections.add(projection);
-        if(query!=null)
+        }
+        if (query != null) {
             queries.add(query);
+        }
     }
 
     public AbstractGetMetadata(List<Projection> projections,
                                List<QueryExpression> queries) {
-        if(projections!=null)
+        if (projections != null) {
             this.projections.addAll(projections);
-        if(queries!=null)
+        }
+        if (queries != null) {
             this.queries.addAll(queries);
+        }
     }
 
     public void add(Projection p) {
@@ -95,42 +82,45 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
     }
 
     /**
-     * This implementation will return the metadata for an entity if
-     * that entity is required by the given projections and queries.
+     * This implementation will return the metadata for an entity if that entity
+     * is required by the given projections and queries.
      */
     @Override
     public EntityMetadata getMetadata(Path injectionField,
                                       String entityName,
                                       String version) {
         // See if injectionField is projected or used in a query
-        if(isProjected(injectionField)||
-           isQueried(injectionField))
-            return retrieveMetadata(injectionField,entityName,version);
+        if (isProjected(injectionField)
+                || isQueried(injectionField)) {
+            return retrieveMetadata(injectionField, entityName, version);
+        }
         return null;
     }
 
     /**
-     * The implementation should retrieve and return the metadata for
-     * the given version of the given entity
+     * The implementation should retrieve and return the metadata for the given
+     * version of the given entity
      */
     protected abstract EntityMetadata retrieveMetadata(Path injectionField,
                                                        String entityName,
                                                        String version);
 
     private boolean isProjected(Path field) {
-        LOGGER.debug("Checking if {} is projected",field);
-        for(Projection p:projections) {
-            if(p.isRequired(field))
+        LOGGER.debug("Checking if {} is projected", field);
+        for (Projection p : projections) {
+            if (p.isRequired(field)) {
                 return true;
+            }
         }
         return false;
     }
 
     private boolean isQueried(Path field) {
-        LOGGER.debug("Checking if {} is queried",field);
-        for(QueryExpression q:queries) {
-            if(q.isRequired(field))
+        LOGGER.debug("Checking if {} is queried", field);
+        for (QueryExpression q : queries) {
+            if (q.isRequired(field)) {
                 return true;
+            }
         }
         return false;
     }

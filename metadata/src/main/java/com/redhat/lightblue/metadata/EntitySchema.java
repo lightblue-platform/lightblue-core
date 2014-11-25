@@ -18,23 +18,15 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.TreeMap;
-
+import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
-
-import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Version specific bits of metadata.
@@ -53,9 +45,8 @@ public class EntitySchema implements Serializable {
     //hooks
     private final EntityAccess access;
     private final ArrayList<EntityConstraint> constraints;
-    // We let a subclass reset the fields of this object. 
-    protected Fields fields;
-    protected FieldTreeNode fieldRoot;
+    private Fields fields;
+    private FieldTreeNode fieldRoot;
     private final Map<String, Object> properties;
 
     protected class RootNode implements FieldTreeNode, Serializable {
@@ -112,25 +103,25 @@ public class EntitySchema implements Serializable {
         this.name = name;
         this.fieldRoot = new RootNode();
         this.fields = new Fields(fieldRoot);
-        this.statusChangeLog=new ArrayList<>();
-        this.access=new EntityAccess();
-        this.constraints=new ArrayList<>();
-        this.properties=new HashMap<>();
+        this.statusChangeLog = new ArrayList<>();
+        this.access = new EntityAccess();
+        this.constraints = new ArrayList<>();
+        this.properties = new HashMap<>();
     }
 
     /**
      * Copy ctor with shallow copy
      */
     protected EntitySchema(EntitySchema source) {
-        this.name=source.name;
-        this.version=source.version;
-        this.status=source.status;
-        this.statusChangeLog=source.statusChangeLog;
-        this.access=source.access;
-        this.constraints=source.constraints;
-        this.fields=source.fields;
-        this.fieldRoot=source.fieldRoot;
-        this.properties=source.properties;
+        this.name = source.name;
+        this.version = source.version;
+        this.status = source.status;
+        this.statusChangeLog = source.statusChangeLog;
+        this.access = source.access;
+        this.constraints = source.constraints;
+        this.fields = source.fields;
+        this.fieldRoot = source.fieldRoot;
+        this.properties = source.properties;
     }
 
     /**
@@ -228,8 +219,16 @@ public class EntitySchema implements Serializable {
         return this.fields;
     }
 
+    protected void setFields(Fields fields) {
+        this.fields = fields;
+    }
+
     public FieldTreeNode getFieldTreeRoot() {
         return fieldRoot;
+    }
+
+    protected void setFieldTreeRoot(FieldTreeNode fieldRoot) {
+        this.fieldRoot = fieldRoot;
     }
 
     public FieldCursor getFieldCursor() {

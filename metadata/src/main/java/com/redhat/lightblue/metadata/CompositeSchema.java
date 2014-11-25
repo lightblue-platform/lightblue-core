@@ -19,23 +19,24 @@
 package com.redhat.lightblue.metadata;
 
 /**
- * A composite schema is an extension of EntitySchema that replaces
- * all reference fields with references entity schema information. It
- * contains a shallow copy of the EntitySchema instance it is created
- * from, except that the field tree uses a deep copy, with shared leaf
- * nodes. That is, all leaf objects of the original field tree are
- * shared with the original schema instance.
+ * A composite schema is an extension of EntitySchema that replaces all
+ * reference fields with references entity schema information. It contains a
+ * shallow copy of the EntitySchema instance it is created from, except that the
+ * field tree uses a deep copy, with shared leaf nodes. That is, all leaf
+ * objects of the original field tree are shared with the original schema
+ * instance.
  */
 public class CompositeSchema extends EntitySchema {
 
     /**
-     * Constructs a composite schema instance as a shallow copy of the
-     * root schema, except that the fields are empty
+     * Constructs a composite schema instance as a shallow copy of the root
+     * schema, except that the fields are empty.
      */
     private CompositeSchema(EntitySchema root) {
         super(root);
-        fieldRoot=new RootNode();
-        this.fields=new Fields(fieldRoot);
+        // reset FieldTreeRoot and Fields
+        setFieldTreeRoot(new RootNode());
+        setFields(new Fields(getFieldTreeRoot()));
     }
 
     public static CompositeSchema newSchemaWithEmptyFields(EntitySchema schema) {

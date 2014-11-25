@@ -18,12 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -35,6 +29,8 @@ import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+
+import java.util.*;
 
 /**
  * Ensures that the predefined fields are included in the metadata.

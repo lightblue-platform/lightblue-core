@@ -18,9 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,6 +28,8 @@ import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class PredefinedFieldsTest {
 

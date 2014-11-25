@@ -18,15 +18,14 @@
  */
 package com.redhat.lightblue.metadata.types;
 
-import java.io.Serializable;
-
-import java.util.UUID;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 public final class UIDType implements Type, Serializable {
 
