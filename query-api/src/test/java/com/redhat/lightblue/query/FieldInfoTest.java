@@ -105,7 +105,8 @@ public class FieldInfoTest {
 
     /**
      * @param fields the fields to check
-     * @param paths  pairs of paths where first in pair (odd index, i) is the field path and the second (even index, i+1) is the context
+     * @param paths pairs of paths where first in pair (odd index, i) is the
+     * field path and the second (even index, i+1) is the context
      */
     private void check(List<FieldInfo> fields, String... paths) {
         int n = paths.length / 2;
