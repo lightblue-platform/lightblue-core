@@ -20,7 +20,6 @@ package com.redhat.lightblue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.JsonObject;
 
 /**
@@ -78,9 +77,9 @@ public abstract class Request extends JsonObject {
      * Copies contents of r to this. Performs a shallow copy
      */
     public void shallowCopyFrom(Request r) {
-        entityVersion=r.entityVersion;
-        client=r.client;
-        execution=r.execution;
+        entityVersion = r.entityVersion;
+        client = r.client;
+        execution = r.execution;
     }
 
     /**
