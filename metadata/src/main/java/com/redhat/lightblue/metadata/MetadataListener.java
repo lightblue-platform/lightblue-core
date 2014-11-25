@@ -19,10 +19,10 @@
 package com.redhat.lightblue.metadata;
 
 /**
- * This is primarily for CRUDController implementations that would
- * like to intercept certain metadata operations. The metadata
- * implementation calls these methods on the CRUDController for that
- * entity before and after operations that modify entity metadata.
+ * This is primarily for CRUDController implementations that would like to
+ * intercept certain metadata operations. The metadata implementation calls
+ * these methods on the CRUDController for that entity before and after
+ * operations that modify entity metadata.
  */
 public interface MetadataListener {
 
@@ -32,7 +32,7 @@ public interface MetadataListener {
      * @param m The metadata implementation
      * @param md The entity metadata
      */
-    void beforeCreateNewSchema(Metadata m,EntityMetadata md);
+    void beforeCreateNewSchema(Metadata m, EntityMetadata md);
 
     /**
      * Called after creating a new schema
@@ -40,28 +40,26 @@ public interface MetadataListener {
      * @param m The metadata implementation
      * @param md The entity metadata
      */
-    void afterCreateNewSchema(Metadata m,EntityMetadata md);
-    
+    void afterCreateNewSchema(Metadata m, EntityMetadata md);
+
     /**
      * Called before entity info is created or updated
      *
      * @param m The metadata implementation
      * @param md The entity info
-     * @param newEntity If <code>true</code>, this is a call to create
-     * a new entity. Otherwise, this is a call to modify an existing
-     * entity.
+     * @param newEntity If <code>true</code>, this is a call to create a new
+     * entity. Otherwise, this is a call to modify an existing entity.
      */
-    void beforeUpdateEntityInfo(Metadata m,EntityInfo ei,boolean newEntity);
+    void beforeUpdateEntityInfo(Metadata m, EntityInfo ei, boolean newEntity);
 
     /**
      * Called after entity info is created or updated
      *
      * @param m The metadata implementation
      * @param md The entity info
-     * @param newEntity If <code>true</code>, this is a call to create
-     * a new entity. Otherwise, this is a call to modify an existing
-     * entity.
+     * @param newEntity If <code>true</code>, this is a call to create a new
+     * entity. Otherwise, this is a call to modify an existing entity.
      */
-    void afterUpdateEntityInfo(Metadata m,EntityInfo ei,boolean newEntity);
+    void afterUpdateEntityInfo(Metadata m, EntityInfo ei, boolean newEntity);
 
 }

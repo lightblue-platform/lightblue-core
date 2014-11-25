@@ -19,6 +19,7 @@
 package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.Response;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -103,13 +104,10 @@ public interface Metadata extends Serializable {
      */
     void removeEntity(String entityName);
 
-
     /**
-     * Return the Map of all Roles configured for authorization. The roles names are
-     * defined in com.redhat.lightblue.metadata.MetadataRoles enum
+     * Return the Map of all Roles configured for authorization. The roles names
+     * are defined in com.redhat.lightblue.metadata.MetadataRoles enum
      */
-    Map<String,List<String>> getMappedRoles();
-
-
+    Map<String, List<String>> getMappedRoles();
 
 }

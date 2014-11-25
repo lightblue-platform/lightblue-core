@@ -18,19 +18,16 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.DataStoreParser;
-
+import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class IdentityFieldsTest {
 
@@ -67,7 +64,7 @@ public class IdentityFieldsTest {
 
         Field[] idf = md.getEntitySchema().getIdentityFields();
         Assert.assertEquals(2, idf.length);
-        Assert.assertTrue("_id".equals( idf[0].getName()) || "_id".equals(idf[1].getName()));
+        Assert.assertTrue("_id".equals(idf[0].getName()) || "_id".equals(idf[1].getName()));
         Assert.assertTrue("iduid".equals(idf[0].getName()) || "iduid".equals(idf[1].getName()));
     }
 

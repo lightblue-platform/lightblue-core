@@ -22,10 +22,9 @@ public class CRUDOperationContextTest {
         /*
         String entityName,
                                 Factory f,
-                                Set<String> callerRoles,
                                 List<JsonDoc> docs
         */
-        CRUDOperationContext context =new CRUDOperationContext(Operation.INSERT, "foo", new Factory(), null, null) {
+        CRUDOperationContext context =new CRUDOperationContext(Operation.INSERT, "foo", new Factory(), null) {
             
             @Override
             public EntityMetadata getEntityMetadata(String entityName) {

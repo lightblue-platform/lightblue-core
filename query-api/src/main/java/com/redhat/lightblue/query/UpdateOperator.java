@@ -18,8 +18,8 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Update operators

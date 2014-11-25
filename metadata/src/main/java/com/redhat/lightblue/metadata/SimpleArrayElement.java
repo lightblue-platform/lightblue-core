@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
 
 public class SimpleArrayElement extends ArrayElement {
 
@@ -49,7 +49,7 @@ public class SimpleArrayElement extends ArrayElement {
         if (p.numSegments() == level) {
             return this;
         } else if (p.head(level).equals(Path.PARENT)) {
-            return this.getParent().resolve(p, level + 1);
+            return this.getParent().getParent().resolve(p, level + 1);
         } else {
             throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
         }

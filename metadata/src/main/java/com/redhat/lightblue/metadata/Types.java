@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.redhat.lightblue.metadata.types.DefaultTypes;
 
 public class Types implements TypeResolver {
 

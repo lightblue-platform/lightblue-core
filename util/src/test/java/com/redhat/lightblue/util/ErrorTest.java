@@ -19,13 +19,14 @@
 package com.redhat.lightblue.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
-import java.util.List;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

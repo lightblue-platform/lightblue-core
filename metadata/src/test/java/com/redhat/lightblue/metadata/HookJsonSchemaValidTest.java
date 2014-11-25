@@ -19,20 +19,19 @@
 package com.redhat.lightblue.metadata;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import java.io.IOException;
-
-import org.junit.Test;
-
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class HookJsonSchemaValidTest extends AbstractJsonSchemaTest {

@@ -75,6 +75,15 @@ public abstract class Request extends JsonObject {
     }
 
     /**
+     * Copies contents of r to this. Performs a shallow copy
+     */
+    public void shallowCopyFrom(Request r) {
+        entityVersion=r.entityVersion;
+        client=r.client;
+        execution=r.execution;
+    }
+
+    /**
      * Returns a JSON representation of this
      */
     @Override

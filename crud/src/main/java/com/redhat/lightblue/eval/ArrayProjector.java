@@ -168,6 +168,14 @@ public abstract class ArrayProjector extends Projector {
     }
 
     /**
+     * Any array inclusion/exclusion is an exact match of the projection
+     */
+    @Override
+    public boolean exactMatch() {
+        return true;
+    }
+
+    /**
      * Returns the nested projector if the last projection is a match
      */
     @Override

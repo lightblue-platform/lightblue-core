@@ -50,6 +50,13 @@ public class ListProjector extends Projector {
     }
 
     @Override
+    public boolean exactMatch() {
+        for(Projector p:items)
+            if(p.exactMatch())
+                return true;
+        return false;
+    }
+
     public Projector getDecidingProjector() {
         return decidingProjector;
     }

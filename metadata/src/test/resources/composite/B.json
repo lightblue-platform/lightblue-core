@@ -1,0 +1,33 @@
+{
+  "entityInfo" : {
+    "name": "B",
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "user"
+    }
+  },
+  "schema" : {
+    "name" : "B",
+    "version": {
+        "value": "1.0.0",
+        "changelog": "Test"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access" : {
+        "insert": ["anyone"],
+        "find":["anyone"],
+        "update":["anyone"],
+        "delete":["anyone"]
+    },
+    "fields": {
+        "_id": {"type": "string" },
+        "objectType": {"type": "string"},
+        "field1": { "type": "string" },
+        "field2": { "type": "string" }
+    }
+  }
+}
+

@@ -28,8 +28,7 @@
         }
     },
     "required": [
-        "field",
-        "include"
+        "field"
     ],
     "additionalProperties": false
 }

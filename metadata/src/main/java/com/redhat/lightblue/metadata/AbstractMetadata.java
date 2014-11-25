@@ -18,11 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -31,7 +27,7 @@ import java.util.Map;
 public abstract class AbstractMetadata implements Metadata {
     public static final String SEMVER_REGEX = "^\\d+\\.\\d+\\.\\d+(-.*)?$";
 
-    protected Map<String,List<String>> roleMap;
+    protected Map<String, List<String>> roleMap;
 
     /**
      * Checks that the given version exists, raises an error if it does not.

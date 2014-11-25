@@ -26,12 +26,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
+
 import com.redhat.lightblue.interceptor.InterceptPoint;
+
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.Operation;
@@ -43,9 +46,17 @@ import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
+
+import com.redhat.lightblue.assoc.QueryPlanChooser;
+import com.redhat.lightblue.assoc.QueryPlan;
+import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
+import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
+
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
+import com.redhat.lightblue.metadata.CompositeMetadata;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -56,6 +67,8 @@ import com.redhat.lightblue.util.Path;
  */
 public class Mediator {
 
+    public static final String CTX_QPLAN="meditor:qplan";
+
     public static final String CRUD_MSG_PREFIX = "CRUD controller={}";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Mediator.class);
@@ -64,6 +77,11 @@ public class Mediator {
 
     private final Metadata metadata;
     private final Factory factory;
+
+    /**
+     * Used for testing. Keep the last context here, so unit tests can inspect it
+     */
+    private transient OperationContext lastContext;
 
     public Mediator(Metadata md,
                     Factory factory) {
@@ -85,7 +103,8 @@ public class Mediator {
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.INSERT);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.INSERT);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -151,7 +170,8 @@ public class Mediator {
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.SAVE);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.SAVE);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -217,7 +237,8 @@ public class Mediator {
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.UPDATE);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.UPDATE);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -266,7 +287,8 @@ public class Mediator {
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.DELETE);
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.DELETE);
+            lastContext=ctx;
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -316,23 +338,33 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = OperationContext.getInstance(req, metadata, factory, Operation.FIND);
-            EntityMetadata md = ctx.getTopLevelEntityMetadata();
+            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.FIND);
+            lastContext=ctx;
+            CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 LOGGER.debug("No access");
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
             } else {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND, ctx);
-                CRUDController controller = factory.getCRUDController(md);
-                LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
-                CRUDFindResponse result = controller.find(ctx,
-                        req.getQuery(),
-                        req.getProjection(),
-                        req.getSort(),
-                        req.getFrom(),
-                        req.getTo());
-                ctx.getHookManager().queueMediatorHooks(ctx);
+                Finder finder;
+                if(ctx.isSimple()) {
+                    LOGGER.debug("Simple entity");
+                    finder=new SimpleFindImpl(md,factory);
+                    ctx.setStatus(OperationStatus.COMPLETE);
+                } else {
+                    LOGGER.debug("Composite entity");
+                    QueryPlanChooser qpChooser=new QueryPlanChooser(md,
+                                                                    new BruteForceQueryPlanIterator(),
+                                                                    new IndexedFieldScorer(),
+                                                                    ((FindRequest)ctx.getRequest()).getQuery());
+                    QueryPlan qplan=qpChooser.choose();
+                    ctx.setProperty(CTX_QPLAN,qplan);
+                    finder=new CompositeFindImpl(md,qplan,factory);
+                }
+
+                CRUDFindResponse result=finder.find(ctx,req.getFindRequest());
+
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
                 List<DocCtx> documents = ctx.getDocuments();
@@ -343,8 +375,12 @@ public class Mediator {
                     }
                     response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
                 }
+
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
+                ctx.setStatus(OperationStatus.COMPLETE);
             }
+            ctx.getHookManager().queueMediatorHooks(ctx);
+
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
             if (response.getStatus() != OperationStatus.ERROR) {
@@ -362,8 +398,13 @@ public class Mediator {
         return response;
     }
 
+
+    public OperationContext getLastContext() {
+        return lastContext;
+    }
+
     /**
-     * Runs constraint violation
+     * Runs constraint validation
      */
     private void runBulkConstraintValidation(OperationContext ctx) {
         LOGGER.debug("Bulk constraint validation");

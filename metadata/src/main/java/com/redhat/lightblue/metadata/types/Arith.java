@@ -18,11 +18,11 @@
  */
 package com.redhat.lightblue.metadata.types;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Arithmetical operations using types

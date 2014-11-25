@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.metadata.types.ObjectType;
+import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
 
 public class ObjectField extends Field {
     private static final long serialVersionUID = 1L;

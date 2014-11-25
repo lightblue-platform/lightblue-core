@@ -32,6 +32,7 @@ import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.query.ArrayQueryMatchProjection;
 import com.redhat.lightblue.query.ArrayRangeProjection;
 import com.redhat.lightblue.query.FieldProjection;
@@ -42,9 +43,24 @@ import com.redhat.lightblue.util.JsonNodeCursor;
 import com.redhat.lightblue.util.Path;
 
 /**
- * This class evaluates a Projection.
+ * This class evaluates a Projection. 
  *
+ * This is a stateful class. It retains state from the last execution
+ * that gets overwritten every time project() is called.
  *
+ * This is how a document is projected: all the elements in the
+ * document is traversed in a depth first manner. For each field, the
+ * projection is evaluated.  If the projection evaluated to
+ * <code>true</code>, the field is included, and projection continues
+ * to the subtree under that field. If the projection evaluates to
+ * <code>false</code>, that subtree is excluded. If the projection for
+ * that field cannot be decided, the a warning is logged, and field is
+ * excluded. Array fields can have nested projections to project their
+ * array elements.
+ *
+ * Recursive inclusion projections don't cross entity boundaries
+ * (i.e. references) unless there is an explicit inclusion projection
+ * for the referenced entity, or a field under that entity.
  */
 public abstract class Projector {
 
@@ -59,11 +75,26 @@ public abstract class Projector {
     }
 
     /**
-     * Returns the nested projector for this path *only if* <code>project</code>
-     * returns true. May return null, which means to continue using this
-     * projector.
+     * Returns the nested projector for this path *only if*
+     * <code>project</code> returns true. Nested projector is used to
+     * project array elements. When a nested projector exists,
+     * projection operation should use the nested projector to project
+     * array elements.  May return null, which means to continue using
+     * existing projector (this).
      */
     public abstract Projector getNestedProjector();
+
+    /**
+     * If <code>project</code> returns true or false (not null),
+     * <code>exactMatch</code> returns whether the decision
+     * about the inclusion or exclusion of the current field is given
+     * by an exact match, or by a recursive include/exclude. If
+     * returns false, then the field is a descendant of another field,
+     * and the projection rule is a recursive inclusion of that
+     * descendant. If this call returns true, then there exists an
+     * inclusion or exclusion explicitly for this field.
+     */
+    public abstract boolean exactMatch();
 
     /**
      * Is the projection is an inclusion or an exclusion, then returns the projector
@@ -138,11 +169,20 @@ public abstract class Projector {
                 Boolean result = projector.project(fieldPath, ctx);
                 if (result != null) {
                     if (result) {
-                        LOGGER.debug("Projection includes {}", fieldPath);
+                        LOGGER.debug("Projection includes {} md={}", fieldPath,fieldMd);
                         if (fieldMd instanceof ObjectField) {
                             projectObjectField(fieldNode, ret, fieldPath, cursor, projector, mdContext, contextPath, factory, ctx);
                         } else if (fieldMd instanceof SimpleField) {
                             projectSimpleField(fieldNode, ret, fieldPath);
+                        } else if(fieldMd instanceof ResolvedReferenceField) {
+                            // The decision to recurse into a resolved
+                            // reference is made by the existence of
+                            // an exact matching projection
+                            if(projector.exactMatch()) {
+                                projectArrayField(projector,factory,fieldMd,ret,fieldPath,fieldNode,cursor,ctx);
+                            } else {
+                                LOGGER.debug("Projection excludes {} because it crosses entity boundary with no explicit projection", fieldPath);
+                            }
                         } else if (fieldMd instanceof ArrayField) {
                             projectArrayField(projector, factory, fieldMd, ret, fieldPath, fieldNode, cursor, ctx);
                         }
@@ -161,6 +201,7 @@ public abstract class Projector {
 
     private JsonNode projectObjectField(JsonNode fieldNode, ObjectNode ret, Path fieldPath, JsonNodeCursor cursor, Projector projector, FieldTreeNode mdContext, Path contextPath, JsonNodeFactory factory, QueryEvaluationContext ctx) {
         if (fieldNode instanceof ObjectNode) {
+            LOGGER.debug("projecting object node {}",fieldPath);
             if (cursor.firstChild()) {
                 ObjectNode newNode = projectObject(projector, factory, mdContext, contextPath, cursor, ctx);
                 ret.set(fieldPath.tail(0), newNode);
@@ -176,6 +217,7 @@ public abstract class Projector {
 
     private JsonNode projectSimpleField(JsonNode fieldNode, ObjectNode ret, Path fieldPath) {
         if (fieldNode.isValueNode()) {
+            LOGGER.debug("Projection value node {}",fieldPath);
             ret.set(fieldPath.tail(0), fieldNode);
         } else {
             LOGGER.warn("Expecting value node, found {} for {}", fieldNode.getClass().getName(), fieldPath);
@@ -193,6 +235,7 @@ public abstract class Projector {
                                        QueryEvaluationContext ctx) {
 
         if (fieldNode instanceof ArrayNode) {
+            LOGGER.debug("Projecting array field {}",fieldPath);
             Projector deciding=projector.getDecidingProjector();
             ArrayNode newNode = factory.arrayNode();
             if (cursor.firstChild()) {

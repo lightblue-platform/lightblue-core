@@ -30,27 +30,6 @@
             "update": ["admin"],
             "delete": ["admin"]
         },
-        "constraints": [
-            {
-                "reference": {
-                    "entityName": "other",
-                    "versionValue": "0.1",
-                    "projection": {
-                        "field": "firstname",
-                        "include": true,
-                        "recursive": true
-                    },
-                    "query": {
-                        "field": "login",
-                        "op": "$eq",
-                        "rvalue": "somevalue"
-                    },
-                    "sort": {
-                        "login": "$asc"
-                    }
-                }
-            }
-        ],
         "fields": {
             "name": {
                 "type": "string"

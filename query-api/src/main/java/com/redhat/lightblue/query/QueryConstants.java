@@ -36,6 +36,7 @@ public final class QueryConstants {
     public static final String ERR_INVALID_VALUE = "query-api:InvalidValue";
     public static final String ERR_OPERATOR_LIST_NULL_OR_EMPTY = "query-api:OperatorListNullOfEmpty";
     public static final String ERR_UNSUPPORTED_OPERATOR = "query-api:UnsupportedOperator";
+    public static final String ERR_INVALID_VALUE_BINDING = "query-api:InvalidValueBinding";
 
     private QueryConstants() {
 
