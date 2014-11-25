@@ -35,16 +35,7 @@ import com.redhat.lightblue.util.Resolver;
 public class EmptyEntityConstraintValidators
         implements Resolver<String, EntityConstraintChecker> {
 
-    private final Map<String, EntityConstraintChecker> checkers
-            = new HashMap<>();
-
-    private static final class EmptyChecker implements EntityConstraintChecker {
-        @Override
-        public void checkConstraint(ConstraintValidator validator,
-                                    EntityConstraint constraint,
-                                    JsonDoc doc) {
-        }
-    }
+    private final Map<String, EntityConstraintChecker> checkers = new HashMap<>();
 
     public EmptyEntityConstraintValidators() {
     }

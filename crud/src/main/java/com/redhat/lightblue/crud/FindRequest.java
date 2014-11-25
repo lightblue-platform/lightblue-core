@@ -20,9 +20,7 @@ package com.redhat.lightblue.crud;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.Request;
-
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -108,22 +106,25 @@ public class FindRequest extends Request {
         cfr.setTo(l);
     }
 
-    public CRUDFindRequest getFindRequest() {
+    public CRUDFindRequest getCRUDFindRequest() {
         return cfr;
     }
 
     public void shallowCopyFrom(FindRequest r) {
-        super.shallowCopyFrom(r);
-        cfr.shallowCopyFrom(r.cfr);
+        shallowCopyFrom(r, r.getCRUDFindRequest());
     }
 
+    public void shallowCopyFrom(Request r, CRUDFindRequest c) {
+        super.shallowCopyFrom(r);
+        this.cfr.shallowCopyFrom(c);
+    }
     /**
      * Returns JSON representation of this
      */
     @Override
     public JsonNode toJson() {
         ObjectNode node = (ObjectNode) super.toJson();
-        cfr.toJson(getFactory(),node);
+        getCRUDFindRequest().toJson(getFactory(), node);
         return node;
     }
 
@@ -134,7 +135,7 @@ public class FindRequest extends Request {
     public static FindRequest fromJson(ObjectNode node) {
         FindRequest req = new FindRequest();
         req.parse(node);
-        req.cfr.fromJson(node);
+        req.getCRUDFindRequest().fromJson(node);
         return req;
     }
 }

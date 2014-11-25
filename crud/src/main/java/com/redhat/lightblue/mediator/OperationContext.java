@@ -18,11 +18,9 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -33,7 +31,6 @@ import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
@@ -43,7 +40,6 @@ import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 
@@ -62,8 +58,6 @@ public final class OperationContext extends CRUDOperationContext {
      * @param request The top-level request
      * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
-     * @param roles Roles of the current caller
-     * @param docs The documents in the call. Can be null
      * @param operation The operation in progress
      */
     public OperationContext(Request request,
@@ -89,12 +83,20 @@ public final class OperationContext extends CRUDOperationContext {
                                 request.getEntityVersion().getVersion(),
                                 null,null);
         }
-        setCallerRoles(getCallerRoles(resolver.getMetadataRoles(),request.getClientId()));
+        addCallerRoles(getCallerRoles(resolver.getMetadataRoles(), request.getClientId()));
         LOGGER.debug("Caller roles:{}", getCallerRoles());
     }
 
     /**
      * Construct an operation context drived from another operation context
+     * @param request The top-level request
+     * @param metadata Metadata manager
+     * @param factory The factory to get validators and controllers
+     * @param operation The operation in progress
+     * @param resolver the resolver instance to use
+     * @param docs The documents in the call. Can be null
+     * @param callerRoles Roles of the current caller
+     * @param hookManager the hook manager
      */
     private OperationContext(Request request,
                              Metadata metadata,
@@ -119,8 +121,7 @@ public final class OperationContext extends CRUDOperationContext {
     public OperationContext getDerivedOperationContext(String entityName,CRUDFindRequest req) {
         // Create a new request with same header information, but different query information
         FindRequest newReq=new FindRequest();
-        newReq.shallowCopyFrom( (Request)request );
-        newReq.getFindRequest().shallowCopyFrom(req);
+        newReq.shallowCopyFrom( (Request)request, req );
         newReq.setEntityVersion(new EntityVersion(entityName,resolver.getEntityMetadata(entityName).getVersion().getValue()));
         // At this point, newReq has header information from the
         // original request, but query information from the argument
@@ -201,7 +202,6 @@ public final class OperationContext extends CRUDOperationContext {
         this.status = status;
     }
 
-
     private Set<String> getCallerRoles(Set<String> metadataRoles, ClientIdentification id) {
         Set<String> callerRoles = new HashSet<>();
         if (!metadataRoles.isEmpty() && id != null) {
@@ -213,5 +213,4 @@ public final class OperationContext extends CRUDOperationContext {
         }
         return callerRoles;
     }
-
 }

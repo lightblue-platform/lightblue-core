@@ -61,16 +61,10 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.operation = op;
         this.entityName = entityName;
         this.factory = f;
+        // can assume are adding to an empty DocCtx list
+        addDocuments(docs);
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         this.callerRoles=new HashSet<>();
-        if (docs != null) {
-            documents = new ArrayList<>(docs.size());
-            for (JsonDoc doc : docs) {
-                documents.add(new DocCtx(doc));
-            }
-        } else {
-            documents = null;
-        }
     }
 
     /**
@@ -83,21 +77,21 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
                                 List<DocCtx> docs,
                                 Set<String> callerRoles,
                                 HookManager hookManager) {
-        this.operation=op;
-        this.entityName=entityName;
-        this.factory=f;
-        this.hookManager=hookManager;
+        this.operation = op;
+        this.entityName = entityName;
+        this.factory = f;
         this.documents =docs;
         this.callerRoles=callerRoles;
+        this.hookManager=hookManager;
     }
 
     /**
-     * Resets the operation context. Clears arrors, sets the given
+     * Resets the operation context. Clears errors, sets the given
      * document list as the new document list.
      */
     public void reset(List<DocCtx> docList) {
         errors.clear();
-        documents=docList;
+        setDocuments(docList);
     }
 
     /**
@@ -118,7 +112,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     /**
      * Sets the caller roles
      */
-    protected void setCallerRoles(Set<String> roles) {
+    protected void addCallerRoles(Set<String> roles) {
         this.callerRoles.addAll(roles);
     }
 
@@ -159,10 +153,16 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public void addDocuments(Collection<JsonDoc> docs) {
         if (documents == null) {
-            documents = new ArrayList<>();
+            if (docs != null) {
+                documents = new ArrayList<>(docs.size());
+            } else {
+                documents = new ArrayList<>();
+            }
         }
-        for (JsonDoc x : docs) {
-            documents.add(new DocCtx(x));
+        if (docs != null) {
+            for (JsonDoc x : docs) {
+                documents.add(new DocCtx(x));
+            }
         }
     }
 
