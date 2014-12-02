@@ -134,6 +134,10 @@ public abstract class MetadataParser<T> {
         return extensions.getFieldConstraintParser(constraintName);
     }
 
+    public Extensions<T> getExtensions(){
+        return this.extensions;
+    }
+
     /**
      * Entry point for entity metadata parser. Expects an Object corresponding
      * to the EntityMetadata object.
