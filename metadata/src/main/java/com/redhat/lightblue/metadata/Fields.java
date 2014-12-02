@@ -33,11 +33,15 @@ public class Fields implements Serializable {
 
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final List<Field> fields = new ArrayList<>();
-    private final FieldTreeNode parent;
+    private FieldTreeNode parent;
     private final Map<String, Object> properties = new HashMap<>();
 
     public Fields(FieldTreeNode parent) {
         this.parent = parent;
+    }
+
+    protected void setParent(FieldTreeNode parent) {
+        this.parent=parent;
     }
 
     public int getNumChildren() {

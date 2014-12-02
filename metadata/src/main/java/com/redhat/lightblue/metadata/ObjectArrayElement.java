@@ -40,6 +40,7 @@ public class ObjectArrayElement extends ArrayElement {
     private ObjectArrayElement(Fields fields) {
         super(ObjectType.TYPE);
         this.fields = fields;
+        fields.setParent(this);
         for (Iterator<Field> itr = fields.getFields(); itr.hasNext();) {
             itr.next().setParent(this);
         }
