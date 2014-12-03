@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.Request;
 
 import com.redhat.lightblue.interceptor.InterceptPoint;
 
@@ -78,11 +79,6 @@ public class Mediator {
     private final Metadata metadata;
     private final Factory factory;
 
-    /**
-     * Used for testing. Keep the last context here, so unit tests can inspect it
-     */
-    private transient OperationContext lastContext;
-
     public Mediator(Metadata md,
                     Factory factory) {
         this.metadata = md;
@@ -103,8 +99,7 @@ public class Mediator {
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.INSERT);
-            lastContext=ctx;
+            OperationContext ctx = newCtx(req, Operation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -170,8 +165,7 @@ public class Mediator {
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.SAVE);
-            lastContext=ctx;
+            OperationContext ctx = newCtx(req, Operation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -237,8 +231,7 @@ public class Mediator {
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.UPDATE);
-            lastContext=ctx;
+            OperationContext ctx = newCtx(req, Operation.UPDATE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -287,8 +280,7 @@ public class Mediator {
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.DELETE);
-            lastContext=ctx;
+            OperationContext ctx = newCtx(req, Operation.DELETE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -338,8 +330,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = new OperationContext(req, metadata, factory, Operation.FIND);
-            lastContext=ctx;
+            OperationContext ctx = newCtx(req, Operation.FIND);
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -399,8 +390,8 @@ public class Mediator {
     }
 
 
-    public OperationContext getLastContext() {
-        return lastContext;
+    protected OperationContext newCtx(Request request,Operation operation) {
+        return new OperationContext(request, metadata, factory, operation);
     }
 
     /**
