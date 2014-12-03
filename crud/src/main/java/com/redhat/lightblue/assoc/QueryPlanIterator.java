@@ -37,11 +37,6 @@ public interface QueryPlanIterator {
     void reset(QueryPlan p);
 
     /**
-     * Returns the query plan in its current state
-     */
-    QueryPlan getQueryPlan();
-
-    /**
      * Modifies the query plan into a unique tree.
      *
      * @return If true, tne query plan is configured into a unique
