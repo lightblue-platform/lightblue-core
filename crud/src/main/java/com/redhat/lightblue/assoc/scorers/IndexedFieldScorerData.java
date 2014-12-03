@@ -166,10 +166,12 @@ public class IndexedFieldScorerData extends QueryPlanData {
     @Override
     public void copyFrom(QueryPlanData source) {
         super.copyFrom(source);
-        if( ((IndexedFieldScorerData)source).indexableFields!=null)
-            indexableFields=new HashSet<>(((IndexedFieldScorerData)source).indexableFields);
-        if( ((IndexedFieldScorerData)source).indexMap!=null)
-            indexMap=new HashMap<>(((IndexedFieldScorerData)source).indexMap);
+        if (source instanceof IndexedFieldScorerData) {
+            if (((IndexedFieldScorerData) source).indexableFields != null)
+                indexableFields = new HashSet<>(((IndexedFieldScorerData) source).indexableFields);
+            if (((IndexedFieldScorerData) source).indexMap != null)
+                indexMap = new HashMap<>(((IndexedFieldScorerData) source).indexMap);
+        }
     }
 
     @Override
