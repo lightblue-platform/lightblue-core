@@ -376,8 +376,8 @@ public class Mediator {
                 }
 
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
-                ctx.setStatus(OperationStatus.COMPLETE);
             }
+            // call any queued up hooks (regardless of status)
             ctx.getHookManager().queueMediatorHooks(ctx);
 
             response.setStatus(ctx.getStatus());
