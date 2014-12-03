@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Default implementation of the registry interface
@@ -49,7 +50,13 @@ public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
                 this.resolvers.add(r);
             }
         }
-
+        Iterator it = parser.items.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if(!items.containsKey(pair.getKey())){
+                items.put(((K)pair.getKey()),((V)pair.getValue()));
+            }
+        }
     }
     @Override
     public V find(K name) {

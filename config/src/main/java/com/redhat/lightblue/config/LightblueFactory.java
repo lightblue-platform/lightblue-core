@@ -242,6 +242,7 @@ public final class LightblueFactory implements Serializable {
             throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (parser == null) {
             initializeParser();
+            getMetadata();
         }
 
         return parser;
