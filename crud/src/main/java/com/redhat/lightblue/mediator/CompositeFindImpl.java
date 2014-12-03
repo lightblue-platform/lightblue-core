@@ -131,6 +131,9 @@ public class CompositeFindImpl implements Finder {
             LOGGER.debug("Composite find: {}",node.getName());
             QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
             if(node.getMetadata().getParent()==null) {
+                if (req.getTo() != null && req.getFrom() != null) {
+                    exec.setRange(req.getFrom(), req.getTo());
+                }
                 exec.execute(ctx,req.getSort());
                 // Reached the root node. Terminate execution, and build documents
                 rootNode=node;
