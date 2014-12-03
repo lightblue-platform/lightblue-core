@@ -45,7 +45,7 @@ public class PromoteNestedAND extends Rewriter {
         NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
         if(le!=null) {
             if(le.getOp()==NaryLogicalOperator._and) {
-                CopyOnWriteIterator<QueryExpression> itr=new CopyOnWriteIterator<QueryExpression>(le.getQueries());
+                CopyOnWriteIterator<QueryExpression> itr=new CopyOnWriteIterator<>(le.getQueries());
                 while(itr.hasNext()) {
                     QueryExpression x=itr.next();
                     NaryLogicalExpression nested=dyncast(NaryLogicalExpression.class,x);

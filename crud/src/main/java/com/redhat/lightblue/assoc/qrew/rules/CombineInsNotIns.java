@@ -89,12 +89,12 @@ abstract class CombineInsNotIns extends Rewriter {
                     for(Map.Entry<Path,List<NaryRelationalExpression>> entry:map.entrySet()) {
                         if(entry.getValue().size()>1) {
                             // Combine expressions
-                            Set<Value> valueList=new HashSet<Value>();
+                            Set<Value> valueList=new HashSet<>();
                             for(NaryRelationalExpression x:entry.getValue())
                                 valueList.addAll(x.getValues());
                             newList.add(new NaryRelationalExpression(entry.getKey(),
                                                                      relationalOp,
-                                                                     new ArrayList<Value>(valueList)));
+                                                                     new ArrayList<>(valueList)));
                         } else {
                             newList.addAll(entry.getValue());
                         }
