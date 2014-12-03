@@ -72,7 +72,6 @@ public class QueryPlanNodeExecutor {
 
     private final ResolvedReferenceField resolvedReference;
 
-    private Sort sort;
     private Long fromIndex;
     private Long toIndex;
 
@@ -103,13 +102,6 @@ public class QueryPlanNodeExecutor {
             toIndex=to;
         } else
             throw new UnsupportedOperationException("Can set range for root node only");
-    }
-
-    public void setSort(Sort sort) {
-        if(node.getMetadata().getParent()==null) {
-            this.sort=sort;
-        } else 
-            throw new UnsupportedOperationException("Can set sort for root node only");
     }
 
     public void init(QueryPlan qplan) {
