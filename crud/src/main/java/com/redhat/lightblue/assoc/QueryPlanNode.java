@@ -124,7 +124,7 @@ public abstract class QueryPlanNode implements Serializable {
     public abstract QueryPlanNode[] getSources();
 
     /**
-     * Returns the immediate descendands of this node. If there are
+     * Returns the immediate descendants of this node. If there are
      * node (i.e. node is a sink), returns an array with size 0
      */
     public abstract QueryPlanNode[] getDestinations();
