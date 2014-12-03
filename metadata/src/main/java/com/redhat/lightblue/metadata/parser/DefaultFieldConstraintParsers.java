@@ -30,6 +30,7 @@ import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
+import com.redhat.lightblue.metadata.constraints.MatchesConstraint;
 
 /**
  * import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
@@ -52,5 +53,7 @@ public class DefaultFieldConstraintParsers<N>
         addValue(ReferencesConstraint.REFERENCES, new ReferencesConstraintParser<N>());
         addValue(IdentityConstraint.IDENTITY, new IdentityConstraintParser<N>());
         addValue(ArrayElementIdConstraint.IDENTITY, new ArrayElementIdConstraintParser<N>());
+
+        addValue(MatchesConstraint.MATCHES, new MatchesConstraintParser<N>());
     }
 }

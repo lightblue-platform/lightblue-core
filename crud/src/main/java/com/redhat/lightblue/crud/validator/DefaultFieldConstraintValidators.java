@@ -30,11 +30,12 @@ import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
+import com.redhat.lightblue.metadata.constraints.MatchesConstraint;
 
 import com.redhat.lightblue.crud.FieldConstraintChecker;
 
 /**
- * Convenience class that contains all defailt field constraint validators
+ * Convenience class that contains all default field constraint validators
  */
 public class DefaultFieldConstraintValidators
         implements Resolver<String, FieldConstraintChecker> {
@@ -53,6 +54,7 @@ public class DefaultFieldConstraintValidators
         checkers.put(StringLengthConstraint.MAXLENGTH, new StringLengthChecker());
         checkers.put(IdentityConstraint.IDENTITY, new IdentityChecker());
         checkers.put(ArrayElementIdConstraint.IDENTITY, new EmptyFieldConstraintDocChecker());
+        checkers.put(MatchesConstraint.MATCHES, new MatchesChecker());
     }
 
     @Override
