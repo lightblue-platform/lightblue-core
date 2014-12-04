@@ -96,9 +96,7 @@ public class QueryPlan implements Serializable {
 
         public String getName() {
             if(name==null) {
-                StringBuilder bld=new StringBuilder();
-                bld.append(md.getName()).append('_').append(nodeIndex);
-                name=bld.toString();
+                name = md.getName() + '_' + nodeIndex;
             }
             return name;
         }
@@ -181,7 +179,11 @@ public class QueryPlan implements Serializable {
         }
     }
 
-
+    /**
+     * Copy constructor.
+     *
+     * @param source
+     */
     private QueryPlan(QueryPlan source) {
         qdf=source.qdf;
         mx=new ConnMx(source.mx);
