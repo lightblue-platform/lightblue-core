@@ -19,8 +19,10 @@
 package com.redhat.lightblue.metadata.parser;
 
 import com.redhat.lightblue.metadata.FieldConstraint;
-import com.redhat.lightblue.metadata.constraints.*;
+
 import com.redhat.lightblue.util.DefaultResolver;
+
+import com.redhat.lightblue.metadata.constraints.*;
 
 /**
  * import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
@@ -42,5 +44,7 @@ public class DefaultFieldConstraintParsers<N>
         addValue(StringLengthConstraint.MAXLENGTH, new StringLengthConstraintParser<N>());
         addValue(IdentityConstraint.IDENTITY, new IdentityConstraintParser<N>());
         addValue(ArrayElementIdConstraint.IDENTITY, new ArrayElementIdConstraintParser<N>());
+
+        addValue(MatchesConstraint.MATCHES, new MatchesConstraintParser<N>());
     }
 }

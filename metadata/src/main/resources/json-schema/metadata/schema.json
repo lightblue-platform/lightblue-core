@@ -141,7 +141,7 @@
                 },
                 "minItems": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/minItems",
-                    "description": "Minimum number of itmes in an array field."
+                    "description": "Minimum number of items in an array field."
                 },
                 "maxProperties": {
                     "$ref": "http://json-schema.org/draft-04/schema#/properties/maxProperties"
@@ -155,6 +155,13 @@
                 "required": {
                     "type": "boolean",
                     "description": "Indicates if the field is required.  Defaults to 'false'."
+                },
+                "reference": {
+                    "$ref": "common.json#/definitions/reference"
+                },
+                "matches": {
+                    "type": "string",
+                    "description": "Requires string field to match regular expression"
                 }
             }
         },

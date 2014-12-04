@@ -162,6 +162,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <module>metadata</module>
         <module>util</module>
         <module>config</module>
+        <module>test</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
