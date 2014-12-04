@@ -50,7 +50,6 @@ import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.FieldProjection;
 
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Tuples;
@@ -60,7 +59,7 @@ public class QueryPlanNodeExecutor {
     private static final Logger LOGGER=LoggerFactory.getLogger(QueryPlanNodeExecutor.class);
        
     private final QueryPlanNode node;
-    private final List<QueryPlanNodeExecutor> sources=new ArrayList();
+    private final List<QueryPlanNodeExecutor> sources=new ArrayList<>();
     private final DocIdExtractor docIdx;
     private final Finder finder;
     private final CompositeMetadata root;
@@ -126,16 +125,14 @@ public class QueryPlanNodeExecutor {
 
         // Rewrite source edge conjuncts relative to this node, and keep binding information
         for(QueryPlanNode d:sourceNodes) {
-            List<Conjunct> edgeClauses;
             QueryPlanData edgeData=qplan.getEdgeData(node,d);
-            if(edgeData!=null)
-                edgeClauses=edgeData.getConjuncts();
-            else
-                edgeClauses=null;
-            if(edgeClauses!=null&&!edgeClauses.isEmpty()) {
-                ResolvedFieldBinding.BindResult result=ResolvedFieldBinding.bind(edgeClauses,node,root);
-                queryClauses.add(result.getRelativeQuery());
-                sourceBindings.addAll(result.getBindings());
+            if(edgeData!=null) {
+                List<Conjunct> edgeClauses = edgeData.getConjuncts();
+                if (edgeClauses != null && !edgeClauses.isEmpty()) {
+                    ResolvedFieldBinding.BindResult result = ResolvedFieldBinding.bind(edgeClauses, node, root);
+                    queryClauses.add(result.getRelativeQuery());
+                    sourceBindings.addAll(result.getBindings());
+                }
             }
         }
         
@@ -175,7 +172,7 @@ public class QueryPlanNodeExecutor {
         } else {
             // We will evaluate this node for every possible combination of parent docs
                 
-            Tuples<QueryPlanDoc> tuples=new Tuples<QueryPlanDoc>();
+            Tuples<QueryPlanDoc> tuples=new Tuples<>();
             for(QueryPlanNodeExecutor source:sources) {
                 tuples.add(source.docs);
             }
@@ -188,8 +185,10 @@ public class QueryPlanNodeExecutor {
                 // sources. tuple[i] is from sources[i]
                 
                 LOGGER.debug("execute {}: refreshing bindings",node.getName());
+                Iterator<QueryPlanDoc> qpdItr = tuple.iterator();
+                // TODO can this for loop change to a while(qpdItr.hasNext())?
                 for(int i=0;i<sources.size();i++) {
-                    QueryPlanDoc parentDoc=tuple.get(i);
+                    QueryPlanDoc parentDoc=qpdItr.next();
                     ResolvedFieldBinding.refresh(sourceBindings,parentDoc);
                 }
                execute(ctx,findRequest,tuple);
@@ -216,6 +215,7 @@ public class QueryPlanNodeExecutor {
         LOGGER.debug("execute {}: entity={}, findRequest.query={}, projection={}, sort={}", node.getName(),
                      nodeCtx.getEntityName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
+        // note the response is not used, but find method changes the supplied context.
         CRUDFindResponse response=finder.find(nodeCtx,findRequest);
         LOGGER.debug("execute {}: storing documents", node.getName());
         for(DocCtx doc:nodeCtx.getDocuments()) {
