@@ -25,14 +25,11 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.Indexes;
 import com.redhat.lightblue.metadata.Index;
 
@@ -61,8 +58,6 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(IndexedFieldScorer.class);
 
-    private CompositeMetadata cmd;
-
     private static class Score implements Comparable {
 
         private BigInteger cost;
@@ -82,22 +77,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
         public String toString() {
             return "cost:"+cost;
         }
-    } 
-
-    private static final class MaxScore extends Score {
-
-        MaxScore() {
-            super(null);
-        }
-
-        @Override
-        public int compareTo(Object value) {
-            return (value instanceof MaxScore)?0:1;
-        }
     }
-
-    public static final Comparable MAX=new MaxScore();
-
 
     @Override
     public QueryPlanData newDataInstance() {
@@ -121,25 +101,32 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
         // We get root, and then go backwards from there
         QueryPlanNode[] nodes=qp.getAllNodes();
         QueryPlanNode root=null;
-        for(int i=0;i<nodes.length;i++)
-            if(nodes[i].getMetadata().getParent()==null) {
-                root=nodes[i];
+        for (QueryPlanNode node: nodes) {
+            if (node.getMetadata().getParent() == null) {
+                root = node;
                 break;
             }
+        }
+
+        if (null == root) {
+            // a never happen scenario, but CYA...
+            throw new IllegalStateException("Unable to find root metadata");
+        }
 
         CostAndSize rootCost=getAncestorCostAndSize(root);
         LOGGER.debug("up to root: {}",rootCost);
         
-        // Evaluation changes after root is retrieved. Any queury
+        // Evaluation changes after root is retrieved. Any query
         // evaluation won't affect the result set size, but add to the
         // cost, because that means we have to manually filter out
         // results
 
         BigInteger cost=BigInteger.ONE;
         for(QueryPlanNode dst:root.getDestinations()) {
-            // If there's a query here, double the cost
+            // If there's a query here, increase the cost based on root size
             cost=cost.multiply(((IndexedFieldScorerData)dst.getData()).estimatedRootDescendantCost(rootCost.size));
         }
+        // cost is based on size so far, multiple this by root cost for final cost
         cost=cost.multiply(rootCost.cost);
         LOGGER.debug("Final cost:{}",cost);
         return new Score(cost);
@@ -176,10 +163,12 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
     @Override
     public void reset(QueryPlanChooser c) {
         LOGGER.debug("reset");
-        cmd=c.getMetadata();
         // Conjuncts associated with nodes will not move from one node to another
         // So we can measure the cost associated with them from the start
         for(QueryPlanNode node:c.getQueryPlan().getAllNodes()) {
+            if (!(node.getData() instanceof IndexedFieldScorerData)) {
+                throw new IllegalStateException("Expected instance of " + IndexedFieldScorerData.class.getName() + " but got: " + node.getData().getClass().getName());
+            }
             IndexedFieldScorerData data=(IndexedFieldScorerData)node.getData();
             data.setRootNode(node.getMetadata().getParent()==null);
             Set<Path> indexableFields=new HashSet<>();
