@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
-import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
 
 public class SimpleField extends Field {
 

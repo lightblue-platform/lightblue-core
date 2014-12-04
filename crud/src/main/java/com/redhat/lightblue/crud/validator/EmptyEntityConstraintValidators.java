@@ -24,7 +24,6 @@ import java.util.Map;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.EntityConstraintChecker;
 import com.redhat.lightblue.metadata.EntityConstraint;
-import com.redhat.lightblue.metadata.constraints.ReferencesConstraint;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Resolver;
 
@@ -36,19 +35,9 @@ import com.redhat.lightblue.util.Resolver;
 public class EmptyEntityConstraintValidators
         implements Resolver<String, EntityConstraintChecker> {
 
-    private final Map<String, EntityConstraintChecker> checkers
-            = new HashMap<>();
-
-    private static final class EmptyChecker implements EntityConstraintChecker {
-        @Override
-        public void checkConstraint(ConstraintValidator validator,
-                                    EntityConstraint constraint,
-                                    JsonDoc doc) {
-        }
-    }
+    private final Map<String, EntityConstraintChecker> checkers = new HashMap<>();
 
     public EmptyEntityConstraintValidators() {
-        checkers.put(ReferencesConstraint.REFERENCES, new EmptyChecker());
     }
 
     @Override

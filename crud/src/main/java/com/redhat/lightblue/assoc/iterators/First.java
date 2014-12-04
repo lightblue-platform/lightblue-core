@@ -16,38 +16,34 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.metadata.constraints;
+package com.redhat.lightblue.assoc.iterators;
 
 import java.io.Serializable;
 
-import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.assoc.QueryPlanIterator;
+import com.redhat.lightblue.assoc.QueryPlan;
 
-import com.redhat.lightblue.metadata.FieldConstraint;
+/**
+ * Only iterates the first query plan
+ */
+public class First implements QueryPlanIterator, Serializable {
 
-public class ReferencesConstraint implements FieldConstraint, Serializable {
+    private static final long serialVersionUID=1l;
 
-    private static final long serialVersionUID = 1l;
+    private QueryPlan qp;
 
-    public static final String REFERENCES = "references";
-
-    private Reference reference;
+    /**
+     * Construct a query plan iterator that operates on the given
+     * query plan
+     */
+    @Override
+    public void reset(QueryPlan qp) {
+        this.qp=qp;
+    }
 
     @Override
-    public String getType() {
-        return REFERENCES;
-    }
-
-    @Override
-    public boolean isValidForFieldType(Type fieldType) {
-        return true;
-    }
-
-    @SuppressWarnings("unchecked")
-    public Reference getReference() {
-        return reference;
-    }
-
-    public void setReference(Reference r) {
-        reference = r;
+    public boolean next() {
+        return false;
     }
 }
+

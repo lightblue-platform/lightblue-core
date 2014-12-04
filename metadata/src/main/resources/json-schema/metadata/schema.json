@@ -48,18 +48,6 @@
                 }
             }
         },
-        "constraints": {
-            "type": "array",
-            "description": "Entity constraints.",
-            "items": {
-                "properties": {
-                    "reference": {
-                        "$ref": "#/definitions/reference"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
         "fields": {
             "$ref": "#/definitions/fieldSingle"
         }
@@ -96,7 +84,23 @@
         "typesComplex": {
             "enum": [
                 "object",
+                "array",
+                "reference"
+            ]
+        },
+        "typesObject": {
+            "enum": [
+                "object"
+            ]
+        },
+        "typesArray": {
+            "enum": [
                 "array"
+            ]
+        },
+        "typesReference": {
+            "enum": [
+                "reference"
             ]
         },
         "typesAny": {
@@ -166,67 +170,142 @@
             "type": "object",
             "patternProperties": {
                 ".*": {
-                    "type": "object",
-                    "properties": {
-                        "description": {
-                            "$ref": "http://json-schema.org/draft-04/schema#/properties/description"
-                        },
-                        "items": {
-                            "oneOf": [
-                                {
-                                    "description": "Array items can be simple types.",
-                                    "properties": {
-                                        "type": {
-                                            "$ref": "#/definitions/typesSimple"
-                                        },
-                                        "constraints": {
-                                            "$ref": "#/definitions/fieldConstraint"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "type"
-                                    ]
+                    "oneOf": [
+                        {
+                            "description": "Simple field",
+                            "properties": {
+                                "type": {
+                                    "$ref": "#/definitions/typesSimple"
                                 },
-                                {
-                                    "properties": {
-                                        "type": {
-                                            "enum": ["object"]
-                                        },
-                                        "fields": {
-                                            "$ref": "#/definitions/fieldSingle"
-                                        }
-                                    },
-                                    "description": "Support for object items.",
-                                    "required": [
-                                        "type",
-                                        "fields"
-                                    ]
+                                "constraints": {
+                                    "$ref": "#/definitions/fieldConstraint"
+                                },
+                                "access": {
+                                    "$ref": "#/definitions/accessField"
                                 }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "type"
                             ]
                         },
-                        "type": {
-                            "$ref": "#/definitions/typesAny"
+                        {
+                            "description": "Object field",
+                            "properties": {
+                                "type": {
+                                    "$ref": "#/definitions/typesObject"
+                                },
+                                "constraints": {
+                                    "$ref": "#/definitions/fieldConstraint"
+                                },
+                                "access": {
+                                    "$ref": "#/definitions/accessField"
+                                },
+                                "fields": {
+                                    "$ref": "#/definitions/fieldSingle"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "type",
+                                "fields"
+                            ]
                         },
-                        "access": {
-                            "$ref": "#/definitions/accessField"
+                        {
+                            "description": "Array field",
+                            "properties": {
+                                "type": {
+                                    "$ref": "#/definitions/typesArray"
+                                },
+                                "constraints": {
+                                    "$ref": "#/definitions/fieldConstraint"
+                                },
+                                "access": {
+                                    "$ref": "#/definitions/accessField"
+                                },
+                                "items": {
+                                    "oneOf": [
+                                        {
+                                            "description": "Array items can be simple types.",
+                                            "properties": {
+                                                "type": {
+                                                    "$ref": "#/definitions/typesSimple"
+                                                },
+                                                "constraints": {
+                                                    "$ref": "#/definitions/fieldConstraint"
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "type"
+                                            ]
+                                        },
+                                        {
+                                            "properties": {
+                                                "type": {
+                                                    "enum": [
+                                                        "object"
+                                                    ]
+                                                },
+                                                "fields": {
+                                                    "$ref": "#/definitions/fieldSingle"
+                                                }
+                                            },
+                                            "description": "Support for object items.",
+                                            "required": [
+                                                "type",
+                                                "fields"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "type",
+                                "items"
+                            ]
                         },
-                        "fields": {
-                            "$ref": "#/definitions/fieldSingle"
-                        },
-                        "constraints": {
-                            "$ref": "#/definitions/fieldConstraint"
+                        {
+                            "description": "Reference field",
+                            "properties": {
+                                "type": {
+                                    "$ref": "#/definitions/typesReference"
+                                },
+                                "constraints": {
+                                    "$ref": "#/definitions/fieldConstraint"
+                                },
+                                "access": {
+                                    "$ref": "#/definitions/accessField"
+                                },
+                                "entity": {
+                                    "type": "string",
+                                    "description": "The name of the referenced entity"
+                                },
+                                "versionValue": {
+                                    "type": "string",
+                                    "description": "The version of the entity"
+                                },
+                                "projection": {
+                                    "$ref": "/json-schema/projection/choice.json#/definitions/projection"
+                                },
+                                "query": {
+                                    "$ref": "/json-schema/query/choice.json#/definitions/query"
+                                },
+                                "sort": {
+                                    "$ref": "/json-schema/sort/choice.json#/definitions/sort"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "type",
+                                "entity",
+                                "versionValue"
+                            ]
                         }
-                    },
-                    "required": [
-                        "type"
-                    ],
-                    "additionalProperties": false
+                    ]
                 }
             }
-        },
-        "reference": {
-            "$ref": "common.json#/definitions/reference"
         },
         "version": {
             "$ref": "common.json#/definitions/version"

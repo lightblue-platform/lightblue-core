@@ -62,6 +62,13 @@ public class Access implements Serializable {
     }
 
     /**
+     * Sets the roles.
+     */
+    public void setRoles(Access a) {
+        setRoles(a.values);
+    }
+
+    /**
      * Adds all the roles to the destination set
      */
     public void addRolesTo(Set<String> dest) {

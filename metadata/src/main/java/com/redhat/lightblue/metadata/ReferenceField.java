@@ -18,16 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
-
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.Sort;
-
 import com.redhat.lightblue.metadata.types.ReferenceType;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
 
 public class ReferenceField extends Field {
 

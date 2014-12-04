@@ -1,0 +1,46 @@
+{
+    "entityInfo": {
+        "name": "test",
+        "indexes": [
+            {
+                "unique": true,
+                "fields": [{"field":"name","dir": "$asc"}]
+            }
+        ],
+        "enums": [
+            {
+                "name": "streetArray",
+                "values": ["one", "two"]
+            }
+        ],
+        "datastore": {
+            "backend":"empty"
+        }
+    },
+    "schema": {
+        "name": "test",
+        "version": {
+            "value": "1.0",
+            "changelog": "Initial version"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": ["admin"],
+            "find": ["admin", "all"],
+            "update": ["admin"],
+            "delete": ["admin"]
+        },
+        "fields": {
+            "_id" : { "type":"string" },
+            "something": {
+                "type": "reference",
+                "entity": "otherEntity",
+                "versionValue": "1.0.0",
+                "projection": { "field":"*", "recursive":true, "include":true },
+                "query": {"field":"_id","op":"$eq","rfield":"$parent._id"}
+            }
+        }
+    }
+}

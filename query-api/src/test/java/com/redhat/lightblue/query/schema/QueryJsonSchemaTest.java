@@ -19,11 +19,10 @@
 package com.redhat.lightblue.query.schema;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import java.io.IOException;
-
+import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import org.junit.Test;
 
-import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import java.io.IOException;
 
 public class QueryJsonSchemaTest extends AbstractJsonSchemaTest {
 

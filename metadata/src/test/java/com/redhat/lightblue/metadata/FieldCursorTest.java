@@ -18,11 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FieldCursorTest {
 
@@ -51,24 +50,25 @@ public class FieldCursorTest {
         return entityMetadata;
     }
 
-    // @Test
-    // public void sibTest() {
-    //     EntityMetadata md=getMD1();
-    //     FieldCursor cursor=md.getFieldCursor();
-    //     cursor.firstChild();
-    //     Assert.assertEquals("simpleInteger",cursor.getCurrentPath().toString());
-    //     cursor.nextSibling();
-    //     cursor.nextSibling();
-    //     Assert.assertEquals("obj1",cursor.getCurrentPath().toString());
-    //     cursor.firstChild();
-    //     cursor.nextSibling();
-    //     cursor.nextSibling();
-    //     Assert.assertEquals("obj1.nested",cursor.getCurrentPath().toString());
-    //     cursor.firstChild();
-    //     cursor.nextSibling();
-    //     cursor.nextSibling();
-    //     Assert.assertEquals("obj1.nested.objArr",cursor.getCurrentPath().toString());
-    // }
+    @Test
+    public void sibTest() {
+        EntityMetadata md = getMD1();
+        FieldCursor cursor = md.getFieldCursor();
+        cursor.firstChild();
+        Assert.assertEquals("simpleInteger", cursor.getCurrentPath().toString());
+        cursor.nextSibling();
+        cursor.nextSibling();
+        Assert.assertEquals("obj1", cursor.getCurrentPath().toString());
+        cursor.firstChild();
+        cursor.nextSibling();
+        cursor.nextSibling();
+        Assert.assertEquals("obj1.nested", cursor.getCurrentPath().toString());
+        cursor.firstChild();
+        cursor.nextSibling();
+        cursor.nextSibling();
+        Assert.assertEquals("obj1.nested.objArr", cursor.getCurrentPath().toString());
+    }
+
     @Test
     public void backtrackTest() {
         EntityMetadata md = getMD1();

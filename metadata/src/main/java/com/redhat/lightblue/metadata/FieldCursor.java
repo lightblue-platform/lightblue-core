@@ -18,11 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
 import com.redhat.lightblue.util.AbstractTreeCursor;
 import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
 
 public class FieldCursor extends AbstractTreeCursor<FieldTreeNode> {
 

@@ -19,8 +19,8 @@
 package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Non-version specific bits of metadata.

@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.metadata.constraints;
 
-import java.io.Serializable;
-
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Type;
+
+import java.io.Serializable;
 
 /**
  * Field required constraint

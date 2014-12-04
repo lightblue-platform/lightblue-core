@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import com.redhat.lightblue.DataError;
 import com.redhat.lightblue.hooks.HookManager;
@@ -43,31 +44,54 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
 
     private final Factory factory;
     private final String entityName;
-    private Set<String> callerRoles;
+    private final Set<String> callerRoles;
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final Operation operation;
     private final HookManager hookManager;
 
+    /**
+     * This is the constructor used to represent the context of an operation
+     */
     public CRUDOperationContext(Operation op,
                                 String entityName,
                                 Factory f,
-                                Set<String> callerRoles,
                                 List<JsonDoc> docs) {
         this.operation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.callerRoles = callerRoles;
+        // can assume are adding to an empty DocCtx list
+        addDocuments(docs);
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
-        if (docs != null) {
-            documents = new ArrayList<>(docs.size());
-            for (JsonDoc doc : docs) {
-                documents.add(new DocCtx(doc));
-            }
-        } else {
-            documents = null;
-        }
+        this.callerRoles=new HashSet<>();
+    }
+
+    /**
+     * This constructor is used to construct an operation context that
+     * is derived from another existing context.
+     */
+    public CRUDOperationContext(Operation op,
+                                String entityName,
+                                Factory f,
+                                List<DocCtx> docs,
+                                Set<String> callerRoles,
+                                HookManager hookManager) {
+        this.operation = op;
+        this.entityName = entityName;
+        this.factory = f;
+        this.documents =docs;
+        this.callerRoles=callerRoles;
+        this.hookManager=hookManager;
+    }
+
+    /**
+     * Resets the operation context. Clears errors, sets the given
+     * document list as the new document list.
+     */
+    public void reset(List<DocCtx> docList) {
+        errors.clear();
+        setDocuments(docList);
     }
 
     /**
@@ -88,7 +112,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     /**
      * Sets the caller roles
      */
-    protected void setCallerRoles(Set<String> roles) {
+    protected void addCallerRoles(Set<String> roles) {
         this.callerRoles.addAll(roles);
     }
 
@@ -104,6 +128,10 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public List<DocCtx> getDocuments() {
         return documents;
+    }
+
+    public void setDocuments(List<DocCtx> docs) {
+        documents=docs;
     }
 
     /**
@@ -125,10 +153,16 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      */
     public void addDocuments(Collection<JsonDoc> docs) {
         if (documents == null) {
-            documents = new ArrayList<>();
+            if (docs != null) {
+                documents = new ArrayList<>(docs.size());
+            } else {
+                documents = new ArrayList<>();
+            }
         }
-        for (JsonDoc x : docs) {
-            documents.add(new DocCtx(x));
+        if (docs != null) {
+            for (JsonDoc x : docs) {
+                documents.add(new DocCtx(x));
+            }
         }
     }
 
