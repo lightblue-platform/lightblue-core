@@ -299,9 +299,9 @@ public abstract class Projection extends JsonObject {
     private Inclusion getFieldInclusion(Path field, ProjectionList pl, Path context) {
         LOGGER.debug("Checking if a projection list projects {}", field);
         Inclusion lastResult = Inclusion.undecided;
-        List<Projection> items=pl.getItems();
-        for (Projection p: items) {
-            Inclusion ret = p.getFieldInclusion(field, context);
+        List<Projection> items=p.getItems();
+        for(int i=items.size()-1;i>=0;i--) {
+            Inclusion ret = items.get(i).getFieldInclusion(field, context);
             if (ret != Inclusion.undecided) {
                 lastResult=ret;
                 break;
