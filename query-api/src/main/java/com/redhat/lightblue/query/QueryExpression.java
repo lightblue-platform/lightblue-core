@@ -303,6 +303,7 @@ public abstract class QueryExpression extends JsonObject {
             LOGGER.debug("Field {} is queried", absField);
             return true;
         } else {
+            LOGGER.debug("Field {} is not queried", absField);
             return false;
         }
     }

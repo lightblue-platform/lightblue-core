@@ -106,11 +106,11 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
                                                        String version);
 
     private boolean isProjected(Path field) {
-        LOGGER.debug("Checking if {} is projected", field);
+        LOGGER.debug("Checking if {} is explicitly projected", field);
         for (Projection p : projections) {
-            if (p.isRequired(field)) {
+            Projection.Inclusion inc=p.getFieldInclusion(field);
+            if(inc==Projection.Inclusion.explicit_inclusion)
                 return true;
-            }
         }
         return false;
     }
