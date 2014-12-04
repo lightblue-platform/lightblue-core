@@ -228,10 +228,8 @@ public abstract class Projection extends JsonObject {
         ctx = toMask(ctx);
         if (this instanceof FieldProjection) {
             return getFieldInclusion(mfield, (FieldProjection) this, ctx);
-        } else if (this instanceof ArrayQueryMatchProjection) {
-            return getFieldInclusion(mfield, (ArrayQueryMatchProjection) this, ctx);
-        } else if (this instanceof ArrayRangeProjection) {
-            return getFieldInclusion(mfield, (ArrayRangeProjection) this, ctx);
+        } else if (this instanceof ArrayProjection) {
+            return getFieldInclusion(mfield, (ArrayProjection) this, ctx);
         } else if (this instanceof ProjectionList) {
             return getFieldInclusion(mfield, (ProjectionList) this, ctx);
         }
@@ -259,14 +257,14 @@ public abstract class Projection extends JsonObject {
             default: return false;
             }
         } else if (this instanceof ArrayQueryMatchProjection) {
-            if(getFieldInclusion(mfield, (ArrayQueryMatchProjection) this, ctx)==Inclusion.undecided) {
+            if(getFieldInclusion(mfield, (ArrayProjection) this, ctx)==Inclusion.undecided) {
                 Path absField = new Path(ctx, toMask(((ArrayQueryMatchProjection)this).getField()));
                 return ((ArrayQueryMatchProjection)this).getMatch().isRequired(field,new Path(absField,Path.ANYPATH));
             } else {
                 return true;
             }
         } else if (this instanceof ArrayRangeProjection) {
-            return getFieldInclusion(mfield, (ArrayRangeProjection) this, ctx)!=Inclusion.undecided;
+            return getFieldInclusion(mfield, (ArrayProjection) this, ctx)!=Inclusion.undecided;
         } else if (this instanceof ProjectionList) {
             for(Projection x:((ProjectionList)this).getItems()) {
                 if(x.isFieldRequiredToEvaluateProjection(field,ctx))
@@ -277,9 +275,9 @@ public abstract class Projection extends JsonObject {
     }
 
 
-    private static Inclusion getFieldInclusion(Path field, ArrayQueryMatchProjection p, Path context) {
+    private Inclusion getFieldInclusion(Path field, ArrayProjection p, Path context) {
         Path absField = new Path(context, toMask(p.getField()));
-        LOGGER.debug("Checking if array query match projection on {} projects {}", absField, field);
+        LOGGER.debug("Checking if array projection on {} projects {}", absField, field);
         Inclusion inc = isFieldIncluded(field, absField, p.isInclude(), false);
         Inclusion inc2 = p.getProject().getFieldInclusion(field,new Path(absField,Path.ANYPATH));
         Inclusion ret;
@@ -294,32 +292,11 @@ public abstract class Projection extends JsonObject {
             ret=Inclusion.implicit_exclusion;
         else
             ret=Inclusion.undecided;
-        LOGGER.debug("array query match projection on {} projects {}: {}", absField, field, ret);
+        LOGGER.debug("array projection on {} projects {}: {}", absField, field, ret);
         return ret;
     }
 
-
-    private Inclusion getFieldInclusion(Path field, ArrayRangeProjection p, Path context) {
-        Path absField = new Path(context, toMask(p.getField()));
-        LOGGER.debug("Checking if array range projection on {} projects {}", absField, field);
-        Inclusion inc = isFieldIncluded(field, absField, p.isInclude(), false);
-        Inclusion inc2 = p.getProject().getFieldInclusion(field,new Path(absField,Path.ANYPATH));
-        Inclusion ret;
-        if(inc==Inclusion.explicit_inclusion||inc2==Inclusion.explicit_inclusion)
-            ret=Inclusion.explicit_inclusion;
-        else if(inc==Inclusion.implicit_inclusion||inc2==Inclusion.implicit_inclusion)
-            ret=Inclusion.implicit_inclusion;
-        else if(inc==Inclusion.explicit_exclusion||inc2==Inclusion.explicit_exclusion)
-            ret=Inclusion.explicit_exclusion;
-        else if(inc==Inclusion.implicit_exclusion||inc2==Inclusion.implicit_exclusion)
-            ret=Inclusion.implicit_exclusion;
-        else
-            ret=Inclusion.undecided;
-        LOGGER.debug("array range projection on {} projects {}: {}", absField, field, ret);
-        return ret;
-    }
-
-    private static Inclusion getFieldInclusion(Path field, ProjectionList p, Path context) {
+    private Inclusion getFieldInclusion(Path field, ProjectionList p, Path context) {
         LOGGER.debug("Checking if a projection list projects {}", field);
         Inclusion lastResult = Inclusion.undecided;
         List<Projection> items=p.getItems();
@@ -334,7 +311,7 @@ public abstract class Projection extends JsonObject {
         return lastResult;
     }
 
-    private static Inclusion getFieldInclusion(Path field, FieldProjection p, Path context) {
+    private Inclusion getFieldInclusion(Path field, FieldProjection p, Path context) {
         Path projectionField = new Path(context, toMask(p.getField()));
         LOGGER.debug("Checking if field projection on {} projects {}", projectionField, field);
         Inclusion inc = isFieldIncluded(field, projectionField, p.isInclude(), p.isRecursive());

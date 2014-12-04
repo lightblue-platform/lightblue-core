@@ -22,18 +22,19 @@ import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 public class ProjectionFieldReferenceTest {
-    final String doc1 = "{\"field\":\"field.x\", \"include\": true}";
-    final String doc2 = "{\"field\":\"field.x\",\"include\": true, \"recursive\": true}";
-    final String doc3 = "{\"field\":\"field.y.x\",\"include\": false, \"recursive\": true}";
-    final String doc4 = "{\"field\":\"field.x\",\"include\":true,\"match\":{\"field\":\"field.z\",\"op\":\"$eq\",\"rvalue\":1},\"project\":{\"field\":\"member\"}}";
-    final String doc5 = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,4],\"project\":{\"field\":\"member\"}}";
+    final String p_field_inclusion = "{\"field\":\"field.x\", \"include\": true}";
+    final String p_field_inclusion_recursive = "{\"field\":\"field.x\",\"include\": true, \"recursive\": true}";
+    final String p_field_exclusion= "{\"field\":\"field.y.x\",\"include\": false}";
+    final String p_field_exclusion_recursive = "{\"field\":\"field.y.x\",\"include\": false, \"recursive\": true}";
+    final String p_array_match = "{\"field\":\"field.x\",\"include\":true,\"match\":{\"field\":\"field.z\",\"op\":\"$eq\",\"rvalue\":1},\"project\":{\"field\":\"member\"}}";
+    final String p_array_range = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,4],\"project\":{\"field\":\"member\"}}";
+    final String p_list = "[{\"field\":\"field.x\", \"include\": true},{\"field\":\"field.x.z\",\"include\": true, \"recursive\": true},{\"field\":\"field.y\",\"include\": false, \"recursive\": true}]";
 
     @Test
-    public void doc1Test() throws Exception {
-        Projection p = Projection.fromJson(JsonUtils.json(doc1));
+    public void field_inclusion() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_field_inclusion));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x")));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field")));
         Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.x.y")));
@@ -41,42 +42,80 @@ public class ProjectionFieldReferenceTest {
 
 
     @Test
-    public void doc2Test() throws Exception {
-        Projection p = Projection.fromJson(JsonUtils.json(doc2));
+    public void field_inclusion_recursive() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_field_inclusion_recursive));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x")));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field")));
         Assert.assertEquals(Projection.Inclusion.implicit_inclusion,p.getFieldInclusion(new Path("field.x.y")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.z")));
     }
 
     @Test
-    public void doc3Test() throws Exception {
-        Projection p = Projection.fromJson(JsonUtils.json(doc3));
+    public void field_exclusion() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_field_exclusion));
         Assert.assertEquals(Projection.Inclusion.explicit_exclusion,p.getFieldInclusion(new Path("field.y.x")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.y.x.z")));
         Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field")));
         Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.y")));
-        Assert.assertEquals(Projection.Inclusion.implicit_exclusion,p.getFieldInclusion(new Path("field.y.x.z")));
     }
 
     @Test
-    public void doc4Test() throws Exception {
-        Projection p = Projection.fromJson(JsonUtils.json(doc4));
+    public void field_exclusion_recursive() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_field_exclusion_recursive));
+        Assert.assertEquals(Projection.Inclusion.explicit_exclusion,p.getFieldInclusion(new Path("field.y.x")));
+        Assert.assertEquals(Projection.Inclusion.implicit_exclusion,p.getFieldInclusion(new Path("field.y.x.z")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.y")));
+    }
+
+    @Test
+    public void array_match() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_array_match));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x")));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field")));
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x.*.member")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.a")));
         Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.x.*.field.z")));
         Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x")));
         Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x.field")));
         Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x.*.field.z")));
+        Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.a")));
     }
 
     @Test
-    public void doc5Test() throws Exception {
-        Projection p = Projection.fromJson(JsonUtils.json(doc5));
+    public void array_range() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_array_range));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x")));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field")));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x.*.member")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.a")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.x.*.b")));
         Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field")));
         Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x")));
         Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x.*.member")));
+        Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.a")));
     }
 
+    @Test
+    public void projection_list() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(p_list));
+        Assert.assertTrue(p instanceof ProjectionList);
+        ProjectionList pl = (ProjectionList)p;
+        //"[{\"field\":\"field.x\", \"include\": true},{\"field\":\"field.x.z\",\"include\": true, \"recursive\": true},{\"field\":\"field.y\",\"include\": false, \"recursive\": true}]";
+
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x")));
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field")));
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field.x.z")));
+        Assert.assertEquals(Projection.Inclusion.implicit_inclusion,p.getFieldInclusion(new Path("field.x.z.b")));
+        Assert.assertEquals(Projection.Inclusion.explicit_exclusion,p.getFieldInclusion(new Path("field.y")));
+        Assert.assertEquals(Projection.Inclusion.implicit_exclusion,p.getFieldInclusion(new Path("field.y.q")));
+        Assert.assertEquals(Projection.Inclusion.undecided,p.getFieldInclusion(new Path("field.t")));
+        Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field")));
+        Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x")));
+        Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x.z")));
+        Assert.assertTrue(p.isFieldRequiredToEvaluateProjection(new Path("field.x.z.b")));
+        Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.y")));
+        Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.y.q")));
+        Assert.assertFalse(p.isFieldRequiredToEvaluateProjection(new Path("field.t")));
+    }
 }
