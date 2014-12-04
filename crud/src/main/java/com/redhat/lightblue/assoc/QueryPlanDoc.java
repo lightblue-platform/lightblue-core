@@ -26,9 +26,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.redhat.lightblue.metadata.DocId;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 
@@ -87,12 +84,12 @@ public class QueryPlanDoc implements Serializable {
         for(QueryPlanDoc c:list)
             c.parents.put(node,this);
     }
-    
+
     /**
      * Adds a child document to this node
      *
-     * @param node The query plan node for which the child document were retrieved
-     * @param list The child document
+     * @param node The query plan node for which the child document was retrieved
+     * @param doc The child document
      *
      * The implementation modifies the child document by setting their parents to this
      */
@@ -100,11 +97,11 @@ public class QueryPlanDoc implements Serializable {
         List<QueryPlanDoc> clist=children.get(node);
         if(clist==null) {
             children.put(node,clist=new ArrayList<>());
-        } 
+        }
         clist.add(doc);
         doc.parents.put(node,this);
     }
-    
+
     /**
      * Returns the children of this document for the given query plan node
      */
