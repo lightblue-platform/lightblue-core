@@ -40,6 +40,19 @@ public abstract class Projection extends JsonObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Projection.class);
 
+    /**
+     * Inclusion status for a field
+     *
+     * <ul>
+     * <li>explicit_exclusion: the projection excludes this field explicitly</li>
+     * <li>implicit_exzclusion: the projection excludes this field because an ancestor 
+     *       of the field is excluded</li>
+     * <li>explicit_inclusion: the projection includes the field explicitly</li>
+     * <li>explicit_exclusion: the projection excludes the field explicitly</li>
+     * <li>undecided: the projection does not decide if the field should be
+     * included/excluded, and does not reference it</li>
+     * <ul>
+     */
     public static enum Inclusion {
         explicit_exclusion, implicit_exclusion, explicit_inclusion, implicit_inclusion, undecided
     };
@@ -194,114 +207,139 @@ public abstract class Projection extends JsonObject {
     }
 
     /**
-     * Determines if the field is required to evaluate this projection, that is,
-     * if either the field is included, or read in a nested query within the
-     * projection
+     * Determines if the field is included in this projection
      *
      * @param field The absolute name of the field
      *
      * If the field name contains array indexes, they are converted to '*'
      * before evaluation.
      */
-    public boolean isRequired(Path field) {
-        LOGGER.debug("Checking if {} is used in projection", field);
-        Boolean x = isRequired(field, Path.EMPTY);
-        return x == null ? false : x;
+    public Inclusion getFieldInclusion(Path field) {
+        LOGGER.debug("Checking if {} is projected", field);
+        return getFieldInclusion(field, Path.EMPTY);
     }
 
     /**
-     * Determines if the field is required to evaluate this projection, that is,
-     * if either the field is included, or read in a nested query within the
-     * projection
-     *
-     * @param field The absolute name of the field
-     * @param ctx The context path, for nested projections
-     *
-     * If the field name contains array indexes, they are converted to '*'
-     * before evaluation.
+     * Determine if the field is explicitly included/excluded, implicitly included, or 
+     * the projection does not decide on the field.
      */
-    public Boolean isRequired(Path field, Path ctx) {
+    public Inclusion getFieldInclusion(Path field,Path ctx) {
         Path mfield = toMask(field);
         ctx = toMask(ctx);
         if (this instanceof FieldProjection) {
-            return isRequired(mfield, (FieldProjection) this, ctx);
+            return getFieldInclusion(mfield, (FieldProjection) this, ctx);
         } else if (this instanceof ArrayQueryMatchProjection) {
-            return isRequired(mfield, (ArrayQueryMatchProjection) this, ctx);
+            return getFieldInclusion(mfield, (ArrayQueryMatchProjection) this, ctx);
         } else if (this instanceof ArrayRangeProjection) {
-            return isRequired(mfield, (ArrayRangeProjection) this, ctx);
+            return getFieldInclusion(mfield, (ArrayRangeProjection) this, ctx);
         } else if (this instanceof ProjectionList) {
-            return isRequired(mfield, (ProjectionList) this, ctx);
+            return getFieldInclusion(mfield, (ProjectionList) this, ctx);
         }
-        return null;
+        return Inclusion.undecided;
     }
 
-    private static Boolean isRequired(Path field, ArrayQueryMatchProjection p, Path context) {
+    /**
+     * Returns true if the field is needed to evaluate the projection
+     */
+    public boolean isFieldRequiredToEvaluateProjection(Path field) {
+        LOGGER.debug("Checking if {} is referenced in projection", field);
+        return isFieldRequiredToEvaluateProjection(field, Path.EMPTY);
+    }
+
+    /**
+     * Returns true if the field is needed to evaluate the projection
+     */
+    public boolean isFieldRequiredToEvaluateProjection(Path field,Path ctx) {
+        Path mfield = toMask(field);
+        ctx = toMask(ctx);
+        if (this instanceof FieldProjection) {
+            switch(getFieldInclusion(mfield, (FieldProjection) this, ctx)) {
+            case implicit_inclusion:
+            case explicit_inclusion: return true;
+            default: return false;
+            }
+        } else if (this instanceof ArrayQueryMatchProjection) {
+            if(getFieldInclusion(mfield, (ArrayQueryMatchProjection) this, ctx)==Inclusion.undecided) {
+                Path absField = new Path(ctx, toMask(((ArrayQueryMatchProjection)this).getField()));
+                return ((ArrayQueryMatchProjection)this).getMatch().isRequired(field,new Path(absField,Path.ANYPATH));
+            } else {
+                return true;
+            }
+        } else if (this instanceof ArrayRangeProjection) {
+            return getFieldInclusion(mfield, (ArrayRangeProjection) this, ctx)!=Inclusion.undecided;
+        } else if (this instanceof ProjectionList) {
+            for(Projection x:((ProjectionList)this).getItems()) {
+                if(x.isFieldRequiredToEvaluateProjection(field,ctx))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+
+    private static Inclusion getFieldInclusion(Path field, ArrayQueryMatchProjection p, Path context) {
         Path absField = new Path(context, toMask(p.getField()));
         LOGGER.debug("Checking if array query match projection on {} projects {}", absField, field);
         Inclusion inc = isFieldIncluded(field, absField, p.isInclude(), false);
-        if (inc == Inclusion.undecided) {
-            LOGGER.debug("No match, checking if query requires the field");
-            return p.getMatch().isRequired(field, new Path(absField, Path.ANYPATH));
-        } else {
-            LOGGER.debug("array query match projection on {} projects {}: {}", absField, field, inc);
-            switch (inc) {
-                case explicit_inclusion:
-                    return Boolean.TRUE;
-                // Exclusion returns true, this is not a bug. If we
-                // selectively exclude a field, then it means we also
-                // selectively include the parts that are not excluded
-                case explicit_exclusion:
-                    return Boolean.TRUE;
-                default:
-                    return null;
-            }
-        }
+        Inclusion inc2 = p.getProject().getFieldInclusion(field,new Path(absField,Path.ANYPATH));
+        Inclusion ret;
+
+        if(inc==Inclusion.explicit_inclusion||inc2==Inclusion.explicit_inclusion)
+            ret=Inclusion.explicit_inclusion;
+        else if(inc==Inclusion.implicit_inclusion||inc2==Inclusion.implicit_inclusion)
+            ret=Inclusion.implicit_inclusion;
+        else if(inc==Inclusion.explicit_exclusion||inc2==Inclusion.explicit_exclusion)
+            ret=Inclusion.explicit_exclusion;
+        else if(inc==Inclusion.implicit_exclusion||inc2==Inclusion.implicit_exclusion)
+            ret=Inclusion.implicit_exclusion;
+        else
+            ret=Inclusion.undecided;
+        LOGGER.debug("array query match projection on {} projects {}: {}", absField, field, ret);
+        return ret;
     }
 
-    private Boolean isRequired(Path field, ArrayRangeProjection p, Path context) {
+
+    private Inclusion getFieldInclusion(Path field, ArrayRangeProjection p, Path context) {
         Path absField = new Path(context, toMask(p.getField()));
         LOGGER.debug("Checking if array range projection on {} projects {}", absField, field);
         Inclusion inc = isFieldIncluded(field, absField, p.isInclude(), false);
-        LOGGER.debug("array range projection on {} projects {}: {}", absField, field, inc);
-        switch (inc) {
-            case explicit_inclusion:
-                return Boolean.TRUE;
-            // Exclusion returns true, this is not a bug. If we
-            // selectively exclude a field, then we also selectively
-            // include the parts that are not excluded.
-            case explicit_exclusion:
-                return Boolean.TRUE;
-            default:
-                return null;
-        }
+        Inclusion inc2 = p.getProject().getFieldInclusion(field,new Path(absField,Path.ANYPATH));
+        Inclusion ret;
+        if(inc==Inclusion.explicit_inclusion||inc2==Inclusion.explicit_inclusion)
+            ret=Inclusion.explicit_inclusion;
+        else if(inc==Inclusion.implicit_inclusion||inc2==Inclusion.implicit_inclusion)
+            ret=Inclusion.implicit_inclusion;
+        else if(inc==Inclusion.explicit_exclusion||inc2==Inclusion.explicit_exclusion)
+            ret=Inclusion.explicit_exclusion;
+        else if(inc==Inclusion.implicit_exclusion||inc2==Inclusion.implicit_exclusion)
+            ret=Inclusion.implicit_exclusion;
+        else
+            ret=Inclusion.undecided;
+        LOGGER.debug("array range projection on {} projects {}: {}", absField, field, ret);
+        return ret;
     }
 
-    private static Boolean isRequired(Path field, ProjectionList p, Path context) {
+    private static Inclusion getFieldInclusion(Path field, ProjectionList p, Path context) {
         LOGGER.debug("Checking if a projection list projects {}", field);
-        Boolean lastResult = null;
-        for (Projection x : p.getItems()) {
-            Boolean ret = x.isRequired(field, context);
-            if (ret != null) {
-                lastResult = ret;
+        Inclusion lastResult = Inclusion.undecided;
+        List<Projection> items=p.getItems();
+        for(int i=items.size()-1;i>=0;i--) {
+            Inclusion ret = items.get(i).getFieldInclusion(field, context);
+            if (ret != Inclusion.undecided) {
+                lastResult=ret;
+                break;
             }
         }
         LOGGER.debug("Projection list projects {}: {}", field, lastResult);
         return lastResult;
     }
 
-    private Boolean isRequired(Path field, FieldProjection p, Path context) {
+    private static Inclusion getFieldInclusion(Path field, FieldProjection p, Path context) {
         Path projectionField = new Path(context, toMask(p.getField()));
         LOGGER.debug("Checking if field projection on {} projects {}", projectionField, field);
-        Inclusion inc = isFieldIncluded(field, projectionField, p.isInclude(), false);
+        Inclusion inc = isFieldIncluded(field, projectionField, p.isInclude(), p.isRecursive());
         LOGGER.debug("Field projection on {} projects {}: {}", projectionField, field, inc);
-        switch (inc) {
-            case explicit_inclusion:
-                return Boolean.TRUE;
-            case explicit_exclusion:
-                return Boolean.FALSE;
-            default:
-                return null;
-        }
+        return inc;
     }
 
     /**
