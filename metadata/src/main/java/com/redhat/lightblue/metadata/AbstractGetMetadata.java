@@ -105,6 +105,12 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
                                                        String entityName,
                                                        String version);
 
+    /**
+     * Returns true if field inclusion is explicit.
+     *
+     * @param field the path to check
+     * @return
+     */
     private boolean isProjected(Path field) {
         LOGGER.debug("Checking if {} is explicitly projected", field);
         for (Projection p : projections) {
