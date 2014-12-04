@@ -35,11 +35,13 @@ import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
@@ -55,6 +57,7 @@ import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.TestDataStoreParser;
 
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.Request;
 import com.redhat.lightblue.EntityVersion;
 
 public class CompositeFinderTest extends AbstractJsonSchemaTest {
@@ -84,6 +87,24 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         }
     }
 
+    private static final class TestMediator extends Mediator {
+        OperationContext ctx;
+
+        public TestMediator(Metadata md,
+                            Factory factory) {
+            super(md,factory);
+        }
+
+        @Override
+        protected OperationContext newCtx(Request request,Operation operation) {
+            return ctx=super.newCtx(request,operation);
+        }
+    }
+
+    private static OperationContext getLastContext(Mediator m) {
+        return ((TestMediator)m).ctx;
+    }
+
     @Before
     public void initMediator() throws Exception {
         Factory factory = new Factory();
@@ -105,7 +126,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
                     }
                 }
             }));
-        mediator = new Mediator(new TestMetadata(), factory);
+        mediator = new TestMediator(new TestMetadata(), factory);
     }
 
     private QueryExpression query(String s) throws Exception {
@@ -136,7 +157,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
-        QueryPlan qplan=(QueryPlan)mediator.getLastContext().getProperty(Mediator.CTX_QPLAN);
+        QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
         // This one must have A -> B
         Assert.assertEquals(1,qplan.getSources().length);
         Assert.assertEquals("A",qplan.getSources()[0].getMetadata().getName());
@@ -151,7 +172,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
-        QueryPlan qplan=(QueryPlan)mediator.getLastContext().getProperty(Mediator.CTX_QPLAN);
+        QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
          // This one must have B -> A
         Assert.assertEquals(1,qplan.getSources().length);
         Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
@@ -166,7 +187,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
-        QueryPlan qplan=(QueryPlan)mediator.getLastContext().getProperty(Mediator.CTX_QPLAN);
+        QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
         // This one must have B -> A
         Assert.assertEquals(1,qplan.getSources().length);
         Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
