@@ -23,6 +23,7 @@ public final class AssocConstants {
     public static final String ERR_CANNOT_CREATE_CHOOSER="assoc:CannotCreateQueryPlanChooser";
     public static final String ERR_UNRELATED_ENTITY_Q="assoc:unsupported:QueryForUnrelatedEntities";
     public static final String ERR_MORE_THAN_TWO_Q="assoc:unsupported:QueryForMoreThanTwoEntities";
+    public static final String ERR_REWRITE="assoc:QueryRewriteError";
 
     private AssocConstants() {}
 }
