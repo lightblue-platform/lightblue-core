@@ -37,11 +37,14 @@ import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 import com.redhat.lightblue.util.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class that combines value comparison expressions to in/not-in expressions.
  */
 abstract class CombineComparisonsToInNotIn extends Rewriter {
+    private static final Logger LOGGER= LoggerFactory.getLogger(CombineComparisonsToInNotIn.class);
 
     private final NaryLogicalOperator logicalOp;
     private final BinaryComparisonOperator binaryOp;
@@ -60,7 +63,8 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
         NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
         if(le!=null) {
             if(le.getOp()==logicalOp) {
-                // group value comparison expressions with operation =
+                LOGGER.debug("Processing q={}",le);
+                // group value comparison expressions with given logical operator ($and/$or)
                 boolean needCombine=false;
                 Map<Path,List<ValueComparisonExpression>> map=new HashMap<>();
                 for(QueryExpression x:le.getQueries()) {
@@ -70,20 +74,22 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
                         if(values==null)
                             map.put(vce.getField(),values=new ArrayList<>());
                         else if(!needCombine)
-                            needCombine=true; // There exists more than one value with =, so combine
+                            needCombine=true; // There exists more than one matching value comparison for this path, so need to combine to one
                         values.add(vce);
                     }
                 }
+                LOGGER.debug("Grouped expressions={}",map);
                 if(needCombine) {
+                    LOGGER.debug("Query expressions can be combined");
                     List<QueryExpression> newList=new ArrayList<>(le.getQueries().size());
                     for(Map.Entry<Path,List<ValueComparisonExpression>> entry:map.entrySet()) {
                         if(entry.getValue().size()>1) {
-                            // Combine them into an $in expression
-                            Set<Value> valueList=new HashSet<Value>();
+                            // Combine them into an Nary ($in/$nin) expression
+                            Set<Value> valueList=new HashSet<>();
                             for(ValueComparisonExpression x:entry.getValue())
                                 valueList.add(x.getRvalue());
                             newList.add(new NaryRelationalExpression(entry.getKey(),relationalOp,
-                                                                     new ArrayList<Value>(valueList)));
+                                                                     new ArrayList<>(valueList)));
                         } else {
                             newList.addAll(entry.getValue());
                         }
@@ -95,6 +101,7 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
                                 newList.add(x);
                         } else
                             newList.add(x);
+                    LOGGER.debug("Combined expression list={}",newList);
                     return new NaryLogicalExpression(logicalOp,newList);
                 } 
             }

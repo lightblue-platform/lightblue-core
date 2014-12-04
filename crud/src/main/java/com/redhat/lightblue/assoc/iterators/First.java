@@ -41,14 +41,6 @@ public class First implements QueryPlanIterator, Serializable {
         this.qp=qp;
     }
 
-    /**
-     * Returns the query plan
-     */
-    @Override
-    public QueryPlan getQueryPlan() {
-        return qp;
-    }
-
     @Override
     public boolean next() {
         return false;

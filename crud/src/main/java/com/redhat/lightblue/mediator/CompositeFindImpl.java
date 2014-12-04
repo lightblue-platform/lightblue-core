@@ -77,8 +77,6 @@ public class CompositeFindImpl implements Finder {
     private final QueryPlan qplan;
     private final Factory factory;
 
-    private final QueryPlanNode[] sources;
-
     private final Map<DocId,JsonDoc> documentCache=new HashMap<>();
     
     private final List<Error> errors=new ArrayList<>();
@@ -90,7 +88,6 @@ public class CompositeFindImpl implements Finder {
         this.qplan=qplan;
         this.factory=factory;
 
-        sources=qplan.getSources();
         init(qplan,factory);
     }
 
@@ -134,6 +131,9 @@ public class CompositeFindImpl implements Finder {
             LOGGER.debug("Composite find: {}",node.getName());
             QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
             if(node.getMetadata().getParent()==null) {
+                if (req.getTo() != null && req.getFrom() != null) {
+                    exec.setRange(req.getFrom(), req.getTo());
+                }
                 exec.execute(ctx,req.getSort());
                 // Reached the root node. Terminate execution, and build documents
                 rootNode=node;
@@ -144,6 +144,11 @@ public class CompositeFindImpl implements Finder {
         }
 
         LOGGER.debug("Composite find: retrieval of result set is complete, now building documents");
+
+        if (rootNode == null) {
+            // not likely, but just in case
+            throw new IllegalStateException("No root QueryPlanNode selected to execute query against!");
+        }
         
         CRUDFindResponse response=new CRUDFindResponse();
         List<DocCtx> resultDocuments=retrieveDocuments(ctx,rootNode.getProperty(QueryPlanNodeExecutor.class));

@@ -103,7 +103,7 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         LOGGER.debug("Composite metadata:{}",cmd);
          
         LOGGER.debug("Collecting metadata roles");
-        roles=new HashSet<String>();
+        roles=new HashSet<>();
         addMetadataRoles(roles, cmd);
         FieldCursor c = emd.getFieldCursor();
         while (c.next()) {

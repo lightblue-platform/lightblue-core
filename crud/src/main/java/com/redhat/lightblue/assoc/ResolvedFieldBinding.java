@@ -38,8 +38,6 @@ import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
-import com.redhat.lightblue.assoc.Conjunct;
-
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -91,10 +89,6 @@ public class ResolvedFieldBinding implements Serializable {
             this.runExpression=runExpression;
         }
 
-        private BindResult(QueryExpression runExpression) {
-            this(null,runExpression);
-        }
-        
         public List<ResolvedFieldBinding> getBindings() {
             return bindings;
         }
@@ -131,7 +125,7 @@ public class ResolvedFieldBinding implements Serializable {
     public static BindResult bind(List<Conjunct> clauses,
                                   QueryPlanNode atNode,
                                   CompositeMetadata root) {
-        BindResult ret;
+        BindResult ret = null;
         if(clauses!=null&&!clauses.isEmpty()) {
             QueryExpression query;
             if(clauses.size()==1) {
@@ -146,11 +140,16 @@ public class ResolvedFieldBinding implements Serializable {
             LOGGER.debug("Resolving bindings for {}",query);
             List<QueryInContext> bindable=query.getBindableClauses();
             LOGGER.debug("Bindable clauses:{}",bindable);
-            
+
+            // default the bound query to input query
+            QueryExpression boundQuery = query;
+            List<ResolvedFieldBinding> bindings = null;
+
             if(!bindable.isEmpty()) {
                 LOGGER.debug("Building bind request");
-                Set<Path> bindRequest=new HashSet<Path>();
+                Set<Path> bindRequest=new HashSet<>();
                 for(QueryInContext qic:bindable) {
+                    // TODO do you really know the class for the query here?
                     FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
                     // Find the field that refers to a node before
                     // the destination
@@ -172,7 +171,7 @@ public class ResolvedFieldBinding implements Serializable {
                                  rfieldNode==null?null:rfieldNode.getName());
                     // If lfieldNode points to the destination node,
                     // rfieldNode points to an ancestor, or vice versa
-                    if(lfieldNode.getName().equals(atNode.getName())) {
+                    if(lfieldNode!=null&&lfieldNode.getName().equals(atNode.getName())) {
                         bindRequest.add(rfield);
                     } else {
                         bindRequest.add(lfield);
@@ -181,35 +180,35 @@ public class ResolvedFieldBinding implements Serializable {
                 
                 LOGGER.debug("Bind fields:{}",bindRequest);
                 List<FieldBinding> fb=new ArrayList<>();
-                QueryExpression boundQuery=query.bind(fb,bindRequest);
-                List<ResolvedFieldBinding> bindings=new ArrayList<>();
+
+                // get the bound query
+                boundQuery=query.bind(fb,bindRequest);
+
+                // collect bindings
+                bindings=new ArrayList<>();
                 for(FieldBinding b:fb) {
                     bindings.add(new ResolvedFieldBinding(b,root));
                 }
-                LOGGER.debug("Bound query:{}",boundQuery);
-                // If destination node is not the root node, we need to rewrite the query relative to that node
-                // Otherwise, absolute query will work for the root node
-                QueryExpression runExpression;
-                if(atNode.getMetadata().getParent()==null) {
-                    runExpression=boundQuery;
-                } else {
-                    runExpression=new RelativeRewriteIterator(new Path(atNode.getMetadata().getEntityPath(),
-                                                                       Path.ANYPATH)).iterate(boundQuery);
-                }
-                LOGGER.debug("Run expression:{}",runExpression);
-                ret=new BindResult(bindings,runExpression);
-            } else {
-                QueryExpression runExpression;
-                if(atNode.getMetadata().getParent()==null) {
-                    runExpression=query;
-                } else {
-                    runExpression=new RelativeRewriteIterator(new Path(atNode.getMetadata().getEntityPath(),
-                                                                       Path.ANYPATH)).iterate(query);
-                }
-                ret=new BindResult(runExpression);
             }
-        } else
-            ret=null;
+
+            // note if there was nothing bindable:
+            // * field 'boundQuery' equals 'query'
+            // * field 'bindings' equals null
+
+            LOGGER.debug("Bound query:{}",boundQuery);
+            // If destination node is not the root node, we need to rewrite the query relative to that node
+            // Otherwise, absolute query will work for the root node
+            QueryExpression runExpression;
+            if(atNode.getMetadata().getParent()==null) {
+                runExpression=boundQuery;
+            } else {
+                runExpression=new RelativeRewriteIterator(new Path(atNode.getMetadata().getEntityPath(),
+                        Path.ANYPATH)).iterate(boundQuery);
+            }
+            LOGGER.debug("Run expression:{}",runExpression);
+            ret=new BindResult(bindings,runExpression);
+        }
+
         return ret;
     }
 

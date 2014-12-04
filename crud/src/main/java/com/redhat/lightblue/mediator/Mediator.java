@@ -342,7 +342,6 @@ public class Mediator {
                 if(ctx.isSimple()) {
                     LOGGER.debug("Simple entity");
                     finder=new SimpleFindImpl(md,factory);
-                    ctx.setStatus(OperationStatus.COMPLETE);
                 } else {
                     LOGGER.debug("Composite entity");
                     QueryPlanChooser qpChooser=new QueryPlanChooser(md,
@@ -354,7 +353,7 @@ public class Mediator {
                     finder=new CompositeFindImpl(md,qplan,factory);
                 }
 
-                CRUDFindResponse result=finder.find(ctx,req.getFindRequest());
+                CRUDFindResponse result=finder.find(ctx,req.getCRUDFindRequest());
 
                 ctx.setStatus(OperationStatus.COMPLETE);
                 response.setMatchCount(result.getSize());
@@ -368,8 +367,8 @@ public class Mediator {
                 }
 
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_FIND, ctx);
-                ctx.setStatus(OperationStatus.COMPLETE);
             }
+            // call any queued up hooks (regardless of status)
             ctx.getHookManager().queueMediatorHooks(ctx);
 
             response.setStatus(ctx.getStatus());

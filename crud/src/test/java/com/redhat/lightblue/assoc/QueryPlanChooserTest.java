@@ -127,8 +127,8 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
                                                       new BruteForceQueryPlanIterator(),
                                                       new IndexedFieldScorer(),
                                                       query("{'field':'field1','op':'=','rvalue':'s'}"));
-        // Iterate
-        while(chooser.next());
+        // choose a plan
+        chooser.choose();
         Assert.assertNotNull(chooser.getBestPlan());
         System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
         // Best plan should have A first
@@ -144,8 +144,8 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
                                                       new BruteForceQueryPlanIterator(),
                                                       new IndexedFieldScorer(),
                                                       query("{'field':'obj1.c.*.field1','op':'=','rvalue':'s'}"));
-        // Iterate
-        while(chooser.next());
+        // choose a plan
+        chooser.choose();
         Assert.assertNotNull(chooser.getBestPlan());
         System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
         System.out.println("Best plan:"+chooser.getBestPlan().treeToString());

@@ -46,7 +46,7 @@ public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializa
     private final class Edge {
         private final QueryPlanNode n1;
         private final QueryPlanNode n2;
-        private boolean v;
+        private boolean v = false;
 
         public Edge(QueryPlanNode n1,
                     QueryPlanNode n2) {
@@ -83,17 +83,9 @@ public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializa
     }
 
     /**
-     * Returns the query plan
-     */
-    @Override
-    public QueryPlan getQueryPlan() {
-        return qp;
-    }
-
-    /**
      * Modifies the query plan into a unique tree.
      *
-     * @return If true, tne query plan is configured into a unique
+     * @return If true, the query plan is configured into a unique
      * tree. If false, query plan is now returned back to its original
      * state during iterator construction, and the iteration is
      * expected to stop.
@@ -116,6 +108,5 @@ public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializa
             bld.append(e.v?'0':'1');
         return bld.toString();
     }
-
 }
 

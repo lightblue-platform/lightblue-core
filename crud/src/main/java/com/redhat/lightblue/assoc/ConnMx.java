@@ -40,6 +40,9 @@ public class ConnMx implements Serializable {
             connMx[i]=new boolean[nNodes];
     }
 
+    /**
+     * Copy constructor.
+     */
     public ConnMx(ConnMx source) {
         connMx=new boolean[source.connMx.length][];
         for(int i=0;i<source.connMx.length;i++)

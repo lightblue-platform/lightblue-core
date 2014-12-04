@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.assoc;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -159,5 +160,43 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
         dests=rrr.getDestinations();
         Assert.assertEquals(0,dests.length);
         
+    }
+
+    @Ignore
+    @Test
+    public void simple_StringBuilder_vs_String() {
+        // intellij claimed in this case a String might be faster.. I felt like testing it.
+        // note originally this created a new string builder each iteration.  it's as slow even this way..
+
+        // net result? no appreciable difference for a single instance but scaled to many iterations string builder is
+        // an order of magnitude slower.
+        int count = 1000000;
+
+        long timeStringBuilder = 0;
+        {
+            long before = System.currentTimeMillis();
+            StringBuilder bld = new StringBuilder();
+            for (int i = 0; i < count; i++) {
+                bld.delete(0,100);
+                bld.append("asdf").append('_').append(1);
+                String name = bld.toString();
+            }
+            long after = System.currentTimeMillis();
+
+            timeStringBuilder = after-before;
+        }
+
+        long timeString= 0;
+        {
+            long before = System.currentTimeMillis();
+            for (int i = 0; i < count; i++) {
+                String name = "asdf" + '_' + 1;
+            }
+            long after = System.currentTimeMillis();
+
+            timeString= after-before;
+        }
+
+        Assert.assertTrue(timeString < timeStringBuilder);
     }
 }

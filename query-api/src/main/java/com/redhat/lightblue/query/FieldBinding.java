@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * Keeps the information about a field binding. When a field is bound to a
  * value, that query clause is replaced with another one containing a
- * BoundValue. The FiendBinding for this instance keeps the field path, the
+ * BoundValue. The FieldBinding for this instance keeps the field path, the
  * value it is bound to, the original query expression (originalQuery), and the
  * new query expression containing the bound value (boundQuery). For instance,
  * consider the following expression:

@@ -23,12 +23,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.redhat.lightblue.query.QueryExpression;
-
-import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 
 /**
@@ -41,8 +35,6 @@ import com.redhat.lightblue.metadata.CompositeMetadata;
 public abstract class QueryPlanNode implements Serializable {
 
     private static final long serialVersionUID=1l;
-
-    private static final Logger LOGGER=LoggerFactory.getLogger(QueryPlanNode.class);
 
     protected final CompositeMetadata md;
     protected final QueryPlanData data;
@@ -77,7 +69,7 @@ public abstract class QueryPlanNode implements Serializable {
     }
 
     /**
-     * Returns the quey plan data used by the scorer
+     * Returns the query plan data used by the scorer
      */
     public QueryPlanData getData() {
         return data;
@@ -112,8 +104,7 @@ public abstract class QueryPlanNode implements Serializable {
     }
 
     /**
-     * The implementation returns the unique name for this node. The
-     * only practical use is for debugging
+     * The implementation returns the unique name for this node. Used to determine uniqueness in resolving field bindings.
      */
     public abstract String getName();
 
@@ -124,7 +115,7 @@ public abstract class QueryPlanNode implements Serializable {
     public abstract QueryPlanNode[] getSources();
 
     /**
-     * Returns the immediate descendands of this node. If there are
+     * Returns the immediate descendants of this node. If there are
      * node (i.e. node is a sink), returns an array with size 0
      */
     public abstract QueryPlanNode[] getDestinations();

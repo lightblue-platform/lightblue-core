@@ -33,7 +33,10 @@ import com.redhat.lightblue.util.CopyOnWriteIterator;
 
 import com.redhat.lightblue.assoc.qrew.rules.*;
 
-public class QueryRewriter {
+/**
+ * Implementation of Rewriter that orchestrates rewriting rules with registered Rewriter instances.
+ */
+public final class QueryRewriter extends Rewriter {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(QueryRewriter.class);
 
@@ -45,14 +48,24 @@ public class QueryRewriter {
 
     public QueryRewriter(boolean withDefaultRules) {
         if(withDefaultRules)
-            addDefaultRules();
+            registerDefaultRules();
     }
 
+    /**
+     * Register a Rewriter instance.  If attempt to register QueryRewriter returns without doing anything.
+     * @param rule the rewriter to register
+     */
     public void register(Rewriter rule) {
+        if (rule instanceof QueryRewriter) {
+            return;
+        }
         rewriteRules.add(rule);
     }
 
-    public void addDefaultRules() {
+    /**
+     * Register default rules.
+     */
+    protected void registerDefaultRules() {
         register(CombineANDsToNIN.INSTANCE);
         register(CombineINsInOR.INSTANCE);
         register(CombineNINsInAND.INSTANCE);
@@ -66,7 +79,7 @@ public class QueryRewriter {
         register(PromoteNestedAND.INSTANCE);
     }
 
-    public QueryExpression rewriteIteration(QueryExpression q) {        
+    protected QueryExpression rewriteIteration(QueryExpression q) {
         LOGGER.debug("Rewrite iteration begins for q={}",q);
         QueryExpression newq=q;
         if (q instanceof UnaryLogicalExpression) {
@@ -74,15 +87,15 @@ public class QueryRewriter {
             QueryExpression nestedq=((UnaryLogicalExpression)q).getQuery();
             QueryExpression newNestedq=rewriteIteration(nestedq);
             LOGGER.debug("Rewritten nested query={}",newNestedq);
-            if(newNestedq!=nestedq) 
+            if(newNestedq!=nestedq)
                 newq=new UnaryLogicalExpression( ((UnaryLogicalExpression)q).getOp(), newNestedq);
         } else if (q instanceof NaryLogicalExpression) {
             LOGGER.debug("q is a n-ary logical expression, rewriting nested terms");
-            CopyOnWriteIterator<QueryExpression> cowr=new CopyOnWriteIterator( ((NaryLogicalExpression)q).getQueries());
+            CopyOnWriteIterator<QueryExpression> cowr=new CopyOnWriteIterator<>( ((NaryLogicalExpression)q).getQueries());
             while(cowr.hasNext()) {
-                QueryExpression nested=cowr.next();
-                QueryExpression newNestedq=rewriteIteration(nested);
-                if(newNestedq!=nested)
+                QueryExpression nestedq=cowr.next();
+                QueryExpression newNestedq=rewriteIteration(nestedq);
+                if(newNestedq!=nestedq)
                     cowr.set(newNestedq);
             }
             if(cowr.isCopied())
@@ -102,6 +115,7 @@ public class QueryRewriter {
         return newq;
     }
 
+    @Override
     public QueryExpression rewrite(QueryExpression q) {
         QueryExpression trc=q;
         QueryExpression newq;
