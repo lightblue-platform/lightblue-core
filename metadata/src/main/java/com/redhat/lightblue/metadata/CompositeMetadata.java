@@ -217,9 +217,9 @@ public class CompositeMetadata extends EntityMetadata {
             FieldTreeNode trc = fieldNode;
             do {
                 if (trc instanceof ArrayElement && trc.getParent() instanceof ResolvedReferenceField) {
-                    int n = list.size();
-                    for (int i = n - 1; i >= 0; i--) {
-                        mp.push(list.get(i));
+                    ListIterator<String> listItr = list.listIterator(list.size());
+                    while (listItr.hasPrevious()) {
+                        mp.push(listItr.previous());
                     }
                     return mp.immutableCopy();
                 } else if (trc != getEntitySchema().getFieldTreeRoot()) {
