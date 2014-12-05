@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Base class for all projection objects
@@ -300,8 +301,9 @@ public abstract class Projection extends JsonObject {
         LOGGER.debug("Checking if a projection list projects {}", field);
         Inclusion lastResult = Inclusion.undecided;
         List<Projection> items=p.getItems();
-        for(int i=items.size()-1;i>=0;i--) {
-            Inclusion ret = items.get(i).getFieldInclusion(field, context);
+        ListIterator<Projection> itemsItr = items.listIterator(items.size());
+        while (itemsItr.hasPrevious()) {
+            Inclusion ret = itemsItr.previous().getFieldInclusion(field, context);
             if (ret != Inclusion.undecided) {
                 lastResult=ret;
                 break;

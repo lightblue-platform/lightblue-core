@@ -20,6 +20,7 @@ package com.redhat.lightblue.eval;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import com.redhat.lightblue.util.Path;
 
@@ -65,11 +66,13 @@ public class ListProjector extends Projector {
     public Boolean project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
         decidingProjector=null;
-        for (int n = items.size() - 1; n >= 0; n--) {
-            Boolean projectionResult = items.get(n).project(p, ctx);
+        ListIterator<Projector> itemsItr=items.listIterator(items.size());
+        while (itemsItr.hasPrevious()) {
+            Projector projector = itemsItr.previous();
+            Boolean projectionResult = projector.project(p, ctx);
             if (projectionResult != null) {
-                nestedProjector = items.get(n).getNestedProjector();
-                decidingProjector = items.get(n).getDecidingProjector();
+                nestedProjector = projector.getNestedProjector();
+                decidingProjector = projector.getDecidingProjector();
                 return projectionResult;
             }
         }

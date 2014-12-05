@@ -103,8 +103,9 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
 
             ArrayNode backendParsersJs = (ArrayNode) node.get("backendParsers");
             if(backendParsersJs != null) {
-                for (int i = 0; i < backendParsersJs.size(); i++) {
-                    JsonNode jsonNode = backendParsersJs.get(i);
+                Iterator<JsonNode> bpjsItr = backendParsersJs.iterator();
+                while (bpjsItr.hasNext()) {
+                    JsonNode jsonNode = bpjsItr.next();
                     String name = jsonNode.get("name").asText();
                     String clazz = jsonNode.get("clazz").asText();
 
@@ -124,8 +125,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
 
             ArrayNode propertyParserJs = (ArrayNode) node.get("propertyParsers");
             if(propertyParserJs != null) {
-                for (int i = 0; i < propertyParserJs.size(); i++) {
-                    JsonNode jsonNode = propertyParserJs.get(i);
+                for (JsonNode jsonNode:propertyParserJs) {
                     String name = jsonNode.get("name").asText();
                     String clazz = jsonNode.get("clazz").asText();
 
@@ -157,8 +157,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     }
 
                     roleMap.put(name, new ArrayList<String>());
-                    for (int j = 0; j < rolesJs.size(); j++) {
-                        JsonNode jsonNode = rolesJs.get(j);
+                    for (JsonNode jsonNode: rolesJs) {
                         roleMap.get(name).add(jsonNode.textValue());
                     }
                 }
