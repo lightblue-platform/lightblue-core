@@ -182,6 +182,9 @@
                                 },
                                 "access": {
                                     "$ref": "#/definitions/accessField"
+                                },
+                                "description": {
+                                    "type": "string"
                                 }
                             },
                             "additionalProperties": false,
@@ -203,6 +206,9 @@
                                 },
                                 "fields": {
                                     "$ref": "#/definitions/fieldSingle"
+                                },
+                                "description": {
+                                    "type": "string"
                                 }
                             },
                             "additionalProperties": false,
@@ -222,6 +228,9 @@
                                 },
                                 "access": {
                                     "$ref": "#/definitions/accessField"
+                                },
+                                "description": {
+                                    "type": "string"
                                 },
                                 "items": {
                                     "oneOf": [
