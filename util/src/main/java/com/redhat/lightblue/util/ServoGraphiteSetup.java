@@ -82,18 +82,22 @@ public final class ServoGraphiteSetup {
             LOGGER.warn("A metrics publisher has already been registerd, ignoring this step and using the existing publisher", e);
         }
 
-        // try to get name from openshift.  assume it's scaleable app.
-        // format: <app name>.  <namespace>.<gear dns>
-        // default
-        String prefix = System.getenv("HOSTNAME");
-
-        if (System.getenv("OPENSHIFT_APP_NAME") != null) {
-            prefix = String.format(
-                    "%s.%s.%s",
-                    System.getenv("OPENSHIFT_APP_NAME"),
-                    System.getenv("OPENSHIFT_NAMESPACE"),
-                    System.getenv("OPENSHIFT_GEAR_DNS")
-                    );
+        String prefix = System.getenv("GRAPHITE_PREFIX");
+        if(prefix == null){
+            if (System.getenv("OPENSHIFT_APP_NAME") != null) {
+                // try to get name from openshift.  assume it's scaleable app.
+                // format: <app name>.  <namespace>.<gear dns>
+                prefix = String.format(
+                        "%s.%s.%s",
+                        System.getenv("OPENSHIFT_APP_NAME"),
+                        System.getenv("OPENSHIFT_NAMESPACE"),
+                        System.getenv("OPENSHIFT_GEAR_DNS")
+                        );
+            }
+            else{
+                //default
+                prefix = System.getenv("HOSTNAME");
+            }
         }
 
         String host = System.getenv("GRAPHITE_HOSTNAME");
