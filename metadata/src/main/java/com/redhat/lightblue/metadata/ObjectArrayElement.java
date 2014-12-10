@@ -18,11 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
+import com.redhat.lightblue.metadata.types.ObjectType;
 import com.redhat.lightblue.util.Path;
 
-import com.redhat.lightblue.metadata.types.ObjectType;
+import java.util.Iterator;
 
 public class ObjectArrayElement extends ArrayElement {
 
@@ -32,6 +31,28 @@ public class ObjectArrayElement extends ArrayElement {
     public ObjectArrayElement() {
         super(ObjectType.TYPE);
         fields = new Fields(this);
+    }
+
+    /**
+     * Internal ctor to set fields to another object. Used in
+     * ResolvedReferenceField
+     */
+    private ObjectArrayElement(Fields fields) {
+        super(ObjectType.TYPE);
+        this.fields = fields;
+        fields.setParent(this);
+        for (Iterator<Field> itr = fields.getFields(); itr.hasNext();) {
+            itr.next().setParent(this);
+        }
+    }
+
+    /**
+     * Creates a new object array element with the given fields. A reference to
+     * the given fields object is stored in the instance, so caller can create
+     * an object array element, and then add the fields.
+     */
+    public static ObjectArrayElement withFields(Fields fields) {
+        return new ObjectArrayElement(fields);
     }
 
     public Fields getFields() {
@@ -53,7 +74,7 @@ public class ObjectArrayElement extends ArrayElement {
         if (p.numSegments() == level) {
             return this;
         } else if (Path.PARENT.equals(p.head(level))) {
-            return this.getParent().resolve(p, level + 1);
+            return this.getParent().getParent().resolve(p, level + 1);
         } else {
             return fields.resolve(p, level);
         }

@@ -20,7 +20,6 @@ package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Path;
 
 public class ArrayQueryMatchProjection extends ArrayProjection {
@@ -34,7 +33,7 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
                                      Projection project,
                                      Sort sort,
                                      QueryExpression match) {
-        super(field, include, project,sort);
+        super(field, include, project, sort);
         this.match = match;
     }
 
@@ -42,7 +41,7 @@ public class ArrayQueryMatchProjection extends ArrayProjection {
                                      boolean include,
                                      Projection project,
                                      QueryExpression match) {
-        this(field, include, project,null,match);
+        this(field, include, project, null, match);
     }
 
     public QueryExpression getMatch() {

@@ -189,8 +189,9 @@ public class EntityMetadata implements Serializable {
     }
 
     /**
-     * Verifies that the entity info and entity schema as a whole are valid.  For example, are all enum constraints
-     * in entity schema referencing an enum defined in entity info?  Execution is intended to be generic but could be
+     * Verifies that the entity info and entity schema as a whole are valid. For
+     * example, are all enum constraints in entity schema referencing an enum
+     * defined in entity info? Execution is intended to be generic but could be
      * extended if necessary.
      *
      * @throws Error on any validation errors

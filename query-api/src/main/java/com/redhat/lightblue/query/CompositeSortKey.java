@@ -18,13 +18,13 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a composite sort key

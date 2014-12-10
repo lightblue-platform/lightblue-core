@@ -18,14 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.metadata.types.ArrayType;
+import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ArrayField extends Field {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArrayField.class);

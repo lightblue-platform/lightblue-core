@@ -19,7 +19,6 @@
 package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
-
 import java.util.Date;
 
 public class StatusChange implements Serializable {

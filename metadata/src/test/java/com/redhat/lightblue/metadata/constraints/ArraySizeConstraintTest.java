@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.metadata.constraints;
 
-import static org.junit.Assert.assertTrue;
-
+import com.redhat.lightblue.metadata.types.ArrayType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.redhat.lightblue.metadata.types.ArrayType;
+import static org.junit.Assert.assertTrue;
 
 public class ArraySizeConstraintTest {
 

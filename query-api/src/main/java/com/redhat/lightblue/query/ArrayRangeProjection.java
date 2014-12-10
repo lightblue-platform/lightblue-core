@@ -21,7 +21,6 @@ package com.redhat.lightblue.query;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Path;
 
 public class ArrayRangeProjection extends ArrayProjection {
@@ -37,7 +36,7 @@ public class ArrayRangeProjection extends ArrayProjection {
                                 Sort sort,
                                 int from,
                                 int to) {
-        super(field, include, project,sort);
+        super(field, include, project, sort);
         this.from = from;
         this.to = to;
     }
@@ -47,7 +46,7 @@ public class ArrayRangeProjection extends ArrayProjection {
                                 Projection project,
                                 int from,
                                 int to) {
-        this(field, include, project,null,from,to);
+        this(field, include, project, null, from, to);
     }
 
     public int getFrom() {

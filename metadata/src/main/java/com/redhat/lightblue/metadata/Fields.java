@@ -18,17 +18,13 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class Fields implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Fields.class);
@@ -37,11 +33,15 @@ public class Fields implements Serializable {
 
     private final Map<String, Field> fieldMap = new HashMap<>();
     private final List<Field> fields = new ArrayList<>();
-    private final FieldTreeNode parent;
+    private FieldTreeNode parent;
     private final Map<String, Object> properties = new HashMap<>();
 
     public Fields(FieldTreeNode parent) {
         this.parent = parent;
+    }
+
+    protected void setParent(FieldTreeNode parent) {
+        this.parent=parent;
     }
 
     public int getNumChildren() {
@@ -91,8 +91,8 @@ public class Fields implements Serializable {
             }
         } else {
             fields.add(f);
-            f.setParent(parent);
         }
+        f.setParent(parent);
         fieldMap.put(name, f);
     }
 

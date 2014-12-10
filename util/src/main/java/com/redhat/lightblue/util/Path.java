@@ -19,10 +19,9 @@
 package com.redhat.lightblue.util;
 
 import java.io.Serializable;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a path in a tree, of the form
@@ -294,11 +293,12 @@ public class Path implements Comparable<Path>, Serializable {
      * @return true if it matches, else false
      */
     public boolean matches(Path pattern) {
-        int n = data.size();
-        if (n == pattern.data.size()) {
-            for (int i = 0; i < n; i++) {
-                String pat = pattern.data.get(i);
-                String val = data.get(i);
+        if (data.size() == pattern.data.size()) {
+            Iterator<String> patternDataItr = pattern.data.iterator();
+            Iterator<String> dataItr = data.iterator();
+            while (patternDataItr.hasNext() && dataItr.hasNext()) {
+                String pat = patternDataItr.next();
+                String val = dataItr.next();
                 if (!(val.equals(pat) || pat.equals(ANY))) {
                     return false;
                 }
@@ -350,8 +350,9 @@ public class Path implements Comparable<Path>, Serializable {
     public Path normalize() {
         int n = data.size();
         boolean parentThisPresent = false;
-        for (int i = 0; i < n; i++) {
-            String s = data.get(i);
+        Iterator<String> dataItr = data.iterator();
+        while (dataItr.hasNext()) {
+            String s = dataItr.next();
             if (PARENT.equals(s) || THIS.equals(s)) {
                 parentThisPresent = true;
                 break;
@@ -359,8 +360,9 @@ public class Path implements Comparable<Path>, Serializable {
         }
         if (parentThisPresent) {
             MutablePath p = new MutablePath();
-            for (int i = 0; i < n; i++) {
-                String s = data.get(i);
+            dataItr = data.iterator();
+            while (dataItr.hasNext()) {
+                String s = dataItr.next();
                 if (PARENT.equals(s)) {
                     p.pop();
                 } else if (!THIS.equals(s)) {
@@ -397,7 +399,6 @@ public class Path implements Comparable<Path>, Serializable {
      * argument.
      *
      * @param x the new paths segments to parse
-     * @param segments the segment list to append new segments onto
      */
     protected static List<String> parse(String x) {
         List<String> segments = new ArrayList<>();

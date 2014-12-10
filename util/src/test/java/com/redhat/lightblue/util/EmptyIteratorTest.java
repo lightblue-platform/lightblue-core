@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.NoSuchElementException;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.NoSuchElementException;
 
 public class EmptyIteratorTest {
 

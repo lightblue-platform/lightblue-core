@@ -18,15 +18,14 @@
  */
 package com.redhat.lightblue.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.util.JsonUtils;
+import org.junit.Test;
 
 import java.io.IOException;
 
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.redhat.lightblue.util.JsonUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  *

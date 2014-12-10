@@ -26,6 +26,7 @@ import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
+import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.KeyValueCursor;
 
@@ -36,7 +37,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
     private final FieldTreeNode fieldMd;
     private final Path field;
     private final BinaryComparisonOperator operator;
-    private final Object value;
+    private final Value rvalue;
 
     /**
      * Constructs evaluator for {field op value} style comparison
@@ -51,12 +52,13 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
             throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + field);
         }
         operator = expr.getOp();
-        value = expr.getRvalue().getValue();
-        LOGGER.debug("ctor {} {} {}", field, operator, value);
+        rvalue = expr.getRvalue();
+        LOGGER.debug("ctor {} {}", field, operator);
     }
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
+        Object value=rvalue.getValue();
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
         KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
         while (cursor.hasNext()) {

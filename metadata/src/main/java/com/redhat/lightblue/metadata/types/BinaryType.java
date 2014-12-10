@@ -18,13 +18,13 @@
  */
 package com.redhat.lightblue.metadata.types;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
+
+import java.io.Serializable;
 
 public final class BinaryType implements Type, Serializable {
 

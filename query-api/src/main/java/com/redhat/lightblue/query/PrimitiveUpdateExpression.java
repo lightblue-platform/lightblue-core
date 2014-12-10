@@ -19,7 +19,6 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Error;
 
 /**

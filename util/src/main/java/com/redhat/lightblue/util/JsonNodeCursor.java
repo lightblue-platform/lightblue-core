@@ -18,11 +18,11 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.Iterator;
 
 /**
  * Note that parent() for JsonNode returns the grandparent of the current

@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 public abstract class AbstractMutablePathTest extends AbstractPathTest<MutablePath> {
 

@@ -18,10 +18,10 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.util.Path;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -33,6 +33,16 @@ public class Indexes implements Serializable {
     private final ArrayList<Index> indexes = new ArrayList<>();
 
     public Indexes() {
+    }
+
+    public Indexes(Index... ix) {
+        for (Index x : ix) {
+            indexes.add(x);
+        }
+    }
+
+    public void add(Index x) {
+        indexes.add(x);
     }
 
     public void setIndexes(Collection<Index> indexes) {
@@ -49,5 +59,25 @@ public class Indexes implements Serializable {
 
     public boolean isEmpty() {
         return indexes.isEmpty();
+    }
+
+    /**
+     * Returns the indexes that can be used to evaluate a search criteria
+     * containing the given fields
+     *
+     * @param fields List of fields for which a search will be conducted
+     *
+     * @return A map of index -> set<Path> where for each index, the mapped path
+     * set gives the fields that can be searched efficiently using that index.
+     */
+    public Map<Index, Set<Path>> getUsefulIndexes(Collection<Path> fields) {
+        Map<Index, Set<Path>> m = new HashMap<>();
+        for (Index ix : indexes) {
+            Set<Path> u = ix.getUsefulness(fields);
+            if (!u.isEmpty()) {
+                m.put(ix, u);
+            }
+        }
+        return m;
     }
 }

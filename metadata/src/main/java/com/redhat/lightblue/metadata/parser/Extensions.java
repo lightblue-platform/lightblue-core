@@ -18,16 +18,12 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.HookConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Parser extensions where T is the node type of the underlying object tree (for

@@ -36,16 +36,15 @@
  */
 package com.redhat.lightblue.util;
 
-import java.io.Serializable;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Wrapper class around JSOn documents
@@ -141,8 +140,8 @@ public class JsonDoc implements Serializable {
                     continue;
                 } else if (output instanceof ArrayNode) {
                     int index = Integer.valueOf(name);
-                    if(index<0) {
-                        newOutput = ((ArrayNode)output).get( ((ArrayNode)output).size() + index );
+                    if (index < 0) {
+                        newOutput = ((ArrayNode) output).get(((ArrayNode) output).size() + index);
                     } else {
                         newOutput = ((ArrayNode) output).get(index);
                     }
@@ -541,8 +540,9 @@ public class JsonDoc implements Serializable {
             arr.addNull();
             size++;
         }
-        if(index<0)
-            index=size+index;
+        if (index < 0) {
+            index = size + index;
+        }
         if (index < size && newValue != null) {
             oldValue = arr.get(index);
             arr.set(index, newValue);
