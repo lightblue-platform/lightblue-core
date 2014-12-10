@@ -19,7 +19,6 @@
 package com.redhat.lightblue.config;
 
 import java.io.Serializable;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -90,11 +89,12 @@ public class DataSourcesConfiguration implements JsonInitializable, Serializable
     /**
      * Returns all datasources that extend the given class
      */
-    public Map<String, DataSourceConfiguration> getDataSourcesByType(Class<?> clazz) {
-        Map<String, DataSourceConfiguration> map = new HashMap<>();
+    @SuppressWarnings("unchecked")
+    public <D extends DataSourceConfiguration> Map<String, D> getDataSourcesByType(Class<D> clazz) {
+        Map<String, D> map = new HashMap<>();
         for (Map.Entry<String, DataSourceConfiguration> entry : datasources.entrySet()) {
             if (clazz.isAssignableFrom(entry.getValue().getClass())) {
-                map.put(entry.getKey(), entry.getValue());
+                map.put(entry.getKey(), (D)entry.getValue());
             }
         }
         return map;
