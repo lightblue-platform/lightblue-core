@@ -18,36 +18,29 @@
  */
 package com.redhat.lightblue.metadata.constraints;
 
-import java.io.Serializable;
+import com.redhat.lightblue.metadata.types.StringType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-import com.redhat.lightblue.metadata.Type;
+import static org.junit.Assert.assertTrue;
 
-import com.redhat.lightblue.metadata.FieldConstraint;
+public class MatchesConstraintTest {
 
-public class ReferencesConstraint implements FieldConstraint, Serializable {
+    MatchesConstraint constraint;
 
-    private static final long serialVersionUID = 1l;
-
-    public static final String REFERENCES = "references";
-
-    private Reference reference;
-
-    @Override
-    public String getType() {
-        return REFERENCES;
+    @Before
+    public void setUp() throws Exception {
+        constraint = new MatchesConstraint();
     }
 
-    @Override
-    public boolean isValidForFieldType(Type fieldType) {
-        return true;
+    @After
+    public void tearDown() throws Exception {
     }
 
-    @SuppressWarnings("unchecked")
-    public Reference getReference() {
-        return reference;
+    @Test
+    public void testIsValidForFieldType() {
+        assertTrue(constraint.isValidForFieldType(StringType.TYPE));
     }
 
-    public void setReference(Reference r) {
-        reference = r;
-    }
 }

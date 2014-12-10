@@ -18,15 +18,14 @@
  */
 package com.redhat.lightblue.query;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.Error;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a query of the form
@@ -48,6 +47,17 @@ public class NaryLogicalExpression extends LogicalExpression {
                                  List<QueryExpression> queries) {
         this.op = op;
         this.queries = queries;
+    }
+
+    /**
+     * Ctor with the given values
+     */
+    public NaryLogicalExpression(NaryLogicalOperator op,
+                                 QueryExpression... queries) {
+        this(op, new ArrayList<QueryExpression>(queries.length));
+        for (QueryExpression q : queries) {
+            this.queries.add(q);
+        }
     }
 
     /**

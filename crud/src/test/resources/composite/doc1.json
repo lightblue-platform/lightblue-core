@@ -1,0 +1,57 @@
+{ 
+  "objectType":"A",
+  "field1":"value1",
+  "obj1":{
+    "field1":"obj.value1",
+    "c_ref":"crefvalue",
+    "c": [ 
+      { 
+        "_id":"c1",
+        "objectType":"C",
+        "field1":"cvalue1",
+        "obj1": {
+           "field1":"cobjvalue1",
+           "d_ref":"drefvalue",
+           "d": [
+              {
+                "_id":"d1",
+                "objectType":"d",
+                "field1":"dvalue1"
+              }
+           ]
+        }
+      },
+      { 
+        "_id":"c2",
+        "objectType":"C",
+        "field1":"cvalue2",
+        "obj1": {
+           "field1":"cobjvalue2",
+           "d_ref":"drefvalue",
+           "d": [
+              {
+                "_id":"d2",
+                "objectType":"d",
+                "field1":"dvalue2"
+              }
+           ]
+        }
+      }
+    ]
+  },
+  "b_ref":"brefvalue",
+  "b":[
+     {
+       "_id":"b1",
+       "objectType":"B",
+       "field1":"bvalue01",
+       "field2":"bvalue02"
+     },
+     {
+       "_id":"b2",
+       "objectType":"B",
+       "field1":"bvalue11",
+       "field2":"bvalue12"
+     }
+  ]
+}

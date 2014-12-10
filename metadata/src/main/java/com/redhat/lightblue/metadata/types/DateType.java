@@ -18,18 +18,18 @@
  */
 package com.redhat.lightblue.metadata.types;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.util.Error;
+
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.util.Error;
 
 public final class DateType implements Type, Serializable {
 

@@ -18,32 +18,29 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.Operation;
-import com.redhat.lightblue.metadata.EntityAccess;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.CRUDFindRequest;
+import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
-import com.redhat.lightblue.metadata.Field;
-import com.redhat.lightblue.metadata.FieldAccess;
-import com.redhat.lightblue.metadata.FieldCursor;
-import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.MetadataStatus;
-import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.util.JsonDoc;
 
 public final class OperationContext extends CRUDOperationContext {
@@ -52,9 +49,8 @@ public final class OperationContext extends CRUDOperationContext {
 
     private final Request request;
     private final Metadata metadata;
-    private final Map<String, EntityMetadata> entityMetadata = new HashMap<>();
     private OperationStatus status = OperationStatus.COMPLETE;
-    private final Set<String> metadataRoles = new HashSet<>();
+    private final DefaultMetadataResolver resolver;
 
     /**
      * Construct operation context
@@ -62,57 +58,104 @@ public final class OperationContext extends CRUDOperationContext {
      * @param request The top-level request
      * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
-     * @param roles Roles of the current caller
-     * @param docs The documents in the call. Can be null
      * @param operation The operation in progress
      */
-    private OperationContext(Request request,
-                             Metadata metadata,
-                             Factory factory,
-                             Set<String> roles,
-                             List<JsonDoc> docs,
-                             Operation operation) {
-        super(operation, request.getEntityVersion().getEntity(), factory, roles, docs);
+    public OperationContext(Request request,
+                            Metadata metadata,
+                            Factory factory,
+                            Operation operation) {
+        super(operation, 
+              request.getEntityVersion().getEntity(), 
+              factory, 
+              request instanceof DocRequest ? JsonDoc.docList( ((DocRequest)request).getEntityData()):null );
         this.request = request;
         this.metadata = metadata;
-        initMetadata(request.getEntityVersion().getEntity(), request.getEntityVersion().getVersion());
-        LOGGER.debug("All roles in {}:{}", request.getEntityVersion(), metadataRoles);
-        super.setCallerRoles(getCallerRoles(metadataRoles, request.getClientId()));
+        this.resolver = new DefaultMetadataResolver(metadata);
+
+        if(request instanceof FindRequest) {
+            // Setup composite metadata for find requests
+            resolver.initialize(request.getEntityVersion().getEntity(),
+                                request.getEntityVersion().getVersion(),
+                                ((FindRequest)request).getQuery(),
+                                ((FindRequest)request).getProjection());
+        } else {
+            resolver.initialize(request.getEntityVersion().getEntity(),
+                                request.getEntityVersion().getVersion(),
+                                null,null);
+        }
+        addCallerRoles(getCallerRoles(resolver.getMetadataRoles(), request.getClientId()));
         LOGGER.debug("Caller roles:{}", getCallerRoles());
     }
 
     /**
-     * Constructs an operation context
-     *
-     * @param req The request
-     * @param md Metadata manager
+     * Construct an operation context drived from another operation context
+     * @param request The top-level request
+     * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
-     * @param op The operation in progress
+     * @param operation The operation in progress
+     * @param resolver the resolver instance to use
+     * @param docs The documents in the call. Can be null
+     * @param callerRoles Roles of the current caller
+     * @param hookManager the hook manager
      */
-    public static OperationContext getInstance(Request req, Metadata md, Factory factory, Operation op) {
-        List<JsonDoc> docs = req instanceof DocRequest ? JsonDoc.docList(((DocRequest) req).getEntityData()) : null;
-        return new OperationContext(req, md, factory, new HashSet<String>(), docs, op);
+    private OperationContext(Request request,
+                             Metadata metadata,
+                             Factory factory,
+                             Operation operation,
+                             DefaultMetadataResolver resolver,
+                             List<DocCtx> docs,
+                             Set<String> callerRoles,
+                             HookManager hookManager) {
+        super(operation,
+              request.getEntityVersion().getEntity(),
+              factory,
+              docs,
+              callerRoles,
+              hookManager);
+
+        this.request=request;
+        this.metadata=metadata;
+        this.resolver=resolver;
+    }
+
+    public OperationContext getDerivedOperationContext(String entityName,CRUDFindRequest req) {
+        // Create a new request with same header information, but different query information
+        FindRequest newReq=new FindRequest();
+        newReq.shallowCopyFrom( (Request)request, req );
+        newReq.setEntityVersion(new EntityVersion(entityName,resolver.getEntityMetadata(entityName).getVersion().getValue()));
+        // At this point, newReq has header information from the
+        // original request, but query information from the argument
+        // 'req'
+
+        return new OperationContext(newReq,
+                                    metadata,
+                                    getFactory(),
+                                    Operation.FIND,
+                                    resolver,
+                                    new ArrayList<DocCtx>(),
+                                    getCallerRoles(),
+                                    getHookManager());
     }
 
     /**
      * Returns the top level entity name
      */
     public String getTopLevelEntityName() {
-        return request.getEntityVersion().getEntity();
+        return resolver.getTopLevelEntityName();
     }
 
     /**
      * Returns the top level entity version
      */
     public String getTopLevelEntityVersion() {
-        return request.getEntityVersion().getVersion();
+        return resolver.getTopLevelEntityVersion();
     }
 
     /**
      * Returns the top level entity metadata
      */
-    public EntityMetadata getTopLevelEntityMetadata() {
-        return getEntityMetadata(getTopLevelEntityName());
+    public CompositeMetadata getTopLevelEntityMetadata() {
+        return resolver.getTopLevelEntityMetadata();
     }
 
     /**
@@ -130,11 +173,19 @@ public final class OperationContext extends CRUDOperationContext {
     }
 
     /**
+     * Returns true if the operation context is for a simple entity,
+     * an entity with no associations
+     */
+    public boolean isSimple() {
+        return resolver.getCompositeMetadata().isSimple();
+    }
+
+    /**
      * Returns the entity metadata with the version used in this call
      */
     @Override
     public EntityMetadata getEntityMetadata(String entityName) {
-        return entityMetadata.get(entityName);
+        return resolver.getEntityMetadata(entityName);
     }
 
     /**
@@ -151,24 +202,6 @@ public final class OperationContext extends CRUDOperationContext {
         this.status = status;
     }
 
-    private void addMetadataRoles(Set<String> roles, EntityMetadata em) {
-        EntityAccess a = em.getAccess();
-        a.getFind().addRolesTo(roles);
-        a.getUpdate().addRolesTo(roles);
-        a.getInsert().addRolesTo(roles);
-        a.getDelete().addRolesTo(roles);
-    }
-
-    private void addFieldRoles(Set<String> roles, FieldTreeNode node) {
-        if (node instanceof Field) {
-            Field field = (Field) node;
-            FieldAccess a = field.getAccess();
-            a.getFind().addRolesTo(roles);
-            a.getInsert().addRolesTo(roles);
-            a.getUpdate().addRolesTo(roles);
-        }
-    }
-
     private Set<String> getCallerRoles(Set<String> metadataRoles, ClientIdentification id) {
         Set<String> callerRoles = new HashSet<>();
         if (!metadataRoles.isEmpty() && id != null) {
@@ -179,38 +212,5 @@ public final class OperationContext extends CRUDOperationContext {
             }
         }
         return callerRoles;
-    }
-
-    private void initMetadata(String name, String version) {
-        EntityMetadata x = entityMetadata.get(name);
-        if (x != null) {
-            if (!x.getVersion().getValue().equals(version)) {
-                throw new IllegalArgumentException(CrudConstants.ERR_METADATA_APPEARS_TWICE + name + " " + version + " and " + x.getVersion().getValue());
-            }
-        } else {
-            x = metadata.getEntityMetadata(name, version);
-            if (x == null || x.getEntitySchema() == null) {
-                throw new IllegalArgumentException("Unknown entity:" + name + ":" + version);
-            }
-            if (x.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-                throw new IllegalArgumentException(CrudConstants.ERR_DISABLED_METADATA + " " + name + " " + x.getEntitySchema().getVersion().getValue());
-            }
-            entityMetadata.put(x.getName(), x);
-
-            addMetadataRoles(metadataRoles, x);
-
-            FieldCursor c = x.getFieldCursor();
-            while (c.next()) {
-                FieldTreeNode node = c.getCurrentNode();
-
-                addFieldRoles(metadataRoles, node);
-
-                if (node instanceof ReferenceField) {
-                    String refName = ((ReferenceField) node).getEntityName();
-                    String refVersion = ((ReferenceField) node).getVersionValue();
-                    initMetadata(refName, refVersion);
-                }
-            }
-        }
     }
 }

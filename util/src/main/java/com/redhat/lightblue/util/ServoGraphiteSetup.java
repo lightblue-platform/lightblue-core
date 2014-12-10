@@ -18,6 +18,11 @@
  */
 package com.redhat.lightblue.util;
 
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.servo.publish.BasicMetricFilter;
@@ -27,7 +32,6 @@ import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.publish.PollRunnable;
 import com.netflix.servo.publish.PollScheduler;
 import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class for publishing hystrix and jvm stats from servo to graphite. If
@@ -37,6 +41,8 @@ import java.util.concurrent.TimeUnit;
  * @author nmalik
  */
 public final class ServoGraphiteSetup {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServoGraphiteSetup.class);
+
     private static boolean initialized = false;
 
     private ServoGraphiteSetup() {
@@ -69,20 +75,29 @@ public final class ServoGraphiteSetup {
         }
 
         // register hystrix servo metrics publisher
-        HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
+        try{
+            HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
+        }
+        catch(IllegalStateException e){
+            LOGGER.warn("A metrics publisher has already been registerd, ignoring this step and using the existing publisher", e);
+        }
 
-        // try to get name from openshift.  assume it's scaleable app.
-        // format: <app name>.  <namespace>.<gear dns>
-        // default
-        String prefix = System.getenv("HOSTNAME");
-
-        if (System.getenv("OPENSHIFT_APP_NAME") != null) {
-            prefix = String.format(
-                    "%s.%s.%s",
-                    System.getenv("OPENSHIFT_APP_NAME"),
-                    System.getenv("OPENSHIFT_NAMESPACE"),
-                    System.getenv("OPENSHIFT_GEAR_DNS")
-            );
+        String prefix = System.getenv("GRAPHITE_PREFIX");
+        if(prefix == null){
+            if (System.getenv("OPENSHIFT_APP_NAME") != null) {
+                // try to get name from openshift.  assume it's scaleable app.
+                // format: <app name>.  <namespace>.<gear dns>
+                prefix = String.format(
+                        "%s.%s.%s",
+                        System.getenv("OPENSHIFT_APP_NAME"),
+                        System.getenv("OPENSHIFT_NAMESPACE"),
+                        System.getenv("OPENSHIFT_GEAR_DNS")
+                        );
+            }
+            else{
+                //default
+                prefix = System.getenv("HOSTNAME");
+            }
         }
 
         String host = System.getenv("GRAPHITE_HOSTNAME");
@@ -94,14 +109,14 @@ public final class ServoGraphiteSetup {
         String addr = host + ":" + port;
         MetricObserver observer = new GraphiteMetricObserver(prefix, addr);
 
-        // start poll scheduler  
+        // start poll scheduler
         PollScheduler.getInstance().start();
 
-        // create and register registery poller  
+        // create and register registery poller
         PollRunnable registeryTask = new PollRunnable(new MonitorRegistryMetricPoller(), BasicMetricFilter.MATCH_ALL, observer);
         PollScheduler.getInstance().addPoller(registeryTask, 5, TimeUnit.SECONDS);
 
-        // create and register jvm poller  
+        // create and register jvm poller
         PollRunnable jvmTask = new PollRunnable(new JvmMetricPoller(), BasicMetricFilter.MATCH_ALL, observer);
         PollScheduler.getInstance().addPoller(jvmTask, 5, TimeUnit.SECONDS);
 

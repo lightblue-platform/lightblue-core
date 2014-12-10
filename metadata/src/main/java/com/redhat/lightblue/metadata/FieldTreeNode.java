@@ -18,11 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.Iterator;
-
 import com.redhat.lightblue.util.EmptyIterator;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
+
+import java.util.Iterator;
 
 /**
  * Interface for items of the field tree. This interface allows resolution of

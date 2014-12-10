@@ -162,6 +162,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <module>metadata</module>
         <module>util</module>
         <module>config</module>
+        <module>test</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
@@ -193,6 +194,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <version>2.6</version>
                 <configuration>
                     <format>xml</format>
+                    <format>html</format>
                     <maxmem>256m</maxmem>
                     <!-- aggregated reports for multi-module projects -->
                     <aggregate>true</aggregate>

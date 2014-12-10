@@ -28,6 +28,7 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -235,4 +236,108 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(1, newDoc.get(new Path("field7")).size());
         Assert.assertEquals("elvalue0_1", newDoc.get(new Path("field7.0.elemf1")).asText());
     }
-}
+
+    private class SimpleGMD implements CompositeMetadata.GetMetadata {
+        public EntityMetadata getMetadata(Path injectionField,
+                                          String entityName,
+                                          String version) {
+            try {
+                return getMd("composite/"+entityName+".json");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Test
+    public void recursiveInclusionsDontCrossEntityBoundaries() throws Exception {
+        EntityMetadata md=getMd("./composite/A.json");
+        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        JsonDoc doc=getDoc("./composite/doc1.json");
+
+        String pr="{'field':'obj1','include':1,'recursive':1}";
+        Projector projector = projector(pr, cmd);
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+
+        Assert.assertNull(newDoc.get(new Path("objectType")));
+        Assert.assertNull(newDoc.get(new Path("field1")));
+        Assert.assertNull(newDoc.get(new Path("b")));
+        Assert.assertNull(newDoc.get(new Path("b_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.field1")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c_ref")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c")));
+    }
+ 
+    @Test
+    public void explicitInclusionByPatternCrossesEntityBoundaries() throws Exception {
+        EntityMetadata md=getMd("./composite/A.json");
+        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        JsonDoc doc=getDoc("./composite/doc1.json");
+
+        String pr="{'field':'obj1.*','include':1,'recursive':1}";
+        Projector projector = projector(pr, cmd);
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("objectType")));
+        Assert.assertNull(newDoc.get(new Path("field1")));
+        Assert.assertNull(newDoc.get(new Path("b")));
+        Assert.assertNull(newDoc.get(new Path("b_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.field1")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
+        Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
+   }
+
+    @Test
+    public void explicitInclusionCrossesEntityBoundaries() throws Exception {
+        EntityMetadata md=getMd("./composite/A.json");
+        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        JsonDoc doc=getDoc("./composite/doc1.json");
+
+        String pr="{'field':'obj1.c','include':1,'recursive':1}";
+        Projector projector = projector(pr, cmd);
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("objectType")));
+        Assert.assertNull(newDoc.get(new Path("field1")));
+        Assert.assertNull(newDoc.get(new Path("b")));
+        Assert.assertNull(newDoc.get(new Path("b_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1")));
+        Assert.assertNull(newDoc.get(new Path("obj1.field1")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
+        Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c.0._id")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c.1._id")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c.0.obj1.d")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c.1.obj1.d")));
+   }
+
+    @Test
+    public void arrayInclusionIncludesEntity() throws Exception {
+        EntityMetadata md=getMd("./composite/A.json");
+        CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
+        JsonDoc doc=getDoc("./composite/doc1.json");
+
+        String pr="{'field':'obj1.c','range':[0,1],'project':{'field':'*','include':1,'recursive':1}}";
+        Projector projector = projector(pr, cmd);
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("objectType")));
+        Assert.assertNull(newDoc.get(new Path("field1")));
+        Assert.assertNull(newDoc.get(new Path("b")));
+        Assert.assertNull(newDoc.get(new Path("b_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1")));
+        Assert.assertNull(newDoc.get(new Path("obj1.field1")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c_ref")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c")));
+        Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c.0._id")));
+        Assert.assertNotNull(newDoc.get(new Path("obj1.c.1._id")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c.0.obj1.d")));
+        Assert.assertNull(newDoc.get(new Path("obj1.c.1.obj1.d")));
+    }
+ }

@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-
 import com.redhat.lightblue.util.Error;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *

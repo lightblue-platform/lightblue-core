@@ -740,9 +740,10 @@ public abstract class MetadataParser<T> {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
         field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
-        field.setProjection(parseProjection(getRequiredObjectProperty(object, STR_PROJECTION)));
-        field.setQuery(parseQuery(getRequiredObjectProperty(object, STR_QUERY)));
+        field.setProjection(parseProjection(getObjectProperty(object, STR_PROJECTION)));
+        field.setQuery(parseQuery(getObjectProperty(object, STR_QUERY)));
         field.setSort(parseSort(getObjectProperty(object, STR_SORT)));
+
         return field;
     }
 

@@ -19,10 +19,9 @@
 package com.redhat.lightblue.util;
 
 import java.io.Serializable;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Internal representation of Path
@@ -67,8 +66,11 @@ class PathRep implements Serializable, Comparable<PathRep> {
         } else {
             n = k + x;
         }
-        for (int i = 0; i < n; i++) {
-            segments.add(data.segments.get(i));
+        for (String s: data.segments) {
+            if (n <= 0)
+                break;
+            segments.add(s);
+            n--;
         }
     }
 

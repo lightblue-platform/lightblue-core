@@ -43,7 +43,7 @@ public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
         resolvers.add(resolver);
     }
 
-    public void addIfAbsent(DefaultRegistry parser) {
+    public void mergeWith(DefaultRegistry parser) {
         for (Object o : parser.resolvers){
             Resolver<K, V> r = (Resolver<K, V>) o;
             if(!this.resolvers.contains(r)){
@@ -58,6 +58,7 @@ public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
             }
         }
     }
+
     @Override
     public V find(K name) {
         V value = items.get(name);

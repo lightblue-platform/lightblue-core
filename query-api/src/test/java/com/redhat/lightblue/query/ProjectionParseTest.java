@@ -18,12 +18,11 @@
  */
 package com.redhat.lightblue.query;
 
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-
-import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.util.Path;
 
 public class ProjectionParseTest {
     final String doc1 = "{\"field\":\"field.x\", \"include\": true}";
@@ -110,11 +109,11 @@ public class ProjectionParseTest {
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
         Assert.assertNotNull(x.getSort());
-        Assert.assertEquals("field",((SortKey)x.getSort()).getField().toString());
-        Assert.assertTrue(!((SortKey)x.getSort()).isDesc());
+        Assert.assertEquals("field", ((SortKey) x.getSort()).getField().toString());
+        Assert.assertTrue(!((SortKey) x.getSort()).isDesc());
     }
 
-   @Test
+    @Test
     public void doc6Test() throws Exception {
         Projection p = Projection.fromJson(JsonUtils.json(doc6));
         Assert.assertTrue(p instanceof ArrayRangeProjection);
@@ -143,8 +142,8 @@ public class ProjectionParseTest {
         Assert.assertEquals(1, x.getFrom());
         Assert.assertEquals(4, x.getTo());
         Assert.assertNotNull(x.getSort());
-        Assert.assertEquals("field",((SortKey)x.getSort()).getField().toString());
-        Assert.assertTrue(!((SortKey)x.getSort()).isDesc());
+        Assert.assertEquals("field", ((SortKey) x.getSort()).getField().toString());
+        Assert.assertTrue(!((SortKey) x.getSort()).isDesc());
     }
 
     @Test

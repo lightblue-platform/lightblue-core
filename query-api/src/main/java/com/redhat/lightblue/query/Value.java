@@ -18,13 +18,12 @@
  */
 package com.redhat.lightblue.query;
 
-import java.math.BigInteger;
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -36,7 +35,7 @@ public class Value extends JsonObject {
 
     private static final long serialVersionUID = 1L;
 
-    private final Object value;
+    protected Object value;
 
     /**
      * Creates a Value with value=o
@@ -73,6 +72,8 @@ public class Value extends JsonObject {
             }
         } else if (value instanceof Boolean) {
             return getFactory().booleanNode((Boolean) value);
+        } else if (value == null) {
+            return getFactory().nullNode();
         } else {
             return getFactory().textNode(value.toString());
         }

@@ -18,16 +18,15 @@
  */
 package com.redhat.lightblue.util;
 
-import java.io.IOException;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
 
 public class JsonNodeDocTest extends AbstractJsonNodeTest {
 

@@ -2,9 +2,10 @@ package com.redhat.lightblue.metadata.constraints;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.metadata.types.IntegerType;
-import com.redhat.lightblue.metadata.types.StringType;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.UIDFields;
 import com.redhat.lightblue.metadata.types.UIDType;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
