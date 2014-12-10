@@ -49,4 +49,23 @@ public class ParserRegistryTest {
         Assert.assertEquals(parser, reg.find(name));
     }
 
+    @Test
+    public void mergeWith() {
+        ParserRegistry<Object, Object> reg = new ParserRegistry<>();
+        TestParser parser = new TestParser();
+        String name = "foo";
+        reg.add(name, parser);
+
+        ParserRegistry<Object, Object> anotherReg = new ParserRegistry<>();
+        TestParser testParser = new TestParser();
+        String anotherName = "newfoo";
+        anotherReg.add(anotherName, testParser);
+
+        reg.mergeWith(anotherReg);
+
+        Assert.assertEquals(parser, reg.find(name));
+        Assert.assertEquals(testParser, reg.find(anotherName));
+
+    }
+
 }

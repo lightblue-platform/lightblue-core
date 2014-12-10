@@ -144,6 +144,14 @@ public class Extensions<T> {
         return (PropertyParser<T>) propertyParsers.find(parserName);
     }
 
+    public void mergeWith(Extensions e){
+        this.backendParsers.mergeWith(e.backendParsers);
+        this.entityConstraintParsers.mergeWith(e.entityConstraintParsers);
+        this.fieldConstraintParsers.mergeWith(e.fieldConstraintParsers);
+        this.hookConfigurationParsers.mergeWith(e.hookConfigurationParsers);
+        this.propertyParsers.mergeWith(e.propertyParsers);
+    }
+
     @Override
     public String toString() {
         return backendParsers.toString() + "\n"

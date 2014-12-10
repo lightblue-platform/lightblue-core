@@ -19,10 +19,12 @@
 package com.redhat.lightblue.util;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Default implementation of the registry interface
@@ -39,6 +41,22 @@ public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
     @Override
     public void add(Resolver<K, V> resolver) {
         resolvers.add(resolver);
+    }
+
+    public void mergeWith(DefaultRegistry parser) {
+        for (Object o : parser.resolvers){
+            Resolver<K, V> r = (Resolver<K, V>) o;
+            if(!this.resolvers.contains(r)){
+                this.resolvers.add(r);
+            }
+        }
+        Iterator it = parser.items.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            if(!items.containsKey(pair.getKey())){
+                items.put(((K)pair.getKey()),((V)pair.getValue()));
+            }
+        }
     }
 
     @Override
