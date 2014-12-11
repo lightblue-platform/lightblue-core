@@ -170,14 +170,13 @@ public class CompositeFindImpl implements Finder {
         QueryPlan retrievalQPlan=chooser.choose();
         // This query plan has only one source
         QueryPlanNode retrievalPlanRoot=retrievalQPlan.getSources()[0];
-        CompositeFindImpl cfi=new CompositeFindImpl(root,retrievalQPlan,factory);
+        new CompositeFindImpl(root,retrievalQPlan,factory);
         // The root node documents are already known
         retrievalPlanRoot.getProperty(QueryPlanNodeExecutor.class).setDocs(rootNode.getDocs());
 
         // Now execute rest of the retrieval plan
-        QueryPlanNode[] nodeOrdering=qplan.getBreadthFirstNodeOrdering();
+        QueryPlanNode[] nodeOrdering=retrievalQPlan.getBreadthFirstNodeOrdering();
         
-        CRUDFindRequest req=new CRUDFindRequest();
         for(int i=0;i<nodeOrdering.length;i++) {
             if(nodeOrdering[i].getMetadata().getParent()!=null) {
                 LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());

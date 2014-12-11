@@ -74,6 +74,11 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
                 throw new IllegalArgumentException("Expecting a score, got "+t);
         }
         
+        @Override
+        public boolean equals(Object t) {
+            return compareTo(t)==0;
+        }
+
         public String toString() {
             return "cost:"+cost;
         }

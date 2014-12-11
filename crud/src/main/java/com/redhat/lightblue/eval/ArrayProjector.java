@@ -84,6 +84,14 @@ public abstract class ArrayProjector extends Projector {
         }
 
         @Override
+        public boolean equals(Object x) {
+            if(x instanceof SortableElement)
+                return compareTo((SortableElement)x)==0;
+            else
+                return false;
+        }
+
+        @Override
         public int compareTo(SortableElement el) {
             for(int i=0;i<keyValues.length;i++) {
                 int dir=sortFields[i].descending?-1:1;

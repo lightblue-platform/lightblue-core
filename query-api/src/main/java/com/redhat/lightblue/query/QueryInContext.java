@@ -28,7 +28,7 @@ import java.io.Serializable;
  * bindable fields.
  */
 public class QueryInContext implements Serializable {
-    private static long serialVersionUID = 1l;
+    private static final long serialVersionUID = 1l;
 
     private final Path context;
     private final QueryExpression query;
