@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,9 @@ import org.json.JSONException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,6 +49,7 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.metadata.EnumValue;
 import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -57,6 +61,9 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
     JsonNodeFactory factory = new JsonNodeFactory(true);
 
     private JSONMetadataParser parser;
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Before
     public void setup() {
@@ -495,7 +502,9 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String enumValue2 = "FakeEnumValue2";
 
         Enum e = new Enum(enumName);
-        e.setValues(Arrays.asList(enumValue1, enumValue2));
+        e.setValues(new HashSet<EnumValue>(Arrays.asList(
+                new EnumValue(enumName, enumValue1, null),
+                new EnumValue(enumName, enumValue2, null))));
 
         Enums enums = new Enums();
         enums.addEnum(e);
@@ -503,11 +512,45 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         JsonNode enumsNode = json("{}");
         parser.convertEnums(enumsNode, enums);
 
-        String json = enumsNode.toString();
-        Assert.assertTrue(json.contains("enums"));
-        Assert.assertTrue(json.contains(enumName));
-        Assert.assertTrue(json.contains(enumValue1));
-        Assert.assertTrue(json.contains(enumValue2));
+        String jsonString = enumsNode.toString();
+        Assert.assertTrue(jsonString.contains("enums"));
+        Assert.assertTrue(jsonString.contains(enumName));
+        //Should just be string elements, not a complex objects.
+        Assert.assertTrue(jsonString.contains(enumValue1));
+        Assert.assertFalse(jsonString.contains("\"name\":\"" + enumValue1 + "\""));
+        Assert.assertTrue(jsonString.contains(enumValue2));
+        Assert.assertFalse(jsonString.contains("\"name\":\"" + enumValue2 + "\""));
+    }
+
+    @Test
+    public void testConvertEnums_WithDescription() throws IOException{
+        String enumName = "FakeEnum";
+        String enumValue1 = "FakeEnumValue1";
+        String enumDescription1 = "this is a fake description of enum value 1";
+        String enumValue2 = "FakeEnumValue2";
+        String enumDescription2 = "this is a fake description of enum value 2";
+        String enumValue3 = "FakeEnumWithoutDescription";
+
+        Enum e = new Enum(enumName);
+        e.setValues(new HashSet<EnumValue>(Arrays.asList(
+                new EnumValue(enumName, enumValue1, enumDescription1),
+                new EnumValue(enumName, enumValue2, enumDescription2),
+                new EnumValue(enumName, enumValue3, null))));
+
+        Enums enums = new Enums();
+        enums.addEnum(e);
+
+        JsonNode enumsNode = json("{}");
+        parser.convertEnums(enumsNode, enums);
+
+        String jsonString = enumsNode.toString();
+        Assert.assertTrue(jsonString.contains("enums"));
+        Assert.assertTrue(jsonString.contains(enumName));
+        Assert.assertTrue(jsonString.contains("{\"name\":\"" + enumValue1 + "\",\"description\":\"" + enumDescription1 + "\"}"));
+        Assert.assertTrue(jsonString.contains("{\"name\":\"" + enumValue2 + "\",\"description\":\"" + enumDescription2 + "\"}"));
+        //Should just be a string element, not a complex object.
+        Assert.assertTrue(jsonString.contains(enumValue3));
+        Assert.assertFalse(jsonString.contains("\"name\":\"" + enumValue3 + "\""));
     }
 
     @Test
@@ -522,9 +565,91 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Enum e = parser.parseEnum(enumsNode);
 
         Assert.assertEquals(enumName, e.getName());
-        Assert.assertEquals(2, e.getValues().size());
-        Assert.assertTrue(e.getValues().contains(enumValue1));
-        Assert.assertTrue(e.getValues().contains(enumValue2));
+        Set<EnumValue> values = e.getEnumValues();
+        Assert.assertEquals(2, values.size());
+        Assert.assertTrue(values.contains(new EnumValue(e.getName(), enumValue1, null)));
+        Assert.assertTrue(values.contains(new EnumValue(e.getName(), enumValue2, null)));
+    }
+
+    @Test
+    public void testParseEnum_WithDescriptions() throws IOException{
+        String enumName = "FakeEnum";
+        String enumValue1 = "FakeEnumValue1";
+        String enumDescription1 = "this is a fake description of enum value 1";
+        String enumValue2 = "FakeEnumValue2";
+        String enumDescription2 = "this is a fake description of enum value 2";
+        String enumValue3 = "FakeEnumWithoutDescription";
+
+        JsonNode enumsNode = json("{\"name\":\"" + enumName + "\", " +
+                "\"values\": [" +
+                "{\"name\":\"" + enumValue1 + "\", \"description\":\"" + enumDescription1 + "\"}," +
+                "{\"name\":\"" + enumValue2 + "\", \"description\":\"" + enumDescription2 + "\"}," +
+                "\"" + enumValue3 + "\"" +
+                "]}");
+
+        Enum e = parser.parseEnum(enumsNode);
+
+        Assert.assertEquals(enumName, e.getName());
+
+        Set<EnumValue> values = e.getEnumValues();
+        Assert.assertEquals(3, values.size());
+        Assert.assertTrue(e.getEnumValues().contains(new EnumValue(e.getName(), enumValue1, enumDescription1)));
+        Assert.assertTrue(e.getEnumValues().contains(new EnumValue(e.getName(), enumValue2, enumDescription2)));
+        Assert.assertTrue(e.getEnumValues().contains(new EnumValue(e.getName(), enumValue3, null)));
+    }
+
+    @Test
+    public void testParseEnum_MissingName() throws IOException{
+        expectedEx.expect(com.redhat.lightblue.util.Error.class);
+        expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"parseEnum\",\"errorCode\":\"metadata:ParseMissingElement\",\"msg\":\"name\"}");
+        parser.parseEnum(json("{}"));
+    }
+
+    @Test
+    public void testParseEnum_MissingValues() throws IOException{
+        expectedEx.expect(com.redhat.lightblue.util.Error.class);
+        expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"parseEnum\",\"errorCode\":\"metadata:ParseMissingElement\",\"msg\":\"values\"}");
+        parser.parseEnum(json("{\"name\":\"FakeEnumName\"}"));
+    }
+
+    @Test
+    public void testParseEnum_EmptyValues() throws IOException{
+        expectedEx.expect(com.redhat.lightblue.util.Error.class);
+        expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"parseEnum\",\"errorCode\":\"metadata:ParseMissingElement\",\"msg\":\"values\"}");
+        parser.parseEnum(json("{\"name\":\"FakeEnumName\", \"values\":[]}"));
+    }
+
+    @Test
+    public void testIsPrimitive() throws IOException{
+        Assert.assertTrue(parser.isPrimitive(json("{\"key\":\"value\"}").get("key")));
+    }
+
+    @Test
+    public void testIsPrimitive_Array() throws IOException{
+        Assert.assertFalse(parser.isPrimitive(json("{\"key\":[]}").get("key")));
+    }
+
+    @Test
+    public void testIsPrimitive_Object() throws IOException{
+        Assert.assertFalse(parser.isPrimitive(json("{\"key\":{}}").get("key")));
+    }
+
+    @Test
+    public void testGetStringValueOf_TextNode() throws IOException{
+        Assert.assertEquals("value", parser.getStringValueOf(json("{\"key\":\"value\"}").get("key")));
+    }
+
+    @Test
+    public void testGetStringValueOf_IntNode() throws IOException{
+        Assert.assertEquals("4", parser.getStringValueOf(json("{\"key\":4}").get("key")));
+    }
+
+    /**
+     * If json object is not a primitive, then an exception will be thrown.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetStringValueOf_ObjectNode() throws IOException{
+        parser.getStringValueOf(json("{\"key\":{\"fruit\":\"apple\"}}").get("key"));
     }
 
 }

@@ -18,6 +18,17 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -28,12 +39,6 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.util.Error;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
 
 public class JSONMetadataParser extends MetadataParser<JsonNode> {
     private static final Logger LOGGER = LoggerFactory.getLogger(JSONMetadataParser.class);
@@ -41,8 +46,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     private final JsonNodeFactory factory;
 
     public JSONMetadataParser(Extensions<JsonNode> ex,
-                              TypeResolver resolver,
-                              JsonNodeFactory factory) {
+            TypeResolver resolver,
+            JsonNodeFactory factory) {
         super(ex, resolver);
         this.factory = factory;
     }
@@ -302,7 +307,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         if(p!=null)
             ((ObjectNode)object).put(name,p.toJson());
     }
-    
+
     @Override
     public void putQuery(JsonNode object,String name,QueryExpression q) {
         if(q!=null)
@@ -313,5 +318,21 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     public void putSort(JsonNode object,String name,Sort s) {
         if(s!=null)
             ((ObjectNode)object).put(name,s.toJson());
+    }
+
+    @Override
+    public boolean isPrimitive(JsonNode object) {
+        if(object.isArray() || object.isObject()){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String getStringValueOf(JsonNode object) {
+        if(!isPrimitive(object)){
+            throw new IllegalArgumentException("Node is not a primitive value");
+        }
+        return object.asText();
     }
 }

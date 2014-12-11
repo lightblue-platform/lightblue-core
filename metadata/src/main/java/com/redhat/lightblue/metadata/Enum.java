@@ -20,7 +20,6 @@ package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,7 +30,7 @@ public class Enum implements Serializable {
     private static final long serialVersionUID = 1l;
 
     private final String name;
-    private final HashSet<String> values = new HashSet<>();
+    private final Set<EnumValue> values = new HashSet<>();
 
     /**
      * Default ctor
@@ -47,7 +46,7 @@ public class Enum implements Serializable {
         return name;
     }
 
-    public void setValues(List<String> v) {
+    public void setValues(Set<EnumValue> v) {
         values.clear();
         if (v != null) {
             values.addAll(v);
@@ -55,10 +54,20 @@ public class Enum implements Serializable {
     }
 
     /**
+     * The {@link EnumValue}s allowed in this enumeration.
+     */
+    public Set<EnumValue> getEnumValues() {
+        return new HashSet<EnumValue>(values);
+    }
+
+    /**
      * The values allowed in this enumeration.
      */
-    @SuppressWarnings("unchecked")
-    public Set<String> getValues() {
-        return (HashSet<String>) values.clone();
+    public Set<String> getValues(){
+        Set<String> strings = new HashSet<String>();
+        for(EnumValue v : values){
+            strings.add(v.getName());
+        }
+        return strings;
     }
 }
