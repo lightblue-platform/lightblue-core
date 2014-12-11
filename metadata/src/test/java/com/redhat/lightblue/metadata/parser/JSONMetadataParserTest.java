@@ -18,6 +18,25 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import static com.redhat.lightblue.util.JsonUtils.json;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.json.JSONException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,25 +45,12 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-import org.json.JSONException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
@@ -158,10 +164,10 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
     }
 
-//    @Test hooks not implemented yet
-//    public void fullObjectEverything() throws IOException, ParseException, JSONException {
-//        testResource("JSONMetadataParserTest-object-everything.json");
-//    }
+    //    @Test hooks not implemented yet
+    //    public void fullObjectEverything() throws IOException, ParseException, JSONException {
+    //        testResource("JSONMetadataParserTest-object-everything.json");
+    //    }
     @Test
     public void getStringProperty() {
         String name = "name";
@@ -211,7 +217,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Assert.assertTrue("expected instanceof String", object instanceof String);
 
-        Assert.assertEquals(value, (String) object);
+        Assert.assertEquals(value, object);
     }
 
     @Test
@@ -328,7 +334,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value.booleanValue(), x.booleanValue());
@@ -342,7 +348,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value, x.decimalValue());
@@ -356,7 +362,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value, x.bigIntegerValue());
@@ -370,7 +376,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value.doubleValue(), x.doubleValue(), 0.001);
@@ -384,7 +390,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value.floatValue(), x.floatValue(), 0.001);
@@ -398,7 +404,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value.intValue(), x.intValue());
@@ -412,7 +418,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value.longValue(), x.longValue());
@@ -426,7 +432,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value.shortValue(), x.shortValue());
@@ -440,7 +446,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         parser.putValue(parent, name, value);
 
-        JsonNode x = (JsonNode) parent.get(name);
+        JsonNode x = parent.get(name);
 
         Assert.assertNotNull(x);
         Assert.assertEquals(value, x.textValue());
@@ -480,6 +486,45 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
 
         Assert.assertEquals(1, array.size());
         Assert.assertEquals(value, array.get(0));
+    }
+
+    @Test
+    public void testConvertEnums() throws IOException{
+        String enumName = "FakeEnum";
+        String enumValue1 = "FakeEnumValue1";
+        String enumValue2 = "FakeEnumValue2";
+
+        Enum e = new Enum(enumName);
+        e.setValues(Arrays.asList(enumValue1, enumValue2));
+
+        Enums enums = new Enums();
+        enums.addEnum(e);
+
+        JsonNode enumsNode = json("{}");
+        parser.convertEnums(enumsNode, enums);
+
+        String json = enumsNode.toString();
+        Assert.assertTrue(json.contains("enums"));
+        Assert.assertTrue(json.contains(enumName));
+        Assert.assertTrue(json.contains(enumValue1));
+        Assert.assertTrue(json.contains(enumValue2));
+    }
+
+    @Test
+    public void testParseEnum() throws IOException{
+        String enumName = "FakeEnum";
+        String enumValue1 = "FakeEnumValue1";
+        String enumValue2 = "FakeEnumValue2";
+
+        JsonNode enumsNode = json("{\"name\":\"" + enumName + "\", "
+                + "\"values\": [\"" + enumValue1 + "\",\"" + enumValue2 + "\"]}");
+
+        Enum e = parser.parseEnum(enumsNode);
+
+        Assert.assertEquals(enumName, e.getName());
+        Assert.assertEquals(2, e.getValues().size());
+        Assert.assertTrue(e.getValues().contains(enumValue1));
+        Assert.assertTrue(e.getValues().contains(enumValue2));
     }
 
 }
