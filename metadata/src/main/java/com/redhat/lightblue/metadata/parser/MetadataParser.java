@@ -389,7 +389,6 @@ public abstract class MetadataParser<T> {
             T status = getRequiredObjectProperty(object, STR_STATUS);
             parseStatus(schema, status);
 
-            // TODO hooks
             T access = getObjectProperty(object, STR_ACCESS);
             if (access != null) {
                 parseEntityAccess(schema.getAccess(), access);
@@ -820,12 +819,15 @@ public abstract class MetadataParser<T> {
                 putString(ret, STR_DEFAULT_VERSION, info.getDefaultVersion());
             }
             if (info.getIndexes() != null && !info.getIndexes().isEmpty()) {
-                // indexes is an array directly on the entity info, so do not create a new node ere, let conversion handle it
+                // indexes is an array directly on the entity info, so do not create a new node here, let conversion handle it
                 convertIndexes(ret, info.getIndexes());
             }
             if (info.getEnums() != null && !info.getEnums().isEmpty()) {
-                // enumsis an array directly on the entity info, so do not create a new node ere, let conversion handle it
+                // enums is an array directly on the entity info, so do not create a new node here, let conversion handle it
                 convertEnums(ret, info.getEnums());
+            }
+            if(info.getHooks() != null && !info.getHooks().isEmpty()) {
+                convertHooks(ret, info.getHooks());
             }
             if (info.getDataStore() != null) {
                 T dsNode = newNode();
@@ -1177,6 +1179,57 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    public void convertHooks(T parent, Hooks hooks) {
+        Error.push(STR_HOOKS);
+        try {
+            if (hooks != null && !hooks.isEmpty()) {
+                // create array node for hooks
+                Object array = newArrayField(parent, STR_HOOKS);
+
+                // for each hook, add it to array
+                for (Hook h : hooks.getHooks()) {
+                    T node = newNode();
+                    addObjectToArray(array, node);
+                    putString(node, STR_NAME, h.getName());
+
+                    if(h.getProjection()!=null) {
+                        putObject(node, STR_PROJECTION, h.getProjection().toJson());
+                    }
+
+                    Object actions = newArrayField(node, STR_ACTIONS);
+                    if(h.isInsert())
+                        addStringToArray(actions,STR_INSERT);
+                    if(h.isUpdate())
+                        addStringToArray(actions,STR_UPDATE);
+                    if(h.isDelete())
+                        addStringToArray(actions,STR_DELETE);
+                    if(h.isFind())
+                        addStringToArray(actions,STR_FIND);
+
+                    HookConfiguration cfg=h.getConfiguration();
+                    if(cfg!=null) {
+                        HookConfigurationParser<T> parser=extensions.getHookConfigurationParser(h.getName());
+                        if (parser == null) {
+                            throw Error.get(MetadataConstants.ERR_INVALID_HOOK, h.getName());
+                        }
+                        T cfgNode=newNode();
+                        putObject(node,STR_CONFIGURATION,cfgNode);
+                        parser.convert(this,cfgNode,cfg);
+                    }
+                }
+            }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
+        } finally {
+            Error.pop();
+        }
+    }
+
     public void convertEnums(T parent, Enums enums) {
         Error.push(STR_INDEXES);
         try {
@@ -1253,13 +1306,13 @@ public abstract class MetadataParser<T> {
         putString(fieldObject, STR_ENTITY, field.getEntityName());
         putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
         if (field.getProjection() != null) {
-            putString(fieldObject, STR_PROJECTION, field.getProjection().toString());
+            putObject(fieldObject, STR_PROJECTION, field.getProjection().toJson());
         }
         if (field.getQuery() != null) {
-            putString(fieldObject, STR_QUERY, field.getQuery().toString());
+            putObject(fieldObject, STR_QUERY, field.getQuery().toJson());
         }
         if (field.getSort() != null) {
-            putString(fieldObject, STR_SORT, field.getSort().toString());
+            putObject(fieldObject, STR_SORT, field.getSort().toJson());
         }
     }
 
