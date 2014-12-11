@@ -1193,7 +1193,7 @@ public abstract class MetadataParser<T> {
                     putString(node, STR_NAME, h.getName());
 
                     if(h.getProjection()!=null) {
-                        putObject(node, STR_PROJECTION, convertProjection(h.getProjection()));
+                        putProjection(node, STR_PROJECTION, h.getProjection());
                     }
 
                     Object actions = newArrayField(node, STR_ACTIONS);
@@ -1306,13 +1306,13 @@ public abstract class MetadataParser<T> {
         putString(fieldObject, STR_ENTITY, field.getEntityName());
         putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
         if (field.getProjection() != null) {
-            putObject(fieldObject, STR_PROJECTION, convertProjection(field.getProjection()));
+            putProjection(fieldObject, STR_PROJECTION, field.getProjection());
         }
         if (field.getQuery() != null) {
-            putObject(fieldObject, STR_QUERY, convertQuery(field.getQuery()));
+            putQuery(fieldObject, STR_QUERY, field.getQuery());
         }
         if (field.getSort() != null) {
-            putObject(fieldObject, STR_SORT, convertSort(field.getSort()));
+            putSort(fieldObject, STR_SORT, field.getSort());
         }
     }
 
@@ -1550,16 +1550,16 @@ public abstract class MetadataParser<T> {
     /**
      * Convert a projection to T
      */
-    public abstract T convertProjection(Projection p);
+    public abstract void putProjection(T object,String name,Projection p);
 
     /**
      * Convert a query to T
      */
-    public abstract T convertQuery(QueryExpression q);
+    public abstract void putQuery(T object,String name,QueryExpression q);
 
     /**
      * Convert a sort to T
      */
-    public abstract T convertSort(Sort s);
+    public abstract void putSort(T object,String name,Sort s);
 
 }

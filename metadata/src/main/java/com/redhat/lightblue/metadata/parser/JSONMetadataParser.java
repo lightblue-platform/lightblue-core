@@ -298,17 +298,20 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public JsonNode convertProjection(Projection p) {
-        return p==null?null:p.toJson();
+    public void putProjection(JsonNode object,String name,Projection p) {
+        if(p!=null)
+            ((ObjectNode)object).put(name,p.toJson());
+    }
+    
+    @Override
+    public void putQuery(JsonNode object,String name,QueryExpression q) {
+        if(q!=null)
+            ((ObjectNode)object).put(name,q.toJson());
     }
 
     @Override
-    public JsonNode convertQuery(QueryExpression q) {
-        return q==null?null:q.toJson();
-    }
-
-    @Override
-    public JsonNode convertSort(Sort s) {
-        return s==null?null:s.toJson();
+    public void putSort(JsonNode object,String name,Sort s) {
+        if(s!=null)
+            ((ObjectNode)object).put(name,s.toJson());
     }
 }
