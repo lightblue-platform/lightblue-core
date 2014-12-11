@@ -296,4 +296,19 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     public Sort parseSort(JsonNode object) {
         return object == null ? null : Sort.fromJson(object);
     }
+
+    @Override
+    public JsonNode convertProjection(Projection p) {
+        return p==null?null:p.toJson();
+    }
+
+    @Override
+    public JsonNode convertQuery(QueryExpression q) {
+        return q==null?null:q.toJson();
+    }
+
+    @Override
+    public JsonNode convertSort(Sort s) {
+        return s==null?null:s.toJson();
+    }
 }

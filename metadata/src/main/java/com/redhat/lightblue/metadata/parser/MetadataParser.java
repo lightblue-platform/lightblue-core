@@ -1193,7 +1193,7 @@ public abstract class MetadataParser<T> {
                     putString(node, STR_NAME, h.getName());
 
                     if(h.getProjection()!=null) {
-                        putObject(node, STR_PROJECTION, h.getProjection().toJson());
+                        putObject(node, STR_PROJECTION, convertProjection(h.getProjection()));
                     }
 
                     Object actions = newArrayField(node, STR_ACTIONS);
@@ -1306,13 +1306,13 @@ public abstract class MetadataParser<T> {
         putString(fieldObject, STR_ENTITY, field.getEntityName());
         putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
         if (field.getProjection() != null) {
-            putObject(fieldObject, STR_PROJECTION, field.getProjection().toJson());
+            putObject(fieldObject, STR_PROJECTION, convertProjection(field.getProjection()));
         }
         if (field.getQuery() != null) {
-            putObject(fieldObject, STR_QUERY, field.getQuery().toJson());
+            putObject(fieldObject, STR_QUERY, convertQuery(field.getQuery()));
         }
         if (field.getSort() != null) {
-            putObject(fieldObject, STR_SORT, field.getSort().toJson());
+            putObject(fieldObject, STR_SORT, convertSort(field.getSort()));
         }
     }
 
@@ -1546,5 +1546,20 @@ public abstract class MetadataParser<T> {
     public abstract void addObjectToArray(Object array, Object value);
 
     public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields);
+
+    /**
+     * Convert a projection to T
+     */
+    public abstract T convertProjection(Projection p);
+
+    /**
+     * Convert a query to T
+     */
+    public abstract T convertQuery(QueryExpression q);
+
+    /**
+     * Convert a sort to T
+     */
+    public abstract T convertSort(Sort s);
 
 }
