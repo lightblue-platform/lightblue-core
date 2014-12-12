@@ -19,6 +19,7 @@
 package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,6 +52,14 @@ public class Enum implements Serializable {
         if (v != null) {
             values.addAll(v);
         }
+    }
+
+    public void setValues(Collection<String> values){
+        Set<EnumValue> evSet = new HashSet<EnumValue>();
+        for(String string : values){
+            evSet.add(new EnumValue(getName(), string, null));
+        }
+        setValues(evSet);
     }
 
     /**
