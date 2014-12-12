@@ -1319,14 +1319,16 @@ public abstract class MetadataParser<T> {
                     // for each value, add to a new values array
                     Object indexObj = newArrayField(node, hasDescription ? STR_ANNOTATED_VALUES : STR_VALUES);
                     for (EnumValue v : enumValues) {
-                        if(StringUtils.isEmpty(v.getDescription())){
-                            addStringToArray(indexObj, v.getName());
-                        }
-                        else{
+                        if(hasDescription){
                             T enumNode = newNode();
                             putString(enumNode, STR_NAME, v.getName());
-                            putString(enumNode, STR_DESCRIPTION, v.getDescription());
+                            if(!StringUtils.isEmpty(v.getDescription())){
+                                putString(enumNode, STR_DESCRIPTION, v.getDescription());
+                            }
                             addObjectToArray(indexObj, enumNode);
+                        }
+                        else{
+                            addStringToArray(indexObj, v.getName());
                         }
                     }
                 }
