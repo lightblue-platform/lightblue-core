@@ -18,15 +18,20 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import java.util.ArrayList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.query.FieldProjection;
 import org.junit.Assert;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 public class ExtensionsTest {
 
@@ -48,6 +53,7 @@ public class ExtensionsTest {
 
         @Override
         public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
+            p.putString(emptyNode,"testField",((TestHookCfg)object).testName);
         }
 
         @Override
@@ -103,5 +109,32 @@ public class ExtensionsTest {
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isDelete());
         Assert.assertFalse(ei.getHooks().getHooks().get(0).isFind());
         Assert.assertEquals("testValue", ((TestHookCfg) ei.getHooks().getHooks().get(0).getConfiguration()).testName);
+    }
+
+    @Test
+    public void convertHookTest() throws Exception {
+        Extensions<JsonNode> ex = new Extensions<>();
+        HookTestCfgParser hookParser = new HookTestCfgParser();
+        ex.registerHookConfigurationParser("testHook", hookParser);
+        ex.registerDataStoreParser("test", new TestDataStoreParser());
+
+        EntityInfo ei=new EntityInfo("test");
+        ArrayList<Hook> hooks=new ArrayList<>();
+        Hook hook=new Hook("testHook");
+        hook.setInsert(true);
+        hook.setProjection(new FieldProjection(new Path("*"),true,true));
+        hook.setConfiguration(new TestHookCfg("test"));
+        hooks.add(hook);
+        ei.getHooks().setHooks(hooks);
+
+        JSONMetadataParser parser = new JSONMetadataParser(ex, new DefaultTypes(), nodeFactory);
+        JsonNode node=parser.convert(ei);
+        System.out.println(node);
+        JSONAssert.assertEquals(node.toString(), json("{'name':'test','datastore':{'backend':'test' }, "
+                                                      + "'hooks':[ "
+                                                      + "{'name':'testHook','actions':['insert'],"
+                                                      + "'projection':{'field':'*','include':true,'recursive':true},"
+                                                      + "'configuration':{'testField':'test'} } ] }").toString(), false);
+     
     }
 }
