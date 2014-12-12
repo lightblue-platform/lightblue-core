@@ -42,6 +42,11 @@ public class SimpleScorer implements QueryPlanScorer, Serializable {
         public boolean equals(Object x) {
             return compareTo(x)==0;
         }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
     }
 
     public static final Comparable MAX=new MaxScore();
