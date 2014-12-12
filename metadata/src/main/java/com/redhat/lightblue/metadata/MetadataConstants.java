@@ -48,6 +48,7 @@ public final class MetadataConstants {
     public static final String ERR_INVALID_TYPE = "metadata:InvalidType";
 
     public static final String ERR_INCOMPATIBLE_VALUE = "metadata:IncompatibleValue";
+    public static final String ERR_INCOMPATIBLE_FIELDS = "metadata:IncompatibleFields";
 
     public static final String ERR_CONFIG_NOT_VALID = "metadata:ConfigurationNotValid";
     public static final String ERR_CONFIG_NOT_FOUND = "metadata:ConfigurationNotFound";

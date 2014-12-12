@@ -95,6 +95,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_UPDATE = "update";
     private static final String STR_FIELDS = "fields";
     private static final String STR_VALUES = "values";
+    private static final String STR_ANNOTATED_VALUES = "annotatedValues";
     private static final String STR_ITEMS = "items";
     private static final String STR_UNIQUE = "unique";
     private static final String STR_INDEXES = "indexes";
@@ -344,25 +345,33 @@ public abstract class MetadataParser<T> {
                 }
                 Enum e = new Enum(name);
 
-                List<T> values = getObjectList(object, STR_VALUES);
-                if (null != values && !values.isEmpty()) {
-                    Set<EnumValue> enumValues = new HashSet<EnumValue>();
-                    for(T value : values){
+                List<String> values = getStringList(object, STR_VALUES);
+                List<T> annotatedValues = getObjectList(object, STR_ANNOTATED_VALUES);
+
+                Set<EnumValue> enumValues = new HashSet<EnumValue>();
+                if((values != null) && (annotatedValues != null)){
+                    throw Error.get(MetadataConstants.ERR_INCOMPATIBLE_VALUE,
+                            STR_VALUES + " and " + STR_ANNOTATED_VALUES + " cannot both be defined.");
+                }
+                else if(values != null){
+                    for(String string : values){
+                        enumValues.add(new EnumValue(e.getName(), string, null));
+                    }
+                }
+                else if(annotatedValues != null){
+                    for(T value : annotatedValues){
                         EnumValue enumValue = new EnumValue(e.getName());
-                        if(isPrimitive(value)){
-                            enumValue.setName(getStringValueOf(value));
-                        }
-                        else{
-                            enumValue.setName(getRequiredStringProperty(value, STR_NAME));
-                            enumValue.setDescription(getStringProperty(value, STR_DESCRIPTION));
-                        }
+                        enumValue.setName(getRequiredStringProperty(value, STR_NAME));
+                        enumValue.setDescription(getStringProperty(value, STR_DESCRIPTION));
                         enumValues.add(enumValue);
                     }
-                    e.setValues(enumValues);
-                } else {
+                }
+
+                if(enumValues.isEmpty()){
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
+                e.setValues(enumValues);
                 return e;
             } else {
                 return null;
@@ -1298,9 +1307,18 @@ public abstract class MetadataParser<T> {
                     addObjectToArray(array, node);
                     putString(node, STR_NAME, e.getName());
 
+                    Set<EnumValue> enumValues = e.getEnumValues();
+                    boolean hasDescription = false;
+                    for (EnumValue v : enumValues) {
+                        if(v.getDescription() != null){
+                            hasDescription = true;
+                            break;
+                        }
+                    }
+
                     // for each value, add to a new values array
-                    Object indexObj = newArrayField(node, STR_VALUES);
-                    for (EnumValue v : e.getEnumValues()) {
+                    Object indexObj = newArrayField(node, hasDescription ? STR_ANNOTATED_VALUES : STR_VALUES);
+                    for (EnumValue v : enumValues) {
                         if(StringUtils.isEmpty(v.getDescription())){
                             addStringToArray(indexObj, v.getName());
                         }
@@ -1624,16 +1642,5 @@ public abstract class MetadataParser<T> {
      * Convert a sort to T
      */
     public abstract void putSort(T object,String name,Sort s);
-
-    /**
-     * @return <code>true</code> if the passed in object represents a primitive value,
-     * otherwise <code>false</code>.
-     */
-    public abstract boolean isPrimitive(T object);
-
-    /**
-     * @return the String value of the passed in object.
-     */
-    public abstract String getStringValueOf(T object);
 
 }

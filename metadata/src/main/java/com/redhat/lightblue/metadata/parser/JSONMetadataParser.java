@@ -320,19 +320,4 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             ((ObjectNode)object).put(name,s.toJson());
     }
 
-    @Override
-    public boolean isPrimitive(JsonNode object) {
-        if(object.isArray() || object.isObject()){
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String getStringValueOf(JsonNode object) {
-        if(!isPrimitive(object)){
-            throw new IllegalArgumentException("Node is not a primitive value");
-        }
-        return object.asText();
-    }
 }
