@@ -137,16 +137,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return Projection.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
     }
 
-   @Test
-    public void sanityCheck() throws Exception {
-        FindRequest fr=new FindRequest();
-        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
-        fr.setProjection(projection("{'field':'*','recursive':1}"));
-        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr);
-        Assert.assertEquals(1,response.getEntityData().size());
-        Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
-    }
+   // @Test
+   //  public void sanityCheck() throws Exception {
+   //      FindRequest fr=new FindRequest();
+   //      fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
+   //      fr.setProjection(projection("{'field':'*','recursive':1}"));
+   //      fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+   //      Response response=mediator.find(fr);
+   //      Assert.assertEquals(1,response.getEntityData().size());
+   //      Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
+   //  }
 
     @Test
     public void retrieveAandBonly() throws Exception {
@@ -163,34 +163,34 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals("A",qplan.getSources()[0].getMetadata().getName());
     }
 
-    @Test
-    public void retrieveAandBonly_BFirst() throws Exception {
-        FindRequest fr=new FindRequest();
-        fr.setQuery(query("{'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'}"));
-        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
-        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr);
-        Assert.assertEquals(1,response.getEntityData().size());
-        Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
-        QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
-         // This one must have B -> A
-        Assert.assertEquals(1,qplan.getSources().length);
-        Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
-   }
+   //  @Test
+   //  public void retrieveAandBonly_BFirst() throws Exception {
+   //      FindRequest fr=new FindRequest();
+   //      fr.setQuery(query("{'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'}"));
+   //      fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+   //      fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+   //      Response response=mediator.find(fr);
+   //      Assert.assertEquals(1,response.getEntityData().size());
+   //      Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
+   //      QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
+   //       // This one must have B -> A
+   //      Assert.assertEquals(1,qplan.getSources().length);
+   //      Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
+   // }
 
-    @Test
-    public void retrieveAandBonly_2q() throws Exception {
-        FindRequest fr=new FindRequest();
-        fr.setQuery(query("{'$and': [ {'field':'_id','op':'=','rvalue':'A09'}, {'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'} ] }"));
-        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
-        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr);
-        Assert.assertEquals(1,response.getEntityData().size());
-        Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
-        QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
-        // This one must have B -> A
-        Assert.assertEquals(1,qplan.getSources().length);
-        Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
-    }
+   //  @Test
+   //  public void retrieveAandBonly_2q() throws Exception {
+   //      FindRequest fr=new FindRequest();
+   //      fr.setQuery(query("{'$and': [ {'field':'_id','op':'=','rvalue':'A09'}, {'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'} ] }"));
+   //      fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+   //      fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+   //      Response response=mediator.find(fr);
+   //      Assert.assertEquals(1,response.getEntityData().size());
+   //      Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
+   //      QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
+   //      // This one must have B -> A
+   //      Assert.assertEquals(1,qplan.getSources().length);
+   //      Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
+   //  }
 
 }

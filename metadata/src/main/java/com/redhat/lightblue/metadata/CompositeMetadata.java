@@ -81,7 +81,7 @@ public class CompositeMetadata extends EntityMetadata {
      */
     public CompositeMetadata(EntityInfo info,
                              CompositeSchema schema) {
-        this(info, schema, new Path(), null);
+        this(info, schema, Path.EMPTY, null);
     }
 
     public CompositeMetadata(EntityInfo info,

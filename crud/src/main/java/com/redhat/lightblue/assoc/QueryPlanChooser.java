@@ -59,14 +59,15 @@ public class QueryPlanChooser {
     public QueryPlanChooser(CompositeMetadata cmd,
                             QueryPlanIterator qpitr,
                             QueryPlanScorer scorer,
-                            QueryExpression requestQuery) {
+                            QueryExpression requestQuery,
+                            Set<CompositeMetadata> filter) {
         LOGGER.debug("QueryPlanChooser.ctor");
         Error.push("QueryPlanChooser");
         try {
             this.compositeMetadata=cmd;
             this.qplanIterator=qpitr;
             this.scorer=scorer;
-            qplan=new QueryPlan(compositeMetadata,scorer);
+            qplan=new QueryPlan(compositeMetadata,scorer,filter);
             LOGGER.debug("Initial query plan:{}",qplan);
             
             this.requestQuery=requestQuery;
