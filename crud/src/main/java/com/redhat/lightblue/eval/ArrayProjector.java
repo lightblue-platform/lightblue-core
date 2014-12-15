@@ -93,18 +93,18 @@ public abstract class ArrayProjector extends Projector {
 
         @Override
         public int hashCode() {
-            String hash = "";
+            StringBuilder buff = new StringBuilder();
 
             for(int i=0;i<keyValues.length;i++) {
-                hash += sortFields[i].descending?"-":"+";
+                buff.append(sortFields[i].descending?"-":"+");
                 if(keyValues[i]!=null) {
-                    hash += "_";
+                    buff.append("_");
                 } else {
-                    hash += sortFields[i].field.getType();
+                    buff.append(sortFields[i].field.getType());
                 }
             }
 
-            return hash.hashCode();
+            return buff.toString().hashCode();
         }
 
         @Override
