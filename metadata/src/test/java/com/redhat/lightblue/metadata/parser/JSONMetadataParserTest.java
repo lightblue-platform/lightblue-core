@@ -547,6 +547,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String jsonString = enumsNode.toString();
         Assert.assertTrue(jsonString.contains("enums"));
         Assert.assertTrue(jsonString.contains(enumName));
+        Assert.assertTrue(jsonString.matches(".*\"values\":\\[.*")); //To support legacy clients.
         Assert.assertTrue(jsonString.matches(".*\"annotatedValues\":\\[.*"));
         Assert.assertTrue(jsonString.contains("{\"name\":\"" + enumValue1 + "\",\"description\":\"" + enumDescription1 + "\"}"));
         Assert.assertTrue(jsonString.contains("{\"name\":\"" + enumValue2 + "\",\"description\":\"" + enumDescription2 + "\"}"));
