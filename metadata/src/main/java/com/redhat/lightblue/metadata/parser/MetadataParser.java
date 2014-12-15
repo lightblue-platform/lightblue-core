@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -349,21 +348,17 @@ public abstract class MetadataParser<T> {
                 List<T> annotatedValues = getObjectList(object, STR_ANNOTATED_VALUES);
 
                 Set<EnumValue> enumValues = new HashSet<EnumValue>();
-                if((values != null) && (annotatedValues != null)){
-                    throw Error.get(MetadataConstants.ERR_INCOMPATIBLE_VALUE,
-                            STR_VALUES + " and " + STR_ANNOTATED_VALUES + " cannot both be defined.");
+                if(annotatedValues != null){
+                    for(T value : annotatedValues){
+                        EnumValue enumValue = new EnumValue(e.getName());
+                        enumValue.setName(getRequiredStringProperty(value, STR_NAME));
+                        enumValue.setDescription(getRequiredStringProperty(value, STR_DESCRIPTION));
+                        enumValues.add(enumValue);
+                    }
                 }
                 else if(values != null){
                     for(String string : values){
                         enumValues.add(new EnumValue(e.getName(), string, null));
-                    }
-                }
-                else if(annotatedValues != null){
-                    for(T value : annotatedValues){
-                        EnumValue enumValue = new EnumValue(e.getName());
-                        enumValue.setName(getRequiredStringProperty(value, STR_NAME));
-                        enumValue.setDescription(getStringProperty(value, STR_DESCRIPTION));
-                        enumValues.add(enumValue);
                     }
                 }
 
@@ -1324,9 +1319,7 @@ public abstract class MetadataParser<T> {
                         for (EnumValue v : enumValues) {
                             T enumNode = newNode();
                             putString(enumNode, STR_NAME, v.getName());
-                            if(!StringUtils.isEmpty(v.getDescription())){
-                                putString(enumNode, STR_DESCRIPTION, v.getDescription());
-                            }
+                            putString(enumNode, STR_DESCRIPTION, v.getDescription());
                             addObjectToArray(annotatedValuesObj, enumNode);
                         }
                     }

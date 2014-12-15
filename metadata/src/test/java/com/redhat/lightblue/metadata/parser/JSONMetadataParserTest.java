@@ -516,7 +516,9 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue(jsonString.contains("enums"));
         Assert.assertTrue(jsonString.contains(enumName));
         Assert.assertTrue(jsonString.matches(".*\"values\":\\[.*"));
+
         //Should just be string elements, not a complex objects.
+        Assert.assertFalse(jsonString.matches(".*\"annotatedValues\":\\[.*"));
         Assert.assertTrue(jsonString.contains(enumValue1));
         Assert.assertFalse(jsonString.contains("\"name\":\"" + enumValue1 + "\""));
         Assert.assertTrue(jsonString.contains(enumValue2));
@@ -530,13 +532,11 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String enumDescription1 = "this is a fake description of enum value 1";
         String enumValue2 = "FakeEnumValue2";
         String enumDescription2 = "this is a fake description of enum value 2";
-        String enumValue3 = "FakeEnumWithoutDescription";
 
         Enum e = new Enum(enumName);
         e.setValues(new HashSet<EnumValue>(Arrays.asList(
                 new EnumValue(enumName, enumValue1, enumDescription1),
-                new EnumValue(enumName, enumValue2, enumDescription2),
-                new EnumValue(enumName, enumValue3, null))));
+                new EnumValue(enumName, enumValue2, enumDescription2))));
 
         Enums enums = new Enums();
         enums.addEnum(e);
@@ -551,7 +551,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue(jsonString.matches(".*\"annotatedValues\":\\[.*"));
         Assert.assertTrue(jsonString.contains("{\"name\":\"" + enumValue1 + "\",\"description\":\"" + enumDescription1 + "\"}"));
         Assert.assertTrue(jsonString.contains("{\"name\":\"" + enumValue2 + "\",\"description\":\"" + enumDescription2 + "\"}"));
-        Assert.assertTrue(jsonString.contains("\"name\":\"" + enumValue3 + "\""));
     }
 
     @Test
