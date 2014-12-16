@@ -57,7 +57,7 @@ public class Enum implements Serializable {
     public void setValues(Collection<String> values){
         Set<EnumValue> evSet = new HashSet<EnumValue>();
         for(String string : values){
-            evSet.add(new EnumValue(getName(), string, null));
+            evSet.add(new EnumValue(string, null));
         }
         setValues(evSet);
     }

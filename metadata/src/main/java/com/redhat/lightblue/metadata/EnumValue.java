@@ -6,28 +6,14 @@ public class EnumValue implements Serializable{
 
     private static final long serialVersionUID = -1182170538084137297L;
 
-    private String ownerName;
     private String name;
     private String description;
 
     public EnumValue(){}
 
-    public EnumValue(String ownerName){
-        this.ownerName = ownerName;
-    }
-
-    public EnumValue(String ownerName, String name, String description){
-        this.ownerName = ownerName;
+    public EnumValue(String name, String description){
         this.name = name;
         this.description = description;
-    }
-
-    public String getOwnerName() {
-        return ownerName;
-    }
-
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
     }
 
     public String getName() {
@@ -53,8 +39,6 @@ public class EnumValue implements Serializable{
         result = prime * result
                 + ((description == null) ? 0 : description.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result
-                + ((ownerName == null) ? 0 : ownerName.hashCode());
         return result;
     }
 
@@ -86,21 +70,12 @@ public class EnumValue implements Serializable{
         else if (!name.equals(other.name)) {
             return false;
         }
-        if (ownerName == null) {
-            if (other.ownerName != null) {
-                return false;
-            }
-        }
-        else if (!ownerName.equals(other.ownerName)) {
-            return false;
-        }
         return true;
     }
 
     @Override
     public String toString() {
-        return "EnumValue [ownerName=" + ownerName + ", name=" + name
-                + ", description=" + description + "]";
+        return "EnumValue [name=" + name + ", description=" + description + "]";
     }
 
 }

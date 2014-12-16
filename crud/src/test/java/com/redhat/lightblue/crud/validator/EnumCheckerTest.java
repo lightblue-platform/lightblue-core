@@ -46,7 +46,7 @@ public class EnumCheckerTest {
         final String name = "Fake Name";
 
         Enum e = new Enum(name);
-        e.setValues(new HashSet<EnumValue>(Arrays.asList(new EnumValue(e.getName(), name, null))));
+        e.setValues(new HashSet<EnumValue>(Arrays.asList(new EnumValue(name, null))));
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
         mockEnum(validator, e);

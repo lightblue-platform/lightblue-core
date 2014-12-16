@@ -350,7 +350,7 @@ public abstract class MetadataParser<T> {
                 Set<EnumValue> enumValues = new HashSet<EnumValue>();
                 if(annotatedValues != null){
                     for(T value : annotatedValues){
-                        EnumValue enumValue = new EnumValue(e.getName());
+                        EnumValue enumValue = new EnumValue();
                         enumValue.setName(getRequiredStringProperty(value, STR_NAME));
                         enumValue.setDescription(getRequiredStringProperty(value, STR_DESCRIPTION));
                         enumValues.add(enumValue);
@@ -358,7 +358,7 @@ public abstract class MetadataParser<T> {
                 }
                 else if(values != null){
                     for(String string : values){
-                        enumValues.add(new EnumValue(e.getName(), string, null));
+                        enumValues.add(new EnumValue(string, null));
                     }
                 }
 

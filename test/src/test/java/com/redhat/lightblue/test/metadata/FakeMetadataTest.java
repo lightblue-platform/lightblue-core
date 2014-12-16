@@ -16,13 +16,13 @@ public class FakeMetadataTest {
 
     @Test
     public void testEntityInfo_VersionDoesNotExist(){
-        assertFalse(new FakeMetadata().checkVersionExists("fake", "1.0"));
+        assertFalse(new FakeMetadata().checkVersionExists("fake", "1.0.0"));
     }
 
     @Test
     public void testEntityInfo_VersionDoesExist(){
         String entityName = "fake";
-        String version1 = "1.0";
+        String version1 = "1.0.0";
 
         FakeMetadata metadata = new FakeMetadata();
 
@@ -39,7 +39,7 @@ public class FakeMetadataTest {
     @Test(expected = IllegalStateException.class)
     public void testEntityInfo_DoesNotExist(){
         String entityName = "fake";
-        String version1 = "1.0";
+        String version1 = "1.0.0";
 
         FakeMetadata metadata = new FakeMetadata();
 
@@ -98,8 +98,8 @@ public class FakeMetadataTest {
     @Test
     public void testEntityMetadata(){
         String entityName = "fake";
-        String version1 = "1.0";
-        String version2 = "2.0";
+        String version1 = "1.0.0";
+        String version2 = "2.0.0";
 
         FakeMetadata metadata = new FakeMetadata();
 
@@ -118,8 +118,8 @@ public class FakeMetadataTest {
     @Test
     public void testDependencies(){
         String entityName = "fake";
-        String version1 = "1.0";
-        String version2 = "2.0";
+        String version1 = "1.0.0";
+        String version2 = "2.0.0";
 
         FakeMetadata metadata = new FakeMetadata();
 
@@ -138,8 +138,8 @@ public class FakeMetadataTest {
     @Test
     public void testAccess(){
         String entityName = "fake";
-        String version1 = "1.0";
-        String version2 = "2.0";
+        String version1 = "1.0.0";
+        String version2 = "2.0.0";
 
         FakeMetadata metadata = new FakeMetadata();
 

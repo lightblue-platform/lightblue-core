@@ -118,10 +118,19 @@
                     },
                     "values": {
                         "type": "array",
-                        "description": "The values that can be used for the enum.",
+                        "description": "The values that can be used for the enum. Deprecated in favor of annotatedValues",
                         "minItems": 1,
                         "items": {
                             "type": "string"
+                        }
+                    },
+                    "annotatedValues" : {
+                        "type": "array",
+                        "description": "The values with descriptions that can be used for the enum. Replaces values.",
+                        "minItems": 1,
+                        "items": {
+                            "name": "string",
+                            "description": "string"
                         }
                     }
                 },
