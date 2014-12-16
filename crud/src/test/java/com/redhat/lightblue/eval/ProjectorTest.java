@@ -198,4 +198,15 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals(3, pdoc.get(new Path("field7.0.elemf3")).asInt());
         Assert.assertNull(pdoc.get(new Path("field7.0.elemf1")));
     }
+
+    @Test
+    public void fieldProjectorTest_nestedArray() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field11', 'include':1, 'match':{ 'field':'f1','op':'=','rfield':'f1'}, "+
+                                                          "'project':[ {'field':'arr','include':1,'match':{'field':'id','op':'=','rvalue':1}, 'project':[{'field':'x1'},{'field':'x2'}]}  ] }");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field11.*.arr.*.x1")));
+        Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field11.0.arr.0.x2")));
+        System.out.println("doc:"+pdoc);
+    }
 }
