@@ -126,17 +126,24 @@
                     },
                     "annotatedValues" : {
                         "type": "array",
-                        "description": "The values with descriptions that can be used for the enum. Replaces values.",
+                        "description": "The values with descriptions that can be used for the enum. Replaces values",
                         "minItems": 1,
                         "items": {
-                            "name": "string",
-                            "description": "string"
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the values that can be used for the enum"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "description of the enum value"
+                                }
+                            }
                         }
                     }
                 },
                 "required": [
-                    "name",
-                    "values"
+                    "name"
                 ]
             }
         },
