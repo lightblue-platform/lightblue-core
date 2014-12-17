@@ -15,7 +15,7 @@ import com.redhat.lightblue.metadata.VersionInfo;
 /**
  * A simple implementation of {@link AbstractMetadata} for testing purposes.
  */
-public class SimpleMetadata extends AbstractMetadata {
+public class FakeMetadata extends AbstractMetadata {
 
     private static final long serialVersionUID = 1L;
 

@@ -18,14 +18,15 @@
  */
 package com.redhat.lightblue.util.test;
 
+import java.io.IOException;
+
+import org.junit.Assert;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.redhat.lightblue.util.JsonUtils;
-import org.junit.Assert;
-
-import java.io.IOException;
 
 public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
     /**
@@ -71,6 +72,8 @@ public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
 
         // if report isn't null it's a failure and the value of report is the detail of why
         String report = JsonUtils.jsonSchemaValidation(schema, instance);
-        Assert.assertTrue("Expected validation to succeed!\nResource: " + documentResourceName + "\nMessages:\n" + report, report == null);
+        if(report != null){
+            Assert.fail("Expected validation to succeed! Resource: " + documentResourceName + " Messages: " + report.replaceAll("\n", " "));
+        }
     }
 }

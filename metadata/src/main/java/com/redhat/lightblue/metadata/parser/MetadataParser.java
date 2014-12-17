@@ -18,9 +18,51 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
-import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.Access;
+import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityAccess;
+import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.metadata.EnumValue;
+import com.redhat.lightblue.metadata.Enums;
+import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldAccess;
+import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.Hook;
+import com.redhat.lightblue.metadata.HookConfiguration;
+import com.redhat.lightblue.metadata.Hooks;
+import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.Indexes;
+import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.StatusChange;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.ObjectType;
@@ -31,12 +73,6 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other
@@ -58,6 +94,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_UPDATE = "update";
     private static final String STR_FIELDS = "fields";
     private static final String STR_VALUES = "values";
+    private static final String STR_ANNOTATED_VALUES = "annotatedValues";
     private static final String STR_ITEMS = "items";
     private static final String STR_UNIQUE = "unique";
     private static final String STR_INDEXES = "indexes";
@@ -85,6 +122,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_DEPRECATED = "deprecated";
     private static final String STR_DISABLED = "disabled";
     private static final String STR_CONFIGURATION = "configuration";
+    private static final String STR_DESCRIPTION = "description";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataParser.class);
     private static final Set<String> ENTITY_INFO_FIELDS = Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
@@ -305,13 +343,30 @@ public abstract class MetadataParser<T> {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_NAME);
                 }
                 Enum e = new Enum(name);
+
                 List<String> values = getStringList(object, STR_VALUES);
-                if (null != values && !values.isEmpty()) {
-                    e.setValues(values);
-                } else {
+                List<T> annotatedValues = getObjectList(object, STR_ANNOTATED_VALUES);
+
+                Set<EnumValue> enumValues = new HashSet<EnumValue>();
+                if(annotatedValues != null){
+                    for(T value : annotatedValues){
+                        EnumValue enumValue = new EnumValue();
+                        enumValue.setName(getRequiredStringProperty(value, STR_NAME));
+                        enumValue.setDescription(getRequiredStringProperty(value, STR_DESCRIPTION));
+                        enumValues.add(enumValue);
+                    }
+                }
+                else if(values != null){
+                    for(String string : values){
+                        enumValues.add(new EnumValue(string, null));
+                    }
+                }
+
+                if(enumValues.isEmpty()){
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
+                e.setValues(enumValues);
                 return e;
             } else {
                 return null;
@@ -494,7 +549,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the entity access element
      */
     public void parseEntityAccess(EntityAccess access,
-                                  T object) {
+            T object) {
         Error.push(STR_ACCESS);
         try {
             if (object != null) {
@@ -523,7 +578,7 @@ public abstract class MetadataParser<T> {
      * value, an array, or an object.
      */
     public void parseEntityConstraints(EntitySchema schema,
-                                       List<T> constraintList) {
+            List<T> constraintList) {
         if (constraintList != null) {
             List<EntityConstraint> entityConstraintList = new ArrayList<>();
             for (T x : constraintList) {
@@ -555,7 +610,7 @@ public abstract class MetadataParser<T> {
     }
 
     public void parseFieldConstraints(Field field,
-                                      T fieldConstraints) {
+            T fieldConstraints) {
         if (fieldConstraints != null) {
             // The constraint object must contain a single field
             Set<String> childNames = getChildNames(fieldConstraints);
@@ -594,7 +649,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the field access element
      */
     public void parseFieldAccess(FieldAccess access,
-                                 T object) {
+            T object) {
         Error.push(STR_ACCESS);
         try {
             if (object != null) {
@@ -723,8 +778,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    private Field parseSimpleField(String name,
-                                   String type) {
+    private SimpleField parseSimpleField(String name,
+            String type) {
         SimpleField field = new SimpleField(name);
         Type t = typeResolver.getType(type);
         if (t == null) {
@@ -734,8 +789,8 @@ public abstract class MetadataParser<T> {
         return field;
     }
 
-    private Field parseReferenceField(String name,
-                                      T object) {
+    private ReferenceField parseReferenceField(String name,
+            T object) {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
         field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
@@ -746,14 +801,14 @@ public abstract class MetadataParser<T> {
         return field;
     }
 
-    private Field parseObjectField(String name, T object) {
+    private ObjectField parseObjectField(String name, T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
         parseFields(field.getFields(), fields);
         return field;
     }
 
-    private Field parseArrayField(String name, T object) {
+    private ArrayField parseArrayField(String name, T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, STR_ITEMS);
         field.setElement(parseArrayItem(items));
@@ -1197,14 +1252,18 @@ public abstract class MetadataParser<T> {
                     }
 
                     Object actions = newArrayField(node, STR_ACTIONS);
-                    if(h.isInsert())
+                    if(h.isInsert()) {
                         addStringToArray(actions,STR_INSERT);
-                    if(h.isUpdate())
+                    }
+                    if(h.isUpdate()) {
                         addStringToArray(actions,STR_UPDATE);
-                    if(h.isDelete())
+                    }
+                    if(h.isDelete()) {
                         addStringToArray(actions,STR_DELETE);
-                    if(h.isFind())
+                    }
+                    if(h.isFind()) {
                         addStringToArray(actions,STR_FIND);
+                    }
 
                     HookConfiguration cfg=h.getConfiguration();
                     if(cfg!=null) {
@@ -1231,7 +1290,7 @@ public abstract class MetadataParser<T> {
     }
 
     public void convertEnums(T parent, Enums enums) {
-        Error.push(STR_INDEXES);
+        Error.push(STR_ENUMS);
         try {
             if (enums != null && !enums.isEmpty()) {
                 // create array node for enums
@@ -1243,10 +1302,26 @@ public abstract class MetadataParser<T> {
                     addObjectToArray(array, node);
                     putString(node, STR_NAME, e.getName());
 
+                    Set<EnumValue> enumValues = e.getEnumValues();
+                    boolean hasDescription = false;
+
                     // for each value, add to a new values array
-                    Object indexObj = newArrayField(node, STR_VALUES);
-                    for (String v : e.getValues()) {
-                        addStringToArray(indexObj, v);
+                    Object valuesObj = newArrayField(node, STR_VALUES);
+                    for (EnumValue v : enumValues) {
+                        addStringToArray(valuesObj, v.getName());
+                        if(!hasDescription && v.getDescription() != null){
+                            hasDescription = true;
+                        }
+                    }
+
+                    if(hasDescription){
+                        Object annotatedValuesObj = newArrayField(node, STR_ANNOTATED_VALUES);
+                        for (EnumValue v : enumValues) {
+                            T enumNode = newNode();
+                            putString(enumNode, STR_NAME, v.getName());
+                            putString(enumNode, STR_DESCRIPTION, v.getDescription());
+                            addObjectToArray(annotatedValuesObj, enumNode);
+                        }
                     }
                 }
             }

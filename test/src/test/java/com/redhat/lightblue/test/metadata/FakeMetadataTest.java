@@ -12,19 +12,19 @@ import com.redhat.lightblue.Response;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
-public class SimpleMetadataTest {
+public class FakeMetadataTest {
 
     @Test
     public void testEntityInfo_VersionDoesNotExist(){
-        assertFalse(new SimpleMetadata().checkVersionExists("fake", "1.0"));
+        assertFalse(new FakeMetadata().checkVersionExists("fake", "1.0.0"));
     }
 
     @Test
     public void testEntityInfo_VersionDoesExist(){
         String entityName = "fake";
-        String version1 = "1.0";
+        String version1 = "1.0.0";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
@@ -39,9 +39,9 @@ public class SimpleMetadataTest {
     @Test(expected = IllegalStateException.class)
     public void testEntityInfo_DoesNotExist(){
         String entityName = "fake";
-        String version1 = "1.0";
+        String version1 = "1.0.0";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         metadata.setEntityMetadata(entityName, version1, new EntityMetadata("fake EntityMetadata"));
     }
@@ -50,7 +50,7 @@ public class SimpleMetadataTest {
     public void testRemoveEntity(){
         String entityName = "fake";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
@@ -64,7 +64,7 @@ public class SimpleMetadataTest {
 
     @Test
     public void testRemoveEntity_ButDoesNotExist(){
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         metadata.removeEntity("fake");
 
@@ -75,7 +75,7 @@ public class SimpleMetadataTest {
     public void testUpdateEntityInfo(){
         String entityName = "fake";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo1 = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo1);
@@ -90,7 +90,7 @@ public class SimpleMetadataTest {
 
     @Test(expected = IllegalStateException.class)
     public void testUpdateEntityInfo_ThatDoesNotExist(){
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         metadata.updateEntityInfo(new EntityInfo("fake"));
     }
@@ -98,10 +98,10 @@ public class SimpleMetadataTest {
     @Test
     public void testEntityMetadata(){
         String entityName = "fake";
-        String version1 = "1.0";
-        String version2 = "2.0";
+        String version1 = "1.0.0";
+        String version2 = "2.0.0";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
@@ -118,10 +118,10 @@ public class SimpleMetadataTest {
     @Test
     public void testDependencies(){
         String entityName = "fake";
-        String version1 = "1.0";
-        String version2 = "2.0";
+        String version1 = "1.0.0";
+        String version2 = "2.0.0";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
@@ -138,10 +138,10 @@ public class SimpleMetadataTest {
     @Test
     public void testAccess(){
         String entityName = "fake";
-        String version1 = "1.0";
-        String version2 = "2.0";
+        String version1 = "1.0.0";
+        String version2 = "2.0.0";
 
-        SimpleMetadata metadata = new SimpleMetadata();
+        FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
