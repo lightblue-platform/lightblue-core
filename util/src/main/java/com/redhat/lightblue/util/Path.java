@@ -348,7 +348,6 @@ public class Path implements Comparable<Path>, Serializable {
      * be called on absolute paths
      */
     public Path normalize() {
-        int n = data.size();
         boolean parentThisPresent = false;
         Iterator<String> dataItr = data.iterator();
         while (dataItr.hasNext()) {

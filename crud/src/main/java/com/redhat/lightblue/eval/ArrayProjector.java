@@ -92,6 +92,22 @@ public abstract class ArrayProjector extends Projector {
         }
 
         @Override
+        public int hashCode() {
+            StringBuilder buff = new StringBuilder();
+
+            for(int i=0;i<keyValues.length;i++) {
+                buff.append(sortFields[i].descending?"-":"+");
+                if(keyValues[i]!=null) {
+                    buff.append("_");
+                } else {
+                    buff.append(sortFields[i].field.getType());
+                }
+            }
+
+            return buff.toString().hashCode();
+        }
+
+        @Override
         public int compareTo(SortableElement el) {
             for(int i=0;i<keyValues.length;i++) {
                 int dir=sortFields[i].descending?-1:1;
