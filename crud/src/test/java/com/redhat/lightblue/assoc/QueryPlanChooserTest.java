@@ -96,7 +96,8 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         QueryPlanChooser chooser=new QueryPlanChooser(md,
                                                       new BruteForceQueryPlanIterator(),
                                                       new IndexedFieldScorer(),
-                                                      query("{'field':'field1','op':'=','rvalue':'s'}"));
+                                                      query("{'field':'field1','op':'=','rvalue':'s'}"),
+                                                      null);
 
         QueryPlanNode[] nodes=chooser.getQueryPlan().getAllNodes();
         QueryPlanNode anode=null;
@@ -126,7 +127,8 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         QueryPlanChooser chooser=new QueryPlanChooser(md,
                                                       new BruteForceQueryPlanIterator(),
                                                       new IndexedFieldScorer(),
-                                                      query("{'field':'field1','op':'=','rvalue':'s'}"));
+                                                      query("{'field':'field1','op':'=','rvalue':'s'}"),
+                                                      null);
         // choose a plan
         chooser.choose();
         Assert.assertNotNull(chooser.getBestPlan());
@@ -143,7 +145,8 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         QueryPlanChooser chooser=new QueryPlanChooser(md,
                                                       new BruteForceQueryPlanIterator(),
                                                       new IndexedFieldScorer(),
-                                                      query("{'field':'obj1.c.*.field1','op':'=','rvalue':'s'}"));
+                                                      query("{'field':'obj1.c.*.field1','op':'=','rvalue':'s'}"),
+                                                      null);
         // choose a plan
         chooser.choose();
         Assert.assertNotNull(chooser.getBestPlan());

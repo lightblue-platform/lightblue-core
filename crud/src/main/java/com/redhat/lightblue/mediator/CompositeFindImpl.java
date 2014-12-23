@@ -42,9 +42,11 @@ import com.redhat.lightblue.query.QueryInContext;
 import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.RelativeRewriteIterator;
+import com.redhat.lightblue.query.FieldInfo;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
 
@@ -56,7 +58,9 @@ import com.redhat.lightblue.assoc.QueryPlanChooser;
 import com.redhat.lightblue.assoc.QueryPlanDoc;
 
 import com.redhat.lightblue.assoc.scorers.SimpleScorer;
+import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
 import com.redhat.lightblue.assoc.iterators.First;
+import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.DocId;
@@ -74,7 +78,6 @@ public class CompositeFindImpl implements Finder {
     private static final Logger LOGGER=LoggerFactory.getLogger(CompositeFindImpl.class);
 
     private final CompositeMetadata root;
-    private final QueryPlan qplan;
     private final Factory factory;
 
     private final Map<DocId,JsonDoc> documentCache=new HashMap<>();
@@ -82,31 +85,52 @@ public class CompositeFindImpl implements Finder {
     private final List<Error> errors=new ArrayList<>();
 
     public CompositeFindImpl(CompositeMetadata md,
-                             QueryPlan qplan,
                              Factory factory) {
         this.root=md;
-        this.qplan=qplan;
         this.factory=factory;
-
-        init(qplan,factory);
     }
 
 
-    private void init(QueryPlan q,
-                      Factory factory) {
+    private void init(QueryPlan qplan) {
         // We need two separate for loops below. First associates an
         // QueryPlanNodeExecutor to each query plan node. Second adds
         // the edges between those execution data. Setting up the
         // edges requires all execution information readily available.
         
         //  Setup execution data for each node
-        for(QueryPlanNode x:q.getAllNodes())
+        for(QueryPlanNode x:qplan.getAllNodes())
             x.setProperty(QueryPlanNodeExecutor.class,new QueryPlanNodeExecutor(x,factory,root,documentCache));
         
         // setup edges between execution data
-        for(QueryPlanNode x:q.getAllNodes()) {
-            x.getProperty(QueryPlanNodeExecutor.class).init(q);
+        for(QueryPlanNode x:qplan.getAllNodes()) {
+            x.getProperty(QueryPlanNodeExecutor.class).init(qplan);
         }
+    }
+
+    /**
+     * Determine which entities are required to evaluate the given query
+     */
+    private Set<CompositeMetadata> findMinimalSetOfQueryEntities(QueryExpression query,
+                                                                 CompositeMetadata md) {
+        Set<CompositeMetadata> entities=new HashSet<>();
+        List<FieldInfo> lfi=query.getQueryFields();
+        for(FieldInfo fi:lfi) {
+            CompositeMetadata e=md.getEntityOfPath(fi.getAbsFieldName());
+            if(e!=md)
+                entities.add(e);
+        }
+        // All entities on the path from every entity to the root
+        // should also be included
+        for(CompositeMetadata x:entities.toArray(new CompositeMetadata[entities.size()])) {
+            CompositeMetadata trc=x.getParent();
+            while(trc!=null) {
+                entities.add(trc);
+                trc=trc.getParent();
+            }
+        }
+        // At this point, entities contains all required entities, but maybe not the root
+        entities.add(md);
+        return entities;
     }
 
     /**
@@ -117,41 +141,100 @@ public class CompositeFindImpl implements Finder {
     public CRUDFindResponse find(OperationContext ctx,
                                  CRUDFindRequest req) {
         LOGGER.debug("Composite find: start");
-        // At this stage, we have Execution objects assigned to query plan nodes
 
-        // Put the executions in order
-        QueryPlanNode[] nodeOrdering=qplan.getBreadthFirstNodeOrdering();
-        // Execute nodes. Only the nodes up to and including the root
-        // node needs to be executed. The query choose makes sure that
-        // any query plan descendands of the root node don't have any
-        // queries associated with them, so they will be retrieved
-        // only using edge conditions
-        QueryPlanNode rootNode=null;
-        for(QueryPlanNode node:nodeOrdering) {
-            LOGGER.debug("Composite find: {}",node.getName());
-            QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
-            if(node.getMetadata().getParent()==null) {
-                if (req.getTo() != null && req.getFrom() != null) {
-                    exec.setRange(req.getFrom(), req.getTo());
+        // First: determine a minimal entity tree containing the nodes
+        // sufficient to evaluate the query. Then, retrieve using the
+        // complete set of entities.
+        Set<CompositeMetadata> minimalTree=findMinimalSetOfQueryEntities(((FindRequest)ctx.getRequest()).getQuery(),
+                                                                         ctx.getTopLevelEntityMetadata());
+
+        LOGGER.debug("Minimal find tree size={}",minimalTree.size());
+        QueryPlan searchQPlan=null;
+        QueryPlanNode searchQPlanRoot=null;
+        if(minimalTree.size()>1) {
+            // The query depends on several entities. so, we query first, and then retrieve
+            QueryPlanChooser qpChooser=new QueryPlanChooser(root,
+                                                            new BruteForceQueryPlanIterator(),
+                                                            new IndexedFieldScorer(),
+                                                            ((FindRequest)ctx.getRequest()).getQuery(),
+                                                            minimalTree);
+            searchQPlan=qpChooser.choose();
+            LOGGER.debug("Chosen query plan:{}",searchQPlan);
+            ctx.setProperty(Mediator.CTX_QPLAN,searchQPlan);
+            init(searchQPlan);
+            // At this stage, we have Execution objects assigned to query plan nodes
+            
+            // Put the executions in order
+            QueryPlanNode[] nodeOrdering=searchQPlan.getBreadthFirstNodeOrdering();
+            // Execute nodes.
+            for(QueryPlanNode node:nodeOrdering) {
+                LOGGER.debug("Composite find: {}",node.getName());
+                QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
+                if(node.getMetadata().getParent()==null) {
+                    searchQPlanRoot=node;
+                    if (req.getTo() != null && req.getFrom() != null) {
+                        exec.setRange(req.getFrom(), req.getTo());
+                    }
+                    exec.execute(ctx,req.getSort());
+                } else {
+                    exec.execute(ctx,null);
                 }
-                exec.execute(ctx,req.getSort());
-                // Reached the root node. Terminate execution, and build documents
-                rootNode=node;
-                break;
+            }
+            LOGGER.debug("Composite find: search complete");
+        }
+
+        LOGGER.debug("Composite find: retrieving documents");
+
+        // Create a new query plan for retrieval. This one will have
+        // the root document at the root.
+        QueryPlan retrievalQPlan;
+        if(searchQPlan==null) {
+            // No search was performed. We have to search now.
+            retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),((FindRequest)ctx.getRequest()).getQuery(),null).choose();
+            ctx.setProperty(Mediator.CTX_QPLAN,retrievalQPlan);
+        } else {
+            retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),null,null).choose();
+        }
+        init(retrievalQPlan);
+        // This query plan has only one source
+        QueryPlanNode retrievalQPlanRoot=retrievalQPlan.getSources()[0];
+        // Now execute rest of the retrieval plan
+        QueryPlanNode[] nodeOrdering=retrievalQPlan.getBreadthFirstNodeOrdering();
+
+        List<QueryPlanDoc> rootDocs=null;
+        for(int i=0;i<nodeOrdering.length;i++) {
+            if(nodeOrdering[i].getMetadata().getParent()==null) {
+                // This is the root node. If we know the result docs, assign them, otherwise, search
+                if(searchQPlan!=null) {
+                    rootDocs=searchQPlanRoot.getProperty(QueryPlanNodeExecutor.class).getDocs();
+                    nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(rootDocs);
+                } else {
+                    // Perform search
+                    QueryPlanNodeExecutor exec=nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
+                    if (req.getTo() != null && req.getFrom() != null) {
+                        exec.setRange(req.getFrom(), req.getTo());
+                    }
+                    exec.execute(ctx,req.getSort());
+                    rootDocs=exec.getDocs();
+                }
             } else {
+                LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());
+                QueryPlanNodeExecutor exec=nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
                 exec.execute(ctx,null);
             }
         }
 
-        LOGGER.debug("Composite find: retrieval of result set is complete, now building documents");
-
-        if (rootNode == null) {
-            // not likely, but just in case
-            throw new IllegalStateException("No root QueryPlanNode selected to execute query against!");
+        List<DocCtx> resultDocuments=new ArrayList<>(rootDocs.size());
+        for(QueryPlanDoc dgd:rootDocs) {
+            retrieveFragments(dgd,retrievalQPlanRoot.getProperty(QueryPlanNodeExecutor.class));
+            PredefinedFields.updateArraySizes(factory.getNodeFactory(),dgd.getDoc());
+            DocCtx dctx=new DocCtx(dgd.getDoc());
+            dctx.setOutputDocument(dgd.getDoc());
+            resultDocuments.add(dctx);
         }
-        
+
         CRUDFindResponse response=new CRUDFindResponse();
-        List<DocCtx> resultDocuments=retrieveDocuments(ctx,rootNode.getProperty(QueryPlanNodeExecutor.class));
+
         response.setSize(resultDocuments.size());
         ctx.setDocuments(resultDocuments);
         ctx.addErrors(errors);
@@ -160,44 +243,7 @@ public class CompositeFindImpl implements Finder {
         return response;
     }
     
-    private List<DocCtx> retrieveDocuments(OperationContext ctx,
-                                           QueryPlanNodeExecutor rootNode) {
-        LOGGER.debug("Retrieving {} documents",rootNode.getDocs().size());
-
-        // Create a new query plan for retrieval. This one will have
-        // the root document at the root.
-        QueryPlanChooser chooser=new QueryPlanChooser(root,new First(),new SimpleScorer(),null);
-        QueryPlan retrievalQPlan=chooser.choose();
-        // This query plan has only one source
-        QueryPlanNode retrievalPlanRoot=retrievalQPlan.getSources()[0];
-        new CompositeFindImpl(root,retrievalQPlan,factory);
-        // The root node documents are already known
-        retrievalPlanRoot.getProperty(QueryPlanNodeExecutor.class).setDocs(rootNode.getDocs());
-
-        // Now execute rest of the retrieval plan
-        QueryPlanNode[] nodeOrdering=retrievalQPlan.getBreadthFirstNodeOrdering();
-        
-        for(int i=0;i<nodeOrdering.length;i++) {
-            if(nodeOrdering[i].getMetadata().getParent()!=null) {
-                LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());
-                QueryPlanNodeExecutor exec=nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
-                exec.execute(ctx,null);
-            }
-        }
-
-        List<DocCtx> ret=new ArrayList<>(rootNode.getDocs().size());
-        for(QueryPlanDoc dgd:rootNode.getDocs()) {
-            retrieveFragments(dgd,rootNode);
-            PredefinedFields.updateArraySizes(factory.getNodeFactory(),dgd.getDoc());
-            DocCtx dctx=new DocCtx(dgd.getDoc());
-            dctx.setOutputDocument(dgd.getDoc());
-            ret.add(dctx);
-        }
-        
-        return ret;
-    }
-
-    private void retrieveFragments(QueryPlanDoc doc,
+     private void retrieveFragments(QueryPlanDoc doc,
                                    QueryPlanNodeExecutor exec) {
         // We only process child nodes.
         QueryPlanNode[] destinations=exec.getNode().getDestinations();

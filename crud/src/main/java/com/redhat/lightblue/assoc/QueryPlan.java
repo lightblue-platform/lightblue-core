@@ -141,13 +141,30 @@ public class QueryPlan implements Serializable {
      */
     public QueryPlan(CompositeMetadata root,
                      QueryPlanScorer qdf) {
+        this(root,qdf,null);
+    }
+
+    /**
+     * Constructs a query plan from the composite metadata by
+     * recursively descending through the associated entities as
+     * deterimed by the filter, and creating a node for every entity.
+     *
+     * @param root The root composite metadata
+     * @param qdf The scorer
+     * @param filter A set of composite metadata objects containing
+     * only those entities that should be included in the plan. If
+     * null, all entities will be included.
+     */
+    public QueryPlan(CompositeMetadata root,
+                     QueryPlanScorer qdf,
+                     Set<CompositeMetadata> filter) {
         this.qdf=qdf;
         LOGGER.debug("Constructing query plan for {}",root.getName());
         List<CompositeMetadata> md=new ArrayList<>(16);
         List<Edge> edges=new ArrayList<>(16);
-        traverseInit(md,root,edges);
+        traverseInit(md,root,edges,filter);
         LOGGER.debug("edges:{}",edges);
-        nodes=new QueryPlanNodeImpl[md.size()];
+        nodes=new QueryPlanNodeImpl[filter==null?md.size():filter.size()];
         int i=0;
         for(CompositeMetadata m:md) {
             nodes[i]=new QueryPlanNodeImpl(m,qdf.newDataInstance(),i);
@@ -166,16 +183,23 @@ public class QueryPlan implements Serializable {
         return nodes.length;
     }
 
-    private void traverseInit(List<CompositeMetadata> md,CompositeMetadata root,List<Edge> edges) {
+    private void traverseInit(List<CompositeMetadata> md,
+                              CompositeMetadata root,
+                              List<Edge> edges,
+                              Set<CompositeMetadata> filter) {
         LOGGER.debug("Traverse {}",root.getName());
         int from=md.size();
-        md.add(root);
-        Set<Path> children=root.getChildPaths();
-        LOGGER.debug("Children:{}",children);
-        for(Path p:children) {
-            CompositeMetadata child=root.getChildMetadata(p);
-            edges.add(new Edge(from,md.size()));
-            traverseInit(md,child,edges);
+        if(filter==null||filter.contains(root)) {
+            md.add(root);
+            Set<Path> children=root.getChildPaths();
+            LOGGER.debug("Children:{}",children);
+            for(Path p:children) {
+                CompositeMetadata child=root.getChildMetadata(p);
+                if(filter==null||filter.contains(child)) {
+                    edges.add(new Edge(from,md.size()));
+                    traverseInit(md,child,edges,filter);
+                }
+            }
         }
     }
 
