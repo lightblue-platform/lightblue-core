@@ -18,11 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.Response;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import com.redhat.lightblue.Response;
 
 /**
  * Metadata manager interface
@@ -95,9 +95,9 @@ public interface Metadata extends Serializable {
      * Sets the status of a particular version of an entity
      */
     void setMetadataStatus(String entityName,
-                           String version,
-                           MetadataStatus newStatus,
-                           String comment);
+            String version,
+            MetadataStatus newStatus,
+            String comment);
 
     /**
      * Remove all entity records only if all versions of the entity are disabled
@@ -108,6 +108,6 @@ public interface Metadata extends Serializable {
      * Return the Map of all Roles configured for authorization. The roles names
      * are defined in com.redhat.lightblue.metadata.MetadataRoles enum
      */
-    Map<String, List<String>> getMappedRoles();
+    Map<MetadataRoles, List<String>> getMappedRoles();
 
 }
