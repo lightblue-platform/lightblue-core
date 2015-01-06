@@ -216,7 +216,7 @@ public class QueryPlanNodeExecutor {
                      nodeCtx.getEntityName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
         // note the response is not used, but find method changes the supplied context.
-        CRUDFindResponse response=finder.find(nodeCtx,findRequest);
+        finder.find(nodeCtx,findRequest);
         LOGGER.debug("execute {}: storing documents", node.getName());
         for(DocCtx doc:nodeCtx.getDocuments()) {
             DocId id=docIdx.getDocId(doc.getOutputDocument());

@@ -18,20 +18,14 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.concurrent.TimeUnit;
-
+import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.servo.publish.*;
+import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
-import com.netflix.hystrix.strategy.HystrixPlugins;
-import com.netflix.servo.publish.BasicMetricFilter;
-import com.netflix.servo.publish.JvmMetricPoller;
-import com.netflix.servo.publish.MetricObserver;
-import com.netflix.servo.publish.MonitorRegistryMetricPoller;
-import com.netflix.servo.publish.PollRunnable;
-import com.netflix.servo.publish.PollScheduler;
-import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class for publishing hystrix and jvm stats from servo to graphite. If
@@ -75,15 +69,13 @@ public final class ServoGraphiteSetup {
         }
 
         // register hystrix servo metrics publisher
-        try{
-            HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
-        }
-        catch(IllegalStateException e){
-            LOGGER.warn("A metrics publisher has already been registerd, ignoring this step and using the existing publisher", e);
-        }
+        HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
+        // if IllegalStateException is thrown it means there is a hytrix command being used prior to this setup.
+        // SEE: https://github.com/lightblue-platform/lightblue-rest/issues/58
+        //      https://github.com/Netflix/Hystrix/issues/150
 
         String prefix = System.getenv("GRAPHITE_PREFIX");
-        if(prefix == null){
+        if (prefix == null) {
             if (System.getenv("OPENSHIFT_APP_NAME") != null) {
                 // try to get name from openshift.  assume it's scaleable app.
                 // format: <app name>.  <namespace>.<gear dns>
@@ -92,9 +84,8 @@ public final class ServoGraphiteSetup {
                         System.getenv("OPENSHIFT_APP_NAME"),
                         System.getenv("OPENSHIFT_NAMESPACE"),
                         System.getenv("OPENSHIFT_GEAR_DNS")
-                        );
-            }
-            else{
+                );
+            } else {
                 //default
                 prefix = System.getenv("HOSTNAME");
             }

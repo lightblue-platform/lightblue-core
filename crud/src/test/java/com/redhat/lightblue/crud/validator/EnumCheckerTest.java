@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import org.junit.Test;
 
@@ -16,6 +17,7 @@ import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.metadata.EnumValue;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.util.Error;
 
@@ -44,7 +46,7 @@ public class EnumCheckerTest {
         final String name = "Fake Name";
 
         Enum e = new Enum(name);
-        e.setValues(Arrays.asList(name));
+        e.setValues(new HashSet<EnumValue>(Arrays.asList(new EnumValue(name, null))));
 
         ConstraintValidator validator = mock(ConstraintValidator.class);
         mockEnum(validator, e);

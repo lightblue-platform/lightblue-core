@@ -259,8 +259,19 @@ public abstract class Projection extends JsonObject {
             }
         } else if (this instanceof ArrayQueryMatchProjection) {
             if(getFieldInclusion(mfield, (ArrayProjection) this, ctx)==Inclusion.undecided) {
+                LOGGER.debug("whether to include {} is Undecided, checking projection query",mfield);
                 Path absField = new Path(ctx, toMask(((ArrayQueryMatchProjection)this).getField()));
-                return ((ArrayQueryMatchProjection)this).getMatch().isRequired(field,new Path(absField,Path.ANYPATH));
+                Path nestedCtx=new Path(absField,Path.ANYPATH);
+                boolean ret= ((ArrayQueryMatchProjection)this).getMatch().isRequired(field,nestedCtx);
+                LOGGER.debug("isRequired({},{}.*={}",field,absField,ret);
+                if(ret)
+                    return true;
+
+                LOGGER.debug("Query does not require {}, checking nested projection",mfield);
+                if( ((ArrayProjection)this).getProject()!=null)
+                    ret=((ArrayProjection)this).getProject().isFieldRequiredToEvaluateProjection(field,nestedCtx);
+                LOGGER.debug("result:{}",ret);
+                return ret;
             } else {
                 return true;
             }

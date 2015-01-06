@@ -133,6 +133,25 @@
             "field10": {
                 "type": "array",
                 "items": {"type": "integer"}
+            },
+            "field11": {
+                 "type":"array",
+                 "items": {
+                      "type":"object",
+                      "fields": {
+                        "f1": {"type":"integer"}, 
+                        "arr": { "type":"array",
+                                 "items": {
+                                    "type":"object",
+                                    "fields": {
+                                        "id":{"type":"integer"},
+                                        "x1":{"type":"string"},
+                                        "x2":{"type":"string"}
+                                    }
+                                 }
+                        }
+                      }
+                 }
             }
         }
     }

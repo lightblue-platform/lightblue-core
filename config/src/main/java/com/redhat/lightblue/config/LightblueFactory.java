@@ -18,23 +18,32 @@
  */
 package com.redhat.lightblue.config;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
-import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.MetadataConstants;
@@ -43,14 +52,6 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 
 /**
  * Manager class that creates instances of Mediator, Factory, Metadata, etc.
@@ -84,7 +85,7 @@ public final class LightblueFactory implements Serializable {
 
             Map<String, DataSourceConfiguration> ds = datasources.getDataSources();
             for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
-                Class<DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
+                Class<? extends DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
                 DataStoreParser backendParser = tempParser.newInstance();
                 extensions.registerDataStoreParser(backendParser.getDefaultName(), backendParser);
             }
@@ -242,6 +243,7 @@ public final class LightblueFactory implements Serializable {
             throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (parser == null) {
             initializeParser();
+            getMetadata();
         }
 
         return parser;

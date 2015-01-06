@@ -48,11 +48,6 @@ import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.Factory;
 
-import com.redhat.lightblue.assoc.QueryPlanChooser;
-import com.redhat.lightblue.assoc.QueryPlan;
-import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
-import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
-
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
@@ -344,13 +339,7 @@ public class Mediator {
                     finder=new SimpleFindImpl(md,factory);
                 } else {
                     LOGGER.debug("Composite entity");
-                    QueryPlanChooser qpChooser=new QueryPlanChooser(md,
-                                                                    new BruteForceQueryPlanIterator(),
-                                                                    new IndexedFieldScorer(),
-                                                                    ((FindRequest)ctx.getRequest()).getQuery());
-                    QueryPlan qplan=qpChooser.choose();
-                    ctx.setProperty(CTX_QPLAN,qplan);
-                    finder=new CompositeFindImpl(md,qplan,factory);
+                    finder=new CompositeFindImpl(md,factory);
                 }
 
                 CRUDFindResponse result=finder.find(ctx,req.getCRUDFindRequest());

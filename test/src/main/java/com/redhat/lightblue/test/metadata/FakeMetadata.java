@@ -1,5 +1,7 @@
 package com.redhat.lightblue.test.metadata;
 
+import java.io.Serializable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ import com.redhat.lightblue.metadata.VersionInfo;
 /**
  * A simple implementation of {@link AbstractMetadata} for testing purposes.
  */
-public class SimpleMetadata extends AbstractMetadata {
+public class FakeMetadata extends AbstractMetadata {
 
     private static final long serialVersionUID = 1L;
 
@@ -180,7 +182,7 @@ public class SimpleMetadata extends AbstractMetadata {
         return dataMap.get(info);
     }
 
-    private class Data {
+    private static class Data implements Serializable {
         private Response dependencies;
         private Response access;
         private EntityMetadata entityMetadata;

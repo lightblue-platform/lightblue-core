@@ -18,9 +18,51 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
-import com.redhat.lightblue.metadata.*;
+import com.redhat.lightblue.metadata.Access;
+import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.EntityAccess;
+import com.redhat.lightblue.metadata.EntityConstraint;
+import com.redhat.lightblue.metadata.EntityInfo;
+import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.metadata.EnumValue;
+import com.redhat.lightblue.metadata.Enums;
+import com.redhat.lightblue.metadata.Field;
+import com.redhat.lightblue.metadata.FieldAccess;
+import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.Fields;
+import com.redhat.lightblue.metadata.Hook;
+import com.redhat.lightblue.metadata.HookConfiguration;
+import com.redhat.lightblue.metadata.Hooks;
+import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.Indexes;
+import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.StatusChange;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.ObjectType;
@@ -31,12 +73,6 @@ import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Base class for converting metadata to/from json/bson and potentially other
@@ -58,6 +94,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_UPDATE = "update";
     private static final String STR_FIELDS = "fields";
     private static final String STR_VALUES = "values";
+    private static final String STR_ANNOTATED_VALUES = "annotatedValues";
     private static final String STR_ITEMS = "items";
     private static final String STR_UNIQUE = "unique";
     private static final String STR_INDEXES = "indexes";
@@ -85,6 +122,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_DEPRECATED = "deprecated";
     private static final String STR_DISABLED = "disabled";
     private static final String STR_CONFIGURATION = "configuration";
+    private static final String STR_DESCRIPTION = "description";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataParser.class);
     private static final Set<String> ENTITY_INFO_FIELDS = Sets.newHashSet(STR_ID, STR_NAME, STR_DEFAULT_VERSION, STR_INDEXES, STR_ENUMS, STR_HOOKS, STR_DATASTORE);
@@ -132,6 +170,10 @@ public abstract class MetadataParser<T> {
 
     public FieldConstraintParser<T> getFieldConstraintParser(String constraintName) {
         return extensions.getFieldConstraintParser(constraintName);
+    }
+
+    public Extensions<T> getExtensions(){
+        return this.extensions;
     }
 
     /**
@@ -301,13 +343,30 @@ public abstract class MetadataParser<T> {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_NAME);
                 }
                 Enum e = new Enum(name);
+
                 List<String> values = getStringList(object, STR_VALUES);
-                if (null != values && !values.isEmpty()) {
-                    e.setValues(values);
-                } else {
+                List<T> annotatedValues = getObjectList(object, STR_ANNOTATED_VALUES);
+
+                Set<EnumValue> enumValues = new HashSet<EnumValue>();
+                if(annotatedValues != null){
+                    for(T value : annotatedValues){
+                        EnumValue enumValue = new EnumValue();
+                        enumValue.setName(getRequiredStringProperty(value, STR_NAME));
+                        enumValue.setDescription(getRequiredStringProperty(value, STR_DESCRIPTION));
+                        enumValues.add(enumValue);
+                    }
+                }
+                else if(values != null){
+                    for(String string : values){
+                        enumValues.add(new EnumValue(string, null));
+                    }
+                }
+
+                if(enumValues.isEmpty()){
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
 
+                e.setValues(enumValues);
                 return e;
             } else {
                 return null;
@@ -385,7 +444,6 @@ public abstract class MetadataParser<T> {
             T status = getRequiredObjectProperty(object, STR_STATUS);
             parseStatus(schema, status);
 
-            // TODO hooks
             T access = getObjectProperty(object, STR_ACCESS);
             if (access != null) {
                 parseEntityAccess(schema.getAccess(), access);
@@ -491,7 +549,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the entity access element
      */
     public void parseEntityAccess(EntityAccess access,
-                                  T object) {
+            T object) {
         Error.push(STR_ACCESS);
         try {
             if (object != null) {
@@ -520,7 +578,7 @@ public abstract class MetadataParser<T> {
      * value, an array, or an object.
      */
     public void parseEntityConstraints(EntitySchema schema,
-                                       List<T> constraintList) {
+            List<T> constraintList) {
         if (constraintList != null) {
             List<EntityConstraint> entityConstraintList = new ArrayList<>();
             for (T x : constraintList) {
@@ -552,7 +610,7 @@ public abstract class MetadataParser<T> {
     }
 
     public void parseFieldConstraints(Field field,
-                                      T fieldConstraints) {
+            T fieldConstraints) {
         if (fieldConstraints != null) {
             // The constraint object must contain a single field
             Set<String> childNames = getChildNames(fieldConstraints);
@@ -591,7 +649,7 @@ public abstract class MetadataParser<T> {
      * @param object The object corresponding to the field access element
      */
     public void parseFieldAccess(FieldAccess access,
-                                 T object) {
+            T object) {
         Error.push(STR_ACCESS);
         try {
             if (object != null) {
@@ -720,8 +778,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    private Field parseSimpleField(String name,
-                                   String type) {
+    private SimpleField parseSimpleField(String name,
+            String type) {
         SimpleField field = new SimpleField(name);
         Type t = typeResolver.getType(type);
         if (t == null) {
@@ -731,8 +789,8 @@ public abstract class MetadataParser<T> {
         return field;
     }
 
-    private Field parseReferenceField(String name,
-                                      T object) {
+    private ReferenceField parseReferenceField(String name,
+            T object) {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
         field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
@@ -743,14 +801,14 @@ public abstract class MetadataParser<T> {
         return field;
     }
 
-    private Field parseObjectField(String name, T object) {
+    private ObjectField parseObjectField(String name, T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
         parseFields(field.getFields(), fields);
         return field;
     }
 
-    private Field parseArrayField(String name, T object) {
+    private ArrayField parseArrayField(String name, T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, STR_ITEMS);
         field.setElement(parseArrayItem(items));
@@ -816,12 +874,15 @@ public abstract class MetadataParser<T> {
                 putString(ret, STR_DEFAULT_VERSION, info.getDefaultVersion());
             }
             if (info.getIndexes() != null && !info.getIndexes().isEmpty()) {
-                // indexes is an array directly on the entity info, so do not create a new node ere, let conversion handle it
+                // indexes is an array directly on the entity info, so do not create a new node here, let conversion handle it
                 convertIndexes(ret, info.getIndexes());
             }
             if (info.getEnums() != null && !info.getEnums().isEmpty()) {
-                // enumsis an array directly on the entity info, so do not create a new node ere, let conversion handle it
+                // enums is an array directly on the entity info, so do not create a new node here, let conversion handle it
                 convertEnums(ret, info.getEnums());
+            }
+            if(info.getHooks() != null && !info.getHooks().isEmpty()) {
+                convertHooks(ret, info.getHooks());
             }
             if (info.getDataStore() != null) {
                 T dsNode = newNode();
@@ -1173,8 +1234,63 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    public void convertHooks(T parent, Hooks hooks) {
+        Error.push(STR_HOOKS);
+        try {
+            if (hooks != null && !hooks.isEmpty()) {
+                // create array node for hooks
+                Object array = newArrayField(parent, STR_HOOKS);
+
+                // for each hook, add it to array
+                for (Hook h : hooks.getHooks()) {
+                    T node = newNode();
+                    addObjectToArray(array, node);
+                    putString(node, STR_NAME, h.getName());
+
+                    if(h.getProjection()!=null) {
+                        putProjection(node, STR_PROJECTION, h.getProjection());
+                    }
+
+                    Object actions = newArrayField(node, STR_ACTIONS);
+                    if(h.isInsert()) {
+                        addStringToArray(actions,STR_INSERT);
+                    }
+                    if(h.isUpdate()) {
+                        addStringToArray(actions,STR_UPDATE);
+                    }
+                    if(h.isDelete()) {
+                        addStringToArray(actions,STR_DELETE);
+                    }
+                    if(h.isFind()) {
+                        addStringToArray(actions,STR_FIND);
+                    }
+
+                    HookConfiguration cfg=h.getConfiguration();
+                    if(cfg!=null) {
+                        HookConfigurationParser<T> parser=extensions.getHookConfigurationParser(h.getName());
+                        if (parser == null) {
+                            throw Error.get(MetadataConstants.ERR_INVALID_HOOK, h.getName());
+                        }
+                        T cfgNode=newNode();
+                        putObject(node,STR_CONFIGURATION,cfgNode);
+                        parser.convert(this,cfgNode,cfg);
+                    }
+                }
+            }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
+        } finally {
+            Error.pop();
+        }
+    }
+
     public void convertEnums(T parent, Enums enums) {
-        Error.push(STR_INDEXES);
+        Error.push(STR_ENUMS);
         try {
             if (enums != null && !enums.isEmpty()) {
                 // create array node for enums
@@ -1186,10 +1302,26 @@ public abstract class MetadataParser<T> {
                     addObjectToArray(array, node);
                     putString(node, STR_NAME, e.getName());
 
+                    Set<EnumValue> enumValues = e.getEnumValues();
+                    boolean hasDescription = false;
+
                     // for each value, add to a new values array
-                    Object indexObj = newArrayField(node, STR_VALUES);
-                    for (String v : e.getValues()) {
-                        addStringToArray(indexObj, v);
+                    Object valuesObj = newArrayField(node, STR_VALUES);
+                    for (EnumValue v : enumValues) {
+                        addStringToArray(valuesObj, v.getName());
+                        if(!hasDescription && v.getDescription() != null){
+                            hasDescription = true;
+                        }
+                    }
+
+                    if(hasDescription){
+                        Object annotatedValuesObj = newArrayField(node, STR_ANNOTATED_VALUES);
+                        for (EnumValue v : enumValues) {
+                            T enumNode = newNode();
+                            putString(enumNode, STR_NAME, v.getName());
+                            putString(enumNode, STR_DESCRIPTION, v.getDescription());
+                            addObjectToArray(annotatedValuesObj, enumNode);
+                        }
                     }
                 }
             }
@@ -1249,13 +1381,13 @@ public abstract class MetadataParser<T> {
         putString(fieldObject, STR_ENTITY, field.getEntityName());
         putString(fieldObject, STR_VERSION_VALUE, field.getVersionValue());
         if (field.getProjection() != null) {
-            putString(fieldObject, STR_PROJECTION, field.getProjection().toString());
+            putProjection(fieldObject, STR_PROJECTION, field.getProjection());
         }
         if (field.getQuery() != null) {
-            putString(fieldObject, STR_QUERY, field.getQuery().toString());
+            putQuery(fieldObject, STR_QUERY, field.getQuery());
         }
         if (field.getSort() != null) {
-            putString(fieldObject, STR_SORT, field.getSort().toString());
+            putSort(fieldObject, STR_SORT, field.getSort());
         }
     }
 
@@ -1489,5 +1621,20 @@ public abstract class MetadataParser<T> {
     public abstract void addObjectToArray(Object array, Object value);
 
     public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields);
+
+    /**
+     * Convert a projection to T
+     */
+    public abstract void putProjection(T object,String name,Projection p);
+
+    /**
+     * Convert a query to T
+     */
+    public abstract void putQuery(T object,String name,QueryExpression q);
+
+    /**
+     * Convert a sort to T
+     */
+    public abstract void putSort(T object,String name,Sort s);
 
 }

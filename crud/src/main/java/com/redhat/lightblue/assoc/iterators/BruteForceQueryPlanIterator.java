@@ -43,7 +43,7 @@ public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializa
 
     private Edge[] edges;
 
-    private final class Edge {
+    private final class Edge implements Serializable {
         private final QueryPlanNode n1;
         private final QueryPlanNode n2;
         private boolean v = false;

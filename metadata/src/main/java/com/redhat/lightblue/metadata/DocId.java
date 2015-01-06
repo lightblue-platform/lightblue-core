@@ -20,6 +20,8 @@ package com.redhat.lightblue.metadata;
 
 import java.io.Serializable;
 
+import java.util.Arrays;
+
 /**
  * This class is used to represent document identities. It encapsulates an array
  * of values that represent the values of the identity fields of a document and
@@ -78,13 +80,6 @@ public final class DocId implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder bld = new StringBuilder();
-        for (int i = 0; i < values.length; i++) {
-            if (i > 0) {
-                bld.append(':');
-            }
-            bld.append(values.toString());
-        }
-        return bld.toString();
+        return Arrays.toString(values);
     }
 }
