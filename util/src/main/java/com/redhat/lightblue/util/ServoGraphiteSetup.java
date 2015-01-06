@@ -43,6 +43,7 @@ public final class ServoGraphiteSetup {
     }
 
     public static void stop() {
+    	LOGGER.debug("stop() method called, initialized=" + initialized);
         if (initialized) {
             doStop();
         }
@@ -53,11 +54,15 @@ public final class ServoGraphiteSetup {
             return;
         }
         PollScheduler.getInstance().stop();
+        LOGGER.debug("PollScheduler.getInstance().stop() completed");
+        initialized = false;
+        LOGGER.debug("doStop() complete, initialized = " + initialized);
     }
 
     public static void initialize() {
         // Without GRAPHITE_HOSTNAME variable, graphite will not start
         String env = System.getenv("GRAPHITE_HOSTNAME");
+        LOGGER.debug("GRAPHITE_HOSTNAME environment variable in initialize() is " + env);
         if (!initialized && env != null && !env.trim().isEmpty()) {
             doInitialize();
         }
@@ -75,6 +80,7 @@ public final class ServoGraphiteSetup {
         //      https://github.com/Netflix/Hystrix/issues/150
 
         String prefix = System.getenv("GRAPHITE_PREFIX");
+        LOGGER.debug("GRAPHITE_PREFIX environment variable in doInitialize() is " + prefix);
         if (prefix == null) {
             if (System.getenv("OPENSHIFT_APP_NAME") != null) {
                 // try to get name from openshift.  assume it's scaleable app.
@@ -88,13 +94,17 @@ public final class ServoGraphiteSetup {
             } else {
                 //default
                 prefix = System.getenv("HOSTNAME");
+                LOGGER.debug("using HOSTNAME as default prefix" + prefix);
             }
         }
 
         String host = System.getenv("GRAPHITE_HOSTNAME");
+        LOGGER.debug("GRAPHITE_HOSTNAME environment variable in doInitialize() is " + host);
         String port = System.getenv("GRAPHITE_PORT");
+        LOGGER.debug("GRAPHITE_PORT environment variable in doInitialize() is " + port);
         if (port == null) {
             port = "2004"; //default graphite port
+            LOGGER.debug("Using default port: " + port);
         }
 
         String addr = host + ":" + port;
@@ -112,6 +122,7 @@ public final class ServoGraphiteSetup {
         PollScheduler.getInstance().addPoller(jvmTask, 5, TimeUnit.SECONDS);
 
         initialized = true;
+        LOGGER.debug("doInitialize() completed, initialized = " + initialized);
     }
 
 }
