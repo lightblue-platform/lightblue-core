@@ -18,17 +18,22 @@
  */
 package com.redhat.lightblue.config;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.MetadataRoles;
-import com.redhat.lightblue.metadata.parser.*;
-
-import java.util.*;
-
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
+import com.redhat.lightblue.metadata.parser.PropertyParser;
 import com.redhat.lightblue.util.Error;
-import org.json.JSONObject;
 
 /**
  * Basic implementation of MetadataConfiguration that handles common
@@ -41,9 +46,10 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
     private final List<HookConfigurationParser> hookConfigurationParsers = new ArrayList<>();
     private final List<Map.Entry<String,DataStoreParser>> backendParsers = new ArrayList<>();
     private final List<Map.Entry<String,PropertyParser>> propertyParsers = new ArrayList<>();
-    private final Map<String,List<String>> roleMap = new HashMap<>();
+    private final Map<MetadataRoles,List<String>> roleMap = new HashMap<>();
     private boolean validateRequests=false;
 
+    @Override
     public boolean isValidateRequests() {
         return validateRequests;
     }
@@ -67,7 +73,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
         }
     }
 
-    protected Map<String,List<String>> getMappedRoles() {
+    protected Map<MetadataRoles,List<String>> getMappedRoles() {
         return  roleMap;
     }
 
@@ -148,24 +154,25 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
             if(roleMapJs != null) {
                 // If the roleMap element is defined, it is expected to have all the roles mapped
                 MetadataRoles[] values = MetadataRoles.values();
-                for (int i = 0; i < values.length; i++) {
-                    String name = values[i].toString();
+                for (MetadataRoles value : values) {
+                    String name = value.toString();
                     ArrayNode rolesJs =  (ArrayNode) roleMapJs.get(name);
 
                     if (rolesJs == null || rolesJs.size() == 0) {
                         throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "roleMap missing the role \"" + name + "\"");
                     }
 
-                    roleMap.put(name, new ArrayList<String>());
+                    roleMap.put(value, new ArrayList<String>());
                     for (JsonNode jsonNode: rolesJs) {
-                        roleMap.get(name).add(jsonNode.textValue());
+                        roleMap.get(value).add(jsonNode.textValue());
                     }
                 }
             }
 
             x=node.get("validateRequests");
-            if(x!=null)
+            if(x!=null) {
                 validateRequests=x.booleanValue();
+            }
         }
     }
 }
