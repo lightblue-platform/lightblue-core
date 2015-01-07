@@ -97,7 +97,7 @@ public class JsonTranslator {
             try {
                 return method.invoke(null,node);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Cannot call method "+method);
+                throw new IllegalArgumentException("Cannot call method: " + method, e);
             }
         }
     }
