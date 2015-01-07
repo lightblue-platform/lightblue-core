@@ -18,22 +18,25 @@
  */
 package com.redhat.lightblue.config;
 
+import static com.redhat.lightblue.util.JsonUtils.json;
+
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.MetadataRoles;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.VersionInfo;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import static com.redhat.lightblue.util.JsonUtils.json;
 import com.redhat.lightblue.util.test.FileUtil;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Test the AbstractMetadataConfiguration functionality.
@@ -106,7 +109,7 @@ public class MetadataConfigurationTest {
         }
 
         @Override
-        public Map<String, List<String>> getMappedRoles() {
+        public Map<MetadataRoles, List<String>> getMappedRoles() {
             return null;
         }
 

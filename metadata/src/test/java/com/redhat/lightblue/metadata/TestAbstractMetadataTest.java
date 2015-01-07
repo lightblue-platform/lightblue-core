@@ -18,13 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.Response;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
+import com.redhat.lightblue.Response;
 
 /**
  * Named a bit strangely in case we exclude tests that begin with "Abstract",
@@ -107,7 +108,7 @@ public class TestAbstractMetadataTest {
             }
 
             @Override
-            public Map<String, List<String>> getMappedRoles() {
+            public Map<MetadataRoles, List<String>> getMappedRoles() {
                 return null;
             }
         };
@@ -118,12 +119,12 @@ public class TestAbstractMetadataTest {
     public void checkVersionIsValid_Valid() {
         // test a bunch of values that should be valid
         String[] values = new String[]{
-            "1.0.0",
-            "1.1.0",
-            "100.344.88999",
-            "1.0.0-alpha",
-            "1.0.3-SNAPSHOT",
-            "1.0.4-100"
+                "1.0.0",
+                "1.1.0",
+                "100.344.88999",
+                "1.0.0-alpha",
+                "1.0.3-SNAPSHOT",
+                "1.0.4-100"
         };
         for (String value : values) {
             Assert.assertNotNull(value, metadata.checkVersionIsValid(new Version(value, null, null)));
@@ -134,15 +135,15 @@ public class TestAbstractMetadataTest {
     public void checkVersionIsValid_Invalid() {
         // test a bunch of values that should be invalid
         String[] values = new String[]{
-            "1.0.0x",
-            "100.344.88.999",
-            "1.0.0.alpha",
-            "1.0.3.SNAPSHOT",
-            "1.0-4-100",
-            "bob",
-            " 1.0.0",
-            "100",
-            "1.0"
+                "1.0.0x",
+                "100.344.88.999",
+                "1.0.0.alpha",
+                "1.0.3.SNAPSHOT",
+                "1.0-4-100",
+                "bob",
+                " 1.0.0",
+                "100",
+                "1.0"
         };
         for (String value : values) {
             try {
