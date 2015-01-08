@@ -18,11 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.redhat.lightblue.util.Path;
+
+import java.util.*;
 
 /**
  *
@@ -127,5 +130,64 @@ public abstract class AbstractMetadata implements Metadata {
 
     public void setRoleMap(Map<MetadataRoles, List<String>> roleMap) {
         this.roleMap = roleMap;
+    }
+
+    @Override
+    public JsonNode getJSONSchema(String entityName, String version) {
+        ObjectNode jsonNode = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode properties = new ObjectNode(JsonNodeFactory.instance);
+        EntityMetadata entityMetadata = getEntityMetadata(entityName, version);
+        FieldTreeNode fieldTreeRoot = entityMetadata.getEntitySchema().getFieldTreeRoot();
+
+        jsonNode.set("$schema", TextNode.valueOf("http://json-schema.org/draft-04/schema#"));
+        jsonNode.set("type", TextNode.valueOf("object"));
+        jsonNode.set("description", TextNode.valueOf(String.format("JSON schema for entity '%s' version '%s'", entityName, version)));
+        jsonNode.set("properties", properties);
+        buildJsonNodeSchema(properties, fieldTreeRoot);
+        ArrayNode value = new ArrayNode(JsonNodeFactory.instance);
+        Field[] requiredFields = entityMetadata.getEntitySchema().getRequiredFields();
+        for (Field requiredField : requiredFields) {
+            TextNode.valueOf(requiredField.getFullPath().toString());
+        }
+        properties.set("required", value);
+
+        return jsonNode;
+    }
+
+    private void buildJsonNodeSchema(ObjectNode jsonNode, FieldTreeNode fieldTreeRoot) {
+        TreeMap<Path, Field> fieldMap = new TreeMap<>();
+        Iterator<? extends FieldTreeNode> children = fieldTreeRoot.getChildren();
+        Stack<Iterator<? extends FieldTreeNode>> fieldsPending = new Stack<>();
+        do{
+            FieldTreeNode fieldTreeChild = children.next();
+            if (fieldTreeChild instanceof ObjectField) {
+                ObjectField of = (ObjectField) fieldTreeChild;
+                /////
+                fieldsPending.push(children);
+                children = of.getChildren();
+            }else if (fieldTreeChild instanceof SimpleField) {
+                SimpleField sf = (SimpleField) fieldTreeChild;
+                ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+                json.set("type",  TextNode.valueOf(sf.getType().getName()));
+                //json.set("type",  TextNode.valueOf(sf.getProperties().getName()));
+
+
+                for (FieldConstraint fc : sf.getConstraints()) {
+
+                }
+                jsonNode.set(sf.getName(),json);
+            }
+            do {
+                if(!children.hasNext()){
+                    if(!fieldsPending.empty()){
+                        children = fieldsPending.pop();
+                    } else {
+                        break;
+                    }
+                }
+            } while(!children.hasNext());
+
+        } while (children.hasNext());
+
     }
 }

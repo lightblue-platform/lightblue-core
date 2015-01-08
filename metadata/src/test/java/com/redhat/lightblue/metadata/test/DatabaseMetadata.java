@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata.test;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -98,6 +99,11 @@ public class DatabaseMetadata implements Metadata {
 
     @Override
     public Map<MetadataRoles, List<String>> getMappedRoles() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public JsonNode getJSONSchema(String entityName, String version) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

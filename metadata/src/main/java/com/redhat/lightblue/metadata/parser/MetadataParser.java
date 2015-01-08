@@ -761,6 +761,11 @@ public abstract class MetadataParser<T> {
                 parseFieldConstraints(field,
                         getObjectProperty(object, STR_CONSTRAINTS));
 
+                String stringProperty = getStringProperty(object, STR_DESCRIPTION);
+                if(stringProperty != null && !stringProperty.isEmpty()) {
+                    field.getProperties().put(STR_DESCRIPTION, stringProperty);
+                }
+
                 parsePropertyParser(object, field.getProperties());
             } else {
                 field = null;

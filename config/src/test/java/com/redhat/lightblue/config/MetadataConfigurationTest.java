@@ -113,6 +113,11 @@ public class MetadataConfigurationTest {
             return null;
         }
 
+        @Override
+        public JsonNode getJSONSchema(String entityName, String version) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
     }
 
     private static class TestConfig extends AbstractMetadataConfiguration {
