@@ -182,7 +182,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
-        Assert.assertThat(response.getErrors().get(0).getMsg(), containsString(CrudConstants.ERR_DISABLED_METADATA + " test 1.0"));
+        Assert.assertEquals(CrudConstants.ERR_DISABLED_METADATA,response.getErrors().get(0).getErrorCode());
 
     }
 

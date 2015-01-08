@@ -67,6 +67,7 @@ public final class CrudConstants {
     public static final String ERR_CANNOT_LOAD_METADATA = "crud:CannotLoadMetadata";
     public static final String ERR_DISABLED_METADATA = "crud:DisabledMetadataVersion";
     public static final String ERR_METADATA_APPEARS_TWICE = "crud:MetadataAppearsTwice";
+    public static final String ERR_UNKNOWN_ENTITY = "crud:UnknownEntity";
 
     private CrudConstants() {
 
