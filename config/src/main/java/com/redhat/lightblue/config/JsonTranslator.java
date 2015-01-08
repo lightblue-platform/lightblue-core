@@ -95,7 +95,11 @@ public class JsonTranslator {
             try {
               return method.invoke(null,node);
             } catch (InvocationTargetException e) {
-            	throw (IllegalArgumentException) e.getCause();
+            	if (e.getCause() instanceof IllegalArgumentException) {
+            		throw (IllegalArgumentException) e.getCause();
+            	} else {
+            		throw new IllegalArgumentException(e);	
+            	}
             } catch (IllegalAccessException e) {
             	throw new IllegalArgumentException("Cannot call method: " + method, e);
             }
