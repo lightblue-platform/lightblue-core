@@ -42,6 +42,11 @@ public class RequiredConstraint implements FieldConstraint, Serializable {
         return true;
     }
 
+    @Override
+    public String describeConstraint() {
+        return value? "Field required constraint" :  "Field not required constraint";
+    }
+
     public boolean getValue() {
         return value;
     }

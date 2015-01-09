@@ -27,7 +27,7 @@ import java.io.Serializable;
 ;
 
 /**
- * Field is part of identityconstraint
+ * Field is part of identity constraint
  */
 public class IdentityConstraint implements FieldConstraint, Serializable {
 
@@ -41,5 +41,10 @@ public class IdentityConstraint implements FieldConstraint, Serializable {
 
     public boolean isValidForFieldType(Type fieldType) {
         return !(fieldType instanceof ContainerType);
+    }
+
+    @Override
+    public String describeConstraint() {
+        return "Field is part of identity constraint";
     }
 }

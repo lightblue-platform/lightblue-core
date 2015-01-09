@@ -142,38 +142,54 @@ public abstract class AbstractMetadata implements Metadata {
         jsonNode.set("$schema", TextNode.valueOf("http://json-schema.org/draft-04/schema#"));
         jsonNode.set("type", TextNode.valueOf("object"));
         jsonNode.set("description", TextNode.valueOf(String.format("JSON schema for entity '%s' version '%s'", entityName, version)));
-        jsonNode.set("properties", properties);
-        buildJsonNodeSchema(properties, fieldTreeRoot);
+        if(fieldTreeRoot.hasChildren()) {
+            jsonNode.set("properties", properties);
+            buildJsonNodeSchema(properties, fieldTreeRoot);
+            properties.set("required", getRequiredFieldsArrayNode(entityMetadata));
+        }
+
+        return jsonNode;
+    }
+
+    private ArrayNode getRequiredFieldsArrayNode(EntityMetadata entityMetadata) {
         ArrayNode value = new ArrayNode(JsonNodeFactory.instance);
         Field[] requiredFields = entityMetadata.getEntitySchema().getRequiredFields();
         for (Field requiredField : requiredFields) {
-            TextNode.valueOf(requiredField.getFullPath().toString());
+            value.add(TextNode.valueOf(requiredField.getFullPath().toString()));
         }
-        properties.set("required", value);
-
-        return jsonNode;
+        return value;
     }
 
     private void buildJsonNodeSchema(ObjectNode jsonNode, FieldTreeNode fieldTreeRoot) {
         TreeMap<Path, Field> fieldMap = new TreeMap<>();
         Iterator<? extends FieldTreeNode> children = fieldTreeRoot.getChildren();
         Stack<Iterator<? extends FieldTreeNode>> fieldsPending = new Stack<>();
+        Stack<ObjectNode> jsonParents = new Stack<>();
         do{
             FieldTreeNode fieldTreeChild = children.next();
             if (fieldTreeChild instanceof ObjectField) {
                 ObjectField of = (ObjectField) fieldTreeChild;
                 /////
                 fieldsPending.push(children);
+                jsonParents.push(jsonNode);
+                ObjectNode child = new ObjectNode(JsonNodeFactory.instance);
+                jsonNode.set(of.getName(), child);
+                child.set("type",  TextNode.valueOf(of.getType().getName()));
+
+
+                jsonNode = child;
                 children = of.getChildren();
             }else if (fieldTreeChild instanceof SimpleField) {
                 SimpleField sf = (SimpleField) fieldTreeChild;
                 ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
                 json.set("type",  TextNode.valueOf(sf.getType().getName()));
-                //json.set("type",  TextNode.valueOf(sf.getProperties().getName()));
-
+                Object description = sf.getProperties().get("description");
+                if(description != null) {
+                    json.set("description", TextNode.valueOf(description.toString()));
+                }
 
                 for (FieldConstraint fc : sf.getConstraints()) {
-
+                    json.set(fc.getType() , TextNode.valueOf(fc.describeConstraint()));
                 }
                 jsonNode.set(sf.getName(),json);
             }
@@ -181,6 +197,7 @@ public abstract class AbstractMetadata implements Metadata {
                 if(!children.hasNext()){
                     if(!fieldsPending.empty()){
                         children = fieldsPending.pop();
+                        jsonNode = jsonParents.pop();
                     } else {
                         break;
                     }

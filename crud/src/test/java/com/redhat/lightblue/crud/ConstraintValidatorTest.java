@@ -239,6 +239,11 @@ public class ConstraintValidatorTest {
             return true;
         }
 
+        @Override
+        public String describeConstraint() {
+            return "test";
+        }
+
     }
 
 }

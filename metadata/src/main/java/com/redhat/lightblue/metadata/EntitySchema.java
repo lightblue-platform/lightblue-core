@@ -308,7 +308,15 @@ protected class RootNode implements FieldTreeNode, Serializable {
 
         @Override
         public boolean hasChildren() {
-            return true;
+            if(fields == null) {
+                return false;
+            } else  if(fields.getFields() == null){
+                return false;
+            } else  if(fields.getFields().hasNext()){
+                return true;
+            } else {
+                return false;
+            }
         }
 
         @Override

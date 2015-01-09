@@ -70,4 +70,10 @@ public abstract class AbstractIntFieldConstraint
     public void setValue(int value) {
         this.value = value;
     }
+
+    @Override
+    public String describeConstraint() {
+        return Integer.toString(value);
+    }
+
 }
