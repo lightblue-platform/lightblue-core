@@ -72,7 +72,7 @@ public abstract class AbstractIntFieldConstraint
     }
 
     @Override
-    public String describeConstraint() {
+    public String getDescription() {
         return Integer.toString(value);
     }
 

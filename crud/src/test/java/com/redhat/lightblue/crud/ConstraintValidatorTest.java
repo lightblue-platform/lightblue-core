@@ -240,7 +240,7 @@ public class ConstraintValidatorTest {
         }
 
         @Override
-        public String describeConstraint() {
+        public String getDescription() {
             return "test";
         }
 

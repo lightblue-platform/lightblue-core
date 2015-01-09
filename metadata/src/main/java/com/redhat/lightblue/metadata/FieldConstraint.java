@@ -36,5 +36,5 @@ public interface FieldConstraint {
     /**
      * Returns the description of the FieldConstraint (for documentation propose)
      */
-    String describeConstraint();
+    String getDescription();
 }

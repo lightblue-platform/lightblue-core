@@ -189,7 +189,7 @@ public abstract class AbstractMetadata implements Metadata {
                 }
 
                 for (FieldConstraint fc : sf.getConstraints()) {
-                    json.set(fc.getType() , TextNode.valueOf(fc.describeConstraint()));
+                    json.set(fc.getType() , TextNode.valueOf(fc.getDescription()));
                 }
                 jsonNode.set(sf.getName(),json);
             }

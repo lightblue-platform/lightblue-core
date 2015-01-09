@@ -46,7 +46,7 @@ public class MatchesConstraint implements FieldConstraint, Serializable {
     }
 
     @Override
-    public String describeConstraint() {
+    public String getDescription() {
         return value.toString();
     }
 

@@ -49,7 +49,7 @@ public class EnumConstraint implements FieldConstraint, Serializable {
     }
 
     @Override
-    public String describeConstraint() {
+    public String getDescription() {
         return name;
     }
 
