@@ -428,6 +428,7 @@ public class Mediator {
      * Checks if the caller has access to all the query fields. Returns false if not, and sets the error status in ctx
      */
     private boolean checkQueryAccess(OperationContext ctx,QueryExpression query) {
+        boolean ret=true;
         if(query!=null) {
             CompositeMetadata md=ctx.getTopLevelEntityMetadata();
             FieldAccessRoleEvaluator eval=new FieldAccessRoleEvaluator(md,ctx.getCallerRoles());
@@ -441,10 +442,10 @@ public class Mediator {
                     LOGGER.debug("Field {} is not readable",field.getAbsFieldName());
                     ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getAbsFieldName().toString()));
                     ctx.setStatus(OperationStatus.ERROR);
-                    return false;
+                    ret=false;
                 }
             }
         }
-        return true;
+        return ret;
     }
 }
