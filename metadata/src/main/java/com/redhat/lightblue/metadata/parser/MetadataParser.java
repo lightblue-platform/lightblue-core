@@ -1073,6 +1073,9 @@ public abstract class MetadataParser<T> {
                 if (access.getFind().getRoles().size() > 0) {
                     convertRoles(ret, STR_FIND, access.getFind());
                 }
+                if (access.getInsert().getRoles().size() > 0) {
+                    convertRoles(ret, STR_INSERT, access.getInsert());
+                }
                 if (access.getUpdate().getRoles().size() > 0) {
                     convertRoles(ret, STR_UPDATE, access.getUpdate());
                 }
