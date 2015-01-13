@@ -53,6 +53,11 @@ import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 
+import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
+
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.FieldInfo;
+
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -231,7 +236,7 @@ public class Mediator {
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "update " + ctx.getTopLevelEntityName()));
-            } else {
+            } else if(checkQueryAccess(ctx,req.getQuery())) {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_UPDATE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -280,7 +285,7 @@ public class Mediator {
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "delete " + ctx.getTopLevelEntityName()));
-            } else {
+            } else if(checkQueryAccess(ctx,req.getQuery())) {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_DELETE, ctx);
                 CRUDController controller = factory.getCRUDController(md);
                 LOGGER.debug(CRUD_MSG_PREFIX, controller.getClass().getName());
@@ -331,7 +336,7 @@ public class Mediator {
                 ctx.setStatus(OperationStatus.ERROR);
                 LOGGER.debug("No access");
                 ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, "find " + ctx.getTopLevelEntityName()));
-            } else {
+            } else if(checkQueryAccess(ctx,req.getQuery())) {
                 factory.getInterceptors().callInterceptors(InterceptPoint.PRE_MEDIATOR_FIND, ctx);
                 Finder finder;
                 if(ctx.isSimple()) {
@@ -417,5 +422,29 @@ public class Mediator {
             }
             controller.updatePredefinedFields(ctx,doc);
         }
+    }
+
+    /**
+     * Checks if the caller has access to all the query fields. Returns false if not, and sets the error status in ctx
+     */
+    private boolean checkQueryAccess(OperationContext ctx,QueryExpression query) {
+        if(query!=null) {
+            CompositeMetadata md=ctx.getTopLevelEntityMetadata();
+            FieldAccessRoleEvaluator eval=new FieldAccessRoleEvaluator(md,ctx.getCallerRoles());
+            List<FieldInfo> fields=query.getQueryFields();
+            LOGGER.debug("Checking access for query fields {}",fields);
+            for(FieldInfo field:fields) {
+                LOGGER.debug("Access checking field {}",field.getAbsFieldName());
+                if(eval.hasAccess(field.getAbsFieldName(),FieldAccessRoleEvaluator.Operation.find)) {
+                    LOGGER.debug("Field {} is readable",field.getAbsFieldName());
+                } else {
+                    LOGGER.debug("Field {} is not readable",field.getAbsFieldName());
+                    ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getAbsFieldName().toString()));
+                    ctx.setStatus(OperationStatus.ERROR);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

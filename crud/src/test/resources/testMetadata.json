@@ -31,7 +31,11 @@
                     "update": [ "test.field1-update" ]  
                 } 
             },
-            "field2": {"type": "string"},
+            "field2": {"type": "string",
+                "access" : {  
+                    "find" : [ "anyone" ]
+                }
+            },
             "field3": {"type": "integer"},
             "field4": {"type": "bigdecimal"},
             "field5": {"type": "boolean"},
