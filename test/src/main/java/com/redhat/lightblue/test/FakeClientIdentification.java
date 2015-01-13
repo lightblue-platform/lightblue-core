@@ -18,8 +18,9 @@
  */
 package com.redhat.lightblue.test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.redhat.lightblue.ClientIdentification;
 
@@ -28,15 +29,15 @@ public class FakeClientIdentification extends ClientIdentification {
     private static final long serialVersionUID = -4593345567334145097L;
 
     private final String principal;
-    private final Map<String, Boolean> userRoles;
+    private final Set<String> validUserRoles;
 
-    public FakeClientIdentification(String principal){
-        this(principal, new HashMap<String, Boolean>());
+    public FakeClientIdentification(String principal, String... validUserRoles){
+        this(principal, new HashSet<String>(Arrays.asList(validUserRoles)));
     }
 
-    public FakeClientIdentification(String principal, Map<String, Boolean> userRoles){
+    public FakeClientIdentification(String principal, Set<String> validUserRoles){
         this.principal = principal;
-        this.userRoles = userRoles;
+        this.validUserRoles = validUserRoles;
     }
 
     @Override
@@ -46,12 +47,7 @@ public class FakeClientIdentification extends ClientIdentification {
 
     @Override
     public boolean isUserInRole(String role) {
-        Boolean isValid = userRoles.get(role);
-        if(isValid == null){
-            return false;
-        }
-
-        return isValid;
+        return validUserRoles.contains(role);
     }
 
 }
