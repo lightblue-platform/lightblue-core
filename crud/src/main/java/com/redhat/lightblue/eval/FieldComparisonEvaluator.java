@@ -18,21 +18,45 @@
  */
 package com.redhat.lightblue.eval;
 
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.types.ArrayType;
+import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.KeyValueCursor;
 
+/**
+ * Evaluates lfield op rfield type comparisons. Both fields can be
+ * simple fields or arrays. Here's the semantics of the operation:
+ *
+ * <ul>
+ * <li>lfield op rfield : true if lfield op rfield</li>
+ * <li>lfield op rarray: true if lfield op rarray[i] for all elements i</li>
+ * <li>larray op rfield: true if rfield op.invert larray[i] for all elements i,
+ * where op.invert() converts < to >, etc.</li>
+ * <li> larray op rarray: true if larray[i] op rarray[j] for all elements i,j</li>
+ * </ul>
+ *
+ *
+ */
 public class FieldComparisonEvaluator extends QueryEvaluator {
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(FieldComparisonEvaluator.class);
-
+    
     private final FieldTreeNode fieldMd;
     private final FieldTreeNode rfieldMd;
     private final Path relativePath;
@@ -52,55 +76,185 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         this.rfieldRelativePath = expr.getRfield();
         fieldMd = context.resolve(relativePath);
         if (fieldMd == null) {
-            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + relativePath);
+            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + " "+relativePath);
         }
         rfieldMd = context.resolve(rfieldRelativePath);
         if (rfieldMd == null) {
-            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + rfieldRelativePath);
+            throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + " "+rfieldRelativePath);
+        }
+        // Both fields must be simple fields or simple arrays
+        if(!(fieldMd instanceof SimpleField ||
+             (fieldMd instanceof ArrayField || ((ArrayField)fieldMd).getElement() instanceof SimpleArrayElement) ) ) {
+            throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_SIMPLE_FIELD_OR_SIMPLE_ARRAY + " "+relativePath);
+        }
+        if(!(rfieldMd instanceof SimpleField ||
+             (rfieldMd instanceof ArrayField || ((ArrayField)rfieldMd).getElement() instanceof SimpleArrayElement) ) ) {
+            throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_SIMPLE_FIELD_OR_SIMPLE_ARRAY + " "+rfieldRelativePath);
         }
         operator = expr.getOp();
         LOGGER.debug("ctor {} {} {}", relativePath, operator, rfieldRelativePath);
     }
-
+    
+    
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
         KeyValueCursor<Path, JsonNode> lcursor = ctx.getNodes(relativePath);
         if (lcursor != null) {
-            while (lcursor.hasNext()) {
+            while (lcursor.hasNext()&&!ctx.getResult()) {
                 lcursor.next();
                 JsonNode lvalueNode = lcursor.getCurrentValue();
-                Object ldocValue;
+                Object ldocValue=null;
+                List<Object> ldocList=null;
                 if (lvalueNode != null) {
-                    ldocValue = fieldMd.getType().fromJson(lvalueNode);
-                } else {
-                    ldocValue = null;
+                    if(fieldMd.getType() instanceof ArrayType) {
+                        ldocList=makeList(fieldMd.getType(), lvalueNode);
+                    } else {
+                        ldocValue = fieldMd.getType().fromJson(lvalueNode);
+                    }
                 }
-
                 KeyValueCursor<Path, JsonNode> rcursor = ctx.getNodes(rfieldRelativePath);
                 if (rcursor != null) {
-                    while (rcursor.hasNext()) {
+                    while (rcursor.hasNext()&&!ctx.getResult()) {
                         rcursor.next();
                         JsonNode rvalueNode = rcursor.getCurrentValue();
-                        Object rdocValue;
+                        Object rdocValue=null;
+                        List<Object> rdocList=null;
                         if (rvalueNode != null) {
-                            rdocValue = rfieldMd.getType().fromJson(rvalueNode);
-                        } else {
-                            rdocValue = null;
+                            if(rfieldMd.getType() instanceof ArrayType) {
+                                rdocList=makeList(rfieldMd.getType(),rvalueNode);
+                            } else {
+                                rdocValue = rfieldMd.getType().fromJson(rvalueNode);
+                            }
                         }
                         LOGGER.debug(" lvalue={} rvalue={}", lvalueNode, rvalueNode);
-                        int result = fieldMd.getType().compare(ldocValue, rdocValue);
-                        LOGGER.debug(" result={}", result);
-                        boolean ret = operator.apply(result);
-                        if (ret) {
-                            ctx.setResult(ret);
-                            return ret;
+                        if(ldocValue!=null&&rdocValue!=null) {
+                            // Both fields are values
+                            int result=fieldMd.getType().compare(ldocValue, rdocValue);
+                            LOGGER.debug(" result={}", result);
+                            if(operator.apply(result)) {
+                                ctx.setResult(true);
+                            }
+                        } else if(ldocList!=null&&rdocList!=null) {
+                            // Both fields are arrays. Apply the operator to all the elements of both
+                            int cmp=0;
+                            for(Object x:ldocList) {
+                                for(Object y:rdocList) {
+                                    cmp=apply(cmp,fieldMd.getType().compare(x,y));
+                                }
+                            }
+                            if(cmpOp(CMP_LOOKUP[cmp],operator)) {
+                                ctx.setResult(true);
+                            }
+                        } else if(ldocList!=null&&rdocValue!=null) {
+                            // Left field is an array, right field is a value
+                            BinaryComparisonOperator resultOp=lvCompare(rdocValue,ldocList,fieldMd.getType()).invert();
+                            if(cmpOp(resultOp,operator)) {
+                                ctx.setResult(true);
+                            }
+                        } else if(ldocValue!=null&&rdocList!=null) {
+                            // left field is a value, right field is an array
+                            BinaryComparisonOperator resultOp=lvCompare(ldocValue,rdocList,fieldMd.getType());
+                            if(cmpOp(resultOp,operator)) {
+                                ctx.setResult(true);
+                            }
                         }
                     }
                 }
-
             }
         }
         return ctx.getResult();
     }
+
+    private static List<Object> makeList(Type t,JsonNode node) {
+        if(node instanceof ArrayNode) {
+            List<Object> list=new ArrayList<>(node.size());
+            for(Iterator<JsonNode> itr=((ArrayNode)node).elements();itr.hasNext();) {
+                list.add(t.fromJson(itr.next()));
+            }
+            return list;
+        }
+        return null;
+    }
+
+    /**
+     * The <code>result</code> is the result obtained from lvCompare. The <code>op</code> is
+     * the operator for the evaluator. Returns if the result satisties the operator.
+     */
+    private static boolean cmpOp(BinaryComparisonOperator result,BinaryComparisonOperator op) {
+        if(result!=op) {
+            switch(op) {
+            case _neq:
+                if(result==BinaryComparisonOperator._eq) {
+                    return false;
+                }
+                break;
+            case _gte:
+                if(result!=BinaryComparisonOperator._gte&&
+                   result!=BinaryComparisonOperator._gt&&
+                   result!=BinaryComparisonOperator._eq) {
+                    return false;
+                }
+                break;
+            case _lte:
+                if(result!=BinaryComparisonOperator._lte&&
+                   result!=BinaryComparisonOperator._lt&&
+                   result!=BinaryComparisonOperator._eq) {
+                    return false;
+                }
+                break;                
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Comparison lookup table. A 3-bit value is the index into this table Bit0 means
+     * there are greater values. Bit1 means there are equal values. Bit2 means 
+     * there are less values.
+     */
+    private static final BinaryComparisonOperator CMP_LOOKUP[]= {
+        BinaryComparisonOperator._neq,  // 000
+        BinaryComparisonOperator._gt,   // 001
+        BinaryComparisonOperator._eq,   // 010
+        BinaryComparisonOperator._gte,  // 011
+        BinaryComparisonOperator._lt,   // 100
+        BinaryComparisonOperator._neq,  // 101
+        BinaryComparisonOperator._lte,  // 110
+        BinaryComparisonOperator._neq   // 111
+    };
+
+    private static int apply(int cmp,int result) {
+        if(result==0) {
+            return cmp|0x02;
+        } else if(result<0) {
+            return cmp|0x04;
+        } else {
+            return cmp|0x01;
+        }
+    }
+
+    /**
+     * Compare a value to a list. Returns:
+     * <ul>
+     * <li>_eq: if all values in list are equal to value</li>
+     * <li>_lt: if value is less than all values in the list</li>
+     * <li>_lte: if value is less than or equal to all the values in the list</li>
+     * <li>_gt: if value is greater than all values in the list</li>
+     * <li>_gte: if value is greater or equal to all the values in the list</li>
+     * <li>_neq: otherwise</li>
+     * <ul>
+     */
+    private static BinaryComparisonOperator lvCompare(Object value,List<Object> list,Type t) {
+        int cmp=0;        
+        if(value!=null) {
+            if(list!=null&&!list.isEmpty()) {
+                for(Object x:list) {
+                    cmp=apply(cmp,t.compare(value,x));
+                }
+            }
+        } 
+        return CMP_LOOKUP[cmp];
+    }
+
 }
