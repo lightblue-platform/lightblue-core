@@ -288,18 +288,21 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public Projection parseProjection(JsonNode object) {
-        return object == null ? null : Projection.fromJson(object);
+    public Projection getProjection(JsonNode object,String name) {
+        JsonNode node=object.get(name);
+        return node == null ? null : Projection.fromJson(node);
     }
 
     @Override
-    public QueryExpression parseQuery(JsonNode object) {
-        return object == null ? null : QueryExpression.fromJson(object);
+    public QueryExpression getQuery(JsonNode object,String name) {
+        JsonNode node=object.get(name);
+        return node == null ? null : QueryExpression.fromJson(node);
     }
 
     @Override
-    public Sort parseSort(JsonNode object) {
-        return object == null ? null : Sort.fromJson(object);
+    public Sort getSort(JsonNode object,String name) {
+        JsonNode node=object.get(name);
+        return node == null ? null : Sort.fromJson(node);
     }
 
     @Override
