@@ -46,9 +46,7 @@ import com.redhat.lightblue.util.KeyValueCursor;
  * <ul>
  * <li>lfield op rfield : true if lfield op rfield</li>
  * <li>lfield op rarray: true if lfield op rarray[i] for all elements i</li>
- * <li>larray op rfield: true if rfield op.invert larray[i] for all elements i,
- * where op.invert() converts < to >, etc.</li>
- * <li> larray op rarray: true if larray[i] op rarray[j] for all elements i,j</li>
+ * <li>larray op rarray: true if larray[i] op rarray[i] for all elements i</li>
  * </ul>
  *
  *
@@ -84,11 +82,11 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
         }
         // Both fields must be simple fields or simple arrays
         if(!(fieldMd instanceof SimpleField ||
-             (fieldMd instanceof ArrayField || ((ArrayField)fieldMd).getElement() instanceof SimpleArrayElement) ) ) {
+             (fieldMd instanceof ArrayField && ((ArrayField)fieldMd).getElement() instanceof SimpleArrayElement) ) ) {
             throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_SIMPLE_FIELD_OR_SIMPLE_ARRAY + " "+relativePath);
         }
         if(!(rfieldMd instanceof SimpleField ||
-             (rfieldMd instanceof ArrayField || ((ArrayField)rfieldMd).getElement() instanceof SimpleArrayElement) ) ) {
+             (rfieldMd instanceof ArrayField && ((ArrayField)rfieldMd).getElement() instanceof SimpleArrayElement) ) ) {
             throw new EvaluationError(expr, CrudConstants.ERR_EXPECTED_SIMPLE_FIELD_OR_SIMPLE_ARRAY + " "+rfieldRelativePath);
         }
         operator = expr.getOp();
@@ -108,7 +106,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                 List<Object> ldocList=null;
                 if (lvalueNode != null) {
                     if(fieldMd.getType() instanceof ArrayType) {
-                        ldocList=makeList(fieldMd.getType(), lvalueNode);
+                        ldocList=makeList(((ArrayField)fieldMd).getElement().getType(), lvalueNode);
                     } else {
                         ldocValue = fieldMd.getType().fromJson(lvalueNode);
                     }
@@ -122,7 +120,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                         List<Object> rdocList=null;
                         if (rvalueNode != null) {
                             if(rfieldMd.getType() instanceof ArrayType) {
-                                rdocList=makeList(rfieldMd.getType(),rvalueNode);
+                                rdocList=makeList(((ArrayField)rfieldMd).getElement().getType(),rvalueNode);
                             } else {
                                 rdocValue = rfieldMd.getType().fromJson(rvalueNode);
                             }
@@ -136,25 +134,31 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                                 ctx.setResult(true);
                             }
                         } else if(ldocList!=null&&rdocList!=null) {
-                            // Both fields are arrays. Apply the operator to all the elements of both
+                            // Both fields are arrays. Compare each element
+                            Type type=((ArrayField)fieldMd).getElement().getType();
+                            int ln=ldocList.size();
+                            int rn=rdocList.size();
+                            int n=ln<rn?ln:rn;
                             int cmp=0;
-                            for(Object x:ldocList) {
-                                for(Object y:rdocList) {
-                                    cmp=apply(cmp,fieldMd.getType().compare(x,y));
-                                }
+                            for(int i=0;i<n;i++) {
+                                cmp=apply(cmp,type.compare(ldocList.get(i),rdocList.get(i)));
                             }
+                            LOGGER.debug("Comparing arrays {} {} {}={}",ldocList,operator,rdocList,cmp);
                             if(cmpOp(CMP_LOOKUP[cmp],operator)) {
                                 ctx.setResult(true);
                             }
                         } else if(ldocList!=null&&rdocValue!=null) {
                             // Left field is an array, right field is a value
-                            BinaryComparisonOperator resultOp=lvCompare(rdocValue,ldocList,fieldMd.getType()).invert();
+                            BinaryComparisonOperator resultOp=lvCompare(rdocValue,ldocList,
+                                                                        ((ArrayField)fieldMd).getElement().getType()).invert();
+                            LOGGER.debug("Comparing array with field {} {} {}={}",ldocList,operator,rdocValue,resultOp);
                             if(cmpOp(resultOp,operator)) {
                                 ctx.setResult(true);
                             }
                         } else if(ldocValue!=null&&rdocList!=null) {
                             // left field is a value, right field is an array
                             BinaryComparisonOperator resultOp=lvCompare(ldocValue,rdocList,fieldMd.getType());
+                            LOGGER.debug("Comparing field with array {} {} {}={}",ldocValue,operator,rdocList,resultOp);
                             if(cmpOp(resultOp,operator)) {
                                 ctx.setResult(true);
                             }
@@ -202,7 +206,9 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                    result!=BinaryComparisonOperator._eq) {
                     return false;
                 }
-                break;                
+                break;  
+            default:
+                return false;
             }
         }
         return true;
