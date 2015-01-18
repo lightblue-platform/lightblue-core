@@ -75,7 +75,16 @@ public abstract class QueryIterator {
      * processing is needed. Return a new QueryExpression object if this clause
      * is to be modified.
      */
-    protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q, Path context) {
+    protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
+        return q;
+    }
+
+    /**
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
+     */
+    protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
         return q;
     }
 
@@ -151,8 +160,10 @@ public abstract class QueryIterator {
             return itrFieldComparisonExpression((FieldComparisonExpression) q, context);
         } else if (q instanceof RegexMatchExpression) {
             return itrRegexMatchExpression((RegexMatchExpression) q, context);
-        } else if (q instanceof NaryRelationalExpression) {
-            return itrNaryRelationalExpression((NaryRelationalExpression) q, context);
+        } else if (q instanceof NaryValueRelationalExpression) {
+            return itrNaryValueRelationalExpression((NaryValueRelationalExpression) q, context);
+        } else if (q instanceof NaryFieldRelationalExpression) {
+            return itrNaryFieldRelationalExpression((NaryFieldRelationalExpression) q, context);
         } else if (q instanceof UnaryLogicalExpression) {
             return itrUnaryLogicalExpression((UnaryLogicalExpression) q, context);
         } else if (q instanceof NaryLogicalExpression) {
