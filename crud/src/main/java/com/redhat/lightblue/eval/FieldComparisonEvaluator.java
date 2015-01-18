@@ -143,6 +143,11 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                             for(int i=0;i<n;i++) {
                                 cmp=apply(cmp,type.compare(ldocList.get(i),rdocList.get(i)));
                             }
+                            if(ln>rn) {
+                                cmp|=0x01;
+                            } else if(ln<rn) {
+                                cmp|=0x03;
+                            }
                             LOGGER.debug("Comparing arrays {} {} {}={}",ldocList,operator,rdocList,cmp);
                             if(cmpOp(CMP_LOOKUP[cmp],operator)) {
                                 ctx.setResult(true);

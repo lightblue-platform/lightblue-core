@@ -27,22 +27,22 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.KeyValueCursor;
 
-public class NaryRelationalExpressionEvaluator extends QueryEvaluator {
+public class NaryValueRelationalExpressionEvaluator extends QueryEvaluator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NaryRelationalExpressionEvaluator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NaryValueRelationalExpressionEvaluator.class);
 
     private final Path field;
     private final FieldTreeNode fieldMd;
     private final NaryRelationalOperator operator;
     private final List<Object> values;
 
-    public NaryRelationalExpressionEvaluator(NaryRelationalExpression expr, FieldTreeNode context) {
+    public NaryValueRelationalExpressionEvaluator(NaryValueRelationalExpression expr, FieldTreeNode context) {
         field = expr.getField();
         fieldMd = context.resolve(field);
         if (fieldMd == null) {
