@@ -234,6 +234,12 @@ public abstract class QueryExpression extends JsonObject {
 
     /**
      * Returns the query expressions that can be bound to a value
+     *
+     * These clauses are bindable:
+     * <ul>
+     * <li>FieldComparisonExpression</li>
+     * <li>NaryFieldRelationalExpression</li>
+     * </ul>
      */
     public List<QueryInContext> getBindableClauses() {
         List<QueryInContext> list = new ArrayList<>();
