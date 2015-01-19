@@ -18,16 +18,15 @@
  */
 package com.redhat.lightblue.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.ArrayDeque;
+import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayDeque;
-import java.util.StringTokenizer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Error object. Maintains an error code, message, and context of the error. The
@@ -89,22 +88,19 @@ public final class Error extends RuntimeException {
     public static Error get(String ctx, String errorCode, String msg) {
         push(ctx);
         try {
-            Error x = new Error(THREAD_CONTEXT.get(), errorCode, msg);
-            return x;
+            return new Error(THREAD_CONTEXT.get(), errorCode, msg);
         } finally {
             pop();
         }
     }
 
     /**
-     * Helper that gets a new Error with msg set to the stack trace of the given
+     * Helper that gets a new Error with msg set to the message of the given
      * Throwable.
      */
-    public static Error get(String ctx, String errorCode, Throwable msg) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        msg.printStackTrace(pw);
-        return get(ctx, errorCode, sw.toString());
+    public static Error get(String ctx, String errorCode, Throwable e) {
+        LOGGER.error(e.getMessage(), e);
+        return get(ctx, errorCode, e.getMessage());
     }
 
     /**
@@ -115,14 +111,20 @@ public final class Error extends RuntimeException {
     }
 
     /**
-     * Helper that gets a new Error with msg set to the stack trace of the given
+     * Helper that gets a new Error with msg set to the message of the given
      * Throwable.
      */
-    public static Error get(String errorCode, Throwable msg) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        msg.printStackTrace(pw);
-        return get(errorCode, sw.toString());
+    public static Error get(String errorCode, Throwable e) {
+        LOGGER.error(e.getMessage(), e);
+        return get(errorCode, e.getMessage());
+    }
+
+    /**
+     * Helper that gets a new Error with msg set to the message of the given
+     * Throwable and the errorCode set to the class name of the Throwable.
+     */
+    public static Error get(Throwable e) {
+        return get(e.getClass().getSimpleName(), e);
     }
 
     /**
@@ -147,7 +149,7 @@ public final class Error extends RuntimeException {
     }
 
     private Error(ArrayDeque<String> context, String errorCode, String msg) {
-        this.context = (ArrayDeque<String>) context.clone();
+        this.context = context.clone();
         this.errorCode = errorCode;
         this.msg = msg;
     }
@@ -185,7 +187,7 @@ public final class Error extends RuntimeException {
     }
 
     public JsonNode toJson() {
-        ObjectNode node = (ObjectNode) FACTORY.objectNode();
+        ObjectNode node = FACTORY.objectNode();
         node.put("objectType", FACTORY.textNode("error"));
         if (!context.isEmpty()) {
             node.put("context", FACTORY.textNode(getContext()));
