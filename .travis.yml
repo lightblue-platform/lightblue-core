@@ -3,7 +3,7 @@ jdk:
 - openjdk7
 - oraclejdk8
 before_install:
-- cp ./settings.xml ~/.m2/
+- cp ./etc/settings.xml ~/.m2/
 after_success:
 - '[[ $TRAVIS_BRANCH == "master" ]] && [[ $TRAVIS_JDK_VERSION == "openjdk7" ]] &&
   { mvn clean deploy -DskipTests; };'
