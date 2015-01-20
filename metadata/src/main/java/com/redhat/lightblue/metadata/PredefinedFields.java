@@ -18,6 +18,12 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -29,8 +35,6 @@ import com.redhat.lightblue.metadata.types.StringType;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-
-import java.util.*;
 
 /**
  * Ensures that the predefined fields are included in the metadata.
@@ -127,6 +131,7 @@ public final class PredefinedFields {
                 && f.getType().equals(StringType.TYPE)) {
             // Required constraint
             if (findConstraint(f.getConstraints(), new ConstraintSearchCB<FieldConstraint>() {
+                @Override
                 public boolean checkMatch(FieldConstraint c) {
                     return c instanceof RequiredConstraint;
                 }
@@ -135,6 +140,7 @@ public final class PredefinedFields {
             }
             // Can't be empty
             if (findConstraint(f.getConstraints(), new ConstraintSearchCB<FieldConstraint>() {
+                @Override
                 public boolean checkMatch(FieldConstraint c) {
                     if (c instanceof StringLengthConstraint && ((StringLengthConstraint) c).getType().equals(StringLengthConstraint.MINLENGTH)) {
                         return true;
@@ -206,6 +212,12 @@ public final class PredefinedFields {
         ParentNewChild ret;
         if (f == null) {
             f = new SimpleField(fieldName, IntegerType.TYPE);
+            /*
+             * If array has Find roles on it, then also set on count field.
+             * Other roles should not be copied over as they may cause problems
+             * with save operations.
+             */
+            f.getAccess().getFind().setRoles(arr.getAccess().getFind());
             ret = new ParentNewChild(fields, f);
         } else {
             ret = null;

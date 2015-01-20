@@ -392,9 +392,9 @@ public abstract class MetadataParser<T> {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_NAME);
                 }
                 Hook hook = new Hook(name);
-                T x = getObjectProperty(object, STR_PROJECTION);
-                if (x != null) {
-                    hook.setProjection(parseProjection(x));
+                Projection projection=getProjection(object, STR_PROJECTION);
+                if (projection != null) {
+                    hook.setProjection(projection);
                 }
                 List<String> values = getStringList(object, STR_ACTIONS);
                 if (values != null) {
@@ -794,9 +794,9 @@ public abstract class MetadataParser<T> {
         ReferenceField field = new ReferenceField(name);
         field.setEntityName(getRequiredStringProperty(object, STR_ENTITY));
         field.setVersionValue(getRequiredStringProperty(object, STR_VERSION_VALUE));
-        field.setProjection(parseProjection(getObjectProperty(object, STR_PROJECTION)));
-        field.setQuery(parseQuery(getObjectProperty(object, STR_QUERY)));
-        field.setSort(parseSort(getObjectProperty(object, STR_SORT)));
+        field.setProjection(getProjection(object, STR_PROJECTION));
+        field.setQuery(getQuery(object, STR_QUERY));
+        field.setSort(getSort(object, STR_SORT));
 
         return field;
     }
@@ -1072,6 +1072,9 @@ public abstract class MetadataParser<T> {
                 T ret = newNode();
                 if (access.getFind().getRoles().size() > 0) {
                     convertRoles(ret, STR_FIND, access.getFind());
+                }
+                if (access.getInsert().getRoles().size() > 0) {
+                    convertRoles(ret, STR_INSERT, access.getInsert());
                 }
                 if (access.getUpdate().getRoles().size() > 0) {
                     convertRoles(ret, STR_UPDATE, access.getUpdate());
@@ -1573,17 +1576,17 @@ public abstract class MetadataParser<T> {
     /**
      * Parse and return a projection
      */
-    public abstract Projection parseProjection(T object);
+    public abstract Projection getProjection(T object, String name);
 
     /**
      * Parse and return a query
      */
-    public abstract QueryExpression parseQuery(T object);
+    public abstract QueryExpression getQuery(T object, String name);
 
     /**
      * Parse and return a sort
      */
-    public abstract Sort parseSort(T object);
+    public abstract Sort getSort(T object, String name);
 
     /**
      * Creates a new node

@@ -20,29 +20,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.redhat.lightblue.core</groupId>
-        <artifactId>pom</artifactId>
+        <groupId>com.redhat.lightblue</groupId>
+        <artifactId>lightblue-core-pom</artifactId>
         <version>1.3.0-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
-    <artifactId>metadata</artifactId>
+    <artifactId>lightblue-core-metadata</artifactId>
     <packaging>jar</packaging>
     <version>1.3.0-SNAPSHOT</version>
-    <name>lightblue: ${project.groupId}|${project.artifactId}</name>
+    <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>lightblue-core-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
-            <artifactId>core-api</artifactId>
+            <artifactId>lightblue-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
-            <artifactId>query-api</artifactId>
+            <artifactId>lightblue-core-query-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
