@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "description": "descX",
+  "properties": {
+    "uid": {"type": "uid"},
+    "nonrequid": {
+      "type": "uid",
+      "required": "notReqField"
+    },
+    "iduid": {
+      "type": "uid",
+      "identity": "idenX"
+    },
+    "personalInfo": {
+      "type": "object",
+      "lastName": {"type": "string"},
+      "nonrequid": {
+        "type": "uid",
+        "required": "notReqField"
+      },
+      "greeting": {"type": "string"},
+      "department": {"type": "string"},
+      "locale": {"type": "string"},
+      "suffix": {"type": "string"},
+      "title": {"type": "string"},
+      "timezone": {"type": "string"},
+      "faxNumber": {"type": "string"},
+      "phoneNumber": {
+        "type": "string",
+        "matches": "matchPhone"
+      },
+      "email": {"type": "string"},
+      "company": {"type": "string"},
+      "firstName": {"type": "string"},
+      "requid": {
+        "type": "uid",
+        "required": "reqField"
+      },
+      "emailConfirmed": {"type": "boolean"}
+    },
+    "updatedDate": {"type": "date"},
+    "password": {
+      "type": "object",
+      "hashed": {"type": "string"},
+      "salt": {"type": "string"}
+    },
+    "contactPermissions": {
+      "type": "object",
+      "allowMailContact": {"type": "boolean"},
+      "allowThirdPartyContact": {"type": "boolean"},
+      "allowPhoneContact": {"type": "boolean"},
+      "allowFaxContact": {"type": "boolean"},
+      "allowEmailContact": {"type": "boolean"}
+    },
+    "_id": {
+      "type": "string",
+      "identity": "idenX"
+    },
+    "active": {"type": "boolean"},
+    "login": {
+      "type": "string",
+      "maxLength": "64",
+      "minLength": "1",
+      "required": "reqField"
+    },
+    "objectType": {"type": "string"},
+    "requid": {
+      "type": "uid",
+      "description": "test",
+      "required": "reqField"
+    },
+    "createdDate": {"type": "date"},
+    "required": [
+      "login",
+      "personalInfo.requid",
+      "requid"
+    ]
+  }
+}

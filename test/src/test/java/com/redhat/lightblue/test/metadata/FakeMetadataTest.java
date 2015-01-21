@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.main.JsonSchema;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
@@ -15,7 +17,9 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.test.FileUtil;
 import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.redhat.lightblue.Response;
@@ -24,6 +28,7 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class FakeMetadataTest {
 
@@ -36,21 +41,17 @@ public class FakeMetadataTest {
     public void testEntityInfo_VersionDoesExist(){
         String entityName = "fake";
         String version1 = "1.0.0";
-
         FakeMetadata metadata = new FakeMetadata();
-
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
 
         assertFalse(metadata.checkVersionExists(entityName, version1));
-
         metadata.setEntityMetadata(entityName, version1, new EntityMetadata("fake EntityMetadata"));
-
         assertTrue(metadata.checkVersionExists(entityName, version1));
     }
 
     @Test
-    public void testGetJSONSchemaNoFields(){
+    public void testGetJSONSchemaNoFields() throws IOException, URISyntaxException, JSONException, ProcessingException {
         String entityName = "fake";
         String version1 = "1.0.0";
 
@@ -62,17 +63,23 @@ public class FakeMetadataTest {
 
         JsonNode jsonSchema = metadata.getJSONSchema(entityName, version1);
         String actual = jsonSchema.toString();
-        assertEquals("{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"type\":\"object\",\"description\":\"JSON schema for entity 'fake' version '1.0.0'\"}", actual);
+        String expected = FileUtil.readFile("testGetJSONSchemaNoFieldsExpected.json");
+        expected = expected.replace("descX","JSON schema for entity 'fake' version '1.0.0'");
+        JsonSchema schema = JsonUtils.loadSchema("metadata/schema.json");
+        String report = JsonUtils.jsonSchemaValidation(schema, jsonSchema);
+        if(report != null){
+            Assert.fail("Expected validation to succeed! Resource: " + actual + " Messages: " + report.replaceAll("\n", " "));
+        }
+
+        JSONAssert.assertEquals(expected, actual, false);
     }
 
 
     @Test
-    public void testGetJSONSchemaWithFields() throws IOException, JSONException {
+    public void testGetJSONSchemaWithFields() throws IOException, JSONException, URISyntaxException, ProcessingException {
         String entityName = "user";
         String version1 = "1.0.0";
-
         FakeMetadata metadata = new FakeMetadata();
-
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
         Extensions<JsonNode> extensions = new Extensions<>();
@@ -104,7 +111,19 @@ public class FakeMetadataTest {
 
         JsonNode jsonSchema = metadata.getJSONSchema(entityName, version1);
         String actual = jsonSchema.toString();
-        String expected = "{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"type\":\"object\",\"description\":\"JSON schema for entity 'user' version '1.0.0'\",\"properties\":{\"uid\":{\"type\":\"uid\"},\"nonrequid\":{\"type\":\"uid\",\"required\":\"Field not required constraint\"},\"iduid\":{\"type\":\"uid\",\"identity\":\"Field is part of identity constraint\"},\"personalInfo\":{\"type\":\"object\",\"lastName\":{\"type\":\"string\"},\"nonrequid\":{\"type\":\"uid\",\"required\":\"Field not required constraint\"},\"greeting\":{\"type\":\"string\"},\"department\":{\"type\":\"string\"},\"locale\":{\"type\":\"string\"},\"suffix\":{\"type\":\"string\"},\"title\":{\"type\":\"string\"},\"timezone\":{\"type\":\"string\"},\"faxNumber\":{\"type\":\"string\"},\"phoneNumber\":{\"type\":\"string\",\"matches\":\"^\\\\d{3}\\\\-\\\\d{4}\\\\ \\\\d{4}$\"},\"email\":{\"type\":\"string\"},\"company\":{\"type\":\"string\"},\"firstName\":{\"type\":\"string\"},\"requid\":{\"type\":\"uid\",\"required\":\"Field required constraint\"},\"emailConfirmed\":{\"type\":\"boolean\"}},\"updatedDate\":{\"type\":\"date\"},\"password\":{\"type\":\"object\",\"hashed\":{\"type\":\"string\"},\"salt\":{\"type\":\"string\"}},\"contactPermissions\":{\"type\":\"object\",\"allowMailContact\":{\"type\":\"boolean\"},\"allowThirdPartyContact\":{\"type\":\"boolean\"},\"allowPhoneContact\":{\"type\":\"boolean\"},\"allowFaxContact\":{\"type\":\"boolean\"},\"allowEmailContact\":{\"type\":\"boolean\"}},\"_id\":{\"type\":\"string\",\"identity\":\"Field is part of identity constraint\"},\"active\":{\"type\":\"boolean\"},\"login\":{\"type\":\"string\",\"maxLength\":\"64\",\"minLength\":\"1\",\"required\":\"Field required constraint\"},\"objectType\":{\"type\":\"string\"},\"requid\":{\"type\":\"uid\",\"description\":\"test\",\"required\":\"Field required constraint\"},\"createdDate\":{\"type\":\"date\"},\"required\":[\"login\",\"personalInfo.requid\",\"requid\"]}}";
+        String path = "testGetJSONSchemaWithFieldsExpected.json";
+        String expected = FileUtil.readFile(path);
+        expected = expected.replace("descX", "JSON schema for entity 'user' version '1.0.0'");
+        expected = expected.replace("notReqField", "Field not required constraint");
+        expected = expected.replace("reqField", "Field required constraint");
+        expected = expected.replace("matchPhone", "^\\\\d{3}\\\\-\\\\d{4}\\\\ \\\\d{4}$");
+        expected = expected.replace("idenX", "Field is part of identity constraint");
+        JsonSchema schema = JsonUtils.loadSchema("metadata/schema.json");
+        String report = JsonUtils.jsonSchemaValidation(schema, jsonSchema);
+        if(report != null){
+            Assert.fail("Expected validation to succeed! Resource: " + actual + " Messages: " + report.replaceAll("\n", " "));
+        }
+
         JSONAssert.assertEquals(expected, actual, false);
     }
 
