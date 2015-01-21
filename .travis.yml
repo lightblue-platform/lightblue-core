@@ -4,14 +4,12 @@ jdk:
     - oraclejdk8
 before_install:
     - cp ./etc/settings.xml ~/.m2/
-    - cp ./etc/settings-arquillian.xml ~/
     - cp ./etc/onFailure.sh  ~/
     - cp ./etc/onSuccess.sh  ~/
-    - cp ./etc/logging.properties  ~/
     - chmod 777 ~/onFailure.sh
     - chmod 777 ~/onSuccess.sh
 script:
-    - mvn -B clean verify cobertura:cobertura coveralls:cobertura -Dorg.apache.maven.user-settings=~/settings-arquillian.xml -Dorg.apache.maven.global-settings=~/settings-arquillian.xml
+    - mvn -B clean verify cobertura:cobertura coveralls:cobertura
 after_failure: ~/onFailure.sh
 after_success: ~/onSuccess.sh
 notifications:
