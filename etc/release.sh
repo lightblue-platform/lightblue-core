@@ -13,6 +13,7 @@ fi
 
 # prepare and verify state
 git fetch --all
+rm -rf ~/.m2/repository/com/redhat/lightblue/
 
 BRANCH=`git branch | grep ^* | awk '{print $2}'`
 
@@ -48,7 +49,5 @@ git push origin master --tags
 
 # perform release
 mvn release:perform -P release || exit
-
-mvn versions:set -DnewVersion=$DEVEL_VERSION
 
 mvn clean deploy
