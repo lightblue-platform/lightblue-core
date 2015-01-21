@@ -9,7 +9,7 @@ before_install:
     - chmod 777 ~/onFailure.sh
     - chmod 777 ~/onSuccess.sh
 script:
-    - mvn -B clean verify cobertura:cobertura coveralls:cobertura
+    - mvn -B clean verify cobertura:cobertura coveralls:report
 after_failure: ~/onFailure.sh
 after_success: ~/onSuccess.sh
 notifications:
