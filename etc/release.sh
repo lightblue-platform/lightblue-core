@@ -51,4 +51,3 @@ git push origin master --tags
 mvn release:perform -P release || exit
 
 mvn clean deploy
-
