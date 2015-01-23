@@ -186,7 +186,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>2.2.0</version>
+                <version>3.0.1</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -194,7 +194,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <version>2.6</version>
                 <configuration>
                     <format>xml</format>
-                    <format>html</format>
                     <maxmem>256m</maxmem>
                     <!-- aggregated reports for multi-module projects -->
                     <aggregate>true</aggregate>
