@@ -330,7 +330,7 @@ public abstract class QueryExpression extends JsonObject {
     }
 
     private static boolean isFieldQueried(Path field, UnaryLogicalExpression q, Path context) {
-        return q.isRequired(field, context);
+        return q.getQuery().isRequired(field, context);
     }
 
     private static boolean isFieldQueried(Path field, NaryLogicalExpression q, Path context) {
