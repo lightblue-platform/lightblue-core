@@ -1,8 +1,8 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
-echo "onSucess script"
+echo "ofter_success script"
 
-if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_JDK_VERSION == "openjdk7" ]; then
+if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_JDK_VERSION" == "openjdk7" ]; then
     echo "DEPLOY MASTER TRAVIS BUILD"
     echo "Current directory is $(pwd)"
     mvn clean deploy -DskipTests;
