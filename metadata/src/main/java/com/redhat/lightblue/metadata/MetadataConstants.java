@@ -41,7 +41,7 @@ public final class MetadataConstants {
     public static final String ERR_ILL_FORMED_METADATA = "metadata:IllFormedMetadata";
     public static final String ERR_INVALID_BACKEND = "metadata:InvalidBackend";
     public static final String ERR_INVALID_INDEX = "metadata:InvalidIndex";
-    public static final String ERR_INVALID_ENUM = "metadata:InvalidEmum";
+    public static final String ERR_INVALID_ENUM = "metadata:InvalidEnum";
     public static final String ERR_INVALID_HOOK = "metadata:InvalidHook";
     public static final String ERR_UNKNOWN_BACKEND = "metadata:UnknownBackend";
     public static final String ERR_INVALID_CONSTRAINT = "metadata:InvalidConstraint";
