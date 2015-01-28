@@ -20,15 +20,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.redhat.lightblue.core</groupId>
-        <artifactId>pom</artifactId>
+        <groupId>com.redhat.lightblue</groupId>
+        <artifactId>lightblue-core-pom</artifactId>
         <version>1.3.0-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
-    <artifactId>util</artifactId>
+    <artifactId>lightblue-core-util</artifactId>
     <packaging>jar</packaging>
     <version>1.3.0-SNAPSHOT</version>
-    <name>lightblue: ${project.groupId}|${project.artifactId}</name>
+    <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -54,6 +54,18 @@
         <dependency>
             <groupId>com.netflix.servo</groupId>
             <artifactId>servo-graphite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-metrics-event-stream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-servo-metrics-publisher</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

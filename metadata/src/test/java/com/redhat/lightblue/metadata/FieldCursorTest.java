@@ -51,6 +51,17 @@ public class FieldCursorTest {
     }
 
     @Test
+    public void emptyObjectTest() {
+        EntityMetadata md = new EntityMetadata("test");
+        ObjectField objectField1 = new ObjectField("obj1");
+        md.getFields().addNew(objectField1);
+        FieldCursor cursor=md.getFieldCursor();
+        cursor.next();
+        Assert.assertEquals("obj1",cursor.getCurrentPath().toString());
+        Assert.assertFalse(cursor.next());
+    }
+
+    @Test
     public void sibTest() {
         EntityMetadata md = getMD1();
         FieldCursor cursor = md.getFieldCursor();

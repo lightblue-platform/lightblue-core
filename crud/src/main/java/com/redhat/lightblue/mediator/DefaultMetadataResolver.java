@@ -47,6 +47,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * This implementation combines the implementations for GetMetadata
@@ -182,17 +183,17 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         EntityMetadata emd=metadataMap.get(entityName);
         if(emd!=null) {
             if (!emd.getVersion().getValue().equals(version)) {
-                throw new IllegalArgumentException(CrudConstants.ERR_METADATA_APPEARS_TWICE + entityName + " " + version + 
-                                                   " and " + emd.getVersion().getValue());
+                throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE,entityName + ":" + version + 
+                                " and " + emd.getVersion().getValue());
             }
         } else {
             LOGGER.debug("Retrieving entity metadata {}:{}",entityName,version);
             emd=md.getEntityMetadata(entityName,version);
             if (emd == null || emd.getEntitySchema() == null) {
-                throw new IllegalArgumentException("Unknown entity:" + entityName + ":" + version);
+                throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, entityName + ":" + version);
             }
             if (emd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-                throw new IllegalArgumentException(CrudConstants.ERR_DISABLED_METADATA + " " + entityName + " " + version);
+                throw Error.get(CrudConstants.ERR_DISABLED_METADATA,entityName + ":" + version);
             }
             metadataMap.put(entityName,emd);
         }
