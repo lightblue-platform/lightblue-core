@@ -186,6 +186,10 @@ public abstract class AbstractTreeCursor<N> {
         if (hasChildren(currentNode)) {
             push();
             currentCursor = getCursor(currentNode);
+            if(!currentCursor.hasNext()) {
+                pop();
+                return false;
+            }
             currentCursor.next();
             currentNode = currentCursor.getCurrentValue();
             currentPath.push(currentCursor.getCurrentKey());
