@@ -33,7 +33,7 @@ public final class FileUtil {
 
     }
 
-    public static String readFile(String path) throws IOException, URISyntaxException {
+    public static String readFileAndTrim(String path) throws IOException, URISyntaxException {
         StringBuilder everything = new StringBuilder();
 
         try (InputStreamReader isr = new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path), Charset.forName("UTF-8"));
@@ -44,5 +44,18 @@ public final class FileUtil {
             }
         }
         return everything.toString().replaceAll("\\s", "").replaceAll("\\r|\\n", "");
+    }
+
+    public static String readFile(String path) throws IOException, URISyntaxException {
+        StringBuilder everything = new StringBuilder();
+
+        try (InputStreamReader isr = new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(path), Charset.forName("UTF-8"));
+             BufferedReader bufferedReader = new BufferedReader(isr);) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                everything.append(line);
+            }
+        }
+        return everything.toString();
     }
 }

@@ -57,4 +57,11 @@ public class MatchesConstraint implements FieldConstraint, Serializable {
     public void setValue(Pattern v) {
         value = v;
     }
+
+    public static void main(String[] args) {
+        FieldConstraint a = null;
+        MatchesConstraint c = (MatchesConstraint) a;
+        System.out.println("ok");
+
+    }
 }

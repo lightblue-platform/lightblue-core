@@ -1,79 +1,74 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "description": "descX",
-  "properties": {
-    "uid": {"type": "uid"},
-    "nonrequid": {
-      "type": "uid",
-      "required": "notReqField"
+  "$schema":"http://json-schema.org/draft-04/schema#",
+  "type":"object",
+  "description":"JSON schema for entity 'user' version '1.0.0'",
+  "properties":{
+    "personalInfo":{
+      "type":"object",
+      "properties":{  },
+      "required":[
+        "nonrequid",
+        "requid"
+      ]
     },
-    "iduid": {
-      "type": "uid",
-      "identity": "idenX"
+    "iduid":{
+      "type":"string"
     },
-    "personalInfo": {
-      "type": "object",
-      "lastName": {"type": "string"},
-      "nonrequid": {
-        "type": "uid",
-        "required": "notReqField"
-      },
-      "greeting": {"type": "string"},
-      "department": {"type": "string"},
-      "locale": {"type": "string"},
-      "suffix": {"type": "string"},
-      "title": {"type": "string"},
-      "timezone": {"type": "string"},
-      "faxNumber": {"type": "string"},
-      "phoneNumber": {
-        "type": "string",
-        "matches": "matchPhone"
-      },
-      "email": {"type": "string"},
-      "company": {"type": "string"},
-      "firstName": {"type": "string"},
-      "requid": {
-        "type": "uid",
-        "required": "reqField"
-      },
-      "emailConfirmed": {"type": "boolean"}
+    "active":{
+      "type":"boolean"
     },
-    "updatedDate": {"type": "date"},
-    "password": {
-      "type": "object",
-      "hashed": {"type": "string"},
-      "salt": {"type": "string"}
+    "updatedDate":{
+      "type":"date"
     },
-    "contactPermissions": {
-      "type": "object",
-      "allowMailContact": {"type": "boolean"},
-      "allowThirdPartyContact": {"type": "boolean"},
-      "allowPhoneContact": {"type": "boolean"},
-      "allowFaxContact": {"type": "boolean"},
-      "allowEmailContact": {"type": "boolean"}
+    "login":{
+      "type":"string",
+      "constraints":{
+        "minLength":"1",
+        "maxLength":"64"
+      }
     },
-    "_id": {
-      "type": "string",
-      "identity": "idenX"
+    "objectType":{
+      "type":"string"
     },
-    "active": {"type": "boolean"},
-    "login": {
-      "type": "string",
-      "maxLength": "64",
-      "minLength": "1",
-      "required": "reqField"
+    "uid":{
+      "type":"string"
     },
-    "objectType": {"type": "string"},
-    "requid": {
-      "type": "uid",
-      "description": "test",
-      "required": "reqField"
+    "password":{
+      "type":"object",
+      "properties":{
+        "salt":{
+          "type":"string"
+        },
+        "hashed":{
+          "type":"string"
+        }
+      }
     },
-    "createdDate": {"type": "date"},
-    "required": [
+    "createdDate":{
+      "type":"date"
+    },
+    "_id":{
+      "type":"string"
+    },
+    "nonrequid":{
+      "type":"string"
+    },
+    "requid":{
+      "type":"string",
+      "description":"test"
+    },
+    "contactPermissions":{
+      "type":"object",
+      "properties":{  },
+      "required":[
+        "allowEmailContact"
+      ]
+    },
+    "required":[
+      "iduid",
       "login",
-      "personalInfo.requid",
+      "_id",
+      "nonrequid",
       "requid"
     ]
   }

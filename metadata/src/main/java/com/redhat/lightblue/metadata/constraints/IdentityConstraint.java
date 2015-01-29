@@ -45,6 +45,6 @@ public class IdentityConstraint implements FieldConstraint, Serializable {
 
     @Override
     public String getDescription() {
-        return "Field is part of identity constraint";
+        return Boolean.TRUE.toString();
     }
 }

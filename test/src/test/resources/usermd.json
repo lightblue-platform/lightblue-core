@@ -79,7 +79,12 @@
       "contactPermissions": {
         "type": "object",
         "fields": {
-          "allowEmailContact": {"type": "boolean"},
+          "allowEmailContact": {
+            "type": "boolean",
+            "constraints": {
+              "required": false
+            }
+          },
           "allowFaxContact": {"type": "boolean"},
           "allowMailContact": {"type": "boolean"},
           "allowPhoneContact": {"type": "boolean"},

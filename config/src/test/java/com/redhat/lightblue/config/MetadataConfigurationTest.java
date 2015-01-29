@@ -133,7 +133,7 @@ public class MetadataConfigurationTest {
     @Test
     public void testExtensions() throws Exception {
         // load configuration
-        String jsonString = FileUtil.readFile(MetadataConfiguration.FILENAME);
+        String jsonString = FileUtil.readFileAndTrim(MetadataConfiguration.FILENAME);
         JsonNode node = json(jsonString);
 
         // initialize config

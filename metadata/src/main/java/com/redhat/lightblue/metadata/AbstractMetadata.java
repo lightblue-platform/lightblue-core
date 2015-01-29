@@ -23,6 +23,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
+import com.redhat.lightblue.metadata.constraints.MatchesConstraint;
+import com.redhat.lightblue.metadata.constraints.MinMaxConstraint;
+import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.util.Path;
 
 import java.util.*;
@@ -135,17 +139,25 @@ public abstract class AbstractMetadata implements Metadata {
     @Override
     public JsonNode getJSONSchema(String entityName, String version) {
         ObjectNode jsonNode = new ObjectNode(JsonNodeFactory.instance);
-        ObjectNode properties = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode propertiesNode = new ObjectNode(JsonNodeFactory.instance);
+        //The comments can be useful if this feature change to look like the "schema"'s json-schema
+        //ObjectNode versionNode = new ObjectNode(JsonNodeFactory.instance);
+        //ObjectNode statusNode = new ObjectNode(JsonNodeFactory.instance);
         EntityMetadata entityMetadata = getEntityMetadata(entityName, version);
         FieldTreeNode fieldTreeRoot = entityMetadata.getEntitySchema().getFieldTreeRoot();
 
         jsonNode.set("$schema", TextNode.valueOf("http://json-schema.org/draft-04/schema#"));
         jsonNode.set("type", TextNode.valueOf("object"));
+        //jsonNode.set("name", TextNode.valueOf(entityMetadata.getEntitySchema().getName()));
         jsonNode.set("description", TextNode.valueOf(String.format("JSON schema for entity '%s' version '%s'", entityName, version)));
+        //versionNode.set("value", TextNode.valueOf(entityMetadata.getEntitySchema().getVersion().getValue()));
+        //versionNode.set("changelog", TextNode.valueOf(entityMetadata.getEntitySchema().getVersion().getChangelog()));
+        //jsonNode.set("version", versionNode);
+        //statusNode.set("value", TextNode.valueOf(entityMetadata.getEntitySchema().getStatus().name()));
+        //jsonNode.set("status", statusNode);
         if(fieldTreeRoot.hasChildren()) {
-            jsonNode.set("properties", properties);
-            buildJsonNodeSchema(properties, fieldTreeRoot);
-            properties.set("required", getRequiredFieldsArrayNode(entityMetadata));
+            jsonNode.set("properties", propertiesNode);
+            buildJsonNodeSchema(propertiesNode, fieldTreeRoot);
         }
 
         return jsonNode;
@@ -165,31 +177,53 @@ public abstract class AbstractMetadata implements Metadata {
         Iterator<? extends FieldTreeNode> children = fieldTreeRoot.getChildren();
         Stack<Iterator<? extends FieldTreeNode>> fieldsPending = new Stack<>();
         Stack<ObjectNode> jsonParents = new Stack<>();
+        Stack<ArrayNode> requiredJsonParents = new Stack<>();
+        ArrayNode requiredJsonNode = new ArrayNode(JsonNodeFactory.instance);
         do{
             FieldTreeNode fieldTreeChild = children.next();
             if (fieldTreeChild instanceof ObjectField) {
-                ObjectField of = (ObjectField) fieldTreeChild;
-                /////
                 fieldsPending.push(children);
                 jsonParents.push(jsonNode);
+                requiredJsonParents.push(requiredJsonNode);
+
+                ObjectField of = (ObjectField) fieldTreeChild;
                 ObjectNode child = new ObjectNode(JsonNodeFactory.instance);
                 jsonNode.set(of.getName(), child);
                 child.set("type",  TextNode.valueOf(of.getType().getName()));
 
+                ObjectNode prop = new ObjectNode(JsonNodeFactory.instance);
+                child.set("properties",  prop);
 
-                jsonNode = child;
+                ObjectNode constraintsNode = new ObjectNode(JsonNodeFactory.instance);
+                for (FieldConstraint fc : of.getConstraints()) {
+                    transformConstraintJsonNode(requiredJsonNode, of.getName(), child, constraintsNode, fc);
+                }
+                if(constraintsNode.size() > 0 ) {
+                    child.set("constraints", constraintsNode);
+                }
+
+                jsonParents.push(child);
+                jsonNode = prop;
                 children = of.getChildren();
+                requiredJsonNode = new ArrayNode(JsonNodeFactory.instance);
             }else if (fieldTreeChild instanceof SimpleField) {
                 SimpleField sf = (SimpleField) fieldTreeChild;
                 ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
-                json.set("type",  TextNode.valueOf(sf.getType().getName()));
+                String typeString = sf.getType().getName();
+                if("uid".equals(typeString)){
+                    typeString = "string";
+                }
+                json.set("type",  TextNode.valueOf(typeString));
                 Object description = sf.getProperties().get("description");
                 if(description != null) {
                     json.set("description", TextNode.valueOf(description.toString()));
                 }
-
+                ObjectNode constraintsNode = new ObjectNode(JsonNodeFactory.instance);
                 for (FieldConstraint fc : sf.getConstraints()) {
-                    json.set(fc.getType() , TextNode.valueOf(fc.getDescription()));
+                    transformConstraintJsonNode(requiredJsonNode, sf.getName(), json, constraintsNode, fc);
+                }
+                if(constraintsNode.size() > 0 ) {
+                    json.set("constraints", constraintsNode);
                 }
                 jsonNode.set(sf.getName(),json);
             }
@@ -198,6 +232,17 @@ public abstract class AbstractMetadata implements Metadata {
                     if(!fieldsPending.empty()){
                         children = fieldsPending.pop();
                         jsonNode = jsonParents.pop();
+                        if(requiredJsonNode.size() > 0){
+                            ArrayNode required = (ArrayNode)jsonNode.get("required");
+                            if(required != null){
+                                ArrayNode newNode = joinJsonNodes(requiredJsonNode, required);
+                                jsonNode.set("required", newNode);
+                            } else {
+                                jsonNode.set("required", requiredJsonNode);
+                            }
+                        }
+                        requiredJsonNode = requiredJsonParents.pop();
+                        jsonNode = jsonParents.pop();
                     } else {
                         break;
                     }
@@ -205,6 +250,45 @@ public abstract class AbstractMetadata implements Metadata {
             } while(!children.hasNext());
 
         } while (children.hasNext());
+        if(requiredJsonNode.size() > 0){
+            ArrayNode required = (ArrayNode)jsonNode.get("required");
+            if(required != null){
+                ArrayNode newNode = joinJsonNodes(requiredJsonNode, required);
+                jsonNode.set("required", newNode);
+            } else {
+                jsonNode.set("required", requiredJsonNode);
+            }
+        }
+    }
 
+    private ArrayNode joinJsonNodes(ArrayNode requiredJsonNode, ArrayNode required) {
+        ArrayNode newNode = new ArrayNode(JsonNodeFactory.instance);
+        Iterator<JsonNode> iterator;
+        Set<String> names = new TreeSet<>();
+
+        iterator = requiredJsonNode.iterator();
+        while (iterator.hasNext()) {
+            JsonNode next =  iterator.next();
+            newNode.add(next);
+            names.add(next.asText());
+        }
+        iterator = required.iterator();
+        while (iterator.hasNext()) {
+            JsonNode next =  iterator.next();
+            if (!names.contains(next.asText())) {
+                newNode.add(next);
+            }
+        }
+        return newNode;
+    }
+
+    private void transformConstraintJsonNode(ArrayNode requiredJsonNode, String name, ObjectNode json, ObjectNode constraintsNode, FieldConstraint fc) {
+        if (fc instanceof IdentityConstraint || fc instanceof RequiredConstraint) {
+            requiredJsonNode.add(name);
+        } else if (fc instanceof MatchesConstraint) {
+            json.set("pattern" , TextNode.valueOf(fc.getDescription()));
+        } else {
+            constraintsNode.set(fc.getType() , TextNode.valueOf(fc.getDescription()));
+        }
     }
 }

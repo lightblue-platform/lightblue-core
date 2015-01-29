@@ -40,7 +40,7 @@ public class CrudValidationTest {
         // Emulate configuration
         lbf.getJsonTranslator().setValidation(Request.class,false);
         
-        String jsonString = FileUtil.readFile("valid-deletion-req.json");
+        String jsonString = FileUtil.readFileAndTrim("valid-deletion-req.json");
         JsonNode node = json(jsonString);
         DeleteRequest req=lbf.getJsonTranslator().parse(DeleteRequest.class,node);
         Assert.assertNotNull(req);
@@ -54,7 +54,7 @@ public class CrudValidationTest {
         // Emulate configuration
         lbf.getJsonTranslator().setValidation(Request.class,false);
         
-        String jsonString = FileUtil.readFile("invalid-deletion-req.json");
+        String jsonString = FileUtil.readFileAndTrim("invalid-deletion-req.json");
         JsonNode node = json(jsonString);
         DeleteRequest req=lbf.getJsonTranslator().parse(DeleteRequest.class,node);
         Assert.assertNotNull(req);
@@ -68,7 +68,7 @@ public class CrudValidationTest {
         // Emulate configuration
         lbf.getJsonTranslator().setValidation(Request.class,true);
         
-        String jsonString = FileUtil.readFile("valid-deletion-req.json");
+        String jsonString = FileUtil.readFileAndTrim("valid-deletion-req.json");
         JsonNode node = json(jsonString);
         DeleteRequest req=lbf.getJsonTranslator().parse(DeleteRequest.class,node);
         Assert.assertNotNull(req);
@@ -82,7 +82,7 @@ public class CrudValidationTest {
         // Emulate configuration
         lbf.getJsonTranslator().setValidation(Request.class,true);
         
-        String jsonString = FileUtil.readFile("invalid-deletion-req.json");
+        String jsonString = FileUtil.readFileAndTrim("invalid-deletion-req.json");
         JsonNode node = json(jsonString);
         try {
             lbf.getJsonTranslator().parse(DeleteRequest.class,node);

@@ -81,7 +81,7 @@ public class FakeMetadataTest {
 
         JsonNode jsonSchema = metadata.getJSONSchema(entityName, version1);
         String actual = jsonSchema.toString();
-        String expected = FileUtil.readFile("testGetJSONSchemaNoFieldsExpected.json");
+        String expected = FileUtil.readFileAndTrim("testGetJSONSchemaNoFieldsExpected.json");
         expected = expected.replace("descX","JSON schema for entity 'fake' version '1.0.0'");
         JsonSchema schema = JsonUtils.loadSchema("metadata/schema.json");
         String report = JsonUtils.jsonSchemaValidation(schema, jsonSchema);
@@ -131,17 +131,15 @@ public class FakeMetadataTest {
         String actual = jsonSchema.toString();
         String path = "testGetJSONSchemaWithFieldsExpected.json";
         String expected = FileUtil.readFile(path);
-        expected = expected.replace("descX", "JSON schema for entity 'user' version '1.0.0'");
-        expected = expected.replace("notReqField", "Field not required constraint");
-        expected = expected.replace("reqField", "Field required constraint");
-        expected = expected.replace("matchPhone", "^\\\\d{3}\\\\-\\\\d{4}\\\\ \\\\d{4}$");
-        expected = expected.replace("idenX", "Field is part of identity constraint");
         JsonSchema schema = JsonUtils.loadSchema("metadata/schema.json");
         String report = JsonUtils.jsonSchemaValidation(schema, jsonSchema);
         if(report != null){
             Assert.fail("Expected validation to succeed! Resource: " + actual + " Messages: " + report.replaceAll("\n", " "));
         }
-
+        System.err.println("expected");
+        System.err.println(expected.toString());
+        System.err.println("actual");
+        System.err.println(actual.toString());
         JSONAssert.assertEquals(expected, actual, false);
     }
 
