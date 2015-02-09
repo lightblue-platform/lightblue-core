@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -27,53 +28,59 @@ import com.redhat.lightblue.util.Path;
  * <pre>
  * nary_relational_expression := { field: <field>,
  *                                 op: nary_comparison_operator,
- *                                 values: value_list_array }
- * </pre>
- * or
- * <pre>
- * nary_relational_expression := { field: <field>,
- *                                 op: nary_comparison_operator,
  *                                 rfield: array_field }
  * </pre>
  */
-public abstract class NaryRelationalExpression extends RelationalExpression {
+public class NaryFieldRelationalExpression extends NaryRelationalExpression {
 
-    private final Path field;
-    private final NaryRelationalOperator op;
+    private final Path rfield;
 
     /**
      * Ctor with the given values
      */
-    public NaryRelationalExpression(Path field,
-                                    NaryRelationalOperator op) {
-        this.field = field;
-        this.op = op;
+    public NaryFieldRelationalExpression(Path field,
+                                         NaryRelationalOperator op,
+                                         Path rfield) {
+        super(field,op);
+        this.rfield=rfield;
     }
 
     /**
-     * The field. If this is a nested query, the field is relative to the
-     * context
+     * Array field against which to compare the field
      */
-    public Path getField() {
-        return this.field;
+    public Path getRfield() {
+        return rfield;
     }
 
     /**
-     * The operator
+     * Returns a json representation of this query
      */
-    public NaryRelationalOperator getOp() {
-        return this.op;
+    @Override
+    public JsonNode toJson() {
+        return getFactory().objectNode().put("field", getField().toString()).
+            put("op", getOp().toString()).
+            put("rfield", rfield.toString());
     }
 
     /**
      * Parses an n-ary relational expression from the given json object
      */
-    public static NaryRelationalExpression fromJson(ObjectNode node) {
+    public static NaryFieldRelationalExpression fromJson(ObjectNode node) {
         if (node.size() == 3) {
-            if (node.get("rfield") != null) {
-                return NaryFieldRelationalExpression.fromJson(node);
-            } else if(node.get("values")!=null) {
-                return NaryValueRelationalExpression.fromJson(node);
+            JsonNode x = node.get("op");
+            if (x != null) {
+                NaryRelationalOperator op
+                        = NaryRelationalOperator.fromString(x.asText());
+                if (op != null) {
+                    x = node.get("field");
+                    if (x != null) {
+                        Path field = new Path(x.asText());
+                        x = node.get("rfield");
+                        if(x!=null) {
+                            return new NaryFieldRelationalExpression(field, op, new Path(x.asText()));
+                        }
+                    }
+                }
             }
         }
         throw Error.get(QueryConstants.ERR_INVALID_COMPARISON_EXPRESSION, node.toString());

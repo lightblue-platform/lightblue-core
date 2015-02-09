@@ -75,7 +75,16 @@ public abstract class QueryIterator extends QueryIteratorSkeleton<QueryExpressio
      * processing is needed. Return a new QueryExpression object if this clause
      * is to be modified.
      */
-    protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q, Path context) {
+    protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
+        return q;
+    }
+
+    /**
+     * Default behavior is to return <code>q</code>. Override the method if more
+     * processing is needed. Return a new QueryExpression object if this clause
+     * is to be modified.
+     */
+    protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
         return q;
     }
 

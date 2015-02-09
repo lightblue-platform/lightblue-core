@@ -29,7 +29,8 @@ public abstract class QueryIteratorSkeleton<T> {
     protected abstract T itrValueComparisonExpression(ValueComparisonExpression q, Path context);
     protected abstract T itrFieldComparisonExpression(FieldComparisonExpression q, Path context);
     protected abstract T itrRegexMatchExpression(RegexMatchExpression q, Path context);
-    protected abstract T itrNaryRelationalExpression(NaryRelationalExpression q, Path context);
+    protected abstract T itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context);
+    protected abstract T itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context);
     protected abstract T itrArrayContainsExpression(ArrayContainsExpression q, Path context);
     protected abstract T itrUnaryLogicalExpression(UnaryLogicalExpression q, Path context);
     protected abstract T itrNaryLogicalExpression(NaryLogicalExpression q, Path context);
@@ -47,8 +48,10 @@ public abstract class QueryIteratorSkeleton<T> {
             ret=itrFieldComparisonExpression((FieldComparisonExpression) q, context);
         } else if (q instanceof RegexMatchExpression) {
             ret=itrRegexMatchExpression((RegexMatchExpression) q, context);
-        } else if (q instanceof NaryRelationalExpression) {
-            ret=itrNaryRelationalExpression((NaryRelationalExpression) q, context);
+        } else if (q instanceof NaryValueRelationalExpression) {
+            ret=itrNaryValueRelationalExpression((NaryValueRelationalExpression) q, context);
+        } else if (q instanceof NaryFieldRelationalExpression) {
+            ret=itrNaryFieldRelationalExpression((NaryFieldRelationalExpression) q, context);
         } else if (q instanceof UnaryLogicalExpression) {
             ret=itrUnaryLogicalExpression((UnaryLogicalExpression) q, context);
         } else if (q instanceof NaryLogicalExpression) {

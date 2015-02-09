@@ -16,16 +16,29 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.assoc;
+package com.redhat.lightblue.query;
 
-public final class AssocConstants {
+import com.redhat.lightblue.util.Path;
 
-    public static final String ERR_CANNOT_CREATE_CHOOSER="assoc:CannotCreateQueryPlanChooser";
-    public static final String ERR_UNRELATED_ENTITY_Q="assoc:unsupported:QueryForUnrelatedEntities";
-    public static final String ERR_MORE_THAN_TWO_Q="assoc:unsupported:QueryForMoreThanTwoEntities";
-    public static final String ERR_REWRITE="assoc:QueryRewriteError";
-    public static final String ERR_ARRAY_EXPECTED="assoc:ArrayFieldExpected";
-    public static final String ERR_CANNOT_FIND_FIELD="assoc:NoField";
+/**
+ * This class keeps the list binding a field is bound to.
+ */
+public class ListBinding extends FieldBinding {
 
-    private AssocConstants() {}
+    private final BoundValueList list;
+
+    public ListBinding(Path field,
+                       BoundValueList list,
+                       QueryExpression originalQ,
+                       QueryExpression boundQ) {
+        super(field,originalQ,boundQ);
+        this.list=list;
+    }
+
+    /**
+     * Returns the bound value
+     */
+    public BoundValueList getList() {
+        return list;
+    }
 }

@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
@@ -55,16 +55,16 @@ public class QueryRewriterTest {
         List<Value> v=new ArrayList<>();
         for(String x:values)
             v.add(new Value(x));
-        return new NaryRelationalExpression(new Path(field),
-                                            NaryRelationalOperator._in,v);
+        return new NaryValueRelationalExpression(new Path(field),
+                                                 NaryRelationalOperator._in,v);
     }
 
     private QueryExpression ninq(String field,String...values) {
         List<Value> v=new ArrayList<>();
         for(String x:values)
             v.add(new Value(x));
-        return new NaryRelationalExpression(new Path(field),
-                                            NaryRelationalOperator._not_in,v);
+        return new NaryValueRelationalExpression(new Path(field),
+                                                 NaryRelationalOperator._not_in,v);
     }
 
     private QueryExpression vcmp(String field,String op,String value) {
@@ -286,8 +286,8 @@ public class QueryRewriterTest {
                 return equals((FieldComparisonExpression)q,(FieldComparisonExpression)w);
             } else if (q instanceof RegexMatchExpression) {
                 return equals((RegexMatchExpression)q,(RegexMatchExpression)w);
-            } else if (q instanceof NaryRelationalExpression) {
-                return equals((NaryRelationalExpression)q,(NaryRelationalExpression)w);
+            } else if (q instanceof NaryValueRelationalExpression) {
+                return equals((NaryValueRelationalExpression)q,(NaryValueRelationalExpression)w);
             } else if (q instanceof UnaryLogicalExpression) {
                 return equals((UnaryLogicalExpression)q,(UnaryLogicalExpression)w);
             } else if (q instanceof NaryLogicalExpression) {
@@ -328,8 +328,8 @@ public class QueryRewriterTest {
         return q.getOp()==w.getOp()&&
             equals(q.getQuery(),w.getQuery());
     }
-    private boolean equals(NaryRelationalExpression q,
-                           NaryRelationalExpression w) {
+    private boolean equals(NaryValueRelationalExpression q,
+                           NaryValueRelationalExpression w) {
         return q.getField().equals(w.getField())&&
             q.getOp()==w.getOp()&&
             q.getValues().containsAll(w.getValues())&&

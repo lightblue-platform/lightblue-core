@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import java.io.Serializable;
 
@@ -29,20 +30,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import com.redhat.lightblue.query.FieldBinding;
+import com.redhat.lightblue.query.ValueBinding;
+import com.redhat.lightblue.query.ListBinding;
 import com.redhat.lightblue.query.QueryInContext;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.FieldComparisonExpression;
+import com.redhat.lightblue.query.NaryFieldRelationalExpression;
 import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.Value;
 
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.ArrayField;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * This class represents a field binding interpreted based on the
@@ -61,7 +69,8 @@ import com.redhat.lightblue.util.Path;
  * information for <code>referencedField</code>, <code>type</code>
  * contains the type of <code>referencedField</code>, and valueField
  * contains <code>referencedField</code>, the field relative to the
- * entity it is contained in.
+ * entity it is contained in. If the binding is a list binding, then
+ * type keeps the type of the list element.
  */
 public class ResolvedFieldBinding implements Serializable {
 
@@ -106,8 +115,15 @@ public class ResolvedFieldBinding implements Serializable {
         this.binding=b;
         FieldTreeNode field=root.resolve(b.getField());
         if(field==null)
-            throw new IllegalArgumentException("Cannot resolve "+b.getField());
-        this.type=field.getType();
+            throw Error.get(AssocConstants.ERR_CANNOT_FIND_FIELD,b.getField().toString());
+        if(b instanceof ListBinding) {
+            if(field instanceof ArrayField) {
+                this.type=((ArrayField)field).getElement().getType();
+            } else
+                throw Error.get(AssocConstants.ERR_ARRAY_EXPECTED,b.getField().toString());
+        } else {
+            this.type=field.getType();
+        }
         this.entity=root.getEntityOfField(field);
         this.valueField=root.getEntityRelativeFieldName(field);
     }
@@ -149,32 +165,16 @@ public class ResolvedFieldBinding implements Serializable {
                 LOGGER.debug("Building bind request");
                 Set<Path> bindRequest=new HashSet<>();
                 for(QueryInContext qic:bindable) {
-                    // TODO do you really know the class for the query here?
-                    FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
-                    // Find the field that refers to a node before
-                    // the destination
-                    Path lfield=new Path(qic.getContext(),fce.getField());
-                    QueryPlanNode lfieldNode=null;
-                    for(Conjunct c:clauses) {
-                        lfieldNode=c.getFieldNode(lfield);
-                        if(lfieldNode!=null)
-                            break;
-                    }
-                    Path rfield=new Path(qic.getContext(),fce.getRfield());
-                    QueryPlanNode rfieldNode=null;
-                    for(Conjunct c:clauses) {
-                        rfieldNode=c.getFieldNode(rfield);
-                        if(rfieldNode!=null)
-                            break;
-                    }
-                    LOGGER.debug("lfield={}, rfield={}",lfieldNode==null?null:lfieldNode.getName(),
-                                 rfieldNode==null?null:rfieldNode.getName());
-                    // If lfieldNode points to the destination node,
-                    // rfieldNode points to an ancestor, or vice versa
-                    if(lfieldNode!=null&&lfieldNode.getName().equals(atNode.getName())) {
-                        bindRequest.add(rfield);
-                    } else {
-                        bindRequest.add(lfield);
+                    if(qic.getQuery() instanceof FieldComparisonExpression) {
+                        FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
+                        Path lfield=new Path(qic.getContext(),fce.getField());
+                        Path rfield=new Path(qic.getContext(),fce.getRfield());
+                        bindRequest.add(getFieldToBind(lfield,rfield,clauses,atNode));
+                    } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
+                        NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
+                        Path lfield=new Path(qic.getContext(),nfr.getField());
+                        Path rfield=new Path(qic.getContext(),nfr.getRfield());
+                        bindRequest.add(getFieldToBind(lfield,rfield,clauses,atNode));
                     }
                 }
                 
@@ -212,6 +212,38 @@ public class ResolvedFieldBinding implements Serializable {
         return ret;
     }
 
+    /**
+     * Returns the query plan node of the field. The query plan node is extracted from the clauses
+     */
+    private static QueryPlanNode getQueryPlanNodeOfField(Path field,List<Conjunct> clauses) {
+        for(Conjunct c:clauses) {
+            QueryPlanNode fieldNode=c.getFieldNode(field);
+            if(fieldNode!=null)
+                return fieldNode;
+        }
+        return null;
+    }
+
+    /**
+     * Returns the field to bind. One of the fields belong to the
+     * current query plan node (atNode), and the other one belongs to
+     * an ancestor of the current node, so we bind the field that
+     * belongs to an ancestor.
+     */
+    private static Path getFieldToBind(Path lfield,Path rfield,List<Conjunct> clauses,QueryPlanNode atNode) {
+        QueryPlanNode lfieldNode=getQueryPlanNodeOfField(lfield,clauses);
+        QueryPlanNode rfieldNode=getQueryPlanNodeOfField(rfield,clauses);
+        LOGGER.debug("lfield={}, rfield={}",lfieldNode==null?null:lfieldNode.getName(),
+                     rfieldNode==null?null:rfieldNode.getName());
+        // If lfieldNode points to the destination node,
+        // rfieldNode points to an ancestor, or vice versa
+        if(lfieldNode!=null&&lfieldNode.getName().equals(atNode.getName())) {
+            return rfield;
+        } else {
+            return lfield;
+        }
+    }
+
     public static void refresh(List<ResolvedFieldBinding> bindings,QueryPlanDoc doc) {
         for(ResolvedFieldBinding binding:bindings) {
             binding.refresh(doc);
@@ -224,10 +256,22 @@ public class ResolvedFieldBinding implements Serializable {
     public boolean refresh(QueryPlanDoc doc) {
         if(doc.getMetadata()==entity) {
             JsonNode valueNode=doc.getDoc().get(valueField);
-            if(valueNode==null)
-                binding.getValue().setValue(null);
-            else
-                binding.getValue().setValue(type.fromJson(valueNode));
+            if(binding instanceof ValueBinding) {
+                if(valueNode==null)
+                    ((ValueBinding)binding).getValue().setValue(null);
+                else
+                    ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
+            } else if(binding instanceof ListBinding) {
+                if(valueNode==null) 
+                    ((ListBinding)binding).getList().setList(new ArrayList());
+                else {
+                    List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
+                    for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
+                        l.add(new Value(type.fromJson(itr.next())));
+                    }
+                    ((ListBinding)binding).getList().setList(l);
+                }
+            }
             return true;
         } else {
             for(QueryPlanDoc parent: doc.getParents()) {

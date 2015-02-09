@@ -23,7 +23,8 @@ import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.UnaryLogicalOperator;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
+import com.redhat.lightblue.query.NaryFieldRelationalExpression;
 
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
@@ -53,10 +54,15 @@ public class EliminateNOT extends Rewriter {
 		if(fce!=null) {
 		    return new FieldComparisonExpression(fce.getField(),fce.getOp().negate(),fce.getRfield());
 		} else {
-		    NaryRelationalExpression nre=dyncast(NaryRelationalExpression.class,le.getQuery());
+		    NaryValueRelationalExpression nre=dyncast(NaryValueRelationalExpression.class,le.getQuery());
 		    if(nre!=null) {
-			return new NaryRelationalExpression(nre.getField(),nre.getOp().negate(),nre.getValues());
-		    }
+			return new NaryValueRelationalExpression(nre.getField(),nre.getOp().negate(),nre.getValues());
+		    } else {
+                        NaryFieldRelationalExpression nfe=dyncast(NaryFieldRelationalExpression.class,le.getQuery());
+                        if(nfe!=null) {
+                            return new NaryFieldRelationalExpression(nfe.getField(),nfe.getOp().negate(),nfe.getRfield());
+                        }
+                    }
 		}
 	    }
         }
