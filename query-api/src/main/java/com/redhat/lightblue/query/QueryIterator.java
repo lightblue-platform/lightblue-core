@@ -32,7 +32,7 @@ import com.redhat.lightblue.util.Path;
  * behavior recursively descends into the child nodes and creates new instances
  * of the query clauses if child nodes are different than the originals.
  */
-public abstract class QueryIterator {
+public abstract class QueryIterator extends QueryIteratorSkeleton<QueryExpression> {
 
     /**
      * Default behavior is to return <code>q</code>. Override the method if more
@@ -147,41 +147,5 @@ public abstract class QueryIterator {
         } else {
             return q;
         }
-    }
-
-    /**
-     * Recursively iterates the nodes of the query. The field names are
-     * interpreted relative to the given context
-     */
-    public QueryExpression iterate(QueryExpression q, Path context) {
-        if (q instanceof ValueComparisonExpression) {
-            return itrValueComparisonExpression((ValueComparisonExpression) q, context);
-        } else if (q instanceof FieldComparisonExpression) {
-            return itrFieldComparisonExpression((FieldComparisonExpression) q, context);
-        } else if (q instanceof RegexMatchExpression) {
-            return itrRegexMatchExpression((RegexMatchExpression) q, context);
-        } else if (q instanceof NaryValueRelationalExpression) {
-            return itrNaryValueRelationalExpression((NaryValueRelationalExpression) q, context);
-        } else if (q instanceof NaryFieldRelationalExpression) {
-            return itrNaryFieldRelationalExpression((NaryFieldRelationalExpression) q, context);
-        } else if (q instanceof UnaryLogicalExpression) {
-            return itrUnaryLogicalExpression((UnaryLogicalExpression) q, context);
-        } else if (q instanceof NaryLogicalExpression) {
-            return itrNaryLogicalExpression((NaryLogicalExpression) q, context);
-        } else if (q instanceof ArrayContainsExpression) {
-            return itrArrayContainsExpression((ArrayContainsExpression) q, context);
-        } else if (q instanceof ArrayMatchExpression) {
-            return itrArrayMatchExpression((ArrayMatchExpression) q, context);
-        } else if (q instanceof AllMatchExpression) {
-            return itrAllMatchExpression((AllMatchExpression) q, context);
-        }
-        return q;
-    }
-
-    /**
-     * Recursively iterates the nodes of the query.
-     */
-    public QueryExpression iterate(QueryExpression q) {
-        return iterate(q, Path.EMPTY);
     }
 }

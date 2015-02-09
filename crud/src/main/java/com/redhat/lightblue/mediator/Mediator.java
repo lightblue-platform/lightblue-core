@@ -18,46 +18,39 @@
  */
 package com.redhat.lightblue.mediator;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.redhat.lightblue.OperationStatus;
-import com.redhat.lightblue.Response;
 import com.redhat.lightblue.Request;
-
-import com.redhat.lightblue.interceptor.InterceptPoint;
-
-import com.redhat.lightblue.crud.DeleteRequest;
-import com.redhat.lightblue.crud.FindRequest;
-import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.crud.SaveRequest;
-import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.Response;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.ConstraintValidator;
-import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
-
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
+import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
+import com.redhat.lightblue.interceptor.InterceptPoint;
+import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.CompositeMetadata;
-
-import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
-
-import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.FieldInfo;
-
+import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
@@ -80,7 +73,7 @@ public class Mediator {
     private final Factory factory;
 
     public Mediator(Metadata md,
-                    Factory factory) {
+            Factory factory) {
         this.metadata = md;
         this.factory = factory;
     }
@@ -349,7 +342,15 @@ public class Mediator {
 
                 CRUDFindResponse result=finder.find(ctx,req.getCRUDFindRequest());
 
-                ctx.setStatus(OperationStatus.COMPLETE);
+                List<JsonDoc> foundDocuments = ctx.getOutputDocumentsWithoutErrors();
+                if (foundDocuments != null && foundDocuments.size() == ctx.getDocuments().size()) {
+                    ctx.setStatus(OperationStatus.COMPLETE);
+                } else if (foundDocuments != null && !foundDocuments.isEmpty()) {
+                    ctx.setStatus(OperationStatus.PARTIAL);
+                } else {
+                    ctx.setStatus(OperationStatus.ERROR);
+                }
+
                 response.setMatchCount(result.getSize());
                 List<DocCtx> documents = ctx.getDocuments();
                 if (documents != null) {
@@ -367,6 +368,7 @@ public class Mediator {
 
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
+            response.getDataErrors().addAll(ctx.getDataErrors());
             if (response.getStatus() != OperationStatus.ERROR) {
                 ctx.getHookManager().callQueuedHooks();
             }
