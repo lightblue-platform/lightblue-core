@@ -59,6 +59,8 @@ public abstract class QueryIteratorSkeleton<T> {
             ret=itrArrayMatchExpression((ArrayMatchExpression) q, context);
         } else if(q instanceof AllMatchExpression) {
             ret=itrAllMatchExpression((AllMatchExpression) q, context);
+        } else {
+            throw new IllegalArgumentException("Unrecognized query subclass:"+q.getClass().getName());
         }
         return ret;
     }
