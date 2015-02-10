@@ -3,6 +3,7 @@ package com.redhat.lightblue.util.statsd;
 import java.util.List;
 
 import com.netflix.servo.Metric;
+import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.publish.graphite.BasicGraphiteNamingConvention;
 import com.netflix.servo.publish.graphite.GraphiteNamingConvention;
@@ -13,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Metrics observer that sends hystrix data to statsd with the intent of then then
- * sending it to graphite.
+ * Metrics observer that sends hystrix data to statsd with the intent of then
+ * then sending it to graphite.
  *
  * @author nmalik, dcrissman
  */
@@ -44,24 +45,27 @@ public class StatsdMetricObserver extends BaseMetricObserver {
         // and the socket connects only once, so we cannot trust the socket to stay
         // open over a period of time.  If this is changed/fixed we could reuse the
         // client but until then it cannot be safely reused.
-        StatsDClient statsd = new NonBlockingStatsDClient(prefix, host, port, new ErrorHandler());
+        StatsDClient statsd = new NonBlockingStatsDClient(prefix, host, port, errorHandlerInstance);
         LOGGER.debug("sending data");
 
         for (Metric metric : metrics) {
             String aspect = namingConvention.getName(metric);
 
-            // TODO figure out how to determine if this is a guage vs counter
-            if (metric.hasNumberValue()) {
-                statsd.recordGaugeValue(aspect, metric.getNumberValue().longValue());
+            if (metric.getConfig().getTags().getTag(DataSourceType.COUNTER.getValue()) != null) {
+                statsd.count(aspect, metric.getNumberValue().longValue());
+            } else  if (metric.hasNumberValue()) {
+                statsd.gauge(aspect, metric.getNumberValue().longValue());
             } else {
-                statsd.recordSetEvent(aspect, metric.getValue().toString());
+                statsd.set(aspect, metric.getValue().toString());
             }
 
-            statsd.recordExecutionTime(aspect, metric.getTimestamp() / 1000);
+            statsd.time(aspect, metric.getTimestamp() / 1000);
         }
 
         statsd.stop();
     }
+
+    private static final ErrorHandler errorHandlerInstance = new ErrorHandler();
 
     private static class ErrorHandler implements StatsDClientErrorHandler {
         @Override

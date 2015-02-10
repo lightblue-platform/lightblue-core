@@ -110,12 +110,22 @@ public final class ServoGraphiteSetup {
             }
         }
 
-        if (port == null) {
-            port = "2004"; //default graphite port
-            LOGGER.debug("Using default port: " + port);
+        int iport = -1;
+        if (port != null && !port.isEmpty()) {
+            try {
+                iport = Integer.valueOf(port);
+            } catch (NumberFormatException e) {
+                iport = -1;
+                LOGGER.warn("Configured port is not an integer.  Falling back to default");
+            }
         }
 
-        String addr = host + ":" + port;
+        if (iport < 0) {
+            iport = 2004; //default graphite port
+            LOGGER.debug("Using default port: " + iport);
+        }
+
+        String addr = host + ":" + iport;
 
         LOGGER.debug("GraphiteMetricObserver prefix: " + prefix);
         LOGGER.debug("GraphiteMetricObserver address: " + addr);
@@ -146,11 +156,13 @@ public final class ServoGraphiteSetup {
         LOGGER.debug("STATSD_PORT environment variable is: " + port);
 
         int iport = -1;
-
-        try {
-            iport = Integer.valueOf(port);
-        } catch (NumberFormatException e) {
-            iport = -1;
+        if (port != null && !port.isEmpty()) {
+            try {
+                iport = Integer.valueOf(port);
+            } catch (NumberFormatException e) {
+                iport = -1;
+                LOGGER.warn("Configured port is not an integer.  Falling back to default");
+            }
         }
 
         if (iport < 0) {
