@@ -63,10 +63,7 @@ public final class ServoGraphiteSetup {
     }
 
     public static void initialize() {
-        // Without GRAPHITE_HOSTNAME variable, graphite will not start
-        String env = System.getenv("GRAPHITE_HOSTNAME");
-        LOGGER.debug("GRAPHITE_HOSTNAME environment variable in initialize() is " + env);
-        if (!initialized && env != null && !env.trim().isEmpty()) {
+        if (!initialized) {
             doInitialize();
         }
     }
