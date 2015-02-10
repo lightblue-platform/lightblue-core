@@ -40,6 +40,13 @@ import java.util.concurrent.TimeUnit;
 public final class ServoGraphiteSetup {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServoGraphiteSetup.class);
 
+    public static final String ENV_GRAPHITE_PREFIX = "GRAPHITE_PREFIX";
+    public static final String ENV_GRAPHITE_HOSTNAME = "GRAPHITE_HOSTNAME";
+    public static final String ENV_GRAPHITE_PORT = "GRAPHITE_PORT";
+    public static final String ENV_STATSD_PREFIX = "STATSD_PREFIX";
+    public static final String ENV_STATSD_HOSTNAME = "STATSD_HOSTNAME";
+    public static final String ENV_STATSD_PORT = "STATSD_PORT";
+
     private static boolean initialized = false;
 
     private ServoGraphiteSetup() {
@@ -70,25 +77,25 @@ public final class ServoGraphiteSetup {
 
     /**
      * If there is sufficient configuration, register a Graphite observer to
-     * publish metrics. Requires at a minimum environment variable
-     * GRAPHITE_HOSTNAME. Optionally can set GRAPHITE_PREFIX as well as
-     * GRAPHITE_PORT. GRAPHITE_PREFIX defaults to the hostname and GRAPHITE_PORT
-     * defaults to '2004'.
+     * publish metrics. Requires at a minimum a host. Optionally can set prefix
+     * as well as port. The prefix defaults to the host and port defaults to
+     * '2004'.
+     *
+     * @param observers the list of observers to add any new observer to
+     * @param prefix the graphite prefix
+     * @param host the graphite host
+     * @param port the graphite port
      */
-    private static void registerGraphiteMetricObserver(List<MetricObserver> observers) {
-        String prefix = System.getenv("GRAPHITE_PREFIX");
-        String host = System.getenv("GRAPHITE_HOSTNAME");
-        String port = System.getenv("GRAPHITE_PORT");
-
+    protected static void registerGraphiteMetricObserver(List<MetricObserver> observers, String prefix, String host, String port) {
         // verify at least hostname is set, else cannot configure this observer
         if (null == host || host.trim().isEmpty()) {
-            LOGGER.info("GraphiteMetricObserver not configured, missing environment variable: GRAPHITE_HOSTNAME");
+            LOGGER.info("GraphiteMetricObserver not configured, missing environment variable: {}", ENV_GRAPHITE_HOSTNAME);
             return;
         }
 
-        LOGGER.debug("GRAPHITE_PREFIX environment variable is: " + prefix);
-        LOGGER.debug("GRAPHITE_HOSTNAME environment variable is: " + host);
-        LOGGER.debug("GRAPHITE_PORT environment variable is: " + port);
+        LOGGER.debug("{} environment variable is: {}", ENV_GRAPHITE_PREFIX, prefix);
+        LOGGER.debug("{} environment variable is: {}", ENV_GRAPHITE_HOSTNAME, host);
+        LOGGER.debug("{} environment variable is: {}", ENV_GRAPHITE_PORT, port);
 
         if (prefix == null) {
             if (System.getenv("OPENSHIFT_APP_NAME") != null) {
@@ -132,25 +139,20 @@ public final class ServoGraphiteSetup {
 
     /**
      * If there is sufficient configuration, register a StatsD metric observer
-     * to publish metrics. Requires at a minimum environment variable
-     * STATSD_HOSTNAME. Optionally can set STATSD_PREFIX as well as STATDS_PORT.
-     * STATSD_PREFIX defaults to an empty string. STATSD_PORT defaults to
-     * '8125'.
+     * to publish metrics. Requires at a minimum a host. Optionally can set
+     * prefix as well as port. The prefix defaults to an empty string and port
+     * defaults to '8125'.
      */
-    private static void registerStatsdMetricObserver(List<MetricObserver> observers) {
-        String prefix = System.getenv("STATSD_PREFIX");
-        String host = System.getenv("STATSD_HOSTNAME");
-        String port = System.getenv("STATSD_PORT");
-
+    protected static void registerStatsdMetricObserver(List<MetricObserver> observers, String prefix, String host, String port) {
         // verify at least hostname is set, else cannot configure this observer
         if (null == host || host.trim().isEmpty()) {
-            LOGGER.info("StatdsMetricObserver not configured, missing environment variable: STATSD_HOSTNAME");
+            LOGGER.info("StatdsMetricObserver not configured, missing environment variable: {}", ENV_STATSD_HOSTNAME);
             return;
         }
 
-        LOGGER.debug("STATSD_PREFIX environment variable is: " + prefix);
-        LOGGER.debug("STATSD_HOSTNAME environment variable is: " + host);
-        LOGGER.debug("STATSD_PORT environment variable is: " + port);
+        LOGGER.debug("{} environment variable is: {}", ENV_STATSD_PREFIX, prefix);
+        LOGGER.debug("{} environment variable is: {}", ENV_STATSD_HOSTNAME, host);
+        LOGGER.debug("{} environment variable is: {}", ENV_STATSD_PORT, port);
 
         int iport = -1;
         if (port != null && !port.isEmpty()) {
@@ -187,8 +189,10 @@ public final class ServoGraphiteSetup {
 
         List<MetricObserver> observers = new ArrayList<>();
 
-        registerGraphiteMetricObserver(observers);
-        registerStatsdMetricObserver(observers);
+        registerGraphiteMetricObserver(observers, System.getenv(ENV_GRAPHITE_PREFIX),
+                System.getenv(ENV_GRAPHITE_HOSTNAME), System.getenv(ENV_GRAPHITE_PORT));
+        registerStatsdMetricObserver(observers, System.getenv(ENV_STATSD_PREFIX),
+                System.getenv(ENV_STATSD_HOSTNAME), System.getenv(ENV_STATSD_PORT));
 
         // start poll scheduler
         PollScheduler.getInstance().start();

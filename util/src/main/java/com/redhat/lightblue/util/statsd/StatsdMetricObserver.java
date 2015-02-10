@@ -38,6 +38,10 @@ public class StatsdMetricObserver extends BaseMetricObserver {
         this.port = port;
         this.namingConvention = namingConvention;
     }
+    
+    protected StatsDClient createClient() {
+        return new NonBlockingStatsDClient(prefix, host, port, errorHandlerInstance);
+    }
 
     @Override
     public void updateImpl(List<Metric> metrics) {
@@ -45,7 +49,7 @@ public class StatsdMetricObserver extends BaseMetricObserver {
         // and the socket connects only once, so we cannot trust the socket to stay
         // open over a period of time.  If this is changed/fixed we could reuse the
         // client but until then it cannot be safely reused.
-        StatsDClient statsd = new NonBlockingStatsDClient(prefix, host, port, errorHandlerInstance);
+        StatsDClient statsd = createClient();
         LOGGER.debug("sending data");
 
         for (Metric metric : metrics) {
