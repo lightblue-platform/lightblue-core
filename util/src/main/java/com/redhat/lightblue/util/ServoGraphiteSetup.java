@@ -22,20 +22,30 @@ import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.servo.publish.*;
 import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
+import com.redhat.lightblue.util.statsd.StatsdMetricObserver;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility class for publishing hystrix and jvm stats from servo to graphite. If
- * the app is running in OpenShift it will setup an appropriate metric prefix,
- * else defaults to the hostname of where the app is running.
+ * Utility class for publishing hystrix and jvm stats from servo to graphite
+ * statsd. If the app is running in OpenShift it will setup an appropriate
+ * metric prefix, else defaults to the hostname of where the app is running.
  *
  * @author nmalik
  */
 public final class ServoGraphiteSetup {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServoGraphiteSetup.class);
+
+    public static final String ENV_GRAPHITE_PREFIX = "GRAPHITE_PREFIX";
+    public static final String ENV_GRAPHITE_HOSTNAME = "GRAPHITE_HOSTNAME";
+    public static final String ENV_GRAPHITE_PORT = "GRAPHITE_PORT";
+    public static final String ENV_STATSD_PREFIX = "STATSD_PREFIX";
+    public static final String ENV_STATSD_HOSTNAME = "STATSD_HOSTNAME";
+    public static final String ENV_STATSD_PORT = "STATSD_PORT";
 
     private static boolean initialized = false;
 
@@ -43,7 +53,7 @@ public final class ServoGraphiteSetup {
     }
 
     public static void stop() {
-    	LOGGER.debug("stop() method called, initialized=" + initialized);
+        LOGGER.debug("stop() method called, initialized=" + initialized);
         if (initialized) {
             doStop();
         }
@@ -60,27 +70,33 @@ public final class ServoGraphiteSetup {
     }
 
     public static void initialize() {
-        // Without GRAPHITE_HOSTNAME variable, graphite will not start
-        String env = System.getenv("GRAPHITE_HOSTNAME");
-        LOGGER.debug("GRAPHITE_HOSTNAME environment variable in initialize() is " + env);
-        if (!initialized && env != null && !env.trim().isEmpty()) {
+        if (!initialized) {
             doInitialize();
         }
     }
 
-    private static synchronized void doInitialize() {
-        if (initialized) {
+    /**
+     * If there is sufficient configuration, register a Graphite observer to
+     * publish metrics. Requires at a minimum a host. Optionally can set prefix
+     * as well as port. The prefix defaults to the host and port defaults to
+     * '2004'.
+     *
+     * @param observers the list of observers to add any new observer to
+     * @param prefix the graphite prefix
+     * @param host the graphite host
+     * @param port the graphite port
+     */
+    protected static void registerGraphiteMetricObserver(List<MetricObserver> observers, String prefix, String host, String port) {
+        // verify at least hostname is set, else cannot configure this observer
+        if (null == host || host.trim().isEmpty()) {
+            LOGGER.info("GraphiteMetricObserver not configured, missing environment variable: {}", ENV_GRAPHITE_HOSTNAME);
             return;
         }
 
-        // register hystrix servo metrics publisher
-        HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
-        // if IllegalStateException is thrown it means there is a hytrix command being used prior to this setup.
-        // SEE: https://github.com/lightblue-platform/lightblue-rest/issues/58
-        //      https://github.com/Netflix/Hystrix/issues/150
+        LOGGER.debug("{} environment variable is: {}", ENV_GRAPHITE_PREFIX, prefix);
+        LOGGER.debug("{} environment variable is: {}", ENV_GRAPHITE_HOSTNAME, host);
+        LOGGER.debug("{} environment variable is: {}", ENV_GRAPHITE_PORT, port);
 
-        String prefix = System.getenv("GRAPHITE_PREFIX");
-        LOGGER.debug("GRAPHITE_PREFIX environment variable in doInitialize() is " + prefix);
         if (prefix == null) {
             if (System.getenv("OPENSHIFT_APP_NAME") != null) {
                 // try to get name from openshift.  assume it's scaleable app.
@@ -98,31 +114,98 @@ public final class ServoGraphiteSetup {
             }
         }
 
-        String host = System.getenv("GRAPHITE_HOSTNAME");
-        LOGGER.debug("GRAPHITE_HOSTNAME environment variable in doInitialize() is " + host);
-        String port = System.getenv("GRAPHITE_PORT");
-        LOGGER.debug("GRAPHITE_PORT environment variable in doInitialize() is " + port);
-        if (port == null) {
-            port = "2004"; //default graphite port
+        int iport = -1;
+        if (port != null && !port.isEmpty()) {
+            try {
+                iport = Integer.valueOf(port);
+            } catch (NumberFormatException e) {
+                iport = -1;
+                LOGGER.warn("Configured port is not an integer.  Falling back to default");
+            }
+        }
+
+        if (iport < 0) {
+            iport = 2004; //default graphite port
+            LOGGER.debug("Using default port: " + iport);
+        }
+
+        String addr = host + ":" + iport;
+
+        LOGGER.debug("GraphiteMetricObserver prefix: " + prefix);
+        LOGGER.debug("GraphiteMetricObserver address: " + addr);
+
+        observers.add(new GraphiteMetricObserver(prefix, addr));
+    }
+
+    /**
+     * If there is sufficient configuration, register a StatsD metric observer
+     * to publish metrics. Requires at a minimum a host. Optionally can set
+     * prefix as well as port. The prefix defaults to an empty string and port
+     * defaults to '8125'.
+     */
+    protected static void registerStatsdMetricObserver(List<MetricObserver> observers, String prefix, String host, String port) {
+        // verify at least hostname is set, else cannot configure this observer
+        if (null == host || host.trim().isEmpty()) {
+            LOGGER.info("StatdsMetricObserver not configured, missing environment variable: {}", ENV_STATSD_HOSTNAME);
+            return;
+        }
+
+        LOGGER.debug("{} environment variable is: {}", ENV_STATSD_PREFIX, prefix);
+        LOGGER.debug("{} environment variable is: {}", ENV_STATSD_HOSTNAME, host);
+        LOGGER.debug("{} environment variable is: {}", ENV_STATSD_PORT, port);
+
+        int iport = -1;
+        if (port != null && !port.isEmpty()) {
+            try {
+                iport = Integer.valueOf(port);
+            } catch (NumberFormatException e) {
+                iport = -1;
+                LOGGER.warn("Configured port is not an integer.  Falling back to default");
+            }
+        }
+
+        if (iport < 0) {
+            iport = 8125; //default statsd port
             LOGGER.debug("Using default port: " + port);
         }
 
-        String addr = host + ":" + port;
-        MetricObserver observer = new GraphiteMetricObserver(prefix, addr);
+        LOGGER.debug("StatsdMetricObserver prefix: " + prefix);
+        LOGGER.debug("StatsdMetricObserver host: " + host);
+        LOGGER.debug("StatsdMetricObserver port: " + iport);
+
+        observers.add(new StatsdMetricObserver(prefix, host, iport));
+    }
+
+    private static synchronized void doInitialize() {
+        if (initialized) {
+            return;
+        }
+
+        // register hystrix servo metrics publisher, required for collecting hystrix metrics
+        HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
+        // if IllegalStateException is thrown it means there is a hytrix command being used prior to this setup.
+        // SEE: https://github.com/lightblue-platform/lightblue-rest/issues/58
+        //      https://github.com/Netflix/Hystrix/issues/150
+
+        List<MetricObserver> observers = new ArrayList<>();
+
+        registerGraphiteMetricObserver(observers, System.getenv(ENV_GRAPHITE_PREFIX),
+                System.getenv(ENV_GRAPHITE_HOSTNAME), System.getenv(ENV_GRAPHITE_PORT));
+        registerStatsdMetricObserver(observers, System.getenv(ENV_STATSD_PREFIX),
+                System.getenv(ENV_STATSD_HOSTNAME), System.getenv(ENV_STATSD_PORT));
 
         // start poll scheduler
         PollScheduler.getInstance().start();
 
         // create and register registery poller
-        PollRunnable registeryTask = new PollRunnable(new MonitorRegistryMetricPoller(), BasicMetricFilter.MATCH_ALL, observer);
+        PollRunnable registeryTask = new PollRunnable(new MonitorRegistryMetricPoller(), BasicMetricFilter.MATCH_ALL, observers);
         PollScheduler.getInstance().addPoller(registeryTask, 5, TimeUnit.SECONDS);
 
         // create and register jvm poller
-        PollRunnable jvmTask = new PollRunnable(new JvmMetricPoller(), BasicMetricFilter.MATCH_ALL, observer);
+        PollRunnable jvmTask = new PollRunnable(new JvmMetricPoller(), BasicMetricFilter.MATCH_ALL, observers);
         PollScheduler.getInstance().addPoller(jvmTask, 5, TimeUnit.SECONDS);
 
         initialized = true;
         LOGGER.debug("doInitialize() completed, initialized = " + initialized);
     }
-
 }
