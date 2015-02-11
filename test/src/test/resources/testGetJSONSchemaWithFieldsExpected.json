@@ -3,6 +3,12 @@
   "type":"object",
   "description":"JSON schema for entity 'user' version '1.0.0'",
   "properties":{
+    "enumTest": {
+      "type":"string",
+      "constraints": {
+        "enum": "site_type_enum"
+      }
+    },
     "personalInfo":{
       "type":"object",
       "properties":{  },

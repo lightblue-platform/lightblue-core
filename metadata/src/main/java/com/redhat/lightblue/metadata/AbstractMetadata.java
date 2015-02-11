@@ -159,6 +159,43 @@ public abstract class AbstractMetadata implements Metadata {
             jsonNode.set("properties", propertiesNode);
             buildJsonNodeSchema(propertiesNode, fieldTreeRoot);
         }
+        // Probably it would be helpful to have enums defined into the schema
+        /*
+           "enums": [
+      {
+        "name": "site_type_enum",
+        "values": [
+          "billing",
+          "marketing",
+          "service",
+          "shipping"
+        ]
+      }
+    ],
+         */
+        Enums enums = entityMetadata.getEntityInfo().getEnums();
+        if(enums != null && !enums.isEmpty()) {
+            ArrayNode enumsNode = new ArrayNode(JsonNodeFactory.instance);
+            Set<String> keys = enums.getEnums().keySet();
+            for (String key : keys) {
+                Enum anEnum = enums.getEnum(key);
+                ObjectNode enumNode = new ObjectNode(JsonNodeFactory.instance);
+                ArrayNode valuesNode = new ArrayNode(JsonNodeFactory.instance);
+                enumNode.set("name", TextNode.valueOf(anEnum.getName()));
+                Iterator<String> iterator = anEnum.getValues().iterator();
+                while(iterator.hasNext()){
+                    String next = iterator.next();
+                    valuesNode.add(next);
+                }
+
+                enumNode.set("values", valuesNode);
+
+                enumsNode.add(enumNode);
+            }
+            jsonNode.set("enums", enumsNode);
+        }
+
+
 
         return jsonNode;
     }
