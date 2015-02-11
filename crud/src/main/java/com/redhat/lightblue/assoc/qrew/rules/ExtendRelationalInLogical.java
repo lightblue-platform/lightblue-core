@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.ValueComparisonExpression;
@@ -56,10 +56,10 @@ abstract class ExtendRelationalInLogical extends Rewriter {
             if(le.getOp()==logicalOp) {
                 // Get all in expressions in a list, keep a modified flag
                 boolean queryModified=false;
-                List<NaryRelationalExpression> newExp=new ArrayList<>();
+                List<NaryValueRelationalExpression> newExp=new ArrayList<>();
                 List<QueryExpression> removedExp=new ArrayList<>();
                 for(QueryExpression iq:le.getQueries()) {
-                    NaryRelationalExpression naryExp=dyncast(NaryRelationalExpression.class,iq);
+                    NaryValueRelationalExpression naryExp=dyncast(NaryValueRelationalExpression.class,iq);
                     if(naryExp!=null&&naryExp.getOp()==relationalOp) {
                         boolean expModified=false;
                         // See if there are any value expressions with the same field and operator
@@ -71,9 +71,9 @@ abstract class ExtendRelationalInLogical extends Rewriter {
                                     if(!removedExp.contains(vce)) {
                                         if(!expModified) {
                                             expModified=true;
-                                            naryExp=new NaryRelationalExpression(naryExp.getField(),
-                                                                               naryExp.getOp(),
-                                                                               new ArrayList<>(naryExp.getValues()));
+                                            naryExp=new NaryValueRelationalExpression(naryExp.getField(),
+                                                                                      naryExp.getOp(),
+                                                                                      new ArrayList<>(naryExp.getValues()));
                                         }
                                         boolean found=false;
                                         for(Value x:naryExp.getValues())

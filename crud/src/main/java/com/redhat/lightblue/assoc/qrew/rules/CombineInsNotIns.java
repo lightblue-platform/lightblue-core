@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.Value;
 
@@ -70,11 +70,11 @@ abstract class CombineInsNotIns extends Rewriter {
                 LOGGER.debug("Processing q={}",le);
                 // group in and not_in expressions
                 boolean needCombine=false;
-                Map<Path,List<NaryRelationalExpression>> map=new HashMap<>();
+                Map<Path,List<NaryValueRelationalExpression>> map=new HashMap<>();
                 for(QueryExpression x:le.getQueries()) {
-                    NaryRelationalExpression nre=dyncast(NaryRelationalExpression.class,x);
+                    NaryValueRelationalExpression nre=dyncast(NaryValueRelationalExpression.class,x);
                     if(nre!=null&&nre.getOp()==relationalOp) {
-                        List<NaryRelationalExpression> values=map.get(nre.getField());
+                        List<NaryValueRelationalExpression> values=map.get(nre.getField());
                         if(values==null)
                             map.put(nre.getField(),values=new ArrayList<>());
                         else 
@@ -86,23 +86,23 @@ abstract class CombineInsNotIns extends Rewriter {
                 if(needCombine) {
                     LOGGER.debug("Query expressions can be combined");
                     List<QueryExpression> newList=new ArrayList<>(le.getQueries().size());
-                    for(Map.Entry<Path,List<NaryRelationalExpression>> entry:map.entrySet()) {
+                    for(Map.Entry<Path,List<NaryValueRelationalExpression>> entry:map.entrySet()) {
                         if(entry.getValue().size()>1) {
                             // Combine expressions
                             Set<Value> valueList=new HashSet<>();
-                            for(NaryRelationalExpression x:entry.getValue())
+                            for(NaryValueRelationalExpression x:entry.getValue())
                                 valueList.addAll(x.getValues());
-                            newList.add(new NaryRelationalExpression(entry.getKey(),
-                                                                     relationalOp,
-                                                                     new ArrayList<>(valueList)));
+                            newList.add(new NaryValueRelationalExpression(entry.getKey(),
+                                                                          relationalOp,
+                                                                          new ArrayList<>(valueList)));
                         } else {
                             newList.addAll(entry.getValue());
                         }
                     }
                     // Add all the expressions that are not n-ary relational expressions
                     for(QueryExpression x:le.getQueries())
-                        if(x instanceof NaryRelationalExpression) {
-                            if( ((NaryRelationalExpression)x).getOp()!=relationalOp)
+                        if(x instanceof NaryValueRelationalExpression) {
+                            if( ((NaryValueRelationalExpression)x).getOp()!=relationalOp)
                                 newList.add(x);
                         } else
                             newList.add(x);

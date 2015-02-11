@@ -37,6 +37,31 @@ public class RelativeRewriteIteratorTest {
     }
 
     @Test
+    public void rewrite_regex() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','regex':'xyz'}"));
+        Assert.assertEquals("e.f.g", ((RegexMatchExpression) q).getField().toString());
+    }
+
+    @Test
+    public void rewrite_nary_value_relational() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'$in','values':[1,2,3,4,5]}"));
+        Assert.assertEquals("e.f.g", ((NaryValueRelationalExpression) q).getField().toString());
+    }
+
+    @Test
+    public void reqrite_nary_field_relational() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'$in','rfield':'a.b.c.e.x'}"));
+        Assert.assertEquals("e.f.g", ((NaryFieldRelationalExpression) q).getField().toString());
+        Assert.assertEquals("e.x", ((NaryFieldRelationalExpression) q).getRfield().toString());
+    }
+
+    @Test
+    public void reqrite_array_contains() throws Exception {
+        QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'array':'a.b.c.e.f.g','contains':'$any','values':[1,2,3]}"));
+        Assert.assertEquals("e.f.g", ((ArrayContainsExpression) q).getArray().toString());
+    }
+
+    @Test
     public void rewrite_field_comparison() throws Exception {
         QueryExpression q = new RelativeRewriteIterator(new Path("a.b.c")).iterate(getq("{'field':'a.b.c.e.f.g','op':'=','rfield':'a.b.c.x.y.z.w'}"));
         Assert.assertEquals("e.f.g", ((FieldComparisonExpression) q).getField().toString());

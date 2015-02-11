@@ -135,4 +135,99 @@ public class FieldComparisonEvaluatorTest extends AbstractJsonSchemaTest {
 
         Assert.assertFalse(ctx.getResult());
     }
+
+    @Test
+    public void can_compare_simple_arrays() throws Exception {
+        // No exception: success
+        QueryEvaluator.getInstance(EvalTestContext.
+                                   queryExpressionFromJson("{'field':'field6.nf5','op':'<','rfield':'field3'}"), md);
+        QueryEvaluator.getInstance(EvalTestContext.
+                                   queryExpressionFromJson("{'field':'field3','op':'<','rfield':'field6.nf5'}"), md);
+        QueryEvaluator.getInstance(EvalTestContext.
+                                   queryExpressionFromJson("{'field':'field6.nf9','op':'<','rfield':'field6.nf5'}"), md);
+    }
+
+    @Test
+    public void cant_compare_object_arrays() throws Exception {
+        try {
+            QueryEvaluator.getInstance(EvalTestContext.
+                                       queryExpressionFromJson("{'field':'field7','op':'<','rfield':'field3'}"), md);
+            Assert.fail();
+        } catch (Exception e) {}
+        try {
+            QueryEvaluator.getInstance(EvalTestContext.
+                                       queryExpressionFromJson("{'field':'field3','op':'<','rfield':'field7'}"), md);
+            Assert.fail();
+        } catch (Exception e) {}
+        try {
+            QueryEvaluator.getInstance(EvalTestContext.
+                                       queryExpressionFromJson("{'field':'field7','op':'<','rfield':'field8.nnf4'}"), md);
+            Assert.fail();
+        } catch (Exception e ){}
+    }
+
+    @Test
+    public void nf3_less_than_nf5() throws Exception {
+        QueryEvaluationContext ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf3','op':'<','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+    }
+
+    @Test
+    public void nf5_ne_nf9() throws Exception {
+        QueryEvaluationContext ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'=','rfield':'field6.nf9'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'<','rfield':'field6.nf9'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'<=','rfield':'field6.nf9'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'>','rfield':'field6.nf9'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'>=','rfield':'field6.nf9'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'!=','rfield':'field6.nf9'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+    }
+
+    @Test
+    public void nf5_e_nf5() throws Exception {
+        QueryEvaluationContext ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'=','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'<','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'<=','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'>','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'>=','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+        ctx=QueryEvaluator.
+            getInstance(EvalTestContext.queryExpressionFromJson("{'field':'field6.nf5','op':'!=','rfield':'field6.nf5'}"), md).
+            evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+    }
+ 
 }

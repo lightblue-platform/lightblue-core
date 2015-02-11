@@ -52,9 +52,15 @@ public class RelativeRewriteIterator extends QueryIterator {
     }
 
     @Override
-    protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q, Path context) {
-        return new NaryRelationalExpression(toRelative(q.getField(), context),
+    protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
+        return new NaryValueRelationalExpression(toRelative(q.getField(), context),
                 q.getOp(), q.getValues());
+    }
+
+    @Override
+    protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
+        return new NaryFieldRelationalExpression(toRelative(q.getField(), context),
+                                                 q.getOp(), toRelative(q.getRfield(),context));
     }
 
     @Override
