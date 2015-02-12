@@ -134,6 +134,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
             </dependency>
+            <dependency>
+                <groupId>com.timgroup</groupId>
+                <artifactId>java-statsd-client</artifactId>
+                <version>3.0.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>

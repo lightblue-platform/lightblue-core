@@ -31,7 +31,8 @@ import com.redhat.lightblue.query.UnaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.ArrayContainsExpression;
 import com.redhat.lightblue.query.ArrayMatchExpression;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryFieldRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
 
 public abstract class QueryEvaluator {
 
@@ -57,8 +58,10 @@ public abstract class QueryEvaluator {
             return new FieldComparisonEvaluator((FieldComparisonExpression) expr, context);
         } else if (expr instanceof RegexMatchExpression) {
             return new RegexEvaluator((RegexMatchExpression) expr, context);
-        } else if (expr instanceof NaryRelationalExpression) {
-            return new NaryRelationalExpressionEvaluator((NaryRelationalExpression) expr, context);
+        } else if (expr instanceof NaryValueRelationalExpression) {
+            return new NaryValueRelationalExpressionEvaluator((NaryValueRelationalExpression) expr, context);
+        } else if (expr instanceof NaryFieldRelationalExpression) {
+            return new NaryFieldRelationalExpressionEvaluator((NaryFieldRelationalExpression) expr, context);
         } else if (expr instanceof UnaryLogicalExpression) {
             return new UnaryLogicalExpressionEvaluator((UnaryLogicalExpression) expr, context);
         } else if (expr instanceof NaryLogicalExpression) {

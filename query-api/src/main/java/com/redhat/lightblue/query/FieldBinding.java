@@ -23,36 +23,35 @@ import com.redhat.lightblue.util.Path;
 import java.io.Serializable;
 
 /**
- * Keeps the information about a field binding. When a field is bound to a
+ * Base class for a bound value. The bound value cam be a primitive
+ * (BoundValue) or a list (BoundValueList). When a field is bound to a
  * value, that query clause is replaced with another one containing a
- * BoundValue. The FieldBinding for this instance keeps the field path, the
- * value it is bound to, the original query expression (originalQuery), and the
- * new query expression containing the bound value (boundQuery). For instance,
- * consider the following expression:
- * <pre>
- *   { "field":"field1","op":"=","rfield":"field2" }
- * </pre> When <code>field1</code> is bound to a value, the FieldBinding is:
- * <pre>
- *    field: field1
- *    originalQuery:  { "field":"field1","op":"=","rfield":"field2" }
- *    boundQuery: {"field":"field2","op":"=","rvalue":<value> }
- *    value: <value>
- * </pre>
+ * BoundValue or BoundValueList. The FieldBinding for this instance
+ * keeps the field path, the value it is bound to, the original query
+ * expression (originalQuery), and the new query expression containing
+ * the bound value (boundQuery). For instance, consider the following
+ * expression: 
+ *
+ * <pre> 
+ *  { "field":"field1","op":"=","rfield":"field2" }
+ * </pre> 
+ *
+ * When <code>field1</code> is bound to a value, the FieldBinding is:
+ * <pre> field: field1 originalQuery: {
+ * "field":"field1","op":"=","rfield":"field2" } boundQuery:
+ * {"field":"field2","op":"=","rvalue":<value> } value: <value> </pre>
  */
-public class FieldBinding implements Serializable {
+public abstract class FieldBinding implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Path field;
     private final QueryExpression originalQuery;
     private final QueryExpression boundQuery;
-    private final BoundValue value;
 
     public FieldBinding(Path field,
-                        BoundValue value,
                         QueryExpression originalQ,
                         QueryExpression boundQ) {
         this.field = field;
-        this.value = value;
         this.originalQuery = originalQ;
         this.boundQuery = boundQ;
     }
@@ -62,13 +61,6 @@ public class FieldBinding implements Serializable {
      */
     public Path getField() {
         return field;
-    }
-
-    /**
-     * Returns the bound value
-     */
-    public BoundValue getValue() {
-        return value;
     }
 
     /**
