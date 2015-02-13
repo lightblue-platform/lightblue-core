@@ -46,7 +46,7 @@ import com.redhat.lightblue.util.KeyValueCursor;
  * <ul>
  * <li>lfield op rfield : true if lfield op rfield</li>
  * <li>lfield op rarray: true if lfield op rarray[i] for all elements i</li>
- * <li>larray op rarray: true if larray[i] op rarray[i] for all elements i</li>
+ * <li>larray op rarray: true if larray[i] op rarray[i] for all elements i. for op other than $ne, array sizes must be equal</li>
  * </ul>
  *
  *
@@ -138,15 +138,13 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
                             Type type=((ArrayField)fieldMd).getElement().getType();
                             int ln=ldocList.size();
                             int rn=rdocList.size();
-                            int n=ln<rn?ln:rn;
                             int cmp=0;
-                            for(int i=0;i<n;i++) {
-                                cmp=apply(cmp,type.compare(ldocList.get(i),rdocList.get(i)));
-                            }
-                            if(ln>rn) {
-                                cmp|=0x01;
-                            } else if(ln<rn) {
-                                cmp|=0x03;
+                            if(ln==rn) {
+                                for(int i=0;i<ln;i++) {
+                                    cmp=apply(cmp,type.compare(ldocList.get(i),rdocList.get(i)));
+                                }
+                            } else {
+                                cmp=0x07; // $ne
                             }
                             LOGGER.debug("Comparing arrays {} {} {}={}",ldocList,operator,rdocList,cmp);
                             if(cmpOp(CMP_LOOKUP[cmp],operator)) {
