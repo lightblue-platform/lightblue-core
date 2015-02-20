@@ -24,6 +24,7 @@ public enum MetadataRoles {
     FIND_ENTITY_NAMES("metadata.find.entityNames"),
     FIND_ENTITY_VERSIONS("metadata.find.entityVersions"),
     FIND_ENTITY_METADATA("metadata.find.entityMetadata"),
+    FIND_JSON_SCHEMA("metadata.find.jsonschema"),
     INSERT("metadata.insert"),
     INSERT_SCHEMA("metadata.insert.schema"),
     UPDATE_ENTITYINFO("metadata.update.entityInfo"),
