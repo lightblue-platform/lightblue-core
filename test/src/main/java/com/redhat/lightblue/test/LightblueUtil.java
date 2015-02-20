@@ -18,11 +18,14 @@
  */
 package com.redhat.lightblue.test;
 
+import static com.redhat.lightblue.util.JsonUtils.json;
 import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.Request;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.JsonTranslator;
 import com.redhat.lightblue.config.LightblueFactory;
@@ -56,6 +59,20 @@ public final class LightblueUtil {
         }
 
         return lightblueFactory;
+    }
+
+    public static <T extends Request> T createRequest_FromResource(JsonTranslator tx, Class<T> type, String jsonFile)
+            throws IOException{
+        return createRequest(tx, type, loadJsonNode(jsonFile));
+    }
+
+    public static <T extends Request> T createRequest_FromJsonString(JsonTranslator tx, Class<T> type, String jsonString)
+            throws IOException{
+        return createRequest(tx, type, json(jsonString));
+    }
+
+    public static <T extends Request> T createRequest(JsonTranslator tx, Class<T> type, JsonNode node){
+        return tx.parse(type, node);
     }
 
     private LightblueUtil(){}
