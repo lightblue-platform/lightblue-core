@@ -18,52 +18,36 @@
  */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Represents a query of the form
  * <pre>
  * nary_relational_expression := { field: <field>,
- *                                op: nary_comparison_operator,
- *                                values: value_list_array }
+ *                                 op: nary_comparison_operator,
+ *                                 values: value_list_array }
+ * </pre>
+ * or
+ * <pre>
+ * nary_relational_expression := { field: <field>,
+ *                                 op: nary_comparison_operator,
+ *                                 rfield: array_field }
  * </pre>
  */
-public class NaryRelationalExpression extends RelationalExpression {
-    private static final long serialVersionUID = 1L;
+public abstract class NaryRelationalExpression extends RelationalExpression {
 
     private final Path field;
     private final NaryRelationalOperator op;
-    private final List<Value> values;
 
     /**
      * Ctor with the given values
      */
     public NaryRelationalExpression(Path field,
-                                    NaryRelationalOperator op,
-                                    List<Value> values) {
+                                    NaryRelationalOperator op) {
         this.field = field;
         this.op = op;
-        this.values = values;
-    }
-
-    /**
-     * Ctor with the given values
-     */
-    public NaryRelationalExpression(Path field,
-                                    NaryRelationalOperator op,
-                                    Value... values) {
-        this(field, op, new ArrayList<Value>(values.length));
-        for (Value x : values) {
-            this.values.add(x);
-        }
     }
 
     /**
@@ -82,50 +66,14 @@ public class NaryRelationalExpression extends RelationalExpression {
     }
 
     /**
-     * List of values against which to compare the field
-     */
-    public List<Value> getValues() {
-        return values;
-    }
-
-    /**
-     * Returns a json representation of this query
-     */
-    @Override
-    public JsonNode toJson() {
-        ArrayNode arr = getFactory().arrayNode();
-        for (Value x : values) {
-            arr.add(x.toJson());
-        }
-        return getFactory().objectNode().put("field", field.toString()).
-                put("op", op.toString()).
-                set("values", arr);
-    }
-
-    /**
      * Parses an n-ary relational expression from the given json object
      */
     public static NaryRelationalExpression fromJson(ObjectNode node) {
         if (node.size() == 3) {
-            JsonNode x = node.get("op");
-            if (x != null) {
-                NaryRelationalOperator op
-                        = NaryRelationalOperator.fromString(x.asText());
-                if (op != null) {
-                    x = node.get("field");
-                    if (x != null) {
-                        Path field = new Path(x.asText());
-                        x = node.get("values");
-                        if (x instanceof ArrayNode) {
-                            ArrayList<Value> values = new ArrayList<>(((ArrayNode) x).size());
-                            for (Iterator<JsonNode> itr = ((ArrayNode) x).elements();
-                                    itr.hasNext();) {
-                                values.add(Value.fromJson(itr.next()));
-                            }
-                            return new NaryRelationalExpression(field, op, values);
-                        }
-                    }
-                }
+            if (node.get("rfield") != null) {
+                return NaryFieldRelationalExpression.fromJson(node);
+            } else if(node.get("values")!=null) {
+                return NaryValueRelationalExpression.fromJson(node);
             }
         }
         throw Error.get(QueryConstants.ERR_INVALID_COMPARISON_EXPRESSION, node.toString());

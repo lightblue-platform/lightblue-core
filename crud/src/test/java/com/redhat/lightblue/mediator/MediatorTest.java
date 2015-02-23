@@ -33,9 +33,13 @@ import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.Value;
+import com.redhat.lightblue.query.ValueComparisonExpression;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -182,7 +186,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Response response = mediator.insert(req);
 
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
-        Assert.assertThat(response.getErrors().get(0).getMsg(), containsString(CrudConstants.ERR_DISABLED_METADATA + " test 1.0"));
+        Assert.assertEquals(CrudConstants.ERR_DISABLED_METADATA,response.getErrors().get(0).getErrorCode());
 
     }
 
@@ -305,6 +309,24 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0, response.getErrors().size());
     }
 
+
+    @Test
+    public void updateQueryFieldRoleTest() throws Exception {
+        UpdateRequest req = new UpdateRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setReturnFields(null);
+        req.setQuery(new ValueComparisonExpression(new Path("field1"),BinaryComparisonOperator._eq,new Value("x")));
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-update")));
+
+        mockCrudController.updateResponse = new CRUDUpdateResponse();
+        Response response = mediator.update(req);
+        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
+
+        req.setQuery(new ValueComparisonExpression(new Path("field2"),BinaryComparisonOperator._eq,new Value("x")));
+        response = mediator.update(req);
+        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
+    }
+
     @Test
     public void deleteRoleTest() throws Exception {
         DeleteRequest req = new DeleteRequest();
@@ -332,6 +354,23 @@ public class MediatorTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void deleteQueryFieldRoleTest() throws Exception {
+        DeleteRequest req = new DeleteRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setQuery(new ValueComparisonExpression(new Path("field1"),BinaryComparisonOperator._eq,new Value("x")));
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-delete")));
+
+        mockCrudController.deleteResponse = new CRUDDeleteResponse();
+        Response response = mediator.delete(req);
+        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
+
+        req.setQuery(new ValueComparisonExpression(new Path("field2"),BinaryComparisonOperator._eq,new Value("x")));
+        response = mediator.delete(req);
+        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
+    }
+
+
+    @Test
     public void findRoleTest() throws Exception {
         FindRequest req = new FindRequest();
         req.setEntityVersion(new EntityVersion("test", "1.0"));
@@ -356,6 +395,24 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
     }
+
+    @Test
+    public void findQueryFieldRoleTest() throws Exception {
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setQuery(new ValueComparisonExpression(new Path("field1"),BinaryComparisonOperator._eq,new Value("x")));
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
+
+        mockCrudController.findResponse = new CRUDFindResponse();
+        Response response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.ERROR,response.getStatus());
+
+        req.setQuery(new ValueComparisonExpression(new Path("field2"),BinaryComparisonOperator._eq,new Value("x")));
+        response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
+    }
+
+
 
     @Test
     public void uidTest() throws Exception {

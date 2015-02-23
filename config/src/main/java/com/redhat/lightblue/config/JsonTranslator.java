@@ -18,20 +18,18 @@
  */
 package com.redhat.lightblue.config;
 
-import java.util.Map;
-import java.util.HashMap;
-
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import com.github.fge.jsonschema.main.JsonSchema;
-
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * This class is used to translate json documents into POJO,
@@ -95,9 +93,15 @@ public class JsonTranslator {
         @Override
         public Object fromJson(JsonNode node) {
             try {
-                return method.invoke(null,node);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Cannot call method "+method);
+              return method.invoke(null,node);
+            } catch (InvocationTargetException e) {
+            	if (e.getCause() instanceof IllegalArgumentException) {
+            		throw (IllegalArgumentException) e.getCause();
+            	} else {
+            		throw new IllegalArgumentException(e);	
+            	}
+            } catch (IllegalAccessException e) {
+            	throw new IllegalArgumentException("Cannot call method: " + method, e);
             }
         }
     }

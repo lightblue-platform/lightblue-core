@@ -43,6 +43,8 @@ public class QueryParseTest {
     final String naryQuery1 = "{\"field\":\"x.y\", \"op\":\"$in\", \"values\":[1,2,3,4,5]}";
     final String naryQuery2 = "{\"field\":\"x.y.x\", \"op\":\"$nin\", \"values\":[\"x\",\"y\",\"z\"]}";
 
+    final String naryQuery3 = "{\"field\":\"x.y\", \"op\":\"$in\", \"rfield\":\"z\"}";
+
     final String regexQuery1 = "{\"field\":\"x.y\", \"regex\":\"*pat*\"}";
     final String regexQuery2 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"caseInsensitive\":true}";
     final String regexQuery3 = "{\"field\":\"x.y\", \"regex\":\"*pat*\",\"multiline\":true}";
@@ -52,8 +54,8 @@ public class QueryParseTest {
     final String unaryQuery1 = "{ \"$not\": " + valueQuery1 + "}";
     final String unaryQuery2 = "{ \"$not\": " + regexQuery1 + "}";
 
-    final String naryLogQueryAnd1 = "{ \"$and\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + unaryQuery1 + "]}";
-    final String naryLogQueryOr1 = "{ \"$or\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + unaryQuery1 + "]}";
+    final String naryLogQueryAnd1 = "{ \"$and\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + naryQuery3+","+unaryQuery1 + "]}";
+    final String naryLogQueryOr1 = "{ \"$or\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + naryQuery3+","+unaryQuery1 + "]}";
 
     final String arrContains1 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[1,2,3,4,5]}";
     final String arrContains2 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[\"x\", \"y\"]}";
@@ -84,8 +86,9 @@ public class QueryParseTest {
 
     @Test
     public void testNaryQueries() throws Exception {
-        testNaryRelationalExpression(naryQuery1, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
-        testNaryRelationalExpression(naryQuery2, "x.y.x", NaryRelationalOperator._not_in, "x", "y", "z");
+        testNaryValueRelationalExpression(naryQuery1, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
+        testNaryValueRelationalExpression(naryQuery2, "x.y.x", NaryRelationalOperator._not_in, "x", "y", "z");
+        testNaryFieldRelationalExpression(naryQuery3, "x.y", NaryRelationalOperator._in, "z");
     }
 
     @Test
@@ -126,7 +129,13 @@ public class QueryParseTest {
             new NestedTest() {
                 @Override
                 public void test(QueryExpression x) {
-                    asserts((NaryRelationalExpression) x, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
+                    asserts((NaryValueRelationalExpression) x, "x.y", NaryRelationalOperator._in, 1, 2, 3, 4, 5);
+                }
+            },
+            new NestedTest() {
+                @Override
+                public void test(QueryExpression x) {
+                    asserts((NaryFieldRelationalExpression) x, "x.y", NaryRelationalOperator._in, "z");
                 }
             },
             new NestedTest() {
@@ -296,24 +305,41 @@ public class QueryParseTest {
         Assert.assertEquals(rfield, x.getRfield().toString());
     }
 
-    private void testNaryRelationalExpression(String q,
-                                              String field,
-                                              NaryRelationalOperator op,
-                                              Object... value)
-            throws Exception {
+    private void testNaryValueRelationalExpression(String q,
+                                                   String field,
+                                                   NaryRelationalOperator op,
+                                                   Object... value)
+        throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
-        Assert.assertTrue(query instanceof NaryRelationalExpression);
-        asserts((NaryRelationalExpression) query, field, op, value);
+        Assert.assertTrue(query instanceof NaryValueRelationalExpression);
+        asserts((NaryValueRelationalExpression) query, field, op, value);
         JSONAssert.assertEquals(q, QueryExpression.fromJson(JsonUtils.json(q)).toString(), false);
     }
 
-    private static void asserts(NaryRelationalExpression x, String field, NaryRelationalOperator op, Object... value) {
+    private void testNaryFieldRelationalExpression(String q,
+                                                   String field,
+                                                   NaryRelationalOperator op,
+                                                   String rfield)
+        throws Exception {
+        QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
+        Assert.assertTrue(query instanceof NaryFieldRelationalExpression);
+        asserts((NaryFieldRelationalExpression) query, field, op, rfield);
+        JSONAssert.assertEquals(q, QueryExpression.fromJson(JsonUtils.json(q)).toString(), false);
+    }
+
+    private static void asserts(NaryValueRelationalExpression x, String field, NaryRelationalOperator op, Object... value) {
         Assert.assertEquals(field, x.getField().toString());
         Assert.assertEquals(op, x.getOp());
         Assert.assertEquals(value.length, x.getValues().size());
         for (int i = 0; i < value.length; i++) {
             Assert.assertEquals(value[i].getClass(), x.getValues().get(i).getValue().getClass());
         }
+    }
+
+    private static void asserts(NaryFieldRelationalExpression x, String field, NaryRelationalOperator op, String rfield) {
+        Assert.assertEquals(field, x.getField().toString());
+        Assert.assertEquals(op, x.getOp());
+        Assert.assertEquals(rfield,x.getRfield().toString());
     }
 
     private void testRegexQuery(String q,

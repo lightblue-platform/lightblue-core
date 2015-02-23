@@ -50,6 +50,11 @@ public abstract class QueryExpression extends JsonObject {
             list.add(new QueryInContext(ctx, q));
             return q;
         }
+        @Override
+        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
+            list.add(new QueryInContext(ctx,q));
+            return q;
+        }
     }
 
     private static final class GetQueryFieldsItr extends QueryIterator {
@@ -79,8 +84,15 @@ public abstract class QueryExpression extends JsonObject {
         }
 
         @Override
-        protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q, Path ctx) {
+        protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
             fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
+            return q;
+        }
+
+        @Override
+        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
+            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
+            fields.add(new FieldInfo(new Path(ctx, q.getRfield()), ctx, q));
             return q;
         }
 
@@ -130,8 +142,37 @@ public abstract class QueryExpression extends JsonObject {
         }
 
         @Override
-        protected QueryExpression itrNaryRelationalExpression(NaryRelationalExpression q, Path ctx) {
+        protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
             return checkError(q, q.getField(), ctx);
+        }
+
+        @Override
+        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
+            QueryExpression newq=q;
+            Path l = new Path(ctx, q.getField());
+            Path r = new Path(ctx, q.getRfield());
+            boolean bindl = bindRequest.contains(l);
+            boolean bindr = bindRequest.contains(r);
+            if (bindl && bindr) {
+                throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING, q.toString());
+            }
+            if (bindl || bindr) {
+                // If we're here, only one of the fields is bound
+                if (bindr) {    
+                    BoundValueList newValue = new BoundValueList();
+                    newq = new NaryValueRelationalExpression(q.getField(), q.getOp(), newValue);
+                    bindingResult.add(new ListBinding(r, newValue, q, newq));
+                } else {
+                    BoundValue newValue=new BoundValue();
+                    List<Value> list=new ArrayList<>(1);
+                    list.add(newValue);
+                    newq = new ArrayContainsExpression(q.getRfield(), q.getOp()==NaryRelationalOperator._in?
+                                                       ContainsOperator._all:ContainsOperator._none, 
+                                                       list);
+                    bindingResult.add(new ValueBinding(l, newValue, q, newq));
+                }                
+            }
+            return newq; 
         }
 
         @Override
@@ -142,6 +183,7 @@ public abstract class QueryExpression extends JsonObject {
 
         @Override
         protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
+            QueryExpression newq=q;
             Path l = new Path(ctx, q.getField());
             Path r = new Path(ctx, q.getRfield());
             boolean bindl = bindRequest.contains(l);
@@ -149,25 +191,17 @@ public abstract class QueryExpression extends JsonObject {
             if (bindl && bindr) {
                 throw Error.get(QueryConstants.ERR_INVALID_VALUE_BINDING, q.toString());
             }
-            if (!bindl && !bindr) {
-                return q;
+            if (bindl || bindr) {
+                // If we're here, only one of the fields is bound
+                BoundValue newValue = new BoundValue();
+                if (bindr) {
+                    newq = new ValueComparisonExpression(q.getField(), q.getOp(), newValue);
+                    bindingResult.add(new ValueBinding(r, newValue, q, newq));
+                } else {
+                    newq = new ValueComparisonExpression(q.getRfield(), q.getOp().invert(), newValue);
+                    bindingResult.add(new ValueBinding(l, newValue, q, newq));
+                }
             }
-            // If we're here, only one of the fields is bound
-            Path newf;
-            Path boundf;
-            BinaryComparisonOperator newop;
-            BoundValue newValue = new BoundValue();
-            if (bindr) {
-                newf = q.getField();
-                newop = q.getOp();
-                boundf = r;
-            } else {
-                newf = q.getRfield();
-                newop = q.getOp().invert();
-                boundf = l;
-            }
-            QueryExpression newq = new ValueComparisonExpression(newf, newop, newValue);
-            bindingResult.add(new FieldBinding(boundf, newValue, q, newq));
             return newq;
         }
 
@@ -200,6 +234,12 @@ public abstract class QueryExpression extends JsonObject {
 
     /**
      * Returns the query expressions that can be bound to a value
+     *
+     * These clauses are bindable:
+     * <ul>
+     * <li>FieldComparisonExpression</li>
+     * <li>NaryFieldRelationalExpression</li>
+     * </ul>
      */
     public List<QueryInContext> getBindableClauses() {
         List<QueryInContext> list = new ArrayList<>();
@@ -330,7 +370,7 @@ public abstract class QueryExpression extends JsonObject {
     }
 
     private static boolean isFieldQueried(Path field, UnaryLogicalExpression q, Path context) {
-        return q.isRequired(field, context);
+        return q.getQuery().isRequired(field, context);
     }
 
     private static boolean isFieldQueried(Path field, NaryLogicalExpression q, Path context) {

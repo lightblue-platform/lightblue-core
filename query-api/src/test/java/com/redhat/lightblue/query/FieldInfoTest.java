@@ -38,6 +38,18 @@ public class FieldInfoTest {
     }
 
     @Test
+    public void test_nary_value_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'field':'x','op':'$in','values':[1,2,3]}").getQueryFields();
+        check(fields, "x", "");
+    }
+
+    @Test
+    public void test_nary_field_comparison() throws Exception {
+        List<FieldInfo> fields = getq("{'field':'x','op':'$in','rfield':'y'}").getQueryFields();
+        check(fields, "x", "","y","");
+    }
+
+    @Test
     public void test_not_value_comparison() throws Exception {
         List<FieldInfo> fields = getq("{'$not':{'field':'x','op':'=','rvalue':'value'}}").getQueryFields();
         check(fields, "x", "");

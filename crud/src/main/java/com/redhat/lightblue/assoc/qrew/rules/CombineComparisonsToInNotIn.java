@@ -28,7 +28,7 @@ import java.util.HashMap;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.NaryRelationalExpression;
+import com.redhat.lightblue.query.NaryValueRelationalExpression;
 import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.ValueComparisonExpression;
@@ -51,8 +51,8 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
     private final NaryRelationalOperator relationalOp;
 
     protected CombineComparisonsToInNotIn(NaryLogicalOperator logicalOp,
-                                      BinaryComparisonOperator binaryOp,
-                                      NaryRelationalOperator relationalOp) {
+                                          BinaryComparisonOperator binaryOp,
+                                          NaryRelationalOperator relationalOp) {
         this.logicalOp=logicalOp;
         this.binaryOp=binaryOp;
         this.relationalOp=relationalOp;
@@ -88,8 +88,8 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
                             Set<Value> valueList=new HashSet<>();
                             for(ValueComparisonExpression x:entry.getValue())
                                 valueList.add(x.getRvalue());
-                            newList.add(new NaryRelationalExpression(entry.getKey(),relationalOp,
-                                                                     new ArrayList<>(valueList)));
+                            newList.add(new NaryValueRelationalExpression(entry.getKey(),relationalOp,
+                                                                          new ArrayList<>(valueList)));
                         } else {
                             newList.addAll(entry.getValue());
                         }

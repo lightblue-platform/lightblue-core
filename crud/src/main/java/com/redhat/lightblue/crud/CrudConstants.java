@@ -51,6 +51,7 @@ public final class CrudConstants {
     public static final String ERR_EXPECTED_VALUE = "crud:ValueExpected";
     public static final String ERR_EXPECTED_SIMPLE_ARRAY = "crud:SimpleArrayExpected";
     public static final String ERR_EXPECTED_ARRAY_FIELD = "crud:ArrayFieldExpected";
+    public static final String ERR_EXPECTED_SIMPLE_FIELD_OR_SIMPLE_ARRAY = "crud:SimpleFieldOrSimpleArrayExpected";
     public static final String ERR_EXPECTED_OBJECT_ARRAY = "crud:ExpectedObjectArray";
     public static final String ERR_EXPECTED_ARRAY = "crud:ExpectedArray";
     public static final String ERR_EXPECTED_ARRAY_ELEMENT = "crud:ExpectedArrayElement";
@@ -67,6 +68,7 @@ public final class CrudConstants {
     public static final String ERR_CANNOT_LOAD_METADATA = "crud:CannotLoadMetadata";
     public static final String ERR_DISABLED_METADATA = "crud:DisabledMetadataVersion";
     public static final String ERR_METADATA_APPEARS_TWICE = "crud:MetadataAppearsTwice";
+    public static final String ERR_UNKNOWN_ENTITY = "crud:UnknownEntity";
 
     private CrudConstants() {
 
