@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
-public enum MetadataRoles {
+public enum MetadataRole {
     FIND_DEPENDENCIES("metadata.find.dependencies"),
     FIND_ROLES("metadata.find.roles"),
     FIND_ENTITY_NAMES("metadata.find.entityNames"),
@@ -33,7 +33,7 @@ public enum MetadataRoles {
 
     private final String jsonRepresentation;
 
-    MetadataRoles(String jsonRepresentation) {
+    MetadataRole(String jsonRepresentation) {
         this.jsonRepresentation = jsonRepresentation;
     }
 
