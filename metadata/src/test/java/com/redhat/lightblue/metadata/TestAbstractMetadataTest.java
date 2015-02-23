@@ -108,7 +108,7 @@ public class TestAbstractMetadataTest {
             }
 
             @Override
-            public Map<MetadataRoles, List<String>> getMappedRoles() {
+            public Map<MetadataRole, List<String>> getMappedRoles() {
                 return null;
             }
         };
