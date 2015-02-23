@@ -30,6 +30,7 @@ import com.redhat.lightblue.util.Error;
 
 public class AssertTest {
 
+    @Test
     public void testAssertNoErrors_pass() throws MultipleFailureException{
         assertNoErrors(new Response(null));
     }
@@ -41,6 +42,7 @@ public class AssertTest {
         assertNoErrors(response);
     }
 
+    @Test
     public void testAssertNoDataErrors_pass() throws MultipleFailureException{
         assertNoDataErrors(new Response(null));
     }
