@@ -24,6 +24,8 @@ import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import org.junit.AfterClass;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
@@ -32,10 +34,31 @@ import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 
-public final class LightblueUtil {
+/**
+ * Testing harness for junit tests that need to stand an in-memory instance of lightblue.<br>
+ * <b>NOTE:</b> This does not use the rest layer.
+ *
+ * <p>
+ * Example Usage:<br>
+ * <code>
+ * Response response = lightblueFactory.getMediator().insert(
+ * createRequest_FromResource(InsertionRequest.class, "./path/to/insert/metadata.json"));
+ * </code></p>
+ *
+ * @author dcrissman
+ */
+public abstract class AbstractCRUDTestController {
+
+    protected static LightblueFactory lightblueFactory;
+
+    @AfterClass
+    public static void cleanup(){
+        lightblueFactory = null;
+    }
 
     /**
-     * Creates an instance of the {@link LightblueFactory}.
+     * Creates an instance of the {@link LightblueFactory}.<br>
+     * <b>Must be called from implementations in a static BeforeClass method</b>
      * @param datasourcesResourcePath - path to datasources.json
      * @param metadataResourcePaths - path to any and all *-metadata.json you'd like {@link LightblueFactory} to know about
      * @return an instance of {@link LightblueFactory}.
@@ -46,9 +69,9 @@ public final class LightblueUtil {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    public static LightblueFactory createLightblueFactory(String datasourcesResourcePath, String... metadataResourcePaths)
+    protected static LightblueFactory createLightblueFactory(String datasourcesResourcePath, String... metadataResourcePaths)
             throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException{
-        LightblueFactory lightblueFactory = new LightblueFactory(
+        lightblueFactory = new LightblueFactory(
                 new DataSourcesConfiguration(loadJsonNode(datasourcesResourcePath)));
 
         JsonTranslator tx = lightblueFactory.getJsonTranslator();
@@ -61,19 +84,39 @@ public final class LightblueUtil {
         return lightblueFactory;
     }
 
-    public static <T extends Request> T createRequest_FromResource(JsonTranslator tx, Class<T> type, String jsonFile)
+    /**
+     * Creates and returns a {@link Request} based on the passed in <code>jsonFile</code>.
+     * @param type - Request class to instantiate.
+     * @param jsonFile - File containing metadata json
+     * @return a {@link Request} based on the passed in <code>jsonFile</code>.
+     * @throws IOException
+     */
+    protected static <T extends Request> T createRequest_FromResource(Class<T> type, String jsonFile)
             throws IOException{
-        return createRequest(tx, type, loadJsonNode(jsonFile));
+        return createRequest(type, loadJsonNode(jsonFile));
     }
 
-    public static <T extends Request> T createRequest_FromJsonString(JsonTranslator tx, Class<T> type, String jsonString)
+    /**
+     * Creates and returns a {@link Request} based on the passed in <code>jsonString</code>.
+     * @param type - Request class to instantiate.
+     * @param jsonString - String of metadata json
+     * @return a {@link Request} based on the passed in <code>jsonString</code>.
+     * @throws IOException
+     */
+    protected static <T extends Request> T createRequest_FromJsonString(Class<T> type, String jsonString)
             throws IOException{
-        return createRequest(tx, type, json(jsonString));
+        return createRequest(type, json(jsonString));
     }
 
-    public static <T extends Request> T createRequest(JsonTranslator tx, Class<T> type, JsonNode node){
+    /**
+     * Creates and returns a {@link Request} based on the passed in {@link JsonNode}
+     * @param type - Request class to instantiate.
+     * @param node - {@link JsonNode} of actions metadata
+     * @return a {@link Request} based on the passed in {@link JsonNode}
+     */
+    protected static <T extends Request> T createRequest(Class<T> type, JsonNode node){
+        JsonTranslator tx = lightblueFactory.getJsonTranslator();
         return tx.parse(type, node);
     }
 
-    private LightblueUtil(){}
 }
