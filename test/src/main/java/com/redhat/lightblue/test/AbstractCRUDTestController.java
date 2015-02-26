@@ -35,11 +35,14 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 
 /**
- * Testing harness for junit tests that need to stand an in-memory instance of lightblue.<br>
+ * <p>Testing harness for junit tests that need to stand an in-memory instance of lightblue.
+ * The assumption is made that one {@link LightblueFactory} will be used per test suite.</p>
+ * <p>For initialization code that needs to be executed prior to the {@link #AbstractCRUDTestController()},
+ * use the {@literal}@BeforeClass annotation.
  * <b>NOTE:</b> This does not use the rest layer.
  *
  * <p>
- * Example Usage:<br>
+ * <b>Example Usage:</b><br>
  * <code>
  * Response response = lightblueFactory.getMediator().insert(
  * createRequest_FromResource(InsertionRequest.class, "./path/to/insert/metadata.json"));
@@ -57,8 +60,7 @@ public abstract class AbstractCRUDTestController {
     }
 
     /**
-     * Creates an instance of the {@link LightblueFactory}.<br>
-     * <b>Must be called from implementations in a static BeforeClass method</b>
+     * Creates an instance of the {@link LightblueFactory}.
      * @param datasourcesResourcePath - path to datasources.json
      * @param metadataResourcePaths - path to any and all *-metadata.json you'd like {@link LightblueFactory} to know about
      * @return an instance of {@link LightblueFactory}.
@@ -69,20 +71,40 @@ public abstract class AbstractCRUDTestController {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    protected static LightblueFactory createLightblueFactory(String datasourcesResourcePath, String... metadataResourcePaths)
+    public AbstractCRUDTestController()
             throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException{
         lightblueFactory = new LightblueFactory(
-                new DataSourcesConfiguration(loadJsonNode(datasourcesResourcePath)));
+                new DataSourcesConfiguration(getDatasourcesJson()));
 
         JsonTranslator tx = lightblueFactory.getJsonTranslator();
 
         Metadata metadata = lightblueFactory.getMetadata();
-        for(String metadataResourcePath : metadataResourcePaths){
-            metadata.createNewMetadata(tx.parse(EntityMetadata.class, loadJsonNode(metadataResourcePath)));
+        for(JsonNode metadataJson : getMetadataJsonNodes()){
+            metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
         }
-
-        return lightblueFactory;
     }
+
+    /**
+     * Creates and returns an instance of {@link JsonNode} that represents the relvant
+     * datasources.json. By default resource "./datasources.json" is used, override this method
+     * to use something else.
+     * @return {@link JsonNode} representing the datasources.json
+     */
+    protected JsonNode getDatasourcesJson() {
+        try {
+            return loadJsonNode("./datasources.json");
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Unable to load resource './datasources.json'", e);
+        }
+    }
+
+    /**
+     * Create and returns an array of {@link JsonNode}s from which to load the {@link LightblueFactory} with.
+     * These {@link EntityMetadata} instances will be available to all tests in the suite.
+     * @return an array of {@link JsonNode}s from which to load the {@link LightblueFactory} with.
+     */
+    protected abstract JsonNode[] getMetadataJsonNodes();
 
     /**
      * Creates and returns a {@link Request} based on the passed in <code>jsonFile</code>.
