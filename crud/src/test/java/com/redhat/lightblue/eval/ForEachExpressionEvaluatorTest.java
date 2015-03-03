@@ -48,6 +48,18 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void array_foreach_remove_using_any() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field8.*.nnf4' : { 'field':'elemf2','op':'=','rvalue':'elvalue1_2'} , '$update' : '$remove' } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(3, jsonDoc.get(new Path("field8.nf2.nnf4")).size());
+        Assert.assertEquals("elvalue2_2", jsonDoc.get(new Path("field8.nf2.nnf4.1.elemf2")).asText());
+        Assert.assertEquals(2, jsonDoc.get(new Path("field8")).size());
+    }
+
+
+    @Test
     public void array_foreach_removeone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : '$remove' } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);

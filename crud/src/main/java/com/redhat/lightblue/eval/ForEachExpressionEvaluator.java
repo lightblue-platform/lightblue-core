@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.redhat.lightblue.util.JsonNodeCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +50,11 @@ public class ForEachExpressionEvaluator extends Updater {
     private static final Logger LOGGER = LoggerFactory.getLogger(ForEachExpressionEvaluator.class);
 
     private final Path field;
-    private final ArrayField fieldMd;
-    private final QueryEvaluator queryEvaluator;
-    private final Updater updater;
+    private ArrayField fieldMd;
+    private QueryEvaluator queryEvaluator;
+    private Updater updater;
     private final JsonNodeFactory factory;
+    private int numAny = 0;
 
     /**
      * Inner class for $all
@@ -87,29 +89,33 @@ public class ForEachExpressionEvaluator extends Updater {
         this.factory = factory;
         // Resolve the field, make sure it is an array
         field = expr.getField();
-        FieldTreeNode md = context.resolve(field);
-        if (md instanceof ArrayField) {
-            fieldMd = (ArrayField) md;
+        if(field.nAnys() < 0 ) {
+
+            FieldTreeNode md = context.resolve(field);
+            if (md instanceof ArrayField) {
+                fieldMd = (ArrayField) md;
+            } else {
+                throw new EvaluationError(CrudConstants.ERR_FIELD_NOT_ARRAY + field);
+            }
         } else {
-            throw new EvaluationError(CrudConstants.ERR_FIELD_NOT_ARRAY + field);
-        }
-        if (field.nAnys() > 0) {
-            throw new EvaluationError(CrudConstants.ERR_PATTERN_NOT_EXPECTED + field);
+            numAny = field.nAnys();
         }
         // Get a query evaluator
         QueryExpression query = expr.getQuery();
         if (query instanceof AllMatchExpression) {
             queryEvaluator = new AllEvaluator();
-        } else {
+        } else if(numAny == 0) {
             queryEvaluator = QueryEvaluator.getInstance(query, fieldMd.getElement());
         }
 
-        // Get an updater to execute on each matching element
-        UpdateExpression upd = expr.getUpdate();
-        if (upd instanceof RemoveElementExpression) {
-            updater = new RemoveEvaluator(fieldMd.getElement().getFullPath());
-        } else {
-            updater = Updater.getInstance(factory, fieldMd.getElement(), upd);
+        if(numAny == 0) {
+            // Get an updater to execute on each matching element
+            UpdateExpression upd = expr.getUpdate();
+            if (upd instanceof RemoveElementExpression) {
+                updater = new RemoveEvaluator(fieldMd.getElement().getFullPath());
+            } else {
+                updater = Updater.getInstance(factory, fieldMd.getElement(), upd);
+            }
         }
     }
 
@@ -121,52 +127,67 @@ public class ForEachExpressionEvaluator extends Updater {
     @Override
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
-        // Get a reference to the array field, and iterate all elements in the array
-        ArrayNode arrayNode = (ArrayNode) doc.get(new Path(contextPath, field));
-        LOGGER.debug("Array node {}={}", field, arrayNode);
-        ArrayElement elementMd = fieldMd.getElement();
-        if (arrayNode != null) {
-            int index = 0;
-            MutablePath itrPath = new MutablePath(contextPath);
-            itrPath.push(field);
-            MutablePath arrSizePath = itrPath.copy();
-            arrSizePath.setLast(arrSizePath.getLast() + "#");
-            arrSizePath.rewriteIndexes(contextPath);
 
-            itrPath.push(index);
-            // Copy the nodes to a separate list, so we iterate on the
-            // new copy, and modify the original
-            ArrayList<JsonNode> nodes = new ArrayList<>();
-            for (Iterator<JsonNode> itr = arrayNode.elements(); itr.hasNext();) {
-                nodes.add(itr.next());
-            }
-            for (JsonNode elementNode : nodes) {
-                itrPath.setLast(index);
-                Path elementPath = itrPath.immutableCopy();
-                LOGGER.debug("itr:{}", elementPath);
-                QueryEvaluationContext ctx = new QueryEvaluationContext(elementNode, elementPath);
-                if (queryEvaluator.evaluate(ctx)) {
-                    LOGGER.debug("query matches {}", elementPath);
-                    LOGGER.debug("Calling updater {}", updater);
-                    if (updater.update(doc, elementMd, elementPath)) {
-                        LOGGER.debug("Updater {} returns {}", updater, true);
-                        ret = true;
-                        // Removal shifts nodes down
-                        if (updater instanceof RemoveEvaluator) {
-                            index--;
+        if(numAny > 0) {
+
+            JsonNodeCursor cursor = doc.cursor(field);
+            // cursor.
+            // cursor.next()
+            // cursor.getCurrentNode()
+            // cursor.getCurrentPath().toString()
+            // cursor.getCurrentNode().asText()
+
+
+            return ret;
+        } else {
+
+            // Get a reference to the array field, and iterate all elements in the array
+            ArrayNode arrayNode = (ArrayNode) doc.get(new Path(contextPath, field));
+            LOGGER.debug("Array node {}={}", field, arrayNode);
+            ArrayElement elementMd = fieldMd.getElement();
+            if (arrayNode != null) {
+                int index = 0;
+                MutablePath itrPath = new MutablePath(contextPath);
+                itrPath.push(field);
+                MutablePath arrSizePath = itrPath.copy();
+                arrSizePath.setLast(arrSizePath.getLast() + "#");
+                arrSizePath.rewriteIndexes(contextPath);
+
+                itrPath.push(index);
+                // Copy the nodes to a separate list, so we iterate on the
+                // new copy, and modify the original
+                ArrayList<JsonNode> nodes = new ArrayList<>();
+                for (Iterator<JsonNode> itr = arrayNode.elements(); itr.hasNext(); ) {
+                    nodes.add(itr.next());
+                }
+                for (JsonNode elementNode : nodes) {
+                    itrPath.setLast(index);
+                    Path elementPath = itrPath.immutableCopy();
+                    LOGGER.debug("itr:{}", elementPath);
+                    QueryEvaluationContext ctx = new QueryEvaluationContext(elementNode, elementPath);
+                    if (queryEvaluator.evaluate(ctx)) {
+                        LOGGER.debug("query matches {}", elementPath);
+                        LOGGER.debug("Calling updater {}", updater);
+                        if (updater.update(doc, elementMd, elementPath)) {
+                            LOGGER.debug("Updater {} returns {}", updater, true);
+                            ret = true;
+                            // Removal shifts nodes down
+                            if (updater instanceof RemoveEvaluator) {
+                                index--;
+                            }
+                        } else {
+                            LOGGER.debug("Updater {} return false", updater);
                         }
                     } else {
-                        LOGGER.debug("Updater {} return false", updater);
+                        LOGGER.debug("query does not match {}", elementPath);
                     }
-                } else {
-                    LOGGER.debug("query does not match {}", elementPath);
+                    index++;
                 }
-                index++;
+                if (ret) {
+                    doc.modify(arrSizePath, factory.numberNode(arrayNode.size()), false);
+                }
             }
-            if (ret) {
-                doc.modify(arrSizePath, factory.numberNode(arrayNode.size()), false);
-            }
+            return ret;
         }
-        return ret;
     }
 }
