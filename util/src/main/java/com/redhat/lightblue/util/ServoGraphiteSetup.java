@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.util;
 
+import com.netflix.hystrix.Hystrix;
 import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.servo.publish.*;
@@ -180,6 +181,10 @@ public final class ServoGraphiteSetup {
         if (initialized) {
             return;
         }
+
+        // Fix Java 7 problem that initialized Hystrix/Servo before the it has been even called
+        Hystrix.reset();
+        HystrixPlugins.reset();
 
         // register hystrix servo metrics publisher, required for collecting hystrix metrics
         HystrixPlugins.getInstance().registerMetricsPublisher(HystrixServoMetricsPublisher.getInstance());
