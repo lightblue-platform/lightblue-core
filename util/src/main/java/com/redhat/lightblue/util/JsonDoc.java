@@ -358,22 +358,43 @@ public class JsonDoc implements Serializable {
         }
     }
 
+    /**
+     * Creates a JsonDoc with the given root
+     */
     public JsonDoc(JsonNode doc) {
         this.docRoot = doc;
     }
 
+    /**
+     * Returns the root node
+     */
     public JsonNode getRoot() {
         return docRoot;
     }
-
+    
+    /**
+     * Returns a cursor that iterates all nodes of the document in a depth-first manner
+     */
     public JsonNodeCursor cursor() {
         return cursor(Path.EMPTY);
     }
 
+    /**
+     * Returns a cursor that iterates all nodes of the document in a
+     * depth first manner, but uses <code>p</code> as a prefix to all
+     * the paths during iteration. This method is meant to be used for
+     * a JsonDoc rooted at an intermediate node in a Json node tree.
+     */
     public JsonNodeCursor cursor(Path p) {
         return cursor(docRoot, p);
     }
 
+    /**
+     * Returns a cursor that iterates all the nodes under the given
+     * root, where the root is an intermediate node in a Json document
+     * accessed by path 'p'. Path can be empty, meaning the 'root' is
+     * the real document root.
+     */
     public static JsonNodeCursor cursor(JsonNode root, Path p) {
         return new JsonNodeCursor(p, root);
     }
