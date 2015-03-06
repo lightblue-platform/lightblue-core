@@ -1,124 +1,161 @@
 {
-    "objectType": "test",
-    "field1": "value1",
-    "field2": "value2",
-    "field3": 3,
-    "field4": 4.0,
-    "field5": true,
-    "field6": {
-        "nf1": "nvalue1",
-        "nf2": "nvalue2",
-        "nf3": 4,
-        "nf4": false,
-        "nf5": [5, 10, 15, 20],
-        "nf6": ["one", "two", "three", "four"],
-        "nf7": {
-            "nnf1": "nnvalue1",
-            "nnf2": 2
-        },
-        "nf8": ["four", "three", "two", "one"],
-        "nf9": [20, 15, 10, 5],
-        "nf10": [20.1, 15.2, 10.3, 5.4],
-        "nf11": null
+  "objectType": "test",
+  "field1": "value1",
+  "field2": "value2",
+  "field3": 3,
+  "field4": 4.0,
+  "field5": true,
+  "field6": {
+    "nf1": "nvalue1",
+    "nf2": "nvalue2",
+    "nf3": 4,
+    "nf4": false,
+    "nf5": [5, 10, 15, 20],
+    "nf6": ["one", "two", "three", "four"],
+    "nf7": {
+      "nnf1": "nnvalue1",
+      "nnf2": 2
     },
-    "field7": [
-        {
-            "elemf1": "elvalue0_1",
-            "elemf2": "elvalue0_2",
-            "elemf3": 3
-        },
-        {
-            "elemf1": "elvalue1_1",
-            "elemf2": "elvalue1_2",
-            "elemf3": 4
-        },
-        {
-            "elemf1": "elvalue2_1",
-            "elemf2": "elvalue2_2",
-            "elemf3": 5
-        },
-        {
-            "elemf1": "elvalue3_1",
-            "elemf2": "elvalue3_2",
-            "elemf3": 6
-        }
-    ],
-    "field8": {
-        "nf1": {
-            "nnf1": "nnvalue1",
-            "nnf2": 1,
-            "nnf3": [1, 2, 3, 4],
-            "nnf4": [
-                {
-                    "elemf1": "elvalue0_1",
-                    "elemf2": "elvalue0_2",
-                    "elemf3": 3
-                },
-                {
-                    "elemf1": "elvalue1_1",
-                    "elemf2": "elvalue1_2",
-                    "elemf3": 4
-                },
-                {
-                    "elemf1": "elvalue2_1",
-                    "elemf2": "elvalue2_2",
-                    "elemf3": 5
-                },
-                {
-                    "elemf1": "elvalue3_1",
-                    "elemf2": "elvalue3_2",
-                    "elemf3": 6
-                }
-            ]
-        },
-        "nf2": {
-            "nnf1": "nnvalue2",
-            "nnf2": 2,
-            "nnf3": [5, 6, 7, 8],
-            "nnf4": [
-                {
-                    "elemf1": "elvalue0_1",
-                    "elemf2": "elvalue0_2",
-                    "elemf3": 3
-                },
-                {
-                    "elemf1": "elvalue1_1",
-                    "elemf2": "elvalue1_2",
-                    "elemf3": 4
-                },
-                {
-                    "elemf1": "elvalue2_1",
-                    "elemf2": "elvalue2_2",
-                    "elemf3": 5
-                },
-                {
-                    "elemf1": "elvalue3_1",
-                    "elemf2": "elvalue3_2",
-                    "elemf3": 6
-                }
-            ]
-        }
+    "nf8": ["four", "three", "two", "one"],
+    "nf9": [20, 15, 10, 5],
+    "nf10": [20.1, 15.2, 10.3, 5.4],
+    "nf11": null
+  },
+  "field7": [
+    {
+      "elemf1": "elvalue0_1",
+      "elemf2": "elvalue0_2",
+      "elemf3": 3
     },
-    "field9": null,
-    "field10": [20, 15, 10, 5],
-    "field11": [
-       {
-           "f1":1,
-           "arr": [
+    {
+      "elemf1": "elvalue1_1",
+      "elemf2": "elvalue1_2",
+      "elemf3": 4
+    },
+    {
+      "elemf1": "elvalue2_1",
+      "elemf2": "elvalue2_2",
+      "elemf3": 5
+    },
+    {
+      "elemf1": "elvalue3_1",
+      "elemf2": "elvalue3_2",
+      "elemf3": 6
+    }
+  ],
+  "field8": {
+    "nf1": {
+      "nnf1": "nnvalue1",
+      "nnf2": 1,
+      "nnf3": [1, 2, 3, 4],
+      "nnf4": [
+        {
+          "elemf1": "elvalue0_1",
+          "elemf2": "elvalue0_2",
+          "elemf3": 3
+        },
+        {
+          "elemf1": "elvalue1_1",
+          "elemf2": "elvalue1_2",
+          "elemf3": 4
+        },
+        {
+          "elemf1": "elvalue2_1",
+          "elemf2": "elvalue2_2",
+          "elemf3": 5
+        },
+        {
+          "elemf1": "elvalue3_1",
+          "elemf2": "elvalue3_2",
+          "elemf3": 6
+        }
+      ]
+    },
+    "nf2": {
+      "nnf1": "nnvalue2",
+      "nnf2": 2,
+      "nnf3": [5, 6, 7, 8],
+      "nnf4": [
+        {
+          "elemf1": "elvalue0_1",
+          "elemf2": "elvalue0_2",
+          "elemf3": 3
+        },
+        {
+          "elemf1": "elvalue1_1",
+          "elemf2": "elvalue1_2",
+          "elemf3": 4
+        },
+        {
+          "elemf1": "elvalue2_1",
+          "elemf2": "elvalue2_2",
+          "elemf3": 5
+        },
+        {
+          "elemf1": "elvalue3_1",
+          "elemf2": "elvalue3_2",
+          "elemf3": 6
+        }
+      ]
+    }
+  },
+  "field9": null,
+  "field10": [20, 15, 10, 5],
+  "field11": [
+    {
+      "f1":1,
+      "arr": [
+        {
+          "id":1,
+          "x1":"x1_1"
+        }
+      ]
+    },
+    {
+      "f1":2,
+      "arr":[
+        {
+          "id":1,
+          "x1":"x1_2"
+        }
+      ]
+    }
+  ],
+  "field12": {
+    "nf1": {
+      "nnf1": [
+        {
+          "elemf1": "elvalue0_1",
+          "nnnf1": {
+            "f1":1,
+            "arr":[
               {
                 "id":1,
-                "x1":"x1_1"
+                "x1":"x0_1"
               }
-           ]
-       },
-       {
-           "f1":2,
-           "arr":[
+            ]
+          }
+        },
+        {
+          "elemf1": "elvalue0_2",
+          "nnnf1": {
+            "f1":12,
+            "arr":[
               {
-                 "id":1,
-                 "x1":"x1_2"
+                "id":12,
+                "x1":"x0_12",
+                "narr":[{
+                  "lastobject":{
+                    "elemf1": "1",
+                    "elemf2": 20,
+                    "elemf3": 300
+                  }
+                }]
               }
-           ]
-       }
-    ]
+            ]
+          }
+        }
+      ]
+    }
+  }
 }

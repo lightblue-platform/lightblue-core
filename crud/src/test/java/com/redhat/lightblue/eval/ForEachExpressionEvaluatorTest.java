@@ -49,13 +49,27 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void array_foreach_remove_using_any() throws Exception {
-        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field8.*.nnf4' : { 'field':'elemf2','op':'=','rvalue':'elvalue1_2'} , '$update' : '$remove' } }");
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field12.nf1.nnf1.*.nnnf1.arr.*.narr' : { 'field':'lastobject.elemf3','op':'=','rvalue':'300'} , '$update' : '$remove' } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
-        Assert.assertEquals(3, jsonDoc.get(new Path("field8.nf2.nnf4")).size());
-        Assert.assertEquals("elvalue2_2", jsonDoc.get(new Path("field8.nf2.nnf4.1.elemf2")).asText());
-        Assert.assertEquals(2, jsonDoc.get(new Path("field8")).size());
+        Assert.assertEquals(0, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+    }
+
+    @Test
+    public void array_foreach_modone_using_any() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field12.nf1.nnf1.*.nnnf1.arr.*.narr' : { 'field':'lastobject.elemf3','op':'=','rvalue':'300'}, '$update' : {'$set': { 'lastobject.elemf3':'1234'}} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+        Assert.assertEquals("1234", jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr.0.lastobject.elemf3")).asText());
     }
 
 
