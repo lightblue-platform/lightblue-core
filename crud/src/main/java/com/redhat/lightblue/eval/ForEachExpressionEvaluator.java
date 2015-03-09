@@ -21,7 +21,6 @@ package com.redhat.lightblue.eval;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeSet;
 
 import com.redhat.lightblue.util.*;
 import org.slf4j.Logger;
@@ -49,7 +48,7 @@ public class ForEachExpressionEvaluator extends Updater {
 
     private final JsonNodeFactory factory;
     private final Memento memento;
-    private ProcessedInfo processedInfo = null;
+    private UpdateInfo updateInfo = null;
     private int numAny = 0;
 
 
@@ -58,12 +57,12 @@ public class ForEachExpressionEvaluator extends Updater {
         this.factory = factory;
         this.numAny = expr.getField().nAnys();
         // Resolve the field, make sure it is an array
-        this.processedInfo = generateProcessedInfo(factory, context, expr, null, null);
+        this.updateInfo = generateProcessedInfo(context, expr, null, null);
 
 
     }
 
-    private ProcessedInfo generateProcessedInfo(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr, Path informedField, Updater updaterInstance) {
+    private UpdateInfo generateProcessedInfo(FieldTreeNode context, ForEachExpression expr, Path informedField, Updater updaterInstance) {
         Path field;
         ArrayField fieldMd;
         QueryEvaluator queryEvaluator;
@@ -102,14 +101,14 @@ public class ForEachExpressionEvaluator extends Updater {
             updater = updaterInstance;
         }
 
-        ProcessedInfo processedInfo1 = new ProcessedInfo(field, fieldMd, queryEvaluator, updater);
+        UpdateInfo updateInfoInstance = new UpdateInfo(field, fieldMd, queryEvaluator, updater);
 
-        return processedInfo1;
+        return updateInfoInstance;
     }
 
     @Override
     public void getUpdateFields(Set<Path> fields) {
-        this.processedInfo.updater.getUpdateFields(fields);
+        this.updateInfo.updater.getUpdateFields(fields);
     }
 
     @Override
@@ -125,28 +124,29 @@ public class ForEachExpressionEvaluator extends Updater {
                 Path currentKey = cursor.getCurrentKey();
                 JsonNode currentValue = cursor.getCurrentValue();
 
-                ProcessedInfo processedInfo1 = generateProcessedInfo(factory, memento.context, memento.expr, currentKey, this.processedInfo.updater);
+                UpdateInfo updateInfoInstance = generateProcessedInfo(memento.context, memento.expr, currentKey, this.updateInfo.updater);
 
-                ret = updateUsingProcessedInfo(doc, contextPath, ret, processedInfo1);
+                ret =  update(doc, contextPath, updateInfoInstance);
                 b = cursor.hasNext();
             }
 
             return ret;
         } else {
-            ret = updateUsingProcessedInfo(doc, contextPath, ret, this.processedInfo);
+            ret = update(doc, contextPath, this.updateInfo);
             return ret;
         }
     }
 
-    private boolean updateUsingProcessedInfo(JsonDoc doc, Path contextPath, boolean ret, ProcessedInfo processedInfo) {
+    private boolean update(JsonDoc doc, Path contextPath, UpdateInfo updateInfo) {
+        boolean ret = false;
         // Get a reference to the array field, and iterate all elements in the array
-        ArrayNode arrayNode = (ArrayNode) doc.get(new Path(contextPath, processedInfo.field));
-        LOGGER.debug("Array node {}={}", processedInfo.field, arrayNode);
-        ArrayElement elementMd = processedInfo.fieldMd.getElement();
+        ArrayNode arrayNode = (ArrayNode) doc.get(new Path(contextPath, updateInfo.field));
+        LOGGER.debug("Array node {}={}", updateInfo.field, arrayNode);
+        ArrayElement elementMd = updateInfo.fieldMd.getElement();
         if (arrayNode != null) {
             int index = 0;
             MutablePath itrPath = new MutablePath(contextPath);
-            itrPath.push(processedInfo.field);
+            itrPath.push(updateInfo.field);
             MutablePath arrSizePath = itrPath.copy();
             arrSizePath.setLast(arrSizePath.getLast() + "#");
             arrSizePath.rewriteIndexes(contextPath);
@@ -163,18 +163,18 @@ public class ForEachExpressionEvaluator extends Updater {
                 Path elementPath = itrPath.immutableCopy();
                 LOGGER.debug("itr:{}", elementPath);
                 QueryEvaluationContext ctx = new QueryEvaluationContext(elementNode, elementPath);
-                if (processedInfo.queryEvaluator.evaluate(ctx)) {
+                if (updateInfo.queryEvaluator.evaluate(ctx)) {
                     LOGGER.debug("query matches {}", elementPath);
-                    LOGGER.debug("Calling updater {}", processedInfo.updater);
-                    if (processedInfo.updater.update(doc, elementMd, elementPath)) {
-                        LOGGER.debug("Updater {} returns {}", processedInfo.updater, true);
+                    LOGGER.debug("Calling updater {}", updateInfo.updater);
+                    if (updateInfo.updater.update(doc, elementMd, elementPath)) {
+                        LOGGER.debug("Updater {} returns {}", updateInfo.updater, true);
                         ret = true;
                         // Removal shifts nodes down
-                        if (processedInfo.updater instanceof RemoveEvaluator) {
+                        if (updateInfo.updater instanceof RemoveEvaluator) {
                             index--;
                         }
                     } else {
-                        LOGGER.debug("Updater {} return false", processedInfo.updater);
+                        LOGGER.debug("Updater {} return false", updateInfo.updater);
                     }
                 } else {
                     LOGGER.debug("query does not match {}", elementPath);
@@ -200,13 +200,13 @@ public class ForEachExpressionEvaluator extends Updater {
         }
     }
 
-    private class ProcessedInfo {
+    private class UpdateInfo {
         private Path field;
         private ArrayField fieldMd;
         private QueryEvaluator queryEvaluator;
         private Updater updater;
 
-        public ProcessedInfo(Path field, ArrayField fieldMd, QueryEvaluator queryEvaluator, Updater updater) {
+        public UpdateInfo(Path field, ArrayField fieldMd, QueryEvaluator queryEvaluator, Updater updater) {
             this.field = field;
             this.fieldMd = fieldMd;
             this.queryEvaluator = queryEvaluator;
