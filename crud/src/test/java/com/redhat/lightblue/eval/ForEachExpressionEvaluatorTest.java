@@ -48,6 +48,32 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void array_foreach_remove_using_any() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field12.nf1.nnf1.*.nnnf1.arr.*.narr' : { 'field':'lastobject.elemf3','op':'=','rvalue':'300'} , '$update' : '$remove' } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(0, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+    }
+
+    @Test
+    public void array_foreach_modone_using_any() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field12.nf1.nnf1.*.nnnf1.arr.*.narr' : { 'field':'lastobject.elemf3','op':'=','rvalue':'300'}, '$update' : {'$set': { 'lastobject.elemf3':'1234'}} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr")).size());
+        Assert.assertEquals("1234", jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr.0.lastobject.elemf3")).asText());
+    }
+
+
+    @Test
     public void array_foreach_removeone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : '$remove' } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
