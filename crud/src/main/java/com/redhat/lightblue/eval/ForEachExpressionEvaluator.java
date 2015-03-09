@@ -51,24 +51,19 @@ public class ForEachExpressionEvaluator extends Updater {
     private final Memento memento;
     private ProcessedInfo processedInfo = null;
     private int numAny = 0;
-    private TreeSet<Path> updateFields;
 
 
     public ForEachExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr) {
         this.memento = new Memento(factory,context,expr);
         this.factory = factory;
+        this.numAny = expr.getField().nAnys();
+        // Resolve the field, make sure it is an array
+        this.processedInfo = generateProcessedInfo(factory, context, expr, null, null);
 
-        if(expr.getField().nAnys() == 0 ) {
-            // Resolve the field, make sure it is an array
-            this.processedInfo = generateProcessedInfo(factory, context, expr, null);
-        } else {
-            // if it have any, this process is postponed to the evaluation of the JSON document
-            numAny = expr.getField().nAnys();
-        }
 
     }
 
-    private ProcessedInfo generateProcessedInfo(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr, Path informedField) {
+    private ProcessedInfo generateProcessedInfo(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr, Path informedField, Updater updaterInstance) {
         Path field;
         ArrayField fieldMd;
         QueryEvaluator queryEvaluator;
@@ -79,6 +74,7 @@ public class ForEachExpressionEvaluator extends Updater {
         } else {
             field = informedField;
         }
+
         FieldTreeNode md = context.resolve(field);
         if (md instanceof ArrayField) {
             fieldMd = (ArrayField) md;
@@ -94,27 +90,26 @@ public class ForEachExpressionEvaluator extends Updater {
             queryEvaluator = QueryEvaluator.getInstance(query, fieldMd.getElement());
         }
 
-        // Get an updater to execute on each matching element
-        UpdateExpression upd = expr.getUpdate();
-        if (upd instanceof RemoveElementExpression) {
-            updater = new RemoveEvaluator(fieldMd.getElement().getFullPath());
+        if(updaterInstance == null) {
+            // Get an updater to execute on each matching element
+            UpdateExpression upd = expr.getUpdate();
+            if (upd instanceof RemoveElementExpression) {
+                updater = new RemoveEvaluator(fieldMd.getElement().getFullPath());
+            } else {
+                updater = Updater.getInstance(factory, fieldMd.getElement(), upd);
+            }
         } else {
-            updater = Updater.getInstance(factory, fieldMd.getElement(), upd);
+            updater = updaterInstance;
         }
+
         ProcessedInfo processedInfo1 = new ProcessedInfo(field, fieldMd, queryEvaluator, updater);
+
         return processedInfo1;
     }
 
     @Override
     public void getUpdateFields(Set<Path> fields) {
-        if(numAny == 0) {
-            this.processedInfo.updater.getUpdateFields(fields);
-        } else {
-            if(this.updateFields == null){
-                this.updateFields = new TreeSet<>();
-            }
-            this.updateFields.addAll(fields);
-        }
+        this.processedInfo.updater.getUpdateFields(fields);
     }
 
     @Override
@@ -130,10 +125,8 @@ public class ForEachExpressionEvaluator extends Updater {
                 Path currentKey = cursor.getCurrentKey();
                 JsonNode currentValue = cursor.getCurrentValue();
 
-                ProcessedInfo processedInfo1 = generateProcessedInfo(factory, memento.context, memento.expr, currentKey);
-                if(this.updateFields != null){
-                    processedInfo1.updater.getUpdateFields(updateFields);
-                }
+                ProcessedInfo processedInfo1 = generateProcessedInfo(factory, memento.context, memento.expr, currentKey, this.processedInfo.updater);
+
                 ret = updateUsingProcessedInfo(doc, contextPath, ret, processedInfo1);
                 b = cursor.hasNext();
             }
