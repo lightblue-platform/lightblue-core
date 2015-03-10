@@ -75,10 +75,6 @@
             <groupId>com.timgroup</groupId>
             <artifactId>java-statsd-client</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-servo-metrics-publisher</artifactId>
-        </dependency-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
@@ -95,6 +91,13 @@
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- The following dependency is necessary to be available on the compile time due an issue found (on java/maven) -->
+        <dependency>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>1.0.7</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>
