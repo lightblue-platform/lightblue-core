@@ -68,6 +68,9 @@ public final class MetadataConstants {
 
     public static final String ERR_INVALID_CONTEXT = "metadata:InvalidContext";
 
+    public static final String ERR_AUTH_FAILED = "metadata:AuthFailed";
+
+
     private MetadataConstants() {
     }
 
