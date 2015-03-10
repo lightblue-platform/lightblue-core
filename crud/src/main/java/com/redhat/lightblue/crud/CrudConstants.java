@@ -70,6 +70,8 @@ public final class CrudConstants {
     public static final String ERR_METADATA_APPEARS_TWICE = "crud:MetadataAppearsTwice";
     public static final String ERR_UNKNOWN_ENTITY = "crud:UnknownEntity";
 
+    public static final String ERR_AUTH_FAILED = "crud:AuthFailed";
+
     private CrudConstants() {
 
     }
