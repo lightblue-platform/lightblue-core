@@ -139,9 +139,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <artifactId>java-statsd-client</artifactId>
                 <version>3.0.2</version>
             </dependency>
+            <!-- The io.reactivex dependency is necessary to be available on the compile time due an issue found (on java/maven) -->
+            <dependency>
+                <groupId>io.reactivex</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>1.0.7</version>
+                <scope>compile</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

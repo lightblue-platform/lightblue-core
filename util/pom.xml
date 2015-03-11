@@ -92,13 +92,6 @@
             <artifactId>jsonassert</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- The following dependency is necessary to be available on the compile time due an issue found (on java/maven) -->
-        <dependency>
-            <groupId>io.reactivex</groupId>
-            <artifactId>rxjava</artifactId>
-            <version>1.0.7</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
