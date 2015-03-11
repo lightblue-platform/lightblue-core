@@ -151,14 +151,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.netflix.servo</groupId>
-            <artifactId>servo-graphite</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-servo-metrics-publisher</artifactId>
-        </dependency>
     </dependencies>
     <modules>
         <module>core-api</module>
@@ -168,6 +160,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <module>util</module>
         <module>config</module>
         <module>test</module>
+        <module>hystrix</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
