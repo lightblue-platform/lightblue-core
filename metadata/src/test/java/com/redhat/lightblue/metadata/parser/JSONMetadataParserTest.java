@@ -233,7 +233,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         int count = 3;
         ObjectNode parent = new ObjectNode(factory);
         ArrayNode array = factory.arrayNode();
-        parent.put(name, array);
+        parent.set(name, array);
 
         for (int i = 0; i < count; i++) {
             array.add(i);
@@ -255,7 +255,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         int count = 3;
         ObjectNode parent = new ObjectNode(factory);
         ArrayNode array = factory.arrayNode();
-        parent.put(name, array);
+        parent.set(name, array);
 
         for (int i = 0; i < count; i++) {
             array.add(i);
