@@ -188,15 +188,15 @@ public final class Error extends RuntimeException {
 
     public JsonNode toJson() {
         ObjectNode node = FACTORY.objectNode();
-        node.put("objectType", FACTORY.textNode("error"));
+        node.set("objectType", FACTORY.textNode("error"));
         if (!context.isEmpty()) {
-            node.put("context", FACTORY.textNode(getContext()));
+            node.set("context", FACTORY.textNode(getContext()));
         }
         if (errorCode != null) {
-            node.put("errorCode", FACTORY.textNode(errorCode));
+            node.set("errorCode", FACTORY.textNode(errorCode));
         }
         if (msg != null) {
-            node.put("msg", FACTORY.textNode(msg));
+            node.set("msg", FACTORY.textNode(msg));
         }
         return node;
     }

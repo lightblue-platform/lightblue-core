@@ -47,7 +47,7 @@ public class JsonNodeBuilder {
 
     public JsonNodeBuilder add(String key, JsonNode value) {
         if (include(value)) {
-            root.put(key, value);
+            root.set(key, value);
         }
         return this;
 
@@ -76,14 +76,14 @@ public class JsonNodeBuilder {
 
     public JsonNodeBuilder add(String key, OperationStatus value) {
         if (include(value)) {
-            root.put(key, value.name().toString());
+            root.put(key, value.name());
         }
         return this;
     }
 
     public JsonNodeBuilder add(String key, JsonObject value) {
         if (include(value)) {
-            root.put(key, value.toJson());
+            root.set(key, value.toJson());
         }
         return this;
     }

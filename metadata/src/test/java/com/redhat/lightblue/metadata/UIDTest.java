@@ -139,10 +139,10 @@ public class UIDTest {
         arr.add(nodeFactory.objectNode());
         arr.add(nodeFactory.objectNode());
         ObjectNode obj1 = nodeFactory.objectNode();
-        node.put("obj1", obj1);
+        node.set("obj1", obj1);
         ObjectNode nested = nodeFactory.objectNode();
-        obj1.put("nested", nested);
-        nested.put("objArr", arr);
+        obj1.set("nested", nested);
+        nested.set("objArr", arr);
 
         JsonDoc doc = new JsonDoc(node);
         UIDFields.initializeUIDFields(nodeFactory, md, doc);
