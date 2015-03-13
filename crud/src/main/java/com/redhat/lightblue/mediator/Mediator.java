@@ -246,11 +246,14 @@ public class Mediator {
                 }
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
+                } else if(ctx.hasDocumentErrors()) {
+                    ctx.setStatus(OperationStatus.PARTIAL);
                 } else {
                     ctx.setStatus(OperationStatus.COMPLETE);
                 }
                 factory.getInterceptors().callInterceptors(InterceptPoint.POST_MEDIATOR_UPDATE, ctx);
             }
+            response.getDataErrors().addAll(ctx.getDataErrors());
             response.getErrors().addAll(ctx.getErrors());
             response.setStatus(ctx.getStatus());
             if (response.getStatus() != OperationStatus.ERROR) {
