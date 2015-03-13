@@ -55,7 +55,7 @@ public abstract class AbstractCRUDTestController {
     protected static LightblueFactory lightblueFactory;
 
     @AfterClass
-    public static void cleanup(){
+    public static void cleanup() {
         lightblueFactory = null;
     }
 
@@ -72,31 +72,38 @@ public abstract class AbstractCRUDTestController {
      * @throws InstantiationException
      */
     public AbstractCRUDTestController()
-            throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException{
+            throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         lightblueFactory = new LightblueFactory(
                 new DataSourcesConfiguration(getDatasourcesJson()));
 
         JsonTranslator tx = lightblueFactory.getJsonTranslator();
 
         Metadata metadata = lightblueFactory.getMetadata();
-        for(JsonNode metadataJson : getMetadataJsonNodes()){
+        for (JsonNode metadataJson : getMetadataJsonNodes()) {
             metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
         }
     }
 
     /**
-     * Creates and returns an instance of {@link JsonNode} that represents the relvant
-     * datasources.json. By default resource "./datasources.json" is used, override this method
-     * to use something else.
+     * Creates and returns an instance of {@link JsonNode} that represents the relevant
+     * datasources.json.
      * @return {@link JsonNode} representing the datasources.json
      */
-    protected JsonNode getDatasourcesJson() {
+    private JsonNode getDatasourcesJson() {
         try {
-            return loadJsonNode("./datasources.json");
+            return loadJsonNode(getDatasourcesResourceName());
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load resource '" + getDatasourcesResourceName() + "'", e);
         }
-        catch (IOException e) {
-            throw new RuntimeException("Unable to load resource './datasources.json'", e);
-        }
+    }
+
+    /**
+     * By default resource "./datasources.json" is used, override this method
+     * to use something else.
+     * @return the resource name for the json file that contains the datasources.
+     */
+    protected String getDatasourcesResourceName() {
+        return "./datasources.json";
     }
 
     /**
@@ -114,7 +121,7 @@ public abstract class AbstractCRUDTestController {
      * @throws IOException
      */
     protected static <T extends Request> T createRequest_FromResource(Class<T> type, String jsonFile)
-            throws IOException{
+            throws IOException {
         return createRequest(type, loadJsonNode(jsonFile));
     }
 
@@ -126,7 +133,7 @@ public abstract class AbstractCRUDTestController {
      * @throws IOException
      */
     protected static <T extends Request> T createRequest_FromJsonString(Class<T> type, String jsonString)
-            throws IOException{
+            throws IOException {
         return createRequest(type, json(jsonString));
     }
 
@@ -136,7 +143,7 @@ public abstract class AbstractCRUDTestController {
      * @param node - {@link JsonNode} of actions metadata
      * @return a {@link Request} based on the passed in {@link JsonNode}
      */
-    protected static <T extends Request> T createRequest(Class<T> type, JsonNode node){
+    protected static <T extends Request> T createRequest(Class<T> type, JsonNode node) {
         JsonTranslator tx = lightblueFactory.getJsonTranslator();
         return tx.parse(type, node);
     }
