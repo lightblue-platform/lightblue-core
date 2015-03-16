@@ -60,9 +60,16 @@ public abstract class AbstractCRUDTestController {
     }
 
     /**
+     * Defaults to statically loading lightblue.
+     */
+    public AbstractCRUDTestController() throws Exception {
+        this(true);
+    }
+
+    /**
      * Creates an instance of the {@link LightblueFactory}.
-     * @param datasourcesResourcePath - path to datasources.json
-     * @param metadataResourcePaths - path to any and all *-metadata.json you'd like {@link LightblueFactory} to know about
+     * @param loadStatically - <code>true</code> loads lightblue statically for the duration of the suite,
+     * otherwise <code>false</code> will load lightblue for each test.
      * @return an instance of {@link LightblueFactory}.
      * @throws IOException
      * @throws ClassNotFoundException
@@ -71,16 +78,18 @@ public abstract class AbstractCRUDTestController {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    public AbstractCRUDTestController()
-            throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        lightblueFactory = new LightblueFactory(
-                new DataSourcesConfiguration(getDatasourcesJson()));
+    public AbstractCRUDTestController(boolean loadStatically) throws Exception {
 
-        JsonTranslator tx = lightblueFactory.getJsonTranslator();
+        if (!loadStatically || lightblueFactory == null) {
+            lightblueFactory = new LightblueFactory(
+                    new DataSourcesConfiguration(getDatasourcesJson()));
 
-        Metadata metadata = lightblueFactory.getMetadata();
-        for (JsonNode metadataJson : getMetadataJsonNodes()) {
-            metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
+            JsonTranslator tx = lightblueFactory.getJsonTranslator();
+
+            Metadata metadata = lightblueFactory.getMetadata();
+            for (JsonNode metadataJson : getMetadataJsonNodes()) {
+                metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
+            }
         }
     }
 
@@ -111,7 +120,7 @@ public abstract class AbstractCRUDTestController {
      * These {@link EntityMetadata} instances will be available to all tests in the suite.
      * @return an array of {@link JsonNode}s from which to load the {@link LightblueFactory} with.
      */
-    protected abstract JsonNode[] getMetadataJsonNodes();
+    protected abstract JsonNode[] getMetadataJsonNodes() throws Exception;
 
     /**
      * Creates and returns a {@link Request} based on the passed in <code>jsonFile</code>.
