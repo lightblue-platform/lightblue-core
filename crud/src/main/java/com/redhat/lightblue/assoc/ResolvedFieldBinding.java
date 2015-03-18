@@ -51,6 +51,7 @@ import com.redhat.lightblue.metadata.ArrayField;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 /**
  * This class represents a field binding interpreted based on the
@@ -255,21 +256,25 @@ public class ResolvedFieldBinding implements Serializable {
      */
     public boolean refresh(QueryPlanDoc doc) {
         if(doc.getMetadata()==entity) {
-            JsonNode valueNode=doc.getDoc().get(valueField);
-            if(binding instanceof ValueBinding) {
-                if(valueNode==null)
-                    ((ValueBinding)binding).getValue().setValue(null);
-                else
-                    ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
-            } else if(binding instanceof ListBinding) {
-                if(valueNode==null) 
-                    ((ListBinding)binding).getList().setList(new ArrayList());
-                else {
-                    List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
-                    for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
-                        l.add(new Value(type.fromJson(itr.next())));
+            KeyValueCursor<Path,JsonNode> valueNodes=doc.getDoc().getAllNodes(valueField);
+            while(valueNodes.hasNext()) {
+                valueNodes.next();
+                JsonNode valueNode=valueNodes.getCurrentValue();
+                if(binding instanceof ValueBinding) {
+                    if(valueNode==null)
+                        ((ValueBinding)binding).getValue().setValue(null);
+                    else
+                        ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
+                } else if(binding instanceof ListBinding) {
+                    if(valueNode==null) 
+                        ((ListBinding)binding).getList().setList(new ArrayList());
+                    else {
+                        List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
+                        for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
+                            l.add(new Value(type.fromJson(itr.next())));
+                        }
+                        ((ListBinding)binding).getList().setList(l);
                     }
-                    ((ListBinding)binding).getList().setList(l);
                 }
             }
             return true;
