@@ -18,18 +18,24 @@
  */
 package com.redhat.lightblue.hystrix;
 
-import com.netflix.hystrix.Hystrix;
-import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
-import com.netflix.hystrix.strategy.HystrixPlugins;
-import com.netflix.servo.publish.*;
-import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
-import com.redhat.lightblue.hystrix.statsd.StatsdMetricObserver;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
+import com.netflix.hystrix.Hystrix;
+import com.netflix.hystrix.contrib.servopublisher.HystrixServoMetricsPublisher;
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.servo.publish.BasicMetricFilter;
+import com.netflix.servo.publish.JvmMetricPoller;
+import com.netflix.servo.publish.MetricObserver;
+import com.netflix.servo.publish.MonitorRegistryMetricPoller;
+import com.netflix.servo.publish.PollRunnable;
+import com.netflix.servo.publish.PollScheduler;
+import com.netflix.servo.publish.graphite.GraphiteMetricObserver;
+import com.redhat.lightblue.hystrix.statsd.StatsdMetricObserver;
 
 /**
  * Utility class for publishing hystrix and jvm stats from servo to graphite
@@ -50,8 +56,7 @@ public final class ServoGraphiteSetup {
 
     private static boolean initialized = false;
 
-    private ServoGraphiteSetup() {
-    }
+    private ServoGraphiteSetup() {}
 
     public static void stop() {
         LOGGER.debug("stop() method called, initialized=" + initialized);
@@ -70,9 +75,16 @@ public final class ServoGraphiteSetup {
         LOGGER.debug("doStop() complete, initialized = " + initialized);
     }
 
+    /**
+     * For backwards compatibility. Defaults to {@link Type#STATSD}.
+     */
     public static void initialize() {
+        initialize(Type.STATSD);
+    }
+
+    public static void initialize(final Type... types) {
         if (!initialized) {
-            doInitialize();
+            doInitialize(types);
         }
     }
 
@@ -107,7 +119,7 @@ public final class ServoGraphiteSetup {
                         System.getenv("OPENSHIFT_APP_NAME"),
                         System.getenv("OPENSHIFT_NAMESPACE"),
                         System.getenv("OPENSHIFT_GEAR_DNS")
-                );
+                        );
             } else {
                 //default
                 prefix = System.getenv("HOSTNAME");
@@ -177,7 +189,7 @@ public final class ServoGraphiteSetup {
         observers.add(new StatsdMetricObserver(prefix, host, iport));
     }
 
-    private static synchronized void doInitialize() {
+    private static synchronized void doInitialize(final Type... types) {
         if (initialized) {
             return;
         }
@@ -194,10 +206,20 @@ public final class ServoGraphiteSetup {
 
         List<MetricObserver> observers = new ArrayList<>();
 
-        registerGraphiteMetricObserver(observers, System.getenv(ENV_GRAPHITE_PREFIX),
-                System.getenv(ENV_GRAPHITE_HOSTNAME), System.getenv(ENV_GRAPHITE_PORT));
-        registerStatsdMetricObserver(observers, System.getenv(ENV_STATSD_PREFIX),
-                System.getenv(ENV_STATSD_HOSTNAME), System.getenv(ENV_STATSD_PORT));
+        for (Type type : types) {
+            switch (type) {
+                case GRAPHITE:
+                    registerGraphiteMetricObserver(observers, findVariable(ENV_GRAPHITE_PREFIX),
+                            findVariable(ENV_GRAPHITE_HOSTNAME), findVariable(ENV_GRAPHITE_PORT));
+                    break;
+                case STATSD:
+                    registerStatsdMetricObserver(observers, findVariable(ENV_STATSD_PREFIX),
+                            findVariable(ENV_STATSD_HOSTNAME), findVariable(ENV_STATSD_PORT));
+                    break;
+                default:
+                    throw new RuntimeException("Unsupported Type: " + type);
+            }
+        }
 
         // start poll scheduler
         PollScheduler.getInstance().start();
@@ -212,5 +234,25 @@ public final class ServoGraphiteSetup {
 
         initialized = true;
         LOGGER.debug("doInitialize() completed, initialized = " + initialized);
+    }
+
+    /**
+     * Looks for the value of the key as a key firstly as a JVM argument, and
+     * if not found, to an environment variable. If still not found, then null
+     * is returned.
+     * @param key
+     * @return
+     */
+    private static String findVariable(String key) {
+        String value = System.getProperty(key);
+        if (value == null) {
+            return System.getenv(key);
+        }
+        return value;
+    }
+
+    public enum Type {
+        GRAPHITE,
+        STATSD
     }
 }
