@@ -193,4 +193,16 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
     }
 
+    @Test
+    public void retrieveNestedArrayRef() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'ADEEP'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("ADEEP",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals("BDEEP",response.getEntityData().get(0).get("level1.r1.0.ref.0._id"));
+    }
+
 }
