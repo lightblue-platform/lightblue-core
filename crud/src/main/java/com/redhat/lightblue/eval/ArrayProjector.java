@@ -52,6 +52,7 @@ public abstract class ArrayProjector extends Projector {
     private final boolean include;
     private final Projector nestedProjector;
     private boolean lastMatch;
+    private boolean exactMatch;
     private final Sort sort;
     private final SortFieldInfo[] sortFields;
     protected Projector decidingProjector;
@@ -196,7 +197,7 @@ public abstract class ArrayProjector extends Projector {
      */
     @Override
     public boolean exactMatch() {
-        return true;
+        return exactMatch;
     }
 
     /**
@@ -214,23 +215,22 @@ public abstract class ArrayProjector extends Projector {
 
     @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
-       decidingProjector=null;
-       lastMatch = false;
-       if (p.matchingPrefix(arrayFieldPattern)) {
-           decidingProjector=this;
-           return include ? Boolean.TRUE : Boolean.FALSE;
-       }
-       // Is this field pointing to an element of the array
-       // It is so if 'p' has one more element than 'arrayFieldPattern', and
-       // if it is a matching descendant
-       if (p.numSegments() == arrayFieldPattern.numSegments() + 1 && p.matchingDescendant(arrayFieldPattern)) {
-           Boolean ret=projectArray(p, ctx);
-           if(ret!=null&&nestedProjector!=null) {
-               decidingProjector=nestedProjector.getDecidingProjector();
-           }
-           return ret;
-       }
-       return null;
+        LOGGER.debug("Evaluating array projection for {}, arrayField={}",p,arrayFieldPattern);
+        decidingProjector=null;
+        lastMatch = false;
+        exactMatch=false;
+        // Is this field pointing to an element of the array
+        // It is so if 'p' has one more element than 'arrayFieldPattern', and
+        // if it is a matching descendant
+        if (p.numSegments() == arrayFieldPattern.numSegments() + 1 && p.matchingDescendant(arrayFieldPattern)) {
+            Boolean ret=projectArray(p, ctx);
+            LOGGER.debug("Projecting array element {}:{}",p,ret);
+            if(ret!=null&&nestedProjector!=null) {
+                decidingProjector=nestedProjector.getDecidingProjector();
+            }
+            return ret;
+        }
+        return null;
     }
 
     /**
