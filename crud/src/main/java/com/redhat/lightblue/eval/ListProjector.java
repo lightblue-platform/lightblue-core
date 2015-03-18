@@ -62,6 +62,11 @@ public class ListProjector extends Projector {
         return decidingProjector;
     }
 
+    /**
+     * Evaluate the list of projections backwards, so the first
+     * projection that decides about the inclusion of the field is the
+     * last projection specified in the list.
+     */
     @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
