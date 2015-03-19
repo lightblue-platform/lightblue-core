@@ -59,7 +59,6 @@ public class ArrayQueryProjector extends ArrayProjector {
                 : p.suffix(-contextRoot.numSegments()));
         if (query.evaluate(nestedContext)) {
             LOGGER.debug("query evaluates to true");
-            setLastMatch(true);
             return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
         }
         return Boolean.FALSE;

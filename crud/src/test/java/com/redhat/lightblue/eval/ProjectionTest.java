@@ -20,6 +20,7 @@ package com.redhat.lightblue.eval;
 
 import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Ignore;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -249,7 +250,11 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         }
     }
 
+    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
+    // Composite metadata construction interprets the projections, and constructs
+    // the tree excluding unprojected entities. 
     @Test
+    @Ignore
     public void recursiveInclusionsDontCrossEntityBoundaries() throws Exception {
         EntityMetadata md=getMd("./composite/A.json");
         CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
@@ -269,8 +274,12 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(newDoc.get(new Path("obj1.c_ref")));
         Assert.assertNull(newDoc.get(new Path("obj1.c")));
     }
- 
+
+    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
+    // Composite metadata construction interprets the projections, and constructs
+    // the tree excluding unprojected entities. 
     @Test
+    @Ignore
     public void explicitInclusionByPatternCrossesEntityBoundaries() throws Exception {
         EntityMetadata md=getMd("./composite/A.json");
         CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
@@ -291,7 +300,11 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(2,newDoc.get(new Path("obj1.c")).size());
    }
 
+    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
+    // Composite metadata construction interprets the projections, and constructs
+    // the tree excluding unprojected entities. 
     @Test
+    @Ignore
     public void explicitInclusionCrossesEntityBoundaries() throws Exception {
         EntityMetadata md=getMd("./composite/A.json");
         CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
@@ -316,7 +329,11 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("obj1.c.1.obj1.d")));
    }
 
+    // This test is no longer valid. Projection evaluation don't care entity boundaries. 
+    // Composite metadata construction interprets the projections, and constructs
+    // the tree excluding unprojected entities. 
     @Test
+    @Ignore
     public void arrayInclusionIncludesEntity() throws Exception {
         EntityMetadata md=getMd("./composite/A.json");
         CompositeMetadata cmd=CompositeMetadata.buildCompositeMetadata(md,new SimpleGMD());
