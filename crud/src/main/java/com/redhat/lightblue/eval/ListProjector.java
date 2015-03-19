@@ -34,7 +34,6 @@ public class ListProjector extends Projector {
     private final List<Projector> items;
 
     private Projector nestedProjector;
-    private Projector decidingProjector;
 
     public ListProjector(ProjectionList l, Path ctxPath, FieldTreeNode ctx) {
         super(ctxPath, ctx);
@@ -50,16 +49,8 @@ public class ListProjector extends Projector {
         return nestedProjector;
     }
 
-    @Override
-    public boolean exactMatch() {
-        for(Projector p:items)
-            if(p.exactMatch())
-                return true;
-        return false;
-    }
-
-    public Projector getDecidingProjector() {
-        return decidingProjector;
+    public List<Projector> getItems() {
+        return items;
     }
 
     /**
@@ -70,14 +61,12 @@ public class ListProjector extends Projector {
     @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
-        decidingProjector=null;
         ListIterator<Projector> itemsItr=items.listIterator(items.size());
         while (itemsItr.hasPrevious()) {
             Projector projector = itemsItr.previous();
             Boolean projectionResult = projector.project(p, ctx);
             if (projectionResult != null) {
                 nestedProjector = projector.getNestedProjector();
-                decidingProjector = projector.getDecidingProjector();
                 return projectionResult;
             }
         }

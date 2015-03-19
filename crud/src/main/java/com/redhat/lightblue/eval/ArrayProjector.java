@@ -51,11 +51,9 @@ public abstract class ArrayProjector extends Projector {
     private final Path arrayFieldPattern;
     private final boolean include;
     private final Projector nestedProjector;
-    private boolean lastMatch;
-    private boolean exactMatch;
     private final Sort sort;
+    private boolean lastMatch;
     private final SortFieldInfo[] sortFields;
-    protected Projector decidingProjector;
 
     private final static class SortFieldInfo {
         final SimpleField field;
@@ -133,16 +131,12 @@ public abstract class ArrayProjector extends Projector {
     }
         
 
-    protected boolean isLastMatch() {
-        return lastMatch;
-    }
-
-    protected void setLastMatch(boolean lastMatch) {
-        this.lastMatch = lastMatch;
-    }
-
     protected boolean isIncluded() {
         return include;
+    }
+
+    public Path getArrayFieldPattern() {
+        return arrayFieldPattern;
     }
 
     /**
@@ -193,41 +187,24 @@ public abstract class ArrayProjector extends Projector {
     }
 
     /**
-     * Any array inclusion/exclusion is an exact match of the projection
-     */
-    @Override
-    public boolean exactMatch() {
-        return exactMatch;
-    }
-
-    /**
-     * Returns the nested projector if the last projection is a match
+     * Returns the nested projector 
      */
     @Override
     public Projector getNestedProjector() {
-        return lastMatch ? nestedProjector : null;
-    }
-
-    @Override
-    public Projector getDecidingProjector() {
-        return decidingProjector;
+        return lastMatch?nestedProjector:null;
     }
 
     @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
+        lastMatch=false;
         LOGGER.debug("Evaluating array projection for {}, arrayField={}",p,arrayFieldPattern);
-        decidingProjector=null;
-        lastMatch = false;
-        exactMatch=false;
         // Is this field pointing to an element of the array
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
         if (p.numSegments() == arrayFieldPattern.numSegments() + 1 && p.matchingDescendant(arrayFieldPattern)) {
             Boolean ret=projectArray(p, ctx);
             LOGGER.debug("Projecting array element {}:{}",p,ret);
-            if(ret!=null&&nestedProjector!=null) {
-                decidingProjector=nestedProjector.getDecidingProjector();
-            }
+            lastMatch=ret!=null&&ret;
             return ret;
         }
         return null;
