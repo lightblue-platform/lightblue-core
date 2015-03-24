@@ -21,8 +21,12 @@ package com.redhat.lightblue.test;
 import static com.redhat.lightblue.util.JsonUtils.json;
 import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 
 import org.junit.AfterClass;
 
@@ -33,6 +37,7 @@ import com.redhat.lightblue.config.JsonTranslator;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * <p>Testing harness for junit tests that need to stand an in-memory instance of lightblue.
@@ -100,19 +105,24 @@ public abstract class AbstractCRUDTestController {
      */
     private JsonNode getDatasourcesJson() {
         try {
-            return loadJsonNode(getDatasourcesResourceName());
+            if (getDatasourcesResourceName() == null)
+                return JsonUtils.json(loadResource("/datasources.json", true));
+            else
+                return JsonUtils.json(loadResource(getDatasourcesResourceName(), false));
         } catch (IOException e) {
             throw new RuntimeException("Unable to load resource '" + getDatasourcesResourceName() + "'", e);
         }
     }
 
     /**
-     * By default resource "./datasources.json" is used, override this method
-     * to use something else.
-     * @return the resource name for the json file that contains the datasources.
+     * By default embedded datasources.json is used, override this if you
+     * want to provide your own configuration (e.g. set it to "./datasources.json").
+     *
+     * @return the resource name for the json file that contains the datasources. If null,
+     * embedded configuration is used.
      */
     protected String getDatasourcesResourceName() {
-        return "./datasources.json";
+        return null;
     }
 
     /**
@@ -155,6 +165,31 @@ public abstract class AbstractCRUDTestController {
     protected static <T extends Request> T createRequest(Class<T> type, JsonNode node) {
         JsonTranslator tx = lightblueFactory.getJsonTranslator();
         return tx.parse(type, node);
+    }
+
+    /**
+     * Load contents of resource on classpath as String.
+     *
+     * @param resourceName
+     * @param local
+     *            true if should look for resource in lightblue-core-test.jar
+     * @return the resource as a String
+     * @throws IOException
+     */
+    public static final String loadResource(String resourceName, boolean local) throws IOException {
+        StringBuilder buff = new StringBuilder();
+
+        try (InputStream is = local ? AbstractCRUDTestController.class.getResourceAsStream(resourceName) : AbstractCRUDTestController.class.getClassLoader()
+                .getResourceAsStream(resourceName);
+                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
+                BufferedReader reader = new BufferedReader(isr)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buff.append(line).append("\n");
+            }
+        }
+
+        return buff.toString();
     }
 
 }
