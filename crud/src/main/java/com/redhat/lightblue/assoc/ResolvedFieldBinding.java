@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import java.io.Serializable;
 
@@ -245,42 +246,42 @@ public class ResolvedFieldBinding implements Serializable {
         }
     }
 
-    public static void refresh(List<ResolvedFieldBinding> bindings,QueryPlanDoc doc) {
+    public static void refresh(List<ResolvedFieldBinding> bindings,ChildDocReference ref) {
         for(ResolvedFieldBinding binding:bindings) {
-            binding.refresh(doc);
+            binding.refresh(ref);
         }
     }
 
     /**
-     * Attempts to refresh this binding starting at the given document, and ascending to its parents
+     * Attempts to refresh this binding starting at the given parent document, and ascending to its parents
      */
-    public boolean refresh(QueryPlanDoc doc) {
+    public boolean refresh(ChildDocReference ref) {
+        ResultDoc doc=ref.getDocument();
         if(doc.getMetadata()==entity) {
-            KeyValueCursor<Path,JsonNode> valueNodes=doc.getDoc().getAllNodes(valueField);
-            while(valueNodes.hasNext()) {
-                valueNodes.next();
-                JsonNode valueNode=valueNodes.getCurrentValue();
-                if(binding instanceof ValueBinding) {
+            // Reinterpret the value field using the indexes in refField
+            Path field=valueField.mutableCopy().rewriteIndexes(ref.getReferenceField()).immutableCopy();
+            LOGGER.debug("Refreshing bindings using {}",field);
+            JsonNode valueNode=doc.getDoc().get(field);
+            if(binding instanceof ValueBinding) {
                     if(valueNode==null)
                         ((ValueBinding)binding).getValue().setValue(null);
                     else
                         ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
-                } else if(binding instanceof ListBinding) {
-                    if(valueNode==null) 
-                        ((ListBinding)binding).getList().setList(new ArrayList());
-                    else {
-                        List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
-                        for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
-                            l.add(new Value(type.fromJson(itr.next())));
-                        }
-                        ((ListBinding)binding).getList().setList(l);
+            } else if(binding instanceof ListBinding) {
+                if(valueNode==null) 
+                    ((ListBinding)binding).getList().setList(new ArrayList());
+                else {
+                    List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
+                    for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
+                        l.add(new Value(type.fromJson(itr.next())));
                     }
+                    ((ListBinding)binding).getList().setList(l);
                 }
             }
             return true;
         } else {
-            for(QueryPlanDoc parent: doc.getParents()) {
-                if(refresh(parent))
+            for(Map.Entry<QueryPlanNode,ChildDocReference> entry: doc.getParentDocs().entrySet()) {
+                if(refresh(entry.getValue()))
                     return true;
             }
             return false;
