@@ -45,6 +45,26 @@
             "entity":"B",
             "versionValue":"1.0.0",
             "query":{ "field":"_id","op":"$eq","rfield":"$parent.b_ref"}
+        },
+        "level1": {
+            "type":"object",
+            "fields": {
+                "arr1": {
+                   "type":"array",
+                   "items": {
+                      "type":"object",
+                      "fields": {
+                          "b_ref":{"type":"string"},
+                          "ref": {
+                             "type":"reference",
+                             "entity":"B",
+                             "versionValue":"1.0.0",
+                             "query":{"field":"_id","op":"=","rfield":"$parent.b_ref"}
+                          }
+                      }
+                    }
+                }
+            }
         }
     }
   }
