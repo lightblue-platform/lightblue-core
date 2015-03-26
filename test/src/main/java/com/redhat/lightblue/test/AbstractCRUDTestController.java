@@ -37,7 +37,6 @@ import com.redhat.lightblue.config.JsonTranslator;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.util.JsonUtils;
 
 /**
  * <p>Testing harness for junit tests that need to stand an in-memory instance of lightblue.
@@ -103,12 +102,13 @@ public abstract class AbstractCRUDTestController {
      * datasources.json.
      * @return {@link JsonNode} representing the datasources.json
      */
-    private JsonNode getDatasourcesJson() {
+    protected JsonNode getDatasourcesJson() {
         try {
-            if (getDatasourcesResourceName() == null)
-                return JsonUtils.json(loadResource("/datasources.json", true));
-            else
-                return JsonUtils.json(loadResource(getDatasourcesResourceName(), false));
+            if (getDatasourcesResourceName() == null) {
+                return json(loadResource("/datasources.json", true));
+            } else {
+                return json(loadResource(getDatasourcesResourceName(), false));
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unable to load resource '" + getDatasourcesResourceName() + "'", e);
         }
