@@ -30,7 +30,8 @@ import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
-import com.redhat.lightblue.assoc.QueryPlanDoc;
+import com.redhat.lightblue.assoc.ResultDoc;
+import com.redhat.lightblue.assoc.ChildDocReference;
 import com.redhat.lightblue.assoc.ResolvedFieldBinding;
 
 import com.redhat.lightblue.crud.Factory;
@@ -74,7 +75,7 @@ public class QueryPlanNodeExecutor {
     private Long fromIndex;
     private Long toIndex;
 
-    private List<QueryPlanDoc> docs=new ArrayList<>();
+    private List<ResultDoc> docs=new ArrayList<>();
 
     public QueryPlanNodeExecutor(QueryPlanNode node,
                                  Factory factory,
@@ -143,7 +144,7 @@ public class QueryPlanNodeExecutor {
         } else {
             runExpression=null;
         }
-        LOGGER.debug("Node expression: {}",runExpression);
+        LOGGER.debug("Node expression for {}: {}",node.getName(),runExpression);
     }
 
 
@@ -171,36 +172,40 @@ public class QueryPlanNodeExecutor {
             execute(ctx,findRequest,null);
         } else {
             // We will evaluate this node for every possible combination of parent docs
-                
-            Tuples<QueryPlanDoc> tuples=new Tuples<>();
+
+            // This does not work if this is a document contained in
+            // one of the parents, and this is within an array field
+                            
+            Tuples<ChildDocReference> tuples=new Tuples<>();
             for(QueryPlanNodeExecutor source:sources) {
-                tuples.add(source.docs);
+                List<ChildDocReference> list=ResultDoc.getChildren(source.docs,node);
+                LOGGER.debug("Adding {} docs from node {} to node {}",list.size(),source.node.getName(),node.getName());
+                tuples.add(list);
             }
            
             // Iterate n-tuples
-            for(Iterator<List<QueryPlanDoc>> tupleItr=tuples.tuples();tupleItr.hasNext();) {
-                List<QueryPlanDoc> tuple=tupleItr.next();
+            for(Iterator<List<ChildDocReference>> tupleItr=tuples.tuples();tupleItr.hasNext();) {
+                List<ChildDocReference> tuple=tupleItr.next();
                 LOGGER.debug("Processing an {}-tuple",tuple.size());
                 // Tuple elements are ordered the same way as the
                 // sources. tuple[i] is from sources[i]
                 
                 LOGGER.debug("execute {}: refreshing bindings",node.getName());
-                Iterator<QueryPlanDoc> qpdItr = tuple.iterator();
-                // TODO can this for loop change to a while(qpdItr.hasNext())?
-                for(int i=0;i<sources.size();i++) {
-                    QueryPlanDoc parentDoc=qpdItr.next();
-                    ResolvedFieldBinding.refresh(sourceBindings,parentDoc);
+                Iterator<ChildDocReference> qpdItr = tuple.iterator();
+                while(qpdItr.hasNext()) {
+                    ChildDocReference reference=qpdItr.next();
+                    ResolvedFieldBinding.refresh(sourceBindings,reference);
                 }
                execute(ctx,findRequest,tuple);
             }
        }
     }
 
-    public List<QueryPlanDoc> getDocs() {
+    public List<ResultDoc> getDocs() {
         return docs;
     }
 
-    public void setDocs(List<QueryPlanDoc> docs) {
+    public void setDocs(List<ResultDoc> docs) {
         this.docs=docs;
     }
 
@@ -210,14 +215,14 @@ public class QueryPlanNodeExecutor {
 
     private void execute(OperationContext ctx,
                          CRUDFindRequest findRequest,
-                         List<QueryPlanDoc> parents) {
+                         List<ChildDocReference> parents) {
         OperationContext nodeCtx=ctx.getDerivedOperationContext(node.getMetadata().getName(),findRequest);
         LOGGER.debug("execute {}: entity={}, findRequest.query={}, projection={}, sort={}", node.getName(),
                      nodeCtx.getEntityName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
         // note the response is not used, but find method changes the supplied context.
         finder.find(nodeCtx,findRequest);
-        LOGGER.debug("execute {}: storing documents", node.getName());
+        LOGGER.debug("execute {}: storing {} documents", node.getName(),nodeCtx.getDocuments().size());
         for(DocCtx doc:nodeCtx.getDocuments()) {
             DocId id=docIdx.getDocId(doc.getOutputDocument());
             if(documentCache!=null) {
@@ -227,13 +232,15 @@ public class QueryPlanNodeExecutor {
                     documentCache.put(id,jdoc);
                 }
             }
-            QueryPlanDoc qplanDoc=new QueryPlanDoc(doc.getOutputDocument(),id,node);
-            docs.add(qplanDoc);
-        }
-        if(parents!=null) {
-            for(QueryPlanDoc parent:parents) {
-                parent.addChildren(node,docs);
+            ResultDoc resultDoc=new ResultDoc(doc.getOutputDocument(),id,node);
+            if(parents!=null) {
+                for(ChildDocReference parent:parents) {
+                    resultDoc.setParentDoc(parent.getDocument().getQueryPlanNode(),parent);
+                    parent.getChildren().add(resultDoc);
+                }
             }
-        }                      
+            LOGGER.debug("Adding {}",id);
+            docs.add(resultDoc);
+        }
     }
 }
