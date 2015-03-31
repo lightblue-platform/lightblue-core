@@ -39,10 +39,14 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
 
 /**
- * <p>Testing harness for junit tests that need to stand an in-memory instance of lightblue.
- * The assumption is made that one {@link LightblueFactory} will be used per test suite.</p>
- * <p>For initialization code that needs to be executed prior to the {@link #AbstractCRUDTestController()},
- * use the {@literal}@BeforeClass annotation.
+ * <p>
+ * Testing harness for junit tests that need to stand an in-memory instance of
+ * lightblue. The assumption is made that one {@link LightblueFactory} will be
+ * used per test suite.</p>
+ * <p>
+ * For initialization code that needs to be executed prior to the
+ * {@link #AbstractCRUDTestController()}, use the {@literal}@BeforeClass
+ * annotation.
  * <b>NOTE:</b> This does not use the rest layer.
  *
  * <p>
@@ -56,11 +60,18 @@ import com.redhat.lightblue.metadata.Metadata;
  */
 public abstract class AbstractCRUDTestController {
 
-    protected static LightblueFactory lightblueFactory;
+    private static LightblueFactory lightblueFactory;
 
     @AfterClass
     public static void cleanup() {
         lightblueFactory = null;
+    }
+
+    /**
+     * @return the lightblueFactory
+     */
+    protected static LightblueFactory getLightblueFactory() {
+        return lightblueFactory;
     }
 
     /**
@@ -72,6 +83,7 @@ public abstract class AbstractCRUDTestController {
 
     /**
      * Creates an instance of the {@link LightblueFactory}.
+     *
      * @param loadStatically - <code>true</code> loads lightblue statically for the duration of the suite,
      * otherwise <code>false</code> will load lightblue for each test.
      * @return an instance of {@link LightblueFactory}.
@@ -83,7 +95,6 @@ public abstract class AbstractCRUDTestController {
      * @throws InstantiationException
      */
     public AbstractCRUDTestController(boolean loadStatically) throws Exception {
-
         if (!loadStatically || lightblueFactory == null) {
             lightblueFactory = new LightblueFactory(
                     new DataSourcesConfiguration(getDatasourcesJson()));
@@ -98,8 +109,9 @@ public abstract class AbstractCRUDTestController {
     }
 
     /**
-     * Creates and returns an instance of {@link JsonNode} that represents the relevant
-     * datasources.json.
+     * Creates and returns an instance of {@link JsonNode} that represents the
+     * relevant datasources.json.
+     *
      * @return {@link JsonNode} representing the datasources.json
      */
     protected JsonNode getDatasourcesJson() {
@@ -126,14 +138,19 @@ public abstract class AbstractCRUDTestController {
     }
 
     /**
-     * Create and returns an array of {@link JsonNode}s from which to load the {@link LightblueFactory} with.
-     * These {@link EntityMetadata} instances will be available to all tests in the suite.
-     * @return an array of {@link JsonNode}s from which to load the {@link LightblueFactory} with.
+     * Create and returns an array of {@link JsonNode}s from which to load the
+     * {@link LightblueFactory} with. These {@link EntityMetadata} instances
+     * will be available to all tests in the suite.
+     *
+     * @return an array of {@link JsonNode}s from which to load the
+     * {@link LightblueFactory} with.
      */
     protected abstract JsonNode[] getMetadataJsonNodes() throws Exception;
 
     /**
-     * Creates and returns a {@link Request} based on the passed in <code>jsonFile</code>.
+     * Creates and returns a {@link Request} based on the passed in
+     * <code>jsonFile</code>.
+     *
      * @param type - Request class to instantiate.
      * @param jsonFile - File containing metadata json
      * @return a {@link Request} based on the passed in <code>jsonFile</code>.
@@ -145,7 +162,9 @@ public abstract class AbstractCRUDTestController {
     }
 
     /**
-     * Creates and returns a {@link Request} based on the passed in <code>jsonString</code>.
+     * Creates and returns a {@link Request} based on the passed in
+     * <code>jsonString</code>.
+     *
      * @param type - Request class to instantiate.
      * @param jsonString - String of metadata json
      * @return a {@link Request} based on the passed in <code>jsonString</code>.
@@ -157,13 +176,15 @@ public abstract class AbstractCRUDTestController {
     }
 
     /**
-     * Creates and returns a {@link Request} based on the passed in {@link JsonNode}
+     * Creates and returns a {@link Request} based on the passed in
+     * {@link JsonNode}
+     *
      * @param type - Request class to instantiate.
      * @param node - {@link JsonNode} of actions metadata
      * @return a {@link Request} based on the passed in {@link JsonNode}
      */
     protected static <T extends Request> T createRequest(Class<T> type, JsonNode node) {
-        JsonTranslator tx = lightblueFactory.getJsonTranslator();
+        JsonTranslator tx = getLightblueFactory().getJsonTranslator();
         return tx.parse(type, node);
     }
 
