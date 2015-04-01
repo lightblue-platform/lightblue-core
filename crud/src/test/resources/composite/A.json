@@ -46,6 +46,13 @@
             "versionValue":"1.0.0",
             "query":{ "field":"_id","op":"$eq","rfield":"$parent.b_ref"}
         },
+        "nonid_b_ref":{"type":"string"},
+        "nonid_b" : {
+             "type":"reference",
+             "entity":"B",
+             "versionValue":"1.0.0",
+             "query":{"field":"field1","op":"$eq","rfield":"$parent.nonid_b_ref"}
+        },
         "level1": {
             "type":"object",
             "fields": {

@@ -902,5 +902,13 @@
        }
     ]
   }
+  },{
+  "_id":"MANYB1",
+  "objectType":"A",
+  "nonid_b_ref":"MANYB1"
+  },{
+  "_id":"MANYB2",
+  "objectType":"A",
+  "nonid_b_ref":"MANYB2"
   }
 ]

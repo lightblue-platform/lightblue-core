@@ -49,6 +49,7 @@ import com.redhat.lightblue.assoc.QueryPlan;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.Sort;
 
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -138,6 +139,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return Projection.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
     }
 
+    private Sort sort(String s) throws Exception {
+        return Sort.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
+    }
+
    @Test
     public void sanityCheck() throws Exception {
         FindRequest fr=new FindRequest();
@@ -162,6 +167,38 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         // This one must have A -> B
         Assert.assertEquals(1,qplan.getSources().length);
         Assert.assertEquals("A",qplan.getSources()[0].getMetadata().getName());
+    }
+
+    @Test
+    public void retrieveAandBonly_manyA() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'$in','values':['A01','A02','A03']}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(3,response.getEntityData().size());
+        Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("b").size());
+        Assert.assertEquals("A02",response.getEntityData().get(1).get("_id").asText());
+        Assert.assertEquals(1,response.getEntityData().get(1).get("b").size());
+        Assert.assertEquals("A03",response.getEntityData().get(2).get("_id").asText());
+        Assert.assertEquals(1,response.getEntityData().get(2).get("b").size());
+    }
+
+    @Test
+    public void retrieveAandBonly_manyB() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'$in','values':['MANYB1','MANYB2']}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'nonid_b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(2,response.getEntityData().size());
+        Assert.assertEquals("MANYB1",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals(2,response.getEntityData().get(0).get("nonid_b").size());
+        Assert.assertEquals("MANYB2",response.getEntityData().get(1).get("_id").asText());
+        Assert.assertEquals(2,response.getEntityData().get(1).get("nonid_b").size());
     }
 
     @Test
