@@ -97,7 +97,9 @@ public abstract class AbstractCRUDTestController {
     public AbstractCRUDTestController(boolean loadStatically) throws Exception {
         if (!loadStatically || lightblueFactory == null) {
             lightblueFactory = new LightblueFactory(
-                    new DataSourcesConfiguration(getDatasourcesJson()));
+                    new DataSourcesConfiguration(getDatasourcesJson()),
+                    getLightblueCrudJson(),
+                    getLightblueMetadataJson());
 
             JsonTranslator tx = lightblueFactory.getJsonTranslator();
 
@@ -106,6 +108,26 @@ public abstract class AbstractCRUDTestController {
                 metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
             }
         }
+    }
+
+    /**
+     * Creates and returns an instance of {@link JsonNode} that represents the
+     * relevant lightblue-crud.json. If not set by a subclass, then the default settings will be used.
+     * @return the {@link JsonNode} to use when configuring the lightblue crud controllers, or <code>null</code> to use
+     * the default {@link LightblueFactory} setting.
+     */
+    protected JsonNode getLightblueCrudJson() throws Exception {
+        return null;
+    }
+
+    /**
+     * Creates and returns an instance of {@link JsonNode} that represents the
+     * relevant lightblue-metadata.json. If not set by a subclass, then the default settings will be used.
+     * @return the {@link JsonNode} to use when configuring the lightblue metadata, or <code>null</code> to use
+     * the default {@link LightblueFactory} setting.
+     */
+    protected JsonNode getLightblueMetadataJson() throws Exception {
+        return null;
     }
 
     /**
