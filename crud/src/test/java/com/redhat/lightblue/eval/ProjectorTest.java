@@ -115,6 +115,14 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void fieldProjectorTest_arr_star_query() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field12.nf1.nnf1.*.nnnf1.arr','match':{'field':'id','op':'=','rvalue':12}}}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        System.out.println(pdoc);
+    }
+
+    @Test
     public void fieldProjectorTest_arr_query_sort() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','match':{'field':'elemf3','op':'>=','rvalue':4},'project':{'field':'*'}, 'sort': { 'elemf2':'$desc'}}");
         Projector projector = Projector.getInstance(p, md);
