@@ -210,7 +210,18 @@ public class CompositeFindImpl implements Finder {
                 if(searchQPlan!=null) {
                     LOGGER.debug("Retrieving root node documents from previous search");
                     rootDocs=searchQPlanRoot.getProperty(QueryPlanNodeExecutor.class).getDocs();
-                    nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(rootDocs);
+                    // Filter duplicates, recreate ResultDoc objects
+                    Set<DocId> ids=new HashSet<>();
+                    List<ResultDoc> filteredDocs=new ArrayList<>(rootDocs.size());
+                    for(ResultDoc doc:rootDocs) {
+                        if(!ids.contains(doc.getId())) {
+                            ids.add(doc.getId());
+                            filteredDocs.add(new ResultDoc(doc.getDoc(),doc.getId(),nodeOrdering[i]));
+                        }
+                    }
+                    LOGGER.debug("Retrieving {} docs",filteredDocs.size());
+                    nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(filteredDocs);
+                    rootDocs=filteredDocs;
                 } else {
                     LOGGER.debug("Performing search for retrieval");
                     // Perform search

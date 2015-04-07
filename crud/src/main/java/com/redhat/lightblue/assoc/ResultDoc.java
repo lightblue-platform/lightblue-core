@@ -119,13 +119,6 @@ public class ResultDoc implements Serializable {
     }
 
     /**
-     * Returns the reference from the parent document of the parent node 
-     */
-    public ChildDocReference getParentDoc(QueryPlanNode parentNode) {
-        return parents.get(parentNode);
-    }
-
-    /**
      * Sets the parent document reference of this document that is coming from parentNode
      */
     public void setParentDoc(QueryPlanNode parentNode,ChildDocReference ref) {
