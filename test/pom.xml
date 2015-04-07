@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
     <artifactId>lightblue-core-test</artifactId>
     <groupId>com.redhat.lightblue</groupId>
