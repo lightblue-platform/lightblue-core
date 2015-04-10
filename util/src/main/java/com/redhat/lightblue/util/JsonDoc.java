@@ -441,13 +441,28 @@ public class JsonDoc implements Serializable {
      * @return Old value
      */
     public JsonNode modify(Path p, JsonNode newValue, boolean createPath) {
+        return modify(docRoot,p,newValue,createPath);
+    }
+
+    /**
+     * Modifies an existing node value
+     *
+     * @param root The root node
+     * @param p Path to modify
+     * @param newValue new value to set. If null, path is removed from the doc.
+     * @param createPath If true, creates all intermediate nodes if they don't
+     * exist
+     *
+     * @return Old value
+     */
+    public static JsonNode modify(JsonNode root,Path p, JsonNode newValue, boolean createPath) {
         int n = p.numSegments();
         if (n == 0) {
             throw new IllegalArgumentException(UtilConstants.ERR_CANT_SET_EMPTY_PATH_VALUE);
         }
         Path parent = p.prefix(-1);
         // Parent must be a container node
-        JsonNode parentNode = getParentNode(parent, createPath, p);
+        JsonNode parentNode = getParentNode(root,parent, createPath, p);
         JsonNode oldValue;
         String last = p.getLast();
         if (parentNode instanceof ObjectNode) {
@@ -516,7 +531,7 @@ public class JsonDoc implements Serializable {
         return new JsonDoc(docRoot.deepCopy());
     }
 
-    private JsonNode getParentNode(Path parent, boolean createPath, Path p) {
+    private static JsonNode getParentNode(JsonNode docRoot, Path parent, boolean createPath, Path p) {
         JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
         if (parentNode == null && createPath) {
             CREATING_RESOLVER.resolve(p, docRoot, 0);
@@ -532,7 +547,7 @@ public class JsonDoc implements Serializable {
         return parentNode;
     }
 
-    private JsonNode modifyObjectNode(JsonNode parentNode, JsonNode newValue, String last, Path p) {
+    private static JsonNode modifyObjectNode(JsonNode parentNode, JsonNode newValue, String last, Path p) {
         JsonNode oldValue;
         if (Util.isNumber(last)) {
             throw new IllegalArgumentException(UtilConstants.ERR_INVALID_INDEXED_ACCESS + p);
@@ -547,7 +562,7 @@ public class JsonDoc implements Serializable {
         return oldValue;
     }
 
-    private JsonNode modifyArrayNode(ArrayNode parentNode, JsonNode newValue, String last, Path p) {
+    private static JsonNode modifyArrayNode(ArrayNode parentNode, JsonNode newValue, String last, Path p) {
         JsonNode oldValue;
         ArrayNode arr = (ArrayNode) parentNode;
         int index;
