@@ -70,6 +70,10 @@ public final class MetadataConstants {
 
     public static final String ERR_AUTH_FAILED = "metadata:AuthFailed";
 
+    public static final String ERR_DATASOURCE_TIMEOUT = "metadata:DataSourceTimeout";
+
+    public static final String ERR_DATASOURCE_UNKNOWN = "metadata:DataSourceUnknown";
+
 
     private MetadataConstants() {
     }

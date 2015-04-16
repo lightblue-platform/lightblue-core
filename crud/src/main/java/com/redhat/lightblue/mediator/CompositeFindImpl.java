@@ -55,7 +55,8 @@ import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryPlanChooser;
-import com.redhat.lightblue.assoc.QueryPlanDoc;
+import com.redhat.lightblue.assoc.ResultDoc;
+import com.redhat.lightblue.assoc.ChildDocReference;
 
 import com.redhat.lightblue.assoc.scorers.SimpleScorer;
 import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
@@ -201,19 +202,33 @@ public class CompositeFindImpl implements Finder {
         // Now execute rest of the retrieval plan
         QueryPlanNode[] nodeOrdering=retrievalQPlan.getBreadthFirstNodeOrdering();
 
-        List<QueryPlanDoc> rootDocs=null;
+        List<ResultDoc> rootDocs=null;
         for(int i=0;i<nodeOrdering.length;i++) {
             if(nodeOrdering[i].getMetadata().getParent()==null) {
                 // This is the root node. If we know the result docs, assign them, otherwise, search
+                LOGGER.debug("Retrieving root node documents");
                 if(searchQPlan!=null) {
+                    LOGGER.debug("Retrieving root node documents from previous search");
                     rootDocs=searchQPlanRoot.getProperty(QueryPlanNodeExecutor.class).getDocs();
-                    nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(rootDocs);
+                    // Filter duplicates, recreate ResultDoc objects
+                    Set<DocId> ids=new HashSet<>();
+                    List<ResultDoc> filteredDocs=new ArrayList<>(rootDocs.size());
+                    for(ResultDoc doc:rootDocs) {
+                        if(!ids.contains(doc.getId())) {
+                            ids.add(doc.getId());
+                            filteredDocs.add(new ResultDoc(doc.getDoc(),doc.getId(),nodeOrdering[i]));
+                        }
+                    }
+                    LOGGER.debug("Retrieving {} docs",filteredDocs.size());
+                    nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(filteredDocs);
+                    rootDocs=filteredDocs;
                 } else {
+                    LOGGER.debug("Performing search for retrieval");
                     // Perform search
                     QueryPlanNodeExecutor exec=nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
                     if (req.getTo() != null && req.getFrom() != null) {
                         exec.setRange(req.getFrom(), req.getTo());
-                    }
+                    }                    
                     exec.execute(ctx,req.getSort());
                     rootDocs=exec.getDocs();
                 }
@@ -224,9 +239,10 @@ public class CompositeFindImpl implements Finder {
             }
         }
 
+        LOGGER.debug("Root docs:{}",rootDocs.size());
         List<DocCtx> resultDocuments=new ArrayList<>(rootDocs.size());
-        for(QueryPlanDoc dgd:rootDocs) {
-            retrieveFragments(dgd,retrievalQPlanRoot.getProperty(QueryPlanNodeExecutor.class));
+        for(ResultDoc dgd:rootDocs) {
+            retrieveFragments(dgd);
             PredefinedFields.updateArraySizes(factory.getNodeFactory(),dgd.getDoc());
             DocCtx dctx=new DocCtx(dgd.getDoc());
             dctx.setOutputDocument(dgd.getDoc());
@@ -243,22 +259,20 @@ public class CompositeFindImpl implements Finder {
         return response;
     }
     
-     private void retrieveFragments(QueryPlanDoc doc,
-                                   QueryPlanNodeExecutor exec) {
-        // We only process child nodes.
-        QueryPlanNode[] destinations=exec.getNode().getDestinations();
-        for(QueryPlanNode childNode:destinations) {
-            QueryPlanNodeExecutor childExecutor=childNode.getProperty(QueryPlanNodeExecutor.class);
-            CompositeMetadata childMd=childNode.getMetadata();
-            Path insertInto=childMd.getEntityPath();
-            JsonNode insertionNode=doc.getDoc().get(insertInto);
-            if(insertionNode==null)
-                doc.getDoc().modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
-            List<QueryPlanDoc> children=doc.getChildren(childNode);
+    private void retrieveFragments(ResultDoc doc) {
+        for(List<ChildDocReference> children:doc.getChildren().values()) {
             if(children!=null) {
-                for(QueryPlanDoc childDoc:children) {
-                    ((ArrayNode)insertionNode).add(childDoc.getDoc().getRoot());
-                    retrieveFragments(doc,childExecutor);
+                for(ChildDocReference ref:children) {
+                    Path insertInto=ref.getReferenceField();
+                    JsonNode insertionNode=doc.getDoc().get(insertInto);
+                    LOGGER.debug("Inserting reference {} to {} with {} docs",ref,insertInto,ref.getChildren().size());
+                    if(insertionNode==null) {
+                        doc.getDoc().modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
+                    }
+                    for(ResultDoc child:ref.getChildren()) {
+                        ((ArrayNode)insertionNode).add(child.getDoc().getRoot());
+                        retrieveFragments(child);
+                    }
                 }
             }
         }

@@ -64,6 +64,8 @@ public final class LightblueFactory implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(LightblueFactory.class);
 
     private final DataSourcesConfiguration datasources;
+    private final JsonNode crudNode;
+    private final JsonNode metadataNode;
 
     private static final JsonNodeFactory NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
 
@@ -71,10 +73,16 @@ public final class LightblueFactory implements Serializable {
     private transient volatile JSONMetadataParser parser = null;
     private transient volatile Mediator mediator = null;
     private volatile Factory factory;
-    private transient volatile JsonTranslator jsonTranslator=null;
+    private transient volatile JsonTranslator jsonTranslator = null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
+        this(datasources, null, null);
+    }
+
+    public LightblueFactory(DataSourcesConfiguration datasources, JsonNode crudNode, JsonNode metadataNode) {
         this.datasources = datasources;
+        this.crudNode = crudNode;
+        this.metadataNode = metadataNode;
     }
 
     private synchronized void initializeParser()
@@ -104,9 +112,11 @@ public final class LightblueFactory implements Serializable {
     private synchronized void initializeFactory()
             throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (factory == null) {
-            JsonNode root;
-            try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
-                root = JsonUtils.json(is);
+            JsonNode root = crudNode;
+            if (root == null) {
+                try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
+                    root = JsonUtils.json(is);
+                }
             }
 
             // convert root to Configuration object
@@ -114,7 +124,7 @@ public final class LightblueFactory implements Serializable {
             configuration.initializeFromJson(root);
 
             // Set validation flag for all crud requests
-            getJsonTranslator().setValidation(Request.class,configuration.isValidateRequests());
+            getJsonTranslator().setValidation(Request.class, configuration.isValidateRequests());
 
             Factory f = new Factory();
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
@@ -141,9 +151,11 @@ public final class LightblueFactory implements Serializable {
         if (metadata == null) {
             LOGGER.debug("Initializing metadata");
 
-            JsonNode root;
-            try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
-                root = JsonUtils.json(is);
+            JsonNode root = metadataNode;
+            if (root == null) {
+                try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
+                    root = JsonUtils.json(is);
+                }
             }
             LOGGER.debug("Config root:{}", root);
 
@@ -156,22 +168,23 @@ public final class LightblueFactory implements Serializable {
             cfg.initializeFromJson(root);
 
             // Set validation flag for all metadata requests
-            getJsonTranslator().setValidation(EntityMetadata.class,cfg.isValidateRequests());
-            getJsonTranslator().setValidation(EntitySchema.class,cfg.isValidateRequests());
-            getJsonTranslator().setValidation(EntityInfo.class,cfg.isValidateRequests());
+            getJsonTranslator().setValidation(EntityMetadata.class, cfg.isValidateRequests());
+            getJsonTranslator().setValidation(EntitySchema.class, cfg.isValidateRequests());
+            getJsonTranslator().setValidation(EntityInfo.class, cfg.isValidateRequests());
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
         }
     }
 
     private synchronized void initializeJsonTranslator() {
-        if(jsonTranslator==null) {
+        if (jsonTranslator == null) {
             LOGGER.debug("Initializing JsonTranslator");
 
-            JsonTranslator tx=new JsonTranslator();
+            JsonTranslator tx = new JsonTranslator();
 
-            tx.registerTranslation(EntityMetadata.class,new JsonTranslator.FromJson() {
-                @Override public Object fromJson(JsonNode node) {
+            tx.registerTranslation(EntityMetadata.class, new JsonTranslator.FromJson() {
+                @Override
+                public Object fromJson(JsonNode node) {
                     try {
                         return getJSONParser().parseEntityMetadata(node);
                     } catch (RuntimeException re) {
@@ -180,9 +193,10 @@ public final class LightblueFactory implements Serializable {
                         throw new RuntimeException(e);
                     }
                 }
-            },"json-schema/metadata/metadata.json");
-            tx.registerTranslation(EntityInfo.class,new JsonTranslator.FromJson() {
-                @Override public Object fromJson(JsonNode node) {
+            }, "json-schema/metadata/metadata.json");
+            tx.registerTranslation(EntityInfo.class, new JsonTranslator.FromJson() {
+                @Override
+                public Object fromJson(JsonNode node) {
                     try {
                         return getJSONParser().parseEntityInfo(node);
                     } catch (RuntimeException re) {
@@ -191,9 +205,10 @@ public final class LightblueFactory implements Serializable {
                         throw new RuntimeException(e);
                     }
                 }
-            },"json-schema/metadata/entityInfo.json");
-            tx.registerTranslation(EntitySchema.class,new JsonTranslator.FromJson() {
-                @Override public Object fromJson(JsonNode node) {
+            }, "json-schema/metadata/entityInfo.json");
+            tx.registerTranslation(EntitySchema.class, new JsonTranslator.FromJson() {
+                @Override
+                public Object fromJson(JsonNode node) {
                     try {
                         return getJSONParser().parseEntitySchema(node);
                     } catch (RuntimeException re) {
@@ -202,31 +217,31 @@ public final class LightblueFactory implements Serializable {
                         throw new RuntimeException(e);
                     }
                 }
-            },"json-schema/metadata/schema.json");
+            }, "json-schema/metadata/schema.json");
 
             try {
                 tx.registerTranslation(FindRequest.class,
-                                       new JsonTranslator.StaticFactoryMethod(FindRequest.class,"fromJson",ObjectNode.class),
-                                       "json-schema/findRequest.json");
+                        new JsonTranslator.StaticFactoryMethod(FindRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/findRequest.json");
                 tx.registerTranslation(InsertionRequest.class,
-                                       new JsonTranslator.StaticFactoryMethod(InsertionRequest.class,"fromJson",ObjectNode.class),
-                                       "json-schema/insertRequest.json");
+                        new JsonTranslator.StaticFactoryMethod(InsertionRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/insertRequest.json");
                 tx.registerTranslation(DeleteRequest.class,
-                                       new JsonTranslator.StaticFactoryMethod(DeleteRequest.class,"fromJson",ObjectNode.class),
-                                       "json-schema/deleteRequest.json");
+                        new JsonTranslator.StaticFactoryMethod(DeleteRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/deleteRequest.json");
                 tx.registerTranslation(SaveRequest.class,
-                                       new JsonTranslator.StaticFactoryMethod(SaveRequest.class,"fromJson",ObjectNode.class),
-                                       "json-schema/saveRequest.json");
+                        new JsonTranslator.StaticFactoryMethod(SaveRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/saveRequest.json");
                 tx.registerTranslation(UpdateRequest.class,
-                                       new JsonTranslator.StaticFactoryMethod(UpdateRequest.class,"fromJson",ObjectNode.class),
-                                       "json-schema/updateRequest.json");
+                        new JsonTranslator.StaticFactoryMethod(UpdateRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/updateRequest.json");
             } catch (RuntimeException re) {
                 throw re;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
-            jsonTranslator=tx;
+            jsonTranslator = tx;
         }
     }
 
@@ -267,7 +282,7 @@ public final class LightblueFactory implements Serializable {
     }
 
     public JsonTranslator getJsonTranslator() {
-        if(jsonTranslator==null) {
+        if (jsonTranslator == null) {
             initializeJsonTranslator();
         }
         return jsonTranslator;

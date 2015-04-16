@@ -188,7 +188,7 @@ public class ForEachExpressionEvaluator extends Updater {
         return ret;
     }
 
-    private class Memento {
+    private static class Memento {
         private final JsonNodeFactory factory;
         private final FieldTreeNode context;
         private final ForEachExpression expr;
@@ -200,7 +200,7 @@ public class ForEachExpressionEvaluator extends Updater {
         }
     }
 
-    private class UpdateInfo {
+    private static class UpdateInfo {
         private Path field;
         private ArrayField fieldMd;
         private QueryEvaluator queryEvaluator;

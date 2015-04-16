@@ -20,6 +20,9 @@ package com.redhat.lightblue.hystrix.statsd;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.publish.BaseMetricObserver;
@@ -28,8 +31,6 @@ import com.netflix.servo.publish.graphite.GraphiteNamingConvention;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 import com.timgroup.statsd.StatsDClientErrorHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Metrics observer that sends hystrix data to statsd with the intent of then
@@ -56,7 +57,7 @@ public class StatsdMetricObserver extends BaseMetricObserver {
         this.port = port;
         this.namingConvention = namingConvention;
     }
-    
+
     protected StatsDClient createClient() {
         return new NonBlockingStatsDClient(prefix, host, port, errorHandlerInstance);
     }
@@ -69,22 +70,23 @@ public class StatsdMetricObserver extends BaseMetricObserver {
         // client but until then it cannot be safely reused.
         StatsDClient statsd = createClient();
         LOGGER.debug("sending data");
+        try {
+            for (Metric metric : metrics) {
+                String aspect = namingConvention.getName(metric);
 
-        for (Metric metric : metrics) {
-            String aspect = namingConvention.getName(metric);
+                if (metric.getConfig().getTags().getTag(DataSourceType.COUNTER.getValue()) != null) {
+                    statsd.count(aspect, metric.getNumberValue().longValue());
+                } else if (metric.hasNumberValue()) {
+                    statsd.gauge(aspect, metric.getNumberValue().longValue());
+                } else {
+                    statsd.set(aspect, metric.getValue().toString());
+                }
 
-            if (metric.getConfig().getTags().getTag(DataSourceType.COUNTER.getValue()) != null) {
-                statsd.count(aspect, metric.getNumberValue().longValue());
-            } else  if (metric.hasNumberValue()) {
-                statsd.gauge(aspect, metric.getNumberValue().longValue());
-            } else {
-                statsd.set(aspect, metric.getValue().toString());
+                statsd.time(aspect, metric.getTimestamp() / 1000);
             }
-
-            statsd.time(aspect, metric.getTimestamp() / 1000);
+        } finally {
+            statsd.stop();
         }
-
-        statsd.stop();
     }
 
     private static final ErrorHandler errorHandlerInstance = new ErrorHandler();

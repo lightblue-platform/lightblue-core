@@ -18,12 +18,12 @@
     "properties": {
         "status": {
             "enum": [
-                "complete",
-                "partial",
-                "async",
-                "error"
+                "COMPLETE",
+                "PARTIAL",
+                "ASYNC",
+                "ERROR"
             ],
-            "description": "complete: The operation completed, all requests are processed<br>partial: Some of the operations are successful, some failed<br>async: Operation running asynchronously<br>error: Operation failed because of some system error"
+            "description": "COMPLETE: The operation completed, all requests are processed<br>PARTIAL: Some of the operations are successful, some failed<br>ASYNC: Operation running asynchronously<br>ERROR: Operation failed because of some system error"
         },
         "modifiedCount": {
             "type": "integer",

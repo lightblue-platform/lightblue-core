@@ -72,6 +72,10 @@ public final class CrudConstants {
 
     public static final String ERR_AUTH_FAILED = "crud:AuthFailed";
 
+    public static final String ERR_DATASOURCE_TIMEOUT = "crud:DataSourceTimeout";
+
+    public static final String ERR_DATASOURCE_UNKNOWN = "crud:DataSourceUnknown";
+
     private CrudConstants() {
 
     }

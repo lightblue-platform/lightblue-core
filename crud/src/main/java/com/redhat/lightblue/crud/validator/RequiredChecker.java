@@ -21,6 +21,9 @@ package com.redhat.lightblue.crud.validator;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
@@ -34,6 +37,8 @@ import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.Path;
 
 public class RequiredChecker implements FieldConstraintDocChecker {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(RequiredChecker.class);
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
@@ -59,6 +64,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
      */
     public static List<Path> getMissingFields(Path fieldMetadataPath,
                                               JsonDoc doc) {
+        LOGGER.debug("Checking {}",fieldMetadataPath);
         int nAnys = fieldMetadataPath.nAnys();
         List<Path> errors = new ArrayList<Path>();
         if (nAnys == 0) {
@@ -70,15 +76,18 @@ public class RequiredChecker implements FieldConstraintDocChecker {
             // If the array element exists, then the member must exist in that object
             Path parent = fieldMetadataPath.prefix(-1);
             String fieldName = fieldMetadataPath.tail(0);
+            LOGGER.debug("Checking {} under {}",fieldName,parent);
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(parent);
             while (cursor.hasNext()) {
                 cursor.next();
                 JsonNode parentObject = cursor.getCurrentValue();
+                LOGGER.debug("Checking {}",cursor.getCurrentKey());
                 if (parentObject.get(fieldName) == null) {
                     errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
                 }
             }
         }
+        LOGGER.debug("Errors:{}",errors);
         return errors;
     }
 }
