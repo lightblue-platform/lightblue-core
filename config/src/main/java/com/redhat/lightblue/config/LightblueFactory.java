@@ -148,7 +148,7 @@ public final class LightblueFactory implements Serializable {
         }
     }
 
-    private synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private synchronized void initializeMetadata(Factory factory) throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
             LOGGER.debug("Initializing metadata");
 
@@ -174,7 +174,6 @@ public final class LightblueFactory implements Serializable {
             getJsonTranslator().setValidation(EntityInfo.class, cfg.isValidateRequests());
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
-            initializeFactory(); //re enforce the factory initialization
             factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParser()));
         }
     }
@@ -251,7 +250,7 @@ public final class LightblueFactory implements Serializable {
     public Metadata getMetadata()
             throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
-            initializeMetadata();
+            initializeMetadata(getFactory());
         }
 
         return metadata;
