@@ -30,9 +30,6 @@ public class FieldProjector extends Projector {
     private final boolean include;
     private final boolean recursive;
 
-    private boolean exactMatch=false;
-    private Projector decidingProjector=null;
-    
     public FieldProjector(FieldProjection p, Path ctxPath, FieldTreeNode ctx) {
         super(ctxPath, ctx);
         field = new Path(ctxPath, p.getField());
@@ -46,33 +43,18 @@ public class FieldProjector extends Projector {
     }
 
     @Override
-    public boolean exactMatch() {
-        return exactMatch;
-    }
-
-    public Projector getDecidingProjector() {
-        return decidingProjector;
-    }
-
-    @Override
     public Boolean project(Path p, QueryEvaluationContext ctx) {
-        exactMatch=false;
-        decidingProjector=null;
         if (p.matchingPrefix(field)) {
             // If this is true, we're checking an ancestor of the
             // projection field, or the projection field itself, but
             // not a field that is a descendant of the projection
             // field
             if (include) {
-                exactMatch=true;
-                decidingProjector=this;
                 return Boolean.TRUE;
                 // Inclusion implies, because if we're going to
                 // include a descendant of this field, this field
                 // should also be included
             } else if (p.matches(field)) {
-                exactMatch=true;
-                decidingProjector=this;
                 return Boolean.FALSE;
                 // If this field is exclusively excluded, exclude it
             }
@@ -83,7 +65,6 @@ public class FieldProjector extends Projector {
                    ) {
             // This is an implied inclusion or exclusion, because the
             // projection is for an ancestor of this field.
-            decidingProjector=this;
             return include ? Boolean.TRUE : Boolean.FALSE;
         }
         return null;

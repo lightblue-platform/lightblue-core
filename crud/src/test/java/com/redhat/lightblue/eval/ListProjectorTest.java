@@ -82,7 +82,7 @@ public class ListProjectorTest extends AbstractJsonNodeTest {
     public void projection_list() throws Exception {
         String pr = "[{'field':'field6.*','include':1},{'field':'field5'}]";
         Projector projector = projector(pr, md);
-        JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[],'nf11':null}}".replace('\'', '\"'));
 
         JsonDoc newDoc = projector.project(doc, factory);
 
@@ -93,7 +93,7 @@ public class ListProjectorTest extends AbstractJsonNodeTest {
     public void one_$parent_projection_list() throws Exception {
         String pr = "[{'field':'field7.$parent.field6.*','include':1},{'field':'field5'}]";
         Projector projector = projector(pr, md);
-        JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[],'nf11':null}}".replace('\'', '\"'));
 
         JsonDoc newDoc = projector.project(doc, factory);
 
@@ -104,7 +104,7 @@ public class ListProjectorTest extends AbstractJsonNodeTest {
     public void two_$parent_projection_list() throws Exception {
         String pr = "[{'field':'field7.$parent.field6.*','include':1},{'field':'field5'}]";
         Projector projector = projector(pr, md);
-        JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[]}}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{'field5':true,'field6':{'nf1':'nvalue1','nf2':'nvalue2','nf3':4,'nf4':false,'nf5':[],'nf6':[],'nf7':{},'nf8':[],'nf9':[],'nf10':[],'nf11':null}}".replace('\'', '\"'));
 
         JsonDoc newDoc = projector.project(doc, factory);
 
