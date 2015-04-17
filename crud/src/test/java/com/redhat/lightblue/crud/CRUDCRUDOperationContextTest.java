@@ -33,7 +33,7 @@ import org.junit.Test;
  *
  * @author nmalik
  */
-public class CRUDOperationContextTest {
+public class CRUDCRUDOperationContextTest {
     
     @Test
     public void getOutputDocumentsWithoutErrors_nullOutputDocument() {
@@ -42,7 +42,7 @@ public class CRUDOperationContextTest {
                                 Factory f,
                                 List<JsonDoc> docs
         */
-        CRUDOperationContext context =new CRUDOperationContext(Operation.INSERT, "foo", new Factory(), null) {
+        CRUDOperationContext context =new CRUDOperationContext(CRUDOperation.INSERT, "foo", new Factory(), null) {
             
             @Override
             public EntityMetadata getEntityMetadata(String entityName) {

@@ -33,7 +33,7 @@ import com.redhat.lightblue.Request;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.DocCtx;
@@ -58,13 +58,13 @@ public final class OperationContext extends CRUDOperationContext {
      * @param request The top-level request
      * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
-     * @param operation The operation in progress
+     * @param CRUDOperation The operation in progress
      */
     public OperationContext(Request request,
                             Metadata metadata,
                             Factory factory,
-                            Operation operation) {
-        super(operation, 
+                            CRUDOperation CRUDOperation) {
+        super(CRUDOperation,
               request.getEntityVersion().getEntity(), 
               factory, 
               request instanceof DocRequest ? JsonDoc.docList( ((DocRequest)request).getEntityData()):null );
@@ -92,7 +92,7 @@ public final class OperationContext extends CRUDOperationContext {
      * @param request The top-level request
      * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
-     * @param operation The operation in progress
+     * @param CRUDOperation The operation in progress
      * @param resolver the resolver instance to use
      * @param docs The documents in the call. Can be null
      * @param callerRoles Roles of the current caller
@@ -101,12 +101,12 @@ public final class OperationContext extends CRUDOperationContext {
     private OperationContext(Request request,
                              Metadata metadata,
                              Factory factory,
-                             Operation operation,
+                             CRUDOperation CRUDOperation,
                              DefaultMetadataResolver resolver,
                              List<DocCtx> docs,
                              Set<String> callerRoles,
                              HookManager hookManager) {
-        super(operation,
+        super(CRUDOperation,
               request.getEntityVersion().getEntity(),
               factory,
               docs,
@@ -130,7 +130,7 @@ public final class OperationContext extends CRUDOperationContext {
         return new OperationContext(newReq,
                                     metadata,
                                     getFactory(),
-                                    Operation.FIND,
+                                    CRUDOperation.FIND,
                                     resolver,
                                     new ArrayList<DocCtx>(),
                                     getCallerRoles(),

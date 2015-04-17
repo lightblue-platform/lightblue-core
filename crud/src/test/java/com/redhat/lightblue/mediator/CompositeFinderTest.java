@@ -41,7 +41,7 @@ import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
@@ -98,8 +98,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         }
 
         @Override
-        protected OperationContext newCtx(Request request,Operation operation) {
-            return ctx=super.newCtx(request,operation);
+        protected OperationContext newCtx(Request request,CRUDOperation CRUDOperation) {
+            return ctx=super.newCtx(request, CRUDOperation);
         }
     }
 

@@ -19,6 +19,7 @@
 package com.redhat.lightblue.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.metadata.HookConfiguration;
 import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
@@ -35,6 +36,11 @@ public class TestHookConfigurationParser implements HookConfigurationParser<Json
     @Override
     public String getName() {
         return HOOK_NAME;
+    }
+
+    @Override
+    public CRUDHook getCRUDHook() {
+        return null;
     }
 
     @Override

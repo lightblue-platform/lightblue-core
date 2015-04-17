@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import com.redhat.lightblue.hooks.SimpleHookResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,6 +174,8 @@ public final class LightblueFactory implements Serializable {
             getJsonTranslator().setValidation(EntityInfo.class, cfg.isValidateRequests());
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
+            initializeFactory(); //re enforce the factory initialization
+            factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParser()));
         }
     }
 
