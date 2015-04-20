@@ -33,12 +33,12 @@
        <dependency>
           <groupId>com.redhat.lightblue</groupId>
           <artifactId>lightblue-core-metadata</artifactId>
-          <version>${project.version}</version>
+          <version>1.4.0-SNAPSHOT</version>
        </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-crud</artifactId>
-            <version>${project.version}</version>
+            <version>1.4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -49,7 +49,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(10, pdoc.get(new Path("field6")).size());
+        Assert.assertEquals(11, pdoc.get(new Path("field6")).size());
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf2")));
@@ -66,7 +66,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(10, pdoc.get(new Path("field6")).size());
+        Assert.assertEquals(11, pdoc.get(new Path("field6")).size());
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf2")));

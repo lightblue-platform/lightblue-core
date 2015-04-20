@@ -18,6 +18,9 @@
  */
 package com.redhat.lightblue.eval;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -29,6 +32,8 @@ import com.redhat.lightblue.query.ArrayQueryMatchProjection;
  * Projector to return array elements that match a query
  */
 public class ArrayQueryProjector extends ArrayProjector {
+
+    private static final Logger LOGGER=LoggerFactory.getLogger(ArrayQueryProjector.class);
 
     private final QueryEvaluator query;
 
@@ -48,13 +53,14 @@ public class ArrayQueryProjector extends ArrayProjector {
 
     @Override
     protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
+        LOGGER.debug("Evaluating array query projection for {}",p);
         Path contextRoot = ctx.getPath();
         QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
                 : p.suffix(-contextRoot.numSegments()));
         if (query.evaluate(nestedContext)) {
-            setLastMatch(true);
+            LOGGER.debug("query evaluates to true");
             return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
         }
-        return null;
+        return Boolean.FALSE;
     }
 }
