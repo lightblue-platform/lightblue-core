@@ -33,7 +33,7 @@ import org.junit.Test;
  *
  * @author nmalik
  */
-public class CRUDCRUDOperationContextTest {
+public class CRUDOperationContextTest {
     
     @Test
     public void getOutputDocumentsWithoutErrors_nullOutputDocument() {
