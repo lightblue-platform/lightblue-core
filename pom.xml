@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-pom</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Core components</description>
     <licenses>
@@ -117,26 +117,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>
                 <artifactId>hystrix-core</artifactId>
-                <version>1.4.0-RC5</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>
                 <artifactId>hystrix-metrics-event-stream</artifactId>
-                <version>1.4.0-RC5</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <groupId>com.netflix.hystrix</groupId>
                 <artifactId>hystrix-servo-metrics-publisher</artifactId>
-                <version>1.4.0-RC5</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
             </dependency>
+            <dependency>
+                <groupId>com.timgroup</groupId>
+                <artifactId>java-statsd-client</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <!-- The io.reactivex dependency is necessary to be available on the compile time due an issue found (on java/maven) -->
+            <dependency>
+                <groupId>io.reactivex</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>1.0.7</version>
+                <scope>compile</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -145,14 +162,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.servo</groupId>
-            <artifactId>servo-graphite</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-servo-metrics-publisher</artifactId>
         </dependency>
     </dependencies>
     <modules>
@@ -163,6 +172,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <module>util</module>
         <module>config</module>
         <module>test</module>
+        <module>hystrix</module>
     </modules>
     <properties>
         <sonar.exclusions>**/*Test.java,**/*Exception.java</sonar.exclusions>
@@ -171,6 +181,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <sonar.jdbc.password>sonar</sonar.jdbc.password>
         <sonar.host.url>http://127.0.0.1:8080</sonar.host.url>
         <sonar.projectName>lightblue-core</sonar.projectName>
+
+        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.compiler.debuglevel>lines,vars,source</maven.compiler.debuglevel>
+        <maven.compiler.verbose>true</maven.compiler.verbose>
     </properties>
     <build>
         <plugins>

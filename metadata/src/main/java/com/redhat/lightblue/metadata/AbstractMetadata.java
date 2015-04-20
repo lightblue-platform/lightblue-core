@@ -38,7 +38,7 @@ import java.util.*;
 public abstract class AbstractMetadata implements Metadata {
     public static final String SEMVER_REGEX = "^\\d+\\.\\d+\\.\\d+(-.*)?$";
 
-    protected Map<MetadataRoles, List<String>> roleMap;
+    protected Map<MetadataRole, List<String>> roleMap;
 
     /**
      * Checks that the given version exists, raises an error if it does not.
@@ -128,11 +128,11 @@ public abstract class AbstractMetadata implements Metadata {
     }
 
     @Override
-    public Map<MetadataRoles, List<String>> getMappedRoles() {
+    public Map<MetadataRole, List<String>> getMappedRoles() {
         return roleMap;
     }
 
-    public void setRoleMap(Map<MetadataRoles, List<String>> roleMap) {
+    public void setRoleMap(Map<MetadataRole, List<String>> roleMap) {
         this.roleMap = roleMap;
     }
 

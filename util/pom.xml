@@ -22,12 +22,12 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>1.3.0-SNAPSHOT</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-util</artifactId>
     <packaging>jar</packaging>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
         <dependency>
@@ -71,10 +71,10 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>com.netflix.hystrix</groupId>
-            <artifactId>hystrix-servo-metrics-publisher</artifactId>
-        </dependency-->
+        <dependency>
+            <groupId>com.timgroup</groupId>
+            <artifactId>java-statsd-client</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

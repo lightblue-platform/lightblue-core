@@ -108,9 +108,9 @@ public interface Metadata extends Serializable {
 
     /**
      * Return the Map of all Roles configured for authorization. The roles names
-     * are defined in com.redhat.lightblue.metadata.MetadataRoles enum
+     * are defined in com.redhat.lightblue.metadata.MetadataRole enum
      */
-    Map<MetadataRoles, List<String>> getMappedRoles();
+    Map<MetadataRole, List<String>> getMappedRoles();
 
 
     /**

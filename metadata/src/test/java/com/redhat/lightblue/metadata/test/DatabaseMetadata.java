@@ -26,7 +26,7 @@ import com.redhat.lightblue.Response;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
-import com.redhat.lightblue.metadata.MetadataRoles;
+import com.redhat.lightblue.metadata.MetadataRole;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.metadata.VersionInfo;
 
@@ -98,7 +98,7 @@ public class DatabaseMetadata implements Metadata {
     }
 
     @Override
-    public Map<MetadataRoles, List<String>> getMappedRoles() {
+    public Map<MetadataRole, List<String>> getMappedRoles() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

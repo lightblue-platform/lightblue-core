@@ -23,10 +23,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
 public class ArrayQueryProjectorTest extends AbstractJsonNodeTest {
@@ -68,11 +70,26 @@ public class ArrayQueryProjectorTest extends AbstractJsonNodeTest {
     public void array_query_projection_with_no_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','match':{'field':'elemf3','op':'>','rvalue':25},'project':{'field':'*'}}");
         Projector projector = Projector.getInstance(p, md);
-        JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
+    }
+
+    
+    // https://github.com/lightblue-platform/lightblue-core/issues/347
+    @Test
+    public void array_query_projection_only_one_match_others_should_be_excluded() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field12.nf1.nnf1.*.nnnf1.arr','match':{'field':'id','op':'=','rvalue':1}}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+
+        System.out.println("doc:"+pdoc);
+        ArrayNode node=(ArrayNode)pdoc.get(new Path("field12.nf1.nnf1.0.nnnf1.arr"));
+        Assert.assertEquals(1,node.size());
+        node=(ArrayNode)pdoc.get(new Path("field12.nf1.nnf1"));
+        Assert.assertEquals(1,node.size());
     }
 
     @Test
@@ -90,7 +107,7 @@ public class ArrayQueryProjectorTest extends AbstractJsonNodeTest {
     public void one_$parent_array_query_projection_with_no_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.$parent.field7','match':{'field':'elemf3','op':'>','rvalue':25},'project':{'field':'*'}}");
         Projector projector = Projector.getInstance(p, md);
-        JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
@@ -112,7 +129,7 @@ public class ArrayQueryProjectorTest extends AbstractJsonNodeTest {
     public void two_$parent_array_query_projection_with_no_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.nf7.$parent.$parent.field7','match':{'field':'elemf3','op':'>','rvalue':25},'project':{'field':'*'}}");
         Projector projector = Projector.getInstance(p, md);
-        JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 
@@ -134,7 +151,7 @@ public class ArrayQueryProjectorTest extends AbstractJsonNodeTest {
     public void one_$this_array_query_projection_with_no_match() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7.$this','match':{'field':'elemf3','op':'>','rvalue':25},'project':{'field':'*'}}");
         Projector projector = Projector.getInstance(p, md);
-        JsonNode expectedNode = JsonUtils.json("{'field7':[]}".replace('\'', '\"'));
+        JsonNode expectedNode = JsonUtils.json("{}".replace('\'', '\"'));
 
         JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
 

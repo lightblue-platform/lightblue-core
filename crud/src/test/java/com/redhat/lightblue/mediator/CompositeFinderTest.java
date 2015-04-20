@@ -49,10 +49,12 @@ import com.redhat.lightblue.assoc.QueryPlan;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.Sort;
 
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.TestDataStoreParser;
 
@@ -137,6 +139,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return Projection.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
     }
 
+    private Sort sort(String s) throws Exception {
+        return Sort.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
+    }
+
    @Test
     public void sanityCheck() throws Exception {
         FindRequest fr=new FindRequest();
@@ -164,18 +170,50 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void retrieveAandBonly_BFirst() throws Exception {
+    public void retrieveAandBonly_manyA() throws Exception {
         FindRequest fr=new FindRequest();
-        fr.setQuery(query("{'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'}"));
+        fr.setQuery(query("{'field':'_id','op':'$in','values':['A01','A02','A03']}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(3,response.getEntityData().size());
+        Assert.assertEquals("A01",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals(1,response.getEntityData().get(0).get("b").size());
+        Assert.assertEquals("A02",response.getEntityData().get(1).get("_id").asText());
+        Assert.assertEquals(1,response.getEntityData().get(1).get("b").size());
+        Assert.assertEquals("A03",response.getEntityData().get(2).get("_id").asText());
+        Assert.assertEquals(1,response.getEntityData().get(2).get("b").size());
+    }
+
+    @Test
+    public void retrieveAandBonly_manyB() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'$in','values':['MANYB1','MANYB2']}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'nonid_b'}]"));
+        fr.setSort(sort("{'_id':'$asc'}"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(2,response.getEntityData().size());
+        Assert.assertEquals("MANYB1",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals(2,response.getEntityData().get(0).get("nonid_b").size());
+        Assert.assertEquals("MANYB2",response.getEntityData().get(1).get("_id").asText());
+        Assert.assertEquals(2,response.getEntityData().get(1).get("nonid_b").size());
+    }
+
+    @Test
+    public void retrieveAandConly_CFirst() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'obj1.c.*.field1','op':'=','rvalue':'ABFPwrjyx-o5DQWWZmSEfKf3W1z'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c'}]"));
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
         QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
-         // This one must have B -> A
+        //This one must have C -> A
         Assert.assertEquals(1,qplan.getSources().length);
-        Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
+        Assert.assertEquals("C",qplan.getSources()[0].getMetadata().getName());
    }
 
     @Test
@@ -193,4 +231,56 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals("B",qplan.getSources()[0].getMetadata().getName());
     }
 
+    @Test
+    public void retrieveNestedArrayRef() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'ADEEP'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("ADEEP",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals("BDEEP1",JsonDoc.get(response.getEntityData().get(0),new Path("level1.arr1.0.ref.0._id")).asText());
+        Assert.assertEquals("BDEEP2",JsonDoc.get(response.getEntityData().get(0),new Path("level1.arr1.1.ref.0._id")).asText());
+    }
+
+
+    @Test
+    public void assocTest2_365() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'A.*.objectType','op':'=','rvalue':'jA'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'A.*','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("jB","1.0.1-SNAPSHOT"));
+
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+    }
+
+    // @Test
+    // public void retrieveNestedArrayRef_reversed() throws Exception {
+    //     FindRequest fr=new FindRequest();
+    //     fr.setQuery(query("{'field':'level1.arr1.*.ref.*.field1','op':'=','rvalue':'bdeep1'}"));
+    //     fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
+    //     fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+    //     Response response=mediator.find(fr);
+    //     Assert.assertEquals(1,response.getEntityData().size());
+    //     Assert.assertEquals("ADEEP",response.getEntityData().get(0).get("_id").asText());
+    //     Assert.assertEquals("BDEEP",response.getEntityData().get(0).get("level1.r1.0.ref.0._id"));
+    //     Assert.assertEquals("BDEEP2",response.getEntityData().get(0).get("level1.r1.1.ref.0._id"));
+    // }
+
+    // @Test
+    // public void retrieveNestedArrayRef_reversed_foreach() throws Exception {
+    //     FindRequest fr=new FindRequest();
+    //     fr.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));
+    //     fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
+    //     fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+    //     Response response=mediator.find(fr);
+    //     Assert.assertEquals(1,response.getEntityData().size());
+    //     Assert.assertEquals("ADEEP",response.getEntityData().get(0).get("_id").asText());
+    //     Assert.assertEquals("BDEEP",response.getEntityData().get(0).get("level1.r1.0.ref.0._id"));
+    //     Assert.assertEquals("BDEEP2",response.getEntityData().get(0).get("level1.r1.1.ref.0._id"));
+    // }
 }

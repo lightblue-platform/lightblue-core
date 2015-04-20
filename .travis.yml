@@ -2,7 +2,6 @@ language: java
 jdk:
     - openjdk7
     - oraclejdk8
-    - oraclejdk7
 before_install:
     - cp ./etc/settings.xml ~/.m2/
     - cp ./etc/onFailure.sh  ~/
@@ -10,9 +9,11 @@ before_install:
     - chmod 777 ~/onFailure.sh
     - chmod 777 ~/onSuccess.sh
 script:
-    - mvn -B clean verify cobertura:cobertura coveralls:report
+    - mvn -B clean verify
 after_failure: ~/onFailure.sh
 after_success: ~/onSuccess.sh
+after_script:
+    - mvn -B cobertura:cobertura coveralls:report
 notifications:
     email: false
     irc:

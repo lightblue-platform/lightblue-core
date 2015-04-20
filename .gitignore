@@ -27,3 +27,5 @@ mf.pom.xml
 bin
 bin/*
 *.bak
+rhc-port-forward-status
+etc/rhc-port-forward-status

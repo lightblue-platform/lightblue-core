@@ -70,6 +70,12 @@ public final class CrudConstants {
     public static final String ERR_METADATA_APPEARS_TWICE = "crud:MetadataAppearsTwice";
     public static final String ERR_UNKNOWN_ENTITY = "crud:UnknownEntity";
 
+    public static final String ERR_AUTH_FAILED = "crud:AuthFailed";
+
+    public static final String ERR_DATASOURCE_TIMEOUT = "crud:DataSourceTimeout";
+
+    public static final String ERR_DATASOURCE_UNKNOWN = "crud:DataSourceUnknown";
+
     private CrudConstants() {
 
     }

@@ -49,7 +49,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(10, pdoc.get(new Path("field6")).size());
+        Assert.assertEquals(11, pdoc.get(new Path("field6")).size());
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf2")));
@@ -66,7 +66,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(10, pdoc.get(new Path("field6")).size());
+        Assert.assertEquals(11, pdoc.get(new Path("field6")).size());
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNotNull(pdoc.get(new Path("field6.nf7.nnf2")));
@@ -112,6 +112,14 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals("elvalue3_1", pdoc.get(new Path("field7.1.elemf1")).asText());
         Assert.assertEquals("elvalue3_2", pdoc.get(new Path("field7.1.elemf2")).asText());
 
+    }
+
+    @Test
+    public void fieldProjectorTest_arr_star_query() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field12.nf1.nnf1.*.nnnf1.arr','match':{'field':'id','op':'=','rvalue':12}}}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        System.out.println(pdoc);
     }
 
     @Test

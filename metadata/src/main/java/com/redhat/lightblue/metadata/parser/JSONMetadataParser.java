@@ -227,20 +227,20 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public void putObject(JsonNode object, String name, Object value) {
-        ((ObjectNode) object).put(name, (JsonNode) value);
+        ((ObjectNode) object).set(name, (JsonNode) value);
     }
 
     @Override
     public void putValue(JsonNode object, String name, Object value) {
         ObjectNode o = (ObjectNode) object;
         if (value == null) {
-            o.put(name, factory.nullNode());
+            o.set(name, factory.nullNode());
         } else if (value instanceof Boolean) {
             o.put(name, (Boolean) value);
         } else if (value instanceof BigDecimal) {
             o.put(name, (BigDecimal) value);
         } else if (value instanceof BigInteger) {
-            o.put(name, factory.numberNode((BigInteger) value));
+            o.set(name, factory.numberNode((BigInteger) value));
         } else if (value instanceof Double) {
             o.put(name, (Double) value);
         } else if (value instanceof Float) {
@@ -259,7 +259,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public Object newArrayField(JsonNode object, String name) {
         ArrayNode node = factory.arrayNode();
-        ((ObjectNode) object).put(name, node);
+        ((ObjectNode) object).set(name, node);
         return node;
     }
 
@@ -308,19 +308,18 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public void putProjection(JsonNode object,String name,Projection p) {
         if(p!=null)
-            ((ObjectNode)object).put(name,p.toJson());
+            ((ObjectNode)object).set(name,p.toJson());
     }
 
     @Override
     public void putQuery(JsonNode object,String name,QueryExpression q) {
         if(q!=null)
-            ((ObjectNode)object).put(name,q.toJson());
+            ((ObjectNode)object).set(name,q.toJson());
     }
 
     @Override
     public void putSort(JsonNode object,String name,Sort s) {
         if(s!=null)
-            ((ObjectNode)object).put(name,s.toJson());
+            ((ObjectNode)object).set(name,s.toJson());
     }
-
 }

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import java.io.Serializable;
 
@@ -51,6 +52,7 @@ import com.redhat.lightblue.metadata.ArrayField;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.KeyValueCursor;
 
 /**
  * This class represents a field binding interpreted based on the
@@ -244,23 +246,27 @@ public class ResolvedFieldBinding implements Serializable {
         }
     }
 
-    public static void refresh(List<ResolvedFieldBinding> bindings,QueryPlanDoc doc) {
+    public static void refresh(List<ResolvedFieldBinding> bindings,ChildDocReference ref) {
         for(ResolvedFieldBinding binding:bindings) {
-            binding.refresh(doc);
+            binding.refresh(ref);
         }
     }
 
     /**
-     * Attempts to refresh this binding starting at the given document, and ascending to its parents
+     * Attempts to refresh this binding starting at the given parent document, and ascending to its parents
      */
-    public boolean refresh(QueryPlanDoc doc) {
+    public boolean refresh(ChildDocReference ref) {
+        ResultDoc doc=ref.getDocument();
         if(doc.getMetadata()==entity) {
-            JsonNode valueNode=doc.getDoc().get(valueField);
+            // Reinterpret the value field using the indexes in refField
+            Path field=valueField.mutableCopy().rewriteIndexes(ref.getReferenceField()).immutableCopy();
+            LOGGER.debug("Refreshing bindings using {}",field);
+            JsonNode valueNode=doc.getDoc().get(field);
             if(binding instanceof ValueBinding) {
-                if(valueNode==null)
-                    ((ValueBinding)binding).getValue().setValue(null);
-                else
-                    ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
+                    if(valueNode==null)
+                        ((ValueBinding)binding).getValue().setValue(null);
+                    else
+                        ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
             } else if(binding instanceof ListBinding) {
                 if(valueNode==null) 
                     ((ListBinding)binding).getList().setList(new ArrayList());
@@ -274,8 +280,8 @@ public class ResolvedFieldBinding implements Serializable {
             }
             return true;
         } else {
-            for(QueryPlanDoc parent: doc.getParents()) {
-                if(refresh(parent))
+            for(Map.Entry<QueryPlanNode,ChildDocReference> entry: doc.getParentDocs().entrySet()) {
+                if(refresh(entry.getValue()))
                     return true;
             }
             return false;

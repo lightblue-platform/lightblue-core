@@ -231,8 +231,8 @@ public class ResponseTest {
         expectedNode.put("modifiedCount", Integer.MAX_VALUE);
         expectedNode.put("matchCount", Integer.MIN_VALUE);
         expectedNode.put("taskHandle", "taskHandle");
-        expectedNode.put("session", JsonObject.getFactory().objectNode());
-        expectedNode.put("entityData", JsonObject.getFactory().objectNode());
+        expectedNode.set("session", JsonObject.getFactory().objectNode());
+        expectedNode.set("entityData", JsonObject.getFactory().objectNode());
         ArrayNode arr = JsonObject.getFactory().arrayNode();
         expectedNode.set("dataErrors", arr);
         for (DataError err : getPopulatedDataErrors(3)) {

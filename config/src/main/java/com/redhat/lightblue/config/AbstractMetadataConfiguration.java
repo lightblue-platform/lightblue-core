@@ -28,7 +28,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
-import com.redhat.lightblue.metadata.MetadataRoles;
+import com.redhat.lightblue.metadata.MetadataRole;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
@@ -46,7 +46,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
     private final List<HookConfigurationParser> hookConfigurationParsers = new ArrayList<>();
     private final List<Map.Entry<String,DataStoreParser>> backendParsers = new ArrayList<>();
     private final List<Map.Entry<String,PropertyParser>> propertyParsers = new ArrayList<>();
-    private final Map<MetadataRoles,List<String>> roleMap = new HashMap<>();
+    private final Map<MetadataRole,List<String>> roleMap = new HashMap<>();
     private boolean validateRequests=false;
 
     @Override
@@ -73,7 +73,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
         }
     }
 
-    protected Map<MetadataRoles,List<String>> getMappedRoles() {
+    protected Map<MetadataRole,List<String>> getMappedRoles() {
         return  roleMap;
     }
 
@@ -153,8 +153,8 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
             JsonNode roleMapJs = node.get("roleMap");
             if(roleMapJs != null) {
                 // If the roleMap element is defined, it is expected to have all the roles mapped
-                MetadataRoles[] values = MetadataRoles.values();
-                for (MetadataRoles value : values) {
+                MetadataRole[] values = MetadataRole.values();
+                for (MetadataRole value : values) {
                     String name = value.toString();
                     ArrayNode rolesJs =  (ArrayNode) roleMapJs.get(name);
 
