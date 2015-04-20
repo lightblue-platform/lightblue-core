@@ -48,5 +48,5 @@ public interface MetadataConfiguration extends JsonInitializable {
     /**
      * returns the list of configured hooks
      */
-    List<HookConfigurationParser> getHookConfigurationParser();
+    List<HookConfigurationParser> getHookConfigurationParsers();
 }

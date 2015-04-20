@@ -40,7 +40,7 @@ public class TestConfig implements MetadataConfiguration {
     }
 
     @Override
-    public List<HookConfigurationParser> getHookConfigurationParser() {
+    public List<HookConfigurationParser> getHookConfigurationParsers() {
         return null;
     }
 

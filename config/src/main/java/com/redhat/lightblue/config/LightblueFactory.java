@@ -174,7 +174,7 @@ public final class LightblueFactory implements Serializable {
             getJsonTranslator().setValidation(EntityInfo.class, cfg.isValidateRequests());
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
-            factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParser()));
+            factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParsers()));
         }
     }
 
