@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata.parser;
 
+import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.metadata.HookConfiguration;
 
 /**
@@ -32,4 +33,6 @@ public interface HookConfigurationParser<N> extends Parser<N, HookConfiguration>
      * @return the name of the hook
      */
     String getName();
+
+    CRUDHook getCRUDHook();
 }

@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import com.redhat.lightblue.hooks.SimpleHookResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,7 +148,7 @@ public final class LightblueFactory implements Serializable {
         }
     }
 
-    private synchronized void initializeMetadata() throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private synchronized void initializeMetadata(Factory factory) throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
             LOGGER.debug("Initializing metadata");
 
@@ -173,6 +174,7 @@ public final class LightblueFactory implements Serializable {
             getJsonTranslator().setValidation(EntityInfo.class, cfg.isValidateRequests());
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
+            factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParsers()));
         }
     }
 
@@ -248,7 +250,7 @@ public final class LightblueFactory implements Serializable {
     public Metadata getMetadata()
             throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
-            initializeMetadata();
+            initializeMetadata(getFactory());
         }
 
         return metadata;

@@ -20,7 +20,6 @@ package com.redhat.lightblue.crud.interceptors;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.crud.Operation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocCtx;
 

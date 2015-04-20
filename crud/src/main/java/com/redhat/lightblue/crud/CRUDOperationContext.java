@@ -48,17 +48,17 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private List<DocCtx> documents;
     private final List<Error> errors = new ArrayList<>();
     private final Map<String, Object> propertyMap = new HashMap<>();
-    private final Operation operation;
+    private final CRUDOperation CRUDOperation;
     private final HookManager hookManager;
 
     /**
      * This is the constructor used to represent the context of an operation
      */
-    public CRUDOperationContext(Operation op,
+    public CRUDOperationContext(CRUDOperation op,
                                 String entityName,
                                 Factory f,
                                 List<JsonDoc> docs) {
-        this.operation = op;
+        this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
         // can assume are adding to an empty DocCtx list
@@ -71,13 +71,13 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
      * This constructor is used to construct an operation context that
      * is derived from another existing context.
      */
-    public CRUDOperationContext(Operation op,
+    public CRUDOperationContext(CRUDOperation op,
                                 String entityName,
                                 Factory f,
                                 List<DocCtx> docs,
                                 Set<String> callerRoles,
                                 HookManager hookManager) {
-        this.operation = op;
+        this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
         this.documents =docs;
@@ -169,8 +169,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     /**
      * Returns the current operation
      */
-    public Operation getOperation() {
-        return operation;
+    public CRUDOperation getCRUDOperation() {
+        return CRUDOperation;
     }
 
     /**

@@ -175,4 +175,9 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
             }
         }
     }
+
+    @Override
+    public List<HookConfigurationParser> getHookConfigurationParsers(){
+        return hookConfigurationParsers;
+    }
 }
