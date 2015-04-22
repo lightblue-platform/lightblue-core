@@ -18,7 +18,7 @@
  */
 package com.redhat.lightblue.hooks;
 
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 import com.redhat.lightblue.util.JsonDoc;
@@ -36,7 +36,7 @@ public class HookDoc {
     private final EntityMetadata entityMetadata;
     private final JsonDoc pre;
     private final JsonDoc post;
-    private final Operation op;
+    private final CRUDOperation crudOperation;
     private final Date when;
     private final String who;
 
@@ -49,7 +49,7 @@ public class HookDoc {
         this(hd.getEntityMetadata(),
                 hd.getPostDoc(),
                 hd.getPreDoc(),
-                hd.getOperation(),
+                hd.getCRUDOperation(),
                 hd.when,
                 hd.who);
     }
@@ -58,19 +58,19 @@ public class HookDoc {
      * Constructs a hook document with the given pre- and post- update versions
      * of the document, and the operation performed.
      */
-    public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op) {
-        this(entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime(), null);
+    public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, CRUDOperation crudOperation) {
+        this(entityMetadata, pre, post, crudOperation, GregorianCalendar.getInstance().getTime(), null);
     }
 
-    public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, String who) {
-        this(entityMetadata, pre, post, op, GregorianCalendar.getInstance().getTime(), who);
+    public HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, CRUDOperation crudOperation, String who) {
+        this(entityMetadata, pre, post, crudOperation, GregorianCalendar.getInstance().getTime(), who);
     }
 
-    private HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, Operation op, Date when, String who) {
+    private HookDoc(EntityMetadata entityMetadata, JsonDoc pre, JsonDoc post, CRUDOperation crudOperation, Date when, String who) {
         this.entityMetadata = entityMetadata;
         this.pre = pre;
         this.post = post;
-        this.op = op;
+        this.crudOperation = crudOperation;
         this.when = when;
         this.who = who;
     }
@@ -101,8 +101,8 @@ public class HookDoc {
     /**
      * The operation performed on the document.
      */
-    public Operation getOperation() {
-        return op;
+    public CRUDOperation getCRUDOperation() {
+        return crudOperation;
     }
 
     /**

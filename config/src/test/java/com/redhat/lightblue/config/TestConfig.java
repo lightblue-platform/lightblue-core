@@ -20,8 +20,11 @@ package com.redhat.lightblue.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
+
+import java.util.List;
 
 /**
  * Test metadata configuration implementation, referenced by configuration
@@ -34,6 +37,11 @@ public class TestConfig implements MetadataConfiguration {
                                    JSONMetadataParser parser,
                                    LightblueFactory f) {
         return new DatabaseMetadata();
+    }
+
+    @Override
+    public List<HookConfigurationParser> getHookConfigurationParsers() {
+        return null;
     }
 
     @Override

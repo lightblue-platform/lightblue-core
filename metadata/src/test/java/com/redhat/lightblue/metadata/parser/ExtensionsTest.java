@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata.parser;
 import java.util.ArrayList;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.metadata.EntityInfo;
@@ -59,6 +60,11 @@ public class ExtensionsTest {
         @Override
         public String getName() {
             return "test";
+        }
+
+        @Override
+        public CRUDHook getCRUDHook() {
+            return null;
         }
 
     }

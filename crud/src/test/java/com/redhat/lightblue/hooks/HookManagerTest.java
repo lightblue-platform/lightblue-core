@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -46,7 +45,7 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.FieldProjection;
 
 import com.redhat.lightblue.crud.CRUDOperationContext;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
 
@@ -62,12 +61,12 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         EntityMetadata md;
 
         public TestOperationContext(EntityMetadata md,
-                                    Operation op,
+                                    CRUDOperation op,
                                     Factory f,
                                     List<JsonDoc> docs) {
             super(op, "test", f, docs);
             this.md = md;
-            if (Operation.UPDATE.equals(op) || Operation.DELETE.equals(op)) {
+            if (CRUDOperation.UPDATE.equals(op) || CRUDOperation.DELETE.equals(op)) {
                 // for update and delete setup the original document so pre isn't null in hooks
                 for (DocCtx dc : getDocuments()) {
                     dc.copyOriginalFromThis();
@@ -214,7 +213,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         return ret;
     }
 
-    private TestOperationContext setupContext(Operation op) throws Exception {
+    private TestOperationContext setupContext(CRUDOperation op) throws Exception {
         EntityMetadata md = getMD("./testMetadata.json");
         addHook(md, "hook1", null, new TestHook1Config(), "insert", "update");
         addHook(md, "hook2", null, new TestHook2Config(), "find", "delete", "update");
@@ -224,7 +223,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                 new Factory(),
                 getSomeDocs(10));
         for (DocCtx doc : ctx.getDocuments()) {
-            doc.setOperationPerformed(op);
+            doc.setCRUDOperationPerformed(op);
         }
         return ctx;
     }
@@ -232,7 +231,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void crudInsertQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.INSERT);
+        TestOperationContext ctx = setupContext(CRUDOperation.INSERT);
 
         // Only hook1 should be called
         hooks.queueHooks(ctx);
@@ -248,7 +247,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void crudUpdateQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.UPDATE);
+        TestOperationContext ctx = setupContext(CRUDOperation.UPDATE);
 
         // hook1 and hook2 should be called
         hooks.queueHooks(ctx);
@@ -260,7 +259,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         for (HookDoc doc : hook1.processed) {
             Assert.assertNotNull(doc.getPreDoc());
             Assert.assertNotNull(doc.getPostDoc());
-            Assert.assertEquals(Operation.UPDATE, doc.getOperation());
+            Assert.assertEquals(CRUDOperation.UPDATE, doc.getCRUDOperation());
         }
 
         Assert.assertEquals(ctx.md, hook2.md);
@@ -270,14 +269,14 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         for (HookDoc doc : hook2.processed) {
             Assert.assertNotNull(doc.getPreDoc());
             Assert.assertNotNull(doc.getPostDoc());
-            Assert.assertEquals(Operation.UPDATE, doc.getOperation());
+            Assert.assertEquals(CRUDOperation.UPDATE, doc.getCRUDOperation());
         }
     }
 
     @Test
     public void crudDeleteQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.DELETE);
+        TestOperationContext ctx = setupContext(CRUDOperation.DELETE);
 
         //  hook2 should be called
         hooks.queueHooks(ctx);
@@ -293,7 +292,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void crudFindQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.FIND);
+        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
 
         //  hook2 should be called
         hooks.queueHooks(ctx);
@@ -309,10 +308,10 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void crudMixedQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.FIND);
-        ctx.getDocuments().get(0).setOperationPerformed(Operation.INSERT);
-        ctx.getDocuments().get(1).setOperationPerformed(Operation.UPDATE);
-        ctx.getDocuments().get(2).setOperationPerformed(Operation.DELETE);
+        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
+        ctx.getDocuments().get(0).setCRUDOperationPerformed(CRUDOperation.INSERT);
+        ctx.getDocuments().get(1).setCRUDOperationPerformed(CRUDOperation.UPDATE);
+        ctx.getDocuments().get(2).setCRUDOperationPerformed(CRUDOperation.DELETE);
 
         hooks.queueHooks(ctx);
         hooks.callQueuedHooks();
@@ -331,10 +330,10 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void mediatorMixedQueueTest() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.FIND);
-        ctx.getDocuments().get(0).setOperationPerformed(Operation.INSERT);
-        ctx.getDocuments().get(1).setOperationPerformed(Operation.UPDATE);
-        ctx.getDocuments().get(2).setOperationPerformed(Operation.DELETE);
+        TestOperationContext ctx = setupContext(CRUDOperation.FIND);
+        ctx.getDocuments().get(0).setCRUDOperationPerformed(CRUDOperation.INSERT);
+        ctx.getDocuments().get(1).setCRUDOperationPerformed(CRUDOperation.UPDATE);
+        ctx.getDocuments().get(2).setCRUDOperationPerformed(CRUDOperation.DELETE);
 
         hooks.queueMediatorHooks(ctx);
         hooks.callQueuedHooks();
@@ -349,7 +348,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void projectionTestInsert() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.INSERT);
+        TestOperationContext ctx = setupContext(CRUDOperation.INSERT);
         // Add projection to one of the hooks
         for (Hook h : ctx.md.getHooks().getHooks()) {
             if (h.getName().equals("hook1")) {
@@ -374,7 +373,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
     @Test
     public void projectionTestUpdate() throws Exception {
         HookManager hooks = new HookManager(resolver, nodeFactory);
-        TestOperationContext ctx = setupContext(Operation.UPDATE);
+        TestOperationContext ctx = setupContext(CRUDOperation.UPDATE);
         // Add projection to one of the hooks
         for (Hook h : ctx.md.getHooks().getHooks()) {
             if (h.getName().equals("hook1")) {

@@ -19,8 +19,11 @@
 package com.redhat.lightblue.config;
 
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.util.JsonInitializable;
+
+import java.util.List;
 
 public interface MetadataConfiguration extends JsonInitializable {
     /**
@@ -41,4 +44,9 @@ public interface MetadataConfiguration extends JsonInitializable {
      * @param mgr The factory instance creating metadata
      */
     Metadata createMetadata(DataSourcesConfiguration ds, JSONMetadataParser parser, LightblueFactory mgr);
+
+    /**
+     * returns the list of configured hooks
+     */
+    List<HookConfigurationParser> getHookConfigurationParsers();
 }

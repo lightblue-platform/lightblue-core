@@ -18,6 +18,6 @@
  */
 package com.redhat.lightblue.crud;
 
-public enum Operation {
+public enum CRUDOperation {
     INSERT, SAVE, UPDATE, DELETE, FIND
 }

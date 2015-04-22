@@ -20,6 +20,7 @@ package com.redhat.lightblue.mediator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.*;
 import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.crud.interceptors.*;
@@ -222,6 +223,22 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
+    }
+
+    @Test
+    public void insertDocWithRequiredFieldNull() throws Exception {
+        mdManager.md = getMd("./termsmd.json");
+
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("terms", "0.14.0-SNAPSHOT"));
+        req.setEntityData(loadJsonNode("./termsdata.json"));
+        req.setReturnFields(null);
+        req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));
+        // lastUpdatedBy is required, set that to null
+        ((ObjectNode)req.getEntityData()).set("lastUpdatedBy",JsonNodeFactory.instance.nullNode());
+        
+        Response response = mediator.insert(req);
+        // there should be no errors
     }
 
     @Test

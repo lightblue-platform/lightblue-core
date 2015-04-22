@@ -40,7 +40,7 @@ import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
@@ -92,7 +92,7 @@ public class Mediator {
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = newCtx(req, Operation.INSERT);
+            OperationContext ctx = newCtx(req, CRUDOperation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getInsert().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -158,7 +158,7 @@ public class Mediator {
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = newCtx(req, Operation.SAVE);
+            OperationContext ctx = newCtx(req, CRUDOperation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())
                     || (req.isUpsert() && !md.getAccess().getInsert().hasAccess(ctx.getCallerRoles()))) {
@@ -224,7 +224,7 @@ public class Mediator {
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = newCtx(req, Operation.UPDATE);
+            OperationContext ctx = newCtx(req, CRUDOperation.UPDATE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getUpdate().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -276,7 +276,7 @@ public class Mediator {
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         try {
-            OperationContext ctx = newCtx(req, Operation.DELETE);
+            OperationContext ctx = newCtx(req, CRUDOperation.DELETE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getDelete().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -326,7 +326,7 @@ public class Mediator {
         Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
         try {
-            OperationContext ctx = newCtx(req, Operation.FIND);
+            OperationContext ctx = newCtx(req, CRUDOperation.FIND);
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
             if (!md.getAccess().getFind().hasAccess(ctx.getCallerRoles())) {
                 ctx.setStatus(OperationStatus.ERROR);
@@ -388,8 +388,8 @@ public class Mediator {
     }
 
 
-    protected OperationContext newCtx(Request request,Operation operation) {
-        return new OperationContext(request, metadata, factory, operation);
+    protected OperationContext newCtx(Request request,CRUDOperation CRUDOperation) {
+        return new OperationContext(request, metadata, factory, CRUDOperation);
     }
 
     /**

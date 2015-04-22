@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
-import com.redhat.lightblue.crud.Operation;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -63,13 +63,13 @@ public class HookManager {
     private static final class DocHooks {
         private final JsonDoc pre;
         private final JsonDoc post;
-        private final Operation op;
+        private final CRUDOperation op;
         private final Map<Hook, CRUDHook> hooks;
 
         public DocHooks(DocCtx doc, Map<Hook, CRUDHook> hooks) {
-            op = doc.getOperationPerformed();
+            op = doc.getCRUDOperationPerformed();
             // Create a copy of the original version of the document, if non-null
-            if (op == Operation.INSERT || op == Operation.FIND) {
+            if (op == CRUDOperation.INSERT || op == CRUDOperation.FIND) {
                 pre = null;
             } else {
                 JsonDoc preDoc = doc.getOriginalDocument();
@@ -83,7 +83,7 @@ public class HookManager {
             // copy, use the same pre value as post value otherwise,
             // copy the doc and use that as the post value
             // If we're deleting, post copy is null
-            if (op == Operation.DELETE) {
+            if (op == CRUDOperation.DELETE) {
                 post = null;
             } else {
                 if (doc.getOriginalDocument() == doc && pre != null) {
@@ -172,7 +172,7 @@ public class HookManager {
                             doc.getEntityMetadata(),
                             project(doc.getPreDoc(), projector),
                             project(doc.getPostDoc(), projector),
-                            doc.getOperation()));
+                            doc.getCRUDOperation()));
                 }
             } else {
                 processedDocuments = hd.docs;
@@ -219,11 +219,11 @@ public class HookManager {
             // documents that will be passed to that hook.
             List<DocHooks> docHooksList = new ArrayList<>();
             for (DocCtx doc : documents) {
-                if (doc.getOperationPerformed() != null) {
+                if (doc.getCRUDOperationPerformed() != null) {
                     Map<Hook, CRUDHook> hooksList = null;
                     for (Map.Entry<Hook, CRUDHook> hook : hooks.entrySet()) {
                         boolean queue;
-                        switch (doc.getOperationPerformed()) {
+                        switch (doc.getCRUDOperationPerformed()) {
                             case INSERT:
                                 queue = hook.getKey().isInsert();
                                 break;

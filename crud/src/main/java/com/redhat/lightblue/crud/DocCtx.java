@@ -49,7 +49,7 @@ public class DocCtx extends JsonDoc {
     private final List<Error> errors = new ArrayList<>();
     private JsonDoc outputDoc = this;
     private JsonDoc originalDoc = null;
-    private Operation operationPerformed;
+    private CRUDOperation CRUDOperationPerformed;
     private final Map<String, Object> propertyMap = new HashMap<>();
 
     public DocCtx(JsonDoc doc) {
@@ -134,15 +134,15 @@ public class DocCtx extends JsonDoc {
     /**
      * Returns the operation performed on this document
      */
-    public Operation getOperationPerformed() {
-        return operationPerformed;
+    public CRUDOperation getCRUDOperationPerformed() {
+        return CRUDOperationPerformed;
     }
 
     /**
      * Sets the operation performed on this document
      */
-    public void setOperationPerformed(Operation op) {
-        operationPerformed = op;
+    public void setCRUDOperationPerformed(CRUDOperation op) {
+        CRUDOperationPerformed = op;
     }
 
     /**
