@@ -210,8 +210,9 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("A09",response.getEntityData().get(0).get("_id").asText());
+        System.out.println(response.getEntityData().get(0));
         QueryPlan qplan=(QueryPlan)getLastContext(mediator).getProperty(Mediator.CTX_QPLAN);
-        //This one must have C -> A
+        // This one must have C -> A
         Assert.assertEquals(1,qplan.getSources().length);
         Assert.assertEquals("C",qplan.getSources()[0].getMetadata().getName());
    }
@@ -256,6 +257,20 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
+        Assert.assertEquals(2,response.getEntityData().size());
+    }
+
+    @Test
+    public void assocTestProjection_369() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'A.*.objectType','op':'=','rvalue':'jA'}"));
+        fr.setProjection(projection("[{'field':'A.*','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("jB","1.0.1-SNAPSHOT"));
+
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(2,response.getEntityData().size());
+        Assert.assertNull(JsonDoc.get(response.getEntityData().get(0),new Path("_id")));
     }
 
     // @Test

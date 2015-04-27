@@ -43,12 +43,16 @@ import com.redhat.lightblue.query.FieldComparisonExpression;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.FieldInfo;
+import com.redhat.lightblue.query.Projection;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
+
+import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
+import com.redhat.lightblue.eval.Projector;
 
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
@@ -243,7 +247,6 @@ public class CompositeFindImpl implements Finder {
         List<DocCtx> resultDocuments=new ArrayList<>(rootDocs.size());
         for(ResultDoc dgd:rootDocs) {
             retrieveFragments(dgd);
-            PredefinedFields.updateArraySizes(factory.getNodeFactory(),dgd.getDoc());
             DocCtx dctx=new DocCtx(dgd.getDoc());
             dctx.setOutputDocument(dgd.getDoc());
             resultDocuments.add(dctx);
@@ -252,13 +255,26 @@ public class CompositeFindImpl implements Finder {
         CRUDFindResponse response=new CRUDFindResponse();
 
         response.setSize(resultDocuments.size());
-        ctx.setDocuments(resultDocuments);
+        ctx.setDocuments(projectResults(ctx,resultDocuments,req.getProjection()));
         ctx.addErrors(errors);
         
         LOGGER.debug("Composite find: end");
         return response;
     }
-    
+
+    private List<DocCtx> projectResults(OperationContext ctx,
+                                List<DocCtx> resultDocuments,
+                                Projection projection) {
+        // Project results
+        FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(root, ctx.getCallerRoles());
+        Projector projector = Projector.getInstance(Projection.add(projection, 
+                                                                   roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), root);
+        for (DocCtx document : resultDocuments) {
+            document.setOutputDocument(projector.project(document, ctx.getFactory().getNodeFactory()));
+        }
+        return resultDocuments;
+    }
+
     private void retrieveFragments(ResultDoc doc) {
         for(List<ChildDocReference> children:doc.getChildren().values()) {
             if(children!=null) {

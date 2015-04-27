@@ -150,10 +150,11 @@ public class ResultDoc implements Serializable {
                 } else {
                     // Get the resolved reference for this field
                     ResolvedReferenceField ref=md.getChildReference(destMd.getEntityPath());
-                    // We cut the last two segments, they are "ref.*"
-                    Path field=md.getEntityRelativeFieldName(ref).prefix(-2);
-                    LOGGER.debug("Getting instances of {}",field);
-                    Path p=destMd.getEntityPath().prefix(-2);
+                    // We cut the last segment, it is "ref"
+                    Path entityRelativeFieldName=md.getEntityRelativeFieldName(ref);
+                    Path field=entityRelativeFieldName.prefix(-1);
+                    LOGGER.debug("Getting instances of {} (reference was {})",field,entityRelativeFieldName);
+                    Path p=destMd.getEntityPath().prefix(-1);
                     // p points to the object containing the reference field
                     // It could be empty, if the reference is at the root level
                     if(p.isEmpty()) {
