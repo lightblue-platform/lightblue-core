@@ -30,7 +30,7 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
-import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.text.StrSubstitutor;
 
 import java.io.IOException;
 import java.io.InputStream;
