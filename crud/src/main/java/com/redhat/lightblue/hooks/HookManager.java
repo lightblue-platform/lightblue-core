@@ -79,17 +79,18 @@ public class HookManager {
                     pre = null;
                 }
             }
-            // If original copy is the same instance as the document
-            // copy, use the same pre value as post value otherwise,
-            // copy the doc and use that as the post value
             // If we're deleting, post copy is null
             if (op == CRUDOperation.DELETE) {
                 post = null;
             } else {
-                if (doc.getOriginalDocument() == doc && pre != null) {
-                    post = pre;
+                if(doc.getOriginalOutputDocument() != null) {
+                    post = doc.getOriginalOutputDocument().copy();
                 } else {
-                    post = doc.copy();
+                    if (doc.getOriginalDocument() == doc && pre != null) {
+                        post = pre;
+                    } else {
+                        post = doc.copy();
+                    }
                 }
             }
             this.hooks = hooks;

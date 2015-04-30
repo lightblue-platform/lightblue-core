@@ -49,6 +49,7 @@ public class DocCtx extends JsonDoc {
     private final List<Error> errors = new ArrayList<>();
     private JsonDoc outputDoc = this;
     private JsonDoc originalDoc = null;
+    private JsonDoc originalOutputDoc = null;
     private CRUDOperation CRUDOperationPerformed;
     private final Map<String, Object> propertyMap = new HashMap<>();
 
@@ -112,7 +113,7 @@ public class DocCtx extends JsonDoc {
         originalDoc = copy();
     }
 
-    /*
+    /**
      * This method is to be called before starting making
      * modifications on the document, so that a copy of the original
      * can be saved. It'll create a copy of the current status of the
@@ -121,6 +122,9 @@ public class DocCtx extends JsonDoc {
     public void startModifications() {
         if (originalDoc == null || originalDoc == this) {
             copyOriginalFromThis();
+        }
+        if (originalOutputDoc == null || originalOutputDoc == outputDoc) {
+            copyOriginalOutputFromOutput();
         }
     }
 
@@ -170,4 +174,28 @@ public class DocCtx extends JsonDoc {
     public void setProperty(String name, Object value) {
         propertyMap.put(name, value);
     }
+
+    /**
+     * Returns the copy of the output document before any modifications (such as projections)
+     */
+    public JsonDoc getOriginalOutputDocument() {
+        return originalOutputDoc;
+    }
+
+    /**
+     * Sets the originalOutputDoc to a copy of outputDoc
+     */
+    public void copyOriginalOutputFromOutput() {
+        if(outputDoc != null) {
+            originalOutputDoc = outputDoc.copy();
+        }
+    }
+
+    /**
+     * Sets the copy of the output document before any modifications
+     */
+    public void setOriginalOutputDocument(JsonDoc doc) {
+        originalOutputDoc = doc;
+    }
+
 }
