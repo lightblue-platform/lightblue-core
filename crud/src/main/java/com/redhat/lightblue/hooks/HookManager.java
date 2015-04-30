@@ -185,7 +185,7 @@ public class HookManager {
                     throw e;
                 }
                 else {
-                    LOGGER.error("Exception while processing hook or type: " + hd.crudHook.getClass(), e);
+                    LOGGER.error("Exception while processing hook of type: " + hd.crudHook.getClass(), e);
                 }
             }
         }
