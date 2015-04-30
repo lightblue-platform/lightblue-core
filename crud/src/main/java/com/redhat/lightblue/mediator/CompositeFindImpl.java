@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import com.redhat.lightblue.OperationStatus;
 
@@ -266,6 +267,7 @@ public class CompositeFindImpl implements Finder {
                                 List<DocCtx> resultDocuments,
                                 Projection projection) {
         // Project results
+        LOGGER.debug("Projecting association result using {}",projection.toString());
         FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(root, ctx.getCallerRoles());
         Projector projector = Projector.getInstance(Projection.add(projection, 
                                                                    roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), root);
@@ -282,7 +284,7 @@ public class CompositeFindImpl implements Finder {
                     Path insertInto=ref.getReferenceField();
                     JsonNode insertionNode=doc.getDoc().get(insertInto);
                     LOGGER.debug("Inserting reference {} to {} with {} docs",ref,insertInto,ref.getChildren().size());
-                    if(insertionNode==null) {
+                    if(insertionNode==null || insertionNode instanceof NullNode) {
                         doc.getDoc().modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
                     }
                     for(ResultDoc child:ref.getChildren()) {
