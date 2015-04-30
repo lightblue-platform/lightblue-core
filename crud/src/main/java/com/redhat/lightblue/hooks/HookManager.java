@@ -18,24 +18,25 @@
  */
 package com.redhat.lightblue.hooks;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DocCtx;
-import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.eval.Projector;
 import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Hook;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class manages hooks. As operations are performed, queueHooks() is called
@@ -183,6 +184,9 @@ public class HookManager {
                 if (e.getClass().isAnnotationPresent(StopHookProcessing.class)) {
                     throw e;
                 }
+                else {
+                    LOGGER.error("Exception while processing hook or type: " + hd.crudHook.getClass(), e);
+                }
             }
         }
         clear();
@@ -268,9 +272,9 @@ public class HookManager {
 
                     // extract the who from the context if possible
                     String who = null;
-                    if (ctx instanceof OperationContext && ((OperationContext)ctx).getRequest() != null &&
-                            ((OperationContext)ctx).getRequest().getClientId() != null) {
-                        who = ((OperationContext)ctx).getRequest().getClientId().getPrincipal();
+                    if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null &&
+                            ((OperationContext) ctx).getRequest().getClientId() != null) {
+                        who = ((OperationContext) ctx).getRequest().getClientId().getPrincipal();
                     }
 
                     hd.docs.add(new HookDoc(
