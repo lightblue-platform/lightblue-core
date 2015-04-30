@@ -266,6 +266,7 @@ public class CompositeFindImpl implements Finder {
                                 List<DocCtx> resultDocuments,
                                 Projection projection) {
         // Project results
+        LOGGER.debug("Projecting association result using {}",projection.toString());
         FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(root, ctx.getCallerRoles());
         Projector projector = Projector.getInstance(Projection.add(projection, 
                                                                    roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), root);
