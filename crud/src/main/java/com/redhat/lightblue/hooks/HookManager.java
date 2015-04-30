@@ -83,8 +83,8 @@ public class HookManager {
             if (op == CRUDOperation.DELETE) {
                 post = null;
             } else {
-                if(doc.getOriginalOutputDocument() != null) {
-                    post = doc.getOriginalOutputDocument().copy();
+                if(doc.getUpdatedDocument() != null) {
+                    post = doc.getUpdatedDocument().copy();
                 } else {
                     if (doc.getOriginalDocument() == doc && pre != null) {
                         post = pre;
