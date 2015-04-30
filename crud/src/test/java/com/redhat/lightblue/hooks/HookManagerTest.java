@@ -69,7 +69,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
             if (CRUDOperation.UPDATE.equals(op) || CRUDOperation.DELETE.equals(op)) {
                 // for update and delete setup the original document so pre isn't null in hooks
                 for (DocCtx dc : getDocuments()) {
-                    dc.copyOriginalFromThis();
+                    dc.startModifications();
                 }
             }
         }
