@@ -49,8 +49,8 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field4")));
         Assert.assertNull(pdoc.get(new Path("field5")));
         Assert.assertNull(pdoc.get(new Path("field7")));
-        Assert.assertEquals(11, pdoc.get(new Path("field6")).size());
-        Assert.assertNotNull(pdoc.get(new Path("field6.nf7")));
+        Assert.assertEquals(5, pdoc.get(new Path("field6")).size());
+        Assert.assertNotNull(pdoc.get(new Path("field6.nf4")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf1")));
         Assert.assertNull(pdoc.get(new Path("field6.nf7.nnf2")));
     }
@@ -201,7 +201,7 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals(3,pdoc.get(new Path("field3")).asInt());
         Assert.assertEquals(4.0,pdoc.get(new Path("field4")).asDouble(),0.1);
         Assert.assertTrue(pdoc.get(new Path("field5")).asBoolean());
-        Assert.assertNotNull(pdoc.get(new Path("field6")));
+        Assert.assertNull(pdoc.get(new Path("field6")));
         Assert.assertEquals(4, pdoc.get(new Path("field7")).size());
         Assert.assertEquals(3, pdoc.get(new Path("field7.0.elemf3")).asInt());
         Assert.assertNull(pdoc.get(new Path("field7.0.elemf1")));
@@ -218,5 +218,15 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field11.*.arr.*.x1")));
         Assert.assertEquals(Projection.Inclusion.explicit_inclusion,p.getFieldInclusion(new Path("field11.0.arr.0.x2")));
         System.out.println("doc:"+pdoc);
+    }
+
+    @Test
+    public void emptyArray() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("[{'field':'*','recursive':1},{'field':'field11', 'include':1, 'match':{ 'field':'f1','op':'=','rvalue':100}}]");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        System.out.println(pdoc);
+        Assert.assertNull(pdoc.get(new Path("field11.0")));
+        Assert.assertNull(pdoc.get(new Path("field11")));
     }
 }

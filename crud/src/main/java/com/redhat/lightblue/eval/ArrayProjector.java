@@ -37,6 +37,7 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.query.ArrayProjection;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.SortKey;
+import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.CompositeSortKey;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
@@ -195,19 +196,19 @@ public abstract class ArrayProjector extends Projector {
     }
 
     @Override
-    public Boolean project(Path p, QueryEvaluationContext ctx) {
+    public Projection.Inclusion project(Path p, QueryEvaluationContext ctx) {
         lastMatch=false;
         LOGGER.debug("Evaluating array projection for {}, arrayField={}",p,arrayFieldPattern);
         // Is this field pointing to an element of the array
         // It is so if 'p' has one more element than 'arrayFieldPattern', and
         // if it is a matching descendant
         if (p.numSegments() == arrayFieldPattern.numSegments() + 1 && p.matchingDescendant(arrayFieldPattern)) {
-            Boolean ret=projectArray(p, ctx);
+            Projection.Inclusion ret=projectArray(p, ctx);
             LOGGER.debug("Projecting array element {}:{}",p,ret);
-            lastMatch=ret!=null&&ret;
+            lastMatch=ret==Projection.Inclusion.implicit_inclusion||ret==Projection.Inclusion.explicit_inclusion;
             return ret;
         }
-        return null;
+        return Projection.Inclusion.undecided;
     }
 
     /**
@@ -242,5 +243,5 @@ public abstract class ArrayProjector extends Projector {
      * Check if the array element matches. This is called after determining that
      * the path points to a field that can be interpreted by this projector.
      */
-    protected abstract Boolean projectArray(Path p, QueryEvaluationContext ctx);
+    protected abstract Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx);
 }

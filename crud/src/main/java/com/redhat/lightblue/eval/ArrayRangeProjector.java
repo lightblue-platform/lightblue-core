@@ -23,6 +23,7 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
 import com.redhat.lightblue.query.ArrayRangeProjection;
+import com.redhat.lightblue.query.Projection;
 
 /**
  * Projector that returns a range of elements from an array
@@ -47,14 +48,14 @@ public class ArrayRangeProjector extends ArrayProjector {
     }
 
     @Override
-    protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
+    protected Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx) {
         // Is this array element in range?
         int index = p.getIndex(p.numSegments() - 1);
         if (index >= from && index <= to) {
             // This array element is selected.
-            return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
+            return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
         } else {
-            return Boolean.FALSE;
+            return Projection.Inclusion.explicit_exclusion;
         }
     }
 }

@@ -21,6 +21,7 @@ package com.redhat.lightblue.eval;
 import com.redhat.lightblue.util.Path;
 
 import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.Projection;
 
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
@@ -43,19 +44,19 @@ public class FieldProjector extends Projector {
     }
 
     @Override
-    public Boolean project(Path p, QueryEvaluationContext ctx) {
+    public Projection.Inclusion project(Path p, QueryEvaluationContext ctx) {
         if (p.matchingPrefix(field)) {
             // If this is true, we're checking an ancestor of the
             // projection field, or the projection field itself, but
             // not a field that is a descendant of the projection
             // field
             if (include) {
-                return Boolean.TRUE;
+                return Projection.Inclusion.explicit_inclusion;
                 // Inclusion implies, because if we're going to
                 // include a descendant of this field, this field
                 // should also be included
             } else if (p.matches(field)) {
-                return Boolean.FALSE;
+                return Projection.Inclusion.explicit_exclusion;
                 // If this field is exclusively excluded, exclude it
             }
             // Otherwise, this projection does not tell anything about this particular field.
@@ -65,8 +66,8 @@ public class FieldProjector extends Projector {
                    ) {
             // This is an implied inclusion or exclusion, because the
             // projection is for an ancestor of this field.
-            return include ? Boolean.TRUE : Boolean.FALSE;
+            return include ? Projection.Inclusion.implicit_inclusion:Projection.Inclusion.implicit_exclusion;
         }
-        return null;
+        return Projection.Inclusion.undecided;
     }
 }
