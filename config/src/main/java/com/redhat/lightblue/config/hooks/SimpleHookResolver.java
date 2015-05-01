@@ -13,7 +13,7 @@ import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
 /**
  * Created by lcestari on 4/17/15.
  */
-public class SimpleHookResolver implements HookResolver, LightblueFactoryAware {
+public class SimpleHookResolver implements HookResolver {
 
     private static final long serialVersionUID = 4033911991277254400L;
 
@@ -21,7 +21,7 @@ public class SimpleHookResolver implements HookResolver, LightblueFactoryAware {
 
     private LightblueFactory lightblueFactory;
 
-    public SimpleHookResolver(List<HookConfigurationParser> hookConfigurationParsers) {
+    public SimpleHookResolver(List<HookConfigurationParser> hookConfigurationParsers, LightblueFactory lightblueFactory) {
         if (hookConfigurationParsers != null && !hookConfigurationParsers.isEmpty()) {
             for (HookConfigurationParser parser : hookConfigurationParsers) {
                 CRUDHook hook = parser.getCRUDHook();
@@ -36,10 +36,5 @@ public class SimpleHookResolver implements HookResolver, LightblueFactoryAware {
     @Override
     public CRUDHook getHook(String name) {
         return map.get(name);
-    }
-
-    @Override
-    public void setLightblueFactory(LightblueFactory lightblueFactory) {
-        this.lightblueFactory = lightblueFactory;
     }
 }

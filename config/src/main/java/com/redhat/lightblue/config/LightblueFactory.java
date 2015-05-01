@@ -184,9 +184,7 @@ public final class LightblueFactory implements Serializable {
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
 
-            SimpleHookResolver hookResolver = new SimpleHookResolver(cfg.getHookConfigurationParsers());
-            hookResolver.setLightblueFactory(this);
-            factory.setHookResolver(hookResolver);
+            factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParsers(), this));
         }
     }
 
