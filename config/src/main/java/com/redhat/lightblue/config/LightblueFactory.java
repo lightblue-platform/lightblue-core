@@ -90,10 +90,6 @@ public final class LightblueFactory implements Serializable {
         this.metadataNode = metadataNode;
     }
 
-    private LightblueFactory getThis() {
-        return this;
-    }
-
     private synchronized void initializeParser()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         if (parser == null) {
@@ -199,7 +195,7 @@ public final class LightblueFactory implements Serializable {
 
                                 @Override
                                 public void fire(CRUDHook hook) {
-                                    ((LightblueFactoryAware) hook).setLightblueFactory(getThis());
+                                    ((LightblueFactoryAware) hook).setLightblueFactory(LightblueFactory.this);
                                 }
 
                             }))));
