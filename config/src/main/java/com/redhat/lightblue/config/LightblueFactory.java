@@ -22,9 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
-import com.redhat.lightblue.hooks.SimpleHookResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,9 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.hooks.CRUDHook;
+import com.redhat.lightblue.hooks.HookPostParseListener;
+import com.redhat.lightblue.hooks.SimpleHookResolver;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -86,6 +90,10 @@ public final class LightblueFactory implements Serializable {
         this.metadataNode = metadataNode;
     }
 
+    private LightblueFactory getThis() {
+        return this;
+    }
+
     private synchronized void initializeParser()
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, InstantiationException {
         if (parser == null) {
@@ -96,6 +104,9 @@ public final class LightblueFactory implements Serializable {
             for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
                 Class<? extends DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
                 DataStoreParser backendParser = tempParser.newInstance();
+                if (backendParser instanceof LightblueFactoryAware) {
+                    ((LightblueFactoryAware) backendParser).setLightblueFactory(this);
+                }
                 extensions.registerDataStoreParser(backendParser.getDefaultName(), backendParser);
             }
 
@@ -141,6 +152,9 @@ public final class LightblueFactory implements Serializable {
             for (ControllerConfiguration x : configuration.getControllers()) {
                 ControllerFactory cfactory = x.getControllerFactory().newInstance();
                 CRUDController controller = cfactory.createController(x, datasources);
+                if (controller instanceof LightblueFactoryAware) {
+                    ((LightblueFactoryAware) controller).setLightblueFactory(this);
+                }
                 f.addCRUDController(x.getBackend(), controller);
             }
             // Make sure we assign factory after it is initialized. (factory is volatile, there's a memory barrier here)
@@ -166,6 +180,9 @@ public final class LightblueFactory implements Serializable {
             }
 
             MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
+            if (cfg instanceof LightblueFactoryAware) {
+                ((LightblueFactoryAware) cfg).setLightblueFactory(this);
+            }
             cfg.initializeFromJson(root);
 
             // Set validation flag for all metadata requests
@@ -174,7 +191,18 @@ public final class LightblueFactory implements Serializable {
             getJsonTranslator().setValidation(EntityInfo.class, cfg.isValidateRequests());
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
-            factory.setHookResolver(new SimpleHookResolver(cfg.getHookConfigurationParsers()));
+
+            factory.setHookResolver(new SimpleHookResolver(
+                    cfg.getHookConfigurationParsers(),
+                    new ArrayList<HookPostParseListener>(Arrays.asList(
+                            new HookPostParseListener() {
+
+                                @Override
+                                public void fire(CRUDHook hook) {
+                                    ((LightblueFactoryAware) hook).setLightblueFactory(getThis());
+                                }
+
+                            }))));
         }
     }
 
@@ -260,7 +288,7 @@ public final class LightblueFactory implements Serializable {
             throws ClassNotFoundException, NoSuchMethodException, IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (parser == null) {
             initializeParser();
-            
+
             // Metadata is loaded next because the hooks need to be registered on the Factory.
             getMetadata();
         }

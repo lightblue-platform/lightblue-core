@@ -1,21 +1,34 @@
 package com.redhat.lightblue.hooks;
 
-import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
 
 /**
  * Created by lcestari on 4/17/15.
  */
 public class SimpleHookResolver implements HookResolver {
-    private Map<String, CRUDHook> map = new HashMap<>();
+
+    private static final long serialVersionUID = 4033911991277254400L;
+
+    private final Map<String, CRUDHook> map = new HashMap<>();
 
     public SimpleHookResolver(List<HookConfigurationParser> hookConfigurationParsers) {
-        if(hookConfigurationParsers != null && !hookConfigurationParsers.isEmpty()) {
+        this(hookConfigurationParsers, null);
+    }
+
+    public SimpleHookResolver(List<HookConfigurationParser> hookConfigurationParsers, List<HookPostParseListener> listeners) {
+        if (hookConfigurationParsers != null && !hookConfigurationParsers.isEmpty()) {
             for (HookConfigurationParser parser : hookConfigurationParsers) {
-                map.put(parser.getName(), parser.getCRUDHook());
+                CRUDHook hook = parser.getCRUDHook();
+                if (listeners != null) {
+                    for (HookPostParseListener listener : listeners) {
+                        listener.fire(hook);
+                    }
+                }
+                map.put(parser.getName(), hook);
             }
         }
     }
