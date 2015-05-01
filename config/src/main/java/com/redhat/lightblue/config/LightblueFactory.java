@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -33,6 +31,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
+import com.redhat.lightblue.config.hooks.SimpleHookResolver;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DeleteRequest;
@@ -43,9 +42,6 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.hooks.CRUDHook;
-import com.redhat.lightblue.hooks.HookPostParseListener;
-import com.redhat.lightblue.hooks.SimpleHookResolver;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -188,17 +184,9 @@ public final class LightblueFactory implements Serializable {
 
             metadata = cfg.createMetadata(datasources, getJSONParser(), this);
 
-            factory.setHookResolver(new SimpleHookResolver(
-                    cfg.getHookConfigurationParsers(),
-                    new ArrayList<HookPostParseListener>(Arrays.asList(
-                            new HookPostParseListener() {
-
-                                @Override
-                                public void fire(CRUDHook hook) {
-                                    ((LightblueFactoryAware) hook).setLightblueFactory(LightblueFactory.this);
-                                }
-
-                            }))));
+            SimpleHookResolver hookResolver = new SimpleHookResolver(cfg.getHookConfigurationParsers());
+            hookResolver.setLightblueFactory(this);
+            factory.setHookResolver(hookResolver);
         }
     }
 
