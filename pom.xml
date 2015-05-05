@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-pom</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.4.0</version>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Core components</description>
     <licenses>
@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <connection>scm:git:https://github.com/lightblue-platform/lightblue-core.git</connection>
         <developerConnection>scm:git:git@github.com:lightblue-platform/lightblue-core.git</developerConnection>
         <url>https://github.com/lightblue-platform/lightblue-core</url>
-        <tag>HEAD</tag>
+        <tag>V1.4.0</tag>
     </scm>
     <distributionManagement>
         <repository>
