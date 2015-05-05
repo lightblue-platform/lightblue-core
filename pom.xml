@@ -100,6 +100,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>16.0.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.netflix.servo</groupId>
                 <artifactId>servo-core</artifactId>
                 <version>0.8.0</version>
