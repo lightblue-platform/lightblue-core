@@ -167,6 +167,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <!-- The io.reactivex dependency is necessary to be available on the compile time due an issue found (on java/maven) -->
+        <dependency>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
