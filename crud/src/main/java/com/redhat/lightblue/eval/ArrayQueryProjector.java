@@ -26,6 +26,8 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ArrayField;
 
+import com.redhat.lightblue.query.Projection;
+
 import com.redhat.lightblue.query.ArrayQueryMatchProjection;
 
 /**
@@ -52,15 +54,15 @@ public class ArrayQueryProjector extends ArrayProjector {
     }
 
     @Override
-    protected Boolean projectArray(Path p, QueryEvaluationContext ctx) {
+    protected Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx) {
         LOGGER.debug("Evaluating array query projection for {}",p);
         Path contextRoot = ctx.getPath();
         QueryEvaluationContext nestedContext = ctx.getNestedContext(contextRoot.isEmpty() ? p
                 : p.suffix(-contextRoot.numSegments()));
         if (query.evaluate(nestedContext)) {
             LOGGER.debug("query evaluates to true");
-            return isIncluded() ? Boolean.TRUE : Boolean.FALSE;
+            return isIncluded() ? Projection.Inclusion.explicit_inclusion:Projection.Inclusion.explicit_exclusion;
         }
-        return Boolean.FALSE;
+        return Projection.Inclusion.explicit_exclusion;
     }
 }

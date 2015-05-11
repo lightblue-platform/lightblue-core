@@ -272,7 +272,9 @@ public class CompositeFindImpl implements Finder {
         Projector projector = Projector.getInstance(Projection.add(projection, 
                                                                    roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), root);
         for (DocCtx document : resultDocuments) {
+            LOGGER.debug("Projecting {}",document);
             document.setOutputDocument(projector.project(document, ctx.getFactory().getNodeFactory()));
+            LOGGER.debug("Result:{}",document.getOutputDocument());
         }
         return resultDocuments;
     }

@@ -59,17 +59,17 @@ public class ListProjector extends Projector {
      * last projection specified in the list.
      */
     @Override
-    public Boolean project(Path p, QueryEvaluationContext ctx) {
+    public Projection.Inclusion project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
         ListIterator<Projector> itemsItr=items.listIterator(items.size());
         while (itemsItr.hasPrevious()) {
             Projector projector = itemsItr.previous();
-            Boolean projectionResult = projector.project(p, ctx);
-            if (projectionResult != null) {
+            Projection.Inclusion projectionResult = projector.project(p, ctx);
+            if (projectionResult != Projection.Inclusion.undecided) {
                 nestedProjector = projector.getNestedProjector();
                 return projectionResult;
             }
         }
-        return null;
+        return Projection.Inclusion.undecided;
     }
 }

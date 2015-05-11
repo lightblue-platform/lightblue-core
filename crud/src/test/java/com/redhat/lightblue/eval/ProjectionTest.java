@@ -85,7 +85,7 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals(3, newDoc.get(new Path("field3")).asInt());
         Assert.assertEquals(4.0, newDoc.get(new Path("field4")).asDouble(), 0.001);
         Assert.assertEquals(true, newDoc.get(new Path("field5")).asBoolean());
-        Assert.assertNotNull(newDoc.get(new Path("field6")));
+        Assert.assertNull(newDoc.get(new Path("field6")));
         Assert.assertNull(newDoc.get(new Path("field6.nf1")));
         Assert.assertNull(newDoc.get(new Path("field6.nf2")));
         Assert.assertNull(newDoc.get(new Path("field6.nf3")));
@@ -93,8 +93,8 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("field6.nf5")));
         Assert.assertNull(newDoc.get(new Path("field6.nf6")));
         Assert.assertNull(newDoc.get(new Path("field6.nf7")));
-        Assert.assertNotNull(newDoc.get(new Path("field7")));
-        Assert.assertEquals(0, newDoc.get(new Path("field7")).size());
+        Assert.assertNull(newDoc.get(new Path("field7")));
+        Assert.assertNull(newDoc.get(new Path("field7")));
     }
 
     @Test
@@ -184,9 +184,9 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertEquals("nvalue2", newDoc.get(new Path("field6.nf2")).asText());
         Assert.assertEquals(4, newDoc.get(new Path("field6.nf3")).asInt());
         Assert.assertEquals(false, newDoc.get(new Path("field6.nf4")).asBoolean());
-        Assert.assertEquals(0, newDoc.get(new Path("field6.nf5")).size());
-        Assert.assertEquals(0, newDoc.get(new Path("field6.nf6")).size());
-        Assert.assertEquals(0, newDoc.get(new Path("field6.nf7")).size());
+        Assert.assertNull(newDoc.get(new Path("field6.nf5")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf6")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf7")));
         Assert.assertNull(newDoc.get(new Path("field7")));
     }
 
