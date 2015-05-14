@@ -39,6 +39,10 @@
             <artifactId>hystrix-servo-metrics-publisher</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-metrics-event-stream</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.netflix.servo</groupId>
             <artifactId>servo-graphite</artifactId>
         </dependency>
