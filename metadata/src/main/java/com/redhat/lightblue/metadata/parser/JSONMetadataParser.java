@@ -203,7 +203,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public JsonNode newNode() {
+    public ObjectNode newNode() {
         return factory.objectNode();
     }
 
