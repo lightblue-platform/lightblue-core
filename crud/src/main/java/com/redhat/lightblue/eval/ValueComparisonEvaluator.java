@@ -70,7 +70,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
             } else {
                 docValue = null;
             }
-            LOGGER.debug(" value={}", valueNode);
+            LOGGER.debug(" fieldvalue={} value={} type={}", docValue,value,fieldMd.getType().getName());
             int result = fieldMd.getType().compare(docValue, value);
             LOGGER.debug(" result={}", result);
             ctx.setResult(operator.apply(result));
