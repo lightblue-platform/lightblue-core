@@ -22,9 +22,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
+
+import com.redhat.lightblue.util.Path;
 
 public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
 
@@ -170,4 +174,12 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
         Assert.assertTrue(ctx.getResult());
     }
 
+    @Test
+    public void compareWithNull() throws Exception {
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field1','op':'=','rvalue':null}");
+        jsonDoc.modify(new Path("field1"),JsonNodeFactory.instance.nullNode(),false);
+        QueryEvaluator qe = QueryEvaluator.getInstance(q,md);
+        QueryEvaluationContext ctx=qe.evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+    }
 }

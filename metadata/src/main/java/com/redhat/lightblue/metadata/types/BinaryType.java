@@ -20,6 +20,7 @@ package com.redhat.lightblue.metadata.types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
@@ -79,7 +80,9 @@ public final class BinaryType implements Type, Serializable {
 
     @Override
     public Object fromJson(JsonNode node) {
-        if (node.isValueNode()) {
+        if (node instanceof NullNode) {
+            return null;
+        } else if (node.isValueNode()) {
             try {
                 return node.binaryValue();
             } catch (Exception e) {

@@ -20,6 +20,7 @@ package com.redhat.lightblue.metadata.types;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 
@@ -62,7 +63,10 @@ public abstract class ContainerType implements Type {
 
     @Override
     public Object fromJson(JsonNode value) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_FROM_JSON_NOT_SUPPORTED);
+        if (value instanceof NullNode) {
+            return null;
+        } else
+            throw new UnsupportedOperationException(MetadataConstants.ERR_FROM_JSON_NOT_SUPPORTED);
     }
 
     @Override
