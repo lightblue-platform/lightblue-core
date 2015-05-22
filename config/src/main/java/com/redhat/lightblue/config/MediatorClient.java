@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Response;
+import com.redhat.lightblue.config.exception.ResponseHasErrorsException;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
@@ -38,8 +39,9 @@ public class MediatorClient {
      * @param entityVersion - entity version, can be null if the default version is acceptable.
      * @param entity - POJO object to be transformed to be inserted
      * @return {@link Response}
+     * @throws ResponseHasErrorsException
      */
-    public Response insert(String entityName, String entityVersion, Object entity) {
+    public Response insert(String entityName, String entityVersion, Object entity) throws ResponseHasErrorsException {
         if (entityName == null) {
             throw new IllegalArgumentException("entityName cannot be null");
         }
@@ -63,14 +65,15 @@ public class MediatorClient {
      * {@link com.redhat.lightblue.mediator.Mediator} and returns the {@link Response}.
      * @param insertRequest - {@link InsertionRequest}
      * @return {@link Response}.
+     * @throws ResponseHasErrorsException
      */
-    public Response insert(InsertionRequest insertRequest) {
+    public Response insert(InsertionRequest insertRequest) throws ResponseHasErrorsException {
         if (insertRequest == null) {
             throw new IllegalArgumentException("insertRequest cannot be null");
         }
 
         try {
-            return lbFactory.getMediator().insert(insertRequest);
+            return checkForErrors(lbFactory.getMediator().insert(insertRequest));
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException | IOException e) {
             throw new RuntimeException("Unexpected exception from Mediator.", e);
         }
@@ -81,14 +84,15 @@ public class MediatorClient {
      * {@link com.redhat.lightblue.mediator.Mediator} and returns the {@link Response}.
      * @param insertRequest - {@link FindRequest}
      * @return {@link Response}.
+     * @throws ResponseHasErrorsException
      */
-    public Response find(FindRequest findRequest) {
+    public Response find(FindRequest findRequest) throws ResponseHasErrorsException {
         if (findRequest == null) {
             throw new IllegalArgumentException("findRequest cannot be null");
         }
 
         try {
-            return lbFactory.getMediator().find(findRequest);
+            return checkForErrors(lbFactory.getMediator().find(findRequest));
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException | IOException e) {
             throw new RuntimeException("Unexpected exception from Mediator.", e);
         }
@@ -99,14 +103,15 @@ public class MediatorClient {
      * {@link com.redhat.lightblue.mediator.Mediator} and returns the {@link Response}.
      * @param insertRequest - {@link UpdateRequest}
      * @return {@link Response}.
+     * @throws ResponseHasErrorsException
      */
-    public Response update(UpdateRequest updateRequest) {
+    public Response update(UpdateRequest updateRequest) throws ResponseHasErrorsException {
         if (updateRequest == null) {
             throw new IllegalArgumentException("updateRequest cannot be null");
         }
 
         try {
-            return lbFactory.getMediator().update(updateRequest);
+            return checkForErrors(lbFactory.getMediator().update(updateRequest));
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException | IOException e) {
             throw new RuntimeException("Unexpected exception from Mediator.", e);
         }
@@ -117,14 +122,15 @@ public class MediatorClient {
      * {@link com.redhat.lightblue.mediator.Mediator} and returns the {@link Response}.
      * @param insertRequest - {@link SaveRequest}
      * @return {@link Response}.
+     * @throws ResponseHasErrorsException
      */
-    public Response save(SaveRequest saveRequest) {
+    public Response save(SaveRequest saveRequest) throws ResponseHasErrorsException {
         if (saveRequest == null) {
             throw new IllegalArgumentException("saveRequest cannot be null");
         }
 
         try {
-            return lbFactory.getMediator().save(saveRequest);
+            return checkForErrors(lbFactory.getMediator().save(saveRequest));
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException | IOException e) {
             throw new RuntimeException("Unexpected exception from Mediator.", e);
         }
@@ -135,17 +141,25 @@ public class MediatorClient {
      * {@link com.redhat.lightblue.mediator.Mediator} and returns the {@link Response}.
      * @param insertRequest - {@link DeleteRequest}
      * @return {@link Response}.
+     * @throws ResponseHasErrorsException
      */
-    public Response delete(DeleteRequest deleteRequest) {
+    public Response delete(DeleteRequest deleteRequest) throws ResponseHasErrorsException {
         if (deleteRequest == null) {
             throw new IllegalArgumentException("deleteRequest cannot be null");
         }
 
         try {
-            return lbFactory.getMediator().delete(deleteRequest);
+            return checkForErrors(lbFactory.getMediator().delete(deleteRequest));
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException | IOException e) {
             throw new RuntimeException("Unexpected exception from Mediator.", e);
         }
+    }
+
+    private Response checkForErrors(Response response) throws ResponseHasErrorsException {
+        if (!response.getErrors().isEmpty() || !response.getDataErrors().isEmpty()) {
+            throw new ResponseHasErrorsException(response);
+        }
+        return response;
     }
 
 }
