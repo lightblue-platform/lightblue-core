@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ArrayField;
@@ -133,13 +134,14 @@ public class ArrayAddExpressionEvaluator extends Updater {
         if (element instanceof ObjectArrayElement) {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + " <- " + refPath);
-            } else if (rvalue.getType() == RValueExpression.RValueType._value) {
+            } else if (rvalue.getType() != RValueExpression.RValueType._emptyObject) {
                 throw new EvaluationError(CrudConstants.ERR_EXPECTED_OBJECT_VALUE + arrayField);
             }
         } else {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + "<-" + refPath);
-            } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
+            } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject||
+                       rvalue.getType() == RValueExpression.RValueType._emptyArray) {
                 throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE + arrayField);
             }
         }
@@ -157,6 +159,9 @@ public class ArrayAddExpressionEvaluator extends Updater {
         Path absPath = new Path(contextPath, arrayField);
         JsonNode node = doc.get(absPath);
         int insertTo = insertionIndex;
+        if(node==null||node instanceof NullNode) {
+            doc.modify(absPath,node=factory.arrayNode(),true);
+        }
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             for (RValueData rvalueData : values) {

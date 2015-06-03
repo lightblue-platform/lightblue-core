@@ -112,6 +112,32 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void null_array_append() throws Exception {
+        // Set field7 to null
+        jsonDoc.modify(new Path("field7"),null,true);
+        Assert.assertNull(jsonDoc.get(new Path("field7")));
+        
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field7' : {} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        updater.update(jsonDoc, md.getFieldTreeRoot(), new Path());
+
+        Assert.assertEquals(1,jsonDoc.get(new Path("field7")).size());
+    }
+
+    @Test
+    public void null_array_set() throws Exception {
+        // Set field7 to null
+        jsonDoc.modify(new Path("field7"),null,true);
+        Assert.assertNull(jsonDoc.get(new Path("field7")));
+        
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$set' : { 'field7' : [] } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        updater.update(jsonDoc, md.getFieldTreeRoot(), new Path());
+
+        Assert.assertEquals(0,jsonDoc.get(new Path("field7")).size());
+    }
+
+    @Test
     public void array_insert() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$insert' : { 'field6.nf6.2' : [ 'five','six',{'$valueof':'field2' }] } }");
 
