@@ -609,12 +609,11 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public void parseFieldConstraints(Field field,
-            T fieldConstraints) {
+    public List<FieldConstraint> parseFieldConstraints(T fieldConstraints) {
+        List<FieldConstraint> constraints = new ArrayList<>();
         if (fieldConstraints != null) {
             // The constraint object must contain a single field
             Set<String> childNames = getChildNames(fieldConstraints);
-            List<FieldConstraint> constraints = new ArrayList<>();
             for (String name : childNames) {
                 Error.push(name);
                 try {
@@ -636,9 +635,15 @@ public abstract class MetadataParser<T> {
                     Error.pop();
                 }
             }
-            if (!constraints.isEmpty()) {
-                field.setConstraints(constraints);
-            }
+        }
+        return constraints;
+    }
+
+    public void parseFieldConstraints(Field field,
+                                      T fieldConstraints) {
+        List<FieldConstraint> constraints=parseFieldConstraints(fieldConstraints);
+        if (!constraints.isEmpty()) {
+            field.setConstraints(constraints);
         }
     }
 
@@ -834,6 +839,9 @@ public abstract class MetadataParser<T> {
                 throw Error.get(MetadataConstants.ERR_INVALID_TYPE, type);
             }
             ret.setType(t);
+            List<FieldConstraint> constraints=parseFieldConstraints(getObjectProperty(items, STR_CONSTRAINTS));
+            if(constraints!=null&&!constraints.isEmpty())
+                ret.setConstraints(constraints);
             return ret;
         }
     }

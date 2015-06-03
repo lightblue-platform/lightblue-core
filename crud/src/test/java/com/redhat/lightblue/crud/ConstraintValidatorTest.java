@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Assert;
 import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,12 +38,16 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.TestDataStoreParser;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
+import com.redhat.lightblue.crud.validator.StringLengthChecker;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.FieldConstraint;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
+import com.redhat.lightblue.metadata.constraints.*;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.FieldConstraintParser;
+import com.redhat.lightblue.metadata.parser.StringLengthConstraintParser;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -51,6 +56,7 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Registry;
+import com.redhat.lightblue.util.Path;
 
 public class ConstraintValidatorTest {
 
@@ -90,7 +96,7 @@ public class ConstraintValidatorTest {
     protected EntityMetadata createEntityMetadata(
             JsonNode node,
             List<? extends EntityConstraint> entityConstraints,
-            Map<String, ? extends FieldConstraintParser<JsonNode>> fieldConstraintParsers) {
+            Map<String,FieldConstraintParser<JsonNode>> fieldConstraintParsers) {
 
         TestDataStoreParser<JsonNode> dsParser = new TestDataStoreParser<JsonNode>();
 
@@ -148,6 +154,33 @@ public class ConstraintValidatorTest {
         ConstraintValidator validator = createConstraintValidator(entityMetadata);
 
         validator.validateDocs(Arrays.asList(new JsonDoc(validatorNode)));
+    }
+
+    @Test
+    public void testSimpleArrayConstraint()  throws IOException {
+        JsonNode node=JsonUtils.json(getClass().getResourceAsStream("/crud/validator/testSimpleArrayConstraint.json"));
+        Map<String,FieldConstraintParser<JsonNode>> fcp=new HashMap<>();
+        fcp.put(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<JsonNode>());
+        EntityMetadata md=createEntityMetadata(node, null,fcp);
+
+        Assert.assertEquals(1,((SimpleArrayElement)md.resolve(new Path("array1.*"))).getConstraints().size());
+
+        Map<String,FieldConstraintChecker> fcc=new HashMap<>();
+        fcc.put(StringLengthConstraint.MINLENGTH,new StringLengthChecker());
+        ConstraintValidator validator=createConstraintValidator(md,fcc,null);
+
+        
+        JsonDoc doc=new JsonDoc(JsonUtils.json(getClass().getResourceAsStream("/crud/validator/valid-simple-array-constraint-doc.json")));
+        validator.validateDoc(doc);
+        Assert.assertFalse(validator.hasErrors());
+
+        doc=new JsonDoc(JsonUtils.json(getClass().getResourceAsStream("/crud/validator/valid-simple-array-constraint-emptyarray.json")));
+        validator.validateDoc(doc);
+        Assert.assertFalse(validator.hasErrors());
+
+        doc=new JsonDoc(JsonUtils.json(getClass().getResourceAsStream("/crud/validator/invalid-simple-array-constraint-doc.json")));
+        validator.validateDoc(doc);
+        Assert.assertTrue(validator.hasErrors());
     }
 
     /**
