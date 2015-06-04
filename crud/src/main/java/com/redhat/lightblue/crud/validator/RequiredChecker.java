@@ -69,7 +69,17 @@ public class RequiredChecker implements FieldConstraintDocChecker {
         List<Path> errors = new ArrayList<Path>();
         if (nAnys == 0) {
             if (doc.get(fieldMetadataPath) == null) {
-                errors.add(fieldMetadataPath);
+                // Field does not exist. If the parent object does not exist either, constraint is ok
+                if(fieldMetadataPath.numSegments()>1) {
+                    if(doc.get(fieldMetadataPath.prefix(-1))==null) {
+                        // Parent does not exist as well. Let it pass
+                        ;
+                    } else {
+                        errors.add(fieldMetadataPath);
+                    }
+                } else {
+                    errors.add(fieldMetadataPath);
+                }
             }
         } else {
             // The required field is a member of an object that's an element of an array
