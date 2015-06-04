@@ -56,13 +56,13 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
         Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field6")).getClass());
     }
 
-    @Test(expected = EvaluationError.class)
-    public void nullify_array_not_supported() throws Exception {
+    @Test
+    public void nullify_array() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("[ {'$set' : { 'field7' : '$null' } }] ");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
 
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field6.nf5")).getClass());
+        Assert.assertEquals(NullNode.class, jsonDoc.get(new Path("field7")).getClass());
     }
 
     @Test

@@ -40,7 +40,7 @@ public class RValueExpressionTest {
     @Test
     public void testContructors() {
         //public RValueExpression() {
-        RValueExpression instance = new RValueExpression();
+        RValueExpression instance = new RValueExpression(RValueExpression.RValueType._emptyObject);
         Value expResult = null;
         Value result = instance.getValue();
         assertEquals(expResult, result);
@@ -119,13 +119,13 @@ public class RValueExpressionTest {
 
     @Test
     public void testHashCode() {
-        assertEquals(new RValueExpression().hashCode(), new RValueExpression().hashCode());
+        assertEquals(new RValueExpression(RValueExpression.RValueType._emptyObject).hashCode(), new RValueExpression(RValueExpression.RValueType._emptyObject).hashCode());
     }
 
     @Test
     public void testEquals() {
-        assertEquals(new RValueExpression(), new RValueExpression());
-        RValueExpression instance = new RValueExpression();
+        assertEquals(new RValueExpression(RValueExpression.RValueType._emptyObject), new RValueExpression(RValueExpression.RValueType._emptyObject));
+        RValueExpression instance = new RValueExpression(RValueExpression.RValueType._emptyObject);
         assertFalse(instance.equals(null));
         assertFalse(instance.equals(""));
         assertFalse(instance.equals(new RValueExpression(Path.ANYPATH)));

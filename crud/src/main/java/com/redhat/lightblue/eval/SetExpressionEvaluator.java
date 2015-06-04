@@ -135,8 +135,7 @@ public class SetExpressionEvaluator extends Updater {
                 // Only a dereference or empty object is acceptable here
                 data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ArrayField) {
-                // Unacceptable
-                throw new EvaluationError(CrudConstants.ERR_ASSIGNMENT + field);
+                data = initializeArray(rvalue,refMdNode,mdNode,field,refPath);
             }
             setValues.add(data);
         }
@@ -147,7 +146,8 @@ public class SetExpressionEvaluator extends Updater {
             if (!mdNode.getType().equals(refMdNode.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_DEREFERENCE + field + " <- " + refPath);
             }
-        } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject) {
+        } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject||
+                   rvalue.getType() == RValueExpression.RValueType._emptyArray) {
             throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
         }
 
@@ -159,7 +159,20 @@ public class SetExpressionEvaluator extends Updater {
             if (!(refMdNode instanceof ObjectField)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
-        } else if (rvalue.getType() == RValueExpression.RValueType._value) {
+        } else if (rvalue.getType() == RValueExpression.RValueType._value||
+                   rvalue.getType() == RValueExpression.RValueType._emptyArray) {
+            throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
+        }
+        return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
+    }
+
+    private FieldData initializeArray(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
+        if (rvalue.getType() == RValueExpression.RValueType._dereference) {
+            if (!(refMdNode instanceof ArrayField)) {
+                throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
+            }
+        } else if (rvalue.getType() == RValueExpression.RValueType._value||
+                   rvalue.getType() == RValueExpression.RValueType._emptyObject) {
             throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
@@ -183,25 +196,28 @@ public class SetExpressionEvaluator extends Updater {
             Object newValue = null;
             Type newValueType = null;
             switch (df.value.getType()) {
-                case _null:
-                    newValueNode = factory.nullNode();
-                    break;
-                case _emptyObject:
-                    newValueNode = factory.objectNode();
-                    break;
-                case _dereference:
-                    JsonNode refNode = doc.get(new Path(contextPath, df.refPath));
-                    if (refNode != null) {
-                        newValueNode = refNode.deepCopy();
-                        newValue = df.refType.fromJson(newValueNode);
-                        newValueType = df.refType;
-                    }
-                    break;
-                case _value:
-                    newValue = df.value.getValue().getValue();
-                    newValueNode = df.fieldType.toJson(factory, newValue);
-                    newValueType = df.fieldType;
-                    break;
+            case _null:
+                newValueNode = factory.nullNode();
+                break;
+            case _emptyObject:
+                newValueNode = factory.objectNode();
+                break;
+            case _emptyArray:
+                newValueNode = factory.arrayNode();
+                break;
+            case _dereference:
+                JsonNode refNode = doc.get(new Path(contextPath, df.refPath));
+                if (refNode != null) {
+                    newValueNode = refNode.deepCopy();
+                    newValue = df.refType.fromJson(newValueNode);
+                    newValueType = df.refType;
+                }
+                break;
+            case _value:
+                newValue = df.value.getValue().getValue();
+                newValueNode = df.fieldType.toJson(factory, newValue);
+                newValueType = df.fieldType;
+                break;
             }
             oldValueNode = setOrAdd(doc, contextPath, df, newValueNode, newValue, newValueType);
             if (!ret) {
