@@ -31,8 +31,10 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.Test;
+import org.junit.Assert;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.util.Error;
@@ -56,6 +58,23 @@ public class RequiredCheckerTest {
         new RequiredChecker().checkConstraint(validator, null, null, constraint, null);
 
         verify(validator, never()).addDocError(any(Error.class));
+    }
+
+    @Test
+    public void getMissingFields_missingParent() {
+        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
+        List<Path> l=RequiredChecker.getMissingFields(new Path("parent.child"),doc);
+        Assert.assertEquals(0,l.size());
+    }
+
+    @Test
+    public void getMissingFields_withParent() {
+        ObjectNode on=JsonNodeFactory.instance.objectNode();
+        on.set("parent",JsonNodeFactory.instance.objectNode());
+        JsonDoc doc=new JsonDoc(on);
+        List<Path> l=RequiredChecker.getMissingFields(new Path("parent.child"),doc);
+        Assert.assertEquals(1,l.size());
+        Assert.assertEquals(new Path("parent.child"),l.get(0));
     }
 
     @Test
