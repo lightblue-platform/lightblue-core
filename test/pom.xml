@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>1.6.0</version>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
     <artifactId>lightblue-core-test</artifactId>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
@@ -31,22 +31,22 @@
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-config</artifactId>
-            <version>1.6.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-metadata</artifactId>
-            <version>1.6.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-api</artifactId>
-            <version>1.6.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-util</artifactId>
-            <version>1.6.0</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
