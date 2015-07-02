@@ -113,6 +113,25 @@ public class RequiredCheckerTest {
         verify(validator, times(1)).addDocError(any(Error.class));
     }
 
+
+    @Test
+    public void testCheckConstraint_WithNullParent(){
+        ConstraintValidator validator = mock(ConstraintValidator.class);
+
+        Path path = mock(Path.class);
+        when(path.nAnys()).thenReturn(0);
+
+        RequiredConstraint constraint = new RequiredConstraint();
+        constraint.setValue(true);
+
+        JsonDoc doc = mock(JsonDoc.class);
+        when(doc.get(path)).thenReturn(JsonNodeFactory.instance.nullNode());
+
+        new RequiredChecker().checkConstraint(validator, null, path, constraint, doc);
+
+        verify(validator, never()).addDocError(any(Error.class));
+    }
+
     /**
      * When all the paths exist, then no errors will be thrown.
      */
