@@ -146,12 +146,14 @@ public final class Error extends RuntimeException {
         this.context = new ArrayDeque<>();
         this.errorCode = errorCode;
         this.msg = msg;
+        LOGGER.error(this.toString());
     }
 
     private Error(ArrayDeque<String> context, String errorCode, String msg) {
         this.context = context.clone();
         this.errorCode = errorCode;
         this.msg = msg;
+        LOGGER.error(this.toString());
     }
 
     public void pushContext(String context) {
