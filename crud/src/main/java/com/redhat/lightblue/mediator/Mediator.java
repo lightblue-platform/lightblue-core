@@ -111,7 +111,7 @@ public class Mediator {
                         response.setEntityData(JsonDoc.listToDoc(insertedDocuments, factory.getNodeFactory()));
                         response.setModifiedCount(insertedDocuments.size());
                     }
-                    if (!ctx.hasError()&&!ctx.hasDocumentErrors()&&
+                    if (!ctx.hasErrors()&&!ctx.hasDocumentErrors()&&
                         insertedDocuments != null && insertedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
@@ -179,7 +179,7 @@ public class Mediator {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
                         response.setModifiedCount(updatedDocuments.size());
                     }
-                    if (!ctx.hasError()&&!ctx.hasDocumentErrors()&&
+                    if (!ctx.hasErrors()&&!ctx.hasDocumentErrors()&&
                         updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
