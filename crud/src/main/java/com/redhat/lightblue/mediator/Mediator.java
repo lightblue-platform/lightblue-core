@@ -178,7 +178,8 @@ public class Mediator {
                         response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
                         response.setModifiedCount(updatedDocuments.size());
                     }
-                    if (updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
+                    if (!ctx.hasError()&&!ctx.hasDocumentErrors()&&
+                        updatedDocuments != null && updatedDocuments.size() == ctx.getDocuments().size()) {
                         ctx.setStatus(OperationStatus.COMPLETE);
                     } else if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                         ctx.setStatus(OperationStatus.PARTIAL);
