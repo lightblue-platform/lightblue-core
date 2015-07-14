@@ -238,10 +238,17 @@ public class CompositeMetadata extends EntityMetadata {
      */
     public static CompositeMetadata buildCompositeMetadata(EntityMetadata root,
                                                            GetMetadata gmd) {
-        CompositeMetadata cmd = buildCompositeMetadata(root, gmd, new Path(), null, new MutablePath());
-        // Re-process all resolved references, rewrite their queries in absolute form
-        rewriteAssociationQueries(cmd);
-        return cmd;
+        LOGGER.debug("enter buildCompositeMetadata");
+        Error.push("compositeMetadata");
+        try {
+            CompositeMetadata cmd = buildCompositeMetadata(root, gmd, new Path(), null, new MutablePath());
+            // Re-process all resolved references, rewrite their queries in absolute form
+            rewriteAssociationQueries(cmd);
+            return cmd;
+        } finally {
+            LOGGER.debug("end buildCompositeMetadata");
+            Error.pop();
+        }
     }
 
     /**
@@ -261,11 +268,16 @@ public class CompositeMetadata extends EntityMetadata {
                                                             MutablePath path) {
         // Recursively process and copy the fields, retrieving
         // metadata for references
-        CompositeSchema cschema = CompositeSchema.newSchemaWithEmptyFields(root.getEntitySchema());
-        CompositeMetadata cmd = new CompositeMetadata(root.getEntityInfo(), cschema, entityPath, parentEntity);
-        // copy fields, resolve references
-        copyFields(cschema.getFields(), root.getEntitySchema().getFields(), path, cmd, gmd);
-        return cmd;
+        Error.push(root.getName());
+        try {
+            CompositeSchema cschema = CompositeSchema.newSchemaWithEmptyFields(root.getEntitySchema());
+            CompositeMetadata cmd = new CompositeMetadata(root.getEntityInfo(), cschema, entityPath, parentEntity);
+            // copy fields, resolve references
+            copyFields(cschema.getFields(), root.getEntitySchema().getFields(), path, cmd, gmd);
+            return cmd;
+        } finally {
+            Error.pop();
+        }
     }
 
     /**
@@ -408,47 +420,53 @@ public class CompositeMetadata extends EntityMetadata {
         // copy all properties from source to dest
         for (Iterator<Field> itr = source.getFields(); itr.hasNext();) {
             Field field = itr.next();
+            Error.push(field.getName());
             path.push(field.getName()); // push even for simple field since it won't matter in that case
-            if (field instanceof SimpleField) {
-                SimpleField newField = new SimpleField(field.getName(), field.getType());
-                newField.shallowCopyFrom(field);
-                dest.put(newField);
-            } else if (field instanceof ObjectField) {
-                ObjectField newField = new ObjectField(field.getName());
-                newField.shallowCopyFrom(field);
-                copyFields(newField.getFields(),
-                        ((ObjectField) field).getFields(),
-                        path,
-                        parentEntity,
-                        gmd);
-                dest.put(newField);
-            } else if (field instanceof ArrayField) {
-                ArrayElement sourceEl = ((ArrayField) field).getElement();
-                ArrayElement newElement;
-                if (sourceEl instanceof ObjectArrayElement) {
-                    path.push(Path.ANY);
-                    // Need to copy an Object array, there is a Fields object in it
-                    newElement = new ObjectArrayElement();
-                    copyFields(((ObjectArrayElement) newElement).getFields(),
-                            ((ObjectArrayElement) sourceEl).getFields(),
-                            path,
-                            parentEntity,
-                            gmd);
-                    path.pop();
-                } else {
-                    newElement = new SimpleArrayElement(((SimpleArrayElement) sourceEl).getType());
-                }
-                newElement.getProperties().putAll(sourceEl.getProperties());
-                ArrayField newField = new ArrayField(field.getName(), newElement);
-                newField.shallowCopyFrom(field);
-                dest.put(newField);
-            } else {
-                // Field is a reference
-                ReferenceField reference = (ReferenceField) field;
-                ResolvedReferenceField newField = resolveReference(reference, path, parentEntity, gmd);
-                if (newField != null) {
+            LOGGER.debug("Processing {}",path);
+            try {
+                if (field instanceof SimpleField) {
+                    SimpleField newField = new SimpleField(field.getName(), field.getType());
+                    newField.shallowCopyFrom(field);
                     dest.put(newField);
+                } else if (field instanceof ObjectField) {
+                    ObjectField newField = new ObjectField(field.getName());
+                    newField.shallowCopyFrom(field);
+                    copyFields(newField.getFields(),
+                               ((ObjectField) field).getFields(),
+                               path,
+                               parentEntity,
+                               gmd);
+                    dest.put(newField);
+                } else if (field instanceof ArrayField) {
+                    ArrayElement sourceEl = ((ArrayField) field).getElement();
+                    ArrayElement newElement;
+                    if (sourceEl instanceof ObjectArrayElement) {
+                        path.push(Path.ANY);
+                        // Need to copy an Object array, there is a Fields object in it
+                        newElement = new ObjectArrayElement();
+                        copyFields(((ObjectArrayElement) newElement).getFields(),
+                                   ((ObjectArrayElement) sourceEl).getFields(),
+                                   path,
+                                   parentEntity,
+                                   gmd);
+                        path.pop();
+                    } else {
+                        newElement = new SimpleArrayElement(((SimpleArrayElement) sourceEl).getType());
+                    }
+                    newElement.getProperties().putAll(sourceEl.getProperties());
+                    ArrayField newField = new ArrayField(field.getName(), newElement);
+                    newField.shallowCopyFrom(field);
+                    dest.put(newField);
+                } else {
+                    // Field is a reference
+                    ReferenceField reference = (ReferenceField) field;
+                    ResolvedReferenceField newField = resolveReference(reference, path, parentEntity, gmd);
+                    if (newField != null) {
+                        dest.put(newField);
+                    }
                 }
+            } finally {
+                Error.pop();
             }
             path.pop();
         }
@@ -459,6 +477,7 @@ public class CompositeMetadata extends EntityMetadata {
                                                            MutablePath path,
                                                            CompositeMetadata parentEntity,
                                                            GetMetadata gmd) {
+        LOGGER.debug("resolveReference {}:{}",path,source);        
         EntityMetadata md = gmd.getMetadata(path.immutableCopy(),
                 source.getEntityName(),
                 source.getVersionValue());
@@ -467,6 +486,7 @@ public class CompositeMetadata extends EntityMetadata {
         // GetMetadata cannot retrieve the metadata, it throws an
         // exception.
         if (md != null) {
+            LOGGER.debug("resolved");
             // We have the entity metadata. We insert this as a
             // resolved reference
             Path fpath = path.immutableCopy();
@@ -476,6 +496,8 @@ public class CompositeMetadata extends EntityMetadata {
             ResolvedReferenceField newField = new ResolvedReferenceField(source, md, cmd);
             parentEntity.children.put(fpath, newField);
             return newField;
+        } else {
+            LOGGER.debug("Not resolved");
         }
         return null;
     }
