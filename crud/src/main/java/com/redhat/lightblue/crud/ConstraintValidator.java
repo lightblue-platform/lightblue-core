@@ -40,6 +40,7 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldCursor;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
 
 public class ConstraintValidator {
 
@@ -224,6 +225,8 @@ public class ConstraintValidator {
                 List<FieldConstraint> constraints = null;
                 if (currentFieldNode instanceof Field) {
                     constraints = ((Field) currentFieldNode).getConstraints();
+                } else if(currentFieldNode instanceof SimpleArrayElement) {
+                    constraints = ((SimpleArrayElement) currentFieldNode).getConstraints();
                 }
                 if (constraints != null && !constraints.isEmpty()) {
                     checkFieldConstraints(doc, constraints, currentValuePath, currentValue);
