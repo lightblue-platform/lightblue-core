@@ -68,10 +68,28 @@ public abstract class AbstractJsonNodeTest {
      * @throws IOException
      */
     public static final String loadResource(String resourceName, ClassLoader loader) throws IOException {
+        try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            return loadResource(is);
+        }
+    }
+
+    /**
+     * Loads contents of resource on classpath as String using the passed in {@link Class}.
+     * @param resourceName
+     * @param loader - {@link Class} to use.
+     * @return the resource as a String
+     * @throws IOException
+     */
+    public static final String loadResource(String resourceName, Class<?> loader) throws IOException {
+        try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            return loadResource(is);
+        }
+    }
+
+    public static final String loadResource(InputStream is) throws IOException {
         StringBuilder buff = new StringBuilder();
 
-        try (InputStream is = loader.getResourceAsStream(resourceName);
-                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
+        try (InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
                 BufferedReader reader = new BufferedReader(isr)) {
             String line;
             while ((line = reader.readLine()) != null) {
