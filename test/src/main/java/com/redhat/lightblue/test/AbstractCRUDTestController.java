@@ -37,6 +37,7 @@ import com.redhat.lightblue.config.JsonTranslator;
 import com.redhat.lightblue.config.LightblueFactory;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
 /**
  * <p>
@@ -218,7 +219,10 @@ public abstract class AbstractCRUDTestController {
      *            true if should look for resource in lightblue-core-test.jar
      * @return the resource as a String
      * @throws IOException
+     * @use {@link com.redhat.lightblue.util.test.AbstractJsonNodeTest#loadResource(String)}
+     * @use {@link com.redhat.lightblue.util.test.AbstractJsonNodeTest#loadResource(String, ClassLoader)}
      */
+    @Deprecated
     public static final String loadResource(String resourceName, boolean local) throws IOException {
         StringBuilder buff = new StringBuilder();
 
