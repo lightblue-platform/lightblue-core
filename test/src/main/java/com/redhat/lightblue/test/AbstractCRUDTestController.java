@@ -218,7 +218,9 @@ public abstract class AbstractCRUDTestController {
      *            true if should look for resource in lightblue-core-test.jar
      * @return the resource as a String
      * @throws IOException
+     * @use {@link com.redhat.lightblue.util.test.AbstractJsonNodeTest#loadResource}
      */
+    @Deprecated
     public static final String loadResource(String resourceName, boolean local) throws IOException {
         StringBuilder buff = new StringBuilder();
 
