@@ -185,6 +185,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
         <module>metadata</module>
         <module>util</module>
         <module>config</module>
+        <module>extensions</module>
         <module>test</module>
         <module>hystrix</module>
     </modules>
