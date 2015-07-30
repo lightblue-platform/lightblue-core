@@ -20,6 +20,9 @@ package com.redhat.lightblue.config;
 
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -34,6 +37,8 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
 
     private static final long serialVersionUID = 1l;
 
+    private static final Logger LOGGER=LoggerFactory.getLogger(ControllerConfiguration.class);
+    
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
     private ObjectNode extensions;
@@ -102,6 +107,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                     controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
                 }
                 extensions=(ObjectNode)node.get("extensions");
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}",node,backend,controllerFactory,extensions);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

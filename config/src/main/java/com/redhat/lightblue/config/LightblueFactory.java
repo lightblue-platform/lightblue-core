@@ -121,12 +121,15 @@ public final class LightblueFactory implements Serializable {
     private synchronized void initializeFactory()
             throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (factory == null) {
+            LOGGER.debug("Initializing factory");
             JsonNode root = crudNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
                     root = JsonUtils.json(is);
                 }
-            }
+            } else
+                LOGGER.debug("Using passed in node to initialize factory");
+            LOGGER.debug("Initializing factory from {}",root);
 
             // convert root to Configuration object
             CrudConfiguration configuration = new CrudConfiguration();
@@ -265,18 +268,24 @@ public final class LightblueFactory implements Serializable {
     private synchronized void initializeLockingMap()
         throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if(lockingMap==null) {
+            LOGGER.debug("Initializing locking");
             Map<String,LockingSupport> map=new HashMap<>();
             CRUDController[] controllers=getFactory().getCRUDControllers();
+            LOGGER.debug("Got {} controllers",controllers.length);
             for(CRUDController controller:controllers) {
+                LOGGER.debug("Inspecting {}",controller.getClass());
                 if(controller instanceof ExtensionSupport) {
+                    LOGGER.debug("{} supports extensions",controller.getClass());
                     LockingSupport lockingSupport=(LockingSupport)((ExtensionSupport)controller).getExtensionInstance(LockingSupport.class);
                     if(lockingSupport!=null) {
+                        LOGGER.debug("{} supports locking",controller.getClass());
                         for(String domain:lockingSupport.getLockingDomains()) {
                             map.put(domain,lockingSupport);
                         }
                     }
                 }
             }
+            LOGGER.debug("Locking map:{}",map);
             lockingMap=map;
         }
     }
