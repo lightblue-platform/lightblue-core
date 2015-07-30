@@ -269,7 +269,7 @@ public final class LightblueFactory implements Serializable {
             CRUDController[] controllers=getFactory().getCRUDControllers();
             for(CRUDController controller:controllers) {
                 if(controller instanceof ExtensionSupport) {
-                    LockingSupport lockingSupport=((ExtensionSupport)controller).getExtensionInstance(LockingSupport.class);
+                    LockingSupport lockingSupport=(LockingSupport)((ExtensionSupport)controller).getExtensionInstance(LockingSupport.class);
                     if(lockingSupport!=null) {
                         for(String domain:lockingSupport.getLockingDomains()) {
                             map.put(domain,lockingSupport);

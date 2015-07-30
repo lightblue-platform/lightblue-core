@@ -19,7 +19,7 @@
 package com.redhat.lightblue.extensions;
 
 /**
- * Controller supporting extensions must implement this interface
+ * Controllers supporting extensions must implement this interface
  *
  * Here's how it all comes together:
  *
@@ -36,5 +36,5 @@ public interface ExtensionSupport {
      *
      * @return An instance of the extension, or null if the controller doesn't support this extension
      */
-    <T extends Extension>  T  getExtensionInstance(Class<? extends Extension> extensionClass);
+    Extension  getExtensionInstance(Class<? extends Extension> extensionClass);
 }
