@@ -20,6 +20,10 @@ package com.redhat.lightblue.crud;
 
 import java.io.Serializable;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.util.DefaultRegistry;
@@ -44,7 +48,7 @@ public class Factory implements Serializable {
     private final DefaultRegistry<String, FieldConstraintChecker> fieldConstraintValidatorRegistry = new DefaultRegistry<>();
     private final DefaultRegistry<String, EntityConstraintChecker> entityConstraintValidatorRegistry = new DefaultRegistry<>();
 
-    private final DefaultRegistry<String, CRUDController> crudControllers = new DefaultRegistry<>();
+    private final Map<String, CRUDController> crudControllers = new HashMap<>();
 
     private HookResolver hookResolver;
     private final InterceptorManager interceptors = new InterceptorManager();
@@ -109,14 +113,19 @@ public class Factory implements Serializable {
      * @param controller The controller
      */
     public synchronized void addCRUDController(String backendType, CRUDController controller) {
-        crudControllers.add(backendType, controller);
+        crudControllers.put(backendType, controller);
     }
 
+    public CRUDController[] getCRUDControllers() {
+        Collection<CRUDController> c=crudControllers.values();
+        return c.toArray(new CRUDController[c.size()]);
+    }
+    
     /**
      * Returns a CRUD controller for the given backend type
      */
     public CRUDController getCRUDController(String backendType) {
-        return crudControllers.find(backendType);
+        return crudControllers.get(backendType);
     }
 
     /**

@@ -21,6 +21,7 @@ package com.redhat.lightblue.config;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.JsonInitializable;
 
@@ -35,6 +36,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
 
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
+    private ObjectNode extensions;
 
     public ControllerConfiguration() {
     }
@@ -42,6 +44,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
     public ControllerConfiguration(ControllerConfiguration c) {
         backend = c.backend;
         controllerFactory = c.controllerFactory;
+        extensions = c.extensions;
     }
 
     /**
@@ -72,6 +75,20 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
         this.controllerFactory = clazz;
     }
 
+    /**
+     * The configuration for extensions
+     */
+    public ObjectNode getExtensions() {
+        return extensions;
+    }
+
+    /**
+     * The configuration for extensions
+     */
+    public void setExtensions(ObjectNode node) {
+        extensions=node;
+    }
+
     @Override
     public void initializeFromJson(JsonNode node) {
         try {
@@ -84,6 +101,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                 if (x != null) {
                     controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
                 }
+                extensions=(ObjectNode)node.get("extensions");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
