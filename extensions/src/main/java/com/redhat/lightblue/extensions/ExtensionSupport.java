@@ -36,5 +36,5 @@ public interface ExtensionSupport {
      *
      * @return An instance of the extension, or null if the controller doesn't support this extension
      */
-    Extension  getExtensionInstance(Class<? extends Extension> extensionClass);
+    <E extends Extension> E  getExtensionInstance(Class<? extends Extension> extensionClass);
 }
