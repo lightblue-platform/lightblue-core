@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,9 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.extensions.ExtensionSupport;
+import com.redhat.lightblue.extensions.synch.LockingSupport;
+import com.redhat.lightblue.extensions.synch.Locking;
 
 /**
  * Manager class that creates instances of Mediator, Factory, Metadata, etc.
@@ -73,8 +77,9 @@ public final class LightblueFactory implements Serializable {
     private volatile Metadata metadata = null;
     private transient volatile JSONMetadataParser parser = null;
     private transient volatile Mediator mediator = null;
-    private volatile Factory factory;
+    private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
+    private transient volatile Map<String,LockingSupport> lockingMap=null; 
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this(datasources, null, null);
@@ -116,12 +121,15 @@ public final class LightblueFactory implements Serializable {
     private synchronized void initializeFactory()
             throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
         if (factory == null) {
+            LOGGER.debug("Initializing factory");
             JsonNode root = crudNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
                     root = JsonUtils.json(is);
                 }
-            }
+            } else
+                LOGGER.debug("Using passed in node to initialize factory");
+            LOGGER.debug("Initializing factory from {}",root);
 
             // convert root to Configuration object
             CrudConfiguration configuration = new CrudConfiguration();
@@ -257,6 +265,31 @@ public final class LightblueFactory implements Serializable {
         }
     }
 
+    private synchronized void initializeLockingMap()
+        throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+        if(lockingMap==null) {
+            LOGGER.debug("Initializing locking");
+            Map<String,LockingSupport> map=new HashMap<>();
+            CRUDController[] controllers=getFactory().getCRUDControllers();
+            LOGGER.debug("Got {} controllers",controllers.length);
+            for(CRUDController controller:controllers) {
+                LOGGER.debug("Inspecting {}",controller.getClass());
+                if(controller instanceof ExtensionSupport) {
+                    LOGGER.debug("{} supports extensions",controller.getClass());
+                    LockingSupport lockingSupport=(LockingSupport)((ExtensionSupport)controller).getExtensionInstance(LockingSupport.class);
+                    if(lockingSupport!=null) {
+                        LOGGER.debug("{} supports locking",controller.getClass());
+                        for(String domain:lockingSupport.getLockingDomains()) {
+                            map.put(domain,lockingSupport);
+                        }
+                    }
+                }
+            }
+            LOGGER.debug("Locking map:{}",map);
+            lockingMap=map;
+        }
+    }
+
     public Metadata getMetadata()
             throws IOException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (metadata == null) {
@@ -293,6 +326,17 @@ public final class LightblueFactory implements Serializable {
         }
 
         return mediator;
+    }
+
+    public Locking getLocking(String domain) 
+        throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
+        if(lockingMap==null)
+            initializeLockingMap();
+        LockingSupport ls=lockingMap.get(domain);
+        if(ls!=null)
+            return ls.getLockingInstance(domain);
+        else
+            throw new RuntimeException("Unrecognized locking domain");
     }
 
     public JsonTranslator getJsonTranslator() {
