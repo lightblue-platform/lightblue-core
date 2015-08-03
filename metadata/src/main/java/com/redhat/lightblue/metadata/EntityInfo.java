@@ -36,6 +36,7 @@ public class EntityInfo implements Serializable {
     private final Hooks hooks = new Hooks();
     private final Indexes indexes = new Indexes();
     private final Enums enums = new Enums();
+    private final ValueGenerators valueGenerators = new ValueGenerators();
     private DataStore backend;
     private final Map<String, Object> properties = new HashMap<>();
 
@@ -92,5 +93,9 @@ public class EntityInfo implements Serializable {
 
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    public ValueGenerators getValueGenerators() {
+        return valueGenerators;
     }
 }
