@@ -20,6 +20,7 @@ package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.util.Path;
@@ -30,7 +31,7 @@ import java.util.Objects;
  * Expression that can be on the right side of an assignment operator. It can be
  * a value, a field reference, or an empty object
  * <pre>
- *   rvalue_expression := value | { $valueof : path } | {}
+ *   rvalue_expression := value | { $valueof : path } | {} | []
  */
 public class RValueExpression extends JsonObject {
 
@@ -40,6 +41,7 @@ public class RValueExpression extends JsonObject {
         _value,
         _dereference,
         _emptyObject,
+        _emptyArray,
         _null
     }
 
@@ -62,15 +64,6 @@ public class RValueExpression extends JsonObject {
     public RValueExpression(Path p) {
         this.type = RValueType._dereference;
         this.path = p;
-        this.value = null;
-    }
-
-    /**
-     * Creates an rvalue expression that is an empty object
-     */
-    public RValueExpression() {
-        this.type = RValueType._emptyObject;
-        this.path = null;
         this.value = null;
     }
 
@@ -107,16 +100,18 @@ public class RValueExpression extends JsonObject {
     @Override
     public JsonNode toJson() {
         switch (type) {
-            case _value:
-                return value.toJson();
-            case _dereference:
-                ObjectNode node = getFactory().objectNode();
-                node.put("$valueof", path.toString());
-                return node;
-            case _null:
-                return getFactory().nullNode();
-            default:
-                return getFactory().objectNode();
+        case _value:
+            return value.toJson();
+        case _dereference:
+            ObjectNode node = getFactory().objectNode();
+            node.put("$valueof", path.toString());
+            return node;
+        case _emptyArray:
+            return getFactory().arrayNode();
+        case _null:
+            return getFactory().nullNode();
+        default:
+            return getFactory().objectNode();
         }
     }
 
@@ -131,8 +126,11 @@ public class RValueExpression extends JsonObject {
                     return new RValueExpression(new Path(path.asText()));
                 }
             } else {
-                return new RValueExpression();
+                return new RValueExpression(RValueType._emptyObject);
             }
+        } if(node instanceof ArrayNode) {
+            if(node.size()==0)
+                return new RValueExpression(RValueType._emptyArray);
         } else if (node.isValueNode()) {
             if (node.asText().equals("$null")) {
                 return new RValueExpression(RValueType._null);

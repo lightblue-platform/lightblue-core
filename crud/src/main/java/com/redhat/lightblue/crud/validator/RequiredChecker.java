@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintDocChecker;
@@ -69,7 +70,18 @@ public class RequiredChecker implements FieldConstraintDocChecker {
         List<Path> errors = new ArrayList<Path>();
         if (nAnys == 0) {
             if (doc.get(fieldMetadataPath) == null) {
-                errors.add(fieldMetadataPath);
+                // Field does not exist. If the parent object does not exist either, constraint is ok
+                if(fieldMetadataPath.numSegments()>1) {
+                    JsonNode parent=doc.get(fieldMetadataPath.prefix(-1));
+                    if(parent==null||parent instanceof NullNode) {
+                        // Parent does not exist as well. Let it pass
+                        ;
+                    } else {
+                        errors.add(fieldMetadataPath);
+                    }
+                } else {
+                    errors.add(fieldMetadataPath);
+                }
             }
         } else {
             // The required field is a member of an object that's an element of an array

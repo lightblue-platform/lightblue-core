@@ -18,17 +18,21 @@
  */
 package com.redhat.lightblue.util.test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.JsonUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Iterator;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.JsonUtils;
 
 public abstract class AbstractJsonNodeTest {
     protected static final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.withExactBigDecimals(true);
@@ -46,17 +50,46 @@ public abstract class AbstractJsonNodeTest {
     }
 
     /**
-     * Load contents of resource on classpath as String.
+     * Load contents of resource on classpath as String using the currentThreads {@link ClassLoader}.
      *
-     * @param resourceName
+     * @param resourceName - path to resource
      * @return the resource as a String
      * @throws IOException
      */
     public static final String loadResource(String resourceName) throws IOException {
+        return loadResource(resourceName, Thread.currentThread().getContextClassLoader());
+    }
+
+    /**
+     * Loads contents of resource on classpath as String using the passed in {@link ClassLoader}.
+     * @param resourceName - path to resource
+     * @param loader - {@link ClassLoader} to use
+     * @return the resource as a String
+     * @throws IOException
+     */
+    public static final String loadResource(String resourceName, ClassLoader loader) throws IOException {
+        try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            return loadResource(is);
+        }
+    }
+
+    /**
+     * Loads contents of resource on classpath as String using the passed in {@link Class}.
+     * @param resourceName
+     * @param loader - {@link Class} to use.
+     * @return the resource as a String
+     * @throws IOException
+     */
+    public static final String loadResource(String resourceName, Class<?> loader) throws IOException {
+        try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            return loadResource(is);
+        }
+    }
+
+    public static final String loadResource(InputStream is) throws IOException {
         StringBuilder buff = new StringBuilder();
 
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-                InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
+        try (InputStreamReader isr = new InputStreamReader(is, Charset.defaultCharset());
                 BufferedReader reader = new BufferedReader(isr)) {
             String line;
             while ((line = reader.readLine()) != null) {

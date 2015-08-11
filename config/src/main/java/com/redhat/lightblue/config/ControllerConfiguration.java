@@ -20,7 +20,11 @@ package com.redhat.lightblue.config;
 
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.util.JsonInitializable;
 
@@ -33,8 +37,11 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
 
     private static final long serialVersionUID = 1l;
 
+    private static final Logger LOGGER=LoggerFactory.getLogger(ControllerConfiguration.class);
+    
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
+    private ObjectNode extensions;
 
     public ControllerConfiguration() {
     }
@@ -42,6 +49,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
     public ControllerConfiguration(ControllerConfiguration c) {
         backend = c.backend;
         controllerFactory = c.controllerFactory;
+        extensions = c.extensions;
     }
 
     /**
@@ -72,6 +80,20 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
         this.controllerFactory = clazz;
     }
 
+    /**
+     * The configuration for extensions
+     */
+    public ObjectNode getExtensions() {
+        return extensions;
+    }
+
+    /**
+     * The configuration for extensions
+     */
+    public void setExtensions(ObjectNode node) {
+        extensions=node;
+    }
+
     @Override
     public void initializeFromJson(JsonNode node) {
         try {
@@ -84,6 +106,8 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                 if (x != null) {
                     controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
                 }
+                extensions=(ObjectNode)node.get("extensions");
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}",node,backend,controllerFactory,extensions);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

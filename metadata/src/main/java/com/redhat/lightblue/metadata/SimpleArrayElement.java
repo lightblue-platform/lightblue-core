@@ -22,16 +22,35 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class SimpleArrayElement extends ArrayElement {
 
     private static final long serialVersionUID = 1L;
+
+    private final List<FieldConstraint> constraints = new ArrayList<>();
 
     public SimpleArrayElement() {
     }
 
     public SimpleArrayElement(Type type) {
         super(type);
+    }
+
+    /**
+     * @return a deep copy of the constraints
+     */
+    public List<FieldConstraint> getConstraints() {
+        return new ArrayList<>(constraints);
+    }
+
+    public void setConstraints(Collection<FieldConstraint> l) {
+        constraints.clear();
+        if (l != null) {
+            constraints.addAll(l);
+        }
     }
 
     @Override

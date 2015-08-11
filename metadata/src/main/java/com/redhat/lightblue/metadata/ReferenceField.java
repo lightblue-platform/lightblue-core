@@ -102,4 +102,8 @@ public class ReferenceField extends Field {
         }
     }
 
+    @Override
+    public String toString() {
+        return getName()+"->"+entityName+"@"+version;
+    }
 }
