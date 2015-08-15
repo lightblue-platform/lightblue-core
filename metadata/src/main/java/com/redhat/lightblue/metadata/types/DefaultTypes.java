@@ -47,5 +47,6 @@ public final class DefaultTypes implements TypeResolver {
         typeMap.put(ObjectType.NAME, ObjectType.TYPE);
         typeMap.put(ReferenceType.NAME, ReferenceType.TYPE);
         typeMap.put(UIDType.NAME, UIDType.TYPE);
+        typeMap.put(TimestampType.NAME, TimestampType.TYPE);
     }
 }
