@@ -54,7 +54,7 @@ public class ValueGeneratorTest extends AbstractJsonNodeTest {
 
         ValueGenerator vg = md.getEntityInfo().getValueGenerators().getValueGenerator("testSeq");
         Assert.assertEquals("testSeq", vg.getName());
-        Assert.assertEquals(ValueGeneratorType.IntSequance, vg.getType());
+        Assert.assertEquals(ValueGeneratorType.IntSequence, vg.getValueGeneratorType());
         Assert.assertEquals(2, vg.getProperties().size());
         Assert.assertEquals("10000", vg.getProperties().get("min"));
         Assert.assertEquals("99999", vg.getProperties().get("max"));

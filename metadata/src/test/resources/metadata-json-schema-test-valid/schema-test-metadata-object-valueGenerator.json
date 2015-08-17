@@ -4,7 +4,7 @@
         "valueGenerators": [
             {
                 "name": "testSeq",
-                "type": "IntSequance",
+                "type": "IntSequence",
                 "configuration": [
                     {
                         "name": "min",

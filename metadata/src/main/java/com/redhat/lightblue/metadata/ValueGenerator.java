@@ -14,21 +14,22 @@ public class ValueGenerator implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum ValueGeneratorType {
-        IntSequance;
+        IntSequence;
     }
 
-    private ValueGeneratorType type;
-    private String name;
-    private Properties properties = new Properties();
+    // defines how values are generated
+    private final ValueGeneratorType valueGeneratorType;
+    private final String name;
+    private final Properties properties = new Properties();
 
-    public ValueGenerator(ValueGeneratorType type, String name) {
+    public ValueGenerator(ValueGeneratorType valueGeneratorType, String name) {
         super();
-        this.type = type;
+        this.valueGeneratorType = valueGeneratorType;
         this.name = name;
     }
 
-    public ValueGeneratorType getType() {
-        return type;
+    public ValueGeneratorType getValueGeneratorType() {
+        return valueGeneratorType;
     }
 
     public String getName() {
