@@ -24,6 +24,9 @@ import com.redhat.lightblue.util.Path;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Represents arrays and objects.
+ */
 public abstract class Field implements FieldTreeNode, Serializable {
 
     private static final long serialVersionUID = 1l;
@@ -121,4 +124,5 @@ public abstract class Field implements FieldTreeNode, Serializable {
     }
 
     public abstract FieldTreeNode resolve(Path p, int level);
+
 }
