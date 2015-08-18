@@ -10,6 +10,11 @@ import com.redhat.lightblue.extensions.Extension;
  */
 public interface SequanceSupport extends Extension {
 
-    Sequence getSequanceInstance();
+    /**
+     *
+     * @param backend e.g. mongo
+     * @return
+     */
+    Sequence getSequanceInstance(String backend);
 
 }

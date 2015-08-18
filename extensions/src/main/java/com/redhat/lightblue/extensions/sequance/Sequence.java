@@ -1,5 +1,7 @@
 package com.redhat.lightblue.extensions.sequance;
 
+import java.math.BigInteger;
+
 import com.redhat.lightblue.metadata.SimpleField;
 
 /**
@@ -20,6 +22,6 @@ public interface Sequence {
      * @param field
      * @return
      */
-    public Long nextInSequence(SimpleField field);
+    public BigInteger nextInSequence(SimpleField field);
 
 }
