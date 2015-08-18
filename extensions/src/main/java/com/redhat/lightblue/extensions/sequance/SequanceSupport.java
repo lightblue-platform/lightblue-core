@@ -10,6 +10,6 @@ import com.redhat.lightblue.extensions.Extension;
  */
 public interface SequanceSupport extends Extension {
 
-    Sequance getSequanceInstance();
+    Sequence getSequanceInstance();
 
 }

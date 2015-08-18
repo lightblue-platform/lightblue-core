@@ -8,11 +8,11 @@ import com.redhat.lightblue.metadata.SimpleField;
  * @author mpatercz
  *
  */
-public interface Sequance {
+public interface Sequence {
 
-    public void createSequance(SimpleField field);
+    public void createSequence(SimpleField field);
 
-    public void removeSequance(SimpleField field);
+    public void removeSequence(SimpleField field);
 
     /**
      * Generate next value in sequance. This should be handled automatically by the backend on insert.
@@ -20,6 +20,6 @@ public interface Sequance {
      * @param field
      * @return
      */
-    public Long nextInSequance(SimpleField field);
+    public Long nextInSequence(SimpleField field);
 
 }
