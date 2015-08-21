@@ -429,6 +429,17 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
     }
 
+    @Test
+    public void optionalQueryTest() throws Exception {
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
+
+        mockCrudController.findResponse = new CRUDFindResponse();
+        Response response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
+    }
+
 
 
     @Test

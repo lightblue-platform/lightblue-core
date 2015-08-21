@@ -92,13 +92,17 @@ public class TestCrudController implements CRUDController {
                                  Sort sort,
                                  Long from,
                                  Long to) {
-        QueryEvaluator eval=QueryEvaluator.getInstance(query,ctx.getEntityMetadata(ctx.getEntityName()));
+        QueryEvaluator eval=query==null?null:QueryEvaluator.getInstance(query,ctx.getEntityMetadata(ctx.getEntityName()));
         Projector projector=Projector.getInstance(projection,ctx.getEntityMetadata(ctx.getEntityName()));
         List<DocCtx> output=new ArrayList<>();
         for(JsonDoc doc:gd.getData(ctx.getEntityName())) {
-            QueryEvaluationContext qctx=eval.evaluate(doc);
-            if(qctx.getResult()) {
+            if(eval==null) {
                 output.add(new DocCtx(projector.project(doc,nodeFactory)));
+            } else {
+                QueryEvaluationContext qctx=eval.evaluate(doc);
+                if(qctx.getResult()) {
+                    output.add(new DocCtx(projector.project(doc,nodeFactory)));
+                }
             }
         }
         ctx.setDocuments(output);

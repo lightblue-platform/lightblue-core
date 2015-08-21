@@ -119,19 +119,21 @@ public class CompositeFindImpl implements Finder {
     private Set<CompositeMetadata> findMinimalSetOfQueryEntities(QueryExpression query,
                                                                  CompositeMetadata md) {
         Set<CompositeMetadata> entities=new HashSet<>();
-        List<FieldInfo> lfi=query.getQueryFields();
-        for(FieldInfo fi:lfi) {
-            CompositeMetadata e=md.getEntityOfPath(fi.getAbsFieldName());
-            if(e!=md)
-                entities.add(e);
-        }
-        // All entities on the path from every entity to the root
-        // should also be included
-        for(CompositeMetadata x:entities.toArray(new CompositeMetadata[entities.size()])) {
-            CompositeMetadata trc=x.getParent();
-            while(trc!=null) {
-                entities.add(trc);
-                trc=trc.getParent();
+        if(query!=null) {
+            List<FieldInfo> lfi=query.getQueryFields();
+            for(FieldInfo fi:lfi) {
+                CompositeMetadata e=md.getEntityOfPath(fi.getAbsFieldName());
+                if(e!=md)
+                    entities.add(e);
+            }
+            // All entities on the path from every entity to the root
+            // should also be included
+            for(CompositeMetadata x:entities.toArray(new CompositeMetadata[entities.size()])) {
+                CompositeMetadata trc=x.getParent();
+                while(trc!=null) {
+                    entities.add(trc);
+                    trc=trc.getParent();
+                }
             }
         }
         // At this point, entities contains all required entities, but maybe not the root
