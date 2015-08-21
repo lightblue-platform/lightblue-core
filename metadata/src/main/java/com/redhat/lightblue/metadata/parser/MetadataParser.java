@@ -30,6 +30,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -62,6 +63,8 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.ValueGenerator;
+import com.redhat.lightblue.metadata.ValueGenerator.ValueGeneratorType;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
@@ -98,6 +101,7 @@ public abstract class MetadataParser<T> {
     private static final String STR_ITEMS = "items";
     private static final String STR_UNIQUE = "unique";
     private static final String STR_INDEXES = "indexes";
+    private static final String STR_VALUE_GENERATORS = "valueGenerators";
     private static final String STR_TYPE = "type";
     private static final String STR_HOOKS = "hooks";
     private static final String STR_ENUMS = "enums";
@@ -152,6 +156,13 @@ public abstract class MetadataParser<T> {
         @Override
         public Hook parse(T child) {
             return parseHook(child);
+        }
+    };
+
+    private final ArrCb<T, ValueGenerator> parseValueGenerator = new ArrCb<T, ValueGenerator>() {
+        @Override
+        public ValueGenerator parse(T child) {
+            return parseValueGenerator(child);
         }
     };
 
@@ -220,6 +231,7 @@ public abstract class MetadataParser<T> {
             info.getIndexes().setIndexes(parseArr(getObjectProperty(object, STR_INDEXES), parseIndex));
             info.getEnums().setEnums(parseArr(getObjectProperty(object, STR_ENUMS), parseEnum));
             info.getHooks().setHooks(parseArr(getObjectProperty(object, STR_HOOKS), parseHook));
+            info.getValueGenerators().setValueGenerators(parseArr(getObjectProperty(object, STR_VALUE_GENERATORS), parseValueGenerator));
 
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
@@ -412,6 +424,46 @@ public abstract class MetadataParser<T> {
                     hook.setConfiguration(parser.parse(name, this, cfg));
                 }
                 return hook;
+            }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
+        } finally {
+            Error.pop();
+        }
+        return null;
+    }
+
+    public ValueGenerator parseValueGenerator(T object) {
+        Error.push("parseValueGenerator");
+        try {
+            if (object != null) {
+                String name = getStringProperty(object, STR_NAME);
+                if (name == null) {
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_NAME);
+                }
+
+                String type = getStringProperty(object, STR_TYPE);
+                if (type == null) {
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_TYPE);
+                }
+
+                ValueGenerator valueGenerator = new ValueGenerator(ValueGeneratorType.valueOf(type), name);
+
+                List<T> props = getObjectList(object, STR_CONFIGURATION);
+                if (props != null) {
+                    for (T p: props) {
+                        String pName = getRequiredStringProperty(p, STR_NAME);
+                        String pValue = getRequiredStringProperty(p, STR_VALUE);
+                        valueGenerator.getProperties().put(pName, pValue);
+                    }
+                }
+
+                return valueGenerator;
             }
         } catch (Error e) {
             // rethrow lightblue error

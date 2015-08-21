@@ -185,6 +185,9 @@
                                 },
                                 "description": {
                                     "type": "string"
+                                },
+                                "valueGenerator": {
+                                    "type": "string"
                                 }
                             },
                             "additionalProperties": false,

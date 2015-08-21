@@ -147,6 +147,43 @@
                 ]
             }
         },
+        "valueGenerators": {
+            "type": "array",
+            "description": "Array of value generators.",
+            "items": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the value generator. Must be unique per entity."
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type of the value generator."
+                    },
+                    "properties": {
+                        "type": "array",
+                        "description": "Properties for the value generator.",
+                        "items": {
+                            "configuration": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Property name"
+                                },
+                                "value": {
+                                    "type": "string",
+                                    "description": "Property value"
+                                }
+                            },
+                            "required": ["name", "value"]
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
+                ]
+            }
+        },
         "datastore": {
             "type": "object",
             "description": "Definition of the backend in which data is persisted.  Note that credentials are not stored here.  Pointers to credientials could be saved, such as env variables.  This entity is wide open on purpose to allow individual backend implementations to deal with parsing and validating this structure.",
