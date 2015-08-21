@@ -44,11 +44,11 @@ public final class DateType implements Type, Serializable {
 
     static {
         DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STR);
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        //DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     /**
-     * Returns a DateFormat instance using the DATE_FORMAT_STR in GMT. Clone of
+     * Returns a DateFormat instance using the DATE_FORMAT_STR. Clone of
      * the static internal variable, because SimpleDateFormat is not thread safe
      */
     public static DateFormat getDateFormat() {
