@@ -47,6 +47,10 @@ public class InsertionRequest extends DocRequest {
         returnFields = p;
     }
 
+    public CRUDOperation getOperation() {
+        return CRUDOperation.INSERT;
+    }
+
     /**
      * Returns JSON representation of this
      */

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonObject;
 
+import com.redhat.lightblue.crud.CRUDOperation;
+
 /**
  * Common part of all requests to the mediator
  */
@@ -81,6 +83,8 @@ public abstract class Request extends JsonObject {
         client = r.client;
         execution = r.execution;
     }
+
+    public abstract CRUDOperation getOperation();
 
     /**
      * Returns a JSON representation of this

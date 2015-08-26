@@ -77,6 +77,10 @@ public class UpdateRequest extends Request {
         query = q;
     }
 
+    public CRUDOperation getOperation() {
+        return CRUDOperation.UPDATE;
+    }
+
     /**
      * Returns a json representation of this
      */
