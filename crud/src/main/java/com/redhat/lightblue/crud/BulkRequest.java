@@ -46,6 +46,12 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
     public JsonNode toJson() {
         return toJson("requests","request");
     }
+
+    public static BulkRequest fromJson(ObjectNode node) {
+        BulkRequest req=new BulkRequest();
+        req.parse((ArrayNode)node.get("requests"));
+        return req;
+    }
     
     @Override
     protected void toJsonEntryNode(ObjectNode node,Request entry) {
