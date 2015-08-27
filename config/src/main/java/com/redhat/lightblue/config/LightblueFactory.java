@@ -125,7 +125,7 @@ public final class LightblueFactory implements Serializable {
             JsonNode root = crudNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
-                    root = JsonUtils.json(is);
+                    root = JsonUtils.json(is,true);
                 }
             } else
                 LOGGER.debug("Using passed in node to initialize factory");
@@ -169,7 +169,7 @@ public final class LightblueFactory implements Serializable {
             JsonNode root = metadataNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
-                    root = JsonUtils.json(is);
+                    root = JsonUtils.json(is,true);
                 }
             }
             LOGGER.debug("Config root:{}", root);

@@ -61,14 +61,28 @@ public final class JsonUtils {
      */
     public static JsonNode json(String s)
             throws IOException {
-        // do system property expansion
-        String jsonString = StrSubstitutor.replaceSystemProperties(s);
+        return json(s,false);
+    }
+
+    public static JsonNode json(String s,boolean systemPropertySubstitution)
+        throws IOException {
+        String jsonString;
+        if(systemPropertySubstitution) {
+            // do system property expansion
+            jsonString = StrSubstitutor.replaceSystemProperties(s);
+        } else {
+            jsonString = s;
+        }
         return getObjectMapper().readTree(jsonString);
     }
 
     /**
      * Parses a JSON stream
      */
+    public static JsonNode json(InputStream stream,boolean systemPropertySubstitution) throws IOException {
+        return json((Reader) new InputStreamReader(stream, Charset.defaultCharset()),systemPropertySubstitution);
+    }
+
     public static JsonNode json(InputStream stream) throws IOException {
         return json((Reader) new InputStreamReader(stream, Charset.defaultCharset()));
     }
@@ -77,12 +91,16 @@ public final class JsonUtils {
      * Parses a JSON stream
      */
     public static JsonNode json(Reader reader) throws IOException {
+        return json(reader,false);
+    }
+
+    public static JsonNode json(Reader reader,boolean systemPropertySubstitution) throws IOException {
         StringBuilder bld = new StringBuilder(512);
         int c;
         while ((c = reader.read()) >= 0) {
             bld.append((char) c);
         }
-        return json(bld.toString());
+        return json(bld.toString(),systemPropertySubstitution);
     }
 
     /**

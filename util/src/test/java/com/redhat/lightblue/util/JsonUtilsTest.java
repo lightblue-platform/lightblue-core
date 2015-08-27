@@ -62,7 +62,7 @@ public class JsonUtilsTest {
     public void testJson_system_properties() throws Exception {
         String jvmVersion = System.getProperty("java.vm.version");
         String s = "{\"test\":\"${java.vm.version}\"}";
-        JsonNode result = JsonUtils.json(s);
+        JsonNode result = JsonUtils.json(s,true);
         Assert.assertNotNull(result);
         Assert.assertEquals(jvmVersion, result.get("test").asText());
     }
@@ -70,7 +70,7 @@ public class JsonUtilsTest {
     @Test
     public void testJson_system_properties_no_match() throws Exception {
         String s = "{\"test\":\"${something.that.does.not.exist}\"}";
-        JsonNode result = JsonUtils.json(s);
+        JsonNode result = JsonUtils.json(s,true);
         Assert.assertNotNull(result);
         Assert.assertEquals("${something.that.does.not.exist}", result.get("test").asText());
     }
