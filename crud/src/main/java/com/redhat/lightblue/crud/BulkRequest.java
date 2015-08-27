@@ -34,7 +34,7 @@ import com.redhat.lightblue.Request;
  *         {
  *             "seq":0,
  *             "op": "FIND",
- *             "req": { request }
+ *             "request": { request }
  *         }
  *     ]
  *   }
@@ -66,7 +66,7 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
         if(opNode!=null) {
             Request req;
             String opstr=opNode.asText();
-            JsonNode val=node.get("req");
+            JsonNode val=node.get("request");
             if(val instanceof ObjectNode) {
                 if(opstr.equalsIgnoreCase(CRUDOperation.FIND.toString()))
                     req=FindRequest.fromJson((ObjectNode)val);
