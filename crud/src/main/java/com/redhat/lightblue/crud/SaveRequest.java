@@ -62,6 +62,10 @@ public class SaveRequest extends DocRequest {
         upsert = b;
     }
 
+    public CRUDOperation getOperation() {
+        return CRUDOperation.SAVE;
+    }
+
     /**
      * Returns json representation of this
      */

@@ -39,6 +39,8 @@ import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.DocCtx;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.BulkRequest;
+import com.redhat.lightblue.crud.BulkResponse;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.SaveRequest;
@@ -387,6 +389,23 @@ public class Mediator {
             Error.pop();
         }
         return response;
+    }
+
+    public BulkResponse bulkRequest(BulkRequest requests) {
+        LOGGER.debug("Bulk request start");
+        Error.push("bulk operation");
+        BulkResponse responses=new BulkResponse();
+        for(Request req:requests.getEntries()) {
+            switch(req.getOperation()) {
+            case FIND: responses.add(find((FindRequest)req));break;
+            case INSERT: responses.add(insert((InsertionRequest)req));break;
+            case DELETE: responses.add(delete((DeleteRequest)req));break;
+            case UPDATE: responses.add(update((UpdateRequest)req));break;
+            case SAVE: responses.add(save((SaveRequest)req));break;
+            }
+        }
+        Error.pop();
+        return responses;
     }
 
 

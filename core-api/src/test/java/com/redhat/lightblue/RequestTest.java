@@ -21,6 +21,8 @@ package com.redhat.lightblue;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.redhat.lightblue.crud.CRUDOperation;
+
 /**
  * Created by nmalik on 11/24/14.
  */
@@ -29,6 +31,8 @@ public class RequestTest {
         public TestRequest() {
 
         }
+
+        public CRUDOperation getOperation() {return null;}
     }
 
     @Test

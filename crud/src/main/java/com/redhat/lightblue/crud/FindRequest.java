@@ -118,6 +118,11 @@ public class FindRequest extends Request {
         super.shallowCopyFrom(r);
         this.cfr.shallowCopyFrom(c);
     }
+
+    public CRUDOperation getOperation() {
+        return CRUDOperation.FIND;
+    }
+    
     /**
      * Returns JSON representation of this
      */

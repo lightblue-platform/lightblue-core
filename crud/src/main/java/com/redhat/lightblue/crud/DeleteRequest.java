@@ -45,6 +45,10 @@ public class DeleteRequest extends Request {
         query = q;
     }
 
+    public CRUDOperation getOperation() {
+        return CRUDOperation.DELETE;
+    }
+
     /**
      * Returns a Json node representation of the request
      */

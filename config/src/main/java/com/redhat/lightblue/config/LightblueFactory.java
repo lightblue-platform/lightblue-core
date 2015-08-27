@@ -40,6 +40,7 @@ import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
@@ -255,6 +256,9 @@ public final class LightblueFactory implements Serializable {
                 tx.registerTranslation(UpdateRequest.class,
                         new JsonTranslator.StaticFactoryMethod(UpdateRequest.class, "fromJson", ObjectNode.class),
                         "json-schema/updateRequest.json");
+                tx.registerTranslation(BulkRequest.class,
+                        new JsonTranslator.StaticFactoryMethod(BulkRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/bulkRequest.json");
             } catch (RuntimeException re) {
                 throw re;
             } catch (Exception e) {

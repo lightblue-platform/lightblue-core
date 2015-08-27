@@ -488,4 +488,41 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0,response.getDataErrors().size());
         System.out.println(mockCrudController.ctx.getDocuments().get(0));
     }
+
+    @Test
+    public void bulkTest() throws Exception {
+        BulkRequest breq=new BulkRequest();
+        
+        InsertionRequest ireq = new InsertionRequest();
+        ireq.setEntityVersion(new EntityVersion("test", "1.0"));
+        ireq.setEntityData(loadJsonNode("./sample1.json"));
+        ireq.setReturnFields(null);
+        ireq.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+        breq.add(ireq);
+
+        FindRequest freq = new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test", "1.0"));
+
+        mdManager.md.getAccess().getFind().setRoles("role1");
+        breq.add(freq);
+
+        BulkResponse bresp=mediator.bulkRequest(breq);
+
+        Response response=bresp.getEntries().get(0);
+        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
+        Assert.assertEquals(1, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(0, response.getErrors().size());
+
+        response=bresp.getEntries().get(1);
+        
+        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
+        Assert.assertEquals(0, response.getModifiedCount());
+        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(0, response.getDataErrors().size());
+        Assert.assertEquals(1, response.getErrors().size());
+        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
+        
+    }
 }
