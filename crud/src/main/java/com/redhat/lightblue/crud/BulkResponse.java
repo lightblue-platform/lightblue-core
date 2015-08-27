@@ -20,6 +20,8 @@ package com.redhat.lightblue.crud;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.Response;
 
@@ -39,19 +41,22 @@ import com.redhat.lightblue.Response;
  */
 public class BulkResponse extends AbstractBulkJsonObject<Response> {
 
+    /**
+     * Returns a JSON representation of this
+     */
     @Override
     public JsonNode toJson() {
-        return toJson("responses","response");
-    }
-
-    @Override
-    protected void toJsonEntryNode(ObjectNode node,Response entry) {
-        node.set("response",entry.toJson());
-    }
-
-    @Override
-    protected Response parseEntry(ObjectNode node) {
-        // This should not be required. We never parse response
-        throw new UnsupportedOperationException();
+        JsonNodeFactory factory=getFactory();
+        ObjectNode node = factory.objectNode();
+        ArrayNode arr=factory.arrayNode();
+        int seq=0;
+        for(Response x:entries) {
+            ObjectNode entryNode=factory.objectNode();
+            entryNode.set("seq",factory.numberNode(seq++));
+            entryNode.set("response",x.toJson());
+            arr.add(entryNode);
+        }
+        node.put("responses", arr);
+        return node;
     }
 }

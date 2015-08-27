@@ -20,9 +20,6 @@ package com.redhat.lightblue.crud;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.Comparator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -52,7 +49,7 @@ import com.redhat.lightblue.Request;
  */
 abstract class AbstractBulkJsonObject<T extends JsonObject> extends JsonObject {
 
-    private final List<T> entries=new ArrayList<T>();
+    protected final List<T> entries=new ArrayList<T>();
 
     /**
      * Returns all entries in the bulk object
@@ -73,86 +70,5 @@ abstract class AbstractBulkJsonObject<T extends JsonObject> extends JsonObject {
         entries.add(x);
     }
 
-    /**
-     * Overriding this method allows the concrete class to add any necessary items to the entry node.
-     *
-     * @param node The object node, an element of the entries array
-     * @param entry The entry
-     */
-    protected abstract void toJsonEntryNode(ObjectNode node,T entry);
 
-    /**
-     * Returns a JSON representation of this
-     */
-    public JsonNode toJson(String entriesName, String entryName) {
-        JsonNodeFactory factory=getFactory();
-        ObjectNode node = factory.objectNode();
-        ArrayNode arr=factory.arrayNode();
-        int seq=0;
-        for(T x:entries) {
-            ObjectNode entryNode=factory.objectNode();
-            entryNode.set("seq",factory.numberNode(seq++));
-            toJsonEntryNode(entryNode,x);
-            entryNode.set(entryName,x.toJson());
-            arr.add(entryNode);
-        }
-        node.put(entriesName, arr);
-        return node;
-    }
-
-    private static class SReq {
-        private final int seq;
-        private final JsonObject entry;
-
-        public SReq(int seq,JsonObject entry) {
-            this.seq=seq;
-            this.entry=entry;
-        }
-    }
-
-    /**
-     * Parses the actual entry from the given node
-     *
-     * @param entry The entry object, an element of the entries array
-     */
-    protected abstract T parseEntry(ObjectNode entry);
-    
-    /**
-     * Parses the bulk object from the given array node
-     */
-    protected void parse(ArrayNode entriesArray) {
-        entries.clear();
-        // Fill the entries into an array list, assuming for most
-        // cases the array list will be ordered by the sequence
-        // number. If there are out-of-sequence entries, then sort it
-        List<SReq> list=new ArrayList<>(entriesArray.size());
-        int lastSeq=0;
-        boolean first=true;
-        boolean ooo=false;
-        for(Iterator<JsonNode> itr=entriesArray.elements();itr.hasNext();) {
-            JsonNode x=itr.next();
-            JsonNode val=x.get("seq");
-            if(val!=null) {
-                int seq=val.asInt();
-                if(first)
-                    lastSeq=seq;
-                else {
-                    if(seq<lastSeq)
-                        ooo=true;
-                    else
-                        lastSeq=seq;
-                }
-                T entry=parseEntry((ObjectNode)x);
-                list.add(new SReq(seq,entry));
-            }
-        }
-        if(ooo)
-            Collections.sort(list,new Comparator<SReq>() {
-                    public int compare(SReq r1,SReq r2) {
-                        return r1.seq-r2.seq;
-                    }
-                });
-        for(SReq r:list)
-            entries.add((T)r.entry);
-    }
 }
