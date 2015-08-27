@@ -170,7 +170,7 @@ public abstract class AbstractCRUDTestController {
      */
     protected static <T extends Request> T createRequest_FromJsonString(Class<T> type, String jsonString)
             throws IOException {
-        return createRequest(type, json(jsonString));
+        return createRequest(type, json(jsonString, true));
     }
 
     /**
