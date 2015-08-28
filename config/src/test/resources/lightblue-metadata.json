@@ -27,6 +27,7 @@
         "metadata.find.entityNames": ["read"],
         "metadata.find.entityVersions": ["read"],
         "metadata.find.entityMetadata": ["read"],
+        "metadata.find.jsonschema": ["read"],
         "metadata.insert": ["create"],
         "metadata.insert.schema": ["create"],
         "metadata.update.entityInfo": ["update"],

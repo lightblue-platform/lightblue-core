@@ -31,4 +31,10 @@ public interface FieldConstraint {
      * Determines if the constraint is valid for the given field type
      */
     boolean isValidForFieldType(Type fieldType);
+
+
+    /**
+     * Returns the description of the FieldConstraint (for documentation propose)
+     */
+    String getDescription();
 }

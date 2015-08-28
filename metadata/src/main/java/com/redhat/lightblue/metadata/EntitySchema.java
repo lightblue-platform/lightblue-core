@@ -19,6 +19,7 @@
 package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
+import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
@@ -39,67 +40,17 @@ public class EntitySchema implements Serializable {
     private static final long serialVersionUID = 1l;
 
     private final String name;
-    private Version version;
-    private MetadataStatus status;
     private final ArrayList<StatusChange> statusChangeLog;
     //hooks
     private final EntityAccess access;
     private final ArrayList<EntityConstraint> constraints;
+    private final Map<String, Object> properties;
+    private Version version;
+    private MetadataStatus status;
     private Fields fields;
     private FieldTreeNode fieldRoot;
-    private final Map<String, Object> properties;
 
-    protected class RootNode implements FieldTreeNode, Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public String getName() {
-            return "";
-        }
-
-        @Override
-        public Type getType() {
-            return null;
-        }
-
-        @Override
-        public boolean hasChildren() {
-            return true;
-        }
-
-        @Override
-        public Iterator<? extends FieldTreeNode> getChildren() {
-            return fields.getFields();
-        }
-
-        @Override
-        public FieldTreeNode resolve(Path p) {
-            return fields.resolve(p);
-        }
-
-        @Override
-        public FieldTreeNode resolve(Path p, int level) {
-            return fields.resolve(p, level);
-        }
-
-        @Override
-        public FieldTreeNode getParent() {
-            return null;
-        }
-
-        @Override
-        public Path getFullPath() {
-            return Path.EMPTY;
-        }
-
-        @Override
-        public MutablePath getFullPath(MutablePath mp) {
-            return Path.EMPTY.mutableCopy();
-        }
-    };
-
-    public EntitySchema(String name) {
+        public EntitySchema(String name) {
         this.name = name;
         this.fieldRoot = new RootNode();
         this.fields = new Fields(fieldRoot);
@@ -107,7 +58,7 @@ public class EntitySchema implements Serializable {
         this.access = new EntityAccess();
         this.constraints = new ArrayList<>();
         this.properties = new HashMap<>();
-    }
+        };
 
     /**
      * Copy ctor with shallow copy
@@ -269,34 +220,133 @@ public class EntitySchema implements Serializable {
     }
 
     public Field[] getIdentityFields() {
-        FieldCursor cursor = getFieldCursor();
-        TreeMap<Path, Field> fieldMap = new TreeMap<>();
-        getIdentityFields(fieldMap, cursor);
-        Field[] ret = new Field[fieldMap.size()];
-        int i = 0;
-        for (Field f : fieldMap.values()) {
-            ret[i++] = f;
-        }
+        TreeMap<Path, Field> fieldMap = filterFieldsByConstraints(new FilterConstraint() {
+            @Override public boolean filter(FieldTreeNode ftn, SimpleField sf, FieldConstraint fc, TreeMap<Path, Field> fieldMap) {
+                if (fc instanceof IdentityConstraint) {
+                    fieldMap.put(sf.getFullPath(), sf);
+                    return true;
+                }
+                return false;
+            }
+        });
+        Field[] ret = fieldMap.values().toArray(new Field[fieldMap.size()]);
         return ret;
     }
 
-    private void getIdentityFields(TreeMap<Path, Field> fieldMap, FieldCursor cursor) {
-        if (cursor.firstChild()) {
-            do {
-                FieldTreeNode fn = cursor.getCurrentNode();
-                if (fn instanceof ObjectField) {
-                    getIdentityFields(fieldMap, cursor);
-                } else if (fn instanceof SimpleField) {
-                    SimpleField f = (SimpleField) fn;
-                    for (FieldConstraint fc : f.getConstraints()) {
-                        if (fc instanceof IdentityConstraint) {
-                            fieldMap.put(f.getFullPath(), f);
-                            break;
-                        }
+    public Field[] getRequiredFields() {
+        TreeMap<Path, Field> fieldMap = filterFieldsByConstraints(new FilterConstraint() {
+            @Override public boolean filter(FieldTreeNode ftn, SimpleField sf, FieldConstraint fc, TreeMap<Path, Field> fieldMap) {
+                if (fc instanceof RequiredConstraint) {
+                    RequiredConstraint rc = (RequiredConstraint)fc;
+                    if(rc.getValue()) {
+                        fieldMap.put(sf.getFullPath(), sf);
+                        return true;
                     }
                 }
-            } while (cursor.nextSibling());
-            cursor.parent();
+                return false;
+            }
+        });
+        Field[] ret = fieldMap.values().toArray(new Field[fieldMap.size()]);
+        return ret;
+    }
+
+    public TreeMap<Path, Field> filterFieldsByConstraints(FilterConstraint filterConstraint) {
+        TreeMap<Path, Field> fieldMap = new TreeMap<>();
+        FieldTreeNode fieldTreeRoot = getFieldTreeRoot();
+        Iterator<? extends FieldTreeNode> children = fieldTreeRoot.getChildren();
+        Stack<Iterator<? extends FieldTreeNode>> fieldsPending = new Stack<>();
+        do{
+            FieldTreeNode fieldTreeChild = children.next();
+            if (fieldTreeChild instanceof ObjectField) {
+                ObjectField of = (ObjectField) fieldTreeChild;
+                fieldsPending.push(children);
+                children = of.getChildren();
+            }else if (fieldTreeChild instanceof SimpleField) {
+                SimpleField f = (SimpleField) fieldTreeChild;
+                for (FieldConstraint fc : f.getConstraints()) {
+                    boolean stop = filterConstraint.filter(fieldTreeChild, f, fc, fieldMap);
+                    if(stop){
+                        break;
+                    }
+                }
+            }
+            do {
+                if(!children.hasNext()){
+                    if(!fieldsPending.empty()){
+                        children = fieldsPending.pop();
+                    } else {
+                        break;
+                    }
+                }
+            } while(!children.hasNext());
+
+        } while (children.hasNext());
+
+        return fieldMap;
+    }
+
+    public interface FilterConstraint{
+        /**
+         * @return break the iteration of FieldConstraint items
+         */
+        boolean filter(FieldTreeNode ftn, SimpleField sf, FieldConstraint fc, TreeMap<Path, Field> fieldMap);
+    }
+
+protected class RootNode implements FieldTreeNode, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String getName() {
+            return "";
+        }
+
+        @Override
+        public Type getType() {
+            return null;
+        }
+
+        @Override
+        public boolean hasChildren() {
+            if(fields == null) {
+                return false;
+            } else  if(fields.getFields() == null){
+                return false;
+            } else  if(fields.getFields().hasNext()){
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public Iterator<? extends FieldTreeNode> getChildren() {
+            return fields.getFields();
+        }
+
+        @Override
+        public FieldTreeNode resolve(Path p) {
+            return fields.resolve(p);
+        }
+
+        @Override
+        public FieldTreeNode resolve(Path p, int level) {
+            return fields.resolve(p, level);
+        }
+
+        @Override
+        public FieldTreeNode getParent() {
+            return null;
+        }
+
+        @Override
+        public Path getFullPath() {
+            return Path.EMPTY;
+        }
+
+        @Override
+        public MutablePath getFullPath(MutablePath mp) {
+            return Path.EMPTY.mutableCopy();
         }
     }
 }

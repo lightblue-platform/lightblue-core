@@ -24,11 +24,29 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.main.JsonSchema;
+import com.redhat.lightblue.metadata.DataStore;
+import com.redhat.lightblue.metadata.parser.DataStoreParser;
+import com.redhat.lightblue.metadata.parser.Extensions;
+import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
+import com.redhat.lightblue.metadata.parser.MetadataParser;
+import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.test.FileUtil;
+import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.redhat.lightblue.Response;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import org.skyscreamer.jsonassert.JSONAssert;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class FakeMetadataTest {
 
@@ -41,18 +59,90 @@ public class FakeMetadataTest {
     public void testEntityInfo_VersionDoesExist(){
         String entityName = "fake";
         String version1 = "1.0.0";
+        FakeMetadata metadata = new FakeMetadata();
+        EntityInfo entityInfo = new EntityInfo(entityName);
+        metadata.setEntityInfo(entityInfo);
+
+        assertFalse(metadata.checkVersionExists(entityName, version1));
+        metadata.setEntityMetadata(entityName, version1, new EntityMetadata("fake EntityMetadata"));
+        assertTrue(metadata.checkVersionExists(entityName, version1));
+    }
+
+    @Test
+    public void testGetJSONSchemaNoFields() throws IOException, URISyntaxException, JSONException, ProcessingException {
+        String entityName = "fake";
+        String version1 = "1.0.0";
 
         FakeMetadata metadata = new FakeMetadata();
 
         EntityInfo entityInfo = new EntityInfo(entityName);
         metadata.setEntityInfo(entityInfo);
-
-        assertFalse(metadata.checkVersionExists(entityName, version1));
-
         metadata.setEntityMetadata(entityName, version1, new EntityMetadata("fake EntityMetadata"));
 
-        assertTrue(metadata.checkVersionExists(entityName, version1));
+        JsonNode jsonSchema = metadata.getJSONSchema(entityName, version1);
+        String actual = jsonSchema.toString();
+        String expected = FileUtil.readFileAndTrim("testGetJSONSchemaNoFieldsExpected.json");
+        expected = expected.replace("descX","JSON schema for entity 'fake' version '1.0.0'");
+        JsonSchema schema = JsonUtils.loadSchema("metadata/schema.json");
+        String report = JsonUtils.jsonSchemaValidation(schema, jsonSchema);
+        if(report != null){
+            Assert.fail("Expected validation to succeed! Resource: " + actual + " Messages: " + report.replaceAll("\n", " "));
+        }
+
+        JSONAssert.assertEquals(expected, actual, false);
     }
+
+
+    @Test
+    public void testGetJSONSchemaWithFields() throws IOException, JSONException, URISyntaxException, ProcessingException {
+        String entityName = "user";
+        String version1 = "1.0.0";
+        FakeMetadata metadata = new FakeMetadata();
+        EntityInfo entityInfo = new EntityInfo(entityName);
+        metadata.setEntityInfo(entityInfo);
+        Extensions<JsonNode> extensions = new Extensions<>();
+        extensions.addDefaultExtensions();
+        extensions.registerDataStoreParser("mongo", new DataStoreParser<JsonNode>() {
+            @Override
+            public String getDefaultName() {
+                return "mongo";
+            }
+
+            @Override
+            public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
+                return new DataStore() {
+                    @Override
+                    public String getBackend() {
+                        return "mongo";
+                    }
+                };
+            }
+
+            @Override
+            public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
+            }
+        });
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), JsonNodeFactory.withExactBigDecimals(false));
+        JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
+        EntityMetadata entityMetadata = parser.parseEntityMetadata(node);
+        metadata.setEntityMetadata(entityName, version1, entityMetadata);
+
+        JsonNode jsonSchema = metadata.getJSONSchema(entityName, version1);
+        String actual = jsonSchema.toString();
+        String path = "testGetJSONSchemaWithFieldsExpected.json";
+        String expected = FileUtil.readFile(path);
+        JsonSchema schema = JsonUtils.loadSchema("metadata/schema.json");
+        String report = JsonUtils.jsonSchemaValidation(schema, jsonSchema);
+        if(report != null){
+            Assert.fail("Expected validation to succeed! Resource: " + actual + " Messages: " + report.replaceAll("\n", " "));
+        }
+        System.err.println("expected");
+        System.err.println(expected.toString());
+        System.err.println("actual");
+        System.err.println(actual.toString());
+        JSONAssert.assertEquals(expected, actual, false);
+    }
+
 
     @Test(expected = IllegalStateException.class)
     public void testEntityInfo_DoesNotExist(){

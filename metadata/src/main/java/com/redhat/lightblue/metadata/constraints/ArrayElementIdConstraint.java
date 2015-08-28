@@ -41,4 +41,9 @@ public class ArrayElementIdConstraint implements FieldConstraint, Serializable {
     public boolean isValidForFieldType(Type fieldType) {
         return !(fieldType instanceof ContainerType);
     }
+
+    @Override
+    public String getDescription() {
+        return "Field is part of an array element id. All such fields of an array element is used to uniquely identify an array element";
+    }
 }

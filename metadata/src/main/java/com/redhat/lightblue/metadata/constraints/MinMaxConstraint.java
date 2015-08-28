@@ -57,6 +57,11 @@ public class MinMaxConstraint implements FieldConstraint, Serializable {
                 || BigIntegerType.TYPE.equals(fieldType);
     }
 
+    @Override
+    public String getDescription() {
+        return value.toString();
+    }
+
     public Number getValue() {
         return value;
     }

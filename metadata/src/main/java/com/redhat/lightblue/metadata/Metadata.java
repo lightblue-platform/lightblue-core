@@ -22,7 +22,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.redhat.lightblue.Response;
+import org.json.JSONObject;
 
 /**
  * Metadata manager interface
@@ -110,4 +112,9 @@ public interface Metadata extends Serializable {
      */
     Map<MetadataRole, List<String>> getMappedRoles();
 
+
+    /**
+     * Returns JSON node that represents Schema for Metadata
+     */
+    JsonNode getJSONSchema(String entityName, String version);
 }

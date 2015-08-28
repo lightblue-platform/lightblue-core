@@ -290,6 +290,11 @@ public class ConstraintValidatorTest {
             return true;
         }
 
+        @Override
+        public String getDescription() {
+            return "test";
+        }
+
     }
 
 }

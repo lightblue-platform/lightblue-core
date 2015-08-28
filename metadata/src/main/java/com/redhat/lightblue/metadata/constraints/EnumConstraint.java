@@ -48,6 +48,11 @@ public class EnumConstraint implements FieldConstraint, Serializable {
         return StringType.TYPE.equals(fieldType);
     }
 
+    @Override
+    public String getDescription() {
+        return name;
+    }
+
     public String getName() {
         return name;
     }

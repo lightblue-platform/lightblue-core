@@ -1,0 +1,81 @@
+{
+  "$schema":"http://json-schema.org/draft-04/schema#",
+  "type":"object",
+  "description":"JSON schema for entity 'user' version '1.0.0'",
+  "properties":{
+    "enumTest": {
+      "type":"string",
+      "constraints": {
+        "enum": "site_type_enum"
+      }
+    },
+    "personalInfo":{
+      "type":"object",
+      "properties":{  },
+      "required":[
+        "nonrequid",
+        "requid"
+      ]
+    },
+    "iduid":{
+      "type":"string"
+    },
+    "active":{
+      "type":"boolean"
+    },
+    "updatedDate":{
+      "type":"date"
+    },
+    "login":{
+      "type":"string",
+      "constraints":{
+        "minLength":"1",
+        "maxLength":"64"
+      }
+    },
+    "objectType":{
+      "type":"string"
+    },
+    "uid":{
+      "type":"string"
+    },
+    "password":{
+      "type":"object",
+      "properties":{
+        "salt":{
+          "type":"string"
+        },
+        "hashed":{
+          "type":"string"
+        }
+      }
+    },
+    "createdDate":{
+      "type":"date"
+    },
+    "_id":{
+      "type":"string"
+    },
+    "nonrequid":{
+      "type":"string"
+    },
+    "requid":{
+      "type":"string",
+      "description":"test"
+    },
+    "contactPermissions":{
+      "type":"object",
+      "properties":{  },
+      "required":[
+        "allowEmailContact"
+      ]
+    },
+    "required":[
+      "iduid",
+      "login",
+      "_id",
+      "nonrequid",
+      "requid"
+    ]
+  }
+}

@@ -45,11 +45,23 @@ public class MatchesConstraint implements FieldConstraint, Serializable {
         return !(fieldType instanceof ContainerType);
     }
 
+    @Override
+    public String getDescription() {
+        return value.toString();
+    }
+
     public Pattern getValue() {
         return value;
     }
 
     public void setValue(Pattern v) {
         value = v;
+    }
+
+    public static void main(String[] args) {
+        FieldConstraint a = null;
+        MatchesConstraint c = (MatchesConstraint) a;
+        System.out.println("ok");
+
     }
 }
