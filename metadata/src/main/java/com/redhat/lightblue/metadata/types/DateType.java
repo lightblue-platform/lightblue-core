@@ -18,19 +18,18 @@
  */
 package com.redhat.lightblue.metadata.types;
 
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
-
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 public final class DateType implements Type, Serializable {
 
@@ -40,19 +39,21 @@ public final class DateType implements Type, Serializable {
     public static final String NAME = "date";
 
     public static final String DATE_FORMAT_STR = "yyyyMMdd'T'HH:mm:ss.SSSZ";
-    private static final DateFormat DATE_FORMAT;
-
-    static {
-        DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STR);
-        //DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    /** Contains the lightblue {@link DateFormat} for each Thread. */
+    private static final ThreadLocal<DateFormat> DATE_FORMATS = new ThreadLocal<>();
+    /** It is faster to clone than to create new {@link DateFormat} instances.
+     * This is the base instance from which others are cloned. */
+    private static final DateFormat BASE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STR);
 
     /**
      * Returns a DateFormat instance using the DATE_FORMAT_STR. Clone of
      * the static internal variable, because SimpleDateFormat is not thread safe
      */
     public static DateFormat getDateFormat() {
-        return (DateFormat) DATE_FORMAT.clone();
+        if (DATE_FORMATS.get() == null) {
+            DATE_FORMATS.set((DateFormat) BASE_DATE_FORMAT.clone());
+        }
+        return DATE_FORMATS.get();
     }
 
     @Override
