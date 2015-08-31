@@ -23,6 +23,7 @@ import java.util.UUID;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 
 import com.redhat.lightblue.metadata.ValueGenerator;
+import com.redhat.lightblue.metadata.EntityMetadata;
 
 public class UUIDGenerator implements ValueGeneratorSupport {
 
@@ -36,7 +37,7 @@ public class UUIDGenerator implements ValueGeneratorSupport {
     }
 
     @Override
-    public Object generateValue(ValueGenerator generator) {
+    public Object generateValue(EntityMetadata md,ValueGenerator generator) {
         return UUID.randomUUID().toString();
     }
 }

@@ -148,7 +148,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         }
 
         @Override
-        public Object generateValue(ValueGenerator generator) {
+        public Object generateValue(EntityMetadata md,ValueGenerator generator) {
             return new Integer(v++);
         }
     }
