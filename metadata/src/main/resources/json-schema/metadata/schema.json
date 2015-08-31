@@ -187,7 +187,38 @@
                                     "type": "string"
                                 },
                                 "valueGenerator": {
-                                    "type": "string"
+                                    "type":"object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "description": "The type of the value generator."
+                                        },
+                                        "overwrite": {
+                                            "type":"boolean",
+                                            "description":"Whether to overwrite field value"
+                                        },
+                                        "configuration": {
+                                            "type": "array",
+                                            "description": "Properties for the value generator.",
+                                            "items": {
+                                                "type":"object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Property name"
+                                                    },
+                                                    "value": {
+                                                        "type": "string",
+                                                        "description": "Property value"
+                                                    }
+                                                },
+                                                "required": ["name", "value"]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "type"
+                                    ]
                                 }
                             },
                             "additionalProperties": false,

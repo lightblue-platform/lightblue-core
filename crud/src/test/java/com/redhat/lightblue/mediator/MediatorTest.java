@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.*;
 import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.crud.interceptors.*;
+import com.redhat.lightblue.crud.valuegenerators.*;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.metadata.*;
@@ -32,6 +33,7 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.Value;
@@ -41,6 +43,9 @@ import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.extensions.ExtensionSupport;
+import com.redhat.lightblue.extensions.Extension;
+import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +73,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         }
     }
 
-    private static final class MockCrudController implements CRUDController {
+    private static final class MockCrudController implements CRUDController, ExtensionSupport {
         CRUDUpdateResponse updateResponse;
         CRUDSaveResponse saveResponse;
         CRUDDeleteResponse deleteResponse;
@@ -124,6 +129,28 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         @Override
         public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
 
+        @Override
+        public <E extends Extension> E  getExtensionInstance(Class<? extends Extension> extensionClass) {
+            if(extensionClass.equals(ValueGeneratorSupport.class)) {
+                return (E)new MockValueGeneratorSupport();
+            } else
+                return null;
+        }
+
+    }
+
+    private static class MockValueGeneratorSupport implements ValueGeneratorSupport {
+        public static int v=0;
+        
+        @Override
+        public ValueGenerator.ValueGeneratorType[] getSupportedGeneratorTypes() {
+            return new ValueGenerator.ValueGeneratorType[] {ValueGenerator.ValueGeneratorType.IntSequence};
+        }
+
+        @Override
+        public Object generateValue(ValueGenerator generator) {
+            return new Integer(v++);
+        }
     }
 
     private static final class RestClientIdentification extends ClientIdentification {
@@ -169,6 +196,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
         new UIDInterceptor().register(factory.getInterceptors());
+        new GeneratedFieldInterceptor().register(factory.getInterceptors());
         factory.addCRUDController("mongo", mockCrudController);
         mdManager.md = getMd("./testMetadata.json");
         mediator = new Mediator(mdManager, factory);
@@ -440,7 +468,61 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
     }
 
+    @Test
+    public void generatorTest() throws Exception {
+        MockValueGeneratorSupport.v=0;
+        mdManager.md = getMd("./generator-md.json");
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("user", "5.0.0"));
+        req.setEntityData(loadJsonNode("./userdata.json"));
+        req.setReturnFields(new FieldProjection(new Path("*"),true,true));
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        Response response = mediator.insert(req);
+        System.out.println(response.getDataErrors());
+        JsonDoc doc=mockCrudController.ctx.getDocuments().get(0);
+        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(0,response.getDataErrors().size());
+        System.out.println(doc);
+        int v=doc.get(new Path("_id")).asInt();
+        // There are 13 generated values in this doc
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("requid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("iduid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("personalInfo.requid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        Assert.assertNull(doc.get(new Path("personalInfo.nonrequid")));
+        v=doc.get(new Path("sites.0.streetAddress.requid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("sites.0.streetAddress.nonrequid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("uid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+    }
 
+    @Test
+    public void generatorOverwriteTest() throws Exception {
+        MockValueGeneratorSupport.v=0;
+        mdManager.md = getMd("./overwrite-md.json");
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("user", "5.0.0"));
+        JsonNode docNode=loadJsonNode("./gen-overwrite-testdata.json");
+        req.setEntityData(docNode);
+        req.setReturnFields(new FieldProjection(new Path("*"),true,true));
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+
+        String today=docNode.get("today").asText();
+        String id=docNode.get("_id").asText();
+
+        Response response = mediator.insert(req);
+        JsonDoc doc=mockCrudController.ctx.getDocuments().get(0);
+        System.out.println(doc);
+        
+        Assert.assertEquals(id,doc.get(new Path("_id")).asText());
+        Assert.assertTrue(!today.equals(doc.get(new Path("today")).asText()));
+        
+    }
 
     @Test
     public void uidTest() throws Exception {

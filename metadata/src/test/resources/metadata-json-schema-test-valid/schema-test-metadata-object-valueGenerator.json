@@ -1,22 +1,6 @@
 {
     "entityInfo": {
         "name": "test",
-        "valueGenerators": [
-            {
-                "name": "testSeq",
-                "type": "IntSequence",
-                "configuration": [
-                    {
-                        "name": "min",
-                        "value": "10000"
-                    },
-                    {
-                        "name": "max",
-                        "value": "99999"
-                    }
-                ]
-            }
-        ],
         "datastore": {
             "backend":"empty"
         }
@@ -39,7 +23,19 @@
         "fields": {
             "customerId": {
                 "type": "integer",
-                "valueGenerator": "testSeq"
+                "valueGenerator": {
+                    "type": "IntSequence",
+                    "configuration": [
+                        {
+                            "name": "min",
+                            "value": "10000"
+                        },
+                        {
+                            "name": "max",
+                            "value": "99999"
+                        }
+                    ]
+                }
             }
         }
     }
