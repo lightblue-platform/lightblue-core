@@ -1,0 +1,49 @@
+{
+  "entityInfo" : {
+    "name": "user",
+    "enums" : [
+       {
+          "name":"site_type_enum",
+          "values": [ "billing", "marketing", "service", "shipping" ]
+       }
+    ],
+    "datastore": {
+        "backend":"mongo",
+        "datasource": "mongodata",
+        "collection": "user"
+    }
+  },
+  "schema" : {
+    "name" : "user",
+    "version": {
+        "value": "5.0.0",
+        "changelog": "UID Test version"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access" : {
+        "insert": ["anyone"],
+        "find":["anyone"],
+        "update":["anyone"],
+        "delete":["anyone"]
+    },
+    "fields": {
+        "_id": {"type": "string",
+                "constraints" : {
+                     "identity":1
+                },
+                "valueGenerator": {
+                    "type":"IntSequence"
+                }
+               },
+        "objectType": {"type": "string"},
+        "today":{"type":"date",
+                 "valueGenerator": {
+                     "type":"CurrentTime",
+                     "overwrite":true
+                 }
+                }
+    }
+  }
+}

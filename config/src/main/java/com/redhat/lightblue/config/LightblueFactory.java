@@ -43,6 +43,7 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
+import com.redhat.lightblue.crud.valuegenerators.GeneratedFieldInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.EntityInfo;
@@ -80,7 +81,7 @@ public final class LightblueFactory implements Serializable {
     private transient volatile Mediator mediator = null;
     private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
-    private transient volatile Map<String,LockingSupport> lockingMap=null; 
+    private transient volatile Map<String,LockingSupport> lockingMap=null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this(datasources, null, null);
@@ -144,6 +145,7 @@ public final class LightblueFactory implements Serializable {
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());
+            new GeneratedFieldInterceptor().register(f.getInterceptors());
 
             // validate
             if (!configuration.isValid()) {
