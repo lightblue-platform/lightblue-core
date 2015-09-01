@@ -446,15 +446,15 @@ public abstract class MetadataParser<T> {
                 if(x instanceof Boolean)
                     valueGenerator.setOverwrite((Boolean)x);
 
-                List<T> props = getObjectList(object, STR_CONFIGURATION);
-                if (props != null) {
-                    for (T p: props) {
-                        String pName = getRequiredStringProperty(p, STR_NAME);
-                        String pValue = getRequiredStringProperty(p, STR_VALUE);
-                        valueGenerator.getProperties().put(pName, pValue);
+                T config=getObjectProperty(object,STR_CONFIGURATION);
+                if(config!=null) {
+                    Set<String> names=getChildNames(config);
+                    for(String name:names) {
+                        Object value=getValueProperty(config,name);
+                        valueGenerator.getProperties().put(name, value);
                     }
                 }
-
+                
                 return valueGenerator;
             }
         } catch (Error e) {
@@ -1208,12 +1208,9 @@ public abstract class MetadataParser<T> {
                 putValue(vgNode,STR_OVERWRITE,Boolean.TRUE);
             Properties p=vg.getProperties();
             if(p!=null&&!p.isEmpty()) {
-                Object arr=newArrayField(vgNode,STR_CONFIGURATION);
+                T config=newNode();
                 for(Map.Entry<Object,Object> entry: p.entrySet()) {
-                    T confNode=newNode();
-                    putString(confNode,STR_NAME,entry.getKey().toString());
-                    putString(confNode,STR_VALUE,entry.getValue().toString());
-                    addObjectToArray(arr,confNode);
+                    putString(config,entry.getKey().toString(),entry.getValue().toString());
                 }
             }
         }

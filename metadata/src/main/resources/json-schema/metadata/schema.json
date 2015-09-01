@@ -198,22 +198,8 @@
                                             "description":"Whether to overwrite field value"
                                         },
                                         "configuration": {
-                                            "type": "array",
-                                            "description": "Properties for the value generator.",
-                                            "items": {
-                                                "type":"object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string",
-                                                        "description": "Property name"
-                                                    },
-                                                    "value": {
-                                                        "type": "string",
-                                                        "description": "Property value"
-                                                    }
-                                                },
-                                                "required": ["name", "value"]
-                                            }
+                                            "type": "object",
+                                            "description": "Properties for the value generator."
                                         }
                                     },
                                     "required": [

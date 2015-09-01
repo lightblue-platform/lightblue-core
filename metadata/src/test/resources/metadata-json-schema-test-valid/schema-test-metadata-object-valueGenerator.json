@@ -25,16 +25,10 @@
                 "type": "integer",
                 "valueGenerator": {
                     "type": "IntSequence",
-                    "configuration": [
-                        {
-                            "name": "min",
-                            "value": "10000"
-                        },
-                        {
-                            "name": "max",
-                            "value": "99999"
-                        }
-                    ]
+                    "configuration": {
+                        "min": "10000",
+                        "max": "99999"
+                    }
                 }
             }
         }
