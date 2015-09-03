@@ -100,8 +100,12 @@ public abstract class AbstractCRUDTestController {
             JsonTranslator tx = lightblueFactory.getJsonTranslator();
 
             Metadata metadata = lightblueFactory.getMetadata();
-            for (JsonNode metadataJson : getMetadataJsonNodes()) {
-                metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
+
+            JsonNode[] metadataNodes = getMetadataJsonNodes();
+            if (metadataNodes != null) {
+                for (JsonNode metadataJson : metadataNodes) {
+                    metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
+                }
             }
         }
     }
