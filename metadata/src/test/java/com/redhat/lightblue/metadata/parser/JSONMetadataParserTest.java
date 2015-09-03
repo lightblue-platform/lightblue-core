@@ -52,8 +52,12 @@ import com.redhat.lightblue.metadata.Enum;
 import com.redhat.lightblue.metadata.EnumValue;
 import com.redhat.lightblue.metadata.Enums;
 import com.redhat.lightblue.metadata.MetadataConstants;
+import com.redhat.lightblue.metadata.SimpleField;
+import com.redhat.lightblue.metadata.ValueGenerator;
+import com.redhat.lightblue.metadata.EntitySchema;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
+import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 
 public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
@@ -610,4 +614,24 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         parser.parseEnum(json("{\"name\":\"FakeEnumName\", \"values\":[]}"));
     }
 
+    @Test
+    public void testParseConvertValueGenerator() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-valuegenerator.json");
+        EntitySchema em = parser.parseEntitySchema(object);
+        SimpleField field=(SimpleField)em.resolve(new Path("name"));
+        Assert.assertNotNull(field);
+        ValueGenerator vg=field.getValueGenerator();
+        Assert.assertNotNull(vg);
+        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence,vg.getValueGeneratorType());
+        Assert.assertEquals("seq",vg.getProperties().get("name"));
+        Assert.assertEquals("1000",vg.getProperties().get("initialValue").toString());
+        ObjectNode obj=JsonNodeFactory.instance.objectNode();
+        parser.convertValueGenerator(vg,obj);
+        obj=(ObjectNode)obj.get("valueGenerator");
+        System.out.println(obj);
+        Assert.assertEquals(ValueGenerator.ValueGeneratorType.IntSequence.toString(),obj.get("type").asText());
+        ObjectNode props=(ObjectNode)obj.get("configuration");
+        Assert.assertEquals("seq",props.get("name").asText());
+        Assert.assertEquals("1000",props.get("initialValue").asText());
+    }
 }

@@ -1212,6 +1212,7 @@ public abstract class MetadataParser<T> {
                 for(Map.Entry<Object,Object> entry: p.entrySet()) {
                     putString(config,entry.getKey().toString(),entry.getValue().toString());
                 }
+                putObject(vgNode,STR_CONFIGURATION,config);
             }
         }
     }
