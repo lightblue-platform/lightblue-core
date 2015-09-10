@@ -1,0 +1,109 @@
+{
+    "entityInfo": {
+        "datastore": {
+            "backend": "mongo",
+            "collection": "parent",
+            "datasource": "mongodata"
+        },
+        "name": "parent_w_elem"
+    },
+    "schema": {
+        "access": {
+            "delete": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "constraints": {
+                    "identity": true
+                },
+                "type": "string"
+            },
+            "code1": {
+                "constraints": {
+                    "required": true
+                },
+                "type": "string"
+            },
+            "code2": {
+                "constraints": {
+                    "required": true
+                },
+                "type": "string"
+            },
+            "objectType": {
+                "access": {
+                    "find": [
+                        "anyone"
+                    ],
+                    "update": [
+                        "noone"
+                    ]
+                },
+                "constraints": {
+                    "minLength": 1,
+                    "required": true
+                },
+                "type": "string"
+            },
+            "relationships": {
+                "entity": "child_w_elem",
+                "query": {
+                    "array": "tree",
+                    "elemMatch": {
+                        "$or": [
+                            {
+                                "$and": [
+                                    {
+                                        "field": "child.code1",
+                                        "op": "$eq",
+                                        "rfield": "$parent.$parent.code1"
+                                    },
+                                    {
+                                        "field": "child.code2",
+                                        "op": "$eq",
+                                        "rfield": "$parent.$parent.code2"
+                                    }
+                                ]
+                            },
+                            {
+                                "$and": [
+                                    {
+                                        "field": "parent.code1",
+                                        "op": "$eq",
+                                        "rfield": "$parent.$parent.code1"
+                                    },
+                                    {
+                                        "field": "parent.code2",
+                                        "op": "$eq",
+                                        "rfield": "$parent.$parent.code2"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "type": "reference",
+                "versionValue": "1.0.0"
+            }
+        },
+        "name": "parent",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "log",
+            "value": "1.0.0"
+        }
+    }
+}
