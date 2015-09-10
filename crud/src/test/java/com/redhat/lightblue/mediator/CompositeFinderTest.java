@@ -326,4 +326,32 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     //     Assert.assertEquals("BDEEP",response.getEntityData().get(0).get("level1.r1.0.ref.0._id"));
     //     Assert.assertEquals("BDEEP2",response.getEntityData().get(0).get("level1.r1.1.ref.0._id"));
     // }
+
+    @Test
+    public void assocRetrievalWithElemMatch() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'code1','op':'=','rvalue':'A'}"));
+        fr.setProjection(projection("{'field':'relationships.*','recursive':1}"));
+        fr.setEntityVersion(new EntityVersion("parent_w_elem","1.0.0"));
+
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+    }
+
+    @Test
+    public void deepRoles() throws Exception {
+        DefaultMetadataResolver r=new DefaultMetadataResolver(new TestMetadata());
+        r.initialize("parent_w_elem_w_roles","1.0.0",query("{'field':'code1','op':'=','rvalue':'A'}"),projection("{'field':'relationships.*','recursive':1}"));
+        
+        System.out.println(r.getMetadataRoles());
+        Assert.assertTrue(r.getMetadataRoles().contains("a"));
+        Assert.assertTrue(r.getMetadataRoles().contains("b"));
+        Assert.assertTrue(r.getMetadataRoles().contains("c"));
+        Assert.assertTrue(r.getMetadataRoles().contains("d"));
+        Assert.assertTrue(r.getMetadataRoles().contains("e"));
+        Assert.assertTrue(r.getMetadataRoles().contains("f"));
+        Assert.assertTrue(r.getMetadataRoles().contains("g"));
+        Assert.assertTrue(r.getMetadataRoles().contains("h"));
+    }
 }
