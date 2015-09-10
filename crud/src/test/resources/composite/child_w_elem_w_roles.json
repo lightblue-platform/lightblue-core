@@ -10,16 +10,16 @@
   "schema": {
     "access": {
       "delete": [
-        "anyone"
+        "e"
       ],
       "find": [
-        "anyone"
+        "f"
       ],
       "insert": [
-        "anyone"
+        "g"
       ],
       "update": [
-        "anyone"
+        "h"
       ]
     },
     "fields" : {
