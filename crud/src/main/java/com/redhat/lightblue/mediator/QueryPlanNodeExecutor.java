@@ -85,6 +85,7 @@ public class QueryPlanNodeExecutor {
         this.finder=new SimpleFindImpl(node.getMetadata(),factory);
         LOGGER.debug("Creating finder for {} for node {}",node.getMetadata().getName(),node.getName());
         docIdx=new DocIdExtractor(node.getMetadata());
+        LOGGER.debug("ID extractor:{}",docIdx);
         this.root=root;
         this.documentCache=documentCache;
 
@@ -179,7 +180,7 @@ public class QueryPlanNodeExecutor {
             Tuples<ChildDocReference> tuples=new Tuples<>();
             for(QueryPlanNodeExecutor source:sources) {
                 List<ChildDocReference> list=ResultDoc.getChildren(source.docs,node);
-                LOGGER.debug("Adding {} docs from node {} to node {}",list.size(),source.node.getName(),node.getName());
+                LOGGER.debug("Adding {} docs from node {} to node {}, source has {} docs",list.size(),source.node.getName(),node.getName(),source.docs.size());
                 tuples.add(list);
             }
            
@@ -237,6 +238,7 @@ public class QueryPlanNodeExecutor {
                 for(ChildDocReference parent:parents) {
                     resultDoc.setParentDoc(parent.getDocument().getQueryPlanNode(),parent);
                     parent.getChildren().add(resultDoc);
+                    LOGGER.debug("Linked parent ref:{}",parent);
                 }
             }
             LOGGER.debug("Adding {}",id);

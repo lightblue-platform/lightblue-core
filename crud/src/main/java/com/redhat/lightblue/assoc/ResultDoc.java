@@ -136,6 +136,7 @@ public class ResultDoc implements Serializable {
         CompositeMetadata md=node.getMetadata();
         if(destinations.length>0) {
             for(QueryPlanNode destNode:destinations) {
+                LOGGER.debug("Gathering children for {}",destNode);
                 CompositeMetadata destMd=destNode.getMetadata();
                 List<ChildDocReference> refList=new ArrayList<>();
                 // Find the entity reference for destMd. It can be a child of this entity, or the parent
@@ -150,20 +151,23 @@ public class ResultDoc implements Serializable {
                 } else {
                     // Get the resolved reference for this field
                     ResolvedReferenceField ref=md.getChildReference(destMd.getEntityPath());
+                    LOGGER.debug("Resolved reference for {}:{}",destMd.getEntityPath(),ref);
                     // We cut the last segment, it is "ref"
                     Path entityRelativeFieldName=md.getEntityRelativeFieldName(ref);
                     Path field=entityRelativeFieldName.prefix(-1);
                     LOGGER.debug("Getting instances of {} (reference was {})",field,entityRelativeFieldName);
-                    Path p=destMd.getEntityPath().prefix(-1);
+                    Path p=entityRelativeFieldName.prefix(-1);
                     // p points to the object containing the reference field
                     // It could be empty, if the reference is at the root level
                     if(p.isEmpty()) {
                         refList.add(new ChildDocReference(this,new Path(p,new Path(ref.getName()))));
                     } else {
+                        LOGGER.debug("Iterating {} in {}",p,doc);
                         KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(p);
                         while(cursor.hasNext()) {
                             cursor.next();
                             JsonNode nodeWithRef=cursor.getCurrentValue();
+                            LOGGER.debug("Checking field {}:{}",cursor.getCurrentKey(),nodeWithRef);
                             if(nodeWithRef instanceof ArrayNode) {
                                 int size=((ArrayNode)nodeWithRef).size();
                                 MutablePath elem=cursor.getCurrentKey().mutableCopy();

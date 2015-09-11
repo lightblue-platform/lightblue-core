@@ -1,5 +1,7 @@
 [
     {
+        "_id":"child1",
+        "objectType":"child_w_elem",
         "tree" :[
             {
                 "child": {

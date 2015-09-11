@@ -22,6 +22,7 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Convenience class to extract document ids from a document. Construct this
@@ -41,24 +42,18 @@ public final class DocIdExtractor implements Serializable {
     }
 
     /**
-     * Creates a document ID extractfor with the given identity fields
+     * Creates a document ID extractor for the given schema
      */
-    public DocIdExtractor(Field[] identityFields) {
+    public DocIdExtractor(EntitySchema sch) {
+        Field[] identityFields=sch.getIdentityFields();
         if (identityFields == null || identityFields.length == 0) {
             throw new IllegalArgumentException("Empty identity fields");
         }
         Path[] f = new Path[identityFields.length];
         for (int i = 0; i < f.length; i++) {
-            f[i] = identityFields[i].getFullPath();
+            f[i] = sch.getEntityRelativeFieldName(identityFields[i]);
         }
         init(f);
-    }
-
-    /**
-     * Creates a document ID extractor for the given schema
-     */
-    public DocIdExtractor(EntitySchema sch) {
-        this(sch.getIdentityFields());
     }
 
     /**
@@ -78,6 +73,10 @@ public final class DocIdExtractor implements Serializable {
             values[i++] = doc.get(x);
         }
         return new DocId(values, objectTypeIx);
+    }
+
+    public String toString() {
+        return Arrays.toString(identityFields);
     }
 
     private void init(Path[] f) {

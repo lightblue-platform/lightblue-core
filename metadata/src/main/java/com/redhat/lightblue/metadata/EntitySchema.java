@@ -268,6 +268,13 @@ public class EntitySchema implements Serializable {
         return properties;
     }
 
+    /**
+     * Returns the full field name relative to the current entity
+     */
+    public Path getEntityRelativeFieldName(FieldTreeNode field) {
+        return field.getFullPath();
+    }
+    
     public Field[] getIdentityFields() {
         FieldCursor cursor = getFieldCursor();
         TreeMap<Path, Field> fieldMap = new TreeMap<>();
@@ -290,7 +297,7 @@ public class EntitySchema implements Serializable {
                     SimpleField f = (SimpleField) fn;
                     for (FieldConstraint fc : f.getConstraints()) {
                         if (fc instanceof IdentityConstraint) {
-                            fieldMap.put(f.getFullPath(), f);
+                            fieldMap.put(getEntityRelativeFieldName(f), f);
                             break;
                         }
                     }
