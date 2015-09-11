@@ -51,7 +51,13 @@
                     "required" : true
                   },
                   "type" : "string"
-                }
+                },
+                  "ref" : {
+                      "type":"reference",
+                      "entity":"parent_w_elem",
+                      "versionValue":"1.0.0",
+                      "query": { "field":"code1","op":"=","rfield":"$parent.code1"}
+                  }
               }
             },
             "parent" : {

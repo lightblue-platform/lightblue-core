@@ -100,6 +100,10 @@ public class QueryPlan implements Serializable {
             }
             return name;
         }
+
+        public String toString() {
+            return getName();
+        }
     }
 
     private static final class Edge {

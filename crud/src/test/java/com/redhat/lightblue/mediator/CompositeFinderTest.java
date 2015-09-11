@@ -354,4 +354,30 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertTrue(r.getMetadataRoles().contains("g"));
         Assert.assertTrue(r.getMetadataRoles().contains("h"));
     }
+
+    @Test
+    public void dontReturnTooDeep() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'code1','op':'=','rvalue':'A'}"));
+        fr.setProjection(projection("{'field':'relationships.*','recursive':1}"));
+        fr.setEntityVersion(new EntityVersion("parent_w_elem","1.0.0"));
+
+        Response response=mediator.find(fr);
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("child1",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0._id")).asText());
+        Assert.assertEquals("A",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0.tree.0.child.code1")).asText());
+        Assert.assertNull(JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0.tree.0.child.ref")));
+
+        fr=new FindRequest();
+        fr.setQuery(query("{'field':'code1','op':'=','rvalue':'A'}"));
+        fr.setProjection(projection("[{'field':'relationships.*','recursive':1},{'field':'relationships.*.tree.*.child.ref'}]"));
+        fr.setEntityVersion(new EntityVersion("parent_w_elem","1.0.0"));
+        response=mediator.find(fr);
+        System.out.println("Deep retrieval:"+response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("child1",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0._id")).asText());
+        Assert.assertEquals("A",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0.tree.0.child.code1")).asText());
+        Assert.assertEquals("A",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0.tree.0.child.ref.0.code1")).asText());
+
+    }
 }
