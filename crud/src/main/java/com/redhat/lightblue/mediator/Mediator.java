@@ -439,7 +439,7 @@ public class Mediator {
 
     private void updatePredefinedFields(OperationContext ctx,CRUDController controller, String entity) {
         for (JsonDoc doc : ctx.getDocuments()) {
-            PredefinedFields.updateArraySizes(factory.getNodeFactory(), doc);
+            PredefinedFields.updateArraySizes(ctx.getTopLevelEntityMetadata(),factory.getNodeFactory(), doc);
             JsonNode node = doc.get(OBJECT_TYPE_PATH);
             if (node == null) {
                 doc.modify(OBJECT_TYPE_PATH, factory.getNodeFactory().textNode(entity), false);
