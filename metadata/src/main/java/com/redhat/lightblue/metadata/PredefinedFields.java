@@ -27,6 +27,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.metadata.constraints.StringLengthConstraint;
@@ -79,43 +80,24 @@ public final class PredefinedFields {
     /**
      * Updates all array size values in the given document
      */
-    public static void updateArraySizes(JsonNodeFactory factory, JsonDoc doc) {
-        updateArraySizes(factory, (ObjectNode) doc.getRoot());
-    }
-
-    /**
-     * Updates all array size values at the subtree rooted at the given object
-     * node
-     *
-     * @param factory Node factory
-     * @param node All array size fields under this subtree will be updated
-     */
-    public static void updateArraySizes(JsonNodeFactory factory, ObjectNode node) {
-        Map<String, JsonNode> sizes = new HashMap<>();
-        for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields(); itr.hasNext();) {
-            Map.Entry<String, JsonNode> field = itr.next();
-            JsonNode value = field.getValue();
-            if (value instanceof ArrayNode) {
-                sizes.put(field.getKey() + "#", factory.numberNode(((ArrayNode) value).size()));
+    public static void updateArraySizes(EntityMetadata md,JsonNodeFactory factory, JsonDoc doc) {
+        FieldCursor cursor=md.getFieldCursor();
+        while(cursor.next()) {
+            FieldTreeNode f=cursor.getCurrentNode();
+            if(f.getName().endsWith("#")) {
+                Path lengthField=cursor.getCurrentPath();
+                String ls=lengthField.toString();
+                Path arrField=new Path(ls.substring(0,ls.length()-1));
+                try {
+                    if(md.resolve(arrField)!=null) {
+                        JsonNode arrNode=doc.get(arrField);
+                        if(arrNode==null||arrNode instanceof NullNode)
+                            doc.modify(lengthField,null,false);
+                        else
+                            doc.modify(lengthField,factory.numberNode(arrNode.size()),false);
+                    }
+                } catch(Exception e) {}
             }
-            updateArraySizes(factory, value);
-        }
-        for (Map.Entry<String, JsonNode> entry : sizes.entrySet()) {
-            node.set(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public static void updateArraySizes(JsonNodeFactory factory, ArrayNode node) {
-        for (Iterator<JsonNode> itr = node.elements(); itr.hasNext();) {
-            updateArraySizes(factory, itr.next());
-        }
-    }
-
-    public static void updateArraySizes(JsonNodeFactory factory, JsonNode node) {
-        if (node instanceof ArrayNode) {
-            updateArraySizes(factory, (ArrayNode) node);
-        } else if (node instanceof ObjectNode) {
-            updateArraySizes(factory, (ObjectNode) node);
         }
     }
 
