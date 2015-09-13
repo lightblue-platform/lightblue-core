@@ -1,0 +1,198 @@
+{
+    "entityInfo": {
+        "datastore": {
+            "backend": "mongo",
+            "collection": "rel",
+            "datasource": "mongodata"
+        },
+        "enums": [
+            {
+                "name": "uomCode",
+                "values": [
+                    "MONTHS",
+                    "DAYS",
+                    "EACH",
+                    "YEARS"
+                ]
+            },
+            {
+                "name": "statusCode",
+                "values": [
+                    "active",
+                    "disabled",
+                    "inactive"
+                ]
+            }
+        ],
+        "name": "rel"
+    },
+    "schema": {
+        "access": {
+            "delete": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "constraints": {
+                    "identity": true
+                },
+                "type": "string"
+            },
+            "objectType": {
+                "access": {
+                    "find": [
+                        "anyone"
+                    ],
+                    "update": [
+                        "noone"
+                    ]
+                },
+                "constraints": {
+                    "minLength": 1,
+                    "required": true
+                },
+                "type": "string"
+            },
+            "rootProduct": {
+                "constraints": {
+                    "required": true
+                },
+                "fields": {
+                    "inventoryOperatingUnitCode": {
+                        "constraints": {
+                            "required": true
+                        },
+                        "type": "string"
+                    },
+                    "product": {
+                        "entity": "rel2",
+                        "query": {
+                            "$and": [
+                                {
+                                    "field": "skuCode",
+                                    "op": "$eq",
+                                    "rfield": "$parent.skuCode"
+                                },
+                                {
+                                    "field": "inventoryOperatingUnitCode",
+                                    "op": "$eq",
+                                    "rfield": "$parent.inventoryOperatingUnitCode"
+                                }
+                            ]
+                        },
+                        "type": "reference",
+                        "versionValue": "1.0.6-SNAPSHOT"
+                    },
+                    "skuCode": {
+                        "constraints": {
+                            "required": true
+                        },
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "skuTree": {
+                "items": {
+                    "fields": {
+                        "child": {
+                            "constraints": {
+                                "required": true
+                            },
+                            "fields": {
+                                "inventoryOperatingUnitCode": {
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "type": "string"
+                                },
+                                "product": {
+                                    "entity": "rel2",
+                                    "query": {
+                                        "$and": [
+                                            {
+                                                "field": "skuCode",
+                                                "op": "$eq",
+                                                "rfield": "$parent.skuCode"
+                                            },
+                                            {
+                                                "field": "inventoryOperatingUnitCode",
+                                                "op": "$eq",
+                                                "rfield": "$parent.inventoryOperatingUnitCode"
+                                            }
+                                        ]
+                                    },
+                                    "type": "reference",
+                                    "versionValue": "1.0.6-SNAPSHOT"
+                                },
+                                "skuCode": {
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "parent": {
+                            "fields": {
+                                "inventoryOperatingUnitCode": {
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "type": "string"
+                                },
+                                "product": {
+                                    "entity": "rel2",
+                                    "query": {
+                                        "$and": [
+                                            {
+                                                "field": "skuCode",
+                                                "op": "$eq",
+                                                "rfield": "$parent.skuCode"
+                                            },
+                                            {
+                                                "field": "inventoryOperatingUnitCode",
+                                                "op": "$eq",
+                                                "rfield": "$parent.inventoryOperatingUnitCode"
+                                            }
+                                        ]
+                                    },
+                                    "type": "reference",
+                                    "versionValue": "1.0.6-SNAPSHOT"
+                                },
+                                "skuCode": {
+                                    "constraints": {
+                                        "required": true
+                                    },
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "type": "object"
+                },
+                "type": "array"
+            }
+        },
+        "name": "rel",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "test",
+            "value": "1.0.5-SNAPSHOT"
+        }
+    }
+}

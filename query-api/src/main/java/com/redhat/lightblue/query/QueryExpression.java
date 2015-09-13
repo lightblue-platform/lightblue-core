@@ -338,6 +338,7 @@ public abstract class QueryExpression extends JsonObject {
     }
 
     private static boolean isFieldQueried(Path field, Path qField, Path context) {
+        LOGGER.debug("Checking if field {} is included in qfield={} with context={}",field,qField,context);
         Path absField = new Path(context, qField);
         if (field.matchingPrefix(absField)) {
             LOGGER.debug("Field {} is queried", absField);
@@ -392,7 +393,7 @@ public abstract class QueryExpression extends JsonObject {
         if (isFieldQueried(field, q.getArray(), context)) {
             return true;
         } else {
-            return q.getElemMatch().isRequired(field, new Path(new Path(context, field), Path.ANYPATH));
+            return q.getElemMatch().isRequired(field, new Path(new Path(context, q.getArray()), Path.ANYPATH));
         }
     }
 }
