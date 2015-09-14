@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata.types;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
@@ -59,7 +60,9 @@ public final class BigIntegerType implements Type, Serializable {
     public Object fromJson(JsonNode node) {
         if (node instanceof NullNode) {
             return null;
-        } else if (node.isValueNode()) {
+        } else if (node instanceof TextNode) {
+            return new BigInteger(node.asText());
+        } if (node.isValueNode()) {
             return node.bigIntegerValue();
         } else {
             throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());

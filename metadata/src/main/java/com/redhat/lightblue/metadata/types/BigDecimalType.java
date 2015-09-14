@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata.types;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
@@ -59,6 +60,8 @@ public final class BigDecimalType implements Type, Serializable {
     public Object fromJson(JsonNode node) {
         if (node instanceof NullNode) {
             return null;
+        } else if(node instanceof TextNode) {
+            return new BigDecimal(node.asText());
         } else if (node.isValueNode()) {
             return node.decimalValue();
         } else {
