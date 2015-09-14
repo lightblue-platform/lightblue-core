@@ -244,6 +244,7 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
                                                                                                              new ValueComparisonExpression(new Path("parent.skuCode"),BinaryComparisonOperator._eq,new Value("X"))))));
         
         System.out.println(r.toTreeString());
+        Assert.assertEquals(0,r.getChildPaths().size());
     }
         
     @Test
