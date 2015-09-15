@@ -35,6 +35,7 @@ public class AbstractCRUDTestControllerTest {
         assertEquals(2, hooksNode.size());
     }
 
+    @Test
     public void testGrantAnyoneAccess() throws Exception {
         JsonNode node = loadJsonNode("./metadata/access.json");
         AbstractCRUDTestController.grantAnyoneAccess(node);
