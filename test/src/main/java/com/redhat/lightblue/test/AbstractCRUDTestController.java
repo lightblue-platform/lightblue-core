@@ -60,8 +60,6 @@ public abstract class AbstractCRUDTestController {
 
     private static LightblueFactory lightblueFactory;
 
-    private boolean grantAnyoneAccess = true;
-
     @AfterClass
     public static void cleanup() {
         lightblueFactory = null;
@@ -108,7 +106,7 @@ public abstract class AbstractCRUDTestController {
             JsonNode[] metadataNodes = getMetadataJsonNodes();
             if (metadataNodes != null) {
                 for (JsonNode metadataJson : metadataNodes) {
-                    if(IsGrandAnyoneAccess()){
+                    if (isGrantAnyoneAccess()) {
                         grantAnyoneAccess(metadataJson);
                     }
                     metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
@@ -196,20 +194,11 @@ public abstract class AbstractCRUDTestController {
     protected abstract JsonNode[] getMetadataJsonNodes() throws Exception;
 
     /**
-     * Sets if any access settings in metadata should be altered to 'anyone' for
-     * testing purposes. Defaults to <code>true</code>.
-     * @param grantAnyoneAccess
-     */
-    protected void setGrantAnyoneAccess(boolean grantAnyoneAccess) {
-        this.grantAnyoneAccess = grantAnyoneAccess;
-    }
-
-    /**
      * @return <code>true</code> if access settings on metadata should be altered to
      * 'anyone', otherwise <code>false</code>. Defaults to <code>true</code>.
      */
-    public boolean IsGrandAnyoneAccess() {
-        return grantAnyoneAccess;
+    public boolean isGrantAnyoneAccess() {
+        return true;
     }
 
     /**
