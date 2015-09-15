@@ -910,19 +910,5 @@
   "_id":"MANYB2",
   "objectType":"A",
   "nonid_b_ref":"MANYB2"
-  },{
-  "_id":"NULLREF",
-  "objectType":"A",
-  "level1": {
-    "arr1": [
-       { 
-           "b_ref":"BDEEP1",
-           "ref":null
-       },
-       { 
-         "b_ref":"BDEEP2"
-       }
-    ]
-  }
   }
 ]

@@ -262,20 +262,6 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
-    public void retrieveNullRef() throws Exception {
-        FindRequest fr=new FindRequest();
-        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'NULLREF'}"));
-        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'b'}]"));
-        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
-        Response response=mediator.find(fr);
-        System.out.println(response.getEntityData());
-        Assert.assertEquals(1,response.getEntityData().size());
-        Assert.assertEquals("NULLREF",response.getEntityData().get(0).get("_id").asText());
-        JsonNode result=response.getEntityData().get(0).get("level1").get("arr1").get(0).get("ref");
-        Assert.assertTrue(result==null || result instanceof NullNode);
-    }
-
-    @Test
     public void retrieveNestedArrayRef() throws Exception {
         FindRequest fr=new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'ADEEP'}"));
