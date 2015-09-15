@@ -1,0 +1,76 @@
+{
+  "schema": {
+    "access": {
+      "insert": [
+        "insert-perm"
+      ],
+      "update": [
+        "update-perm"
+      ],
+      "find": [
+        "find-perm"
+      ],
+      "delete": [
+        "delete-perm"
+      ]
+    },
+    "fields": {
+      "anArray": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "fields": {
+            "name": {
+              "type": "string",
+              "access": {
+                "insert": [
+                  "insert-perm"
+                ],
+                "update": [
+                  "update-perm"
+                ],
+                "find": [
+                  "find-perm"
+                ],
+                "delete": [
+                  "delete-perm"
+                ]
+              }
+            }
+          }
+        },
+        "access": {
+          "insert": [
+            "insert-perm"
+          ],
+          "update": [
+            "update-perm"
+          ],
+          "find": [
+            "find-perm"
+          ],
+          "delete": [
+            "delete-perm"
+          ]
+        }
+      },
+      "someField": {
+        "type": "string",
+        "access": {
+          "insert": [
+            "insert-perm"
+          ],
+          "update": [
+            "update-perm"
+          ],
+          "find": [
+            "find-perm"
+          ],
+          "delete": [
+            "delete-perm"
+          ]
+        }
+      }
+    }
+  }
+}

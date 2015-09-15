@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -112,8 +113,50 @@ public abstract class AbstractCRUDTestController {
             if (metadataNodes != null) {
                 for (JsonNode metadataJson : metadataNodes) {
                     stripHooks(metadataJson, getHooksToRemove());
+                    if (isGrantAnyoneAccess()) {
+                        grantAnyoneAccess(metadataJson);
+                    }
                     metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
                 }
+            }
+        }
+    }
+
+    /**
+     * Deep dives to set all access levels to 'anyone'.
+     * @param node - root {@link JsonNode}
+     */
+    public static void grantAnyoneAccess(JsonNode node) {
+        doGrantAnyoneAccess(node.get("schema"));
+    }
+
+    /**
+     * <p>Recursive Method!!</p>
+     * <p>Iterates over the {@link JsonNode} to determine if it, or any of it's
+     * sub-documents, has an access node. If so, all access settings will be changed to
+     * 'anyone'</p>
+     * @param node - {@link JsonNode} to set the access to anyone on.
+     */
+    private static void doGrantAnyoneAccess(JsonNode node) {
+        if (node.has("fields")) {
+            JsonNode fieldsNode = node.get("fields");
+            Iterator<JsonNode> fieldNodes = fieldsNode.iterator();
+            while (fieldNodes.hasNext()) {
+                doGrantAnyoneAccess(fieldNodes.next());
+            }
+        }
+
+        if (node.has("items")) {
+            doGrantAnyoneAccess(node.get("items"));
+        }
+
+        if (node.has("access")) {
+            JsonNode accessNode = node.get("access");
+            Iterator<JsonNode> accessNodes = accessNode.iterator();
+            while (accessNodes.hasNext()) {
+                ArrayNode child = (ArrayNode) accessNodes.next();
+                child.removeAll();
+                child.add("anyone");
             }
         }
     }
@@ -190,6 +233,14 @@ public abstract class AbstractCRUDTestController {
      */
     public Set<String> getHooksToRemove() {
         return new HashSet<String>(Arrays.asList(REMOVE_ALL_HOOKS));
+    }
+
+    /**
+     * @return <code>true</code> if access settings on metadata should be altered to
+     * 'anyone', otherwise <code>false</code>. Defaults to <code>true</code>.
+     */
+    public boolean isGrantAnyoneAccess() {
+        return true;
     }
 
     /**
