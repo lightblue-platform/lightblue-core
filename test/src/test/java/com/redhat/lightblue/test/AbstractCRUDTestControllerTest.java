@@ -36,6 +36,15 @@ public class AbstractCRUDTestControllerTest {
     }
 
     @Test
+    public void testEnsureDatasource() throws Exception {
+        JsonNode node = loadJsonNode("./metadata/datasource.json");
+        AbstractCRUDTestController.ensureDatasource(node, "anotherdatasource");
+
+        assertEquals("anotherdatasource", node.get("entityInfo").get(
+                "datastore").get("datasource").asText());
+    }
+
+    @Test
     public void testGrantAnyoneAccess() throws Exception {
         JsonNode node = loadJsonNode("./metadata/access.json");
         AbstractCRUDTestController.grantAnyoneAccess(node);
