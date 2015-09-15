@@ -23,10 +23,12 @@ import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 
 import org.junit.AfterClass;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.Request;
@@ -110,8 +112,50 @@ public abstract class AbstractCRUDTestController {
                     if (datasource != null) {
                         ensureDatasource(metadataJson, datasource);
                     }
+                    if (isGrantAnyoneAccess()) {
+                        grantAnyoneAccess(metadataJson);
+                    }
                     metadata.createNewMetadata(tx.parse(EntityMetadata.class, metadataJson));
                 }
+            }
+        }
+    }
+
+    /**
+     * Deep dives to set all access levels to 'anyone'.
+     * @param node - root {@link JsonNode}
+     */
+    public static void grantAnyoneAccess(JsonNode node) {
+        doGrantAnyoneAccess(node.get("schema"));
+    }
+
+    /**
+     * <p>Recursive Method!!</p>
+     * <p>Iterates over the {@link JsonNode} to determine if it, or any of it's
+     * sub-documents, has an access node. If so, all access settings will be changed to
+     * 'anyone'</p>
+     * @param node - {@link JsonNode} to set the access to anyone on.
+     */
+    private static void doGrantAnyoneAccess(JsonNode node) {
+        if (node.has("fields")) {
+            JsonNode fieldsNode = node.get("fields");
+            Iterator<JsonNode> fieldNodes = fieldsNode.iterator();
+            while (fieldNodes.hasNext()) {
+                doGrantAnyoneAccess(fieldNodes.next());
+            }
+        }
+
+        if (node.has("items")) {
+            doGrantAnyoneAccess(node.get("items"));
+        }
+
+        if (node.has("access")) {
+            JsonNode accessNode = node.get("access");
+            Iterator<JsonNode> accessNodes = accessNode.iterator();
+            while (accessNodes.hasNext()) {
+                ArrayNode child = (ArrayNode) accessNodes.next();
+                child.removeAll();
+                child.add("anyone");
             }
         }
     }
@@ -168,6 +212,14 @@ public abstract class AbstractCRUDTestController {
      */
     protected String getDatasource() {
         return null;
+    }
+
+    /**
+     * @return <code>true</code> if access settings on metadata should be altered to
+     * 'anyone', otherwise <code>false</code>. Defaults to <code>true</code>.
+     */
+    public boolean isGrantAnyoneAccess() {
+        return true;
     }
 
     /**

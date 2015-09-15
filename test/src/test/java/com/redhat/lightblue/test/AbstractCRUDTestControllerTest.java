@@ -18,4 +18,19 @@ public class AbstractCRUDTestControllerTest {
                 "datastore").get("datasource").asText());
     }
 
+    @Test
+    public void testGrantAnyoneAccess() throws Exception {
+        JsonNode node = loadJsonNode("./metadata/access.json");
+        AbstractCRUDTestController.grantAnyoneAccess(node);
+
+        assertEquals("anyone",
+                node.get("schema").get("access").get("insert").get(0).textValue());
+        assertEquals("anyone",
+                node.get("schema").get("fields").get("anArray").get("access").get("insert").get(0).textValue());
+        assertEquals("anyone",
+                node.get("schema").get("fields").get("anArray").get("items").get("fields").get("name").get("access").get("insert").get(0).textValue());
+        assertEquals("anyone",
+                node.get("schema").get("fields").get("someField").get("access").get("insert").get(0).textValue());
+    }
+
 }
