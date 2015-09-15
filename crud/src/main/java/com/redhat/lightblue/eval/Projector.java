@@ -151,6 +151,15 @@ public abstract class Projector {
             Path contextRelativePath = contextPath.isEmpty() ? fieldPath : fieldPath.suffix(-contextPath.numSegments());
             JsonNode fieldNode = cursor.getCurrentNode();
             LOGGER.debug("project context={} fieldPath={} contextRelativePath={} isArray={}", contextPath, fieldPath, contextRelativePath, processingArray);
+            if(contextRelativePath.numSegments()>1) {
+                FieldTreeNode pp=contextNode.resolve(contextRelativePath.prefix(-1));
+                System.out.println("Parent node:"+pp);
+                if(pp instanceof ObjectArrayElement) {
+                    
+                    for(java.util.Iterator<com.redhat.lightblue.metadata.Field> itr=((ObjectArrayElement)pp).getFields().getFields();itr.hasNext();)
+                        System.out.println(itr.next().getName());
+                }
+            }
             FieldTreeNode fieldMd = contextNode.resolve(contextRelativePath);
             if(fieldMd!=null) {
                 Projection.Inclusion result=project(fieldPath,ctx);

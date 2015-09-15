@@ -444,6 +444,14 @@ public class CompositeMetadata extends EntityMetadata {
                     ResolvedReferenceField newField = resolveReference(reference, path, parentEntity, gmd);
                     if (newField != null) {
                         dest.put(newField);
+                    } else {
+                        // Field is not included. Not including the
+                        // field in metadata causes problems if the
+                        // back-end returns it as null, so we insert
+                        // an empty array
+                        ArrayElement el=new ObjectArrayElement();
+                        ArrayField arr=new ArrayField(field.getName(),el);
+                        dest.put(arr);
                     }
                 }
             } finally {
