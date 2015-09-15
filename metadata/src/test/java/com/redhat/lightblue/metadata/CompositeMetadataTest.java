@@ -100,6 +100,14 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void accessToRefTest() throws Exception {
+        EntityMetadata md = getMd("composite/C.json");
+        CompositeMetadata c = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+
+        Assert.assertNotNull(c.resolve(new Path("obj1.d")));
+    }
+    
+    @Test
     public void c_test() throws Exception {
         // C has two children, B and D
         EntityMetadata md = getMd("composite/C.json");

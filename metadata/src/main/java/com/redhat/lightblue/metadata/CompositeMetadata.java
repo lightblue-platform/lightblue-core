@@ -444,7 +444,7 @@ public class CompositeMetadata extends EntityMetadata {
                     ResolvedReferenceField newField = resolveReference(reference, path, parentEntity, gmd);
                     if (newField != null) {
                         dest.put(newField);
-                    }
+                    } 
                 }
             } finally {
                 Error.pop();
