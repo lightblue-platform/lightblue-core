@@ -29,6 +29,8 @@ import org.junit.AfterClass;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.config.DataSourcesConfiguration;
 import com.redhat.lightblue.config.JsonTranslator;
@@ -103,9 +105,13 @@ public abstract class AbstractCRUDTestController {
 
             Metadata metadata = lightblueFactory.getMetadata();
 
+            String datasource = getDatasource();
             JsonNode[] metadataNodes = getMetadataJsonNodes();
             if (metadataNodes != null) {
                 for (JsonNode metadataJson : metadataNodes) {
+                    if (datasource != null) {
+                        ensureDatasource(metadataJson, datasource);
+                    }
                     if (isGrantAnyoneAccess()) {
                         grantAnyoneAccess(metadataJson);
                     }
@@ -192,6 +198,21 @@ public abstract class AbstractCRUDTestController {
      * {@link LightblueFactory} with.
      */
     protected abstract JsonNode[] getMetadataJsonNodes() throws Exception;
+
+    public static void ensureDatasource(JsonNode node, String datasource) {
+        ObjectNode datastoreNode = (ObjectNode) node.get("entityInfo").get("datastore");
+        datastoreNode.replace("datasource", new TextNode(datasource));
+    }
+
+    /**
+     * Override to set the datasource values for all metadata to the returned
+     * value of this method. By default <code>null</code> will be returned
+     * disabling this feature.
+     * @return String name of datasource to use in all metadata.
+     */
+    protected String getDatasource() {
+        return null;
+    }
 
     /**
      * @return <code>true</code> if access settings on metadata should be altered to
