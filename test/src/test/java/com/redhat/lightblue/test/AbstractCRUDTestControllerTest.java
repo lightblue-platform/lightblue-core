@@ -1,0 +1,38 @@
+package com.redhat.lightblue.test;
+
+import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Arrays;
+import java.util.HashSet;
+
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+public class AbstractCRUDTestControllerTest {
+
+    @Test
+    public void testStripHooks_All() throws Exception {
+        JsonNode node = loadJsonNode("./metadata/hooks.json");
+        AbstractCRUDTestController.stripHooks(node,
+                new HashSet<String>(Arrays.asList(
+                        AbstractCRUDTestController.REMOVE_ALL_HOOKS)));
+
+        assertNull(node.get("entityInfo").get("hooks"));
+    }
+
+    @Test
+    public void testStripHooks_Selective() throws Exception {
+        JsonNode node = loadJsonNode("./metadata/hooks.json");
+        AbstractCRUDTestController.stripHooks(node,
+                new HashSet<String>(Arrays.asList("someHook")));
+
+        JsonNode hooksNode = node.get("entityInfo").get("hooks");
+        assertNotNull(hooksNode);
+        assertEquals(2, hooksNode.size());
+    }
+
+}
