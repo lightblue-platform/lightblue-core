@@ -23,7 +23,10 @@ import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.junit.AfterClass;
 
@@ -59,6 +62,8 @@ import com.redhat.lightblue.metadata.Metadata;
  * @author dcrissman
  */
 public abstract class AbstractCRUDTestController {
+
+    public static final String REMOVE_ALL_HOOKS = "ALL";
 
     private static LightblueFactory lightblueFactory;
 
@@ -109,6 +114,7 @@ public abstract class AbstractCRUDTestController {
             JsonNode[] metadataNodes = getMetadataJsonNodes();
             if (metadataNodes != null) {
                 for (JsonNode metadataJson : metadataNodes) {
+                    stripHooks(metadataJson, getHooksToRemove());
                     if (datasource != null) {
                         ensureDatasource(metadataJson, datasource);
                     }
@@ -212,6 +218,41 @@ public abstract class AbstractCRUDTestController {
      */
     protected String getDatasource() {
         return null;
+    }
+
+    /**
+     * Strips out the specified hooks. Pass in 'ALL' or {@link #REMOVE_ALL_HOOKS}
+     * to remove all the hooks on the node.
+     * @param node - root {@link JsonNode}
+     * @param hooksToRemove - {@link Set} of hook names to remove from entityInfo.
+     */
+    public static void stripHooks(JsonNode node, Set<String> hooksToRemove) {
+        ObjectNode entityInfoNode = (ObjectNode) node.get("entityInfo");
+
+        if (!entityInfoNode.has("hooks")) {
+            return;
+        }
+
+        if (hooksToRemove.contains(REMOVE_ALL_HOOKS)) {
+            entityInfoNode.remove("hooks");
+        }
+        else {
+            ArrayNode hooksNode = (ArrayNode) entityInfoNode.get("hooks");
+            for (int x = hooksNode.size(); x > 0; x--) {
+                JsonNode hookNode = hooksNode.get(x - 1);
+                if (hooksToRemove.contains(hookNode.get("name").textValue())) {
+                    hooksNode.remove(x - 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * @return {@link Set} of hook names to remove. By default returns
+     * {@link #REMOVE_ALL_HOOKS}, which will remove all hooks.
+     */
+    public Set<String> getHooksToRemove() {
+        return new HashSet<String>(Arrays.asList(REMOVE_ALL_HOOKS));
     }
 
     /**
