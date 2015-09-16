@@ -31,7 +31,7 @@ import java.util.Objects;
  * Expression that can be on the right side of an assignment operator. It can be
  * a value, a field reference, or an empty object
  * <pre>
- *   rvalue_expression := value | { $valueof : path } | {} | []
+ *   rvalue_expression := value | { $valueof : path } | {...} | [...]
  */
 public class RValueExpression extends JsonObject {
 
@@ -40,8 +40,6 @@ public class RValueExpression extends JsonObject {
     public enum RValueType {
         _value,
         _dereference,
-        _emptyObject,
-        _emptyArray,
         _null
     }
 
@@ -49,33 +47,32 @@ public class RValueExpression extends JsonObject {
     private final Path path;
     private final RValueType type;
 
+    public static final RValueExpression NULL=new RValueExpression(null,null,RValueType._null);
+    
     /**
      * Creates an rvalue expression that is a constant value
      */
     public RValueExpression(Value value) {
-        this.value = value;
-        this.path = null;
-        this.type = RValueType._value;
+        this(value,null,RValueType._value);
     }
 
     /**
      * Creates an rvalue expression that references another field
      */
     public RValueExpression(Path p) {
-        this.type = RValueType._dereference;
-        this.path = p;
-        this.value = null;
+        this(null,p,RValueType._dereference);
     }
 
-    /**
-     * Creates an rvalue expression that is of the specified type
-     */
-    public RValueExpression(RValueType type) {
-        this.type = type;
-        this.path = null;
-        this.value = null;
+    public static RValueExpression nullRValue() {
+        return NULL;
     }
 
+    private RValueExpression(Value value,Path path,RValueType type) {
+        this.value=value;
+        this.path=path;
+        this.type=type;
+    }
+    
     /**
      * The constant value. Null if this rvalue references a field
      */
@@ -106,12 +103,8 @@ public class RValueExpression extends JsonObject {
             ObjectNode node = getFactory().objectNode();
             node.put("$valueof", path.toString());
             return node;
-        case _emptyArray:
-            return getFactory().arrayNode();
-        case _null:
-            return getFactory().nullNode();
         default:
-            return getFactory().objectNode();
+            return getFactory().nullNode();
         }
     }
 
@@ -124,16 +117,17 @@ public class RValueExpression extends JsonObject {
                 JsonNode path = node.get("$valueof");
                 if (path != null && path.isValueNode()) {
                     return new RValueExpression(new Path(path.asText()));
+                } else {
+                    return new RValueExpression(new Value(node));
                 }
             } else {
-                return new RValueExpression(RValueType._emptyObject);
+                return new RValueExpression(new Value(node));
             }
         } if(node instanceof ArrayNode) {
-            if(node.size()==0)
-                return new RValueExpression(RValueType._emptyArray);
+            return new RValueExpression(new Value(node));
         } else if (node.isValueNode()) {
             if (node.asText().equals("$null")) {
-                return new RValueExpression(RValueType._null);
+                return NULL;
             } else {
                 return new RValueExpression(Value.fromJson(node));
             }

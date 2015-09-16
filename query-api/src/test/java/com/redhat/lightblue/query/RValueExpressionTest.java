@@ -19,6 +19,7 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 import org.junit.Test;
@@ -40,8 +41,8 @@ public class RValueExpressionTest {
     @Test
     public void testContructors() {
         //public RValueExpression() {
-        RValueExpression instance = new RValueExpression(RValueExpression.RValueType._emptyObject);
-        Value expResult = null;
+        RValueExpression instance = new RValueExpression(new Value(JsonNodeFactory.instance.objectNode()));
+        Value expResult = new Value(JsonNodeFactory.instance.objectNode());
         Value result = instance.getValue();
         assertEquals(expResult, result);
 
@@ -49,7 +50,7 @@ public class RValueExpressionTest {
         Path pResult = instance.getPath();
         assertEquals(pExpResult, pResult);
 
-        RValueExpression.RValueType rExpResult = RValueExpression.RValueType._emptyObject;
+        RValueExpression.RValueType rExpResult = RValueExpression.RValueType._value;
         RValueExpression.RValueType rResult = instance.getType();
         assertEquals(rExpResult, rResult);
 
@@ -82,7 +83,7 @@ public class RValueExpressionTest {
         assertEquals(rExpResult, rResult);
 
         //public RValueExpression(RValueType type) {
-        instance = new RValueExpression(RValueExpression.RValueType._null);
+        instance = RValueExpression.NULL;
         expResult = null;
         result = instance.getValue();
         assertEquals(expResult, result);
@@ -119,17 +120,18 @@ public class RValueExpressionTest {
 
     @Test
     public void testHashCode() {
-        assertEquals(new RValueExpression(RValueExpression.RValueType._emptyObject).hashCode(), new RValueExpression(RValueExpression.RValueType._emptyObject).hashCode());
+        assertEquals(new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())).hashCode(),
+                     new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())).hashCode());
     }
 
     @Test
     public void testEquals() {
-        assertEquals(new RValueExpression(RValueExpression.RValueType._emptyObject), new RValueExpression(RValueExpression.RValueType._emptyObject));
-        RValueExpression instance = new RValueExpression(RValueExpression.RValueType._emptyObject);
+        assertEquals(new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())),
+                     new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())));
+        RValueExpression instance = new RValueExpression(new Value(JsonNodeFactory.instance.objectNode()));
         assertFalse(instance.equals(null));
         assertFalse(instance.equals(""));
         assertFalse(instance.equals(new RValueExpression(Path.ANYPATH)));
-        assertFalse(instance.equals(new RValueExpression(RValueExpression.RValueType._dereference)));
         assertFalse(instance.equals(new RValueExpression(new Value(this))));
     }
 
