@@ -115,8 +115,10 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
         LOGGER.debug("Checking if {} is explicitly projected", field);
         for (Projection p : projections) {
             Projection.Inclusion inc=p.getFieldInclusion(field);
-            if(inc==Projection.Inclusion.explicit_inclusion)
+            if(inc==Projection.Inclusion.explicit_inclusion) {
+                LOGGER.debug("{} is explicitly projected by {}",field,p);
                 return true;
+            }
         }
         return false;
     }
@@ -125,6 +127,7 @@ public abstract class AbstractGetMetadata implements CompositeMetadata.GetMetada
         LOGGER.debug("Checking if {} is queried", field);
         for (QueryExpression q : queries) {
             if (q.isRequired(field)) {
+                LOGGER.debug("{} is queried by {}",field,q);
                 return true;
             }
         }
