@@ -114,10 +114,10 @@ public class Fields implements Serializable {
 
         try {
             if (p.isIndex(level)) {
-                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
+                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,name+" in "+p.toString());
             }
             if (name.equals(Path.ANY)) {
-                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
+                throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,name+" in "+p.toString());
             }
             if (name.equals(Path.THIS)) {
                 return this.resolve(p, level + 1);
@@ -125,7 +125,7 @@ public class Fields implements Serializable {
 
             Field field = getField(name);
             if (field == null) {
-                throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE);
+                throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,name+" in "+p.toString());
             }
             return field.resolve(p, level + 1);
 
