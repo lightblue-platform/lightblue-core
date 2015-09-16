@@ -239,12 +239,12 @@ public class ArrayAddExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void insert_object_to_array() throws Exception {
-        UpdateExpression expr=EvalTestContext.updateExpressionFromJson("{'$append': {'field7':{'elemf1':'value'}}}");
+        UpdateExpression expr=EvalTestContext.updateExpressionFromJson("{'$insert': {'field7.0':{'elemf1':'value'}}}");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         updater.update(doc, md.getFieldTreeRoot(), new Path());
         JsonNode f7=doc.get(new Path("field7"));
         Assert.assertEquals(5,f7.size());
-        Assert.assertEquals("value",f7.get(4).get("elemf1").asText());
+        Assert.assertEquals("value",f7.get(0).get("elemf1").asText());
         
     }
 
