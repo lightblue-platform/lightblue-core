@@ -19,6 +19,7 @@
 package com.redhat.lightblue.crud.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
@@ -47,7 +48,7 @@ public class MatchesChecker implements FieldConstraintValueChecker {
 
         Matcher matcher = pattern.matcher(fieldValue.asText());
 
-        if(!"".equals(fieldValue.asText()) && !matcher.matches()) {
+        if(!(fieldValue instanceof NullNode)&& !"".equals(fieldValue.asText()) && !matcher.matches()) {
             validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENTITY, fieldValue.asText()));
         }
     }
