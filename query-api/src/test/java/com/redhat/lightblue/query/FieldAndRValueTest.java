@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.query;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
 import com.redhat.lightblue.util.Path;
 import org.junit.Test;
 
@@ -75,7 +77,7 @@ public class FieldAndRValueTest {
         RValueExpression result = instance.getRValue();
         assertEquals(expResult, result);
 
-        expResult = new RValueExpression(RValueExpression.RValueType._value);
+        expResult = new RValueExpression(new Value("X"));
         instance = new FieldAndRValue(null, expResult);
         result = instance.getRValue();
         assertEquals(expResult, result);
@@ -93,7 +95,7 @@ public class FieldAndRValueTest {
         RValueExpression result = instance.getRValue();
         assertEquals(expResult, result);
 
-        expResult = new RValueExpression(RValueExpression.RValueType._emptyObject);
+        expResult = new RValueExpression(new Value(JsonNodeFactory.instance.objectNode()));
         instance.setRValue(expResult);
         result = instance.getRValue();
         assertEquals(expResult, result);

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.CrudConstants;
@@ -134,15 +135,24 @@ public class ArrayAddExpressionEvaluator extends Updater {
         if (element instanceof ObjectArrayElement) {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + " <- " + refPath);
-            } else if (rvalue.getType() != RValueExpression.RValueType._emptyObject) {
-                throw new EvaluationError(CrudConstants.ERR_EXPECTED_OBJECT_VALUE + arrayField);
+            } else {
+                if(rvalue.getType()==RValueExpression.RValueType._value) {
+                    Value v=rvalue.getValue();
+                    if(!(v.getValue() instanceof ObjectNode) &&
+                       !(v.getValue() instanceof ArrayNode) )
+                        throw new EvaluationError(CrudConstants.ERR_EXPECTED_OBJECT_VALUE + arrayField);
+                }
             }
         } else {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + "<-" + refPath);
-            } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject||
-                       rvalue.getType() == RValueExpression.RValueType._emptyArray) {
-                throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE + arrayField);
+            } else {
+                if(rvalue.getType()==RValueExpression.RValueType._value) {
+                    Value v=rvalue.getValue();
+                    if(v.getValue() instanceof ObjectNode ||
+                       v.getValue() instanceof ArrayNode) 
+                        throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE + arrayField);
+                }
             }
         }
     }
@@ -178,12 +188,10 @@ public class ArrayAddExpressionEvaluator extends Updater {
                     }
                 } else if (rvalueData.value != null) {
                     newValue = rvalueData.value.getValue();
-                    newValueNode = fieldMd.getElement().getType().toJson(factory, newValue);
+                    newValueNode = newValue instanceof JsonNode?(JsonNode)newValue:fieldMd.getElement().getType().toJson(factory, newValue);
                     newValueType = fieldMd.getElement().getType();
                 } else if (rvalueData.rvalueType==RValueExpression.RValueType._null) {
                     newValueNode = factory.nullNode();
-                } else {
-                    newValueNode = factory.objectNode();
                 }
                 LOGGER.debug("newValueType:{}, newValue:{}, newValueNode:{} ",newValueType, newValue, newValueNode);
 
