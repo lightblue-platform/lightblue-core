@@ -129,7 +129,7 @@ public class RequiredCheckerTest {
 
         new RequiredChecker().checkConstraint(validator, null, path, constraint, doc);
 
-        verify(validator, never()).addDocError(any(Error.class));
+        verify(validator, times(1)).addDocError(any(Error.class));
     }
 
     /**
