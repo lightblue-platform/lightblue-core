@@ -96,10 +96,12 @@ public class RequiredChecker implements FieldConstraintDocChecker {
             while (cursor.hasNext()) {
                 cursor.next();
                 JsonNode parentObject = cursor.getCurrentValue();
-                LOGGER.debug("Checking {}",cursor.getCurrentKey());
-                JsonNode fieldNode=parentObject.get(fieldName);
-                if (fieldNode == null || fieldNode instanceof NullNode) {
-                    errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
+                if(!(parentObject instanceof NullNode)) {
+                    LOGGER.debug("Checking {}",cursor.getCurrentKey());
+                    JsonNode fieldNode=parentObject.get(fieldName);
+                    if (fieldNode == null || fieldNode instanceof NullNode) {
+                        errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
+                    }
                 }
             }
         }
