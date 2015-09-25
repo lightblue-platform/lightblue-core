@@ -233,7 +233,10 @@ public abstract class AbstractCRUDTestController {
             return;
         }
 
-        if (hooksToRemove.contains(REMOVE_ALL_HOOKS)) {
+        if (hooksToRemove == null) {
+            return;
+        } 
+        else if (hooksToRemove.contains(REMOVE_ALL_HOOKS)) {
             entityInfoNode.remove("hooks");
         }
         else {
