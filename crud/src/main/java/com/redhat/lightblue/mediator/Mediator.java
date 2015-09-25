@@ -461,12 +461,12 @@ public class Mediator {
             List<FieldInfo> fields=query.getQueryFields();
             LOGGER.debug("Checking access for query fields {}",fields);
             for(FieldInfo field:fields) {
-                LOGGER.debug("Access checking field {}",field.getAbsFieldName());
-                if(eval.hasAccess(field.getAbsFieldName(),FieldAccessRoleEvaluator.Operation.find)) {
-                    LOGGER.debug("Field {} is readable",field.getAbsFieldName());
+                LOGGER.debug("Access checking field {}",field.getFieldName());
+                if(eval.hasAccess(field.getFieldName(),FieldAccessRoleEvaluator.Operation.find)) {
+                    LOGGER.debug("Field {} is readable",field.getFieldName());
                 } else {
-                    LOGGER.debug("Field {} is not readable",field.getAbsFieldName());
-                    ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getAbsFieldName().toString()));
+                    LOGGER.debug("Field {} is not readable",field.getFieldName());
+                    ctx.addError(Error.get(CrudConstants.ERR_NO_ACCESS, field.getFieldName().toString()));
                     ctx.setStatus(OperationStatus.ERROR);
                     ret=false;
                 }

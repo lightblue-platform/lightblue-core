@@ -44,19 +44,38 @@ public class ResolvedFieldInfo extends FieldInfo {
      */
     private final EntityMetadata fieldEntityMetadata;
 
-    public ResolvedFieldInfo(FieldInfo x,CompositeMetadata root) {
-        super(x);
-        // This is the field name as it appears in the query
-        Path fld=getAbsFieldName();
-        // Get the field node for the field, interpret field name with respect to root
-        fieldNode=root.resolve(fld);
+    /**
+     * The composite metadata of the entity containing the field
+     */
+    private final CompositeMetadata fieldCmd;
+
+    /**
+     * The field name as it appears in the query
+     */
+    private final Path originalFieldName;
+
+    /**
+     * The query plan node associated with the field
+     */
+    private final QueryPlanNode qnode;
+
+    public ResolvedFieldInfo(FieldInfo x,CompositeMetadata root,ResolvedReferenceField context,QueryPlan qplan) {
+        super(x.getFieldName().normalize(),x.getContext(),x.getClause());
+        originalFieldName=x.getFieldName();
+        // Get the field node for the field, interpret field name with respect to context
+        fieldNode=context==null?root.resolve(x.getFieldName()):context.getElement().resolve(x.getFieldName());
         ResolvedReferenceField rr=root.getResolvedReferenceOfField(fieldNode);
         if(rr==null)
-            fieldEntityMetadata=root;
-        else
+            fieldEntityMetadata=fieldCmd=root;
+        else {
             fieldEntityMetadata=rr.getOriginalMetadata();
-
-        entityRelativeField=root.getEntityRelativeFieldName(fieldNode);
+            fieldCmd=rr.getReferencedMetadata();
+        }
+        entityRelativeField=getEntityRelativeFieldName(fieldNode.getFullPath(),getFieldName(),fieldCmd.getEntityPath());
+        qnode=qplan.getNode(fieldCmd);
+        if(qnode==null)
+            throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata."+
+                                               " field:"+originalFieldName+" Composite metadata:"+fieldCmd);
     }
 
     /**
@@ -78,5 +97,47 @@ public class ResolvedFieldInfo extends FieldInfo {
      */
     public EntityMetadata getFieldEntityMetadata() {
         return fieldEntityMetadata;
+    }
+
+    /**
+     * Returns the entity composite metatada
+     */
+    public CompositeMetadata getFieldEntityCompositeMetadata() {
+        return fieldCmd;
+    }
+
+    public Path getOriginalFieldName() {
+        return originalFieldName;
+    }
+
+    public QueryPlanNode getFieldQueryPlanNode() {
+        return qnode;
+    }
+
+    /**
+     * Path is a normalized field name, like $parent.1.x.y. $parent can only appear at the beggining.
+     * fullPath is the full name of the same field, something like a.b.*.x.y.
+     * We calculate how many non-$parent segments path has, then we get that suffix of path,
+     * remove that many elements from fullPath, and append to get a.b.1.x.y
+     */
+    private static Path removeParents(Path fullPath,Path path) {
+        int pathN=path.numSegments();
+        // We will go backwards until we see $parent or the beginning
+        int nNonParent=0;
+        for(int n=pathN-1;n>=0;n--) {
+            if(path.head(n).equals(Path.PARENT))
+                break;
+            else
+                nNonParent++;
+        }
+        return new Path(fullPath.prefix(-nNonParent),path.suffix(nNonParent));
+    }
+
+    public static Path getEntityRelativeFieldName(Path fullPath, Path path,Path cmdPrefix) {
+        Path normalized=removeParents(fullPath,path);
+        if(cmdPrefix.numSegments()>0)
+            return normalized.suffix(-(cmdPrefix.numSegments()+1));
+        else
+            return normalized;
     }
 }
