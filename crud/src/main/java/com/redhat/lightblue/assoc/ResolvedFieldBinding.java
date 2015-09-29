@@ -79,8 +79,17 @@ public class ResolvedFieldBinding implements Serializable {
     private static final Logger LOGGER=LoggerFactory.getLogger(ResolvedFieldBinding.class);
     
     private final FieldBinding binding;
+    /**
+     * Value type of the bound field
+     */
     private final Type type;
+    /**
+     * The entity relative field name of the field
+     */
     private final Path valueField;
+    /**
+     * The entity of the bound field
+     */
     private final CompositeMetadata entity;
 
     /**
@@ -240,38 +249,13 @@ public class ResolvedFieldBinding implements Serializable {
         }
     }
         
-    public static void refresh(List<ResolvedFieldBinding> bindings,ChildDocReference ref) {
-        for(ResolvedFieldBinding binding:bindings) {
-            binding.refresh(ref);
-        }
-    }
-
     /**
      * Attempts to refresh this binding starting at the given parent document, and ascending to its parents
      */
     public boolean refresh(ChildDocReference ref) {
         ResultDoc doc=ref.getDocument();
         if(doc.getMetadata()==entity) {
-            // Reinterpret the value field using the indexes in refField
-            Path field=valueField.mutableCopy().rewriteIndexes(ref.getReferenceField()).immutableCopy();
-            LOGGER.debug("Refreshing bindings using {}",field);
-            JsonNode valueNode=doc.getDoc().get(field);
-            if(binding instanceof ValueBinding) {
-                    if(valueNode==null)
-                        ((ValueBinding)binding).getValue().setValue(null);
-                    else
-                        ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
-            } else if(binding instanceof ListBinding) {
-                if(valueNode==null) 
-                    ((ListBinding)binding).getList().setList(new ArrayList());
-                else {
-                    List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
-                    for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
-                        l.add(new Value(type.fromJson(itr.next())));
-                    }
-                    ((ListBinding)binding).getList().setList(l);
-                }
-            }
+            refresh(doc,ref.getReferenceField());
             return true;
         } else {
             for(Map.Entry<QueryPlanNode,ChildDocReference> entry: doc.getParentDocs().entrySet()) {
@@ -279,6 +263,40 @@ public class ResolvedFieldBinding implements Serializable {
                     return true;
             }
             return false;
+        }
+    }
+
+    public void refresh(ParentDocReference ref) {
+        ResultDoc doc=ref.getDocument();
+        if(doc.getMetadata()==entity) {
+            refresh(doc.getDoc().get(valueField));            
+        } else
+            throw new RuntimeException("Unsupported binding");
+    }
+
+    public void refresh(ResultDoc doc,Path referenceField) {
+        // Reinterpret the value field using the indexes in refField
+        Path field=valueField.mutableCopy().rewriteIndexes(referenceField).immutableCopy();
+        LOGGER.debug("Refreshing bindings using {}",field);
+        refresh(doc.getDoc().get(field));
+    }
+
+    public void refresh(JsonNode valueNode) {
+        if(binding instanceof ValueBinding) {
+            if(valueNode==null)
+                ((ValueBinding)binding).getValue().setValue(null);
+            else
+                ((ValueBinding)binding).getValue().setValue(type.fromJson(valueNode));
+        } else if(binding instanceof ListBinding) {
+            if(valueNode==null) 
+                ((ListBinding)binding).getList().setList(new ArrayList());
+            else {
+                List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
+                for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
+                    l.add(new Value(type.fromJson(itr.next())));
+                }
+                ((ListBinding)binding).getList().setList(l);
+            }
         }
     }
 }
