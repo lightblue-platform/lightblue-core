@@ -32,19 +32,13 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.FieldProjection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.extensions.ExtensionSupport;
-import com.redhat.lightblue.extensions.Extension;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,73 +67,7 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         }
     }
 
-    private static final class MockCrudController implements CRUDController, ExtensionSupport {
-        CRUDUpdateResponse updateResponse;
-        CRUDSaveResponse saveResponse;
-        CRUDDeleteResponse deleteResponse;
-        CRUDFindResponse findResponse;
-        CRUDInsertionResponse insertResponse;
-        CRUDOperationContext ctx;
-
-        @Override
-        public CRUDInsertionResponse insert(CRUDOperationContext ctx,
-                                            Projection projection) {
-            this.ctx=ctx;
-            return insertResponse;
-        }
-
-        @Override
-        public CRUDSaveResponse save(CRUDOperationContext ctx,
-                                     boolean upsert,
-                                     Projection projection) {
-            this.ctx=ctx;
-            return saveResponse;
-        }
-
-        @Override
-        public CRUDUpdateResponse update(CRUDOperationContext ctx,
-                                         QueryExpression query,
-                                         UpdateExpression update,
-                                         Projection projection) {
-            this.ctx=ctx;
-            return updateResponse;
-        }
-
-        @Override
-        public CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                                         QueryExpression query) {
-            return deleteResponse;
-        }
-
-        @Override
-        public CRUDFindResponse find(CRUDOperationContext ctx,
-                                     QueryExpression query,
-                                     Projection projection,
-                                     Sort sort,
-                                     Long from,
-                                     Long to) {
-            return findResponse;
-        }
-
-        @Override
-        public MetadataListener getMetadataListener() {
-            return null;
-        }
-
-        @Override
-        public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
-
-        @Override
-        public <E extends Extension> E  getExtensionInstance(Class<? extends Extension> extensionClass) {
-            if(extensionClass.equals(ValueGeneratorSupport.class)) {
-                return (E)new MockValueGeneratorSupport();
-            } else
-                return null;
-        }
-
-    }
-
-    private static class MockValueGeneratorSupport implements ValueGeneratorSupport {
+    static class MockValueGeneratorSupport implements ValueGeneratorSupport {
         public static int v=0;
         
         @Override
