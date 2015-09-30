@@ -142,13 +142,13 @@ public class QueryPlanNodeExecutor {
     }
 
     /**
-     * Returns true if this query plan node executor produces documents that are contained in 'node'
-     * If node is a source of the current node, returning 'true' from this function means that the parent
+     * Returns true if this query plan node executor produces documents that are contained in 'otherNode'
+     * If otherNode is a source of the current node, returning 'true' from this function means that the parent
      * node documents are to be contained in this node documents
      * 
      */
-    private boolean isParentOfThis(QueryPlanNode node) {
-    	return node.getMetadata().getParent()==node.getMetadata();
+    private boolean isParentOfThis(QueryPlanNode otherNode) {
+    	return node.getMetadata().getParent()==otherNode.getMetadata();
     }
    
 

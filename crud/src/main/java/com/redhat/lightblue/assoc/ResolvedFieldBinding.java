@@ -258,7 +258,7 @@ public class ResolvedFieldBinding implements Serializable {
             refresh(doc,ref.getReferenceField());
             return true;
         } else {
-            for(Map.Entry<QueryPlanNode,ChildDocReference> entry: doc.getParentDocs().entrySet()) {
+            for(Map.Entry<CompositeMetadata,ChildDocReference> entry: doc.getParentDocs().entrySet()) {
                 if(refresh(entry.getValue()))
                     return true;
             }
