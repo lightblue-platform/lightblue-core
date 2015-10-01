@@ -1,0 +1,37 @@
+{
+  "migrationDate": "20150929T14:08:44.831-0400",
+  "lastUpdatedBy": "admin",
+  "lastUpdateDate": "20150929T14:08:44.831-0400",
+  "simpleUserId": 1,
+  "creationDate": "20150929T14:08:44.831-0400",
+  "authentications": [
+    {
+      "principal": "LOGIN1",
+      "uid": "7fde2145-5739-46f8-8f6c-058fbc7a1093",
+      "providerName": "Red Hat"
+    }
+  ],
+  "migratedFrom": "migrated",
+  "createdBy": "admin",
+  "legalEntities": [
+    {
+      "uid": "9bfaedbd-f4ad-47f1-a656-0213a590d8b4",
+      "legalEntityId": 0,
+      "permissions": [
+        {
+          "uid": null,
+          "startDate": "20150929T14:08:45.072-0400",
+          "endDate": "20150929T14:08:44.957-0400",
+          "permissionCode": "group",
+          "accessLevel": "admin"
+        }
+      ],
+      "startDate": "20150929T14:08:44.831-0400"
+    }
+  ],
+  "_id": 1,
+  "status": "enabled",
+  "objectType": "user",
+  "authentications#": 1,
+  "legalEntities#": 1
+}

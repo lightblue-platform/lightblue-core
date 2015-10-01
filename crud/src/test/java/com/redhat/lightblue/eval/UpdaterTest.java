@@ -123,6 +123,19 @@ public class UpdaterTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(1,jsonDoc.get(new Path("field7")).size());
     }
+    
+    @Test
+    public void null_nested_array_append() throws Exception {
+        // Set field11.0.arr. to null
+        jsonDoc.modify(new Path("field11.0.arr"), null, true);
+        Assert.assertNull(jsonDoc.get(new Path("field11.0.arr")));
+
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field11.0.arr' : { 'id':1, 'x1':'x1_1'} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        updater.update(jsonDoc, md.getFieldTreeRoot(), new Path());
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field11.0.arr")).size());
+    }
 
     @Test
     public void null_array_set() throws Exception {

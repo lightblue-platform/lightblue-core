@@ -216,7 +216,7 @@ public class ArrayAddExpressionEvaluator extends Updater {
                 // We have to rewrite the array indexes in arraySizeField using
                 // the context path
                 MutablePath p = new MutablePath(arraySizeField);
-                p.rewriteIndexes(contextPath);
+                p.rewriteIndexes(absPath);
                 LOGGER.debug("Setting {} = {}", p, arrayNode.size());
                 doc.modify(p, factory.numberNode(arrayNode.size()), false);
             }
