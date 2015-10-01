@@ -40,7 +40,7 @@ public class GeneratedFieldInterceptor implements CRUDDocInterceptor, MediatorIn
         mgr.registerInterceptor(GEN_SEQ, this,
                                 InterceptPoint.PRE_CRUD_INSERT_DOC,
                                 InterceptPoint.PRE_MEDIATOR_SAVE,
-                                InterceptPoint.PRE_CRUD_UPDATE_DOC,
+                                InterceptPoint.PRE_CRUD_UPDATE_DOC_VALIDATION,
                                 InterceptPoint.PRE_MEDIATOR_INSERT);
     }
 
