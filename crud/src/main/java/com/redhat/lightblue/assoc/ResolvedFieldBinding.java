@@ -42,6 +42,7 @@ import com.redhat.lightblue.query.NaryFieldRelationalExpression;
 import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
+import com.redhat.lightblue.query.ArrayMatchExpression;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.MapQueryFieldsIterator;
 import com.redhat.lightblue.metadata.Type;
@@ -140,13 +141,86 @@ public class ResolvedFieldBinding implements Serializable {
 
     public static class RelativeRewriter extends MapQueryFieldsIterator {
         private final Conjunct conjunct;
+        private final CompositeMetadata root;
+        private final CompositeMetadata thisMd;
+        // Once passed through an elemMatch expression
+        // this can be set to a nonzero value to only include a
+        // certain suffix of field names
+        private int relativeSuffixLength=0;
         
-        public RelativeRewriter(Conjunct c) {
+        public RelativeRewriter(Conjunct c,CompositeMetadata root,CompositeMetadata thisMd) {
             this.conjunct=c;
+            this.root=root;
+            this.thisMd=thisMd;
         }
+
+        /**
+         * Array match expressions require special treatment when converting a query to relative.
+         * Relative query may require removing the array clause to open up the elemMatch clause.
+         * This is the case if, for instance, the clause is { array: a.b.c, elemMatch:{ } }, and 
+         * a.b.c is a reference to the current entity.
+         */
+        @Override
+        protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
+            // When this is called, any field in the query that belongs to a different
+            // entity should already be bound. So, (array + field) always points to the current
+            // entity for which this query is being rewritten. How the array field defined
+            // determines the outcome. If array field points to an array in this entity, we 
+            // rewrite the query by getting a suffix of the array. If array field points to
+            // an array in a parent entity, or if the array field points to the
+            // reference field, this is no longer an elemMatch query. We return the
+            // nested query instead.
+        	Path arrayName=context.isEmpty()?q.getArray():new Path(context,q.getArray());
+        	// Find a field with the array name as the prefix
+        	ResolvedFieldInfo arrayDescendant=null;
+        	for(ResolvedFieldInfo rfi:conjunct.getFieldInfo()) {
+        		Path p=rfi.getOriginalFieldName();
+        		if(arrayName.matchingPrefix(p)) {
+        			arrayDescendant=rfi;
+        			break;
+        		}
+        	}
+        	if(arrayDescendant==null)
+        		throw new RuntimeException("Unknown field:"+arrayName);
+        	// arrayDescendant is a field in the query with the array being the prefix. From here, we can figure out which entity array belongs to
+        	CompositeMetadata fmd=arrayDescendant.getFieldEntityCompositeMetadata();
+        	while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
+        		fmd=fmd.getParent();
+        	CompositeMetadata arrayMd=fmd;
+        	
+            Path absoluteArray=arrayMd.getParent()!=null?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
+            if(arrayMd==thisMd) {
+                // Convert array to relative, and return an elem match query
+                Path arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
+                QueryExpression newq = iterate(q.getElemMatch(),
+                                               new Path(new Path(context, arrayPath), Path.ANYPATH));
+                
+                return new ArrayMatchExpression(arrayPath,newq);
+            } else {
+                // This is no longer an array match expression.
+                // We need to find out where the entity boundary is crossed
+                // So if the fields are like this, where c is a reference:
+                //   a . b . c | d . e . f
+                // and if the query is something like:
+                //   { array: a.b, elemMatch{ field: c.d.e } }
+                // then, the relative query is
+                //    {field: d.e }
+                // So: first find the length of the portion remaining in the other entity
+                int delta=thisMd.getEntityPath().numSegments() - absoluteArray.numSegments();
+                // We need to cut a prefix of 'delta' length from all fields
+                relativeSuffixLength+=delta;
+                QueryExpression ret=iterate(q.getElemMatch(),context);
+                relativeSuffixLength-=delta;
+                return ret;
+            }
+        }
+
+        
         @Override
         protected Path map(Path p) {
-            Path x=conjunct.mapOriginalFieldName(p);
+            // Get a relative suffix
+            Path suffix=relativeSuffixLength>0?p.suffix(-relativeSuffixLength):p;
+            Path x=conjunct.mapOriginalFieldName(suffix);
             // If path is unchanged, return null, so the clause is kept unmodified
             if(x==p)
                 return null;
@@ -213,7 +287,7 @@ public class ResolvedFieldBinding implements Serializable {
                                                               rfi.getFieldQueryPlanNode().getMetadata()));
                     }
                 }
-                RelativeRewriter rw=new RelativeRewriter(conjunct);
+                RelativeRewriter rw=new RelativeRewriter(conjunct,root,atNode.getMetadata());
                 boundQueries.add(rw.iterate(boundQuery));
             }
             

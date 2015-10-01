@@ -114,7 +114,7 @@ public class QueryPlanNodeExecutor {
         List<Conjunct> clauses=node.getData().getConjuncts();
         if(clauses!=null) {
             for(Conjunct c:clauses) {
-                queryClauses.add(new ResolvedFieldBinding.RelativeRewriter(c).iterate(c.getClause()));
+                queryClauses.add(new ResolvedFieldBinding.RelativeRewriter(c,root,node.getMetadata()).iterate(c.getClause()));
             }
         }
       
