@@ -122,7 +122,7 @@ public class CompositeFindImpl implements Finder {
         if(query!=null) {
             List<FieldInfo> lfi=query.getQueryFields();
             for(FieldInfo fi:lfi) {
-                CompositeMetadata e=md.getEntityOfPath(fi.getAbsFieldName());
+                CompositeMetadata e=md.getEntityOfPath(fi.getFieldName());
                 if(e!=md)
                     entities.add(e);
             }

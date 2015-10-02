@@ -128,7 +128,7 @@ public class FieldInfoTest {
             Path ctx = new Path(paths[i + 1]);
             boolean found = false;
             for (FieldInfo fi : fields) {
-                if (fi.getAbsFieldName().equals(field) && fi.getContext().equals(ctx)) {
+                if (fi.getFieldName().equals(field) && fi.getContext().equals(ctx)) {
                     found = true;
                     break;
                 }

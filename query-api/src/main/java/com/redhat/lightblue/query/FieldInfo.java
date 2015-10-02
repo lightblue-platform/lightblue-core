@@ -29,21 +29,21 @@ import java.io.Serializable;
 public class FieldInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Path absFieldName;
+    private final Path fieldName;
     private final Path context;
     private final QueryExpression clause;
 
     /**
      * Constructs the field info with the given information
      *
-     * @param absFieldName Absolute field name
+     * @param absFieldName Field name
      * @param context The context path under which the field is interpreted
      * @param clause The query clause containing the field
      */
-    public FieldInfo(Path absFieldName,
+    public FieldInfo(Path fieldName,
                      Path context,
                      QueryExpression clause) {
-        this.absFieldName = absFieldName;
+        this.fieldName = fieldName;
         this.context = context;
         this.clause = clause;
     }
@@ -52,14 +52,14 @@ public class FieldInfo implements Serializable {
      * Copy ctor, shallow copy
      */
     public FieldInfo(FieldInfo f) {
-        this(f.absFieldName, f.context, f.clause);
+        this(f.fieldName, f.context, f.clause);
     }
 
     /**
-     * Returns the absolute field name
+     * Returns the field name
      */
-    public Path getAbsFieldName() {
-        return absFieldName;
+    public Path getFieldName() {
+        return fieldName;
     }
 
     /**
@@ -77,6 +77,6 @@ public class FieldInfo implements Serializable {
     }
 
     public String toString() {
-        return absFieldName + "@(" + clause + ")";
+        return fieldName + "@(" + clause + ")";
     }
 }

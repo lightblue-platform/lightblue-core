@@ -144,7 +144,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return Sort.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
     }
 
-   @Test
+    @Test
     public void sanityCheck() throws Exception {
         FindRequest fr=new FindRequest();
         fr.setQuery(query("{'field':'_id','op':'=','rvalue':'A01'}"));
@@ -198,7 +198,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         fr.setQuery(query("{'field':'objectType','op':'=','rvalue':'A'}"));
         Response response2=mediator.find(fr);
-                        
+                      
         Assert.assertEquals(response2.getEntityData().size(),response.getEntityData().size());
     }
 
@@ -231,7 +231,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         // This one must have C -> A
         Assert.assertEquals(1,qplan.getSources().length);
         Assert.assertEquals("C",qplan.getSources()[0].getMetadata().getName());
-   }
+    }
 
     @Test
     public void retrieveAandBonly_2q() throws Exception {
@@ -357,7 +357,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     public void deepRoles() throws Exception {
         DefaultMetadataResolver r=new DefaultMetadataResolver(new TestMetadata());
         r.initialize("parent_w_elem_w_roles","1.0.0",query("{'field':'code1','op':'=','rvalue':'A'}"),projection("{'field':'relationships.*','recursive':1}"));
-        
+       
         System.out.println(r.getMetadataRoles());
         Assert.assertTrue(r.getMetadataRoles().contains("a"));
         Assert.assertTrue(r.getMetadataRoles().contains("b"));

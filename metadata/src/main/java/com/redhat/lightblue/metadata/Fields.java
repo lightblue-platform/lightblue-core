@@ -115,12 +115,15 @@ public class Fields implements Serializable {
         try {
             if (p.isIndex(level)) {
                 throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,name+" in "+p.toString());
-            }
-            if (name.equals(Path.ANY)) {
+            } else if (name.equals(Path.ANY)) {
                 throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE,name+" in "+p.toString());
-            }
-            if (name.equals(Path.THIS)) {
+            } else if (name.equals(Path.THIS)) {
                 return this.resolve(p, level + 1);
+            } else if(name.equals(Path.PARENT)) {
+                if(parent!=null&&!(parent instanceof EntitySchema.RootNode))
+                    return parent.resolve(p,level); // Delegate full resolution to the parent.
+                else
+                    throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,name+" in "+p.toString());
             }
 
             Field field = getField(name);

@@ -223,8 +223,6 @@ public class CompositeMetadata extends EntityMetadata {
         Error.push("compositeMetadata");
         try {
             CompositeMetadata cmd = buildCompositeMetadata(root, gmd, new Path(), null, new MutablePath());
-            // Re-process all resolved references, rewrite their queries in absolute form
-            rewriteAssociationQueries(cmd);
             return cmd;
         } finally {
             LOGGER.debug("end buildCompositeMetadata");
@@ -347,26 +345,6 @@ public class CompositeMetadata extends EntityMetadata {
         }
     }
 
-    private static QueryExpression rewriteQuery(QueryExpression q, ResolvedReferenceField rr) {
-        return new AbsRewriteItr(rr.getElement()).iterate(q);
-    }
-
-    /**
-     * Recursively rewrites the association queries to replace all relative
-     * field references to absolute field references
-     */
-    private static void rewriteAssociationQueries(CompositeMetadata root) {
-        Set<Path> children = root.getChildPaths();
-        for (Path child : children) {
-            ResolvedReferenceField rr = root.getChildReference(child);
-            QueryExpression aq = rr.getReferenceField().getQuery();
-            if (aq != null) {
-                rr.setAbsQuery(rewriteQuery(aq, rr));
-                LOGGER.debug("Rewrote association query {} from root {} as {}", aq, root.getName(), rr.getAbsQuery());
-            }
-            rewriteAssociationQueries(rr.getReferencedMetadata());
-        }
-    }
 
     /**
      * Copy fields from source to dest.

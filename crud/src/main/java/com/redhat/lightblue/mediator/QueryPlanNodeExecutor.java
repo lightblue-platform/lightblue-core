@@ -109,22 +109,15 @@ public class QueryPlanNodeExecutor {
         QueryPlanNode[] sourceNodes=node.getSources();
         for(QueryPlanNode s:sourceNodes)
             sources.add(s.getProperty(QueryPlanNodeExecutor.class));
-        List<QueryExpression> queryClauses=new ArrayList<>();
 
-        // Rewrite node conjuncts relative to this node
+        List<QueryExpression> queryClauses=new ArrayList<>();
         List<Conjunct> clauses=node.getData().getConjuncts();
         if(clauses!=null) {
-            RelativeRewriteIterator rritr=new RelativeRewriteIterator(new Path(node.getMetadata().getEntityPath(),
-                                                                               Path.ANYPATH));
             for(Conjunct c:clauses) {
-                if(node.getMetadata().getParent()==null) {
-                    queryClauses.add(c.getClause());
-                } else {
-                    queryClauses.add(rritr.iterate(c.getClause()));
-                }
+                queryClauses.add(new ResolvedFieldBinding.RelativeRewriter(c).iterate(c.getClause()));
             }
         }
-
+      
         // Rewrite source edge conjuncts relative to this node, and keep binding information
         for(QueryPlanNode d:sourceNodes) {
             QueryPlanData edgeData=qplan.getEdgeData(node,d);

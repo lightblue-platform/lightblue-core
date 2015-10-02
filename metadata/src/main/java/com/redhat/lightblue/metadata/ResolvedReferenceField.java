@@ -30,7 +30,6 @@ public class ResolvedReferenceField extends ArrayField {
     private final ReferenceField reference;
     private final CompositeMetadata metadata;
     private final EntityMetadata originalMetadata;
-    private QueryExpression absQuery;
 
     public ResolvedReferenceField(ReferenceField reference,
                                   EntityMetadata originalMetadata,
@@ -57,23 +56,5 @@ public class ResolvedReferenceField extends ArrayField {
      */
     public EntityMetadata getOriginalMetadata() {
         return originalMetadata;
-    }
-
-    /**
-     * Returns the query of the reference, reinterpreted based on the resolved
-     * reference. All relative references in the original query are replaced by
-     * absolute field references.
-     */
-    public QueryExpression getAbsQuery() {
-        return absQuery;
-    }
-
-    /**
-     * Sets the query of the reference, reinterpreted based on the resolved
-     * reference. All relative references in the original query are replaced by
-     * absolute field references.
-     */
-    public void setAbsQuery(QueryExpression q) {
-        absQuery = q;
     }
 }

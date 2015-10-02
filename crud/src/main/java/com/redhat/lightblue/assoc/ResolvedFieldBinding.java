@@ -18,13 +18,13 @@
  */
 package com.redhat.lightblue.assoc;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-
 import java.io.Serializable;
 
 import org.slf4j.Logger;
@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import com.redhat.lightblue.query.FieldBinding;
 import com.redhat.lightblue.query.ValueBinding;
 import com.redhat.lightblue.query.ListBinding;
@@ -44,12 +43,11 @@ import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.query.Value;
-
+import com.redhat.lightblue.query.MapQueryFieldsIterator;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ArrayField;
-
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.KeyValueCursor;
@@ -112,10 +110,11 @@ public class ResolvedFieldBinding implements Serializable {
     /**
      * Construct a resolved field binding using the given binding and the root composite metadata
      */
-    public ResolvedFieldBinding(FieldBinding b,
-                                CompositeMetadata root) {
+    public ResolvedFieldBinding(Path fieldName,
+                                FieldBinding b,
+                                CompositeMetadata emd) {
         this.binding=b;
-        FieldTreeNode field=root.resolve(b.getField());
+        FieldTreeNode field=emd.resolve(fieldName);
         if(field==null)
             throw Error.get(AssocConstants.ERR_CANNOT_FIND_FIELD,b.getField().toString());
         if(b instanceof ListBinding) {
@@ -126,8 +125,25 @@ public class ResolvedFieldBinding implements Serializable {
         } else {
             this.type=field.getType();
         }
-        this.entity=root.getEntityOfField(field);
-        this.valueField=root.getEntityRelativeFieldName(field);
+        this.entity=emd.getEntityOfField(field);
+        this.valueField=emd.getEntityRelativeFieldName(field);
+    }
+
+    public static class RelativeRewriter extends MapQueryFieldsIterator {
+        private final Conjunct conjunct;
+        
+        public RelativeRewriter(Conjunct c) {
+            this.conjunct=c;
+        }
+        @Override
+        protected Path map(Path p) {
+            Path x=conjunct.mapOriginalFieldName(p);
+            // If path is unchanged, return null, so the clause is kept unmodified
+            if(x==p)
+                return null;
+            else
+                return x;  
+        }
     }
 
     /**
@@ -145,85 +161,65 @@ public class ResolvedFieldBinding implements Serializable {
                                   CompositeMetadata root) {
         BindResult ret = null;
         if(clauses!=null&&!clauses.isEmpty()) {
-            QueryExpression query;
-            if(clauses.size()==1) {
-                query=clauses.get(0).getClause();
-            } else {
-                List<QueryExpression> cl=new ArrayList<>(clauses.size());
-                for(Conjunct c:clauses)
-                    cl.add(c.getClause());
-                query=new NaryLogicalExpression(NaryLogicalOperator._and,cl);
-            }
+            List<ResolvedFieldBinding> bindings = new ArrayList<>();
+            List<QueryExpression> boundQueries=new ArrayList<>();
+            for(Conjunct conjunct:clauses) {
+                LOGGER.debug("Resolving bindings for {}",conjunct);
+                QueryExpression query=conjunct.getClause();
+                List<QueryInContext> bindable=query.getBindableClauses();
+                LOGGER.debug("Bindable clauses:{}",bindable);
 
-            LOGGER.debug("Resolving bindings for {}",query);
-            List<QueryInContext> bindable=query.getBindableClauses();
-            LOGGER.debug("Bindable clauses:{}",bindable);
+                // default the bound query to input query
+                QueryExpression boundQuery = query;
+                
+                if(!bindable.isEmpty()) {
+                    LOGGER.debug("Building bind request");
+                    Set<Path> bindRequest=new HashSet<>();
+                    for(QueryInContext qic:bindable) {
+                        if(qic.getQuery() instanceof FieldComparisonExpression) {
+                            FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
+                            Path lfield=new Path(qic.getContext(),fce.getField());
+                            Path rfield=new Path(qic.getContext(),fce.getRfield());
+                            ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
+                            bindRequest.add(f.getOriginalFieldName());
+                        } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
+                            NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
+                            Path lfield=new Path(qic.getContext(),nfr.getField());
+                            Path rfield=new Path(qic.getContext(),nfr.getRfield());
+                            ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
+                            bindRequest.add(f.getOriginalFieldName());
+                        }
+                    }
 
-            // default the bound query to input query
-            QueryExpression boundQuery = query;
-            List<ResolvedFieldBinding> bindings = null;
-
-            if(!bindable.isEmpty()) {
-                LOGGER.debug("Building bind request");
-                Set<Path> bindRequest=new HashSet<>();
-                for(QueryInContext qic:bindable) {
-                    if(qic.getQuery() instanceof FieldComparisonExpression) {
-                        FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
-                        Path lfield=new Path(qic.getContext(),fce.getField());
-                        Path rfield=new Path(qic.getContext(),fce.getRfield());
-                        bindRequest.add(getFieldToBind(lfield,rfield,clauses,atNode));
-                    } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
-                        NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
-                        Path lfield=new Path(qic.getContext(),nfr.getField());
-                        Path rfield=new Path(qic.getContext(),nfr.getRfield());
-                        bindRequest.add(getFieldToBind(lfield,rfield,clauses,atNode));
+                    LOGGER.debug("Bind fields:{}",bindRequest);
+                    List<FieldBinding> fb=new ArrayList<>();               
+                    // get the bound query
+                    boundQuery=query.bind(fb,bindRequest);
+                    
+                    // collect bindings
+                    for(FieldBinding b:fb) {
+                        ResolvedFieldInfo rfi=conjunct.getFieldInfoByOriginalFieldName(b.getField());
+                        bindings.add(new ResolvedFieldBinding(rfi.getEntityRelativeFieldName(),
+                                                              b,
+                                                              rfi.getFieldQueryPlanNode().getMetadata()));
                     }
                 }
-                
-                LOGGER.debug("Bind fields:{}",bindRequest);
-                List<FieldBinding> fb=new ArrayList<>();
-
-                // get the bound query
-                boundQuery=query.bind(fb,bindRequest);
-
-                // collect bindings
-                bindings=new ArrayList<>();
-                for(FieldBinding b:fb) {
-                    bindings.add(new ResolvedFieldBinding(b,root));
-                }
+                RelativeRewriter rw=new RelativeRewriter(conjunct);
+                boundQueries.add(rw.iterate(boundQuery));
             }
-
-            // note if there was nothing bindable:
-            // * field 'boundQuery' equals 'query'
-            // * field 'bindings' equals null
-
-            LOGGER.debug("Bound query:{}",boundQuery);
-            // If destination node is not the root node, we need to rewrite the query relative to that node
-            // Otherwise, absolute query will work for the root node
-            QueryExpression runExpression;
-            if(atNode.getMetadata().getParent()==null) {
-                runExpression=boundQuery;
+            
+            QueryExpression query;
+            if(boundQueries.size()==1) {
+                query=boundQueries.get(0);
             } else {
-                runExpression=new RelativeRewriteIterator(new Path(atNode.getMetadata().getEntityPath(),
-                        Path.ANYPATH)).iterate(boundQuery);
+                query=new NaryLogicalExpression(NaryLogicalOperator._and,boundQueries);
             }
-            LOGGER.debug("Run expression:{}",runExpression);
-            ret=new BindResult(bindings,runExpression);
+            
+            LOGGER.debug("Bound query:{}",query);
+            ret=new BindResult(bindings,query);
         }
 
         return ret;
-    }
-
-    /**
-     * Returns the query plan node of the field. The query plan node is extracted from the clauses
-     */
-    private static QueryPlanNode getQueryPlanNodeOfField(Path field,List<Conjunct> clauses) {
-        for(Conjunct c:clauses) {
-            QueryPlanNode fieldNode=c.getFieldNode(field);
-            if(fieldNode!=null)
-                return fieldNode;
-        }
-        return null;
     }
 
     /**
@@ -232,20 +228,18 @@ public class ResolvedFieldBinding implements Serializable {
      * an ancestor of the current node, so we bind the field that
      * belongs to an ancestor.
      */
-    private static Path getFieldToBind(Path lfield,Path rfield,List<Conjunct> clauses,QueryPlanNode atNode) {
-        QueryPlanNode lfieldNode=getQueryPlanNodeOfField(lfield,clauses);
-        QueryPlanNode rfieldNode=getQueryPlanNodeOfField(rfield,clauses);
-        LOGGER.debug("lfield={}, rfield={}",lfieldNode==null?null:lfieldNode.getName(),
-                     rfieldNode==null?null:rfieldNode.getName());
+    private static ResolvedFieldInfo getFieldToBind(Path lfield,Path rfield,Conjunct clause,QueryPlanNode atNode) {
+        ResolvedFieldInfo lInfo=clause.getFieldInfoByOriginalFieldName(lfield);
+        ResolvedFieldInfo rInfo=clause.getFieldInfoByOriginalFieldName(rfield);
         // If lfieldNode points to the destination node,
         // rfieldNode points to an ancestor, or vice versa
-        if(lfieldNode!=null&&lfieldNode.getName().equals(atNode.getName())) {
-            return rfield;
+        if(lInfo.getFieldQueryPlanNode().getName().equals(atNode.getName())) {
+            return rInfo;
         } else {
-            return lfield;
+            return lInfo;
         }
     }
-
+        
     public static void refresh(List<ResolvedFieldBinding> bindings,ChildDocReference ref) {
         for(ResolvedFieldBinding binding:bindings) {
             binding.refresh(ref);
