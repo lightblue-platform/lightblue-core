@@ -275,7 +275,6 @@ public class QueryPlanNodeExecutor {
             if(parents!=null&&!parents.isEmpty()) {
                 for(DocReference parent:parents) {
                     if(parent instanceof ChildDocReference) {
-                        QueryPlanNode parentNode=parent.getDocument().getQueryPlanNode();
                         LOGGER.debug("Adding document to its parent");
                         resultDoc.setParentDoc(parent.getDocument().getQueryPlanNode(),(ChildDocReference)parent);
                         ((ChildDocReference)parent).getChildren().add(resultDoc);
