@@ -69,6 +69,7 @@ public class InterceptPoint implements Serializable {
     public static final MediatorInterceptPoint POST_MEDIATOR_SAVE = new MediatorInterceptPoint(11);
     public static final CRUDControllerInterceptPoint PRE_CRUD_SAVE = new CRUDControllerInterceptPoint(12);
     public static final CRUDControllerInterceptPoint POST_CRUD_SAVE = new CRUDControllerInterceptPoint(13);
+    public static final CRUDDocInterceptPoint PRE_CRUD_UPDATE_DOC_VALIDATION = new CRUDDocInterceptPoint(16);
     public static final CRUDDocInterceptPoint PRE_CRUD_UPDATE_DOC = new CRUDDocInterceptPoint(14);
     public static final CRUDDocInterceptPoint POST_CRUD_UPDATE_DOC = new CRUDDocInterceptPoint(15);
 

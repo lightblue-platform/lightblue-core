@@ -27,6 +27,10 @@ public class MapQueryFieldsIterator extends QueryIterator {
 
     /**
      * Override this method to map fields.
+     *
+     * The method should return a non-null path if p is to be
+     * modified. It is returns null, the original p in the expression
+     * is used.
      */
     protected Path map(Path p) {
         return p;

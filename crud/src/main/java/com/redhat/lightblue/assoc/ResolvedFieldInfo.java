@@ -133,6 +133,13 @@ public class ResolvedFieldInfo extends FieldInfo {
         return new Path(fullPath.prefix(-nNonParent),path.suffix(nNonParent));
     }
 
+    /**
+     * Rewrites a field name relative to its entity.
+     *
+     * @param fullPath the fullpath of the field name
+     * @param path The field name as it appears in an expression. suffix of this should be the same as fullPath
+     * @param cmdPrefix The metadata entity path for the composite metadata containing the field
+     */
     public static Path getEntityRelativeFieldName(Path fullPath, Path path,Path cmdPrefix) {
         Path normalized=removeParents(fullPath,path);
         if(cmdPrefix.numSegments()>0)
