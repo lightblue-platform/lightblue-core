@@ -72,8 +72,9 @@ public abstract class QueryExpression extends JsonObject {
 
         @Override
         protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getArray()), ctx, q));
-            return super.itrArrayMatchExpression(q, ctx);
+            // Array match expression does not have the array itself as a field.
+            // All the fields references in the nested expression are the fields used by this expression
+            return super.itrArrayMatchExpression(q,ctx);
         }
 
         @Override

@@ -61,6 +61,7 @@ import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryPlanChooser;
 import com.redhat.lightblue.assoc.ResultDoc;
+import com.redhat.lightblue.assoc.DocReference;
 import com.redhat.lightblue.assoc.ChildDocReference;
 
 import com.redhat.lightblue.assoc.scorers.SimpleScorer;
@@ -86,8 +87,6 @@ public class CompositeFindImpl implements Finder {
     private final CompositeMetadata root;
     private final Factory factory;
 
-    private final Map<DocId,JsonDoc> documentCache=new HashMap<>();
-    
     private final List<Error> errors=new ArrayList<>();
 
     public CompositeFindImpl(CompositeMetadata md,
@@ -105,7 +104,7 @@ public class CompositeFindImpl implements Finder {
         
         //  Setup execution data for each node
         for(QueryPlanNode x:qplan.getAllNodes())
-            x.setProperty(QueryPlanNodeExecutor.class,new QueryPlanNodeExecutor(x,factory,root,documentCache));
+            x.setProperty(QueryPlanNodeExecutor.class,new QueryPlanNodeExecutor(x,factory,root));
         
         // setup edges between execution data
         for(QueryPlanNode x:qplan.getAllNodes()) {
@@ -282,18 +281,21 @@ public class CompositeFindImpl implements Finder {
     }
 
     private void retrieveFragments(ResultDoc doc) {
-        for(List<ChildDocReference> children:doc.getChildren().values()) {
+        for(List<DocReference> children:doc.getChildren().values()) {
             if(children!=null) {
-                for(ChildDocReference ref:children) {
-                    Path insertInto=ref.getReferenceField();
-                    JsonNode insertionNode=doc.getDoc().get(insertInto);
-                    LOGGER.debug("Inserting reference {} to {} with {} docs",ref,insertInto,ref.getChildren().size());
-                    if(insertionNode==null || insertionNode instanceof NullNode) {
-                        doc.getDoc().modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
-                    }
-                    for(ResultDoc child:ref.getChildren()) {
-                        ((ArrayNode)insertionNode).add(child.getDoc().getRoot());
-                        retrieveFragments(child);
+                for(DocReference cref:children) {
+                    if(cref instanceof ChildDocReference) {
+                        ChildDocReference ref=(ChildDocReference)cref;
+                        Path insertInto=ref.getReferenceField();
+                        JsonNode insertionNode=doc.getDoc().get(insertInto);
+                        LOGGER.debug("Inserting reference {} to {} with {} docs",ref,insertInto,ref.getChildren().size());
+                        if(insertionNode==null || insertionNode instanceof NullNode) {
+                            doc.getDoc().modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
+                        }
+                        for(ResultDoc child:ref.getChildren()) {
+                            ((ArrayNode)insertionNode).add(child.getDoc().getRoot());
+                            retrieveFragments(child);
+                        }
                     }
                 }
             }

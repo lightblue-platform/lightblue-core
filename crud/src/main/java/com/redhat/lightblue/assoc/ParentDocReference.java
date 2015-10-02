@@ -26,40 +26,27 @@ import java.util.ArrayList;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Represents a reference to a child document for another entity. A
- * reference is from a document:field pair to another document. There
- * can be multiple references from a particular document to the
- * documents of the same entity, for instance, if the reference is an
- * array element.
+ * Represents a reference to a list of parent documents of another entity. 
  */
-public class ChildDocReference extends DocReference {
+public class ParentDocReference extends DocReference {
 
-    private final Path referenceField;
-    private final List<ResultDoc> children=new ArrayList<>();
+    private final List<ResultDoc> parents=new ArrayList<>();
 
     /**
      * Constructs a reference for the given document and field
      */
-    public ChildDocReference(ResultDoc document,Path field) {
+    public ParentDocReference(ResultDoc document) {
         super(document);
-        this.referenceField=field;
     }
 
     /**
-     * Returns the field in the source document that this reference represents
+     * Returns the parent documents for this reference
      */
-    public Path getReferenceField() {
-        return referenceField;
-    }
-
-    /**
-     * Returns the child documents for this reference
-     */
-    public List<ResultDoc> getChildren() {
-        return children;
+    public List<ResultDoc> getParents() {
+        return parents;
     }
 
     public String toString() {
-        return "child ref: "+referenceField+"@"+super.toString();
+        return "parent@"+super.toString();
     }
 }

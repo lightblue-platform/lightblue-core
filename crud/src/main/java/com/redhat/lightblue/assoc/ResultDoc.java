@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -35,6 +36,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.DocId;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
+
+import com.redhat.lightblue.eval.QueryEvaluator;
 
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.KeyValueCursor;
@@ -46,7 +49,7 @@ import com.redhat.lightblue.util.MutablePath;
  * document, the unique id, the query plan node corresponding to this
  * document, and the references to other documents. During
  * construction, all reference instances are collected, and a
- * DocReference list si constructed using those references. Subsequent
+ * DocReference list is constructed using those references. Subsequent
  * stages of execution attach new documents to those references.
  */
 public class ResultDoc implements Serializable {
@@ -59,8 +62,8 @@ public class ResultDoc implements Serializable {
     private final DocId id;
     private final QueryPlanNode node;
 
-    private final Map<QueryPlanNode,List<ChildDocReference>> children=new HashMap<>();
-    private final Map<QueryPlanNode,ChildDocReference> parents=new HashMap<>();
+    private final Map<CompositeMetadata,List<DocReference>> children=new HashMap<>();
+    private final Map<CompositeMetadata,ChildDocReference> parents=new HashMap<>();
 
     public ResultDoc(JsonDoc doc,
                      DocId id,
@@ -93,28 +96,32 @@ public class ResultDoc implements Serializable {
         return node.getMetadata();
     }
 
-    public List<ChildDocReference> getChildren(QueryPlanNode dest) {
-        return children.get(dest);
+    public List<DocReference> getChildren(QueryPlanNode dest) {
+        return getChildren(dest.getMetadata());
     }
 
-    public Map<QueryPlanNode,List<ChildDocReference>> getChildren() {
+    public List<DocReference> getChildren(CompositeMetadata destMd) {
+        return children.get(destMd);
+    }
+
+    public Map<CompositeMetadata,List<DocReference>> getChildren() {
         return children;
     }
 
     /**
      * Returns all child references to a given node for all the docs in the list
      */
-    public static List<ChildDocReference> getChildren(List<ResultDoc> docs,QueryPlanNode dest) {
-        List<ChildDocReference> ret=new ArrayList<>();
+    public static List<DocReference> getChildren(List<ResultDoc> docs,QueryPlanNode dest) {
+        List<DocReference> ret=new ArrayList<>();
         for(ResultDoc x:docs) {
-            List<ChildDocReference> l=x.getChildren(dest);
+            List<DocReference> l=x.getChildren(dest);
             if(l!=null)
                 ret.addAll(l);
         }
         return ret;
     }
 
-    public Map<QueryPlanNode,ChildDocReference> getParentDocs() {
+    public Map<CompositeMetadata,ChildDocReference> getParentDocs() {
         return parents;
     }
 
@@ -122,7 +129,7 @@ public class ResultDoc implements Serializable {
      * Sets the parent document reference of this document that is coming from parentNode
      */
     public void setParentDoc(QueryPlanNode parentNode,ChildDocReference ref) {
-        parents.put(parentNode,ref);
+        parents.put(parentNode.getMetadata(),ref);
     }
 
 
@@ -132,62 +139,103 @@ public class ResultDoc implements Serializable {
      * initializes a reference for each
      */
     private void gatherChildren() {
-        QueryPlanNode[] destinations=node.getDestinations();
-        CompositeMetadata md=node.getMetadata();
-        if(destinations.length>0) {
-            for(QueryPlanNode destNode:destinations) {
-                LOGGER.debug("Gathering children for {}",destNode);
-                CompositeMetadata destMd=destNode.getMetadata();
-                List<ChildDocReference> refList=new ArrayList<>();
-                // Find the entity reference for destMd. It can be a child of this entity, or the parent
-                if(destMd==node.getMetadata().getParent()) {
-                    // This happens when entity graph is A->B, but retrieval graph is B->A
-                    // This works only if A -> B link is not an array
-                    if(md.getEntityPath().nAnys()>0)
-                        throw new IllegalArgumentException("Unsupported association");
-
-                    refList.add(new ChildDocReference(this,Path.EMPTY));
-                    children.put(destNode,refList);
+        CompositeMetadata thisMd=node.getMetadata();
+        Set<Path> childPaths=thisMd.getChildPaths();
+        if(childPaths!=null) {
+            for(Path childEntityPath:childPaths) {
+                LOGGER.debug("Gathering children for {}",childEntityPath);
+                ResolvedReferenceField ref=thisMd.getChildReference(childEntityPath);
+                CompositeMetadata destMd=ref.getReferencedMetadata();
+                List<DocReference> refList=new ArrayList<>();
+                // Get the resolved reference for this field
+                LOGGER.debug("Resolved reference for {}:{}",destMd.getEntityPath(),ref);
+                // We cut the last segment, it is "ref"
+                Path entityRelativeFieldName=thisMd.getEntityRelativeFieldName(ref);
+                Path p=entityRelativeFieldName.prefix(-1);
+                LOGGER.debug("Getting instances of {} (reference was {})",p,entityRelativeFieldName);
+                // p points to the object containing the reference field
+                // It could be empty, if the reference is at the root level
+                if(p.isEmpty()) {
+                    refList.add(new ChildDocReference(this,entityRelativeFieldName));
                 } else {
-                    // Get the resolved reference for this field
-                    ResolvedReferenceField ref=md.getChildReference(destMd.getEntityPath());
-                    LOGGER.debug("Resolved reference for {}:{}",destMd.getEntityPath(),ref);
-                    // We cut the last segment, it is "ref"
-                    Path entityRelativeFieldName=md.getEntityRelativeFieldName(ref);
-                    Path field=entityRelativeFieldName.prefix(-1);
-                    LOGGER.debug("Getting instances of {} (reference was {})",field,entityRelativeFieldName);
-                    Path p=entityRelativeFieldName.prefix(-1);
-                    // p points to the object containing the reference field
-                    // It could be empty, if the reference is at the root level
-                    if(p.isEmpty()) {
-                        refList.add(new ChildDocReference(this,new Path(p,new Path(ref.getName()))));
-                    } else {
-                        LOGGER.debug("Iterating {} in {}",p,doc);
-                        KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(p);
-                        while(cursor.hasNext()) {
-                            cursor.next();
-                            JsonNode nodeWithRef=cursor.getCurrentValue();
-                            LOGGER.debug("Checking field {}:{}",cursor.getCurrentKey(),nodeWithRef);
-                            if(nodeWithRef instanceof ArrayNode) {
-                                int size=((ArrayNode)nodeWithRef).size();
-                                MutablePath elem=cursor.getCurrentKey().mutableCopy();
-                                int ix=elem.numSegments();
-                                elem.push(0);
-                                elem.push(ref.getName());
-                                for(int i=0;i<size;i++) {
-                                    elem.set(ix,i);
-                                    refList.add(new ChildDocReference(this,elem.immutableCopy()));
-                                }
-                            } else {
-                                refList.add(new ChildDocReference(this,new Path(cursor.getCurrentKey(),new Path(ref.getName()))));
+                    LOGGER.debug("Iterating {} in {}",p,doc);
+                    KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(p);
+                    while(cursor.hasNext()) {
+                        cursor.next();
+                        JsonNode nodeWithRef=cursor.getCurrentValue();
+                        LOGGER.debug("Checking field {}:{}",cursor.getCurrentKey(),nodeWithRef);
+                        if(nodeWithRef instanceof ArrayNode) {
+                            int size=((ArrayNode)nodeWithRef).size();
+                            MutablePath elem=cursor.getCurrentKey().mutableCopy();
+                            int ix=elem.numSegments();
+                            elem.push(0);
+                            elem.push(ref.getName());
+                            for(int i=0;i<size;i++) {
+                                elem.set(ix,i);
+                                refList.add(new ChildDocReference(this,elem.immutableCopy()));
                             }
+                        } else {
+                            refList.add(new ChildDocReference(this,new Path(cursor.getCurrentKey(),new Path(ref.getName()))));
                         }
                     }
-                    children.put(destNode,refList);
                 }
+                children.put(destMd,refList);
             }
         }
         LOGGER.debug("children for {}:{}",id,children);
+    }
+
+    /**
+     * This is used to associate the documents when a child document
+     * is searched before the parent document. When this happens, each
+     * reference of the parent document is looked up in child doc list
+     * using the edge criteria.
+     *
+     * @param parentDocs Docs that contain the childDocs. All parent
+     * docs in this list should be of the same entity type
+     * @param childDocs Docs that are contained in parent docs. All
+     * child docs in this list should be of the same entity type
+     *
+     * childDocs must be all from the same query plan node.
+     * Parentdocs must be all from the same query plan node.
+     * The query plan nodes for child and parent are different, and linked with edgeClauses
+     */
+    public static void associateDocs(List<ResultDoc> parentDocs,
+                                     List<ResultDoc> childDocs,
+                                     List<Conjunct> edgeClauses,
+                                     CompositeMetadata root) {
+        // We have to find a list of childDocs for every reference in a parent doc
+        LOGGER.debug("Associating {} parent docs",parentDocs.size());
+        if(!childDocs.isEmpty()&&!parentDocs.isEmpty()) {
+            QueryPlanNode childDocsNode=childDocs.get(0).node;
+            QueryPlanNode parentDocsNode=parentDocs.get(0).node;
+            LOGGER.debug("Initializing query processor with parent:{} child:{}",parentDocsNode,childDocsNode);
+            ResolvedFieldBinding.BindResult bindingInfo;
+            QueryEvaluator qeval;
+            if(edgeClauses!=null&&!edgeClauses.isEmpty()) {
+                bindingInfo=ResolvedFieldBinding.bind(edgeClauses,childDocsNode,root);
+                qeval=QueryEvaluator.getInstance(bindingInfo.getRelativeQuery(),childDocsNode.getMetadata());
+            } else {
+                bindingInfo=null;
+                qeval=QueryEvaluator.MATCH_ALL_EVALUATOR;
+            }
+            for(ResultDoc parentDoc:parentDocs) {
+                LOGGER.debug("Processing parent doc {}",parentDoc.id);
+                List<DocReference> references=parentDoc.getChildren(childDocsNode);
+                if(bindingInfo!=null) {
+                    for(DocReference reference:references) {
+                        if(reference instanceof ChildDocReference) {
+                            for(ResolvedFieldBinding binding:bindingInfo.getBindings())
+                                binding.refresh((ChildDocReference)reference);
+                            for(ResultDoc childDoc:childDocs) {
+                                if(qeval.evaluate(childDoc.doc).getResult())
+                                    ((ChildDocReference)reference).getChildren().add(childDoc);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public String toString() {
