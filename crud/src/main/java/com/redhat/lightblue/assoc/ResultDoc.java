@@ -191,8 +191,10 @@ public class ResultDoc implements Serializable {
      * reference of the parent document is looked up in child doc list
      * using the edge criteria.
      *
-     * @param parentDocs Docs that contain the childDocs
-     * @param childDocs Docs that are contained in parent docs
+     * @param parentDocs Docs that contain the childDocs. All parent
+     * docs in this list should be of the same entity type
+     * @param childDocs Docs that are contained in parent docs. All
+     * child docs in this list should be of the same entity type
      *
      * childDocs must be all from the same query plan node.
      * Parentdocs must be all from the same query plan node.
