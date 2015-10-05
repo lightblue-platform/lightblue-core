@@ -108,11 +108,15 @@ public class CrudJsonSchemaTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void validFindSimple_FromTo() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-simple-from-to.json");
+    }
+
+    @Test
     public void validBulk() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/bulkRequest.json", "crud/bulk/schema-test-bulk.json");
     }
 
-    
     @Test
     public void validFindNoq() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-noq.json");

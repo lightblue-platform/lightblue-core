@@ -29,13 +29,12 @@ import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
 
-
 /**
  * Request to find documents
  */
 public class CRUDFindRequest implements Serializable {
 
-    private static final long serialVersionUID=1;
+    private static final long serialVersionUID = 1;
 
     private QueryExpression query;
     private Projection projection;
@@ -121,17 +120,17 @@ public class CRUDFindRequest implements Serializable {
      * Shallow copy from r to this
      */
     public void shallowCopyFrom(CRUDFindRequest r) {
-        query=r.query;
-        projection=r.projection;
-        sort=r.sort;
-        from=r.from;
-        to=r.to;
+        query = r.query;
+        projection = r.projection;
+        sort = r.sort;
+        from = r.from;
+        to = r.to;
     }
 
     /**
      * Populates an object node with the JSON representation of this
      */
-    public void toJson(JsonNodeFactory factory,ObjectNode node) {
+    public void toJson(JsonNodeFactory factory, ObjectNode node) {
         if (query != null) {
             node.set("query", query.toJson());
         }
@@ -170,6 +169,15 @@ public class CRUDFindRequest implements Serializable {
         if (x instanceof ArrayNode && ((ArrayNode) x).size() == 2) {
             from = ((ArrayNode) x).get(0).asLong();
             to = ((ArrayNode) x).get(1).asLong();
+        } else {
+            x = node.get("from");
+            if (x != null) {
+                from = x.asLong();
+            }
+            x = node.get("to");
+            if (x != null) {
+                to = x.asLong();
+            }
         }
     }
 

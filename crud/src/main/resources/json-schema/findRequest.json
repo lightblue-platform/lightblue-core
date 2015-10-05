@@ -43,6 +43,14 @@
                  "type": "integer"
              }
          },
+         "from": {
+             "type": "integer",
+             "description": "Alternateive to 'range' allowing 'from' and 'to' to be set independently."
+         },
+         "to": {
+             "type": "integer",
+             "description": "Alternateive to 'range' allowing 'from' and 'to' to be set independently."
+         },
          "sort": {
              "$ref": "/json-schema/sort/choice.json#/definitions/sort"
          }
