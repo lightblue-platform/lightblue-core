@@ -1,0 +1,48 @@
+{
+    "entityInfo": {
+        "name": "L",
+        "datastore": {
+            "datasource": "mongodata",
+            "collection": "L",
+            "backend": "mongo"
+        }
+    },
+    "schema": {
+        "name": "L",
+        "version": {
+            "value": "0.0.1",
+            "changelog": "L"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "delete": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "type": "integer",
+                "constraints": {
+                    "identity": true
+                }
+            },
+            "status": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        }
+    }
+}

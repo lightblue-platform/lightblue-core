@@ -392,6 +392,17 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
        Assert.assertEquals("child1",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0._id")).asText());
        Assert.assertEquals("A",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0.tree.0.child.code1")).asText());
        Assert.assertEquals("A",JsonDoc.get(response.getEntityData().get(0),new Path("relationships.0.tree.0.child.ref.0.code1")).asText());
-
-   }
+    }
+    
+    @Test
+    public void elemMatchTopLevelArr() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'array':'authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity' }]"));
+        fr.setEntityVersion(new EntityVersion("U","0.0.1"));
+        
+        Response response=mediator.find(fr);
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("l1",JsonDoc.get(response.getEntityData().get(0),new Path("legalEntities.0.legalEntity.0.name")).asText());
+    }
 }
