@@ -351,6 +351,7 @@ public class Mediator {
         // Retrieve only the identities
         // This fails if the entity doesn't have identities
         DocIdExtractor docIdx=new DocIdExtractor(md);
+        // Identity fields also contains the objectType, we'll filter that out while writing the query
         Path[] identityFields=docIdx.getIdentityFields();
 
         FindRequest freq=new FindRequest();
@@ -365,10 +366,10 @@ public class Mediator {
         freq.setProjection(new ProjectionList(pl));
         LOGGER.debug("Query:{} projection:{}",freq.getQuery(),freq.getProjection());
         
-        OperationContext findCtx=new OperationContext(freq,metadata,factory,CRUDOperation.FIND);
+        OperationContext findCtx=new OperationContext(freq,CRUDOperation.FIND,ctx);
         Finder finder=new CompositeFindImpl(md,factory);
         CRUDFindResponse response=finder.find(findCtx,freq.getCRUDFindRequest());
-        List<JsonDoc> docs=ctx.getOutputDocumentsWithoutErrors();
+        List<JsonDoc> docs=findCtx.getOutputDocumentsWithoutErrors();
         LOGGER.debug("Found documents:{}",docs.size());
 
         // Now write a query
@@ -377,10 +378,12 @@ public class Mediator {
             DocId id=docIdx.getDocId(doc);
             List<QueryExpression> idList=new ArrayList<>(identityFields.length);
             for(int ix=0;ix<identityFields.length;ix++) {
-                Object value=id.getValue(ix);
-                idList.add(new ValueComparisonExpression(identityFields[ix],
-                                                         BinaryComparisonOperator._eq,
-                                                         new Value(value)));
+                if(!identityFields[ix].equals(PredefinedFields.OBJECTTYPE_PATH)) {
+                    Object value=id.getValue(ix);
+                    idList.add(new ValueComparisonExpression(identityFields[ix],
+                                                             BinaryComparisonOperator._eq,
+                                                             new Value(value)));
+                }
             }
             QueryExpression idq;
             if(idList.size()==1)

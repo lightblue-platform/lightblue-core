@@ -94,6 +94,24 @@ public final class OperationContext extends CRUDOperationContext {
     }
 
     /**
+     * Construct operation context based on an existing one, with a different request and operation
+     */
+    public OperationContext(Request request,
+                            CRUDOperation op,
+                            OperationContext ctx) {
+        super(op,
+              request.getEntityVersion().getEntity(),
+              ctx.getFactory(),
+              ctx.getCallerRoles(),
+              ctx.getHookManager(),
+              request instanceof DocRequest ? JsonDoc.docList( ((DocRequest)request).getEntityData()):null);
+        this.request=request;
+        this.metadata=ctx.metadata;
+        this.resolver=ctx.resolver;
+    }
+                            
+
+    /**
      * Construct an operation context drived from another operation context
      * @param request The top-level request
      * @param metadata Metadata manager

@@ -43,6 +43,9 @@ import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.CRUDOperation;
+import com.redhat.lightblue.crud.CRUDOperationContext;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
@@ -51,6 +54,7 @@ import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.UpdateExpression;
 
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -67,6 +71,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
     private Mediator mediator;
     private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
+
+    private QueryExpression updateQuery;
 
     private class TestMetadata extends DatabaseMetadata {
         public EntityMetadata getEntityMetadata(String entityName, String version) {
@@ -108,12 +114,26 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         return ((TestMediator)m).ctx;
     }
 
+    private  class CompositeTestCrudController extends TestCrudController {
+        public CompositeTestCrudController(TestCrudController.GetData gd) {
+            super(gd);
+        }
+        
+        public CRUDUpdateResponse update(CRUDOperationContext ctx,
+                                         QueryExpression query,
+                                         UpdateExpression update,
+                                         Projection projection) {
+            updateQuery=query;
+            return new CRUDUpdateResponse();
+        }
+    }
+    
     @Before
     public void initMediator() throws Exception {
         Factory factory = new Factory();
         factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
         factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
-        factory.addCRUDController("mongo", new TestCrudController(new TestCrudController.GetData() {
+        factory.addCRUDController("mongo", new CompositeTestCrudController(new TestCrudController.GetData() {
                 public List<JsonDoc> getData(String entityName) {
                     try {
                         List<JsonDoc> docs=new ArrayList<JsonDoc>();
@@ -142,6 +162,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
     private Sort sort(String s) throws Exception {
         return Sort.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
+    }
+
+    private UpdateExpression update(String s) throws Exception {
+        return UpdateExpression.fromJson(JsonUtils.json(s.replaceAll("\'","\"")));
     }
 
    @Test
@@ -404,5 +428,18 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         Assert.assertEquals(1,response.getEntityData().size());
         Assert.assertEquals("l1",JsonDoc.get(response.getEntityData().get(0),new Path("legalEntities.0.legalEntity.0.name")).asText());
+    }
+
+    @Test
+    public void updateWithAssocq() throws Exception {
+        UpdateRequest urq=new UpdateRequest();
+        urq.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));
+        urq.setReturnFields(projection("{'field':'*','recursive':1}"));
+        urq.setUpdateExpression(update("{'$set':{'field1':1}}"));
+        urq.setEntityVersion(new EntityVersion("A","1.0.0"));
+
+        Response response=mediator.update(urq);
+        Assert.assertNotNull(updateQuery);
+        
     }
 }
