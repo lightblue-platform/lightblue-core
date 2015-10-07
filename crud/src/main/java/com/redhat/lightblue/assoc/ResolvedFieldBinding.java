@@ -170,28 +170,38 @@ public class ResolvedFieldBinding implements Serializable {
             // an array in a parent entity, or if the array field points to the
             // reference field, this is no longer an elemMatch query. We return the
             // nested query instead.
-        	Path arrayName=context.isEmpty()?q.getArray():new Path(context,q.getArray());
-        	// Find a field with the array name as the prefix
-        	ResolvedFieldInfo arrayDescendant=null;
-        	for(ResolvedFieldInfo rfi:conjunct.getFieldInfo()) {
-        		Path p=rfi.getOriginalFieldName();
-        		if(arrayName.matchingPrefix(p)) {
-        			arrayDescendant=rfi;
-        			break;
-        		}
-        	}
-        	if(arrayDescendant==null)
-        		throw new RuntimeException("Unknown field:"+arrayName);
-        	// arrayDescendant is a field in the query with the array being the prefix. From here, we can figure out which entity array belongs to
-        	CompositeMetadata fmd=arrayDescendant.getFieldEntityCompositeMetadata();
-        	while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
-        		fmd=fmd.getParent();
-        	CompositeMetadata arrayMd=fmd;
-        	
+            LOGGER.debug("Rewriting {}",q);
+            Path arrayName=context.isEmpty()?q.getArray():new Path(context,q.getArray());
+            // Find a field with the array name as the prefix
+            ResolvedFieldInfo arrayDescendant=null;
+            for(ResolvedFieldInfo rfi:conjunct.getFieldInfo()) {
+                Path p=rfi.getOriginalFieldName();
+                if(arrayName.matchingPrefix(p)) {
+                    arrayDescendant=rfi;
+                    break;
+                }
+            }
+            
+            if(arrayDescendant==null)
+                throw new RuntimeException("Unknown field:"+arrayName);
+            LOGGER.debug("Array descendant:{}",arrayDescendant);
+            // arrayDescendant is a field in the query with the array being the prefix. From here, we can figure out which entity array belongs to
+            CompositeMetadata fmd=arrayDescendant.getFieldEntityCompositeMetadata();
+            while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
+                fmd=fmd.getParent();
+            CompositeMetadata arrayMd=fmd;
+            LOGGER.debug("Array metadata:{}",arrayMd.getName());
+            
             Path absoluteArray=arrayMd.getParent()!=null?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
+            LOGGER.debug("Absolute array:{}",absoluteArray);
             if(arrayMd==thisMd) {
                 // Convert array to relative, and return an elem match query
-                Path arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
+                Path arrayPath;
+                if(arrayMd.getParent()==null) {
+                    arrayPath=absoluteArray;
+                } else {
+                    arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
+                }
                 QueryExpression newq = iterate(q.getElemMatch(),
                                                new Path(new Path(context, arrayPath), Path.ANYPATH));
                 
