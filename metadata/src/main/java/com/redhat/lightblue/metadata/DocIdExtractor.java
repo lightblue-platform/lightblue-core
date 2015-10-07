@@ -75,6 +75,13 @@ public final class DocIdExtractor implements Serializable {
         return new DocId(values, objectTypeIx);
     }
 
+    /**
+     * Returns the identity fields. The returned array also contains the objectType field
+     */
+    public Path[] getIdentityFields() {
+        return identityFields;
+    }
+
     public String toString() {
         return Arrays.toString(identityFields);
     }

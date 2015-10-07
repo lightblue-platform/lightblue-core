@@ -50,6 +50,14 @@ public final class DocId implements Serializable {
         return values[objectTypeIx].toString();
     }
 
+    public Object getValue(int ix) {
+        return values[ix];
+    }
+
+    public int getSize() {
+        return values.length;
+    }
+
     @Override
     public int hashCode() {
         int value = 1;
