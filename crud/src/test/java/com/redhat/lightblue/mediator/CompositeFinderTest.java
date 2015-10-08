@@ -46,6 +46,8 @@ import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.crud.UpdateRequest;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 
@@ -55,6 +57,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.UpdateExpression;
+import com.redhat.lightblue.query.ValueComparisonExpression;
 
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
@@ -118,13 +121,22 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         public CompositeTestCrudController(TestCrudController.GetData gd) {
             super(gd);
         }
-        
+
+        @Override
         public CRUDUpdateResponse update(CRUDOperationContext ctx,
                                          QueryExpression query,
                                          UpdateExpression update,
                                          Projection projection) {
             updateQuery=query;
             return new CRUDUpdateResponse();
+        }
+
+        @Override
+        public CRUDDeleteResponse delete(CRUDOperationContext ctx,
+                                         QueryExpression query) {
+
+            updateQuery=query;
+            return new CRUDDeleteResponse();
         }
     }
     
@@ -150,6 +162,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
                 }
             }));
         mediator = new TestMediator(new TestMetadata(), factory);
+        updateQuery=null;
     }
 
     private QueryExpression query(String s) throws Exception {
@@ -440,6 +453,17 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
         Response response=mediator.update(urq);
         Assert.assertNotNull(updateQuery);
-        
+        Assert.assertTrue(updateQuery instanceof ValueComparisonExpression);
+    }
+
+    @Test
+    public void deleteWithAssocq() throws Exception {
+        DeleteRequest drq=new DeleteRequest();
+        drq.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));
+        drq.setEntityVersion(new EntityVersion("A","1.0.0"));
+
+        Response response=mediator.delete(drq);
+        Assert.assertNotNull(updateQuery);
+        Assert.assertTrue(updateQuery instanceof ValueComparisonExpression);
     }
 }
