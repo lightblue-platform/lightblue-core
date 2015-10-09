@@ -221,4 +221,5 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals(4, jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation")).size());
         Assert.assertEquals("lg", jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation.0.localeCode")).asText());
     }
+
 }
