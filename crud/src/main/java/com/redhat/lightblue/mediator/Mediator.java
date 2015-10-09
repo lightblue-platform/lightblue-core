@@ -258,7 +258,13 @@ public class Mediator {
                     LOGGER.debug("Composite search required for update");
                     QueryExpression q=rewriteUpdateQueryForCompositeSearch(md,ctx);
                     LOGGER.debug("New query:{}",q);
-                    updateResponse=controller.update(ctx,q,req.getUpdateExpression(),req.getReturnFields());
+                    if(q!=null)
+                        updateResponse=controller.update(ctx,q,req.getUpdateExpression(),req.getReturnFields());
+                    else {
+                        updateResponse=new CRUDUpdateResponse();
+                        updateResponse.setNumUpdated(0);
+                        updateResponse.setNumFailed(0);
+                    }
                 }
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
@@ -316,7 +322,12 @@ public class Mediator {
                     LOGGER.debug("Composite search required for delete");
                     QueryExpression q=rewriteUpdateQueryForCompositeSearch(md,ctx);
                     LOGGER.debug("New query:{}",q);
-                    result=controller.delete(ctx,q);
+                    if(q!=null)
+                        result=controller.delete(ctx,q);
+                    else {
+                        result=new CRUDDeleteResponse();
+                        result.setNumDeleted(0);
+                    }
                 }
                 
                 ctx.getHookManager().queueMediatorHooks(ctx);
