@@ -366,9 +366,22 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
      }
 
     @Test
-    public void retrieveNestedArrayRef_reversed_foreach() throws Exception {
+    public void retrieveNestedArrayRef_reversed_elemMatch() throws Exception {
         FindRequest fr=new FindRequest();
         fr.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
+        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+        Response response=mediator.find(fr);
+        Assert.assertEquals(1,response.getEntityData().size());
+        Assert.assertEquals("ADEEP",response.getEntityData().get(0).get("_id").asText());
+        Assert.assertEquals("BDEEP1",JsonDoc.get(response.getEntityData().get(0),new Path("level1.arr1.0.ref.0._id")).asText());
+        Assert.assertEquals("BDEEP2",JsonDoc.get(response.getEntityData().get(0),new Path("level1.arr1.1.ref.0._id")).asText());
+    }
+
+    @Test
+    public void retrieveNestedArrayRef_reversed_elemMatchAtRef() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'array':'level1.arr1.*.ref', 'elemMatch': {'field':'field1','op':'=','rvalue':'bdeep1'}}"));
         fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'level1.arr1.*.ref'}]"));
         fr.setEntityVersion(new EntityVersion("A","1.0.0"));
         Response response=mediator.find(fr);

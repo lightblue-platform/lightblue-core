@@ -147,7 +147,15 @@ public class ResolvedFieldBinding implements Serializable {
         // this can be set to a nonzero value to only include a
         // certain suffix of field names
         private int relativeSuffixLength=0;
-        
+
+        /**
+         * @param c The query to rewrite
+         * @param root The root metadata
+         * @param thisMd Ths metadata of the node relative to which the query will be rewritten
+         * @param requestQuery if the query is a request query, this
+         * is true. If the query is associated to a query plan node,
+         * this is false.
+         */
         public RelativeRewriter(Conjunct c,CompositeMetadata root,CompositeMetadata thisMd) {
             this.conjunct=c;
             this.root=root;
@@ -191,10 +199,15 @@ public class ResolvedFieldBinding implements Serializable {
                 fmd=fmd.getParent();
             CompositeMetadata arrayMd=fmd;
             LOGGER.debug("Array metadata:{}",arrayMd.getName());
-            
-            Path absoluteArray=arrayMd.getParent()!=null?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
+
+            Path absoluteArray;
+            if(conjunct.isRequestQuery()) {
+                absoluteArray=arrayName;
+            } else {
+                absoluteArray=arrayMd.getParent()!=null?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
+            }
             LOGGER.debug("Absolute array:{}",absoluteArray);
-            if(arrayMd==thisMd) {
+            if(arrayMd==thisMd&&!absoluteArray.equals(thisMd.getEntityPath())) {
                 // Convert array to relative, and return an elem match query
                 Path arrayPath;
                 if(arrayMd.getParent()==null) {
