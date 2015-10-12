@@ -73,15 +73,13 @@ public final class IntegerType implements Type, Serializable {
                 value = ((Number) obj).longValue();
             } else if (obj instanceof Boolean) {
                 value = ((Boolean) obj) ? Long.valueOf(1) : Long.valueOf(0);
-            } else if (obj instanceof String) {
+            } else {
                 try {
-                    value = Long.valueOf((String) obj);
+                    value = Long.valueOf(obj.toString());
                 } catch (NumberFormatException e) {
                     throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
                 }
-            } else {
-                throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
-            }
+            } 
         }
         return value;
     }

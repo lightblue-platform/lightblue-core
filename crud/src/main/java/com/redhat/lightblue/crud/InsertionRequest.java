@@ -27,7 +27,7 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to insert documents
  */
-public class InsertionRequest extends DocRequest {
+public class InsertionRequest extends DocRequest implements WithProjection {
 
     private Projection returnFields;
 
@@ -45,6 +45,11 @@ public class InsertionRequest extends DocRequest {
      */
     public void setReturnFields(Projection p) {
         returnFields = p;
+    }
+
+    @Override
+    public Projection getProjection() {
+        return returnFields;
     }
 
     public CRUDOperation getOperation() {

@@ -152,7 +152,7 @@ public class CompositeFindImpl implements Finder {
         // First: determine a minimal entity tree containing the nodes
         // sufficient to evaluate the query. Then, retrieve using the
         // complete set of entities.
-        Set<CompositeMetadata> minimalTree=findMinimalSetOfQueryEntities(((FindRequest)ctx.getRequest()).getQuery(),
+        Set<CompositeMetadata> minimalTree=findMinimalSetOfQueryEntities(req.getQuery(),
                                                                          ctx.getTopLevelEntityMetadata());
 
         LOGGER.debug("Minimal find tree size={}",minimalTree.size());
@@ -163,7 +163,7 @@ public class CompositeFindImpl implements Finder {
             QueryPlanChooser qpChooser=new QueryPlanChooser(root,
                                                             new BruteForceQueryPlanIterator(),
                                                             new IndexedFieldScorer(),
-                                                            ((FindRequest)ctx.getRequest()).getQuery(),
+                                                            req.getQuery(),
                                                             minimalTree);
             searchQPlan=qpChooser.choose();
             LOGGER.debug("Chosen query plan:{}",searchQPlan);
@@ -197,7 +197,7 @@ public class CompositeFindImpl implements Finder {
         QueryPlan retrievalQPlan;
         if(searchQPlan==null) {
             // No search was performed. We have to search now.
-            retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),((FindRequest)ctx.getRequest()).getQuery(),null).choose();
+            retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),req.getQuery(),null).choose();
             ctx.setProperty(Mediator.CTX_QPLAN,retrievalQPlan);
         } else {
             retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),null,null).choose();

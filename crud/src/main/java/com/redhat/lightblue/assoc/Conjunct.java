@@ -71,12 +71,18 @@ public class Conjunct implements Serializable {
      */
     private final Set<QueryPlanNode> referredNodes=new HashSet<>();
 
+    /**
+     * Specifies if the query belongs to the request, or one of the reference fields
+     */
+    private final boolean requestQuery;
+
     
     public Conjunct(QueryExpression q,
                     CompositeMetadata compositeMetadata,
                     QueryPlan qplan,
                     ResolvedReferenceField context) {
         this.clause=q;
+        this.requestQuery=context==null;
         List<FieldInfo> fInfo=clause.getQueryFields();
         LOGGER.debug("Conjunct for query {} with fields {}",q,fInfo);
         fieldInfo=new ResolvedFieldInfo[fInfo.size()];
@@ -87,6 +93,13 @@ public class Conjunct implements Serializable {
             referredNodes.add(rfi.getFieldQueryPlanNode());
         }
         
+    }
+
+    /**
+     * Returns true if the clause belongs to a request query, not to a reference field
+     */
+    public boolean isRequestQuery() {
+        return requestQuery;
     }
 
     /**
