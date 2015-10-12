@@ -53,6 +53,14 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void q_in() throws Exception {
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field3','op':'$in','values':[3]}");
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+    }
+
+    @Test
     public void q_field_comparison() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field4','op':'>','rfield':'field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
