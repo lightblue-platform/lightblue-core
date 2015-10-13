@@ -30,7 +30,7 @@
                 "type": "integer"
             }
         },
-        "project": {
+        "projection": {
             "$ref": "choice.json#/definitions/projection"
         },
         "sort": {
@@ -41,7 +41,7 @@
         "field",
         "include",
         "range",
-        "project"
+        "projection"
     ],
     "additionalProperties": false
 }

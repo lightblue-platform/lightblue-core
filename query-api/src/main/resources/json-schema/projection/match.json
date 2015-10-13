@@ -25,7 +25,7 @@
         "match": {
             "$ref": "/json-schema/query/choice.json#/definitions/query"
         },
-        "project": {
+        "projection": {
             "$ref": "choice.json#/definitions/projection"
         },
         "sort": {
@@ -36,7 +36,7 @@
         "field",
         "include",
         "match",
-        "project"
+        "projection"
     ],
     "additionalProperties": false
 }
