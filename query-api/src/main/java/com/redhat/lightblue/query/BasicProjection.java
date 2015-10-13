@@ -52,13 +52,19 @@ public abstract class BasicProjection extends Projection {
             include = x.asBoolean();
         }
 
-        Projection projection;
-        x = node.get("project");
-        if (x != null) {
-            projection = Projection.fromJson(x);
-        } else {
-            projection = null;
-        }
+		Projection projection;
+		x = node.get("projection");
+
+		if (x != null) {
+			projection = Projection.fromJson(x);
+		} else {
+			x = node.get("project");
+			if (x != null) {
+				projection = Projection.fromJson(x);
+			} else {
+				projection = null;
+			}
+		}
 
         x = node.get("sort");
         Sort sort;
