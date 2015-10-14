@@ -25,6 +25,9 @@
         "match": {
             "$ref": "/json-schema/query/choice.json#/definitions/query"
         },
+        "project": {
+            "$ref": "choice.json#/definitions/projection"
+        },
         "projection": {
             "$ref": "choice.json#/definitions/projection"
         },

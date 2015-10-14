@@ -6,6 +6,16 @@
         "op": "$eq",
         "rfield": "someuser"
     },
+    "project": [
+        {
+            "field": "streetaddress",
+            "include": true
+        },
+        {
+            "field": "city",
+            "include": true
+        }
+    ],
     "projection": [
         {
             "field": "streetaddress",
