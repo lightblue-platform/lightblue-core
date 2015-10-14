@@ -43,8 +43,7 @@
     "required": [
         "field",
         "include",
-        "range",
-        "projection"
+        "range"
     ],
     "additionalProperties": false
 }
