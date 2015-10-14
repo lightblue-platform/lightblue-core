@@ -38,8 +38,7 @@
     "required": [
         "field",
         "include",
-        "match",
-        "projection"
+        "match"
     ],
     "additionalProperties": false
 }
