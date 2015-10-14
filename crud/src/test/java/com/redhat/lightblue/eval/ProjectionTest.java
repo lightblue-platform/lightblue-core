@@ -217,6 +217,35 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("field6.nf7")));
         Assert.assertNull(newDoc.get(new Path("field7")));
     }
+    
+    @Test
+    public void arrayRangeTest_Projection() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
+        String pr = "{'field':'field6.nf6','range':[1,2],'projection':{'field':'*'}}";
+        Projector projector = projector(pr, md);
+        System.out.println(projector.toString());
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNull(newDoc.get(new Path("objectType")));
+        Assert.assertNull(newDoc.get(new Path("field1")));
+        Assert.assertNull(newDoc.get(new Path("field2")));
+        Assert.assertNull(newDoc.get(new Path("field3")));
+        Assert.assertNull(newDoc.get(new Path("field4")));
+        Assert.assertNull(newDoc.get(new Path("field5")));
+        Assert.assertNotNull(newDoc.get(new Path("field6")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf1")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf2")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf3")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf4")));
+        Assert.assertNull(newDoc.get(new Path("field6.nf5")));
+        Assert.assertEquals("two", newDoc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals("three", newDoc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals(2, newDoc.get(new Path("field6.nf6")).size());
+        Assert.assertNull(newDoc.get(new Path("field6.nf7")));
+        Assert.assertNull(newDoc.get(new Path("field7")));
+    }
+
 
     @Test
     public void arrayNestedQTest() throws Exception {
