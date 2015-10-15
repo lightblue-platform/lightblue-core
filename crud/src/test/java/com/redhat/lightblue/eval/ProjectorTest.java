@@ -343,4 +343,20 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field11.0")));
         Assert.assertNull(pdoc.get(new Path("field11")));
     }
+
+    /**
+     * If there is an empty array in doc, it is copied even if it is not projected
+     */
+    @Test
+    public void dont_project_unwanted_emptyArray() throws Exception {
+        // Set nf5 to an empty array
+        jsonDoc.modify(new Path("field6.nf5"),JSON_NODE_FACTORY.arrayNode(),true);
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field1'}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        System.out.println(pdoc);
+        Assert.assertNotNull(pdoc.get(new Path("field1")));
+        Assert.assertNull(pdoc.get(new Path("field6")));
+        Assert.assertNull(pdoc.get(new Path("field6.nf5")));
+    }
 }
