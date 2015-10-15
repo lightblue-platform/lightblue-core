@@ -168,12 +168,8 @@ public abstract class Projector {
                                     project(factory,contextPath,contextNode,cursor,ctx,!(fieldMd instanceof ObjectField ||
                                                                                          fieldMd instanceof ObjectArrayElement));
                                 cursor.parent();
-                            } else {
-                                if(fieldMd instanceof ObjectField)
-                                    newNode=factory.objectNode();
-                                else
-                                    newNode=factory.arrayNode();
-                            }
+                            } else
+                                newNode=null;
                             if(newNode!=null) {
                                 if(newNode instanceof ArrayNode)
                                     newNode=sort(factory,this,(ArrayNode)newNode,fieldPath);
