@@ -90,9 +90,9 @@ public class JsonDocRelativePathTest extends AbstractJsonNodeTest {
 
     @Test
     public void relative_path_with_3_$parent_and_valid_field_resolves_correctly() {
-        JsonNode result = doc.get(new Path("object.nested1.doublenested1.triplenested1.$parent.$parent.$parent.simplenested"));
+        JsonNode result = doc.get(new Path("object.nested1.doublenested1.triplenested1.$parent.$parent.$parent.simple"));
 
-        Assert.assertEquals("nestedvalue", ((TextNode) result).textValue());
+        Assert.assertEquals("value", ((TextNode) result).textValue());
     }
 
     @Test

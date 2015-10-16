@@ -222,4 +222,19 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals("lg", jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation.0.localeCode")).asText());
     }
 
+    @Test
+    public void parent_parent_update() throws Exception {
+        UpdateExpression expr = EvalTestContext.
+            updateExpressionFromJson("{ '$foreach' : { 'arr13.*.level2.*.level3' : { 'field':'$parent.$parent.id','op':'=','rvalue':'1'},"+
+                                     "'$update' : {'$set':{'fld':'x' } }}}");
+        
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        System.out.println("before:"+JsonUtils.prettyPrint(jsonDoc.getRoot()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        System.out.println("After:"+JsonUtils.prettyPrint(jsonDoc.getRoot()));
+        
+        Assert.assertEquals("x", jsonDoc.get(new Path("arr13.0.level2.0.level3.0.fld")).asText());
+        Assert.assertEquals("value", jsonDoc.get(new Path("arr13.1.level2.0.level3.0.fld")).asText());
+    }
+
 }
