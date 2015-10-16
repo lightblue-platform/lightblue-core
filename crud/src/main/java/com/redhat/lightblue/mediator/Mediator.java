@@ -92,6 +92,21 @@ public class Mediator {
         this.metadata = md;
         this.factory = factory;
     }
+    
+    public static final String HOSTNAME;
+    
+    static {
+        String hostName = "unknown";
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            if (localHost != null) {
+                hostName = localHost.getHostName();
+            }
+        } catch (UnknownHostException e) {
+            LOGGER.warn("Hostname was not able to be resolved.");
+        }
+        HOSTNAME = hostName;
+    }
 
     /**
      * Inserts data
@@ -106,7 +121,7 @@ public class Mediator {
         LOGGER.debug("insert {}", req.getEntityVersion());
         Error.push("insert(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
-        response.setHostname(getHostname());
+        response.setHostname(HOSTNAME);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.INSERT);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
@@ -174,7 +189,7 @@ public class Mediator {
         LOGGER.debug("save {}", req.getEntityVersion());
         Error.push("save(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
-        response.setHostname(getHostname());
+        response.setHostname(HOSTNAME);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.SAVE);
             EntityMetadata md = ctx.getTopLevelEntityMetadata();
@@ -242,7 +257,7 @@ public class Mediator {
         LOGGER.debug("update {}", req.getEntityVersion());
         Error.push("update(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
-        response.setHostname(getHostname());
+        response.setHostname(HOSTNAME);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.UPDATE);
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
@@ -309,7 +324,7 @@ public class Mediator {
         LOGGER.debug("delete {}", req.getEntityVersion());
         Error.push("delete(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
-        response.setHostname(getHostname());
+        response.setHostname(HOSTNAME);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.DELETE);
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
@@ -429,7 +444,7 @@ public class Mediator {
         Error.push("find(" + req.getEntityVersion().toString() + ")");
         Response response = new Response(factory.getNodeFactory());
         response.setStatus(OperationStatus.ERROR);
-        response.setHostname(getHostname());
+        response.setHostname(HOSTNAME);
         try {
             OperationContext ctx = newCtx(req, CRUDOperation.FIND);
             CompositeMetadata md = ctx.getTopLevelEntityMetadata();
@@ -574,15 +589,5 @@ public class Mediator {
             }
         }
         return ret;
-    }
-    
-    public static String getHostname() {
-        try {
-            InetAddress localHost = InetAddress.getLocalHost();
-            return localHost != null ? localHost.getHostName() : "unknown";
-        } catch (UnknownHostException e) {
-            // there is more we can do here, but it gets flakey and is probably not worth it
-            return "unknown";
-        }
     }
 }
