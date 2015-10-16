@@ -113,6 +113,30 @@ public class ProjectorTest extends AbstractJsonNodeTest {
         Assert.assertNull(pdoc.get(new Path("field7.1.elemf2")));
 
     }
+    
+    @Test
+    public void fieldProjectorTest_arr_range_zero_upper_bound() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,0],'projection':{'field':'elemf3'}}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        Assert.assertEquals(3, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(4, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(5, pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals(6, pdoc.get(new Path("field7.2.elemf3")).asInt());
+
+    }
+    
+    @Test
+    public void fieldProjectorTest_arr_range_negative_upper_bound() throws Exception {
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,-8],'projection':{'field':'elemf3'}}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        Assert.assertEquals(3, pdoc.get(new Path("field7")).size());
+        Assert.assertEquals(4, pdoc.get(new Path("field7.0.elemf3")).asInt());
+        Assert.assertEquals(5, pdoc.get(new Path("field7.1.elemf3")).asInt());
+        Assert.assertEquals(6, pdoc.get(new Path("field7.2.elemf3")).asInt());
+
+    }
 
     @Test
     public void fieldProjectorTest_arr_query() throws Exception {

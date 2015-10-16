@@ -245,6 +245,38 @@ public class ProjectionTest extends AbstractJsonNodeTest {
         Assert.assertNull(newDoc.get(new Path("field6.nf7")));
         Assert.assertNull(newDoc.get(new Path("field7")));
     }
+    
+    @Test
+    public void arrayRangeTestForZeroUpperBound() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
+        String pr = "{'field':'field6.nf6','range':[1,0],'projection':{'field':'*'}}";
+        Projector projector = projector(pr, md);
+        System.out.println(projector.toString());
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNotNull(newDoc.get(new Path("field6")));
+        Assert.assertEquals("two", newDoc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals("three", newDoc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals("four", newDoc.get(new Path("field6.nf6.2")).asText());
+        Assert.assertEquals(3, newDoc.get(new Path("field6.nf6")).size());
+    }
+    
+    @Test
+    public void arrayRangeTestForNegativeUpperBound() throws Exception {
+        EntityMetadata md = getMd("./testMetadata.json");
+        JsonDoc doc = getDoc("./sample1.json");
+        String pr = "{'field':'field6.nf6','range':[1,-8],'projection':{'field':'*'}}";
+        Projector projector = projector(pr, md);
+        System.out.println(projector.toString());
+        JsonDoc newDoc = projector.project(doc, factory);
+        System.out.println(pr + ":" + newDoc.getRoot());
+        Assert.assertNotNull(newDoc.get(new Path("field6")));
+        Assert.assertEquals("two", newDoc.get(new Path("field6.nf6.0")).asText());
+        Assert.assertEquals("three", newDoc.get(new Path("field6.nf6.1")).asText());
+        Assert.assertEquals("four", newDoc.get(new Path("field6.nf6.2")).asText());
+        Assert.assertEquals(3, newDoc.get(new Path("field6.nf6")).size());
+    }
 
 
     @Test
