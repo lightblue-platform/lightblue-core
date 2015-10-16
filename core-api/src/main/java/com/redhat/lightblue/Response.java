@@ -44,8 +44,10 @@ public class Response extends JsonObject {
     private static final String PROPERTY_PROCESSED = "processed";
     private static final String PROPERTY_DATA_ERRORS = "dataErrors";
     private static final String PROPERTY_ERRORS = "errors";
+    private static final String PROPERTY_HOSTNAME = "hostname";
 
     private OperationStatus status;
+    private String hostname;
     private long modifiedCount;
     private long matchCount;
     private String taskHandle;
@@ -68,6 +70,14 @@ public class Response extends JsonObject {
         this.jsonNodeFactory = jsonNodeFactory;
     }
 
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+    
     /**
      * Status of the completed operation
      */
@@ -191,6 +201,7 @@ public class Response extends JsonObject {
         builder.add(PROPERTY_TASK_HANDLE, taskHandle);
         builder.add(PROPERTY_SESSION, session);
         builder.add(PROPERTY_PROCESSED, entityData);
+        builder.add(PROPERTY_HOSTNAME, hostname);
         builder.addJsonObjectsList(PROPERTY_DATA_ERRORS, dataErrors);
         builder.addErrorsList(PROPERTY_ERRORS, errors);
         return builder.build();
@@ -204,6 +215,7 @@ public class Response extends JsonObject {
         private String taskHandle;
         private SessionInfo session;
         private JsonNode entityData;
+        private String hostname;
         private List<DataError> dataErrors = new ArrayList<>();
         private List<Error> errors = new ArrayList<>();
 
@@ -217,6 +229,7 @@ public class Response extends JsonObject {
             status = response.getStatus();
             modifiedCount = response.getModifiedCount();
             matchCount = response.getMatchCount();
+            hostname = response.getHostname();
             taskHandle = response.getTaskHandle();
             session = response.getSessionInfo();
             entityData = response.getEntityData();
@@ -225,6 +238,13 @@ public class Response extends JsonObject {
             jsonNodeFactory = response.jsonNodeFactory;
         }
 
+        public ResponseBuilder withHostname(JsonNode node){
+            if (node != null){
+                hostname = node.asText();
+            }
+            return this;
+        }
+        
         public ResponseBuilder withStatus(JsonNode node) {
             if (node != null) {
                 try {
@@ -294,6 +314,7 @@ public class Response extends JsonObject {
 
             response.setStatus(status);
             response.setModifiedCount(modifiedCount);
+            response.setHostname(hostname);
             response.setMatchCount(matchCount);
             response.setTaskHandle(taskHandle);
             response.setSessionInfo(session);
