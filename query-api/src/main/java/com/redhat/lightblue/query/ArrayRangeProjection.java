@@ -45,16 +45,27 @@ public class ArrayRangeProjection extends ArrayProjection {
 	}
 
 	public Integer getTo() {
-		if (to == null) {
-			return null;
-		} else
-			return this.to;
+		return this.to;
 	}
 
 	@Override
 	public JsonNode toJson() {
 		ArrayNode arr = getFactory().arrayNode();
-		arr.add(getFactory().numberNode(from)).add(getFactory().numberNode(to));
+		if (from == null) {
+			arr.add(getFactory().nullNode());
+			if (to == null) {
+				arr.add(getFactory().nullNode());
+			} else {
+				arr.add(getFactory().numberNode(to));
+			}
+		} else if (from != null) {
+			arr.add(getFactory().numberNode(from));
+			if (to == null) {
+				arr.add(getFactory().nullNode());
+			} else {
+				arr.add(getFactory().numberNode(to));
+			}
+		}
 		return ((ObjectNode) super.toJson()).set("range", arr);
 	}
 }

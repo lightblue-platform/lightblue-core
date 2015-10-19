@@ -140,13 +140,15 @@ public class CRUDFindRequest implements Serializable {
         if (sort != null) {
             node.set("sort", sort.toJson());
         }
-        if (from != null && to != null) {
-            ArrayNode arr = factory.arrayNode();
-            arr.add(from);
-            if(to>0)
-            arr.add(to);
-            node.set("range", arr);
-        }
+		if (from != null && to != null) {
+			ArrayNode arr = factory.arrayNode();
+			arr.add(from);
+			if (to > 0)
+				arr.add(to);
+			else
+				arr.addNull();
+			node.set("range", arr);
+		}
     }
 
     /**
@@ -169,6 +171,7 @@ public class CRUDFindRequest implements Serializable {
         x = node.get("range");
         if (x instanceof ArrayNode && ((ArrayNode) x).size() == 2) {
             from = ((ArrayNode) x).get(0).asLong();
+            if(!((ArrayNode) x).get(1).isNull())
             to = ((ArrayNode) x).get(1).asLong();
         } else {
             x = node.get("from");
@@ -176,7 +179,7 @@ public class CRUDFindRequest implements Serializable {
                 from = x.asLong();
             }
             x = node.get("to");
-            if (x != null && x.asLong()>0) {
+            if (x != null) {
                 to = x.asLong();
             }
         }
