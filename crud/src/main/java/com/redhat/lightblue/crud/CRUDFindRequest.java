@@ -140,10 +140,10 @@ public class CRUDFindRequest implements Serializable {
         if (sort != null) {
             node.set("sort", sort.toJson());
         }
-		if (from != null && to != null) {
+		if (from != null) {
 			ArrayNode arr = factory.arrayNode();
 			arr.add(from);
-			if (to >= 0)
+			if( to != null)
 				arr.add(to);
 			else
 				arr.addNull();
