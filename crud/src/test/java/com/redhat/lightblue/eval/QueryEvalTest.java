@@ -120,4 +120,12 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
         Assert.assertTrue(ctx.getResult());
     }
 
+    @Test
+    public void q_compare_nonexistant_field_returns_false() throws Exception {
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [{'field':'field1','regex':'Val.*','caseInsensitive':1},{'field':'field7.5.elemf1','op':'$eq','rvalue':'x'}]}");
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
+    }
+
 }

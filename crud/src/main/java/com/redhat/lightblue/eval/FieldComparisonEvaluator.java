@@ -98,6 +98,7 @@ public class FieldComparisonEvaluator extends QueryEvaluator {
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", relativePath, operator, rfieldRelativePath);
         KeyValueCursor<Path, JsonNode> lcursor = ctx.getNodes(relativePath);
+        ctx.setResult(false);
         if (lcursor != null) {
             while (lcursor.hasNext()&&!ctx.getResult()) {
                 lcursor.next();
