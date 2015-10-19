@@ -143,7 +143,7 @@ public class CRUDFindRequest implements Serializable {
 		if (from != null && to != null) {
 			ArrayNode arr = factory.arrayNode();
 			arr.add(from);
-			if (to > 0)
+			if (to >= 0)
 				arr.add(to);
 			else
 				arr.addNull();
@@ -173,6 +173,8 @@ public class CRUDFindRequest implements Serializable {
             from = ((ArrayNode) x).get(0).asLong();
             if(!((ArrayNode) x).get(1).isNull())
             to = ((ArrayNode) x).get(1).asLong();
+            else
+            	to = null;
         } else {
             x = node.get("from");
             if (x != null) {
