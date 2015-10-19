@@ -25,43 +25,36 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayRangeProjection extends ArrayProjection {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private final int from;
-    private final int to;
+	private final Integer from;
+	private final Integer to;
 
-    public ArrayRangeProjection(Path field,
-                                boolean include,
-                                Projection project,
-                                Sort sort,
-                                int from,
-                                int to) {
-        super(field, include, project, sort);
-        this.from = from;
-        this.to = to;
-    }
+	public ArrayRangeProjection(Path field, boolean include, Projection project, Sort sort, Integer from, Integer to) {
+		super(field, include, project, sort);
+		this.from = from;
+		this.to = to;
+	}
 
-    public ArrayRangeProjection(Path field,
-                                boolean include,
-                                Projection project,
-                                int from,
-                                int to) {
-        this(field, include, project, null, from, to);
-    }
+	public ArrayRangeProjection(Path field, boolean include, Projection project, Integer from, Integer to) {
+		this(field, include, project, null, from, to);
+	}
 
-    public int getFrom() {
-        return this.from;
-    }
+	public Integer getFrom() {
+		return this.from;
+	}
 
-    public int getTo() {
-        return this.to;
-    }
+	public Integer getTo() {
+		if (to == null) {
+			return null;
+		} else
+			return this.to;
+	}
 
-    @Override
-    public JsonNode toJson() {
-        ArrayNode arr = getFactory().arrayNode();
-        arr.add(getFactory().numberNode(from)).
-                add(getFactory().numberNode(to));
-        return ((ObjectNode) super.toJson()).set("range", arr);
-    }
+	@Override
+	public JsonNode toJson() {
+		ArrayNode arr = getFactory().arrayNode();
+		arr.add(getFactory().numberNode(from)).add(getFactory().numberNode(to));
+		return ((ObjectNode) super.toJson()).set("range", arr);
+	}
 }

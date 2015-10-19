@@ -146,8 +146,8 @@ public class ProjectionParseTest {
         Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(4, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(4, x.getTo().intValue());
     }
     
     @Test
@@ -161,8 +161,8 @@ public class ProjectionParseTest {
         Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(4, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(4, x.getTo().intValue());
     }
     
     @Test
@@ -170,8 +170,8 @@ public class ProjectionParseTest {
         Projection p = Projection.fromJson(JsonUtils.json(doc60));
         Assert.assertTrue(p instanceof ArrayRangeProjection);
         ArrayRangeProjection x = (ArrayRangeProjection) p;
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(0, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(0, x.getTo().intValue());
     }
     
     @Test
@@ -179,8 +179,8 @@ public class ProjectionParseTest {
         Projection p = Projection.fromJson(JsonUtils.json(doc6neg));
         Assert.assertTrue(p instanceof ArrayRangeProjection);
         ArrayRangeProjection x = (ArrayRangeProjection) p;
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(-8, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(-8, x.getTo().intValue());
     }
 
 
@@ -195,8 +195,8 @@ public class ProjectionParseTest {
         Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(4, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(4, x.getTo().intValue());
         Assert.assertNotNull(x.getSort());
         Assert.assertEquals("field", ((SortKey) x.getSort()).getField().toString());
         Assert.assertTrue(!((SortKey) x.getSort()).isDesc());
