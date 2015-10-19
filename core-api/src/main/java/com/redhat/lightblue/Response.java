@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +49,6 @@ public class Response extends JsonObject {
     private static final String PROPERTY_HOSTNAME = "hostname";
 
     private OperationStatus status;
-    private String hostname;
     private long modifiedCount;
     private long matchCount;
     private String taskHandle;
@@ -57,6 +58,21 @@ public class Response extends JsonObject {
     private final List<Error> errors = new ArrayList<>();
 
     private final JsonNodeFactory jsonNodeFactory;
+    
+    private static final String HOSTNAME;
+    
+    static {
+        String hostName = "unknown";
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            if (localHost != null) {
+                hostName = localHost.getHostName();
+            }
+        } catch (UnknownHostException e) {
+            
+        }
+        HOSTNAME = hostName;
+    }
 
     /**
      * @deprecated use Response(JsonNodeFactory)
@@ -71,11 +87,7 @@ public class Response extends JsonObject {
     }
 
     public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
+        return HOSTNAME;
     }
     
     /**
@@ -201,7 +213,7 @@ public class Response extends JsonObject {
         builder.add(PROPERTY_TASK_HANDLE, taskHandle);
         builder.add(PROPERTY_SESSION, session);
         builder.add(PROPERTY_PROCESSED, entityData);
-        builder.add(PROPERTY_HOSTNAME, hostname);
+        builder.add(PROPERTY_HOSTNAME, HOSTNAME);
         builder.addJsonObjectsList(PROPERTY_DATA_ERRORS, dataErrors);
         builder.addErrorsList(PROPERTY_ERRORS, errors);
         return builder.build();
@@ -314,7 +326,6 @@ public class Response extends JsonObject {
 
             response.setStatus(status);
             response.setModifiedCount(modifiedCount);
-            response.setHostname(hostname);
             response.setMatchCount(matchCount);
             response.setTaskHandle(taskHandle);
             response.setSessionInfo(session);
