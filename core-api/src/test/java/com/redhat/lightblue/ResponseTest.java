@@ -29,6 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -251,10 +253,11 @@ public class ResponseTest {
     }
 
     @Test
-    public void testBuildJsonNull() {
+    public void testBuildJsonNull() throws UnknownHostException {
         ObjectNode expectedNode = JsonObject.getFactory().objectNode();
         expectedNode.put("modifiedCount", 0L);
         expectedNode.put("matchCount", 0L);
+        expectedNode.put("hostname", InetAddress.getLocalHost().getHostName());
 
         assertTrue(response.toJson().equals(expectedNode));
     }

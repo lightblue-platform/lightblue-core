@@ -54,6 +54,7 @@ public class Response extends JsonObject {
     private String taskHandle;
     private SessionInfo session;
     private transient JsonNode entityData;
+    private String hostname;
     private final List<DataError> dataErrors = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
 
@@ -84,10 +85,7 @@ public class Response extends JsonObject {
 
     public Response(JsonNodeFactory jsonNodeFactory) {
         this.jsonNodeFactory = jsonNodeFactory;
-    }
-
-    public String getHostname() {
-        return HOSTNAME;
+        this.hostname = HOSTNAME;
     }
     
     /**
@@ -102,6 +100,14 @@ public class Response extends JsonObject {
      */
     public void setStatus(OperationStatus s) {
         status = s;
+    }
+    
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     /**
@@ -218,7 +224,7 @@ public class Response extends JsonObject {
         builder.addErrorsList(PROPERTY_ERRORS, errors);
         return builder.build();
     }
-
+    
     public static class ResponseBuilder {
 
         private OperationStatus status;
