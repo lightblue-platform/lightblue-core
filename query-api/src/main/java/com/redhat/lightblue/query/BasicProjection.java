@@ -78,8 +78,12 @@ public abstract class BasicProjection extends Projection {
         if (x != null) {
             if (x instanceof ArrayNode
                     && ((ArrayNode) x).size() == 2) {
-                int from = ((ArrayNode) x).get(0).asInt();
-                int to = ((ArrayNode) x).get(1).asInt();
+            	Integer to;
+                Integer from = ((ArrayNode) x).get(0).asInt();
+                if(!((ArrayNode) x).get(1).isNull())
+                  to = ((ArrayNode) x).get(1).asInt();
+                else
+                  to = null;
                 return new ArrayRangeProjection(path,
                         include,
                         projection,

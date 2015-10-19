@@ -32,6 +32,8 @@ public class ProjectionParseTest {
     final String doc4p = "{\"field\":\"field.x\",\"include\":true,\"match\":{\"field\":\"field.x\",\"op\":\"$eq\",\"rvalue\":1},\"projection\":{\"field\":\"member\"}}";
     final String doc6 = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,4],\"project\":{\"field\":\"member\"}}";
     final String doc6p = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,4],\"projection\":{\"field\":\"member\"}}";
+    final String doc60 = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,0],\"projection\":{\"field\":\"member\"}}";
+    final String doc6neg = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,-8],\"projection\":{\"field\":\"member\"}}";
     final String doc7 = "[" + doc1 + "," + doc2 + "," + doc3 + "]";
     final String doc4s = "{\"field\":\"field.x\",\"include\":true,\"match\":{\"field\":\"field.x\",\"op\":\"$eq\",\"rvalue\":1},\"project\":{\"field\":\"member\"},\"sort\":{\"field\":\"$asc\"}}";
     final String doc6s = "{\"field\":\"field.x\",\"include\":true, \"range\":[1,4],\"project\":{\"field\":\"member\"},\"sort\":{\"field\":\"$asc\"}}";
@@ -144,8 +146,8 @@ public class ProjectionParseTest {
         Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(4, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(4, x.getTo().intValue());
     }
     
     @Test
@@ -159,9 +161,28 @@ public class ProjectionParseTest {
         Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(4, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(4, x.getTo().intValue());
     }
+    
+    @Test
+    public void doc6pTestZeroUpperBound() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(doc60));
+        Assert.assertTrue(p instanceof ArrayRangeProjection);
+        ArrayRangeProjection x = (ArrayRangeProjection) p;
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(0, x.getTo().intValue());
+    }
+    
+    @Test
+    public void doc6pTestNegativeUpperBound() throws Exception {
+        Projection p = Projection.fromJson(JsonUtils.json(doc6neg));
+        Assert.assertTrue(p instanceof ArrayRangeProjection);
+        ArrayRangeProjection x = (ArrayRangeProjection) p;
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(-8, x.getTo().intValue());
+    }
+
 
     @Test
     public void doc6sTest() throws Exception {
@@ -174,8 +195,8 @@ public class ProjectionParseTest {
         Assert.assertEquals("member", ((FieldProjection) x.getProject()).getField().toString());
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
-        Assert.assertEquals(1, x.getFrom());
-        Assert.assertEquals(4, x.getTo());
+        Assert.assertEquals(1, x.getFrom().intValue());
+        Assert.assertEquals(4, x.getTo().intValue());
         Assert.assertNotNull(x.getSort());
         Assert.assertEquals("field", ((SortKey) x.getSort()).getField().toString());
         Assert.assertTrue(!((SortKey) x.getSort()).isDesc());

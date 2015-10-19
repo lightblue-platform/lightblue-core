@@ -30,32 +30,45 @@ import com.redhat.lightblue.query.Projection;
  */
 public class ArrayRangeProjector extends ArrayProjector {
 
-    private final int from;
-    private final int to;
+	private final Integer from;
+	private final Integer to;
 
-    /**
-     * Ctor
-     *
-     * @param p The projection expression
-     * @param ctxPath The absolute path relative to which this is to be
-     * interpreted
-     * @param context The metadata node at which this is to be interpreted
-     */
-    public ArrayRangeProjector(ArrayRangeProjection p, Path ctxPath, FieldTreeNode ctx) {
-        super(p, ctxPath, ctx);
-        from = p.getFrom();
-        to = p.getTo();
-    }
+	/**
+	 * Ctor
+	 *
+	 * @param p
+	 *            The projection expression
+	 * @param ctxPath
+	 *            The absolute path relative to which this is to be interpreted
+	 * @param context
+	 *            The metadata node at which this is to be interpreted
+	 */
+	public ArrayRangeProjector(ArrayRangeProjection p, Path ctxPath, FieldTreeNode ctx) {
+		super(p, ctxPath, ctx);
+		from = p.getFrom();
+		to = p.getTo();
+	}
 
-    @Override
-    protected Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx) {
-        // Is this array element in range?
-        int index = p.getIndex(p.numSegments() - 1);
-        if (index >= from && index <= to) {
-            // This array element is selected.
-            return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
-        } else {
-            return Projection.Inclusion.explicit_exclusion;
-        }
-    }
+	@Override
+	protected Projection.Inclusion projectArray(Path p, QueryEvaluationContext ctx) {
+		// Is this array element in range?
+		int index = p.getIndex(p.numSegments() - 1);
+		if (to == null) {
+			if (index >= from) {
+				// This array element is selected.
+				return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
+			} else {
+				return Projection.Inclusion.explicit_exclusion;
+			}
+		} else if (to < 0) {
+			return Projection.Inclusion.explicit_exclusion;
+		} else {
+			if (from <= to && index >= from && index <= to) {
+				// This array element is selected.
+				return isIncluded() ? Projection.Inclusion.explicit_inclusion : Projection.Inclusion.explicit_exclusion;
+			} else {
+				return Projection.Inclusion.explicit_exclusion;
+			}
+		}
+	}
 }
