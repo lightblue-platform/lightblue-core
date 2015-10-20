@@ -21,6 +21,7 @@ package com.redhat.lightblue.query;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
@@ -94,7 +95,9 @@ public class Value extends JsonObject {
      * creates a string value.
      */
     public static Value fromJson(JsonNode node) {
-        if(node instanceof ObjectNode ||
+        if(node instanceof NullNode) {
+            return new Value(null);
+        } else if(node instanceof ObjectNode ||
            node instanceof ArrayNode) {
             return new Value(node);
         } else  if (node.isValueNode()) {
