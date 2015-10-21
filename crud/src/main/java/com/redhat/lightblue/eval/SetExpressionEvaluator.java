@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
@@ -234,6 +235,9 @@ public class SetExpressionEvaluator extends Updater {
         Path fieldPath = new Path(contextPath, df.field);
         if (op == UpdateOperator._set) {
             LOGGER.debug("set fieldPath={}, newValue={}",fieldPath,newValueNode);
+            if(fieldPath.getLast().equals(Path.THIS)){
+                fieldPath = fieldPath.prefix(-1);
+            }
             oldValueNode = doc.modify(fieldPath, newValueNode, true);
         } else if (op == UpdateOperator._add) {
             oldValueNode = doc.get(fieldPath);

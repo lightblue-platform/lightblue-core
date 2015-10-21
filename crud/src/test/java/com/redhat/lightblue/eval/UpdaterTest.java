@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.query.UpdateExpression;
@@ -176,7 +177,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
-        Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+        Assert.assertEquals(JsonNodeFactory.instance.objectNode(), jsonDoc.get(new Path("field7.0")));
     }
 
     @Test
