@@ -168,6 +168,16 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals(7, jsonDoc.get(new Path("field6.nf6#")).asInt());
         Assert.assertEquals(7, jsonDoc.get(new Path("field6.nf6")).size());
     }
+    
+    @Test
+    public void array_foreach_set_this() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {} } } } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+    }
 
     @Test
     public void array_foreach_removeall() throws Exception {
