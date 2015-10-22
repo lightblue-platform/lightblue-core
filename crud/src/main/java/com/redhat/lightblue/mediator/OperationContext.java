@@ -30,6 +30,8 @@ import com.redhat.lightblue.EntityVersion;
 import com.redhat.lightblue.ClientIdentification;
 import com.redhat.lightblue.OperationStatus;
 import com.redhat.lightblue.Request;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.DocRequest;
 import com.redhat.lightblue.crud.Factory;
@@ -37,6 +39,8 @@ import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.DocCtx;
+import com.redhat.lightblue.crud.WithQuery;
+import com.redhat.lightblue.crud.WithProjection;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.metadata.EntityMetadata;
 import com.redhat.lightblue.metadata.Metadata;
@@ -72,20 +76,40 @@ public final class OperationContext extends CRUDOperationContext {
         this.metadata = metadata;
         this.resolver = new DefaultMetadataResolver(metadata);
 
-        if(request instanceof FindRequest) {
-            // Setup composite metadata for find requests
-            resolver.initialize(request.getEntityVersion().getEntity(),
-                                request.getEntityVersion().getVersion(),
-                                ((FindRequest)request).getQuery(),
-                                ((FindRequest)request).getProjection());
-        } else {
-            resolver.initialize(request.getEntityVersion().getEntity(),
-                                request.getEntityVersion().getVersion(),
-                                null,null);
-        }
+        QueryExpression query;
+        Projection projection;
+        if(request instanceof WithQuery)
+            query=((WithQuery)request).getQuery();
+        else
+            query=null;
+        if(request instanceof WithProjection)
+            projection=((WithProjection)request).getProjection();
+        else
+            projection=null;
+        resolver.initialize(request.getEntityVersion().getEntity(),
+                            request.getEntityVersion().getVersion(),
+                            query,projection);
         addCallerRoles(getCallerRoles(resolver.getMetadataRoles(), request.getClientId()));
         LOGGER.debug("Caller roles:{}", getCallerRoles());
     }
+
+    /**
+     * Construct operation context based on an existing one, with a different request and operation
+     */
+    public OperationContext(Request request,
+                            CRUDOperation op,
+                            OperationContext ctx) {
+        super(op,
+              request.getEntityVersion().getEntity(),
+              ctx.getFactory(),
+              ctx.getCallerRoles(),
+              ctx.getHookManager(),
+              request instanceof DocRequest ? JsonDoc.docList( ((DocRequest)request).getEntityData()):null);
+        this.request=request;
+        this.metadata=ctx.metadata;
+        this.resolver=ctx.resolver;
+    }
+                            
 
     /**
      * Construct an operation context drived from another operation context

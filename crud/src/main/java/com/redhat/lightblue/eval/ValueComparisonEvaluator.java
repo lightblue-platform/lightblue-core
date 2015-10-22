@@ -58,6 +58,7 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
+        ctx.setResult(false);
         Object value=rvalue.getValue();
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
         KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);

@@ -126,7 +126,8 @@ public class ForEachExpressionEvaluator extends Updater {
 
                 UpdateInfo updateInfoInstance = generateProcessedInfo(memento.context, memento.expr, currentKey, this.updateInfo.updater);
 
-                ret =  update(doc, contextPath, updateInfoInstance);
+                if(update(doc, contextPath, updateInfoInstance))
+                	ret=true;
                 b = cursor.hasNext();
             }
 
@@ -162,7 +163,7 @@ public class ForEachExpressionEvaluator extends Updater {
                 itrPath.setLast(index);
                 Path elementPath = itrPath.immutableCopy();
                 LOGGER.debug("itr:{}", elementPath);
-                QueryEvaluationContext ctx = new QueryEvaluationContext(elementNode, elementPath);
+                QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot(),elementNode, elementPath);
                 if (updateInfo.queryEvaluator.evaluate(ctx)) {
                     LOGGER.debug("query matches {}", elementPath);
                     LOGGER.debug("Calling updater {}", updateInfo.updater);

@@ -53,7 +53,15 @@ public class RValueExpression extends JsonObject {
      * Creates an rvalue expression that is a constant value
      */
     public RValueExpression(Value value) {
-        this(value,null,RValueType._value);
+        if(value==null||value.getValue()==null) {
+            this.value=null;
+            this.path=null;
+            this.type=RValueType._null;
+        } else {
+            this.value=value;
+            this.path=null;
+            this.type=RValueType._value;
+        }
     }
 
     /**

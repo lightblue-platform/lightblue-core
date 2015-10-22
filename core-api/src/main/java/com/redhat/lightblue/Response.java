@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +46,7 @@ public class Response extends JsonObject {
     private static final String PROPERTY_PROCESSED = "processed";
     private static final String PROPERTY_DATA_ERRORS = "dataErrors";
     private static final String PROPERTY_ERRORS = "errors";
+    private static final String PROPERTY_HOSTNAME = "hostname";
 
     private OperationStatus status;
     private long modifiedCount;
@@ -51,10 +54,26 @@ public class Response extends JsonObject {
     private String taskHandle;
     private SessionInfo session;
     private transient JsonNode entityData;
+    private String hostname;
     private final List<DataError> dataErrors = new ArrayList<>();
     private final List<Error> errors = new ArrayList<>();
 
     private final JsonNodeFactory jsonNodeFactory;
+    
+    private static final String HOSTNAME;
+    
+    static {
+        String hostName = "unknown";
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            if (localHost != null) {
+                hostName = localHost.getHostName();
+            }
+        } catch (UnknownHostException e) {
+            
+        }
+        HOSTNAME = hostName;
+    }
 
     /**
      * @deprecated use Response(JsonNodeFactory)
@@ -66,8 +85,9 @@ public class Response extends JsonObject {
 
     public Response(JsonNodeFactory jsonNodeFactory) {
         this.jsonNodeFactory = jsonNodeFactory;
+        this.hostname = HOSTNAME;
     }
-
+    
     /**
      * Status of the completed operation
      */
@@ -80,6 +100,14 @@ public class Response extends JsonObject {
      */
     public void setStatus(OperationStatus s) {
         status = s;
+    }
+    
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     /**
@@ -191,11 +219,12 @@ public class Response extends JsonObject {
         builder.add(PROPERTY_TASK_HANDLE, taskHandle);
         builder.add(PROPERTY_SESSION, session);
         builder.add(PROPERTY_PROCESSED, entityData);
+        builder.add(PROPERTY_HOSTNAME, HOSTNAME);
         builder.addJsonObjectsList(PROPERTY_DATA_ERRORS, dataErrors);
         builder.addErrorsList(PROPERTY_ERRORS, errors);
         return builder.build();
     }
-
+    
     public static class ResponseBuilder {
 
         private OperationStatus status;
@@ -204,6 +233,7 @@ public class Response extends JsonObject {
         private String taskHandle;
         private SessionInfo session;
         private JsonNode entityData;
+        private String hostname;
         private List<DataError> dataErrors = new ArrayList<>();
         private List<Error> errors = new ArrayList<>();
 
@@ -217,6 +247,7 @@ public class Response extends JsonObject {
             status = response.getStatus();
             modifiedCount = response.getModifiedCount();
             matchCount = response.getMatchCount();
+            hostname = response.getHostname();
             taskHandle = response.getTaskHandle();
             session = response.getSessionInfo();
             entityData = response.getEntityData();
@@ -225,6 +256,13 @@ public class Response extends JsonObject {
             jsonNodeFactory = response.jsonNodeFactory;
         }
 
+        public ResponseBuilder withHostname(JsonNode node){
+            if (node != null){
+                hostname = node.asText();
+            }
+            return this;
+        }
+        
         public ResponseBuilder withStatus(JsonNode node) {
             if (node != null) {
                 try {

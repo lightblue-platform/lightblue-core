@@ -238,6 +238,32 @@
             }
           }
         }
+      },
+      "arr13": {
+          "type":"array",
+          "items": {
+              "type":"object",
+              "fields": {
+                  "id":{"type":"string"},
+                  "level2": {
+                      "type":"array",
+                      "items": {
+                          "type":"object",
+                          "fields": {
+                              "level3":{
+                                  "type":"array",
+                                  "items": {
+                                      "type":"object",
+                                      "fields": {
+                                          "fld": {"type":"string"}
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  }
+              }
+          }
       }
     }
   }

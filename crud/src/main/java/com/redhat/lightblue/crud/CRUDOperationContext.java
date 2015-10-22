@@ -67,6 +67,20 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.callerRoles=new HashSet<>();
     }
 
+    public CRUDOperationContext(CRUDOperation op,
+                                String entityName,
+                                Factory f,
+                                Set<String> callerRoles,
+                                HookManager hookManager,
+                                List<JsonDoc> docs) {
+        this.CRUDOperation = op;
+        this.entityName = entityName;
+        this.factory = f;
+        addDocuments(docs);
+        this.callerRoles=callerRoles;
+        this.hookManager=hookManager;
+    }
+
     /**
      * This constructor is used to construct an operation context that
      * is derived from another existing context.

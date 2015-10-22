@@ -170,10 +170,7 @@ public abstract class Projector {
                             project(factory,contextPath,cursor,ctx,fieldNode instanceof ArrayNode);
                         cursor.parent();
                     } else {
-                        if(fieldNode instanceof ObjectNode)
-                            newNode=factory.objectNode();
-                        else
-                            newNode=factory.arrayNode();
+                        newNode=null;
                     }
                     if(newNode!=null) {
                         if(newNode instanceof ArrayNode)

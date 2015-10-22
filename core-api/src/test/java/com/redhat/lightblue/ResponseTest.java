@@ -29,6 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -225,6 +227,7 @@ public class ResponseTest {
         response.setEntityData(JsonObject.getFactory().objectNode());
         response.getDataErrors().addAll(getPopulatedDataErrors(3));
         response.getErrors().addAll(getPopulatedErrors(3));
+        response.setHostname("localhost");
 
         ObjectNode expectedNode = JsonObject.getFactory().objectNode();
         expectedNode.put("status", OperationStatus.COMPLETE.name().toLowerCase());
@@ -233,6 +236,7 @@ public class ResponseTest {
         expectedNode.put("taskHandle", "taskHandle");
         expectedNode.set("session", JsonObject.getFactory().objectNode());
         expectedNode.set("entityData", JsonObject.getFactory().objectNode());
+        expectedNode.put("hostname", "localhost");
         ArrayNode arr = JsonObject.getFactory().arrayNode();
         expectedNode.set("dataErrors", arr);
         for (DataError err : getPopulatedDataErrors(3)) {
@@ -249,10 +253,11 @@ public class ResponseTest {
     }
 
     @Test
-    public void testBuildJsonNull() {
+    public void testBuildJsonNull() throws UnknownHostException {
         ObjectNode expectedNode = JsonObject.getFactory().objectNode();
         expectedNode.put("modifiedCount", 0L);
         expectedNode.put("matchCount", 0L);
+        expectedNode.put("hostname", InetAddress.getLocalHost().getHostName());
 
         assertTrue(response.toJson().equals(expectedNode));
     }

@@ -5,7 +5,7 @@
         0,
         4
     ],
-    "project": [
+    "projection": [
         {
             "field": "streetaddress",
             "include": true
