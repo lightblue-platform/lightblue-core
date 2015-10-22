@@ -456,6 +456,7 @@ public class JsonDoc implements Serializable {
      * @return Old value
      */
     public static JsonNode modify(JsonNode root,Path p, JsonNode newValue, boolean createPath) {
+        p = p.normalize();
         int n = p.numSegments();
         if (n == 0) {
             throw new IllegalArgumentException(UtilConstants.ERR_CANT_SET_EMPTY_PATH_VALUE);
