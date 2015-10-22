@@ -74,8 +74,6 @@ public abstract class Projector {
     private final FieldTreeNode rootMdNode;
     private final Path rootMdPath;
 
-    public com.redhat.lightblue.util.Measure measure=new com.redhat.lightblue.util.Measure();
-
     protected Projector(Path ctxPath, FieldTreeNode ctx) {
         this.rootMdNode = ctx;
         this.rootMdPath = ctxPath;
@@ -127,7 +125,6 @@ public abstract class Projector {
      */
     public JsonDoc project(JsonDoc doc,
                            JsonNodeFactory factory) {
-        measure.begin("project_root");
         JsonNodeCursor cursor = doc.cursor();
         cursor.firstChild();
         
@@ -138,7 +135,6 @@ public abstract class Projector {
                                             false);
         if(root==null)
             root=factory.objectNode();
-        measure.end("project_root");
         return new JsonDoc(root);
     }
 
@@ -148,22 +144,17 @@ public abstract class Projector {
                              QueryEvaluationContext ctx,
                              boolean processingArray) {
         JsonNode parentNode=null;
-        measure.begin("project");
         do {
-            measure.begin("project loop");
             Path fieldPath=cursor.getCurrentPath();
             JsonNode fieldNode = cursor.getCurrentNode();
             LOGGER.debug("project context={} fieldPath={} isArray={}", contextPath, fieldPath, processingArray);
 
-            measure.begin("project call");
             Projection.Inclusion result=project(fieldPath,ctx);
-            measure.end("project call");
             LOGGER.debug("Projecting '{}' in context '{}': {}", fieldPath, contextPath, result);
             if(result==Projection.Inclusion.undecided) {
                 // Projection is undecisive. Recurse into array/object/reference nodes and see if anything is projected there
                 if(fieldNode instanceof ObjectNode ||
                    fieldNode instanceof ArrayNode) {
-                    measure.begin("undecisive");
                     JsonNode newNode;
                     if(cursor.firstChild()) {
                         newNode=(getNestedProjector()==null?this:getNestedProjector()).
@@ -182,7 +173,6 @@ public abstract class Projector {
                         else
                             ((ObjectNode)parentNode).set(fieldPath.tail(0), newNode);
                     }
-                    measure.end("undecisive");
                 }
             } else if(result==Projection.Inclusion.implicit_inclusion||
                       result==Projection.Inclusion.explicit_inclusion) {
@@ -197,7 +187,6 @@ public abstract class Projector {
                 } else {
                     JsonNode newNode=null;
                     if(fieldNode instanceof ObjectNode) {
-                        measure.begin("object");
                         LOGGER.debug("Projecting object field {}",cursor.getCurrentPath());
                         if(cursor.firstChild()) {
                             newNode=(getNestedProjector()==null?this:getNestedProjector()).
@@ -205,9 +194,7 @@ public abstract class Projector {
                             cursor.parent();
                             LOGGER.debug("Child object:{}",newNode);
                         }
-                        measure.end("object");
                     } else if(fieldNode instanceof ArrayNode) {
-                        measure.begin("array");
                         LOGGER.debug("Projecting array field {}",cursor.getCurrentPath());
                         if(cursor.firstChild()) {
                             newNode=(getNestedProjector()==null?this:getNestedProjector()).
@@ -215,12 +202,10 @@ public abstract class Projector {
                             cursor.parent();
                             LOGGER.debug("Child object:{}",newNode);
                         }
-                        measure.end("array");
                     } else {
                         newNode=fieldNode;
                     } 
                     if(newNode!=null) {
-                        measure.begin("set");
                         if(newNode instanceof ArrayNode)
                             newNode=sort(factory,this,(ArrayNode)newNode,fieldPath);
                         if(parentNode==null)
@@ -229,13 +214,10 @@ public abstract class Projector {
                             ((ArrayNode)parentNode).add(newNode);
                         else
                             ((ObjectNode)parentNode).set(fieldPath.tail(0), newNode);
-                        measure.end("set");
                     }
                 }
             }
-            measure.end("project loop");
         } while (cursor.nextSibling());
-        measure.end("project");
         return parentNode;
     }
 
