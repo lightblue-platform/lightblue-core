@@ -41,13 +41,9 @@ public abstract class PrimitiveUpdateExpression extends PartialUpdateExpression 
      */
     public static PrimitiveUpdateExpression fromJson(ObjectNode node) {
         if (node.has(UpdateOperator._add.toString()) || node.has(UpdateOperator._set.toString())) {
-            ObjectNode setNode = JsonNodeFactory.instance.objectNode();
-            if (node.has(UpdateOperator._set.toString())) {
-                setNode.set(UpdateOperator._set.toString(), node.get(UpdateOperator._set.toString()));
-            } else if (node.has(UpdateOperator._add.toString())) {
-                setNode.set(UpdateOperator._add.toString(), node.get(UpdateOperator._add.toString()));
+            if (node.has("fields")) {
+                return MaskedSetExpression.fromJson(node);
             }
-            SetExpression se = SetExpression.fromJson(setNode);
             return SetExpression.fromJson(node);
         } else if (node.has(UpdateOperator._unset.toString())) {
             return UnsetExpression.fromJson(node);
