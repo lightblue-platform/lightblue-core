@@ -177,7 +177,11 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
-        Assert.assertEquals(JsonNodeFactory.instance.objectNode(), jsonDoc.get(new Path("field7.0")));
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals(JsonNodeFactory.instance.objectNode(), node);
+            Assert.assertEquals(0, node.size());
+            Assert.assertTrue(!node.fields().hasNext());
+        }
     }
 
     @Test
