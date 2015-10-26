@@ -19,6 +19,7 @@
 package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,10 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
@@ -40,6 +45,8 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.Arith;
 import com.redhat.lightblue.query.FieldAndRValue;
+import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.MaskedSetExpression;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.UpdateOperator;
@@ -113,9 +120,30 @@ public class SetExpressionEvaluator extends Updater {
     public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
         this.factory = factory;
         op = expr.getOp();
+        List<Path> includedFields = new ArrayList<Path>();
+        if (expr instanceof MaskedSetExpression) {
+            List<FieldAndRValue> fields = expr.getFields();
+            List<FieldProjection> maskedFields = ((MaskedSetExpression) expr).getMaskFields();
+            if (maskedFields != null && !maskedFields.isEmpty()) {
+                // if we have a mask to apply, get the fields that should be included
+                for (FieldProjection fp : maskedFields) {
+                    if(fp.isInclude()){
+                        includedFields.add(fp.getField());
+                        LOGGER.debug("Including {} in fields to set", fp.getField());
+                        // we can either stop here and just set a field value or modify the list to be updated in the next loop
+                    }
+                }
+            }
+        }
         for (FieldAndRValue fld : expr.getFields()) {
             Path field = fld.getField();
-            LOGGER.debug("Parsing setter for {}", field);
+            
+            // *** this doesn't work at this point because when using $this, there is only one field; $this
+            if(!includedFields.isEmpty() && includedFields.contains(field)){
+                LOGGER.debug("Parsing setter for {}", field);
+                // either keep the field from being added or just maintain a separate list of fields to update
+                continue;
+            }
             RValueExpression rvalue = fld.getRValue();
             Path refPath = null;
             FieldTreeNode refMdNode = null;
