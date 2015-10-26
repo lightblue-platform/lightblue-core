@@ -47,6 +47,8 @@ import com.redhat.lightblue.metadata.types.Arith;
 import com.redhat.lightblue.query.FieldAndRValue;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.MaskedSetExpression;
+import com.redhat.lightblue.query.Projection;
+import com.redhat.lightblue.query.ProjectionList;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.UpdateOperator;
@@ -64,6 +66,8 @@ public class SetExpressionEvaluator extends Updater {
     private final List<FieldData> setValues = new ArrayList<>();
     private final UpdateOperator op;
     private final JsonNodeFactory factory;
+
+    private ListProjector lProj;
 
     private static final class FieldData {
         /**
@@ -120,30 +124,15 @@ public class SetExpressionEvaluator extends Updater {
     public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
         this.factory = factory;
         op = expr.getOp();
-        List<Path> includedFields = new ArrayList<Path>();
         if (expr instanceof MaskedSetExpression) {
-            List<FieldAndRValue> fields = expr.getFields();
-            List<FieldProjection> maskedFields = ((MaskedSetExpression) expr).getMaskFields();
-            if (maskedFields != null && !maskedFields.isEmpty()) {
-                // if we have a mask to apply, get the fields that should be included
-                for (FieldProjection fp : maskedFields) {
-                    if(fp.isInclude()){
-                        includedFields.add(fp.getField());
-                        LOGGER.debug("Including {} in fields to set", fp.getField());
-                        // we can either stop here and just set a field value or modify the list to be updated in the next loop
-                    }
-                }
-            }
+            List<Projection> maskedFields = new ArrayList<Projection>(((MaskedSetExpression) expr).getMaskFields().size());
+            maskedFields.addAll(((MaskedSetExpression) expr).getMaskFields());
+                        
+            ProjectionList projList = new ProjectionList(maskedFields);
+            lProj = new ListProjector(projList, context.getFullPath(), context);
         }
         for (FieldAndRValue fld : expr.getFields()) {
             Path field = fld.getField();
-            
-            // *** this doesn't work at this point because when using $this, there is only one field; $this
-            if(!includedFields.isEmpty() && includedFields.contains(field)){
-                LOGGER.debug("Parsing setter for {}", field);
-                // either keep the field from being added or just maintain a separate list of fields to update
-                continue;
-            }
             RValueExpression rvalue = fld.getRValue();
             Path refPath = null;
             FieldTreeNode refMdNode = null;
@@ -224,6 +213,8 @@ public class SetExpressionEvaluator extends Updater {
     @Override
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
+        
+       JsonDoc project = lProj.project(doc, factory);
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
             LOGGER.debug("Set field {} in ctx: {}", df.field, contextPath);
