@@ -130,7 +130,6 @@ public abstract class Projector {
         
         ObjectNode root=(ObjectNode)project(factory,
                                             rootMdPath,
-                                            rootMdNode,
                                             cursor,
                                             new QueryEvaluationContext(doc.getRoot()),
                                             false);
@@ -141,100 +140,82 @@ public abstract class Projector {
 
     private JsonNode project(JsonNodeFactory factory,
                              Path contextPath,
-                             FieldTreeNode contextNode,
                              JsonNodeCursor cursor,
                              QueryEvaluationContext ctx,
                              boolean processingArray) {
         JsonNode parentNode=null;
         do {
             Path fieldPath=cursor.getCurrentPath();
-            Path contextRelativePath = contextPath.isEmpty() ? fieldPath : fieldPath.suffix(-contextPath.numSegments());
             JsonNode fieldNode = cursor.getCurrentNode();
-            LOGGER.debug("project context={} fieldPath={} contextRelativePath={} isArray={}", contextPath, fieldPath, contextRelativePath, processingArray);
-            FieldTreeNode fieldMd = contextNode.resolve(contextRelativePath);
-            if(fieldMd!=null) {
-                Projection.Inclusion result=project(fieldPath,ctx);
-                LOGGER.debug("Projecting '{}' in context '{}': {}", contextRelativePath, contextPath, result);
-                if(result==Projection.Inclusion.undecided) {
-                    // Projection is undecisive. Recurse into array/object/reference nodes and see if anything is projected there
-                    if(!(fieldNode instanceof NullNode)) {
-                        if(fieldMd instanceof ObjectField ||
-                           fieldMd instanceof ArrayField ||
-                           fieldMd instanceof ObjectArrayElement ||
-                           fieldMd instanceof ResolvedReferenceField) {
-                            JsonNode newNode;
-                            if(cursor.firstChild()) {
-                                newNode=(getNestedProjector()==null?this:getNestedProjector()).
-                                    project(factory,contextPath,contextNode,cursor,ctx,!(fieldMd instanceof ObjectField ||
-                                                                                         fieldMd instanceof ObjectArrayElement));
-                                cursor.parent();
-                            } else
-                                newNode=null;
-                            if(newNode!=null) {
-                                if(newNode instanceof ArrayNode)
-                                    newNode=sort(factory,this,(ArrayNode)newNode,fieldPath);
-                                if(parentNode==null)
-                                    parentNode=processingArray?factory.arrayNode():factory.objectNode();
-                                if(parentNode instanceof ArrayNode)
-                                    ((ArrayNode)parentNode).add(newNode);
-                                else
-                                    ((ObjectNode)parentNode).set(fieldPath.tail(0), newNode);
-                            }
-                        }
+            LOGGER.debug("project context={} fieldPath={} isArray={}", contextPath, fieldPath, processingArray);
+
+            Projection.Inclusion result=project(fieldPath,ctx);
+            LOGGER.debug("Projecting '{}' in context '{}': {}", fieldPath, contextPath, result);
+            if(result==Projection.Inclusion.undecided) {
+                // Projection is undecisive. Recurse into array/object/reference nodes and see if anything is projected there
+                if(fieldNode instanceof ObjectNode ||
+                   fieldNode instanceof ArrayNode) {
+                    JsonNode newNode;
+                    if(cursor.firstChild()) {
+                        newNode=(getNestedProjector()==null?this:getNestedProjector()).
+                            project(factory,contextPath,cursor,ctx,fieldNode instanceof ArrayNode);
+                        cursor.parent();
+                    } else {
+                        newNode=null;
                     }
-                } else if(result==Projection.Inclusion.implicit_inclusion||
-                          result==Projection.Inclusion.explicit_inclusion) {
-                    // Field is included
-                    if(fieldNode instanceof NullNode) {
+                    if(newNode!=null) {
+                        if(newNode instanceof ArrayNode)
+                            newNode=sort(factory,this,(ArrayNode)newNode,fieldPath);
                         if(parentNode==null)
                             parentNode=processingArray?factory.arrayNode():factory.objectNode();
                         if(parentNode instanceof ArrayNode)
-                            ((ArrayNode)parentNode).add(fieldNode);
+                            ((ArrayNode)parentNode).add(newNode);
                         else
-                            ((ObjectNode)parentNode).set(fieldPath.tail(0), fieldNode);
-                    } else {
-                        JsonNode newNode=null;
-                        if(fieldMd instanceof ObjectField||
-                           fieldMd instanceof ObjectArrayElement) {
-                            LOGGER.debug("Projecting object field {}",cursor.getCurrentPath());
-                            if(cursor.firstChild()) {
-                                newNode=(getNestedProjector()==null?this:getNestedProjector()).
-                                    project(factory,contextPath,contextNode,cursor,ctx,false);
-                                cursor.parent();
-                                LOGGER.debug("Child object:{}",newNode);
-                                // if(newNode==null)
-                                //     newNode=factory.objectNode();
-                            }
-                        } else if(fieldMd instanceof ArrayField||
-                                  fieldMd instanceof ResolvedReferenceField) {
-                            LOGGER.debug("Projecting array field {}",cursor.getCurrentPath());
-                            if(cursor.firstChild()) {
-                                newNode=(getNestedProjector()==null?this:getNestedProjector()).
-                                    project(factory,contextPath,contextNode,cursor,ctx,true);
-                                cursor.parent();
-                                LOGGER.debug("Child object:{}",newNode);
-                                // if(newNode==null)
-                                //     newNode=factory.arrayNode();
-                            }                            
-                        } else if(fieldMd instanceof SimpleField) {
-                            newNode=fieldNode;
-                        } else if(fieldMd instanceof SimpleArrayElement) {
-                            newNode=fieldNode;
-                        } 
-                        if(newNode!=null) {
-                            if(newNode instanceof ArrayNode)
-                                newNode=sort(factory,this,(ArrayNode)newNode,fieldPath);
-                            if(parentNode==null)
-                                parentNode=processingArray?factory.arrayNode():factory.objectNode();
-                            if(parentNode instanceof ArrayNode)
-                                ((ArrayNode)parentNode).add(newNode);
-                            else
-                                ((ObjectNode)parentNode).set(fieldPath.tail(0), newNode);
-                        }
+                            ((ObjectNode)parentNode).set(fieldPath.tail(0), newNode);
                     }
                 }
-            } else {
-                LOGGER.warn("Unknown field:{}",fieldPath);
+            } else if(result==Projection.Inclusion.implicit_inclusion||
+                      result==Projection.Inclusion.explicit_inclusion) {
+                // Field is included
+                if(fieldNode instanceof NullNode) {
+                    if(parentNode==null)
+                        parentNode=processingArray?factory.arrayNode():factory.objectNode();
+                    if(parentNode instanceof ArrayNode)
+                        ((ArrayNode)parentNode).add(fieldNode);
+                    else
+                        ((ObjectNode)parentNode).set(fieldPath.tail(0), fieldNode);
+                } else {
+                    JsonNode newNode=null;
+                    if(fieldNode instanceof ObjectNode) {
+                        LOGGER.debug("Projecting object field {}",cursor.getCurrentPath());
+                        if(cursor.firstChild()) {
+                            newNode=(getNestedProjector()==null?this:getNestedProjector()).
+                                project(factory,contextPath,cursor,ctx,false);
+                            cursor.parent();
+                            LOGGER.debug("Child object:{}",newNode);
+                        }
+                    } else if(fieldNode instanceof ArrayNode) {
+                        LOGGER.debug("Projecting array field {}",cursor.getCurrentPath());
+                        if(cursor.firstChild()) {
+                            newNode=(getNestedProjector()==null?this:getNestedProjector()).
+                                project(factory,contextPath,cursor,ctx,true);
+                            cursor.parent();
+                            LOGGER.debug("Child object:{}",newNode);
+                        }
+                    } else {
+                        newNode=fieldNode;
+                    } 
+                    if(newNode!=null) {
+                        if(newNode instanceof ArrayNode)
+                            newNode=sort(factory,this,(ArrayNode)newNode,fieldPath);
+                        if(parentNode==null)
+                            parentNode=processingArray?factory.arrayNode():factory.objectNode();
+                        if(parentNode instanceof ArrayNode)
+                            ((ArrayNode)parentNode).add(newNode);
+                        else
+                            ((ObjectNode)parentNode).set(fieldPath.tail(0), newNode);
+                    }
+                }
             }
         } while (cursor.nextSibling());
         return parentNode;
