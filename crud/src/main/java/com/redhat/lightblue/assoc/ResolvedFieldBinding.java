@@ -363,10 +363,21 @@ public class ResolvedFieldBinding implements Serializable {
         }
     }
 
+    public List<ParentDocReference> getParentDocReferences(ResultDoc doc) {
+    	List<ParentDocReference> list=new ArrayList<>();
+    	KeyValueCursor<Path,JsonNode> nodeCursor=doc.getDoc().getAllNodes(valueField);
+    	while(nodeCursor.hasNext()) {
+    	    nodeCursor.next();
+    	    Path p=nodeCursor.getCurrentKey();
+    	    list.add(new ParentDocReference(doc,p,this));
+    	}
+    	return list;
+    }
+    
     public void refresh(ParentDocReference ref) {
         ResultDoc doc=ref.getDocument();
         if(doc.getMetadata()==entity) {
-            refresh(doc.getDoc().get(valueField));            
+            refresh(doc.getDoc().get(ref.getField()));            
         } else
             throw new RuntimeException("Unsupported binding");
     }

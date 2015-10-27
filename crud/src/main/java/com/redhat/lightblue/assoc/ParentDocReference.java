@@ -31,12 +31,24 @@ import com.redhat.lightblue.util.Path;
 public class ParentDocReference extends DocReference {
 
     private final List<ResultDoc> parents=new ArrayList<>();
-
+    private final Path field;
+    private final ResolvedFieldBinding binding;
+    
     /**
      * Constructs a reference for the given document and field
      */
-    public ParentDocReference(ResultDoc document) {
+    public ParentDocReference(ResultDoc document,Path field,ResolvedFieldBinding binding) {
         super(document);
+        this.field=field;
+        this.binding=binding;
+    }
+    
+    public Path getField() {
+    	return field;
+    }
+    
+    public ResolvedFieldBinding getBinding() {
+    	return binding;
     }
 
     /**

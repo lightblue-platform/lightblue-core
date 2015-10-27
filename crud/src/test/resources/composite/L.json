@@ -42,6 +42,19 @@
             },
             "name": {
                 "type": "string"
+            },
+            "us": {
+                "type":"reference",
+                "entity":"U",
+                "versionValue":"0.0.1",
+                "query":{
+                    "array":"legalEntities",
+                    "elemMatch": {
+                        "field":"legalEntityId",
+                        "op":"=",
+                        "rfield":"$parent.$parent.$parent._id"
+                    }
+                }
             }
         }
     }
