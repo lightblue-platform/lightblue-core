@@ -19,7 +19,6 @@
 package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -27,16 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
-import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
 import com.redhat.lightblue.metadata.ObjectField;
@@ -45,7 +39,6 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.Arith;
 import com.redhat.lightblue.query.FieldAndRValue;
-import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.MaskedSetExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.ProjectionList;
@@ -67,7 +60,7 @@ public class SetExpressionEvaluator extends Updater {
     private final UpdateOperator op;
     private final JsonNodeFactory factory;
 
-    private ListProjector lProj;
+    private Projector projector;
 
     private static final class FieldData {
         /**
@@ -128,8 +121,7 @@ public class SetExpressionEvaluator extends Updater {
             List<Projection> maskedFields = new ArrayList<Projection>(((MaskedSetExpression) expr).getMaskFields().size());
             maskedFields.addAll(((MaskedSetExpression) expr).getMaskFields());
                         
-            ProjectionList projList = new ProjectionList(maskedFields);
-            lProj = new ListProjector(projList, context.getFullPath(), context);
+            projector = Projector.getInstance(new ProjectionList(maskedFields), context.getFullPath(), context);
         }
         for (FieldAndRValue fld : expr.getFields()) {
             Path field = fld.getField();
@@ -214,7 +206,9 @@ public class SetExpressionEvaluator extends Updater {
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
         
-       JsonDoc project = lProj.project(doc, factory);
+        JsonDoc project = projector.project(doc, factory);
+        //{"objectType":"error","context":"0","errorCode":"metadata:InvalidArrayReference","msg":"0 in 0"}
+        
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
             LOGGER.debug("Set field {} in ctx: {}", df.field, contextPath);

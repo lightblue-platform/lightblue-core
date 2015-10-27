@@ -187,7 +187,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     @Test
     public void array_foreach_set_partial_this() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
-                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ { 'field': '$this.elemf2' }, { 'field': '$this.elemf3' } ] } } }");
+                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ { 'field': 'elemf2' }, { 'field': 'elemf3' } ] } } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         JsonNode json = expr.toJson();
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
