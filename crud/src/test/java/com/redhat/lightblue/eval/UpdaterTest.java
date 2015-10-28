@@ -197,7 +197,7 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         for (JsonNode node : jsonDoc.get(new Path("field7"))) {
             Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
             Assert.assertEquals("NA", node.get("elemf2").asText());
-            Assert.assertEquals(-1, node.get("elemf2").asInt());
+            Assert.assertEquals(-1, node.get("elemf3").asInt());
             Assert.assertEquals(3, node.size());
             i++;
         }

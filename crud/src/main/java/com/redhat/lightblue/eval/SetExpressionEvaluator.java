@@ -19,7 +19,9 @@
 package com.redhat.lightblue.eval;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -59,8 +61,8 @@ public class SetExpressionEvaluator extends Updater {
     private final List<FieldData> setValues = new ArrayList<>();
     private final UpdateOperator op;
     private final JsonNodeFactory factory;
-
-    private Projector projector;
+    private JsonDoc project;
+    private boolean masked;
 
     private static final class FieldData {
         /**
@@ -78,14 +80,12 @@ public class SetExpressionEvaluator extends Updater {
         private final Type fieldType;
 
         /**
-         * If the field is to be set from another field, the referenced relative
-         * path to the source field
+         * If the field is to be set from another field, the referenced relative path to the source field
          */
         private final Path refPath;
 
         /**
-         * If the field is to be set from another field, the type of the source
-         * field
+         * If the field is to be set from another field, the type of the source field
          */
         private final Type refType;
 
@@ -117,11 +117,14 @@ public class SetExpressionEvaluator extends Updater {
     public SetExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, SetExpression expr) {
         this.factory = factory;
         op = expr.getOp();
+        List<JsonDoc> docs = new ArrayList<JsonDoc>();
+        Projector projector = null;
         if (expr instanceof MaskedSetExpression) {
+            masked = true;
             List<Projection> maskedFields = new ArrayList<Projection>(((MaskedSetExpression) expr).getMaskFields().size());
             maskedFields.addAll(((MaskedSetExpression) expr).getMaskFields());
                         
-            projector = Projector.getInstance(new ProjectionList(maskedFields), context.getFullPath(), context);
+            projector = Projector.getInstance(new ProjectionList(maskedFields), Path.EMPTY, context);
         }
         for (FieldAndRValue fld : expr.getFields()) {
             Path field = fld.getField();
@@ -137,6 +140,10 @@ public class SetExpressionEvaluator extends Updater {
                 }
                 LOGGER.debug("Refpath {}", refPath);
             }
+            if(rvalue.getType() == RValueExpression.RValueType._value && rvalue.getValue().getValue() instanceof ObjectNode && projector != null){
+                ObjectNode node = (ObjectNode) rvalue.getValue().getValue();
+                docs.add(projector.project(new JsonDoc(node), factory));
+            }
             FieldTreeNode mdNode = context.resolve(field);
             if (mdNode == null) {
                 throw new EvaluationError(CrudConstants.ERR_CANT_ACCESS + field);
@@ -151,6 +158,7 @@ public class SetExpressionEvaluator extends Updater {
             }
             setValues.add(data);
         }
+        project = new JsonDoc(JsonDoc.listToDoc(docs, factory));
     }
 
     private FieldData initializeSimple(RValueExpression rvalue, FieldTreeNode refMdNode, FieldTreeNode mdNode, Path field, Path refPath) {
@@ -158,9 +166,9 @@ public class SetExpressionEvaluator extends Updater {
             if (!mdNode.getType().equals(refMdNode.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_DEREFERENCE + field + " <- " + refPath);
             }
-        } else if(rvalue.getType()!=RValueExpression.RValueType._null) {
-            Value v=rvalue.getValue();
-            if(v.getValue() instanceof JsonNode)
+        } else if (rvalue.getType() != RValueExpression.RValueType._null) {
+            Value v = rvalue.getValue();
+            if (v.getValue() instanceof JsonNode)
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
         }
 
@@ -172,9 +180,9 @@ public class SetExpressionEvaluator extends Updater {
             if (!(refMdNode instanceof ObjectField)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
-        } else if(rvalue.getType()!=RValueExpression.RValueType._null) {
-            Value v=rvalue.getValue();
-            if(!(v.getValue() instanceof ObjectNode)) {
+        } else if (rvalue.getType() != RValueExpression.RValueType._null) {
+            Value v = rvalue.getValue();
+            if (!(v.getValue() instanceof ObjectNode)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
             }
         }
@@ -186,9 +194,9 @@ public class SetExpressionEvaluator extends Updater {
             if (!(refMdNode instanceof ArrayField)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
-        } else if(rvalue.getType()!=RValueExpression.RValueType._null) {
-            Value v=rvalue.getValue();
-            if(!(v.getValue() instanceof ArrayNode)) {
+        } else if (rvalue.getType() != RValueExpression.RValueType._null) {
+            Value v = rvalue.getValue();
+            if (!(v.getValue() instanceof ArrayNode)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
             }
         }
@@ -205,10 +213,7 @@ public class SetExpressionEvaluator extends Updater {
     @Override
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
-        
-        JsonDoc project = projector.project(doc, factory);
-        //{"objectType":"error","context":"0","errorCode":"metadata:InvalidArrayReference","msg":"0 in 0"}
-        
+
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
             LOGGER.debug("Set field {} in ctx: {}", df.field, contextPath);
@@ -230,7 +235,7 @@ public class SetExpressionEvaluator extends Updater {
                 break;
             case _value:
                 newValue = df.value.getValue().getValue();
-                newValueNode = newValue instanceof JsonNode?(JsonNode)newValue:df.fieldType.toJson(factory, newValue);
+                newValueNode = newValue instanceof JsonNode ? (JsonNode) newValue : df.fieldType.toJson(factory, newValue);
                 newValueType = df.fieldType;
                 break;
             }
@@ -247,13 +252,31 @@ public class SetExpressionEvaluator extends Updater {
         JsonNode oldValueNode = null;
         Path fieldPath = new Path(contextPath, df.field);
         if (op == UpdateOperator._set) {
-            LOGGER.debug("set fieldPath={}, newValue={}",fieldPath,newValueNode);
-            oldValueNode = doc.modify(fieldPath, newValueNode, true);
+            LOGGER.debug("set fieldPath={}, newValue={}", fieldPath, newValueNode);
+            if (masked) {
+                Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
+                while(fieldsIt.hasNext()){
+                    Entry<String, JsonNode> next = fieldsIt.next();
+                    next.getKey();
+                    doc.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), true);
+                }
+            } else {
+                oldValueNode = doc.modify(fieldPath, newValueNode, true);
+            }
         } else if (op == UpdateOperator._add) {
             oldValueNode = doc.get(fieldPath);
             if (newValueNode != null && oldValueNode != null) {
                 newValueNode = df.fieldType.toJson(factory, Arith.add(df.fieldType.fromJson(oldValueNode), newValue, Arith.promote(df.fieldType, newValueType)));
-                doc.modify(fieldPath, newValueNode, false);
+                if (masked) {
+                    Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
+                    while (fieldsIt.hasNext()) {
+                        Entry<String, JsonNode> next = fieldsIt.next();
+                        next.getKey();
+                        doc.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), false);
+                    }
+                } else {
+                    doc.modify(fieldPath, newValueNode, false);
+                }
             }
         }
         return oldValueNode;
