@@ -201,8 +201,10 @@ public class QueryPlanNodeExecutor {
                     // that are children of the documents of this node
                     list=new ArrayList<>(source.docs.size());
                     for(ResultDoc sourceDoc:source.docs) {
-                        list.add((DocReference)new ParentDocReference(sourceDoc));
-                    }
+                    	for(ResolvedFieldBinding binding:sourceBindings) {
+                    		list.addAll(binding.getParentDocReferences(sourceDoc));
+                    	}
+                    }                        
                 }
                 LOGGER.debug("Adding {} docs from node {} to node {}, source has {} docs",
                              list.size(),
@@ -227,7 +229,8 @@ public class QueryPlanNodeExecutor {
                             binding.refresh((ChildDocReference)docReference);
                     } else {
                         for(ResolvedFieldBinding binding:sourceBindings)
-                            binding.refresh((ParentDocReference)docReference);
+                        	if(binding == ((ParentDocReference)docReference).getBinding())
+                        		binding.refresh((ParentDocReference)docReference);
                     }
                 }
                 

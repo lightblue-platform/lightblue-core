@@ -479,4 +479,23 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertNotNull(updateQuery);
         Assert.assertTrue(updateQuery instanceof ValueComparisonExpression);
     }
+
+    @Test
+    public void rev_search_with_arraycond() throws Exception {
+        /**
+          This results in a query plan where U -> L, and the relationship L->U is defined with an array elemMatch query
+             {array:x,elemMatch:{field:y,op:=,rfield:rf}}
+          Once bound, this should be rewritten as:
+             {field:localized(rf),op:=,rvalues:x.i.y}
+          In other words, array elem match with array X and field Y is treated like a search on X.*.Y
+
+         */
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'us','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("L","0.0.1"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+    }
 }
