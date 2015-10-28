@@ -257,7 +257,6 @@ public class SetExpressionEvaluator extends Updater {
                 Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
                 while(fieldsIt.hasNext()){
                     Entry<String, JsonNode> next = fieldsIt.next();
-                    next.getKey();
                     doc.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), true);
                 }
             } else {
@@ -271,7 +270,6 @@ public class SetExpressionEvaluator extends Updater {
                     Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
                     while (fieldsIt.hasNext()) {
                         Entry<String, JsonNode> next = fieldsIt.next();
-                        next.getKey();
                         doc.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), false);
                     }
                 } else {

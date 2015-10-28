@@ -189,7 +189,6 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
                 "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ { 'field': 'elemf2' }, { 'field': 'elemf3' } ] } } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
-        JsonNode json = expr.toJson();
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
 
         Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
@@ -198,6 +197,43 @@ public class UpdaterTest extends AbstractJsonNodeTest {
             Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
             Assert.assertEquals("NA", node.get("elemf2").asText());
             Assert.assertEquals(-1, node.get("elemf3").asInt());
+            Assert.assertEquals(3, node.size());
+            i++;
+        }
+    }
+    
+    @Test
+    public void array_foreach_set_partial_this_no_fields() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
+                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ ] } } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        int i = 0;
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
+            Assert.assertEquals("elvalue" + i + "_2", node.get("elemf2").asText());
+            Assert.assertEquals(3 + i, node.get("elemf3").asInt());
+            Assert.assertEquals(3, node.size());
+            i++;
+        }
+    }
+    
+    @Test
+    public void array_foreach_set_partial_this_invalid_fields() throws Exception {
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson(
+                "{ '$foreach' : { 'field7' : '$all' , '$update' : {'$set': { '$this': {'elemf1': 'NA', 'elemf2': 'NA', 'elemf3': -1 } }, 'fields': [ { 'field': 'elemf4' } ] } } }");
+        // should do nothing
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        int i = 0;
+        for (JsonNode node : jsonDoc.get(new Path("field7"))) {
+            Assert.assertEquals("elvalue" + i + "_1", node.get("elemf1").asText());
+            Assert.assertEquals("elvalue" + i + "_2", node.get("elemf2").asText());
+            Assert.assertEquals(3 + i, node.get("elemf3").asInt());
             Assert.assertEquals(3, node.size());
             i++;
         }
