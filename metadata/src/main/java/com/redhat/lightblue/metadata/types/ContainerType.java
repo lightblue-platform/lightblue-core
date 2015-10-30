@@ -53,7 +53,10 @@ public abstract class ContainerType implements Type {
 
     @Override
     public Object cast(Object v) {
-        throw new UnsupportedOperationException(MetadataConstants.ERR_CAST_NOT_SUPPORTED);
+        if(v==null)
+            return null;
+        else
+            throw new UnsupportedOperationException(MetadataConstants.ERR_CAST_NOT_SUPPORTED);
     }
 
     @Override
