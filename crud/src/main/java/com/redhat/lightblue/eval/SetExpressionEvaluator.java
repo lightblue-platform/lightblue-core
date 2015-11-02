@@ -120,11 +120,9 @@ public class SetExpressionEvaluator extends Updater {
         List<JsonDoc> docs = new ArrayList<JsonDoc>();
         Projector projector = null;
         if (expr instanceof MaskedSetExpression) {
+            MaskedSetExpression mExpr = (MaskedSetExpression) expr;
             masked = true;
-            List<Projection> maskedFields = new ArrayList<Projection>(((MaskedSetExpression) expr).getMaskFields().size());
-            maskedFields.addAll(((MaskedSetExpression) expr).getMaskFields());
-                        
-            projector = Projector.getInstance(new ProjectionList(maskedFields), Path.EMPTY, context);
+            projector = Projector.getInstance(new ProjectionList(mExpr.getMaskFields()), Path.EMPTY, context);
         }
         for (FieldAndRValue fld : expr.getFields()) {
             Path field = fld.getField();
@@ -254,11 +252,7 @@ public class SetExpressionEvaluator extends Updater {
         if (op == UpdateOperator._set) {
             LOGGER.debug("set fieldPath={}, newValue={}", fieldPath, newValueNode);
             if (masked) {
-                Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
-                while(fieldsIt.hasNext()){
-                    Entry<String, JsonNode> next = fieldsIt.next();
-                    doc.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), true);
-                }
+                copyProjection(project, doc, fieldPath);
             } else {
                 oldValueNode = doc.modify(fieldPath, newValueNode, true);
             }
@@ -267,17 +261,21 @@ public class SetExpressionEvaluator extends Updater {
             if (newValueNode != null && oldValueNode != null) {
                 newValueNode = df.fieldType.toJson(factory, Arith.add(df.fieldType.fromJson(oldValueNode), newValue, Arith.promote(df.fieldType, newValueType)));
                 if (masked) {
-                    Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
-                    while (fieldsIt.hasNext()) {
-                        Entry<String, JsonNode> next = fieldsIt.next();
-                        doc.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), false);
-                    }
+                    copyProjection(project, doc, fieldPath);
                 } else {
                     doc.modify(fieldPath, newValueNode, false);
                 }
             }
         }
         return oldValueNode;
+    }
+    
+    private void copyProjection(JsonDoc projection, JsonDoc docToModify, Path fieldPath){
+        Iterator<Entry<String, JsonNode>> fieldsIt = project.getRoot().fields();
+        while (fieldsIt.hasNext()) {
+            Entry<String, JsonNode> next = fieldsIt.next();
+            docToModify.modify(fieldPath.add(new Path(next.getKey())), next.getValue(), false);
+        }
     }
 
     private boolean oldAndNewAreDifferent(JsonNode oldValueNode, JsonNode newValueNode) {
