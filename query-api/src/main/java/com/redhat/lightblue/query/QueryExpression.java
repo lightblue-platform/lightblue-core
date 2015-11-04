@@ -57,59 +57,6 @@ public abstract class QueryExpression extends JsonObject {
         }
     }
 
-    private static final class GetQueryFieldsItr extends QueryIterator {
-        private List<FieldInfo> fields;
-
-        public GetQueryFieldsItr(List<FieldInfo> fields) {
-            this.fields = fields;
-        }
-
-        @Override
-        protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getArray()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path ctx) {
-            // Array match expression does not have the array itself as a field.
-            // All the fields references in the nested expression are the fields used by this expression
-            return super.itrArrayMatchExpression(q,ctx);
-        }
-
-        @Override
-        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            fields.add(new FieldInfo(new Path(ctx, q.getRfield()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            fields.add(new FieldInfo(new Path(ctx, q.getRfield()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            return q;
-        }
-
-        @Override
-        protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path ctx) {
-            fields.add(new FieldInfo(new Path(ctx, q.getField()), ctx, q));
-            return q;
-        }
-    }
-
     private static final class BindItr extends QueryIterator {
         private List<FieldBinding> bindingResult;
         private Set<Path> bindRequest;
@@ -212,9 +159,7 @@ public abstract class QueryExpression extends JsonObject {
      * Returns field information about the query
      */
     public List<FieldInfo> getQueryFields() {
-        List<FieldInfo> list = new ArrayList<FieldInfo>(16);
-        getQueryFields(list);
-        return list;
+        return GetQueryFields.getQueryFields(this);
     }
 
     /**
@@ -223,14 +168,14 @@ public abstract class QueryExpression extends JsonObject {
      * @param fields The call adds the field information to this list
      */
     public void getQueryFields(List<FieldInfo> fields) {
-        getQueryFields(fields, Path.EMPTY);
+        GetQueryFields.getQueryFields(fields,this);
     }
 
     /**
      * The implementation should populate the list with the field information
      */
     public void getQueryFields(List<FieldInfo> fields, Path ctx) {
-        new GetQueryFieldsItr(fields).iterate(this, ctx);
+        GetQueryFields.getQueryFields(fields,this,ctx);
     }
 
     /**
