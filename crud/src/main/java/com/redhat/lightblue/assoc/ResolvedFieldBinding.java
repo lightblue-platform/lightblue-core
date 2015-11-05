@@ -183,7 +183,7 @@ public class ResolvedFieldBinding implements Serializable {
             // Find a field with the array name as the prefix
             ResolvedFieldInfo arrayDescendant=null;
             for(ResolvedFieldInfo rfi:conjunct.getFieldInfo()) {
-                Path p=rfi.getOriginalFieldName();
+                Path p=rfi.getFieldName();
                 if(arrayName.matchingPrefix(p)) {
                     arrayDescendant=rfi;
                     break;
@@ -287,13 +287,13 @@ public class ResolvedFieldBinding implements Serializable {
                             Path lfield=new Path(qic.getContext(),fce.getField());
                             Path rfield=new Path(qic.getContext(),fce.getRfield());
                             ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
-                            bindRequest.add(f.getOriginalFieldName());
+                            bindRequest.add(f.getFieldName());
                         } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
                             NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
                             Path lfield=new Path(qic.getContext(),nfr.getField());
                             Path rfield=new Path(qic.getContext(),nfr.getRfield());
                             ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
-                            bindRequest.add(f.getOriginalFieldName());
+                            bindRequest.add(f.getFieldName());
                         }
                     }
 

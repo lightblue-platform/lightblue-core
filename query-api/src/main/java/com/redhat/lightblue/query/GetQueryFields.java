@@ -34,18 +34,18 @@ import com.redhat.lightblue.util.Path;
  * </pre>
  * For this query, a fieldInfo is returned for 'a.*.x', but not 'a'.
  */
-public class GetQueryFields extends QueryIterator {
-    private List<FieldInfo> fields;
+public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
+    private List<T> fields;
     
-    public GetQueryFields(List<FieldInfo> fields) {
+    public GetQueryFields(List<T> fields) {
         this.fields = fields;
     }
 
     /**
      * Override this method to create a subclass of FieldInfo if necessary
      */
-    protected FieldInfo newFieldInfo(Path clauseField,Path ctx,QueryExpression clause) {
-        return new FieldInfo(ctx.isEmpty()?clauseField:new Path(ctx,clauseField),ctx,clause);
+    protected T newFieldInfo(Path clauseField,Path ctx,QueryExpression clause) {
+        return (T)new FieldInfo(clauseField,ctx,clause);
     }
     
     @Override
@@ -107,15 +107,15 @@ public class GetQueryFields extends QueryIterator {
      *
      * @param fields The call adds the field information to this list
      */
-    public static void getQueryFields(List<FieldInfo> fields,QueryExpression q) {
+    public static <T extends FieldInfo>  void getQueryFields(List<T> fields,QueryExpression q) {
         getQueryFields(fields, q, Path.EMPTY);
     }
 
     /**
      * The implementation should populate the list with the field information
      */
-    public static void getQueryFields(List<FieldInfo> fields, QueryExpression q,Path ctx) {
-        new GetQueryFields(fields).iterate(q, ctx);
+    public static <T extends FieldInfo> void getQueryFields(List<T> fields, QueryExpression q,Path ctx) {
+        new GetQueryFields<T>(fields).iterate(q, ctx);
     }
-    
+
 }
