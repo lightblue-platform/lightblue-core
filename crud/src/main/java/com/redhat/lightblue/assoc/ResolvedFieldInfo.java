@@ -18,7 +18,12 @@
  */
 package com.redhat.lightblue.assoc;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.redhat.lightblue.query.FieldInfo;
+import com.redhat.lightblue.query.QueryExpression;
+import com.redhat.lightblue.query.GetQueryFields;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
@@ -50,20 +55,15 @@ public class ResolvedFieldInfo extends FieldInfo {
     private final CompositeMetadata fieldCmd;
 
     /**
-     * The field name as it appears in the query
-     */
-    private final Path originalFieldName;
-
-    /**
      * The query plan node associated with the field
      */
     private final QueryPlanNode qnode;
 
-    public ResolvedFieldInfo(FieldInfo x,CompositeMetadata root,ResolvedReferenceField context,QueryPlan qplan) {
-        super(x.getFieldName().normalize(),x.getContext(),x.getClause());
-        originalFieldName=x.getFieldName();
+    public ResolvedFieldInfo(Path clauseFieldName,Path ctx,QueryExpression clause,
+                             CompositeMetadata root,ResolvedReferenceField context,QueryPlan qplan) {
+        super(clauseFieldName,ctx,clause);
         // Get the field node for the field, interpret field name with respect to context
-        fieldNode=context==null?root.resolve(x.getFieldName()):context.getElement().resolve(x.getFieldName());
+        fieldNode=context==null?root.resolve(getFieldName()):context.getElement().resolve(getFieldName());
         ResolvedReferenceField rr=root.getResolvedReferenceOfField(fieldNode);
         if(rr==null)
             fieldEntityMetadata=fieldCmd=root;
@@ -75,7 +75,7 @@ public class ResolvedFieldInfo extends FieldInfo {
         qnode=qplan.getNode(fieldCmd);
         if(qnode==null)
             throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata."+
-                                               " field:"+originalFieldName+" Composite metadata:"+fieldCmd);
+                                               " field:"+getFieldName()+" Composite metadata:"+fieldCmd);
     }
 
     /**
@@ -106,10 +106,6 @@ public class ResolvedFieldInfo extends FieldInfo {
         return fieldCmd;
     }
 
-    public Path getOriginalFieldName() {
-        return originalFieldName;
-    }
-
     public QueryPlanNode getFieldQueryPlanNode() {
         return qnode;
     }
@@ -121,6 +117,7 @@ public class ResolvedFieldInfo extends FieldInfo {
      * remove that many elements from fullPath, and append to get a.b.1.x.y
      */
     private static Path removeParents(Path fullPath,Path path) {
+        path=path.normalize();
         int pathN=path.numSegments();
         // We will go backwards until we see $parent or the beginning
         int nNonParent=0;
@@ -146,5 +143,32 @@ public class ResolvedFieldInfo extends FieldInfo {
             return normalized.suffix(-(cmdPrefix.numSegments()+1));
         else
             return normalized;
+    }
+
+    private static class GetFields extends GetQueryFields<ResolvedFieldInfo> {
+        private final CompositeMetadata root;
+        private final ResolvedReferenceField context;
+        private final QueryPlan qplan;
+        
+        public GetFields(List<ResolvedFieldInfo> list,CompositeMetadata root,ResolvedReferenceField context,QueryPlan qplan) {
+            super(list);
+            this.root=root;
+            this.context=context;
+            this.qplan=qplan;
+        }
+
+        @Override
+        protected ResolvedFieldInfo newFieldInfo(Path clauseField,Path ctx,QueryExpression clause) {
+            return new ResolvedFieldInfo(clauseField,ctx,clause,root,context,qplan);
+        }
+    }
+
+    public static List<ResolvedFieldInfo> getQueryFields(QueryExpression q,
+                                                         CompositeMetadata root,
+                                                         ResolvedReferenceField context,
+                                                         QueryPlan qplan) {
+        List<ResolvedFieldInfo> list=new ArrayList<>();
+        new GetFields(list,root,context,qplan).iterate(q);
+        return list;
     }
 }

@@ -83,16 +83,12 @@ public class Conjunct implements Serializable {
                     ResolvedReferenceField context) {
         this.clause=q;
         this.requestQuery=context==null;
-        List<FieldInfo> fInfo=clause.getQueryFields();
-        LOGGER.debug("Conjunct for query {} with fields {}",q,fInfo);
-        fieldInfo=new ResolvedFieldInfo[fInfo.size()];
-        int index=0;
-        for(FieldInfo fi:fInfo) {
-            ResolvedFieldInfo rfi=new ResolvedFieldInfo(fi,compositeMetadata,context,qplan);
-            fieldInfo[index++]=rfi;
+        List<ResolvedFieldInfo> finfo=ResolvedFieldInfo.getQueryFields(clause,compositeMetadata,context,qplan);
+        LOGGER.debug("Conjunct for query {} with fields {}",q,finfo);
+        fieldInfo=finfo.toArray(new ResolvedFieldInfo[finfo.size()]);
+        for(ResolvedFieldInfo rfi:fieldInfo) {
             referredNodes.add(rfi.getFieldQueryPlanNode());
         }
-        
     }
 
     /**
@@ -133,7 +129,7 @@ public class Conjunct implements Serializable {
      */
     public ResolvedFieldInfo getFieldInfoByOriginalFieldName(Path p) {
         for(ResolvedFieldInfo fi:fieldInfo)
-            if(fi.getOriginalFieldName().equals(p))
+            if(fi.getFieldName().equals(p))
                 return fi;
         return null;
     }
