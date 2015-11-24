@@ -1,0 +1,13 @@
+Basic retrieval: retrieve results of a query. No binding.
+  Input: none
+  Output: result set
+
+For every reference field for entity A:
+  - Bind reference query. For each field, find which entity field belongs to
+  - All fields that are not belonging to A are to be bound
+  - The node for every bound field should keep a field list for fields that will be used for evaluating bindings
+     
+     
+
+Tuple Bind:
+  Input: 
