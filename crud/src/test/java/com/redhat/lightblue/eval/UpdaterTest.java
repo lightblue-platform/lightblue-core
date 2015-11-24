@@ -203,6 +203,17 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void array_foreach_nullq() throws Exception {
+        jsonDoc.modify(new Path("field7.0.elemf1"),null,false);
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':null} , '$update' : {'$set': { 'elemf1':'test'}} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+    }
+
+    @Test
     public void array_foreach_append() throws Exception {
         jsonDoc = EvalTestContext.getDoc("./termsdata.json");
         md = EvalTestContext.getMd("./termsmd.json");
