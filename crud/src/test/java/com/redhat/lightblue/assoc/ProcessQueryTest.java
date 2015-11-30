@@ -113,4 +113,54 @@ public class ProcessQueryTest extends AbstractJsonNodeTest {
         Assert.assertTrue(md==list.get(1).getFieldEntity());
         Assert.assertEquals(new Path("obj1.c_ref"),list.get(1).getEntityRelativeFieldName());
     }
+
+    @Test
+    public void testAssocQueryInfo_secondNode() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+
+        // Process query at root
+        ProcessQuery pq=new ProcessQuery(md.getChildMetadata(new Path("obj1.c")),
+                                         md,md.getResolvedReferenceOfField(new Path("obj1.c")));
+        QueryExpression q=query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
+        pq.iterate(q);
+        
+        List<ProcessQuery.QueryFieldInfo> list=pq.getFieldInfo();
+        Assert.assertEquals(new Path("_id"),list.get(0).getFieldNameInClause());
+        Assert.assertEquals(new Path("_id"),list.get(0).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(0).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(0).getFieldEntity());
+        Assert.assertEquals(new Path("_id"),list.get(0).getEntityRelativeFieldName());
+        
+        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(1).getFieldMd());
+        Assert.assertTrue(md==list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("obj1.c_ref"),list.get(1).getEntityRelativeFieldName());
+    }
+
+    @Test
+    public void testReqQueryInfo_forEach() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+
+        // Process query at root
+        ProcessQuery pq=new ProcessQuery(md,md,null);
+        QueryExpression q=query("{'array' : 'obj1.c', 'elemMatch':{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}}");
+        pq.iterate(q);
+        
+        List<ProcessQuery.QueryFieldInfo> list=pq.getFieldInfo();
+        Assert.assertEquals(new Path("_id"),list.get(0).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*._id"),list.get(0).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(0).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(0).getFieldEntity());
+        Assert.assertEquals(new Path("_id"),list.get(0).getEntityRelativeFieldName());
+        
+        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*.$parent.c_ref"),list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(1).getFieldMd());
+        Assert.assertTrue(md==list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("obj1.c_ref"),list.get(1).getEntityRelativeFieldName());
+    }
+    
 }
