@@ -117,37 +117,33 @@ public class ProcessQuery extends QueryIterator {
         // normalizedFieldName: the field name where $parent can only appear at the beginning
         // No $this can appear
         Path normalizedFieldName=fullFieldName.normalize();
-        Path entityRelativeFieldName;
-        if(fieldMd==currentEntity) {
-            // Then the normalized field name is also the entity relative field name
-            entityRelativeFieldName=normalizedFieldName;
-        } else {
-            // start from fieldNode, go backwards until the entity boundary
-            // copy the indexes from the normalizedFieldName
-            FieldTreeNode trc=fieldNode;
-            int n=normalizedFieldName.numSegments()-1;
-            ArrayList<String> list=new ArrayList<>(n);
-            do {
-                String name=trc.getName();
-                if(Path.ANY.equals(name)) {
-                    list.add(normalizedFieldName.head(n));
-                } else {
-                    list.add(name);
-                }
-                trc=trc.getParent();
-                if( (trc instanceof ArrayElement&&
-                     ((ArrayElement)trc).getParent() instanceof ResolvedReferenceField) ||
-                    trc.getParent()==null ) {
-                    // Entity boundary, or root
-                    trc=null;
-                }
-            } while(trc!=null);
-            MutablePath p=new MutablePath();
-            n=list.size();
-            for(int i=n-1;i>=0;i--)
-                p.push(list.get(i));
-            entityRelativeFieldName=p.immutableCopy();
-        }
+
+        // Now compute the relative field name within its entity
+        // start from fieldNode, go backwards until the entity boundary
+        // copy the indexes from the normalizedFieldName
+        FieldTreeNode trc=fieldNode;
+        int n=normalizedFieldName.numSegments()-1;
+        ArrayList<String> list=new ArrayList<>(n);
+        do {
+            String name=trc.getName();
+            if(Path.ANY.equals(name)) {
+                list.add(normalizedFieldName.head(n));
+            } else {
+                list.add(name);
+            }
+            trc=trc.getParent();
+            if( (trc instanceof ArrayElement&&
+                 ((ArrayElement)trc).getParent() instanceof ResolvedReferenceField) ||
+                trc.getParent()==null ) {
+                // Entity boundary, or root
+                trc=null;
+            }
+        } while(trc!=null);
+        MutablePath p=new MutablePath();
+        n=list.size();
+        for(int i=n-1;i>=0;i--)
+            p.push(list.get(i));
+        Path entityRelativeFieldName=p.immutableCopy();
         fieldInfo.add(new QueryFieldInfo(clauseFieldName,
                                          fullFieldName,
                                          fieldNode,
