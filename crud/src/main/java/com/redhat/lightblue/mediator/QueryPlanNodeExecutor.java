@@ -169,8 +169,10 @@ public class QueryPlanNodeExecutor {
             findRequest.setSort(resolvedReference.getReferenceField().getSort());
         }
 
-        findRequest.setFrom(fromIndex);
-        findRequest.setTo(toIndex);
+        if(!sources.isEmpty()) {
+            findRequest.setFrom(fromIndex);
+            findRequest.setTo(toIndex);
+        }
         LOGGER.debug("execute {}: findRequest.query={}, projection={}, sort={}", node.getName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
 
