@@ -254,6 +254,21 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
        Assert.assertEquals(2,response.getEntityData().get(1).get("nonid_b").size());
    }
 
+    @Test
+    public void retrieveAandBonly_manyB_range() throws Exception {
+       FindRequest fr=new FindRequest();
+       fr.setQuery(query("{'field':'_id','op':'$in','values':['MANYB1','MANYB2']}"));
+       fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'nonid_b'}]"));
+       fr.setSort(sort("{'_id':'$asc'}"));
+       fr.setFrom(0l);
+       fr.setTo(0l);
+       fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+       Response response=mediator.find(fr);
+       Assert.assertEquals(1,response.getEntityData().size());
+       Assert.assertEquals("MANYB1",response.getEntityData().get(0).get("_id").asText());
+       Assert.assertEquals(2,response.getEntityData().get(0).get("nonid_b").size());
+   }
+
    @Test
    public void retrieveAandConly_CFirst() throws Exception {
        FindRequest fr=new FindRequest();
@@ -270,7 +285,19 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
        Assert.assertEquals("C",qplan.getSources()[0].getMetadata().getName());
    }
 
-   @Test
+    @Test
+   public void retrieveAandConly_CFirst_range() throws Exception {
+       FindRequest fr=new FindRequest();
+       fr.setQuery(query("{'field':'obj1.c.*.objectType','op':'=','rvalue':'C'}"));
+       fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'obj1.c'}]"));
+       fr.setFrom(0l);
+       fr.setTo(0l);
+       fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+       Response response=mediator.find(fr);
+       Assert.assertEquals(1,response.getEntityData().size());
+   }
+
+    @Test
    public void retrieveAandBonly_2q() throws Exception {
        FindRequest fr=new FindRequest();
        fr.setQuery(query("{'$and': [ {'field':'_id','op':'=','rvalue':'A09'}, {'field':'b.*.field1','op':'=','rvalue':'GpP8rweso'} ] }"));
