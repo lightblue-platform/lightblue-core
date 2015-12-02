@@ -38,26 +38,45 @@ public class ProcessQuery extends QueryIterator {
             this.clause=clause;
         }
 
+        /**
+         * Name of the field in the clause containing the field. 
+         */
         public Path getFieldNameInClause() {
             return fieldNameInClause;
         }
 
+        /**
+         * Full name of the field. This includes the array name if the
+         * field appears in an elemMatch clause.
+         */
         public Path getFullFieldName() {
             return fullFieldName;
         }
 
+        /**
+         * Field metadata
+         */
         public FieldTreeNode getFieldMd() {
             return fieldMd;
         }
 
+        /**
+         * The composite metadata for the entity containing the field
+         */
         public CompositeMetadata getFieldEntity() {
             return fieldEntity;
         }
 
+        /**
+         * The name of the field relative to the entity containing it
+         */
         public Path getEntityRelativeFieldName() {
             return entityRelativeFieldName;
         }
 
+        /**
+         * The clause containing the field
+         */
         public QueryExpression getClause() {
             return clause;
         }
@@ -92,9 +111,9 @@ public class ProcessQuery extends QueryIterator {
         return fieldInfo;
     }
     
-    private void resolveField(Path clauseFieldName,
-                              Path context,
-                              QueryExpression clause) {
+    private QueryFieldInfo resolveField(Path clauseFieldName,
+                                        Path context,
+                                        QueryExpression clause) {
         // fullFieldName: The name of the field, including any enclosing elemMatch queries
         Path fullFieldName=context.isEmpty()?clauseFieldName:new Path(context,clauseFieldName);
         // The field node in metadata. Resolved relative to the
@@ -144,49 +163,53 @@ public class ProcessQuery extends QueryIterator {
         for(int i=n-1;i>=0;i--)
             p.push(list.get(i));
         Path entityRelativeFieldName=p.immutableCopy();
-        fieldInfo.add(new QueryFieldInfo(clauseFieldName,
-                                         fullFieldName,
-                                         fieldNode,
-                                         fieldMd,
-                                         entityRelativeFieldName,
-                                         clause));
+        return new QueryFieldInfo(clauseFieldName,
+                                  fullFieldName,
+                                  fieldNode,
+                                  fieldMd,
+                                  entityRelativeFieldName,
+                                  clause);
     }
     
     @Override
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
-        resolveField(q.getField(),context,q);
+        fieldInfo.add(resolveField(q.getField(),context,q));
         return q;
     }
 
     @Override
     protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
-        resolveField(q.getField(),context,q);
-        resolveField(q.getRfield(),context,q);
+        QueryFieldInfo lField=resolveField(q.getField(),context,q);
+        QueryFieldInfo rField=resolveField(q.getRfield(),context,q);
+        fieldInfo.add(lField);
+        fieldInfo.add(rField);
         return q;
     }
 
     @Override
     protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
-        resolveField(q.getField(),context,q);
+        fieldInfo.add(resolveField(q.getField(),context,q));
         return q;
     }
 
     @Override
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
-        resolveField(q.getField(),context,q);
+        fieldInfo.add(resolveField(q.getField(),context,q));
         return q;
     }
 
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
-        resolveField(q.getField(),context,q);
-        resolveField(q.getRfield(),context,q);
+        QueryFieldInfo lField=resolveField(q.getField(),context,q);
+        QueryFieldInfo rField=resolveField(q.getRfield(),context,q);
+        fieldInfo.add(lField);
+        fieldInfo.add(rField);
         return q;
     }
 
     @Override
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
-        resolveField(q.getArray(),context,q);
+        fieldInfo.add(resolveField(q.getArray(),context,q));
         return q;
     }
 
