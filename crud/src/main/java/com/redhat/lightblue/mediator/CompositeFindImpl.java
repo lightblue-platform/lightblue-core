@@ -63,6 +63,7 @@ import com.redhat.lightblue.assoc.QueryPlanChooser;
 import com.redhat.lightblue.assoc.ResultDoc;
 import com.redhat.lightblue.assoc.DocReference;
 import com.redhat.lightblue.assoc.ChildDocReference;
+import com.redhat.lightblue.assoc.SortAndLimit;
 
 import com.redhat.lightblue.assoc.scorers.SimpleScorer;
 import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
@@ -158,6 +159,7 @@ public class CompositeFindImpl implements Finder {
         LOGGER.debug("Minimal find tree size={}",minimalTree.size());
         QueryPlan searchQPlan=null;
         QueryPlanNode searchQPlanRoot=null;
+        SortAndLimit sortAndLimit=new SortAndLimit(root,null,null,null);
         if(minimalTree.size()>1) {
             // The query depends on several entities. so, we query first, and then retrieve
             QueryPlanChooser qpChooser=new QueryPlanChooser(root,
@@ -179,8 +181,12 @@ public class CompositeFindImpl implements Finder {
                 QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
                 if(node.getMetadata().getParent()==null) {
                     searchQPlanRoot=node;
-                    if (req.getTo() != null && req.getFrom() != null) {
-                        exec.setRange(req.getFrom(), req.getTo());
+                    if(node.getSources().length>0) {
+                        sortAndLimit=new SortAndLimit(root,req.getSort(),req.getFrom(),req.getTo());
+                    } else {
+                        if (req.getTo() != null && req.getFrom() != null) {
+                            exec.setRange(req.getFrom(), req.getTo());
+                        }
                     }
                     exec.execute(ctx,req.getSort());
                 } else {
@@ -189,7 +195,7 @@ public class CompositeFindImpl implements Finder {
             }
             LOGGER.debug("Composite find: search complete");
         }
-
+        
         LOGGER.debug("Composite find: retrieving documents");
 
         // Create a new query plan for retrieval. This one will have
@@ -227,7 +233,7 @@ public class CompositeFindImpl implements Finder {
                     }
                     LOGGER.debug("Retrieving {} docs",filteredDocs.size());
                     nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(filteredDocs);
-                    rootDocs=filteredDocs;
+                    rootDocs=sortAndLimit.process(filteredDocs);
                 } else {
                     LOGGER.debug("Performing search for retrieval");
                     // Perform search
