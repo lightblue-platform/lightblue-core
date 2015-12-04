@@ -169,12 +169,16 @@ public class QueryPlanNodeExecutor {
             findRequest.setSort(resolvedReference.getReferenceField().getSort());
         }
 
-        findRequest.setFrom(fromIndex);
-        findRequest.setTo(toIndex);
+        if(!sources.isEmpty()) {
+            findRequest.setFrom(fromIndex);
+            findRequest.setTo(toIndex);
+        }
         LOGGER.debug("execute {}: findRequest.query={}, projection={}, sort={}", node.getName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
 
         if(sources.isEmpty()) {
+            findRequest.setFrom(fromIndex);
+            findRequest.setTo(toIndex);
             execute(ctx,findRequest,null);
         } else {
             // We will evaluate this node for every possible combination of parent docs
