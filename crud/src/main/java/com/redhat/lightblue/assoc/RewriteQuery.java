@@ -150,18 +150,51 @@ public class RewriteQuery extends QueryIterator {
         return singleFieldExpression(q.getArray(),q);
     }
 
+    /**
+     * Binds the given field to a value.
+     */
     private BoundValue bind(QueryFieldInfo fi) {
         BoundValue value=new BoundValue();
         bindings.add(new ValueBinding(fi,value));
         return value;
     }
 
+    /**
+     * Binds the given field to a list of values
+     */
     private BoundValueList bindList(QueryFieldInfo fi) {
         BoundValueList value=new BoundValueList();
         bindings.add(new ListBinding(fi,value));
         return value;
     }
 
+    /**
+     * Rewrites a field comparison
+     *
+     * A field comparison is of the form:
+     * <pre>
+     *  { field: f1, op:'=', rfield: f2 }
+     * </pre>
+     *
+     * There are four possible ways this can be rewritten:
+     *
+     * If both f1 and f2 are in the current entity, the query is returned unmodified.
+     *
+     * If f1 is in current entity, but f2 is in a different entity, then the query is rewritten as:
+     * <pre>
+     *    { field: f1, op:'=', rvalue: <value> }
+     * </pre>
+     * and f2 is bound. 
+     *
+     * If f2 is in current entity, but f1 is in a different entity, then the query is rewritten as:
+     * <pre>
+     *   { field: f2, op: '=', rvalue: <value> }
+     * </pre>
+     * and f1 is bound. Also, the operator is inverted (i.e. If >, it is converted to <, etc.).
+     *
+     * If both f1 and f2 are not in the current entity, a placeholder for TRUE is returned.
+     * 
+     */
     @Override
     protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
         QueryFieldInfo lfi=findFieldInfo(q.getField(),q);
@@ -181,6 +214,33 @@ public class RewriteQuery extends QueryIterator {
         }
     }
 
+    /**
+     * Rewrites an nary- field comparison
+     *
+     * An nary- field comparison is of the form:
+     * <pre>
+     *  { field: f1, op:'$in', rfield: f2 }
+     * </pre>
+     *
+     * There are four possible ways this can be rewritten:
+     *
+     * If both f1 and f2 are in the current entity, the query is returned unmodified.
+     *
+     * If f1 is in current entity, but f2 is in a different entity, then the query is rewritten as:
+     * <pre>
+     *    { field: f1, op:'$in', rvalue: <value> }
+     * </pre>
+     * and f2 is bound to a list. 
+     *
+     * If f2 is in current entity, but f1 is in a different entity, then the query is rewritten as:
+     * <pre>
+     *   { field: f2, op: '$all', rvalue: [<value>] }
+     * </pre>
+     * and f1 is bound. 
+     *
+     * If both f1 and f2 are not in the current entity, a placeholder for TRUE is returned.
+     * 
+     */
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
         QueryFieldInfo lfi=findFieldInfo(q.getField(),q);
