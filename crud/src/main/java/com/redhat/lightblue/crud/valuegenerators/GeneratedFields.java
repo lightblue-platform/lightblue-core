@@ -19,6 +19,7 @@
 package com.redhat.lightblue.crud.valuegenerators;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldConstraint;
@@ -107,7 +108,7 @@ public final class GeneratedFields {
                 }
                 LOGGER.debug("Processing segment {}", arrPath);
                 JsonNode node = doc.get(arrPath);
-                if (node != null) {
+                if (node != null&&!(node instanceof NullNode)) {
                     int size = node.size();
                     LOGGER.debug("{} size={}", arrPath, size);
                     arrPath.push(0);
@@ -126,14 +127,23 @@ public final class GeneratedFields {
             } else {
                 p = new MutablePath(fieldPath).rewriteIndexes(resolvedPath);
             }
-            LOGGER.debug("Setting {}", p);
-            JsonNode valueNode = doc.get(p);
-            if (overwrite||(valueNode == null || valueNode.isNull())) {
-                JsonNode value=generate(factory,
-                                        field,
-                                        md);
-                LOGGER.debug("Setting {} to {}", p, value);
-                doc.modify(p, value, true);
+            // Make sure the parent node exists, and not a null node
+            boolean nullParent=false;
+            if(p.numSegments()>1) {
+                JsonNode parentNode=doc.get(p.prefix(-1));
+                if(parentNode==null||parentNode instanceof NullNode)
+                    nullParent=true;
+            }
+            if(!nullParent) {
+                LOGGER.debug("Setting {}", p);
+                JsonNode valueNode = doc.get(p);
+                if (overwrite||(valueNode == null || valueNode.isNull())) {
+                    JsonNode value=generate(factory,
+                                            field,
+                                            md);
+                    LOGGER.debug("Setting {} to {}", p, value);
+                    doc.modify(p, value, true);
+                }
             }
         }
     }

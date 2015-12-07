@@ -40,4 +40,19 @@ public class GeneratedFieldsTest extends AbstractJsonSchemaTest {
         String uid = jd.get(new Path("legalEntities.0.permissions.0.uid")).asText();
         Assert.assertNotNull(uid);
     }
+
+    @Test
+    public void validationDateGenerator() throws Exception {
+        String expected=jd.get(new Path("legalEntities.0.emails.0.validation.creationDate")).asText();
+        GeneratedFields.initializeGeneratedFields(factory, md, jd);
+        String s=jd.get(new Path("legalEntities.0.emails.0.validation.creationDate")).asText();
+        Assert.assertEquals(expected,s);
+
+        jd.modify(new Path("legalEntities.0.emails.0.validation.creationDate"),null,true);
+        Assert.assertNull(jd.get(new Path("legalEntities.0.emails.0.validation.creationDate")));
+
+        GeneratedFields.initializeGeneratedFields(factory, md, jd);
+        s=jd.get(new Path("legalEntities.0.emails.0.validation.creationDate")).asText();
+        Assert.assertNotNull(s);        
+    }
 }
