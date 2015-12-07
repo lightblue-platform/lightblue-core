@@ -248,6 +248,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
        fr.setEntityVersion(new EntityVersion("A","1.0.0"));
        Response response=mediator.find(fr);
        Assert.assertEquals(2,response.getEntityData().size());
+       Assert.assertEquals(2,response.getMatchCount());
        Assert.assertEquals("MANYB1",response.getEntityData().get(0).get("_id").asText());
        Assert.assertEquals(2,response.getEntityData().get(0).get("nonid_b").size());
        Assert.assertEquals("MANYB2",response.getEntityData().get(1).get("_id").asText());
@@ -267,7 +268,22 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
        Assert.assertEquals(1,response.getEntityData().size());
        Assert.assertEquals("MANYB1",response.getEntityData().get(0).get("_id").asText());
        Assert.assertEquals(2,response.getEntityData().get(0).get("nonid_b").size());
-   }
+    }
+
+    @Test
+    public void retrieveAandBonly_manyB_range_incorrect_count() throws Exception {
+       FindRequest fr=new FindRequest();
+       fr.setQuery(query("{'field':'_id','op':'$in','values':['MANYB1','MANYB2']}"));
+       fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'nonid_b'}]"));
+       fr.setSort(sort("{'_id':'$asc'}"));
+       fr.setFrom(0l);
+       fr.setTo(0l);
+       fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+       Response response=mediator.find(fr);
+       Assert.assertEquals(1,response.getEntityData().size());
+       Assert.assertEquals(2,response.getMatchCount());
+    }
+    
 
    @Test
    public void retrieveAandConly_CFirst() throws Exception {

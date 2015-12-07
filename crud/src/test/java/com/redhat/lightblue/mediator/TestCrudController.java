@@ -105,6 +105,9 @@ public class TestCrudController implements CRUDController {
                 }
             }
         }
+        CRUDFindResponse ret=new CRUDFindResponse();
+        ret.setSize(output.size());
+        
         int f=from==null?0:from.intValue();
         int t=to==null?output.size():(to.intValue()+1);
         if(t<f||f>=output.size()) {
@@ -115,8 +118,6 @@ public class TestCrudController implements CRUDController {
             output=output.subList(f,t);
         }
         ctx.setDocuments(output);
-        CRUDFindResponse ret=new CRUDFindResponse();
-        ret.setSize(output.size());
         return ret;
     }
 

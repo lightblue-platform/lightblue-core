@@ -154,8 +154,8 @@ public class QueryPlanNodeExecutor {
     }
    
 
-    public void execute(OperationContext ctx,
-                        Sort sort) {
+    public CRUDFindResponse execute(OperationContext ctx,
+                                    Sort sort) {
         LOGGER.debug("execute {}: start",node.getName());
         
         CRUDFindRequest findRequest=new CRUDFindRequest();
@@ -169,17 +169,14 @@ public class QueryPlanNodeExecutor {
             findRequest.setSort(resolvedReference.getReferenceField().getSort());
         }
 
-        if(!sources.isEmpty()) {
-            findRequest.setFrom(fromIndex);
-            findRequest.setTo(toIndex);
-        }
         LOGGER.debug("execute {}: findRequest.query={}, projection={}, sort={}", node.getName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
 
+        CRUDFindResponse response;
         if(sources.isEmpty()) {
             findRequest.setFrom(fromIndex);
             findRequest.setTo(toIndex);
-            execute(ctx,findRequest,null);
+            response=execute(ctx,findRequest,null);
         } else {
             // We will evaluate this node for every possible combination of parent docs
             // Some of those parent docs are docs that include the docs of this node.
@@ -217,7 +214,7 @@ public class QueryPlanNodeExecutor {
                              source.docs.size());
                 tuples.add(list);
             }
-           
+            response=new CRUDFindResponse();
             // Iterate n-tuples
             for(Iterator<List<DocReference>> tupleItr=tuples.tuples();tupleItr.hasNext();) {
                 List<DocReference> tuple=tupleItr.next();
@@ -238,7 +235,7 @@ public class QueryPlanNodeExecutor {
                     }
                 }
                 
-                execute(ctx,findRequest,tuple);
+                response.setSize(response.getSize()+execute(ctx,findRequest,tuple).getSize());
             }
             // Once all documents are collected, if there are any reversed relationships (i.e. parent node
             // has child documents), we associate them here
@@ -251,7 +248,8 @@ public class QueryPlanNodeExecutor {
                     }
                 }
             }
-       }
+        }
+        return response;
     }
 
     public List<ResultDoc> getDocs() {
@@ -266,15 +264,15 @@ public class QueryPlanNodeExecutor {
         return node;
     }
 
-    private void execute(OperationContext ctx,
-                         CRUDFindRequest findRequest,
-                         List<DocReference> parents) {
+    private CRUDFindResponse execute(OperationContext ctx,
+                                     CRUDFindRequest findRequest,
+                                     List<DocReference> parents) {
         OperationContext nodeCtx=ctx.getDerivedOperationContext(node.getMetadata().getName(),findRequest);
         LOGGER.debug("execute {}: entity={}, findRequest.query={}, projection={}, sort={}", node.getName(),
                      nodeCtx.getEntityName(),
                      findRequest.getQuery(),findRequest.getProjection(),findRequest.getSort());
         // note the response is not used, but find method changes the supplied context.
-        finder.find(nodeCtx,findRequest);
+        CRUDFindResponse response=finder.find(nodeCtx,findRequest);
         LOGGER.debug("execute {}: storing {} documents", node.getName(),nodeCtx.getDocuments().size());
 
         for(DocCtx doc:nodeCtx.getDocuments()) {
@@ -295,5 +293,6 @@ public class QueryPlanNodeExecutor {
             LOGGER.debug("Adding {}",id);
             docs.add(resultDoc);
         }
+        return response;
     }
 }
