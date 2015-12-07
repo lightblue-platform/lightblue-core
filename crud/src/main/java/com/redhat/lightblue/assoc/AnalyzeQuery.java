@@ -1,3 +1,21 @@
+/*
+ Copyright 2013 Red Hat, Inc. and/or its affiliates.
+
+ This file is part of lightblue.
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.redhat.lightblue.assoc;
 
 import java.util.ArrayList;
@@ -14,79 +32,8 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Error;
 
-public class ProcessQuery extends QueryIterator {
-
-    public static class QueryFieldInfo {
-        private final Path fieldNameInClause;
-        private final Path fullFieldName;
-        private final FieldTreeNode fieldMd;
-        private final CompositeMetadata fieldEntity;
-        private final Path entityRelativeFieldName;
-        private final QueryExpression clause;
-
-        public QueryFieldInfo(Path fieldNameInClause,
-                              Path fullFieldName,
-                              FieldTreeNode fieldMd,
-                              CompositeMetadata fieldEntity,
-                              Path entityRelativeFieldName,
-                              QueryExpression clause) {
-            this.fieldNameInClause=fieldNameInClause;
-            this.fullFieldName=fullFieldName;
-            this.fieldMd=fieldMd;
-            this.fieldEntity=fieldEntity;
-            this.entityRelativeFieldName=entityRelativeFieldName;
-            this.clause=clause;
-        }
-
-        /**
-         * Name of the field in the clause containing the field. 
-         */
-        public Path getFieldNameInClause() {
-            return fieldNameInClause;
-        }
-
-        /**
-         * Full name of the field. This includes the array name if the
-         * field appears in an elemMatch clause.
-         */
-        public Path getFullFieldName() {
-            return fullFieldName;
-        }
-
-        /**
-         * Field metadata
-         */
-        public FieldTreeNode getFieldMd() {
-            return fieldMd;
-        }
-
-        /**
-         * The composite metadata for the entity containing the field
-         */
-        public CompositeMetadata getFieldEntity() {
-            return fieldEntity;
-        }
-
-        /**
-         * The name of the field relative to the entity containing it
-         */
-        public Path getEntityRelativeFieldName() {
-            return entityRelativeFieldName;
-        }
-
-        /**
-         * The clause containing the field
-         */
-        public QueryExpression getClause() {
-            return clause;
-        }
-    }
+public class AnalyzeQuery extends QueryIterator {
     
-    /**
-     * The composite metadata for the entity relative to which we're evaluating the query
-     */
-    private final CompositeMetadata currentEntity;
-
     /**
      * The root composite metadata
      */
@@ -99,10 +46,8 @@ public class ProcessQuery extends QueryIterator {
 
     private List<QueryFieldInfo> fieldInfo=new ArrayList<>();
 
-    public ProcessQuery(CompositeMetadata currentEntity,
-                        CompositeMetadata root,
+    public AnalyzeQuery(CompositeMetadata root,
                         ResolvedReferenceField referenceField) {
-        this.currentEntity=currentEntity;
         this.root=root;
         this.ref=referenceField;
     }
