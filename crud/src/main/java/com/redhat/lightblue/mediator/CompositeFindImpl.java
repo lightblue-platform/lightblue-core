@@ -160,6 +160,9 @@ public class CompositeFindImpl implements Finder {
         QueryPlan searchQPlan=null;
         QueryPlanNode searchQPlanRoot=null;
         SortAndLimit sortAndLimit=new SortAndLimit(root,null,null,null);
+        // Need to keep the matchCount, because the root node evaluator will only return the documents in the range
+        CRUDFindResponse rootResponse=null;
+
         if(minimalTree.size()>1) {
             // The query depends on several entities. so, we query first, and then retrieve
             QueryPlanChooser qpChooser=new QueryPlanChooser(root,
@@ -181,14 +184,19 @@ public class CompositeFindImpl implements Finder {
                 QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
                 if(node.getMetadata().getParent()==null) {
                     searchQPlanRoot=node;
-                    if(node.getSources().length>0) {
+                    boolean hasSources=node.getSources().length>0;
+                    if(hasSources) {
                         sortAndLimit=new SortAndLimit(root,req.getSort(),req.getFrom(),req.getTo());
                     } else {
                         if (req.getTo() != null && req.getFrom() != null) {
                             exec.setRange(req.getFrom(), req.getTo());
                         }
                     }
-                    exec.execute(ctx,req.getSort());
+                    if(hasSources) {
+                    	exec.execute(ctx,req.getSort());
+                    } else {
+                    	rootResponse=exec.execute(ctx, req.getSort());
+                    }
                 } else {
                     exec.execute(ctx,null);
                 }
@@ -214,6 +222,7 @@ public class CompositeFindImpl implements Finder {
         // Now execute rest of the retrieval plan
         QueryPlanNode[] nodeOrdering=retrievalQPlan.getBreadthFirstNodeOrdering();
 
+        
         List<ResultDoc> rootDocs=null;
         for(int i=0;i<nodeOrdering.length;i++) {
             if(nodeOrdering[i].getMetadata().getParent()==null) {
@@ -233,6 +242,10 @@ public class CompositeFindImpl implements Finder {
                     }
                     LOGGER.debug("Retrieving {} docs",filteredDocs.size());
                     nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(filteredDocs);
+                    if(rootResponse==null) {
+                        rootResponse=new CRUDFindResponse();
+                        rootResponse.setSize(filteredDocs.size());
+                    }
                     rootDocs=sortAndLimit.process(filteredDocs);
                 } else {
                     LOGGER.debug("Performing search for retrieval");
@@ -241,7 +254,7 @@ public class CompositeFindImpl implements Finder {
                     if (req.getTo() != null && req.getFrom() != null) {
                         exec.setRange(req.getFrom(), req.getTo());
                     }                    
-                    exec.execute(ctx,req.getSort());
+                    rootResponse=exec.execute(ctx,req.getSort());
                     rootDocs=exec.getDocs();
                 }
             } else {
@@ -262,7 +275,7 @@ public class CompositeFindImpl implements Finder {
 
         CRUDFindResponse response=new CRUDFindResponse();
 
-        response.setSize(resultDocuments.size());
+        response.setSize(rootResponse.getSize());
         ctx.setDocuments(projectResults(ctx,resultDocuments,req.getProjection()));
         ctx.addErrors(errors);
         
