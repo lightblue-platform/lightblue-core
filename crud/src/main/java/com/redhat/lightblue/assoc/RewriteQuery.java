@@ -53,7 +53,7 @@ public class RewriteQuery extends QueryIterator {
     /**
      * Placeholder that always evaluates to true
      */
-    private static final class TruePH extends QueryExpression {
+    public static final class TruePH extends QueryExpression {
         @Override
         public JsonNode toJson() {
             return JsonNodeFactory.instance.booleanNode(true);
@@ -63,7 +63,7 @@ public class RewriteQuery extends QueryIterator {
     /**
      * Placeholder that always evaluates to false
      */
-    private static final class FalsePH extends QueryExpression {
+    public static final class FalsePH extends QueryExpression {
         @Override
         public JsonNode toJson() {
             return JsonNodeFactory.instance.booleanNode(false);
@@ -264,6 +264,10 @@ public class RewriteQuery extends QueryIterator {
         }
     }
 
+    /**
+     * If the enclosed query is a placeholder (TruePH or FalsePH), it negates the placeholder, 
+     * otherwise, the query remains as is
+     */
     @Override
     protected QueryExpression itrUnaryLogicalExpression(UnaryLogicalExpression q, Path context) {
         UnaryLogicalExpression nq=(UnaryLogicalExpression)super.itrUnaryLogicalExpression(q,context);
@@ -274,7 +278,16 @@ public class RewriteQuery extends QueryIterator {
         else
             return nq;
     }
-    
+
+    /**
+     * All TruePH placeholders are removed from an AND expression.
+     *
+     * All FalsePH placeholders are removed from an OR expression.
+     *
+     * If an AND expression contains a FalsePH, the expression is replaced with a FalsePH
+     *
+     * If an OR expression contains a TruePH, the expression is replaced with a TruePH
+     */
     @Override
     protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q, Path context) {
         NaryLogicalExpression nq=(NaryLogicalExpression)super.itrNaryLogicalExpression(q,context);
@@ -311,6 +324,10 @@ public class RewriteQuery extends QueryIterator {
         }
     }
 
+    /**
+     * If the nested query contains a placeholder, the query is
+     * replaced with that. Otherwise, the query remains as is
+     */
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
         ArrayMatchExpression e=(ArrayMatchExpression)super.itrArrayMatchExpression(q,context);
