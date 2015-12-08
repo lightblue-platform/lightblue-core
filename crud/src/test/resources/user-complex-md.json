@@ -462,6 +462,15 @@
                                                     "required": true
                                                 }
                                             },
+                                            "creationDate": {
+                                               "constraints": {
+                                                  "required": true
+                                               },
+                                              "type": "date",
+                                            "valueGenerator": {
+                                                "type": "CurrentTime"
+                                             }
+                                            },
                                             "validationDate": {
                                                 "type": "date"
                                             },
