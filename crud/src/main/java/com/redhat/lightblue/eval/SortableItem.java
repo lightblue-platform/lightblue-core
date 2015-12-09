@@ -20,7 +20,11 @@ package com.redhat.lightblue.eval;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import com.redhat.lightblue.metadata.Type;
+
 import com.redhat.lightblue.util.JsonDoc;
+import com.redhat.lightblue.util.KeyValueCursor;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Wraps a JsonDoc or JsonNode as a Comparable item, based on
@@ -38,8 +42,32 @@ public class SortableItem implements Comparable<SortableItem> {
         this.sortFields=sortFields;
         keyValues=new Object[sortFields.length];
         for(int i=0;i<sortFields.length;i++) {
-            JsonNode valueNode=JsonDoc.get(node,sortFields[i].getName());
-            keyValues[i]=sortFields[i].getField().getType().fromJson(valueNode);
+            Type t=sortFields[i].getField().getType();
+            if(sortFields[i].getName().nAnys()>0) {
+                boolean descending=sortFields[i].isDescending();
+                JsonDoc jd=new JsonDoc(node);
+                KeyValueCursor<Path,JsonNode> cursor=jd.getAllNodes(sortFields[i].getName());
+                Object selected=null;
+                // For ascending sort, select the minumum. For descending sort, select the maximum
+                while(cursor.hasNext()) {
+                    cursor.next();
+                    JsonNode valueNode=cursor.getCurrentValue();
+                    Object nodeValue=t.fromJson(valueNode);
+                    if(selected==null)
+                        selected=nodeValue;
+                    else {
+                        int result=t.compare(nodeValue,selected);
+                        if( (result<0&&!descending) ||
+                            (result>0&&descending) ) {
+                            selected=nodeValue;
+                        }
+                    }
+                }
+                keyValues[i]=selected;
+            } else {
+                JsonNode valueNode=JsonDoc.get(node,sortFields[i].getName());
+                keyValues[i]=t.fromJson(valueNode);
+            }
         }
     }
 
