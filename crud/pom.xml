@@ -86,7 +86,12 @@
             <artifactId>json-schema-validator</artifactId>
             <scope>test</scope>
          </dependency>
-    </dependencies>
+         <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <scope>test</scope>
+         </dependency>
+   </dependencies>
     <build>
     </build>
 </project>

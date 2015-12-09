@@ -112,42 +112,71 @@ public class RewriteQuery extends QueryIterator {
         throw Error.get(AssocConstants.ERR_REWRITE,field.toString()+"@"+clause.toString());
     }
 
-    /**
-     * Handles query rewriting for single field expression. If the
-     * field belongs to the current entity, the query expression is
-     * used as is. If the field belongs to a different entity, there
-     * is no evaluation we can do while retrieving the current entity,
-     * so we assume the clause is true for whatever entity it is
-     * referring to. This is done by returning a placeholder for TRUE
-     * value.
-     */
-    private QueryExpression singleFieldExpression(Path field,QueryExpression q) {
-        QueryFieldInfo qfi=findFieldInfo(field,q);
+    
+    @Override
+    protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
+        QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
         if(qfi.getFieldEntity()!=currentEntity) {
             return new TruePH();
         } else {
-            return q;
+            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName()))
+                return q;
+            else
+                return new ValueComparisonExpression(qfi.getEntityRelativeFieldName(),q.getOp(),q.getRvalue());
         }
     }
     
     @Override
-    protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
-        return singleFieldExpression(q.getField(),q);
-    }
-
-    @Override
     protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
-        return singleFieldExpression(q.getField(),q);
+        QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
+        if(qfi.getFieldEntity()!=currentEntity) {
+            return new TruePH();
+        } else {
+            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName()))
+                return q;
+            else
+                return new RegexMatchExpression(qfi.getEntityRelativeFieldName(),
+                                                q.getRegex(),
+                                                q.isCaseInsensitive(),
+                                                q.isMultiline(),
+                                                q.isExtended(),
+                                                q.isDotAll());
+        }
     }
 
     @Override
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
-        return singleFieldExpression(q.getField(),q);
+        QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
+        if(qfi.getFieldEntity()!=currentEntity) {
+            return new TruePH();
+        } else {
+            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName()))
+                return q;
+            else
+                return new NaryValueRelationalExpression(qfi.getEntityRelativeFieldName(),q.getOp(),q.getValues());
+        }
     }
 
     @Override
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
-        return singleFieldExpression(q.getArray(),q);
+        QueryFieldInfo qfi=findFieldInfo(q.getArray(),q);
+        if(qfi.getFieldEntity()!=currentEntity) {
+            return new TruePH();
+        } else {
+            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName()))
+                return q;
+            else
+                return new ArrayContainsExpression(qfi.getEntityRelativeFieldName(),q.getOp(),q.getValues());
+        }
+    }
+
+    @Override
+    public QueryExpression iterate(QueryExpression q,Path context) {
+        // Don't send classes the base iterator doesn't recognize
+        if(q instanceof TruePH || q instanceof FalsePH)
+            return q;
+        else
+            return super.iterate(q,context);
     }
 
     /**
@@ -202,13 +231,13 @@ public class RewriteQuery extends QueryIterator {
         if(lfi.getFieldEntity()==currentEntity) {
             if(rfi.getFieldEntity()!=currentEntity) {
                 BoundValue value=bind(rfi);
-                return new ValueComparisonExpression(q.getField(),q.getOp(),value);
+                return new ValueComparisonExpression(lfi.getEntityRelativeFieldName(),q.getOp(),value);
             } else {
                 return q;
             }
         } else if(rfi.getFieldEntity()==currentEntity) {
             BoundValue value=bind(lfi);
-            return new ValueComparisonExpression(q.getRfield(),q.getOp().invert(),value);
+            return new ValueComparisonExpression(rfi.getEntityRelativeFieldName(),q.getOp().invert(),value);
         } else {
             return new TruePH();
         }
@@ -248,7 +277,7 @@ public class RewriteQuery extends QueryIterator {
         if(lfi.getFieldEntity()==currentEntity) {
             if(rfi.getFieldEntity()!=currentEntity) {
                 BoundValueList value=bindList(rfi);
-                return new NaryValueRelationalExpression(q.getField(),q.getOp(),value);
+                return new NaryValueRelationalExpression(lfi.getEntityRelativeFieldName(),q.getOp(),value);
             } else {
                 return q;
             }
@@ -256,8 +285,8 @@ public class RewriteQuery extends QueryIterator {
             BoundValue value=bind(lfi);
             List<Value> list=new ArrayList<>(1);
             list.add(value);
-            return new ArrayContainsExpression(q.getRfield(), q.getOp()==NaryRelationalOperator._in?
-                                               ContainsOperator._all:ContainsOperator._none, 
+            return new ArrayContainsExpression(rfi.getEntityRelativeFieldName(),
+                                               q.getOp()==NaryRelationalOperator._in?ContainsOperator._all:ContainsOperator._none, 
                                                list);
         } else {
             return new TruePH();
@@ -294,23 +323,18 @@ public class RewriteQuery extends QueryIterator {
         CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<QueryExpression>(nq.getQueries());
         while (itr.hasNext()) {
             QueryExpression nestedq = itr.next();
-            QueryExpression newq = iterate(nestedq, context);
             if(q.getOp()==NaryLogicalOperator._and) {
-                if(newq instanceof TruePH) {
+                if(nestedq instanceof TruePH) {
                     itr.remove();
-                } else if(newq instanceof FalsePH) {
+                } else if(nestedq instanceof FalsePH) {
                     return new FalsePH();
-                } else {
-                    itr.set(newq);
-                }
+                } 
             } else {
-                if(newq instanceof TruePH) {
+                if(nestedq instanceof TruePH) {
                     return new TruePH();
-                } else if(newq instanceof FalsePH) {
+                } else if(nestedq instanceof FalsePH) {
                     itr.remove();
-                } else {
-                    itr.set(newq);
-                }
+                } 
             }
         }
         if(itr.isCopied()) {
@@ -320,11 +344,15 @@ public class RewriteQuery extends QueryIterator {
             else
                 return new NaryLogicalExpression(q.getOp(),newList);
         } else {
-            return q;
+            return nq;
         }
     }
 
     /**
+     * Several possibilities exist when rewriting an array query.
+     *
+     * The array field itself may be pointing to a parent entity.
+     *
      * If the nested query contains a placeholder, the query is
      * replaced with that. Otherwise, the query remains as is
      */

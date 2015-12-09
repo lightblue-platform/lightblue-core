@@ -18,6 +18,10 @@
  */
 package com.redhat.lightblue.assoc;
 
+/**
+ * Common base class for ValueBinding and ListBinding. Contains the
+ * field information for the field that is bound to a value.
+ */
 public abstract class FieldBinding {
     private final QueryFieldInfo fieldInfo;
 

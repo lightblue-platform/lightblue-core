@@ -18,6 +18,11 @@
  */
 package com.redhat.lightblue.assoc;
 
+/**
+ * Represents a field bound to a list of values. This contains the
+ * list within a query clause that is bound to an array field in
+ * another document.
+ */
 public class ListBinding extends FieldBinding {
     private final BoundValueList value;
 

@@ -18,6 +18,10 @@
  */
 package com.redhat.lightblue.assoc;
 
+/**
+ * Represents a field bound to a value. This contains the value within
+ * a query clause that is bound to a field in another document.
+ */
 public class ValueBinding extends FieldBinding {
     private final BoundValue value;
 

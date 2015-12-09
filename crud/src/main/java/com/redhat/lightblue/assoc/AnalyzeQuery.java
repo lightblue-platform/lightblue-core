@@ -32,6 +32,18 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Error;
 
+/**
+ * Analyzes a query to collect field information. For each field in a query, these are collected:
+ * <ul>
+ * <li>fieldNameInClause: Name of the field as it appears in the smallest clause containing it.</li>
+ * <li>fullFieldName: Full name of the field as known to the query. For fields in an array elemMatch query,
+ *     this is the name of the field containing the array name and field name under the array.</li>
+ * <li>fieldMd: Metadata node for the field</li>
+ * <li>fieldEntity: The metadata for the entity containing the field</li>
+ * <li>entityRelativeFieldName: The relative field name of the field in the entity containing it</li>
+ * <li>clause: The query clause</li>
+ * </ul>
+ */
 public class AnalyzeQuery extends QueryIterator {
     
     /**
