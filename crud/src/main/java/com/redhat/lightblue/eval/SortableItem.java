@@ -38,10 +38,8 @@ public class SortableItem implements Comparable<SortableItem> {
         this.sortFields=sortFields;
         keyValues=new Object[sortFields.length];
         for(int i=0;i<sortFields.length;i++) {
-            if (sortFields[i] != null) {
-                JsonNode valueNode=JsonDoc.get(node,sortFields[i].getName());
-                keyValues[i]=sortFields[i].getField().getType().fromJson(valueNode);
-            }
+            JsonNode valueNode=JsonDoc.get(node,sortFields[i].getName());
+            keyValues[i]=sortFields[i].getField().getType().fromJson(valueNode);
         }
     }
 
@@ -77,9 +75,6 @@ public class SortableItem implements Comparable<SortableItem> {
     @Override
     public int compareTo(SortableItem el) {
         for(int i=0;i<keyValues.length;i++) {
-            if (sortFields[i] == null) {
-                continue;
-            }
             int dir=sortFields[i].isDescending()?-1:1;
             if(keyValues[i]==null) {
                 if(el.keyValues[i]==null) {
