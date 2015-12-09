@@ -82,7 +82,7 @@ public class SortFieldInfo {
             SortFieldInfo[] arr=new SortFieldInfo[ keys.size() ];
             int i=0;
             for(SortKey key:keys) {
-                arr[i]=getSortField(key.getField(),context,key.isDesc());
+                arr[i++]=getSortField(key.getField(),context,key.isDesc());
             }
             return arr;
         }
