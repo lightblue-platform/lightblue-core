@@ -351,19 +351,33 @@ public class RewriteQuery extends QueryIterator {
     /**
      * Several possibilities exist when rewriting an array query.
      *
-     * The array field itself may be pointing to a parent entity.
+     * The array field itself may be pointing to a different entity
+     * than the currentEntity. This includes the case where the array
+     * is the reference field itself. If this is the case, this is no
+     * longer an array elem match expression. The nested query is
+     * moved outside and rewritten.
+     *
+     * The array field itself may be pointing to an array in
+     * currentEntity. In this case, the array field is rewritten as
+     * the local field, and the nested query is rewritten recursively.
      *
      * If the nested query contains a placeholder, the query is
      * replaced with that. Otherwise, the query remains as is
      */
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-        ArrayMatchExpression e=(ArrayMatchExpression)super.itrArrayMatchExpression(q,context);
-        QueryExpression em=e.getElemMatch();
-        if(em instanceof TruePH||
-           em instanceof FalsePH)
+        QueryFieldInfo qfi=findFieldInfo(q.getArray(),q);
+        if(qfi.getFieldEntity()==currentEntity) {
+            ArrayMatchExpression e=(ArrayMatchExpression)super.itrArrayMatchExpression(q,context);
+            QueryExpression em=e.getElemMatch();
+            if(em instanceof TruePH||
+               em instanceof FalsePH)
+                return em;
+            else
+                return e;
+        } else {
+            QueryExpression em=iterate(q.getElemMatch(),context);
             return em;
-        else
-            return e;
+        }
     }
 }
