@@ -149,17 +149,17 @@ public class AnalyzeQueryTest extends AbstractJsonNodeTest {
         pq.iterate(q);
         
         List<QueryFieldInfo> list=pq.getFieldInfo();
-        Assert.assertEquals(new Path("_id"),list.get(0).getFieldNameInClause());
-        Assert.assertEquals(new Path("obj1.c.*._id"),list.get(0).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(0).getFieldMd());
-        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(0).getFieldEntity());
-        Assert.assertEquals(new Path("_id"),list.get(0).getEntityRelativeFieldName());
+        Assert.assertEquals(new Path("_id"),list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*._id"),list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(1).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("_id"),list.get(1).getEntityRelativeFieldName());
         
-        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFieldNameInClause());
-        Assert.assertEquals(new Path("obj1.c.*.$parent.c_ref"),list.get(1).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(1).getFieldMd());
-        Assert.assertTrue(md==list.get(1).getFieldEntity());
-        Assert.assertEquals(new Path("obj1.c_ref"),list.get(1).getEntityRelativeFieldName());
+        Assert.assertEquals(new Path("$parent.c_ref"),list.get(2).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*.$parent.c_ref"),list.get(2).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(2).getFieldMd());
+        Assert.assertTrue(md==list.get(2).getFieldEntity());
+        Assert.assertEquals(new Path("obj1.c_ref"),list.get(2).getEntityRelativeFieldName());
     }
     
 }

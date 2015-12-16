@@ -37,7 +37,8 @@ import com.redhat.lightblue.util.Path;
  * <li>fullFieldName: x.y</li>
  * <li>fieldMd: Metadata node for x.y</li>
  * <li>fieldEntity: The metadata for the entity containing x.y</li>
- * <li>entityRelativeFieldName: x.y, the relative field name of the field in the entity containing it</li>
+ * <li>entityRelativeFieldName: x.y, the relative field name of the field in the entity containing it, as it appears in clause</li>
+ * <li>entityRelativeFieldNameWithContext: x.y, the relative field name of the field in the entity containing it, including any enclosing arrays</li>
  * <li>clause: The query clause</li>
  * </ul>
  * 
@@ -49,6 +50,7 @@ import com.redhat.lightblue.util.Path;
  * <li>fieldNameInClause: x.y</li>
  * <li>fullFieldName: a.b.*.x.y</li>
  * <li>entityRelativeFieldName: If a.b.* is a reference field, entity relative field name is x.y.<li>
+ * <li>entityRelativeFieldNameWithContext: If a.b.* is a reference field, entity relative field name is a.b.*.x.y.<li>
  * <li>clause: {field:'x.y', op:'=',rvalue:<value>}</li>
  * </ul>
  */
@@ -58,6 +60,7 @@ public class QueryFieldInfo {
     private final FieldTreeNode fieldMd;
     private final CompositeMetadata fieldEntity;
     private final Path entityRelativeFieldName;
+    private final Path entityRelativeFieldNameWithContext;
     private final QueryExpression clause;
 
     public QueryFieldInfo(Path fieldNameInClause,
@@ -65,14 +68,17 @@ public class QueryFieldInfo {
                           FieldTreeNode fieldMd,
                           CompositeMetadata fieldEntity,
                           Path entityRelativeFieldName,
+                          Path entityRelativeFieldNameWithContext,
                           QueryExpression clause) {
         this.fieldNameInClause=fieldNameInClause;
         this.fullFieldName=fullFieldName;
         this.fieldMd=fieldMd;
         this.fieldEntity=fieldEntity;
         this.entityRelativeFieldName=entityRelativeFieldName;
+        this.entityRelativeFieldNameWithContext=entityRelativeFieldNameWithContext;
         this.clause=clause;
     }
+
 
     /**
      * Name of the field in the clause containing the field. 
@@ -108,6 +114,13 @@ public class QueryFieldInfo {
      */
     public Path getEntityRelativeFieldName() {
         return entityRelativeFieldName;
+    }
+
+    /**
+     * The name of the field relative to the entity containing it, including any arrays enclosing this field
+     */
+    public Path getEntityRelativeFieldNameWithContext() {
+        return entityRelativeFieldNameWithContext;
     }
 
     /**
