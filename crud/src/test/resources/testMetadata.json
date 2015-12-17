@@ -22,7 +22,13 @@
       "find" : ["test-find"]
     },
     "fields": {
-      "objectType": {"type": "string"},
+        "objectType": {"type": "string"},
+        "dateField": {
+            "type":"date",
+            "access": {
+                "update":["nobody"]
+            }
+        },
       "field1": {
         "type": "string",
         "access" : {
