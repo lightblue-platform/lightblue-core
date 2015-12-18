@@ -32,6 +32,8 @@ import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.Access;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.ContainerType;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.ProjectionList;
@@ -128,9 +130,10 @@ public final class FieldAccessRoleEvaluator {
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.update);
         List<Path> ret = new ArrayList<>(inaccessibleFields.size());
         for (Path x : inaccessibleFields) {
+            FieldTreeNode field=md.resolve(x);
             KeyValueCursor<Path, JsonNode> oldCursor = oldDoc.getAllNodes(x);
             KeyValueCursor<Path, JsonNode> newCursor = newDoc.getAllNodes(x);
-            if (different(oldCursor, newCursor)) {
+            if (different(oldCursor, newCursor, field.getType())) {
                 ret.add(x);
             }
         }
@@ -219,15 +222,23 @@ public final class FieldAccessRoleEvaluator {
     }
 
     private boolean different(KeyValueCursor<Path, JsonNode> c1,
-                              KeyValueCursor<Path, JsonNode> c2) {
+                              KeyValueCursor<Path, JsonNode> c2,
+                              Type t) {
         while (c1.hasNext()) {
             if (c2.hasNext()) {
                 c1.next();
                 c2.next();
                 JsonNode v1 = c1.getCurrentValue();
                 JsonNode v2 = c2.getCurrentValue();
-                if (!v1.equals(v2)) {
-                    return true;
+                if(t instanceof ContainerType) {
+                    if (!v1.equals(v2)) {
+                        return true;
+                    }
+                } else {
+                    Object o1=t.fromJson(v1);
+                    Object o2=t.fromJson(v2);
+                    if(!o1.equals(o2))
+                        return true;
                 }
             } else {
                 return true;
