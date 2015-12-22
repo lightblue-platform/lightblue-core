@@ -264,6 +264,8 @@ public class CompositeFindImpl implements Finder {
             }
         }
 
+        if(ctx.hasErrors())
+        	rootDocs.clear();
         LOGGER.debug("Root docs:{}",rootDocs.size());
         List<DocCtx> resultDocuments=new ArrayList<>(rootDocs.size());
         for(ResultDoc dgd:rootDocs) {

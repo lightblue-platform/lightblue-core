@@ -45,6 +45,8 @@ import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.CRUDOperation;
 import com.redhat.lightblue.crud.CRUDOperationContext;
 import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.DeleteRequest;
 import com.redhat.lightblue.crud.CRUDDeleteResponse;
@@ -63,6 +65,7 @@ import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 import com.redhat.lightblue.TestDataStoreParser;
 
@@ -74,6 +77,10 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
     private Mediator mediator;
     private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
+
+    // CRUDController returns findError for retrieval of errorEntity
+    private static Error findError;
+    private static String errorEntity;
 
     private QueryExpression updateQuery;
 
@@ -137,6 +144,20 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
 
             updateQuery=query;
             return new CRUDDeleteResponse();
+        }
+
+        @Override
+        public CRUDFindResponse find(CRUDOperationContext ctx,
+                                     QueryExpression query,
+                                     Projection projection,
+                                     Sort sort,
+                                     Long from,
+                                     Long to) {
+            if(findError!=null&&ctx.getEntityName().equals(errorEntity)) {
+                ctx.addError(findError);
+                return new CRUDFindResponse();
+            } else
+                return super.find(ctx,query,projection,sort,from,to);
         }
     }
     
@@ -540,5 +561,28 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response=mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1,response.getEntityData().size());
+    }
+
+    // Errors during association retrieval should propagate
+    @Test
+    public void assoc_errors_propagate() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':1}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'us','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("L","0.0.1"));
+        findError=Error.get("NoAccess","blah");
+        errorEntity="U";
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(0,response.getEntityData().size());
+        Assert.assertEquals(1,response.getErrors().size());
+
+        findError=Error.get("NoAccess","blah");
+        errorEntity="L";
+        response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(0,response.getEntityData().size());
+        Assert.assertEquals(1,response.getErrors().size());
+
     }
 }
