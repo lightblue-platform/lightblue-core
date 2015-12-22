@@ -184,6 +184,8 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
             }));
         mediator = new TestMediator(new TestMetadata(), factory);
         updateQuery=null;
+        findError=null;
+        errorEntity=null;
     }
 
     private QueryExpression query(String s) throws Exception {
