@@ -7,7 +7,6 @@
   "authentications": [
     {
       "principal": "LOGIN1",
-      "uid": "7fde2145-5739-46f8-8f6c-058fbc7a1093",
       "providerName": "Red Hat"
     }
   ],
