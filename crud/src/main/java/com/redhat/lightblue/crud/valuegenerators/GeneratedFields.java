@@ -26,6 +26,7 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.EntityMetadata;
+import com.redhat.lightblue.metadata.constraints.ArrayElementIdConstraint;
 import com.redhat.lightblue.metadata.constraints.IdentityConstraint;
 import com.redhat.lightblue.metadata.constraints.RequiredConstraint;
 import com.redhat.lightblue.crud.Factory;
@@ -166,6 +167,8 @@ public final class GeneratedFields {
                     return ((RequiredConstraint) c).getValue();
                 } else if (c instanceof IdentityConstraint) {
                     return ((IdentityConstraint) c).isValidForFieldType(f.getType());
+                } else if(c instanceof ArrayElementIdConstraint) {
+                    return ((ArrayElementIdConstraint)c).isValidForFieldType(f.getType());
                 }
             }
         }

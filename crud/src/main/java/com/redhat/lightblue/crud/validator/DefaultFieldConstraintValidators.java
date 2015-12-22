@@ -53,7 +53,7 @@ public class DefaultFieldConstraintValidators
         checkers.put(StringLengthConstraint.MINLENGTH, new StringLengthChecker());
         checkers.put(StringLengthConstraint.MAXLENGTH, new StringLengthChecker());
         checkers.put(IdentityConstraint.IDENTITY, new IdentityChecker());
-        checkers.put(ArrayElementIdConstraint.IDENTITY, new EmptyFieldConstraintDocChecker());
+        checkers.put(ArrayElementIdConstraint.IDENTITY, new ArrayElementIdChecker());
         checkers.put(MatchesConstraint.MATCHES, new MatchesChecker());
     }
 

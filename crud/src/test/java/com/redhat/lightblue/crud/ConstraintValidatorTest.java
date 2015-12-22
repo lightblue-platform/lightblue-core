@@ -57,8 +57,11 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Registry;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import com.redhat.lightblue.eval.EvalTestContext;
+import com.redhat.lightblue.mediator.MockCrudController;
 
-public class ConstraintValidatorTest {
+public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
@@ -232,6 +235,20 @@ public class ConstraintValidatorTest {
         validator.validateDocs(Arrays.asList(new JsonDoc(validatorNode)));
 
         assertFalse(validator.hasErrors());
+    }
+
+    @Test
+    public void testRequiredIdentity() throws Exception {
+        EntityMetadata md = EvalTestContext.getMd("./user-complex-md.json");
+        JsonDoc jd = EvalTestContext.getDoc("./user-complex.json");
+        Factory factory = new Factory();
+        factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
+        factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
+        factory.addCRUDController("mongo", new MockCrudController());
+
+        ConstraintValidator validator=factory.getConstraintValidator(md);
+        validator.validateDoc(jd);
+        Assert.assertEquals(1,validator.getDocErrors().size());
     }
 
     @SuppressWarnings("serial")

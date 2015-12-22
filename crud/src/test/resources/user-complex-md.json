@@ -215,7 +215,7 @@
                         "uid": {
                             "type": "string",
                             "constraints": {
-                                "required": true
+                                "element-identity": true
                             },
                             "valueGenerator": {
                                 "type": "UUID"
