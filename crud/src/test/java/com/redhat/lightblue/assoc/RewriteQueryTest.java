@@ -190,15 +190,17 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
                                 "{field:providerName,op:$eq,rvalue:p},"+
                                 "{field:principal,op:$eq,rvalue:y}]}}]}",newq.toString(),false);
 
-        // // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
-        // rw=new RewriteQuery(md,md,list);
-        // newq=rw.iterate(q);
-        // bindings=rw.getBindings();
-        // Assert.assertEquals(1,bindings.size());
-        // Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
-        // Assert.assertTrue(newq instanceof ValueComparisonExpression);
-        // ((ValueBinding)bindings.get(0)).getValue().setValue("x");
-        // JSONAssert.assertEquals("{field:obj1.c_ref,op:$eq,rvalue:x}",newq.toString(),false);        
+        // Rewrite for UC. That means, U docs are retrieved, and we'll retrieve UC
+        // This is the reverse case
+        rw=new RewriteQuery(md,md,list);
+        newq=rw.iterate(q);
+        System.out.println(newq);
+        bindings=rw.getBindings();
+        Assert.assertEquals(2,bindings.size());
+        ((ValueBinding)bindings.get(0)).getValue().setValue("x");
+        ((ValueBinding)bindings.get(1)).getValue().setValue("y");
+        JSONAssert.assertEquals("{$and:[{field:userId,op:$eq,rvalue:x},"+
+                                "{field:userRedHatPrincipal,op:$eq,rvalue:y}]}",newq.toString(),false);
     }
     
 }
