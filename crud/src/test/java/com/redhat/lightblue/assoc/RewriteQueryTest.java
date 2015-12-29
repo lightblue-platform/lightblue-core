@@ -181,11 +181,14 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("users")),list);
         QueryExpression newq=rw.iterate(q);
         List<FieldBinding> bindings=rw.getBindings();
-        Assert.assertEquals(1,bindings.size());
+        Assert.assertEquals(2,bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
         ((ValueBinding)bindings.get(0)).getValue().setValue("x");
-        JSONAssert.assertEquals("{field:_id,op:$eq,rvalue:x}",newq.toString(),false);
+        ((ValueBinding)bindings.get(1)).getValue().setValue("y");
+        JSONAssert.assertEquals("{$and:[{field:_id,op:$eq,rvalue:x},"+
+                                "{array:authentications,elemMatch:{$and:["+
+                                "{field:providerName,op:$eq,rvalue:p},"+
+                                "{field:principal,op:$eq,rvalue:y}]}}]}",newq.toString(),false);
 
         // // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
         // rw=new RewriteQuery(md,md,list);
