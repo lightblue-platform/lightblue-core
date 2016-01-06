@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Callable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -485,21 +490,67 @@ public class Mediator {
         return response;
     }
 
+
+    public static class BulkExecutionContext {
+        final Future<Response>[] futures;
+        final Response[] responses;
+
+        public BulkExecutionContext(int size) {
+            futures=new Future[size];
+            responses=new Response[size];
+        }
+    }
+
+    protected void wait(BulkExecutionContext ctx) {
+        for(int i=0;i<ctx.futures.length;i++) {
+            if(ctx.futures[i]!=null) {
+                try {
+                    LOGGER.debug("Waiting for a find request to complete");
+                    ctx.responses[i]=ctx.futures[i].get();
+                } catch (Exception e) {
+                    LOGGER.debug("Find request wait failed",e);
+                }
+            }
+        }
+    }
+
+    protected Callable<Response> getAsyncFind(final FindRequest req) {
+        return new Callable<Response>() {
+            public Response call() {
+                return find((FindRequest)req);
+            }
+        };
+    }
+    
     public BulkResponse bulkRequest(BulkRequest requests) {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
-        BulkResponse responses=new BulkResponse();
-        for(Request req:requests.getEntries()) {
-            switch(req.getOperation()) {
-            case FIND: responses.add(find((FindRequest)req));break;
-            case INSERT: responses.add(insert((InsertionRequest)req));break;
-            case DELETE: responses.add(delete((DeleteRequest)req));break;
-            case UPDATE: responses.add(update((UpdateRequest)req));break;
-            case SAVE: responses.add(save((SaveRequest)req));break;
+        ExecutorService executor=Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
+        LOGGER.debug("Executing {} find requests in parallel",factory.getBulkParallelExecutions());        
+        List<Request> requestList=requests.getEntries();        
+        int n=requestList.size();
+        BulkExecutionContext ctx=new BulkExecutionContext(n);
+        
+        for(int i=0;i<n;i++) {
+            Request req=requestList.get(i);
+            if(req.getOperation()==CRUDOperation.FIND) {
+                ctx.futures[i]=executor.submit(getAsyncFind((FindRequest)req));
+            } else {
+                wait(ctx);
+                switch(req.getOperation()) {
+                case INSERT: ctx.responses[i]=insert((InsertionRequest)req);break;
+                case DELETE: ctx.responses[i]=delete((DeleteRequest)req);break;
+                case UPDATE: ctx.responses[i]=update((UpdateRequest)req);break;
+                case SAVE: ctx.responses[i]=save((SaveRequest)req);break;
+                }
             }
         }
+        wait(ctx);
+        LOGGER.debug("Bulk execution completed");
+        BulkResponse response=new BulkResponse();
+        response.setEntries(ctx.responses);        
         Error.pop();
-        return responses;
+        return response;
     }
 
 

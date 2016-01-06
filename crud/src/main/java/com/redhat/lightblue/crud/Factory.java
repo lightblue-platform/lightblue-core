@@ -60,6 +60,7 @@ public class Factory implements Serializable {
     private final GeneratorsRegistry generators = new GeneratorsRegistry();
 
     private JsonNodeFactory nodeFactory;
+    private int bulkParallelExecutions=3;
 
     /**
      * Adds a field constraint validator
@@ -99,6 +100,14 @@ public class Factory implements Serializable {
      */
     public synchronized void addEntityConstraintValidators(Resolver<String, EntityConstraintChecker> r) {
         entityConstraintValidatorRegistry.add(r);
+    }
+
+    public void setBulkParallelExecutions(int i) {
+        bulkParallelExecutions=i;
+    }
+
+    public int getBulkParallelExecutions() {
+        return bulkParallelExecutions;
     }
 
     /**
