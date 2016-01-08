@@ -82,16 +82,18 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         List<QueryFieldInfo> list=pq.getFieldInfo();
 
         // Rewrite the query at root
-        RewriteQuery rw=new RewriteQuery(md,md,list);
-        QueryExpression newq=rw.iterate(q);
-        List<FieldBinding> bindings=rw.getBindings();
+        RewriteQuery rw=new RewriteQuery(md,md);
+        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
+        QueryExpression newq=result.query;
+        List<FieldBinding> bindings=result.bindings;
         Assert.assertEquals(0,bindings.size());
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
         JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:x}", newq.toString(), false);
 
-        rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")),list);
-        newq=rw.iterate(q);
-        bindings=rw.getBindings();
+        rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
+        result=rw.rewriteQuery(q,list);
+        bindings=result.bindings;
+        newq=result.query;
         Assert.assertEquals(0,bindings.size());        
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
         JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:y}", newq.toString(), false);      
@@ -108,9 +110,10 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         List<QueryFieldInfo> list=pq.getFieldInfo();
 
         // Rewrite for C. This means, A docs are retrieved, now we'll retrieve C docs
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")),list);
-        QueryExpression newq=rw.iterate(q);
-        List<FieldBinding> bindings=rw.getBindings();
+        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
+        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
+        QueryExpression newq=result.query;
+        List<FieldBinding> bindings=result.bindings;
         Assert.assertEquals(1,bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
@@ -118,9 +121,10 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         JSONAssert.assertEquals("{field:_id,op:$eq,rvalue:x}",newq.toString(),false);
 
         // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
-        rw=new RewriteQuery(md,md,list);
-        newq=rw.iterate(q);
-        bindings=rw.getBindings();
+        rw=new RewriteQuery(md,md);
+        result=rw.rewriteQuery(q,list);
+        bindings=result.bindings;
+        newq=result.query;
         Assert.assertEquals(1,bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
@@ -140,9 +144,10 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         List<QueryFieldInfo> list=pq.getFieldInfo();
 
         // Rewrite for C. This means, A docs are retrieved, now we'll retrieve C docs
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")),list);
-        QueryExpression newq=rw.iterate(q);
-        List<FieldBinding> bindings=rw.getBindings();
+        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
+        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
+        QueryExpression newq=result.query;
+        List<FieldBinding> bindings=result.bindings;
         Assert.assertEquals(1,bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
@@ -150,9 +155,10 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         JSONAssert.assertEquals("{field:_id,op:$eq,rvalue:x}",newq.toString(),false);
 
         // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
-        rw=new RewriteQuery(md,md,list);
-        newq=rw.iterate(q);
-        bindings=rw.getBindings();
+        rw=new RewriteQuery(md,md);
+        result=rw.rewriteQuery(q,list);
+        bindings=result.bindings;
+        newq=result.query;
         Assert.assertEquals(1,bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
@@ -178,9 +184,10 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         
         // Rewrite for U. This means, UC docs are retrieved, now we'll retrieve U docs
         // This is the trivial rewrite case
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("users")),list);
-        QueryExpression newq=rw.iterate(q);
-        List<FieldBinding> bindings=rw.getBindings();
+        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("users")));
+        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
+        QueryExpression newq=result.query;
+        List<FieldBinding> bindings=result.bindings;
         Assert.assertEquals(2,bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof ValueBinding);
         ((ValueBinding)bindings.get(0)).getValue().setValue("x");
@@ -192,10 +199,11 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
 
         // Rewrite for UC. That means, U docs are retrieved, and we'll retrieve UC
         // This is the reverse case
-        rw=new RewriteQuery(md,md,list);
-        newq=rw.iterate(q);
+        rw=new RewriteQuery(md,md);
+        result=rw.rewriteQuery(q,list);
+        bindings=result.bindings;
+        newq=result.query;
         System.out.println(newq);
-        bindings=rw.getBindings();
         Assert.assertEquals(2,bindings.size());
         ((ValueBinding)bindings.get(0)).getValue().setValue("x");
         ((ValueBinding)bindings.get(1)).getValue().setValue("y");

@@ -51,6 +51,16 @@ import com.redhat.lightblue.util.CopyOnWriteIterator;
 public class RewriteQuery extends QueryIterator {
 
     /**
+     * The root composite metadata
+     */
+    private final CompositeMetadata root;
+    
+    /**
+     * The entity for which the query is being rewritten
+     */
+    private final CompositeMetadata currentEntity;
+
+    /**
      * Placeholder that always evaluates to true
      */
     public static final class TruePH extends QueryExpression {
@@ -69,372 +79,411 @@ public class RewriteQuery extends QueryIterator {
             return JsonNodeFactory.instance.booleanNode(false);
         }
     }
-    
-    /**
-     * The root composite metadata
-     */
-    private final CompositeMetadata root;
+
+    public static final class RewriteQueryResult {
+        public final QueryExpression query;
+        public final List<FieldBinding> bindings;
+
+        public RewriteQueryResult(QueryExpression query,List<FieldBinding> bindings) {
+            this.query=query;
+            this.bindings=bindings;
+        }
+    }
 
     /**
-     * The entity for which the query is being rewritten
+     * Construct a class to rewrite queries to retrieve an entity, potentially evaluated at another entity
+     *
+     * @param root The root entity
+     * @param correntEntity The query will be rewritten relative to this entity
+     *
+     * The root entity is the entity that will be retrieved
+     * ultimately. That entity may contain associations to other
+     * entities, and the association queries need to be rewritten
+     * based on the query plan node they are evaluated. The
+     * currentEntity gives that node relative to which the queries
+     * will be rewritten.
      */
-    private final CompositeMetadata currentEntity;
-
-    private final List<QueryFieldInfo> fieldInfo;
-
-    private final List<FieldBinding> bindings=new ArrayList<>();
-
-    // This is prefixed to all field names
-    private Path nestedFieldPrefix=Path.EMPTY;
-
     public RewriteQuery(CompositeMetadata root,
-                        CompositeMetadata currentEntity,
-                        List<QueryFieldInfo> fieldInfo) {
+                        CompositeMetadata currentEntity) {
         this.root=root;
         this.currentEntity=currentEntity;
-        this.fieldInfo=fieldInfo;
-    }
-
-    public List<FieldBinding> getBindings() {
-        return bindings;
     }
 
     /**
-     * Searches for the field info for a field in the given clase. The
-     * fieldInfo is looked up in fieldInfo list. Object reference
-     * equivalence is used to compare query clauses to find out the
-     * field information, so the same query clauses that used to build
-     * the fieldInfo list must be used here.
+     * Rewrites a query using field information obtained from AnalyzeQuery
+     *
+     * @return Returns a result object containing the new rewritten
+     * query, and the field bindings that will be set to values from
+     * already retrieved documents.
      */
-    private QueryFieldInfo findFieldInfo(Path field,QueryExpression clause) {
-        for(QueryFieldInfo fi:fieldInfo) {
-            if(fi.getClause()==clause)
-                if(fi.getFieldNameInClause().equals(field))
-                    return fi;
-        }
-        throw Error.get(AssocConstants.ERR_REWRITE,field.toString()+"@"+clause.toString());
-    }
-
-
-    private Path addPrefix(Path fieldName) {
-        if(nestedFieldPrefix.isEmpty())
-            return fieldName;
-        else
-            return new Path(nestedFieldPrefix,fieldName);
+    public RewriteQueryResult rewriteQuery(QueryExpression q,List<QueryFieldInfo> fieldInfo) {
+        RewriteQueryImpl w=new RewriteQueryImpl(fieldInfo);
+        QueryExpression newq=w.iterate(q);
+        return new RewriteQueryResult(newq,w.bindings);
     }
     
-    @Override
-    protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
-        QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
-        if(qfi.getFieldEntity()!=currentEntity) {
-            return new TruePH();
-        } else {
-            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
-                return q;
-            else
-                return new ValueComparisonExpression(addPrefix(qfi.getEntityRelativeFieldName()),q.getOp(),q.getRvalue());
+    private class RewriteQueryImpl extends QueryIterator {
+
+        // Set by rewriteQuery before calling
+        private final List<QueryFieldInfo> fieldInfo;        
+        // Set by rewriteQuery before calling
+        private final List<FieldBinding> bindings=new ArrayList<>(16);
+        
+        // This is prefixed to all field names
+        private Path nestedFieldPrefix=Path.EMPTY;
+        
+        /**
+         * Rewrites a query for a query plan node
+         *
+         * @param root The root entity metadata
+         * @param currentEntity The entity for the query plan node for which the query is being rewritten
+         * @param fieldInfo Query field 
+         */
+        public RewriteQueryImpl(List<QueryFieldInfo> fieldInfo) {
+            this.fieldInfo=fieldInfo;
         }
-    }
-    
-    @Override
-    protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
-        QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
-        if(qfi.getFieldEntity()!=currentEntity) {
-            return new TruePH();
-        } else {
-            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
-                return q;
-            else
-                return new RegexMatchExpression(addPrefix(qfi.getEntityRelativeFieldName()),
-                                                q.getRegex(),
-                                                q.isCaseInsensitive(),
-                                                q.isMultiline(),
-                                                q.isExtended(),
-                                                q.isDotAll());
+        
+        public List<FieldBinding> getBindings() {
+            return bindings;
         }
-    }
-
-    @Override
-    protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
-        QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
-        if(qfi.getFieldEntity()!=currentEntity) {
-            return new TruePH();
-        } else {
-            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
-                return q;
-            else
-                return new NaryValueRelationalExpression(addPrefix(qfi.getEntityRelativeFieldName()),q.getOp(),q.getValues());
+        
+        /**
+         * Searches for the field info for a field in the given clase. The
+         * fieldInfo is looked up in fieldInfo list. Object reference
+         * equivalence is used to compare query clauses to find out the
+         * field information, so the same query clauses that used to build
+         * the fieldInfo list must be used here.
+         */
+        private QueryFieldInfo findFieldInfo(Path field,QueryExpression clause) {
+            for(QueryFieldInfo fi:fieldInfo) {
+                if(fi.getClause()==clause)
+                    if(fi.getFieldNameInClause().equals(field))
+                        return fi;
+            }
+            throw Error.get(AssocConstants.ERR_REWRITE,field.toString()+"@"+clause.toString());
         }
-    }
-
-    @Override
-    protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
-        QueryFieldInfo qfi=findFieldInfo(q.getArray(),q);
-        if(qfi.getFieldEntity()!=currentEntity) {
-            return new TruePH();
-        } else {
-            if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
-                return q;
+        
+        
+        private Path addPrefix(Path fieldName) {
+            if(nestedFieldPrefix.isEmpty())
+                return fieldName;
             else
-                return new ArrayContainsExpression(addPrefix(qfi.getEntityRelativeFieldName()),q.getOp(),q.getValues());
+                return new Path(nestedFieldPrefix,fieldName);
         }
-    }
-
-    @Override
-    public QueryExpression iterate(QueryExpression q,Path context) {
-        // Don't send classes the base iterator doesn't recognize
-        if(q instanceof TruePH || q instanceof FalsePH)
-            return q;
-        else
-            return super.iterate(q,context);
-    }
-
-    /**
-     * Binds the given field to a value.
-     */
-    private BoundValue bind(QueryFieldInfo fi) {
-        BoundValue value=new BoundValue();
-        bindings.add(new ValueBinding(fi,value));
-        return value;
-    }
-
-    /**
-     * Binds the given field to a list of values
-     */
-    private BoundValueList bindList(QueryFieldInfo fi) {
-        BoundValueList value=new BoundValueList();
-        bindings.add(new ListBinding(fi,value));
-        return value;
-    }
-
-    /**
-     * Rewrites a field comparison
-     *
-     * A field comparison is of the form:
-     * <pre>
-     *  { field: f1, op:'=', rfield: f2 }
-     * </pre>
-     *
-     * There are four possible ways this can be rewritten:
-     *
-     * If both f1 and f2 are in the current entity, the query is returned unmodified.
-     *
-     * If f1 is in current entity, but f2 is in a different entity, then the query is rewritten as:
-     * <pre>
-     *    { field: f1, op:'=', rvalue: <value> }
-     * </pre>
-     * and f2 is bound. 
-     *
-     * If f2 is in current entity, but f1 is in a different entity, then the query is rewritten as:
-     * <pre>
-     *   { field: f2, op: '=', rvalue: <value> }
-     * </pre>
-     * and f1 is bound. Also, the operator is inverted (i.e. If >, it is converted to <, etc.).
-     *
-     * If both f1 and f2 are not in the current entity, a placeholder for TRUE is returned.
-     * 
-     */
-    @Override
-    protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
-        QueryFieldInfo lfi=findFieldInfo(q.getField(),q);
-        QueryFieldInfo rfi=findFieldInfo(q.getRfield(),q);
-        if(lfi.getFieldEntity()==currentEntity) {
-            if(rfi.getFieldEntity()!=currentEntity) {
-                BoundValue value=bind(rfi);
-                return new ValueComparisonExpression(addPrefix(lfi.getEntityRelativeFieldName()),q.getOp(),value);
+        
+        @Override
+        protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
+            QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
+            if(qfi.getFieldEntity()!=currentEntity) {
+                return new TruePH();
             } else {
-                if(nestedFieldPrefix.isEmpty())
+                if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
                     return q;
                 else
-                    return new FieldComparisonExpression(addPrefix(q.getField()),q.getOp(),addPrefix(q.getRfield()));
+                    return new ValueComparisonExpression(addPrefix(qfi.getEntityRelativeFieldName()),q.getOp(),q.getRvalue());
             }
-        } else if(rfi.getFieldEntity()==currentEntity) {
-            BoundValue value=bind(lfi);
-            return new ValueComparisonExpression(addPrefix(rfi.getEntityRelativeFieldName()),q.getOp().invert(),value);
-        } else {
-            return new TruePH();
         }
-    }
-
-    /**
-     * Rewrites an nary- field comparison
-     *
-     * An nary- field comparison is of the form:
-     * <pre>
-     *  { field: f1, op:'$in', rfield: f2 }
-     * </pre>
-     *
-     * There are four possible ways this can be rewritten:
-     *
-     * If both f1 and f2 are in the current entity, the query is returned unmodified.
-     *
-     * If f1 is in current entity, but f2 is in a different entity, then the query is rewritten as:
-     * <pre>
-     *    { field: f1, op:'$in', rvalue: <value> }
-     * </pre>
-     * and f2 is bound to a list. 
-     *
-     * If f2 is in current entity, but f1 is in a different entity, then the query is rewritten as:
-     * <pre>
-     *   { field: f2, op: '$all', rvalue: [<value>] }
-     * </pre>
-     * and f1 is bound. 
-     *
-     * If both f1 and f2 are not in the current entity, a placeholder for TRUE is returned.
-     * 
-     */
-    @Override
-    protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
-        QueryFieldInfo lfi=findFieldInfo(q.getField(),q);
-        QueryFieldInfo rfi=findFieldInfo(q.getRfield(),q);
-        if(lfi.getFieldEntity()==currentEntity) {
-            if(rfi.getFieldEntity()!=currentEntity) {
-                BoundValueList value=bindList(rfi);
-                return new NaryValueRelationalExpression(addPrefix(lfi.getEntityRelativeFieldName()),q.getOp(),value);
+        
+        @Override
+        protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
+            QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
+            if(qfi.getFieldEntity()!=currentEntity) {
+                return new TruePH();
             } else {
-                if(nestedFieldPrefix.isEmpty())
+                if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
                     return q;
                 else
-                    return new NaryFieldRelationalExpression(addPrefix(q.getField()),q.getOp(),addPrefix(q.getRfield()));
+                    return new RegexMatchExpression(addPrefix(qfi.getEntityRelativeFieldName()),
+                                                    q.getRegex(),
+                                                    q.isCaseInsensitive(),
+                                                    q.isMultiline(),
+                                                    q.isExtended(),
+                                                    q.isDotAll());
             }
-        } else if(rfi.getFieldEntity()==currentEntity) {
-            BoundValue value=bind(lfi);
-            List<Value> list=new ArrayList<>(1);
-            list.add(value);
-            return new ArrayContainsExpression(addPrefix(rfi.getEntityRelativeFieldName()),
-                                               q.getOp()==NaryRelationalOperator._in?ContainsOperator._all:ContainsOperator._none, 
-                                               list);
-        } else {
-            return new TruePH();
         }
-    }
-
-    /**
-     * If the enclosed query is a placeholder (TruePH or FalsePH), it negates the placeholder, 
-     * otherwise, the query remains as is
-     */
-    @Override
-    protected QueryExpression itrUnaryLogicalExpression(UnaryLogicalExpression q, Path context) {
-        UnaryLogicalExpression nq=(UnaryLogicalExpression)super.itrUnaryLogicalExpression(q,context);
-        if(nq.getQuery() instanceof TruePH)
-            return new FalsePH();
-        else if(nq.getQuery() instanceof FalsePH)
-            return new TruePH();
-        else
-            return nq;
-    }
-
-    /**
-     * All TruePH placeholders are removed from an AND expression.
-     *
-     * All FalsePH placeholders are removed from an OR expression.
-     *
-     * If an AND expression contains a FalsePH, the expression is replaced with a FalsePH
-     *
-     * If an OR expression contains a TruePH, the expression is replaced with a TruePH
-     */
-    @Override
-    protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q, Path context) {
-        NaryLogicalExpression nq=(NaryLogicalExpression)super.itrNaryLogicalExpression(q,context);
-        CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<QueryExpression>(nq.getQueries());
-        while (itr.hasNext()) {
-            QueryExpression nestedq = itr.next();
-            if(q.getOp()==NaryLogicalOperator._and) {
-                if(nestedq instanceof TruePH) {
-                    itr.remove();
-                } else if(nestedq instanceof FalsePH) {
-                    return new FalsePH();
-                } 
+        
+        @Override
+        protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
+            QueryFieldInfo qfi=findFieldInfo(q.getField(),q);
+            if(qfi.getFieldEntity()!=currentEntity) {
+                return new TruePH();
             } else {
-                if(nestedq instanceof TruePH) {
-                    return new TruePH();
-                } else if(nestedq instanceof FalsePH) {
-                    itr.remove();
-                } 
+                if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
+                    return q;
+                else
+                    return new NaryValueRelationalExpression(addPrefix(qfi.getEntityRelativeFieldName()),q.getOp(),q.getValues());
             }
         }
-        if(itr.isCopied()) {
-            List<QueryExpression> newList=itr.getCopiedList();
-            if(newList.size()==1)
-                return newList.get(0);
-            else
-                return new NaryLogicalExpression(q.getOp(),newList);
-        } else {
-            return nq;
+        
+        @Override
+        protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
+            QueryFieldInfo qfi=findFieldInfo(q.getArray(),q);
+            if(qfi.getFieldEntity()!=currentEntity) {
+                return new TruePH();
+            } else {
+                if(qfi.getFieldNameInClause().equals(qfi.getEntityRelativeFieldName())&&nestedFieldPrefix.isEmpty())
+                    return q;
+                else
+                    return new ArrayContainsExpression(addPrefix(qfi.getEntityRelativeFieldName()),q.getOp(),q.getValues());
+            }
         }
-    }
-
-    /**
-     * Several possibilities exist when rewriting an array query.
-     *
-     * The array field itself may be pointing to a different entity
-     * than the currentEntity. This includes the case where the array
-     * is the reference field itself. If this is the case, this is no
-     * longer an array elem match expression. The nested query is
-     * moved outside and rewritten.
-     *
-     * The array field itself may be pointing to an array in
-     * currentEntity. In this case, the array field is rewritten as
-     * the local field, and the nested query is rewritten recursively.
-     *
-     * If the nested query contains a placeholder, the query is
-     * replaced with that. Otherwise, the query remains as is
-     */
-    @Override
-    protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-        QueryFieldInfo qfi=findFieldInfo(q.getArray(),q);
-        if(qfi.getFieldEntity()==currentEntity) {
-            if(qfi.getFieldMd() instanceof ResolvedReferenceField) {
-                // The array is pointing to a reference field
-                // This could be a simple reference, like {array:ref, elemMatch: Q }
-                // In that case, the return value is Q
-                // Example: in: { array: ref, elemMatch:{ field:_id, op:$eq, rfield: $parent.ref_id} }
-                //         out: { field: ref_id, op: $eq, rvalue: <_id value> }
-                //
-                // This could also be a nested array reference, like {array: x.*.ref, elemMatch: Q }
-                // Example: in: { array: x.*.obj.ref, elemMatch: { field: _id, op:$eq, rfield: $parent.ref_id } }
-                //         out: { array: x, elemMatch: { field: obj.ref_id, op: $eq, rvalue: < _id value> } }
-
-                // Find the closes array containing the reference
-                Path arrName=qfi.getEntityRelativeFieldName();
-                int lastAny=-1;
-                int n=arrName.numSegments();
-                for(int i=0;i<n;i++) {
-                    if(arrName.tail(i).equals(Path.ANY)) {
-                        lastAny=i;
-                        break;
-                    }
-                }
-                if(lastAny==-1) {
-                    // Reference field is not in an array.
-                    QueryExpression em=iterate(q.getElemMatch(),context);
-                    return em;
+        
+        @Override
+        public QueryExpression iterate(QueryExpression q,Path context) {
+            // Don't send classes the base iterator doesn't recognize
+            if(q instanceof TruePH || q instanceof FalsePH)
+                return q;
+            else
+                return super.iterate(q,context);
+        }
+        
+        /**
+         * Binds the given field to a value.
+         */
+        private BoundValue bind(QueryFieldInfo fi) {
+            BoundValue value=new BoundValue();
+            bindings.add(new ValueBinding(fi,value));
+            return value;
+        }
+        
+        /**
+         * Binds the given field to a list of values
+         */
+        private BoundValueList bindList(QueryFieldInfo fi) {
+            BoundValueList value=new BoundValueList();
+            bindings.add(new ListBinding(fi,value));
+            return value;
+        }
+        
+        /**
+         * Rewrites a field comparison
+         *
+         * A field comparison is of the form:
+         * <pre>
+         *  { field: f1, op:'=', rfield: f2 }
+         * </pre>
+         *
+         * There are four possible ways this can be rewritten:
+         *
+         * If both f1 and f2 are in the current entity, the query is returned unmodified.
+         *
+         * If f1 is in current entity, but f2 is in a different entity, then the query is rewritten as:
+         * <pre>
+         *    { field: f1, op:'=', rvalue: <value> }
+         * </pre>
+         * and f2 is bound. 
+         *
+         * If f2 is in current entity, but f1 is in a different entity, then the query is rewritten as:
+         * <pre>
+         *   { field: f2, op: '=', rvalue: <value> }
+         * </pre>
+         * and f1 is bound. Also, the operator is inverted (i.e. If >, it is converted to <, etc.).
+         *
+         * If both f1 and f2 are not in the current entity, a placeholder for TRUE is returned.
+         * 
+         */
+        @Override
+        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
+            QueryFieldInfo lfi=findFieldInfo(q.getField(),q);
+            QueryFieldInfo rfi=findFieldInfo(q.getRfield(),q);
+            if(lfi.getFieldEntity()==currentEntity) {
+                if(rfi.getFieldEntity()!=currentEntity) {
+                    BoundValue value=bind(rfi);
+                    return new ValueComparisonExpression(addPrefix(lfi.getEntityRelativeFieldName()),q.getOp(),value);
                 } else {
-                    // If arrName is x.*.ref, lastAny will be 1, so a prefix of -2 will be x
-                    Path closestArray=arrName.prefix(-(lastAny+1));
-                    // Any remaining part between the closest array and reference should be a prefix of all the nested fields
-                    // For instance, if arrName is x.*.obj.ref, all fields should be prefixed by obj
-                    Path oldPrefix=nestedFieldPrefix;
-                    nestedFieldPrefix=arrName.suffix(-(closestArray.numSegments()+1)).prefix(-1);
+                    if(nestedFieldPrefix.isEmpty())
+                        return q;
+                    else
+                        return new FieldComparisonExpression(addPrefix(q.getField()),q.getOp(),addPrefix(q.getRfield()));
+                }
+            } else if(rfi.getFieldEntity()==currentEntity) {
+                BoundValue value=bind(lfi);
+                return new ValueComparisonExpression(addPrefix(rfi.getEntityRelativeFieldName()),q.getOp().invert(),value);
+            } else {
+                return new TruePH();
+            }
+        }
+
+        /**
+         * Rewrites an nary- field comparison
+         *
+         * An nary- field comparison is of the form:
+         * <pre>
+         *  { field: f1, op:'$in', rfield: f2 }
+         * </pre>
+         *
+         * There are four possible ways this can be rewritten:
+         *
+         * If both f1 and f2 are in the current entity, the query is returned unmodified.
+         *
+         * If f1 is in current entity, but f2 is in a different entity, then the query is rewritten as:
+         * <pre>
+         *    { field: f1, op:'$in', rvalue: <value> }
+         * </pre>
+         * and f2 is bound to a list. 
+         *
+         * If f2 is in current entity, but f1 is in a different entity, then the query is rewritten as:
+         * <pre>
+         *   { field: f2, op: '$all', rvalue: [<value>] }
+         * </pre>
+         * and f1 is bound. 
+         *
+         * If both f1 and f2 are not in the current entity, a placeholder for TRUE is returned.
+         * 
+         */
+        @Override
+        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
+            QueryFieldInfo lfi=findFieldInfo(q.getField(),q);
+            QueryFieldInfo rfi=findFieldInfo(q.getRfield(),q);
+            if(lfi.getFieldEntity()==currentEntity) {
+                if(rfi.getFieldEntity()!=currentEntity) {
+                    BoundValueList value=bindList(rfi);
+                    return new NaryValueRelationalExpression(addPrefix(lfi.getEntityRelativeFieldName()),q.getOp(),value);
+                } else {
+                    if(nestedFieldPrefix.isEmpty())
+                        return q;
+                    else
+                        return new NaryFieldRelationalExpression(addPrefix(q.getField()),q.getOp(),addPrefix(q.getRfield()));
+                }
+            } else if(rfi.getFieldEntity()==currentEntity) {
+                BoundValue value=bind(lfi);
+                List<Value> list=new ArrayList<>(1);
+                list.add(value);
+                return new ArrayContainsExpression(addPrefix(rfi.getEntityRelativeFieldName()),
+                                                   q.getOp()==NaryRelationalOperator._in?ContainsOperator._all:ContainsOperator._none, 
+                                                   list);
+            } else {
+                return new TruePH();
+            }
+        }
+
+        /**
+         * If the enclosed query is a placeholder (TruePH or FalsePH), it negates the placeholder, 
+         * otherwise, the query remains as is
+         */
+        @Override
+        protected QueryExpression itrUnaryLogicalExpression(UnaryLogicalExpression q, Path context) {
+            UnaryLogicalExpression nq=(UnaryLogicalExpression)super.itrUnaryLogicalExpression(q,context);
+            if(nq.getQuery() instanceof TruePH)
+                return new FalsePH();
+            else if(nq.getQuery() instanceof FalsePH)
+                return new TruePH();
+            else
+                return nq;
+        }
+
+        /**
+         * All TruePH placeholders are removed from an AND expression.
+         *
+         * All FalsePH placeholders are removed from an OR expression.
+         *
+         * If an AND expression contains a FalsePH, the expression is replaced with a FalsePH
+         *
+         * If an OR expression contains a TruePH, the expression is replaced with a TruePH
+         */
+        @Override
+        protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q, Path context) {
+            NaryLogicalExpression nq=(NaryLogicalExpression)super.itrNaryLogicalExpression(q,context);
+            CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<QueryExpression>(nq.getQueries());
+            while (itr.hasNext()) {
+                QueryExpression nestedq = itr.next();
+                if(q.getOp()==NaryLogicalOperator._and) {
+                    if(nestedq instanceof TruePH) {
+                        itr.remove();
+                    } else if(nestedq instanceof FalsePH) {
+                        return new FalsePH();
+                    } 
+                } else {
+                    if(nestedq instanceof TruePH) {
+                        return new TruePH();
+                    } else if(nestedq instanceof FalsePH) {
+                        itr.remove();
+                    } 
+                }
+            }
+            if(itr.isCopied()) {
+                List<QueryExpression> newList=itr.getCopiedList();
+                if(newList.size()==1)
+                    return newList.get(0);
+                else
+                    return new NaryLogicalExpression(q.getOp(),newList);
+            } else {
+                return nq;
+            }
+        }
+
+        /**
+         * Several possibilities exist when rewriting an array query.
+         *
+         * The array field itself may be pointing to a different entity
+         * than the currentEntity. This includes the case where the array
+         * is the reference field itself. If this is the case, this is no
+         * longer an array elem match expression. The nested query is
+         * moved outside and rewritten.
+         *
+         * The array field itself may be pointing to an array in
+         * currentEntity. In this case, the array field is rewritten as
+         * the local field, and the nested query is rewritten recursively.
+         *
+         * If the nested query contains a placeholder, the query is
+         * replaced with that. Otherwise, the query remains as is
+         */
+        @Override
+        protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
+            QueryFieldInfo qfi=findFieldInfo(q.getArray(),q);
+            if(qfi.getFieldEntity()==currentEntity) {
+                if(qfi.getFieldMd() instanceof ResolvedReferenceField) {
+                    // The array is pointing to a reference field
+                    // This could be a simple reference, like {array:ref, elemMatch: Q }
+                    // In that case, the return value is Q
+                    // Example: in: { array: ref, elemMatch:{ field:_id, op:$eq, rfield: $parent.ref_id} }
+                    //         out: { field: ref_id, op: $eq, rvalue: <_id value> }
+                    //
+                    // This could also be a nested array reference, like {array: x.*.ref, elemMatch: Q }
+                    // Example: in: { array: x.*.obj.ref, elemMatch: { field: _id, op:$eq, rfield: $parent.ref_id } }
+                    //         out: { array: x, elemMatch: { field: obj.ref_id, op: $eq, rvalue: < _id value> } }
+
+                    // Find the closes array containing the reference
+                    Path arrName=qfi.getEntityRelativeFieldName();
+                    int lastAny=-1;
+                    int n=arrName.numSegments();
+                    for(int i=0;i<n;i++) {
+                        if(arrName.tail(i).equals(Path.ANY)) {
+                            lastAny=i;
+                            break;
+                        }
+                    }
+                    if(lastAny==-1) {
+                        // Reference field is not in an array.
+                        QueryExpression em=iterate(q.getElemMatch(),context);
+                        return em;
+                    } else {
+                        // If arrName is x.*.ref, lastAny will be 1, so a prefix of -2 will be x
+                        Path closestArray=arrName.prefix(-(lastAny+1));
+                        // Any remaining part between the closest array and reference should be a prefix of all the nested fields
+                        // For instance, if arrName is x.*.obj.ref, all fields should be prefixed by obj
+                        Path oldPrefix=nestedFieldPrefix;
+                        nestedFieldPrefix=arrName.suffix(-(closestArray.numSegments()+1)).prefix(-1);
+                        QueryExpression em=iterate(q.getElemMatch(),context);
+                        nestedFieldPrefix=oldPrefix;
+                        if(em instanceof TruePH ||
+                           em instanceof FalsePH)
+                            return em;
+                        else
+                            return new ArrayMatchExpression(addPrefix(closestArray),em);
+                    }
+                } else {
                     QueryExpression em=iterate(q.getElemMatch(),context);
-                    nestedFieldPrefix=oldPrefix;
-                    if(em instanceof TruePH ||
+                    if(em instanceof TruePH||
                        em instanceof FalsePH)
                         return em;
                     else
-                        return new ArrayMatchExpression(addPrefix(closestArray),em);
+                        return new ArrayMatchExpression(addPrefix(q.getArray()),em);
                 }
             } else {
                 QueryExpression em=iterate(q.getElemMatch(),context);
-                if(em instanceof TruePH||
-                   em instanceof FalsePH)
-                    return em;
-                else
-                    return new ArrayMatchExpression(addPrefix(q.getArray()),em);
+                return em;
             }
-        } else {
-            QueryExpression em=iterate(q.getElemMatch(),context);
-            return em;
         }
     }
 }
