@@ -18,12 +18,13 @@
  */
 package com.redhat.lightblue.config;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
 import com.redhat.lightblue.config.hooks.SimpleHookResolver;
+import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DeleteRequest;
@@ -40,11 +42,13 @@ import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
-import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
-import com.redhat.lightblue.crud.valuegenerators.GeneratedFieldInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.crud.valuegenerators.GeneratedFieldInterceptor;
+import com.redhat.lightblue.extensions.ExtensionSupport;
+import com.redhat.lightblue.extensions.synch.Locking;
+import com.redhat.lightblue.extensions.synch.LockingSupport;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -56,9 +60,6 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.extensions.ExtensionSupport;
-import com.redhat.lightblue.extensions.synch.LockingSupport;
-import com.redhat.lightblue.extensions.synch.Locking;
 
 /**
  * Manager class that creates instances of Mediator, Factory, Metadata, etc.
@@ -127,10 +128,14 @@ public final class LightblueFactory implements Serializable {
             JsonNode root = crudNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
+                    if (null == is) {
+                        throw new FileNotFoundException(CrudConfiguration.FILENAME);
+                    }
                     root = JsonUtils.json(is,true);
                 }
-            } else
+            } else {
                 LOGGER.debug("Using passed in node to initialize factory");
+            }
             LOGGER.debug("Initializing factory from {}",root);
 
             // convert root to Configuration object
@@ -172,6 +177,9 @@ public final class LightblueFactory implements Serializable {
             JsonNode root = metadataNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
+                    if (null == is) {
+                        throw new FileNotFoundException(MetadataConfiguration.FILENAME);
+                    }
                     root = JsonUtils.json(is,true);
                 }
             }
@@ -334,15 +342,17 @@ public final class LightblueFactory implements Serializable {
         return mediator;
     }
 
-    public Locking getLocking(String domain) 
+    public Locking getLocking(String domain)
         throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
-        if(lockingMap==null)
+        if(lockingMap==null) {
             initializeLockingMap();
+        }
         LockingSupport ls=lockingMap.get(domain);
-        if(ls!=null)
+        if(ls!=null) {
             return ls.getLockingInstance(domain);
-        else
+        } else {
             throw new RuntimeException("Unrecognized locking domain");
+        }
     }
 
     public JsonTranslator getJsonTranslator() {
