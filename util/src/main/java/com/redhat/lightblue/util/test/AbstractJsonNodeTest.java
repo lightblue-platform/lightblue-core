@@ -70,6 +70,9 @@ public abstract class AbstractJsonNodeTest {
      */
     public static final String loadResource(String resourceName, ClassLoader loader) throws IOException {
         try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            if (null == is) {
+                throw new FileNotFoundException(resourceName);
+            }
             return loadResource(is);
         }
     }
