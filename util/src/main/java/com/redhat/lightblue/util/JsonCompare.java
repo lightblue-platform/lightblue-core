@@ -232,6 +232,10 @@ public class JsonCompare {
             this.addedNode=addedNode;
         }
 
+        public JsonNode getAddedNode() {
+            return addedNode;
+        }
+
         @Override
         public String toString() {
             return "+ "+field2+":"+addedNode;
@@ -244,6 +248,10 @@ public class JsonCompare {
         public Removal(Path field1,JsonNode removedNode) {
             super(field1,null);
             this.removedNode=removedNode;
+        }
+
+        public JsonNode getRemovedNode() {
+            return removedNode;
         }
 
         @Override
@@ -260,6 +268,10 @@ public class JsonCompare {
             this.movedNode=movedNode;
         }
 
+        public JsonNode getMovedNode() {
+            return movedNode;
+        }
+
         @Override
         public String toString() {
             return "* "+field1+"->"+field2+":"+movedNode;
@@ -274,6 +286,14 @@ public class JsonCompare {
             super(field1,field2);
             this.node1=node1;
             this.node2=node2;
+        }
+
+        public JsonNode getUnmodifiedNode() {
+            return node1;
+        }
+
+        public JsonNode getModifiedNode() {
+            return node2;
         }
 
         @Override
