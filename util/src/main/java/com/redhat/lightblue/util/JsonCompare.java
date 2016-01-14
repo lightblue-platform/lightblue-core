@@ -54,6 +54,26 @@ import com.fasterxml.jackson.databind.node.NullNode;
  * second array, and the elements with minimal number of changes are
  * associated. Elements that are too different from each other are not
  * associated.
+ *
+ * Differences: 
+ *
+ * An Addition denotes a new field or array element. Addition.field1
+ * is null, meaning the field does not exist in document1, and
+ * Addition.field2 denotes the new field, or array element.
+ *
+ * A Removal denotes a removed field or array element. Removal.field1
+ * denotes the element in document1, and Removal.field2 is null.
+ *
+ * A Modification denotes a content modification of a field, or array
+ * element. Both field1 and field2 are non-null, and set to the name
+ * of the modified field.
+ *
+ * A Move denotes an array element move. field1 denotes the old index
+ * of the array element, and field2 denotes the new index.
+ *
+ * If new elements are added to an array, or existing elements are
+ * removed, the addition and removal appear as diff, and any node that
+ * shifted during the operation appears within a Move.
  */
 public class JsonCompare {
 
