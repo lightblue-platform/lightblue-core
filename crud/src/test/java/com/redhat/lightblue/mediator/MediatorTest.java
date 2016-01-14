@@ -51,84 +51,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.containsString;
 
-public class MediatorTest extends AbstractJsonSchemaTest {
-    private Mediator mediator;
-    private final TestMetadata mdManager = new TestMetadata();
-    private final MockCrudController mockCrudController = new MockCrudController();
-
-    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
-
-    private static final class TestMetadata extends DatabaseMetadata {
-        EntityMetadata md;
-
-        @Override
-        public EntityMetadata getEntityMetadata(String entityName, String version) {
-            return md;
-        }
-    }
-
-    static class MockValueGeneratorSupport implements ValueGeneratorSupport {
-        public static int v=0;
-        
-        @Override
-        public ValueGenerator.ValueGeneratorType[] getSupportedGeneratorTypes() {
-            return new ValueGenerator.ValueGeneratorType[] {ValueGenerator.ValueGeneratorType.IntSequence};
-        }
-
-        @Override
-        public Object generateValue(EntityMetadata md,ValueGenerator generator) {
-            return new Integer(v++);
-        }
-    }
-
-    private static final class RestClientIdentification extends ClientIdentification {
-
-        private final Set<String> clientRoles;
-
-        public RestClientIdentification(List<String> roles) {
-            clientRoles = new HashSet<>();
-            clientRoles.addAll(roles);
-        }
-
-        @Override
-        public String getPrincipal() {
-            return "";
-        }
-
-        @Override
-        public boolean isUserInRole(String role) {
-            return clientRoles.contains(role);
-        }
-
-        @Override
-        public JsonNode toJson() {
-            return null;
-        }
-    }
-
-    private EntityMetadata getMd(String fname) throws Exception {
-        JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<>();
-        extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
-        TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
-        EntityMetadata md = parser.parseEntityMetadata(node);
-        PredefinedFields.ensurePredefinedFields(md);
-        return md;
-    }
-
-    @Before
-    public void initMediator() throws Exception {
-        Factory factory = new Factory();
-        factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
-        factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
-        new UIDInterceptor().register(factory.getInterceptors());
-        new GeneratedFieldInterceptor().register(factory.getInterceptors());
-        factory.addCRUDController("mongo", mockCrudController);
-        mdManager.md = getMd("./testMetadata.json");
-        mediator = new Mediator(mdManager, factory);
-    }
+public class MediatorTest extends AbstractMediatorTest {
 
     @Test
     public void disabledVersionTest() throws Exception {
@@ -497,42 +420,5 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(0,response.getErrors().size());
         Assert.assertEquals(0,response.getDataErrors().size());
         System.out.println(mockCrudController.ctx.getDocuments().get(0));
-    }
-
-    @Test
-    public void bulkTest() throws Exception {
-        BulkRequest breq=new BulkRequest();
-        
-        InsertionRequest ireq = new InsertionRequest();
-        ireq.setEntityVersion(new EntityVersion("test", "1.0"));
-        ireq.setEntityData(loadJsonNode("./sample1.json"));
-        ireq.setReturnFields(null);
-        ireq.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
-        breq.add(ireq);
-
-        FindRequest freq = new FindRequest();
-        freq.setEntityVersion(new EntityVersion("test", "1.0"));
-
-        mdManager.md.getAccess().getFind().setRoles("role1");
-        breq.add(freq);
-
-        BulkResponse bresp=mediator.bulkRequest(breq);
-
-        Response response=bresp.getEntries().get(0);
-        Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
-        Assert.assertEquals(1, response.getModifiedCount());
-        Assert.assertEquals(0, response.getMatchCount());
-        Assert.assertEquals(0, response.getDataErrors().size());
-        Assert.assertEquals(0, response.getErrors().size());
-
-        response=bresp.getEntries().get(1);
-        
-        Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
-        Assert.assertEquals(0, response.getModifiedCount());
-        Assert.assertEquals(0, response.getMatchCount());
-        Assert.assertEquals(0, response.getDataErrors().size());
-        Assert.assertEquals(1, response.getErrors().size());
-        Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
-        
     }
 }

@@ -45,6 +45,7 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
 
     private ControllerConfiguration controllers[];
     private boolean validateRequests=false;
+    private int  bulkParallelExecutions=3;
 
     public boolean isValidateRequests() {
         return validateRequests;
@@ -52,6 +53,14 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
 
     public void setValidateRequests(boolean b) {
         validateRequests=b;
+    }
+
+    public int getBulkParallelExecutions() {
+        return bulkParallelExecutions;
+    }
+
+    public void setBulkParallelExecutions(int i) {
+        bulkParallelExecutions=i;
     }
 
     /**
@@ -103,6 +112,9 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
             x=node.get("validateRequests");
             if(x!=null)
                 validateRequests=x.booleanValue();
+            x=node.get("bulkParallelExecutions");
+            if(x!=null)
+                bulkParallelExecutions=x.intValue();
         }
     }
 }
