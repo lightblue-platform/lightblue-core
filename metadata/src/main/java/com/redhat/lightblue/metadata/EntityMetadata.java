@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata;
 import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.JsonCompare;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -211,5 +212,15 @@ public class EntityMetadata implements Serializable {
                 }
             }
         }
+    }
+
+    /**
+     * Builds a document comparator for comparing documents of this
+     * type. That involves registering all array element identities
+     * with the comparator so array comparisons can be done corectly
+     * and efficiently.
+     */
+    public JsonCompare getDocComparator() {
+        return schema.getDocComparator();
     }
 }
