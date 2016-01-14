@@ -157,14 +157,23 @@ public class JsonCompare {
             numUnchangedFields=numFields;
         }
 
+        /**
+         * Returns the number of unmodified fields
+         */
         public int getNumUnchangedFields() {
             return numUnchangedFields;
         }
 
+        /**
+         * Returns the number of modified fields, excluding array element moves
+         */
         public int getNumChangedFields() {
             return numChangedFields;
         }
 
+        /**
+         * Returns the list of changes
+         */
         public List<Delta> getDelta() {
             return delta;
         }
@@ -183,15 +192,19 @@ public class JsonCompare {
                 numChangedFields++;
         }
 
-        public void unchanged() {
-            numUnchangedFields++;
-        }
-
+        /**
+         * A numeric value between 0 and 1 denoting how much an object
+         * is changed. 0 means no change, 1 means everything is
+         * changed.
+         */
         public double getChangeAmount() {
             double d=numChangedFields+numUnchangedFields;
             return d==0?0:numChangedFields/d;
         }
 
+        /**
+         * Returns true if there are not changes
+         */
         public boolean same() {
             return delta.isEmpty();
         }
@@ -206,6 +219,9 @@ public class JsonCompare {
         }
     }
     
+    /**
+     * Base class for a delta
+     */
     public static abstract class Delta {
         protected final Path field1;
         protected final Path field2;
@@ -224,6 +240,9 @@ public class JsonCompare {
         }
     }
 
+    /**
+     * Denotes an addition of a field or array element that isn't present in doc1
+     */
     public static class Addition extends Delta {
         private final JsonNode addedNode;
 
@@ -242,6 +261,9 @@ public class JsonCompare {
         }
     }
 
+    /**
+     * Denotes a removal of a field or array element that is present in doc1 but not in doc2
+     */
     public static class Removal extends Delta {
         private final JsonNode removedNode;
 
@@ -260,6 +282,9 @@ public class JsonCompare {
         }
     }
 
+    /**
+     * Denotes an array element move from one element index to another
+     */
     public static class Move extends Delta {
         private final JsonNode movedNode;
         
@@ -278,6 +303,9 @@ public class JsonCompare {
         }
     }
 
+    /**
+     * Denotes a field modification
+     */
     public static class Modification extends Delta {
         private final JsonNode node1;
         private final JsonNode node2;
@@ -303,6 +331,10 @@ public class JsonCompare {
    }
 
 
+    /**
+     * Contains a list of fields contained in array elements that
+     * uniquely identify array elements
+     */
     public static class ArrayIdentityFields {
         private Path[] fields;
 
@@ -315,7 +347,11 @@ public class JsonCompare {
         }
     }
 
-    public static class DefaultIdentity {
+    /**
+     * Default array identity object. Contains the identity values,
+     * computes hashcode from them
+     */
+    private static class DefaultIdentity {
         private final JsonNode[] nodes;
         private Integer hcode;
 
@@ -323,6 +359,7 @@ public class JsonCompare {
             this.nodes=nodes;
         }
 
+        @Override
         public int hashCode() {
             if(hcode==null) {
                 int code=0;
@@ -335,6 +372,7 @@ public class JsonCompare {
             return hcode;
         }
 
+        @Override
         public boolean equals(Object x) {
             try {
                 DefaultIdentity d=(DefaultIdentity)x;
@@ -369,10 +407,36 @@ public class JsonCompare {
 
     private final Map<Path,ArrayIdentityFields> arrayIdentities=new HashMap<>();
 
+    /**
+     * Adds a group of fields that can uniquely identify array elements for object arrays
+     *
+     * @param array The name of the array field
+     * @param identities The fields of the array element that can identiy an element
+     *
+     * In the following document:
+     * <pre>
+     * {
+     * ...
+     *   "aField": [
+     *      { "_id":1,"field":...},
+     *      { "_id":2,"field":...}
+     *   ]
+     * }
+     * <pre>
+     * the call looks like
+     * <pre>
+     *    jsonCompare.addArrayIdentity(new Path("aField"),new Path("_id"));
+     * </pre>
+     * If there are more than one fields that uniquely identify an eleent, list those in 
+     * the argument list.
+     */
     public void addArrayIdentity(Path array,Path...identities) {
         arrayIdentities.put(array,new ArrayIdentityFields(identities));
     }
 
+    /**
+     * Compares two json documents and returns the difference
+     */
     public Difference compareNodes(JsonNode node1,JsonNode node2) 
          throws InvalidArrayIdentity, DuplicateArrayIdentity {
        return compareNodes(new MutablePath(),node1,new MutablePath(),node2);
