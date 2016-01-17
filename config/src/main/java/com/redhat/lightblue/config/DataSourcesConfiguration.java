@@ -125,7 +125,7 @@ public class DataSourcesConfiguration implements JsonInitializable, Serializable
                 String type = typeNode.asText();
                 LOGGER.debug("{} is a {}", name, type);
                 try {
-                    Class clazz = Class.forName(type);
+                    Class clazz = Thread.currentThread().getContextClassLoader().loadClass(type);
                     DataSourceConfiguration ds = (DataSourceConfiguration) clazz.newInstance();
                     ds.initializeFromJson(dsNode);
                     datasources.put(name, ds);
