@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -237,6 +238,13 @@ public class JsonCompare {
 
         public Path getField2() {
             return field2;
+        }
+
+        /**
+         * Return the non-null field, or field1 if both are non-null
+         */
+        public Path getField() {
+            return field1==null?field2:field1;
         }
     }
 
@@ -591,6 +599,28 @@ public class JsonCompare {
         return ret;
     }
 
+    private static class Pair {
+        private final int i1,i2;
+
+        public int hashCode() {
+            return i1*1001+i2;
+        }
+
+        public boolean equals(Object o) {
+            try {
+                return ((Pair)o).i1==i1&&
+                    ((Pair)o).i2==i2;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        public Pair(int i1,int i2) {
+            this.i1=i1;
+            this.i2=i2;
+        }
+    }
+
     /**
      * Computes difference between arrays by comparing every element
      * recursively and trying to find the closest match
@@ -602,29 +632,32 @@ public class JsonCompare {
         throws InvalidArrayIdentity, DuplicateArrayIdentity {
         Difference ret=new Difference();
         IndexAssoc assoc=new IndexAssoc(node1.size(),node2.size());
-
+        HashSet<Pair> comparedPairs=new HashSet<>();
+        
         // First associate exact matches
         // We loop through the unassociated elements of node1, and node2
         // If the nodes are equal, we associate them
         // if they are not, we note the distance between the two, so later
         // we don't need to re-compare them
         for(assoc.start1();assoc.hasNext1();) {
-            int index=assoc.next1();
-            JsonNode element1=node1.get(index);
-            field1.push(index);
+            int index1=assoc.next1();
+            JsonNode element1=node1.get(index1);
+            field1.push(index1);
 
             for(assoc.start2();assoc.hasNext2();) {
-                index=assoc.next2();
-                JsonNode element2=node2.get(index);
-                field2.push(index);
+                int index2=assoc.next2();
+                JsonNode element2=node2.get(index2);
+                field2.push(index2);
 
+                comparedPairs.add(new Pair(index1,index2));
+                
                 Difference diff=compareNodes(field1,element1,field2,element2);
                 if(diff.same()) {
-                    assoc.associate();
+                    assoc.associate(index1,index2);
                     field2.pop();
                     break;
                 } else {
-                    assoc.recordDistance(diff);
+                    assoc.recordDistance(index1,index2,diff);
                 }
                 field2.pop();
             }
@@ -635,33 +668,34 @@ public class JsonCompare {
         // All remaining nodes need to be compared to each other
         // First compare all node1 elements to node2 elements
         for(assoc.start1();assoc.hasNext1();) {
-            int index=assoc.next1();
-            JsonNode element1=node1.get(index);
-            field1.push(index);
+            int index1=assoc.next1();
+            JsonNode element1=node1.get(index1);
+            field1.push(index1);
 
             for(assoc.start2();assoc.hasNext2();) {
                 int index2=assoc.next2();
                 JsonNode element2=node2.get(index2);
                 field2.push(index2);
 
+                Pair p=new Pair(index1,index2);
                 // Do we have a distance recorded for these nodes?
-                if(assoc.getMinDiffFor1()==null) {
+                if(comparedPairs.contains(p)) {
                     // No distance: compare the nodes
                     Difference diff=compareNodes(field1,element1,field2,element2);
-                    assoc.recordDistance(diff);
+                    assoc.recordDistance(index1,index2,diff);
+                    comparedPairs.add(p);
                 }
                 field2.pop();
             }
-            int index2=assoc.getMinChangeFor1();
-            if(index2==-1) {
+            IxDiff ixdiff=assoc.getMin(index1);
+            if(ixdiff==null||ixdiff.change>0.5) {
                 // No matching node for node1
                 ret.add(new Removal(field1,element1));
-                assoc.remove1();
+                assoc.remove1(index1);
             } else {
                 // Matching node
-                Difference diff=assoc.getMinDiffFor1();
-                assoc.associate(index,index2);
-                ret.add(diff);
+                assoc.associate(index1,ixdiff.index2);
+                ret.add(ixdiff.diff);
             }
             field1.pop();
         }
@@ -687,17 +721,22 @@ public class JsonCompare {
         return ret;
     }
 
-    private static class MinDiff {
+    /**
+     * Keeps the distance between two array indexes.
+     */
+    private static class IxDiff {
         private Difference diff;
         private double change;
-        private int minIndex;
+        private int index1,index2;
 
-        public MinDiff(Difference diff,
-                       double change,
-                       int minIndex) {
+        public IxDiff(Difference diff,
+                      double change,
+                      int index1,
+                      int index2) {
             this.diff=diff;
             this.change=change;
-            this.minIndex=minIndex;
+            this.index1=index1;
+            this.index2=index2;
         }
     }
 
@@ -711,7 +750,10 @@ public class JsonCompare {
         private int itr2;
         private int last1,last2;
         private final Map<Integer,Integer> assoc=new HashMap<>();
-        private final Map<Integer,MinDiff> minimums1=new HashMap<>();
+        /**
+         * Keeps the IxDiff with the minimum change between index1 and index2, keyed on index1
+         */
+        private final Map<Integer,IxDiff> minimums1=new HashMap<>();
 
         /**
          * Construct with two arrays of size1 and size2
@@ -745,9 +787,13 @@ public class JsonCompare {
             return last1=ix1.get(itr1);
         }
 
-        public void remove1() {
-            ix1.remove(itr1);
-            itr1--;
+        public void remove1(int index) {
+            int l1=ix1.indexOf(index);
+            if(l1>=0) {
+                ix1.remove(l1);
+                if(itr1>=l1)
+                    itr1--;
+            }
         }
 
         /**
@@ -772,34 +818,18 @@ public class JsonCompare {
             return last2=ix2.get(itr2);
         }
 
-        public void remove2() {
-            ix2.remove(itr2);
-            itr2--;
-        }
+        public void remove2(int index) {
+            int l2=ix2.indexOf(index);
+            if(l2>=0) {
+                ix2.remove(l2);
+                if(itr2>=l2)
+                    itr2--;
+            }
 
-        /**
-         * Associates the indexes last returned by next(). These
-         * indexes are removed from the unassociated list
-         */
-        public void associate() {
-            remove1();
-            remove2();
-            assoc.put(last1,last2);
         }
-
         public void associate(int index1,int index2) {
-        	int l1=ix1.indexOf(index1);
-        	if(l1>=0) {
-        		ix1.remove(l1);
-        		if(l1>=itr1)
-        			itr1--;
-        	}
-        	int l2=ix2.indexOf(index2);
-        	if(l2>=0) {
-        		ix2.remove(l2);
-        		if(l2>=itr2)
-        			itr2--;
-        	}
+            remove1(index1);
+            remove2(index2);
             assoc.put(index1,index2);
         }
 
@@ -808,25 +838,17 @@ public class JsonCompare {
          * returned by next(). Also stores the minumum amount of
          * difference for node1
          */
-        public void recordDistance(Difference diff) {
+        public void recordDistance(int index1,int index2,Difference diff) {
             double change=diff.getChangeAmount();
-            if(change<=0.5) { // Heuristic threshold: If more that 50% is changed, no match
-                MinDiff m=minimums1.get(last1);
-                if(m==null||m.change>change) {
-                    minimums1.put(last1,m=new MinDiff(diff,change,last1));
-                }
+            IxDiff m=minimums1.get(index1);
+            if(m==null||m.change>change) {
+                minimums1.put(index1,m=new IxDiff(diff,change,index1,index2));
             }
         }
 
         
-        public int getMinChangeFor1() {
-            MinDiff d=minimums1.get(last1);
-            return d==null?-1:d.minIndex;
-        }
-
-        public Difference getMinDiffFor1() {
-            MinDiff d=minimums1.get(last1);
-            return d==null?null:d.diff;
+        public IxDiff getMin(int index1) {
+            return minimums1.get(index1);
         }
     }
     

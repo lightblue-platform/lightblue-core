@@ -131,6 +131,24 @@ public class JsonCompareTest {
    }
 
     /**
+     * Modifications to array of objects
+     */
+    @Test
+    public void testObjectArrayDiff_addObj() throws Exception {
+        JsonCompare cmp=new JsonCompare();
+        JsonNode doc1=json("{'d':[ {'q':'1','w':'2'}, {'q':'3','w':'4'},{'q':'5','w':'6'}]}");
+        JsonNode doc2=json("{'d':[ {'q':'a'}, {'q':'1','w':'22'}, {'q':'3','w':'4'},{'q':'5','w':'6'}]}");
+        JsonCompare.Difference diff=cmp.compareNodes(doc1,doc2);
+        Assert.assertFalse(diff.same());
+        Assert.assertEquals(5,diff.getDelta().size());
+        Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Addition.class,null,"d.0"));
+        Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Modification.class,null,"d.1.w"));
+        Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Move.class,"d.0","d.1"));
+        Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Move.class,"d.1","d.2"));
+        Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Move.class,"d.2","d.3"));
+   }
+
+    /**
      * Modifications to array of objects w/id
      */
     @Test
