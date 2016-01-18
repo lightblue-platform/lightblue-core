@@ -117,7 +117,10 @@
              "items" : {
                  "type":"object",
                  "fields" : {
-                     "siteId" : { "type":"string" },
+                     "siteId" : { "type":"string",
+                                  "constraints": {
+                                      "element-identity":1
+                                  }},
                      "streetAddress" : {
                          "type" : "object",
                          "fields" : {
