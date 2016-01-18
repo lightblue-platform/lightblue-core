@@ -688,6 +688,8 @@ public class JsonCompare {
                 field2.pop();
             }
             IxDiff ixdiff=assoc.getMin(index1);
+            // If an object has changed more that 0.5 (more than half
+            // of its fields are changed), then it is not a match
             if(ixdiff==null||ixdiff.change>0.5) {
                 // No matching node for node1
                 ret.add(new Removal(field1,element1));
