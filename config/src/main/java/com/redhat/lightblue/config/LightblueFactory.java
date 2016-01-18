@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,30 +89,12 @@ public final class LightblueFactory implements Serializable {
     }
 
     public LightblueFactory(DataSourcesConfiguration datasources, JsonNode crudNode, JsonNode metadataNode) {
-        this(datasources, crudNode, metadataNode, null);
-    }
-
-    public LightblueFactory(DataSourcesConfiguration datasources, JsonNode crudNode, JsonNode metadataNode, URL[] pluginURLs) {
         if (datasources == null) {
             throw new IllegalArgumentException("datasources cannot be null");
         }
         this.datasources = datasources;
         this.crudNode = crudNode;
         this.metadataNode = metadataNode;
-
-        if (pluginURLs != null) {
-            ClassLoader currentThreadLoader = Thread.currentThread().getContextClassLoader();
-            boolean skip = false;
-            if(currentThreadLoader instanceof URLClassLoader){
-                //protect against effectively adding the same URLClassLoader multiple times.
-                skip = Arrays.asList(((URLClassLoader) currentThreadLoader).getURLs())
-                        .containsAll(Arrays.asList(pluginURLs));
-            }
-            if(!skip){
-                Thread.currentThread().setContextClassLoader(
-                        new URLClassLoader(pluginURLs, currentThreadLoader));
-            }
-        }
     }
 
     private synchronized void initializeParser()
