@@ -89,6 +89,9 @@ public final class LightblueFactory implements Serializable {
     }
 
     public LightblueFactory(DataSourcesConfiguration datasources, JsonNode crudNode, JsonNode metadataNode) {
+        if (datasources == null) {
+            throw new IllegalArgumentException("datasources cannot be null");
+        }
         this.datasources = datasources;
         this.crudNode = crudNode;
         this.metadataNode = metadataNode;
