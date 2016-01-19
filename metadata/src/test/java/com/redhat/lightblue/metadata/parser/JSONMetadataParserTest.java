@@ -55,6 +55,7 @@ import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.EntitySchema;
+import com.redhat.lightblue.metadata.Fields;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
@@ -593,6 +594,15 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue(e.getEnumValues().contains(new EnumValue(enumValue2, enumDescription2)));
     }
 
+    @Test
+    public void testParseFields_WithDescription() throws IOException {
+        JsonNode fieldsNode = json("{\"field\":{\"type\":\"string\",\"description\":\"foo\"}}");
+        Fields fields = new Fields(null);
+        parser.parseFields(fields, fieldsNode);
+        Assert.assertNotNull(fields.getField("field"));
+        Assert.assertEquals("description not parsed", "foo", fields.getField("field").getDescription());
+    }
+    
     @Test
     public void testParseEnum_MissingName() throws IOException{
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
