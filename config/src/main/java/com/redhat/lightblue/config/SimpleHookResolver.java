@@ -1,11 +1,9 @@
-package com.redhat.lightblue.config.hooks;
+package com.redhat.lightblue.config;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.redhat.lightblue.config.LightblueFactory;
-import com.redhat.lightblue.config.LightblueFactoryAware;
 import com.redhat.lightblue.hooks.CRUDHook;
 import com.redhat.lightblue.hooks.HookResolver;
 import com.redhat.lightblue.metadata.parser.HookConfigurationParser;
@@ -25,9 +23,7 @@ public class SimpleHookResolver implements HookResolver {
         if (hookConfigurationParsers != null && !hookConfigurationParsers.isEmpty()) {
             for (HookConfigurationParser parser : hookConfigurationParsers) {
                 CRUDHook hook = parser.getCRUDHook();
-                if (hook instanceof LightblueFactoryAware) {
-                    ((LightblueFactoryAware) hook).setLightblueFactory(lightblueFactory);
-                }
+                lightblueFactory.injectDependencies(hook);
                 map.put(parser.getName(), hook);
             }
         }
