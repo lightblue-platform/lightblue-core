@@ -81,7 +81,7 @@ public final class LightblueFactory implements Serializable {
     private transient volatile Mediator mediator = null;
     private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
-    private transient volatile Map<String,LockingSupport> lockingMap=null;
+    private transient volatile Map<String, LockingSupport> lockingMap = null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this(datasources, null, null);
@@ -189,8 +189,10 @@ public final class LightblueFactory implements Serializable {
                 throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
             }
 
-            MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
+            MetadataConfiguration cfg = (MetadataConfiguration) Thread.currentThread().getContextClassLoader().loadClass(
+                    cfgClass.asText()).newInstance();
             injectDependencies(cfg);
+
             cfg.initializeFromJson(root);
 
             // Set validation flag for all metadata requests
