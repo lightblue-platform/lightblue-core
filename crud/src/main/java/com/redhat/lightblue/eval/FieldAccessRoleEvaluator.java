@@ -43,12 +43,13 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.KeyValueCursor;
 import com.redhat.lightblue.util.JsonCompare;
+import com.redhat.lightblue.util.DocComparator;
 
 public final class FieldAccessRoleEvaluator {
     private final EntityMetadata md;
     private final Set<String> roles;
     private JsonCompare comparator;
-    private JsonCompare.Difference diff;
+    private DocComparator.Difference<JsonNode> diff;
 
     public static enum Operation {
         insert, update, insert_and_update, find
@@ -122,7 +123,7 @@ public final class FieldAccessRoleEvaluator {
         return ret;
     }
 
-    public JsonCompare.Difference getLastDiff() {
+    public DocComparator.Difference<JsonNode> getLastDiff() {
         return diff;
     }
 
@@ -147,19 +148,19 @@ public final class FieldAccessRoleEvaluator {
                 // Any exception at this point is a bug
                 throw new RuntimeException(e);
             }
-            for(JsonCompare.Delta d:diff.getDelta()) {
-                if( (d instanceof JsonCompare.Addition &&
-                     ((JsonCompare.Addition)d).getAddedNode().isValueNode() ) ||
-                    (d instanceof JsonCompare.Removal &&
-                     ((JsonCompare.Removal)d).getRemovedNode().isValueNode()) ||
-                    (d instanceof JsonCompare.Modification &&
-                     ((JsonCompare.Modification)d).getUnmodifiedNode().isValueNode()) ) {
+            for(DocComparator.Delta<JsonNode> d:diff.getDelta()) {
+                if( (d instanceof DocComparator.Addition &&
+                     ((DocComparator.Addition<JsonNode>)d).getAddedNode().isValueNode() ) ||
+                    (d instanceof DocComparator.Removal &&
+                     ((DocComparator.Removal<JsonNode>)d).getRemovedNode().isValueNode()) ||
+                    (d instanceof DocComparator.Modification &&
+                     ((DocComparator.Modification<JsonNode>)d).getUnmodifiedNode().isValueNode()) ) {
                     FieldTreeNode fieldMd=md.resolve(d.getField());
                     boolean modified=true;
                     if(d instanceof JsonCompare.Modification) {
                         // Is it really modified
-                        Object o1=fieldMd.getType().fromJson(((JsonCompare.Modification)d).getUnmodifiedNode());
-                        Object o2=fieldMd.getType().fromJson(((JsonCompare.Modification)d).getModifiedNode());
+                        Object o1=fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>)d).getUnmodifiedNode());
+                        Object o2=fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>)d).getModifiedNode());
                         if(o1.equals(o2)) {
                             modified=false;
                         }
@@ -170,9 +171,9 @@ public final class FieldAccessRoleEvaluator {
                 }
                 // In case of an addition, removal, or move, check if the parent node is an object or an array
                 // that is not accesible.
-                if(d instanceof JsonCompare.Addition ||
-                   d instanceof JsonCompare.Removal ||
-                   d instanceof JsonCompare.Move) {
+                if(d instanceof DocComparator.Addition ||
+                   d instanceof DocComparator.Removal ||
+                   d instanceof DocComparator.Move) {
                     Path field=d.getField();
                     if(field.numSegments()>2) { // Not a top-level or first level variable
                         // That means, it's parent is not the root level, so we can check access
