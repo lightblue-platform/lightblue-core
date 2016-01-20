@@ -31,7 +31,6 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
 import com.redhat.lightblue.metadata.Access;
 import com.redhat.lightblue.metadata.ArrayElement;
@@ -65,7 +64,6 @@ import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.ValueGenerator;
-import com.redhat.lightblue.metadata.ValueGenerator.ValueGeneratorType;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
@@ -353,7 +351,7 @@ public abstract class MetadataParser<T> {
                 List<String> values = getStringList(object, STR_VALUES);
                 List<T> annotatedValues = getObjectList(object, STR_ANNOTATED_VALUES);
 
-                Set<EnumValue> enumValues = new HashSet<EnumValue>();
+                Set<EnumValue> enumValues = new HashSet<>();
                 if(annotatedValues != null){
                     for(T value : annotatedValues){
                         EnumValue enumValue = new EnumValue();
@@ -795,7 +793,9 @@ public abstract class MetadataParser<T> {
         Error.push(name);
         try {
             if (object != null) {
+                String descrption = getStringProperty(object, STR_DESCRIPTION);
                 String type = getRequiredStringProperty(object, STR_TYPE);
+                
                 if (type.equals(ArrayType.TYPE.getName())) {
                     field = parseArrayField(name, object);
                 } else if (type.equals(ObjectType.TYPE.getName())) {
@@ -805,6 +805,9 @@ public abstract class MetadataParser<T> {
                 } else {
                     field = parseSimpleField(name, type, object);
                 }
+                
+                field.setDescription(descrption);
+                
                 parseFieldAccess(field.getAccess(),
                         getObjectProperty(object, STR_ACCESS));
                 parseFieldConstraints(field,
@@ -1165,6 +1168,7 @@ public abstract class MetadataParser<T> {
             try {
                 putObject(ret, field.getName(), fieldObject);
                 putString(fieldObject, STR_TYPE, field.getType().getName());
+                putString(fieldObject, STR_DESCRIPTION, field.getDescription());
                 if (field instanceof ArrayField) {
                     convertArrayField((ArrayField) field, fieldObject);
                 } else if (field instanceof ObjectField) {

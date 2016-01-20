@@ -32,10 +32,11 @@ public abstract class Field implements FieldTreeNode, Serializable {
     private static final long serialVersionUID = 1l;
 
     private final String name;
+    private String description;
     private Type type;
     private final FieldAccess access = new FieldAccess();
     private final List<FieldConstraint> constraints = new ArrayList<>();
-    private final Map<String, Object> properties = new HashMap<String, Object>();
+    private final Map<String, Object> properties = new HashMap<>();
 
     private FieldTreeNode parent;
 
@@ -55,6 +56,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
      */
     public void shallowCopyFrom(Field source) {
         setType(source.getType());
+        setDescription(source.getDescription());
 
         FieldAccess da = getAccess();
         FieldAccess sa = source.getAccess();
@@ -65,10 +67,20 @@ public abstract class Field implements FieldTreeNode, Serializable {
         getProperties().putAll(source.getProperties());
     }
 
+    @Override
     public String getName() {
         return name;
     }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
+    @Override
     public Type getType() {
         return type;
     }
@@ -81,6 +93,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return this.access;
     }
 
+    @Override
     public FieldTreeNode getParent() {
         return parent;
     }
@@ -103,10 +116,12 @@ public abstract class Field implements FieldTreeNode, Serializable {
         }
     }
 
+    @Override
     public FieldTreeNode resolve(Path p) {
         return resolve(p, 0);
     }
 
+    @Override
     public MutablePath getFullPath(MutablePath mp) {
         if (parent != null) {
             parent.getFullPath(mp);
@@ -115,6 +130,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return mp;
     }
 
+    @Override
     public Path getFullPath() {
         return getFullPath(new MutablePath()).immutableCopy();
     }
@@ -123,6 +139,6 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return properties;
     }
 
+    @Override
     public abstract FieldTreeNode resolve(Path p, int level);
-
 }
