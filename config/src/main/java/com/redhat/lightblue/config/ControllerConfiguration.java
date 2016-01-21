@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.util.JsonInitializable;
 
 /**
@@ -38,7 +37,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
     private static final long serialVersionUID = 1l;
 
     private static final Logger LOGGER=LoggerFactory.getLogger(ControllerConfiguration.class);
-    
+
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
     private ObjectNode extensions;
@@ -77,7 +76,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
      * @param clazz the class to set
      */
     public void setControllerFactory(Class<? extends ControllerFactory> clazz) {
-        this.controllerFactory = clazz;
+        controllerFactory = clazz;
     }
 
     /**
@@ -94,6 +93,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
         extensions=node;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void initializeFromJson(JsonNode node) {
         try {
@@ -104,7 +104,8 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                 }
                 x = node.get("controllerFactory");
                 if (x != null) {
-                    controllerFactory = (Class<ControllerFactory>) Class.forName(x.asText());
+                    controllerFactory = (Class<ControllerFactory>) Thread.currentThread().getContextClassLoader().loadClass(
+                            x.asText());
                 }
                 extensions=(ObjectNode)node.get("extensions");
                 LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}",node,backend,controllerFactory,extensions);

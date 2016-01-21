@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
-import com.redhat.lightblue.config.hooks.SimpleHookResolver;
 import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
@@ -82,7 +81,7 @@ public final class LightblueFactory implements Serializable {
     private transient volatile Mediator mediator = null;
     private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
-    private transient volatile Map<String,LockingSupport> lockingMap=null;
+    private transient volatile Map<String, LockingSupport> lockingMap = null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this(datasources, null, null);
@@ -107,9 +106,7 @@ public final class LightblueFactory implements Serializable {
             for (Map.Entry<String, DataSourceConfiguration> entry : ds.entrySet()) {
                 Class<? extends DataStoreParser> tempParser = entry.getValue().getMetadataDataStoreParser();
                 DataStoreParser backendParser = tempParser.newInstance();
-                if (backendParser instanceof LightblueFactoryAware) {
-                    ((LightblueFactoryAware) backendParser).setLightblueFactory(this);
-                }
+                injectDependencies(backendParser);
                 extensions.registerDataStoreParser(backendParser.getDefaultName(), backendParser);
             }
 
@@ -164,9 +161,7 @@ public final class LightblueFactory implements Serializable {
             for (ControllerConfiguration x : configuration.getControllers()) {
                 ControllerFactory cfactory = x.getControllerFactory().newInstance();
                 CRUDController controller = cfactory.createController(x, datasources);
-                if (controller instanceof LightblueFactoryAware) {
-                    ((LightblueFactoryAware) controller).setLightblueFactory(this);
-                }
+                injectDependencies(controller);
                 f.addCRUDController(x.getBackend(), controller);
             }
             // Make sure we assign factory after it is initialized. (factory is volatile, there's a memory barrier here)
@@ -194,10 +189,10 @@ public final class LightblueFactory implements Serializable {
                 throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
             }
 
-            MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
-            if (cfg instanceof LightblueFactoryAware) {
-                ((LightblueFactoryAware) cfg).setLightblueFactory(this);
-            }
+            MetadataConfiguration cfg = (MetadataConfiguration) Thread.currentThread().getContextClassLoader().loadClass(
+                    cfgClass.asText()).newInstance();
+            injectDependencies(cfg);
+
             cfg.initializeFromJson(root);
 
             // Set validation flag for all metadata requests
@@ -365,4 +360,13 @@ public final class LightblueFactory implements Serializable {
         }
         return jsonTranslator;
     }
+
+    void injectDependencies(Object o) {
+
+        if (o instanceof LightblueFactoryAware) {
+            ((LightblueFactoryAware) o).setLightblueFactory(this);
+        }
+
+    }
+
 }

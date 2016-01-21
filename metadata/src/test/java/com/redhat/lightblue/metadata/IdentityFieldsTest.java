@@ -18,20 +18,21 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.util.Map;
+import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.metadata.parser.DataStoreParser;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class IdentityFieldsTest {
-
-    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
+public class IdentityFieldsTest extends AbstractJsonNodeTest {
 
     @Test
     public void userTest1() throws Exception {
@@ -57,15 +58,20 @@ public class IdentityFieldsTest {
             public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
             }
         });
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), nodeFactory);
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), JSON_NODE_FACTORY);
 
-        JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
+        JsonNode node = loadJsonNode("usermd.json");
         EntityMetadata md = parser.parseEntityMetadata(node);
 
         Field[] idf = md.getEntitySchema().getIdentityFields();
         Assert.assertEquals(2, idf.length);
         Assert.assertTrue("_id".equals(idf[0].getName()) || "_id".equals(idf[1].getName()));
         Assert.assertTrue("iduid".equals(idf[0].getName()) || "iduid".equals(idf[1].getName()));
+
+        Map<Path,List<Path>> idMap=md.getEntitySchema().getArrayIdentities();
+        Assert.assertEquals(1,idMap.size());
+        Assert.assertEquals(1,idMap.get(new Path("sites")).size());
+        Assert.assertEquals(new Path("siteId"),idMap.get(new Path("sites")).get(0));
     }
 
     @Test
@@ -92,9 +98,9 @@ public class IdentityFieldsTest {
             public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
             }
         });
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), nodeFactory);
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), JSON_NODE_FACTORY);
 
-        JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermdidf.json"));
+        JsonNode node = loadJsonNode("usermdidf.json");
         EntityMetadata md = parser.parseEntityMetadata(node);
 
         Field[] idf = md.getEntitySchema().getIdentityFields();
@@ -102,4 +108,5 @@ public class IdentityFieldsTest {
         Assert.assertEquals("_id", idf[0].getName());
         Assert.assertEquals("contactPermissions.allowEmailContact", idf[1].getFullPath().toString());
     }
+
 }

@@ -1,0 +1,253 @@
+{
+    "objectType":"test",
+    "dateField": "20151217T04:47:01.890-0500",
+    "field1": "field1",
+    "field2": "field2",
+    "field3": "field3",
+    "field4": "field4",
+    "field5": "field5",
+    "field6": {
+        "nf1": "field6.nf1",
+        "nf2": "field6.nf2",
+        "nf5": [ 1,2,3,4],
+        "nf7": {
+            "nnf1": "field6.nf7.nnf1",
+            "nnf2": "field6.nf7.nnf2" }
+    },
+    "field7": [
+        { "elemf1": "field7.0.elemf1",
+          "elemf2": "field7.0.elemf2"
+        },
+        { "elemf1": "field7.1.elemf1",
+          "elemf2": "field7.1.elemf2"
+        },
+        { "elemf1": "field7.2.elemf1",
+          "elemf2": "field7.2.elemf2"
+        },
+        { "elemf1": "field7.3.elemf1",
+          "elemf2": "field7.3.elemf2"
+        }
+    ],
+    "field8": {
+        "nf1": {
+            "nnf1": "field8.nf1.nnf1",
+            "nnf2": 1,
+            "nnf4": [
+                { "elemf1": "field8.nf1.nnf4.0.elemf1",
+                  "elemf2": "field8.nf1.nnf4.0.elemf2" },
+                { "elemf1": "field8.nf1.nnf4.1.elemf1",
+                  "elemf2": "field8.nf1.nnf4.1.elemf2" },
+                { "elemf1": "field8.nf1.nnf4.2.elemf1",
+                  "elemf2": "field8.nf1.nnf4.2.elemf2" },
+                { "elemf1": "field8.nf1.nnf4.3.elemf1",
+                  "elemf2": "field8.nf1.nnf4.3.elemf2" }                
+            ]
+        },
+        "nf2": {
+            "nnf1": "field8.nf2"
+        }
+    },
+    "field10": [ 1,2,3,4,5],
+    "field11": [
+        {
+            "f1":0,
+            "arr": [
+                {
+                    "id":0,
+                    "x1":"field11.0.arr.0.x1",
+                    "x1":"field11.0.arr.0.x2"
+                },
+                {
+                    "id":1,
+                    "x1":"field11.0.arr.1.x1",
+                    "x1":"field11.0.arr.1.x2"
+                },
+                {
+                    "id":2,
+                    "x1":"field11.0.arr.2.x1",
+                    "x1":"field11.0.arr.2.x2"
+                },
+                {
+                    "id":3,
+                    "x1":"field11.0.arr.3.x1",
+                    "x1":"field11.0.arr.3.x2"
+                }
+            ]
+        },
+        {
+            "f1":1,
+            "arr": [
+                {
+                    "id":0,
+                    "x1":"field11.1.arr.0.x1",
+                    "x1":"field11.1.arr.0.x2"
+                },
+                {
+                    "id":1,
+                    "x1":"field11.1.arr.1.x1",
+                    "x1":"field11.1.arr.1.x2"
+                },
+                {
+                    "id":2,
+                    "x1":"field11.1.arr.2.x1",
+                    "x1":"field11.1.arr.2.x2"
+                },
+                {
+                    "id":3,
+                    "x1":"field11.1.arr.3.x1",
+                    "x1":"field11.1.arr.3.x2"
+                }
+            ]
+        },
+         {
+            "f1":2,
+            "arr": [
+                {
+                    "id":0,
+                    "x1":"field11.2.arr.0.x1",
+                    "x1":"field11.2.arr.0.x2"
+                },
+                {
+                    "id":1,
+                    "x1":"field11.2.arr.1.x1",
+                    "x1":"field11.2.arr.1.x2"
+                },
+                {
+                    "id":2,
+                    "x1":"field11.2.arr.2.x1",
+                    "x1":"field11.2.arr.2.x2"
+                },
+                {
+                    "id":3,
+                    "x1":"field11.2.arr.3.x1",
+                    "x1":"field11.2.arr.3.x2"
+                }
+            ]
+        }
+     ],
+    "field12": {
+        "nf1": {
+            "nnf1": [
+                {
+                    "id": "0",
+                    "elemf1": "field12.nf1.nnf1.0.elemf1",
+                    "nnnf1": {
+                        "f1": 0,
+                        "arr": [
+                            {
+                                "id": 0,
+                                "x1": "field12.nf1.nnf1.0.nnnf1.arr.0.x1",
+                                "narr": [
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.0.arr.0.narr.0.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.0.arr.0.narr.0.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.0.arr.0.narr.1.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.0.arr.0.narr.1.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.0.arr.0.narr.2.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.0.arr.0.narr.2.lastobject.elemf2"
+                                        }
+                                    }
+                                ]
+                            },
+                            
+                            {
+                                "id": 1,
+                                "x1": "field12.nf1.nnf1.0.nnnf1.arr.1.x1",
+                                "narr": [
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.0.arr.1.narr.0.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.0.arr.1.narr.0.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.0.arr.1.narr.1.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.0.arr.1.narr.1.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.0.arr.1.narr.2.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.0.arr.1.narr.2.lastobject.elemf2"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "1",
+                    "elemf1": "field12.nf1.nnf1.1.elemf1",
+                    "nnnf1": {
+                        "f1": 0,
+                        "arr": [
+                            {
+                                "id": 0,
+                                "x1": "field12.nf1.nnf1.1.nnnf1.arr.0.x1",
+                                "narr": [
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.1.arr.0.narr.0.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.1.arr.0.narr.0.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.1.arr.0.narr.1.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.1.arr.0.narr.1.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.1.arr.0.narr.2.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.1.arr.0.narr.2.lastobject.elemf2"
+                                        }
+                                    }
+                                ]
+                            },
+                            
+                            {
+                                "id": 1,
+                                "x1": "field12.nf1.nnf1.1.nnnf1.arr.1.x1",
+                                "narr": [
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.1.arr.1.narr.0.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.1.arr.1.narr.0.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.1.arr.1.narr.1.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.1.arr.1.narr.1.lastobject.elemf2"
+                                        }
+                                    },
+                                    {
+                                        "lastobject": {
+                                            "elemf1": "field12.nf1.nnf1.1.arr.1.narr.2.lastobject.elemf1",
+                                            "elemf2": "field12.nf1.nnf1.1.arr.1.narr.2.lastobject.elemf2"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
+
+                
+                            

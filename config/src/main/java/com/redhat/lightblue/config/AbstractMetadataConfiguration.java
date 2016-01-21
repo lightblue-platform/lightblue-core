@@ -92,7 +92,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     // instantiate the class
                     Object o = null;
                     try {
-                        o = Class.forName(clazz).newInstance();
+                        o = Thread.currentThread().getContextClassLoader().loadClass(clazz).newInstance();
                     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
                         throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, ex.getMessage());
                     }
@@ -120,7 +120,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     }
 
                     try {
-                        DataStoreParser instance = (DataStoreParser) Class.forName(clazz).newInstance();
+                        DataStoreParser instance = (DataStoreParser) Thread.currentThread().getContextClassLoader().loadClass(clazz).newInstance();
                         AbstractMap.SimpleEntry<String, DataStoreParser> stringDataStoreParserSimpleEntry = new AbstractMap.SimpleEntry<>(name, instance);
                         backendParsers.add(stringDataStoreParserSimpleEntry);
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -140,7 +140,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     }
 
                     try {
-                        PropertyParser instance = (PropertyParser) Class.forName(clazz).newInstance();
+                        PropertyParser instance = (PropertyParser) Thread.currentThread().getContextClassLoader().loadClass(clazz).newInstance();
 
                         AbstractMap.SimpleEntry<String, PropertyParser> stringPropertyParserSimpleEntry = new AbstractMap.SimpleEntry<>(name, instance);
                         propertyParsers.add(stringPropertyParserSimpleEntry);
