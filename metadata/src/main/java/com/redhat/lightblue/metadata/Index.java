@@ -33,6 +33,7 @@ public class Index implements Serializable {
 
     private String name;
     private boolean unique = false;
+    private boolean caseInsensitive = false;
     private final ArrayList<SortKey> fields = new ArrayList<>();
 
     /**
@@ -128,5 +129,13 @@ public class Index implements Serializable {
             }
         }
         return false;
+    }
+
+    public boolean isCaseInsensitive() {
+        return caseInsensitive;
+    }
+
+    public void setCaseInsensitive(boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
     }
 }
