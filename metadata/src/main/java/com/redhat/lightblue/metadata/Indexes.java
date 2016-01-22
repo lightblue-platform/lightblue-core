@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.query.IndexSortKey;
 import com.redhat.lightblue.util.Path;
 
 import java.io.Serializable;
@@ -59,6 +60,16 @@ public class Indexes implements Serializable {
 
     public boolean isEmpty() {
         return indexes.isEmpty();
+    }
+
+    public boolean isCaseInsensitiveKey(Path path) {
+        return this.indexes.stream()
+        .map(Index::getFields)
+        .flatMap(Collection::stream)
+        .filter(i -> i.getField().equals(path))
+        .filter(i -> i instanceof IndexSortKey)
+        .map(i -> ((IndexSortKey) i))
+        .anyMatch(IndexSortKey::isCaseInsensitive);
     }
 
     /**
