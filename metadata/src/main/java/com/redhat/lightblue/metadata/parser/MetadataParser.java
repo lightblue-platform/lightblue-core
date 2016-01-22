@@ -69,6 +69,7 @@ import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.ObjectType;
 import com.redhat.lightblue.metadata.types.ReferenceType;
+import com.redhat.lightblue.query.IndexSortKey;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
@@ -158,7 +159,7 @@ public abstract class MetadataParser<T> {
             return parseHook(child);
         }
     };
-    
+
     public MetadataParser(Extensions<T> ex, TypeResolver typeResolver) {
         this.extensions = ex;
         this.typeResolver = typeResolver;
@@ -306,15 +307,19 @@ public abstract class MetadataParser<T> {
                 }
 
                 if (null != fields && !fields.isEmpty()) {
-                    List<SortKey> f = new ArrayList<>();
+                    List<IndexSortKey> f = new ArrayList<>();
 
                     for (T s : fields) {
                         String fld = getRequiredStringProperty(s, "field");
                         String dir = getStringProperty(s, "dir");
+                        String ci = getStringProperty(s, "caseInsensitive");
                         if (dir == null) {
                             dir = "$asc";
                         }
-                        SortKey sort = new SortKey(new Path(fld), "$desc".equals(dir));
+                        if(ci == null) {
+                            ci = "false";
+                        }
+                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir), Boolean.valueOf(ci));
                         f.add(sort);
                     }
                     index.setFields(f);
@@ -452,7 +457,7 @@ public abstract class MetadataParser<T> {
                         valueGenerator.getProperties().put(name, value);
                     }
                 }
-                
+
                 return valueGenerator;
             }
         } catch (Error e) {
@@ -795,7 +800,7 @@ public abstract class MetadataParser<T> {
             if (object != null) {
                 String descrption = getStringProperty(object, STR_DESCRIPTION);
                 String type = getRequiredStringProperty(object, STR_TYPE);
-                
+
                 if (type.equals(ArrayType.TYPE.getName())) {
                     field = parseArrayField(name, object);
                 } else if (type.equals(ObjectType.TYPE.getName())) {
@@ -805,9 +810,9 @@ public abstract class MetadataParser<T> {
                 } else {
                     field = parseSimpleField(name, type, object);
                 }
-                
+
                 field.setDescription(descrption);
-                
+
                 parseFieldAccess(field.getAccess(),
                         getObjectProperty(object, STR_ACCESS));
                 parseFieldConstraints(field,
@@ -843,7 +848,7 @@ public abstract class MetadataParser<T> {
         T vg=getObjectProperty(object,STR_VALUE_GENERATOR);
         if(vg!=null)
             field.setValueGenerator(parseValueGenerator(vg));
-        
+
         return field;
     }
 
@@ -1198,7 +1203,7 @@ public abstract class MetadataParser<T> {
         convertPropertyParser(ret, fields.getProperties());
         return ret;
     }
-    
+
     /**
      * If vg is not null, populates a value generator object
      */
@@ -1206,7 +1211,7 @@ public abstract class MetadataParser<T> {
         if (vg != null) {
             T vgNode=newNode();
             putObject(fieldObject,STR_VALUE_GENERATOR,vgNode);
-            
+
             putString(vgNode,STR_TYPE,vg.getValueGeneratorType().toString());
             if(vg.isOverwrite())
                 putValue(vgNode,STR_OVERWRITE,Boolean.TRUE);
