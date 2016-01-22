@@ -20,7 +20,6 @@ package com.redhat.lightblue.mediator;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -49,12 +48,9 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.FieldProjection;
 
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Tuples;
 
 public class QueryPlanNodeExecutor {
@@ -244,7 +240,7 @@ public class QueryPlanNodeExecutor {
                     response.setSize(0);
                     docs.clear();
                 } else {
-                    response.setSize(response.getSize()+findResponse.getSize());
+                    response.setSize(response.getSize()+(findResponse == null ? 0 : findResponse.getSize()));
                 }
                 
             }
