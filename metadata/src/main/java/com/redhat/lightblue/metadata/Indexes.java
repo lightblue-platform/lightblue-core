@@ -67,8 +67,6 @@ public class Indexes implements Serializable {
         .map(Index::getFields)
         .flatMap(Collection::stream)
         .filter(i -> i.getField().equals(path))
-        .filter(i -> i instanceof IndexSortKey)
-        .map(i -> ((IndexSortKey) i))
         .anyMatch(IndexSortKey::isCaseInsensitive);
     }
 

@@ -20,7 +20,7 @@ package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.metadata.types.IntegerType;
 import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.query.SortKey;
+import com.redhat.lightblue.query.IndexSortKey;
 import com.redhat.lightblue.util.Path;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,9 +46,9 @@ public class IndexUsefulnessTest {
     public void simpleIndexTest() {
         EntityMetadata md = getMD1();
         // Add indexes for some fields
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f1"), false)));
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f2"), false)));
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f3"), false)));
+        md.getEntityInfo().getIndexes().add(new Index(new IndexSortKey(new Path("f1"), false)));
+        md.getEntityInfo().getIndexes().add(new Index(new IndexSortKey(new Path("f2"), false)));
+        md.getEntityInfo().getIndexes().add(new Index(new IndexSortKey(new Path("f3"), false)));
 
         // Make sure usefulnes for single field works
         Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f1")));
@@ -68,9 +68,9 @@ public class IndexUsefulnessTest {
     public void compositeIndexTest() {
         EntityMetadata md = getMD1();
         // Add indexes for some fields
-        md.getEntityInfo().getIndexes().add(new Index(new SortKey(new Path("f1"), false),
-                new SortKey(new Path("f3"), true),
-                new SortKey(new Path("f5"), false)));
+        md.getEntityInfo().getIndexes().add(new Index(new IndexSortKey(new Path("f1"), false),
+                new IndexSortKey(new Path("f3"), true),
+                new IndexSortKey(new Path("f5"), false)));
 
         // should be useful for f1, f3, and f5
         Assert.assertTrue(md.getEntityInfo().getIndexes().getIndexes().get(0).isUseful(new Path("f1")));
