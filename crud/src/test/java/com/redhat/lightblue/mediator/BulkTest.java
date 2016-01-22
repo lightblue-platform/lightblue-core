@@ -18,39 +18,17 @@
  */
 package com.redhat.lightblue.mediator;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.*;
 import com.redhat.lightblue.crud.*;
-import com.redhat.lightblue.crud.interceptors.*;
-import com.redhat.lightblue.crud.valuegenerators.*;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.test.DatabaseMetadata;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.query.FieldProjection;
-import com.redhat.lightblue.query.Value;
-import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
-import com.redhat.lightblue.util.JsonDoc;
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
+import org.junit.Ignore;
 
-import static org.hamcrest.CoreMatchers.containsString;
 
 public class BulkTest extends AbstractMediatorTest {
 
@@ -107,9 +85,9 @@ public class BulkTest extends AbstractMediatorTest {
 
         FindRequest freq = new FindRequest();
         freq.setEntityVersion(new EntityVersion("test", "1.0"));
+        breq.add(freq);
 
         mdManager.md.getAccess().getFind().setRoles("role1");
-        breq.add(freq);
 
         BulkResponse bresp=mediator.bulkRequest(breq);
 
@@ -128,13 +106,39 @@ public class BulkTest extends AbstractMediatorTest {
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
+    }
+    
+    @Test
+    @Ignore
+    public void bulkTest_fromJson() throws Exception {
+        // TODO stop ignoring and finish impl once JSON schema is defined
+        BulkRequest breq=new BulkRequest();
         
+        InsertionRequest ireq = new InsertionRequest();
+        ireq.setEntityVersion(new EntityVersion("test", "1.0"));
+        ireq.setEntityData(loadJsonNode("./sample1.json"));
+        ireq.setReturnFields(null);
+        ireq.setClientId(new RestClientIdentification(Arrays.asList("test-insert", "test-update")));
+        breq.add(ireq);
+
+        FindRequest freq = new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test", "1.0"));
+        breq.add(freq);
+
+        // convert to string then parse back.  should be identical
+        
+        ObjectNode breqJson = (ObjectNode) breq.toJson();
+        
+        BulkRequest breqParsed = BulkRequest.fromJson(breqJson);
+
+        System.out.println("asdf");
     }
 
     private class PFindCb implements FindCb {
         Semaphore sem=new Semaphore(0);
         int nested=0;
         
+        @Override
         public Response call(FindRequest req) {
             nested++;
             try {
@@ -151,6 +155,7 @@ public class BulkTest extends AbstractMediatorTest {
     private class PInsertCb implements InsertCb {
         Semaphore sem=new Semaphore(0);
 
+        @Override
         public Response call(InsertionRequest req) {
             try {
                 sem.acquire();
@@ -201,6 +206,7 @@ public class BulkTest extends AbstractMediatorTest {
         ((TestMediator)mediator).insertCb=insertCb;
 
         ValidatorThread validator=new ValidatorThread(findCb,insertCb) {
+                @Override
                 public void run() {
                     try {
                         // Check if all 3 finds are waiting

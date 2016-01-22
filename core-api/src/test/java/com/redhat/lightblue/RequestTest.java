@@ -21,7 +21,6 @@ package com.redhat.lightblue;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
 
 import com.redhat.lightblue.crud.CRUDOperation;
@@ -35,8 +34,11 @@ public class RequestTest {
 
         }
 
-        public CRUDOperation getOperation() {return null;}
-
+        @Override
+        public CRUDOperation getOperation() {
+            return null;
+        }
+        
         public static TestRequest fromJson(ObjectNode node) {
             TestRequest req=new TestRequest();
             req.parse(node);

@@ -83,6 +83,7 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection 
         query = q;
     }
 
+    @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.UPDATE;
     }
