@@ -408,7 +408,7 @@ public class Mediator {
                 idq=new NaryLogicalExpression(NaryLogicalOperator._and,idList);
             orq.add(idq);
         }
-        if(orq.size()==0)
+        if(orq.isEmpty())
             return null;
         else if(orq.size()==1)
             return orq.get(0);
@@ -457,7 +457,7 @@ public class Mediator {
                     ctx.setStatus(OperationStatus.ERROR);
                 }
 
-                response.setMatchCount(result.getSize());
+                response.setMatchCount((result == null ? 0 : result.getSize()));
                 List<DocCtx> documents = ctx.getDocuments();
                 if (documents != null) {
                     List<JsonDoc> resultList = new ArrayList<>(documents.size());
@@ -516,6 +516,7 @@ public class Mediator {
 
     protected Callable<Response> getAsyncFind(final FindRequest req) {
         return new Callable<Response>() {
+            @Override
             public Response call() {
                 return find((FindRequest)req);
             }
