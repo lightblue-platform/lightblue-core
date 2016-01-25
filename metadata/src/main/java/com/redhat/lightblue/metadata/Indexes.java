@@ -23,6 +23,7 @@ import com.redhat.lightblue.util.Path;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -63,11 +64,17 @@ public class Indexes implements Serializable {
     }
 
     public boolean isCaseInsensitiveKey(Path path) {
+        return getCaseInsensitiveIndexes().stream()
+                .anyMatch(i -> i.getField().equals(path));
+
+    }
+
+    public List<IndexSortKey> getCaseInsensitiveIndexes() {
         return this.indexes.stream()
-        .map(Index::getFields)
-        .flatMap(Collection::stream)
-        .filter(i -> i.getField().equals(path))
-        .anyMatch(IndexSortKey::isCaseInsensitive);
+                .map(Index::getFields)
+                .flatMap(Collection::stream)
+                .filter(IndexSortKey::isCaseInsensitive)
+                .collect(Collectors.toList());
     }
 
     /**
