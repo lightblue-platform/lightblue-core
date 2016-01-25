@@ -212,7 +212,7 @@ public class ResolvedFieldBinding implements Serializable {
                 Path arrayPath = null;
                 if(arrayMd!=null&&arrayMd.getParent()==null) {
                     arrayPath=absoluteArray;
-                } else if (arrayMd!=null) {
+                } else {
                     arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
                 }
                 QueryExpression newq = iterate(q.getElemMatch(),
