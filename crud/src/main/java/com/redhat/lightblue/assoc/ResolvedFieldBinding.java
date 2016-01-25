@@ -198,21 +198,21 @@ public class ResolvedFieldBinding implements Serializable {
             while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
                 fmd=fmd.getParent();
             CompositeMetadata arrayMd=fmd;
-            LOGGER.debug("Array metadata:{}",arrayMd.getName());
+            LOGGER.debug("Array metadata:{}",(arrayMd == null ? null : arrayMd.getName()));
 
             Path absoluteArray;
             if(conjunct.isRequestQuery()) {
                 absoluteArray=arrayName;
             } else {
-                absoluteArray=arrayMd.getParent()!=null?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
+                absoluteArray=(arrayMd!=null&&arrayMd.getParent()!=null)?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
             }
             LOGGER.debug("Absolute array:{}",absoluteArray);
             if(arrayMd==thisMd&&!absoluteArray.equals(thisMd.getEntityPath())) {
                 // Convert array to relative, and return an elem match query
-                Path arrayPath;
-                if(arrayMd.getParent()==null) {
+                Path arrayPath = null;
+                if(arrayMd!=null&&arrayMd.getParent()==null) {
                     arrayPath=absoluteArray;
-                } else {
+                } else if (arrayMd!=null) {
                     arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
                 }
                 QueryExpression newq = iterate(q.getElemMatch(),
@@ -287,13 +287,17 @@ public class ResolvedFieldBinding implements Serializable {
                             Path lfield=new Path(qic.getContext(),fce.getField());
                             Path rfield=new Path(qic.getContext(),fce.getRfield());
                             ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
-                            bindRequest.add(f.getFieldName());
+                            if (f != null) {
+                                bindRequest.add(f.getFieldName());
+                            }
                         } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
                             NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
                             Path lfield=new Path(qic.getContext(),nfr.getField());
                             Path rfield=new Path(qic.getContext(),nfr.getRfield());
                             ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
-                            bindRequest.add(f.getFieldName());
+                            if (f != null) {
+                                bindRequest.add(f.getFieldName());
+                            }
                         }
                     }
 
@@ -305,9 +309,11 @@ public class ResolvedFieldBinding implements Serializable {
                     // collect bindings
                     for(FieldBinding b:fb) {
                         ResolvedFieldInfo rfi=conjunct.getFieldInfoByOriginalFieldName(b.getField());
-                        bindings.add(new ResolvedFieldBinding(rfi.getEntityRelativeFieldName(),
-                                                              b,
-                                                              rfi.getFieldQueryPlanNode().getMetadata()));
+                        if (rfi != null) {
+                            bindings.add(new ResolvedFieldBinding(rfi.getEntityRelativeFieldName(),
+                                                                  b,
+                                                                  rfi.getFieldQueryPlanNode().getMetadata()));
+                        }
                     }
                 }
                 RelativeRewriter rw=new RelativeRewriter(conjunct,root,atNode.getMetadata());
@@ -339,7 +345,7 @@ public class ResolvedFieldBinding implements Serializable {
         ResolvedFieldInfo rInfo=clause.getFieldInfoByOriginalFieldName(rfield);
         // If lfieldNode points to the destination node,
         // rfieldNode points to an ancestor, or vice versa
-        if(lInfo.getFieldQueryPlanNode().getName().equals(atNode.getName())) {
+        if(lInfo != null && lInfo.getFieldQueryPlanNode().getName().equals(atNode.getName())) {
             return rInfo;
         } else {
             return lInfo;

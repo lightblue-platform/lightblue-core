@@ -336,7 +336,7 @@ public class Mediator {
                 }
                 
                 ctx.getHookManager().queueMediatorHooks(ctx);
-                response.setModifiedCount(result.getNumDeleted());
+                response.setModifiedCount(result == null ? 0 : result.getNumDeleted());
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
                 } else {

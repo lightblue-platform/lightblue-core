@@ -197,7 +197,7 @@ public class ResultDoc implements Serializable {
      * child docs in this list should be of the same entity type
      *
      * childDocs must be all from the same query plan node.
-     * Parentdocs must be all from the same query plan node.
+     * parentDocs must be all from the same query plan node.
      * The query plan nodes for child and parent are different, and linked with edgeClauses
      */
     public static void associateDocs(List<ResultDoc> parentDocs,
@@ -214,7 +214,8 @@ public class ResultDoc implements Serializable {
             QueryEvaluator qeval;
             if(edgeClauses!=null&&!edgeClauses.isEmpty()) {
                 bindingInfo=ResolvedFieldBinding.bind(edgeClauses,childDocsNode,root);
-                qeval=QueryEvaluator.getInstance(bindingInfo.getRelativeQuery(),childDocsNode.getMetadata());
+                qeval=QueryEvaluator.getInstance(bindingInfo == null ? null : bindingInfo.getRelativeQuery(),
+                        childDocsNode.getMetadata());
             } else {
                 bindingInfo=null;
                 qeval=QueryEvaluator.MATCH_ALL_EVALUATOR;
