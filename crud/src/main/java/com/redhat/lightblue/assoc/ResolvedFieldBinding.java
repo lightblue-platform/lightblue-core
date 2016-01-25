@@ -210,7 +210,7 @@ public class ResolvedFieldBinding implements Serializable {
             if(arrayMd==thisMd&&!absoluteArray.equals(thisMd.getEntityPath())) {
                 // Convert array to relative, and return an elem match query
                 Path arrayPath = null;
-                if(arrayMd!=null&&arrayMd.getParent()==null) {
+                if(arrayMd.getParent()==null) {
                     arrayPath=absoluteArray;
                 } else {
                     arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
