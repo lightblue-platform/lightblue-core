@@ -71,7 +71,7 @@ public final class OperationContext extends CRUDOperationContext {
         super(CRUDOperation,
               request.getEntityVersion().getEntity(), 
               factory, 
-              request instanceof DocRequest ? JsonDoc.docList( ((DocRequest)request).getEntityData()):null );
+              request instanceof DocRequest ? JsonDoc.docList( JsonDoc.filterNulls( ((DocRequest)request).getEntityData())):null );
         this.request = request;
         this.metadata = metadata;
         this.resolver = new DefaultMetadataResolver(metadata);

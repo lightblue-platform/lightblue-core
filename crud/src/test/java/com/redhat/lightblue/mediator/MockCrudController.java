@@ -10,7 +10,7 @@ import com.redhat.lightblue.crud.CRUDUpdateResponse;
 import com.redhat.lightblue.extensions.Extension;
 import com.redhat.lightblue.extensions.ExtensionSupport;
 import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
-import com.redhat.lightblue.mediator.MediatorTest.MockValueGeneratorSupport;
+import com.redhat.lightblue.mediator.AbstractMediatorTest.MockValueGeneratorSupport;
 import com.redhat.lightblue.metadata.MetadataListener;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;

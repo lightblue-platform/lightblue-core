@@ -41,11 +41,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ContainerNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper class around JSOn documents
@@ -461,6 +463,41 @@ public class JsonDoc implements Serializable {
         return modify(docRoot,p,newValue,createPath);
     }
 
+    /**
+     * Recursively remove all null nodes in the given json subtree
+     *
+     * This method operates on the given root node, and returns the
+     * same root instance. It does not create a new copy.
+     */
+    public static JsonNode filterNulls(JsonNode root) {
+        if(root instanceof ArrayNode) {
+            ArrayNode a=(ArrayNode)root;
+            int n=a.size();
+            for(int i=n-1;i>=0;i--) {
+                JsonNode node=a.get(i);
+                if(node == null || node instanceof NullNode)
+                    a.remove(i);
+                else
+                    filterNulls(node);
+            }
+        } else if(root instanceof ObjectNode) {
+            ObjectNode o=(ObjectNode)root;
+            List<String> removeList=new ArrayList<>();
+            for(Iterator<Map.Entry<String,JsonNode> > itr=o.fields();itr.hasNext();) {
+                Map.Entry<String,JsonNode> entry=itr.next();
+                JsonNode value=entry.getValue();
+                if(value == null || value instanceof NullNode) {
+                    removeList.add(entry.getKey());
+                } else {
+                    filterNulls(entry.getValue());
+                }
+            }
+            for(String x:removeList)
+                o.remove(x);
+        }
+        return root;
+    }
+    
     /**
      * Modifies an existing node value
      *

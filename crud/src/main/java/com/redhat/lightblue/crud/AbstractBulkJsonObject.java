@@ -66,6 +66,12 @@ abstract class AbstractBulkJsonObject<T extends JsonObject> extends JsonObject {
         entries.addAll(x);
     }
 
+    public void setEntries(T[] x) {
+        entries.clear();
+        for(T t:x)
+            entries.add(t);
+    }
+
     public void add(T x) {
         entries.add(x);
     }

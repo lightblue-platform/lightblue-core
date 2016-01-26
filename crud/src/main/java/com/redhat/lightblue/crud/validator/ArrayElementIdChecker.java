@@ -18,46 +18,33 @@
  */
 package com.redhat.lightblue.crud.validator;
 
-import java.util.Set;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.crud.FieldConstraintValueChecker;
-import com.redhat.lightblue.metadata.Enum;
+import com.redhat.lightblue.crud.FieldConstraintDocChecker;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.constraints.EnumConstraint;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
-public class EnumChecker implements FieldConstraintValueChecker {
+/**
+ * element identity fields are required. This constraint checker makes sure they are
+ * present in the doc
+ */
+public class ArrayElementIdChecker implements FieldConstraintDocChecker {
 
     @Override
     public void checkConstraint(ConstraintValidator validator,
                                 FieldTreeNode fieldMetadata,
                                 Path fieldMetadataPath,
                                 FieldConstraint constraint,
-                                Path valuePath,
-                                JsonDoc doc,
-                                JsonNode fieldValue) {
-        if(fieldValue !=null && !(fieldValue instanceof NullNode) ) {
-            String name = ((EnumConstraint) constraint).getName();
-            Set<String> values = null;
-            
-            if (name != null) {
-                // find value set for this enum
-                Enum e = validator.getEntityMetadata().getEntityInfo().getEnums().getEnum(name);
-                if (e != null) {
-                    values = e.getValues();
-                }
-            }
-            
-            if (null == values || !values.contains(fieldValue.asText())) {
-                validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENUM, fieldValue.asText()));
-            }
+                                JsonDoc doc) {
+        List<Path> errors = RequiredChecker.getMissingFields(fieldMetadataPath, doc);
+        for (Path x : errors) {
+            validator.addDocError(Error.get(CrudConstants.ERR_REQUIRED, x.toString()));
         }
     }
 }

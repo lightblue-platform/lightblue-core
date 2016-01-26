@@ -183,6 +183,14 @@ public class CRUDFindRequest implements Serializable {
             x = node.get("to");
             if (x != null) {
                 to = x.asLong();
+            } else {
+                x=node.get("maxResults");
+                if(x!=null) {
+                    long l=x.asLong();
+                    if(l>=0) {
+                        to=(from==null?0:from)+l-1;
+                    }
+                }
             }
         }
     }

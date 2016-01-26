@@ -20,7 +20,6 @@ package com.redhat.lightblue.mediator;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -49,12 +48,9 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.Sort;
 import com.redhat.lightblue.query.FieldProjection;
 
-import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Tuples;
 
 public class QueryPlanNodeExecutor {
@@ -177,6 +173,12 @@ public class QueryPlanNodeExecutor {
             findRequest.setFrom(fromIndex);
             findRequest.setTo(toIndex);
             response=execute(ctx,findRequest,null);
+            if(ctx.hasErrors()) {
+                if (response != null) {
+                    response.setSize(0);
+                }
+                docs.clear();
+            }
         } else {
             // We will evaluate this node for every possible combination of parent docs
             // Some of those parent docs are docs that include the docs of this node.
@@ -234,17 +236,26 @@ public class QueryPlanNodeExecutor {
                         		binding.refresh((ParentDocReference)docReference);
                     }
                 }
+
+                CRUDFindResponse findResponse=execute(ctx,findRequest,tuple);
+                if(ctx.hasErrors()) {
+                    response.setSize(0);
+                    docs.clear();
+                } else {
+                    response.setSize(response.getSize()+(findResponse == null ? 0 : findResponse.getSize()));
+                }
                 
-                response.setSize(response.getSize()+execute(ctx,findRequest,tuple).getSize());
             }
             // Once all documents are collected, if there are any reversed relationships (i.e. parent node
             // has child documents), we associate them here
-            for(QueryPlanNodeExecutor source:sources) {
-                if(!isParentOfThis(source.getNode())) {
-                    QueryPlanData edgeData=qplan.getEdgeData(source.getNode(),node);
-                    if(edgeData!=null) {
-                        List<Conjunct> edgeClauses = edgeData.getConjuncts();
-                        ResultDoc.associateDocs(docs,source.getDocs(),edgeClauses,root);
+            if(!ctx.hasErrors()) {
+                for(QueryPlanNodeExecutor source:sources) {
+                    if(!isParentOfThis(source.getNode())) {
+                        QueryPlanData edgeData=qplan.getEdgeData(source.getNode(),node);
+                        if(edgeData!=null) {
+                            List<Conjunct> edgeClauses = edgeData.getConjuncts();
+                            ResultDoc.associateDocs(docs,source.getDocs(),edgeClauses,root);
+                        }
                     }
                 }
             }
@@ -274,24 +285,27 @@ public class QueryPlanNodeExecutor {
         // note the response is not used, but find method changes the supplied context.
         CRUDFindResponse response=finder.find(nodeCtx,findRequest);
         LOGGER.debug("execute {}: storing {} documents", node.getName(),nodeCtx.getDocuments().size());
-
-        for(DocCtx doc:nodeCtx.getDocuments()) {
-            DocId id=docIdx.getDocId(doc.getOutputDocument());
-            ResultDoc resultDoc=new ResultDoc(doc.getOutputDocument(),id,node);
-
-            if(parents!=null&&!parents.isEmpty()) {
-                for(DocReference parent:parents) {
-                    if(parent instanceof ChildDocReference) {
-                        LOGGER.debug("Adding document to its parent");
-                        resultDoc.setParentDoc(parent.getDocument().getQueryPlanNode(),(ChildDocReference)parent);
-                        ((ChildDocReference)parent).getChildren().add(resultDoc);
-                        LOGGER.debug("Linked parent ref:{}",parent);
-                    } 
+        if(nodeCtx.hasErrors()) {
+            ctx.addErrors(nodeCtx.getErrors());
+        } else {
+            for(DocCtx doc:nodeCtx.getDocuments()) {
+                DocId id=docIdx.getDocId(doc.getOutputDocument());
+                ResultDoc resultDoc=new ResultDoc(doc.getOutputDocument(),id,node);
+                
+                if(parents!=null&&!parents.isEmpty()) {
+                    for(DocReference parent:parents) {
+                        if(parent instanceof ChildDocReference) {
+                            LOGGER.debug("Adding document to its parent");
+                            resultDoc.setParentDoc(parent.getDocument().getQueryPlanNode(),(ChildDocReference)parent);
+                            ((ChildDocReference)parent).getChildren().add(resultDoc);
+                            LOGGER.debug("Linked parent ref:{}",parent);
+                        } 
+                    }
                 }
+                
+                LOGGER.debug("Adding {}",id);
+                docs.add(resultDoc);
             }
-            
-            LOGGER.debug("Adding {}",id);
-            docs.add(resultDoc);
         }
         return response;
     }

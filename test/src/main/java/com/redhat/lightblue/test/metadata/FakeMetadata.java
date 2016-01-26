@@ -37,8 +37,8 @@ public class FakeMetadata extends AbstractMetadata {
 
     private static final long serialVersionUID = 1L;
 
-    private final Map<String, EntityInfo> entityInfoMap = new HashMap<String, EntityInfo>();
-    private final Map<EntityInfo, Map<String, Data>> dataMap = new HashMap<EntityInfo, Map<String,Data>>();
+    private final Map<String, EntityInfo> entityInfoMap = new HashMap<>();
+    private final Map<EntityInfo, Map<String, Data>> dataMap = new HashMap<>();
 
     public void setDependencies(String entityName, String version, Response dependencies){
         Data data = getOrCreateDataForVersion(entityName, version, true);
@@ -165,6 +165,9 @@ public class FakeMetadata extends AbstractMetadata {
      */
     private Data getOrCreateDataForVersion(String entityName, String version, boolean createIfNull){
         Map<String, Data> versionedData = getOrCreateVersionedData(entityName, createIfNull);
+        if (versionedData == null) {
+            return null;
+        }
         if(versionedData.get(version) == null){
             if(createIfNull){
                 versionedData.put(version, new Data());

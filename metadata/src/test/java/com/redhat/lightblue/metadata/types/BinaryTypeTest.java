@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +41,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class BinaryTypeTest {
+public class BinaryTypeTest extends AbstractJsonNodeTest {
 
     Type binaryType;
 
@@ -109,33 +110,33 @@ public class BinaryTypeTest {
     public void testEmbeddedPDF() throws FileNotFoundException, IOException, JSONException {
         String pdfFilename = "./BinaryTypeTest-sample.pdf";
 
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream(pdfFilename);
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(pdfFilename)) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int read;
+            byte[] bytes = new byte[1000];
 
-        int read;
-        byte[] bytes = new byte[1000];
+            while ((read = is.read(bytes, 0, bytes.length)) != -1) {
+                buffer.write(bytes, 0, read);
+            }
 
-        while ((read = is.read(bytes, 0, bytes.length)) != -1) {
-            buffer.write(bytes, 0, read);
+            String encoded = DatatypeConverter.printBase64Binary(buffer.toByteArray());
+
+            String jsonString = "{\"binaryData\": \"" + encoded + "\"}";
+
+            JsonNode nodeIn = JsonUtils.json(jsonString);
+            JsonNode binaryDataNodeIn = nodeIn.get("binaryData");
+
+            byte[] bytesOut = binaryDataNodeIn.binaryValue();
+
+            JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
+            JsonNode binaryDataNodeOut = binaryType.toJson(jsonNodeFactory, bytesOut);
+
+            ObjectNode nodeOut = jsonNodeFactory.objectNode();
+            nodeOut.set("binaryData", binaryDataNodeOut);
+
+            JSONAssert.assertEquals(jsonString, nodeOut.toString(), JSONCompareMode.LENIENT);
         }
-
-        String encoded = DatatypeConverter.printBase64Binary(buffer.toByteArray());
-
-        String jsonString = "{\"binaryData\": \"" + encoded + "\"}";
-
-        JsonNode nodeIn = JsonUtils.json(jsonString);
-        JsonNode binaryDataNodeIn = nodeIn.get("binaryData");
-
-        byte[] bytesOut = binaryDataNodeIn.binaryValue();
-
-        JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);
-        JsonNode binaryDataNodeOut = binaryType.toJson(jsonNodeFactory, bytesOut);
-
-        ObjectNode nodeOut = jsonNodeFactory.objectNode();
-        nodeOut.set("binaryData", binaryDataNodeOut);
-
-        JSONAssert.assertEquals(jsonString, nodeOut.toString(), JSONCompareMode.LENIENT);
     }
 
     @Test

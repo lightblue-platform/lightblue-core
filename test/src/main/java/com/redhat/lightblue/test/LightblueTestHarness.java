@@ -61,7 +61,7 @@ import com.redhat.lightblue.metadata.Metadata;
  *
  * @author dcrissman
  */
-public abstract class AbstractCRUDTestController {
+public abstract class LightblueTestHarness {
 
     public static final String REMOVE_ALL_HOOKS = "ALL";
 
@@ -82,7 +82,7 @@ public abstract class AbstractCRUDTestController {
     /**
      * Defaults to statically loading lightblue.
      */
-    public AbstractCRUDTestController() throws Exception {
+    public LightblueTestHarness() throws Exception {
         this(true);
     }
 
@@ -99,7 +99,7 @@ public abstract class AbstractCRUDTestController {
      * @throws InvocationTargetException
      * @throws InstantiationException
      */
-    public AbstractCRUDTestController(boolean loadStatically) throws Exception {
+    public LightblueTestHarness(boolean loadStatically) throws Exception {
         if (!loadStatically || lightblueFactory == null) {
             lightblueFactory = new LightblueFactory(
                     new DataSourcesConfiguration(getDatasourcesJson()),
