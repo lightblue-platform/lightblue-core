@@ -53,7 +53,7 @@
          },
          "maxResults": {
              "type": "integer",
-             "description": "Alternative to 'range' allowing 'from' and 'to' to be set independently."
+             "description": "Alternative to 'range'. Sets the maximum number of results to return. Ignored if 'to' is also specified."
          },
          "sort": {
              "$ref": "/json-schema/sort/choice.json#/definitions/sort"
