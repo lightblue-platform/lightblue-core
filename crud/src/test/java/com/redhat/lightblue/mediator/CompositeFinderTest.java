@@ -247,6 +247,17 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
        Assert.assertEquals(1,response.getEntityData().get(2).get("b").size());
    }
 
+    @Test
+   public void retrieveAandBonly_manyA_nullproj() throws Exception {
+       FindRequest fr=new FindRequest();
+       fr.setQuery(query("{'field':'_id','op':'$in','values':['A01','A02','A03']}"));
+       fr.setSort(sort("{'_id':'$asc'}"));
+       fr.setEntityVersion(new EntityVersion("A","1.0.0"));
+       Response response=mediator.find(fr);
+       System.out.println("Null proj:"+response);
+       Assert.assertEquals(3,response.getEntityData().size());
+   }
+
    @Test
    public void retrieveAandBonly_manyA_noq() throws Exception {
        FindRequest fr=new FindRequest();
