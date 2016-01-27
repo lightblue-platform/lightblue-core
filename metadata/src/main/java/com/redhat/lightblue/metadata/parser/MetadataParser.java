@@ -316,7 +316,7 @@ public abstract class MetadataParser<T> {
                         if (dir == null) {
                             dir = "$asc";
                         }
-                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir), false);
+                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir));
                         f.add(sort);
                     }
                     index.setFields(f);
