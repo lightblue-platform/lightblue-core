@@ -58,6 +58,14 @@ public class AnalyzeQuery extends QueryIterator {
 
     private List<QueryFieldInfo> fieldInfo=new ArrayList<>();
 
+    /**
+     * Ctor
+     *
+     * @param root The root entity
+     * @param referenceField The resolved reference for the reference
+     * field containing the query. null if the query is a request
+     * query
+     */
     public AnalyzeQuery(CompositeMetadata root,
                         ResolvedReferenceField referenceField) {
         this.root=root;
