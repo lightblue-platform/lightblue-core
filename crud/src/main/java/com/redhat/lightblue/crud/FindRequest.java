@@ -121,6 +121,7 @@ public class FindRequest extends Request implements WithQuery, WithProjection {
         this.cfr.shallowCopyFrom(c);
     }
 
+    @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.FIND;
     }
