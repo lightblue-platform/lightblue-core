@@ -312,11 +312,12 @@ public abstract class MetadataParser<T> {
                     for (T s : fields) {
                         String fld = getRequiredStringProperty(s, "field");
                         String dir = getStringProperty(s, "dir");
+                        String ci = getStringProperty(s, "caseInsensitive");
 
                         if (dir == null) {
                             dir = "$asc";
                         }
-                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir));
+                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir), Boolean.valueOf(ci));
                         f.add(sort);
                     }
                     index.setFields(f);
