@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,22 +30,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
-import com.redhat.lightblue.OperationStatus;
 
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.FieldBinding;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
-import com.redhat.lightblue.query.QueryInContext;
-import com.redhat.lightblue.query.FieldComparisonExpression;
-import com.redhat.lightblue.query.FieldProjection;
-import com.redhat.lightblue.query.RelativeRewriteIterator;
 import com.redhat.lightblue.query.FieldInfo;
 import com.redhat.lightblue.query.Projection;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
 
@@ -57,8 +45,6 @@ import com.redhat.lightblue.eval.Projector;
 
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
-import com.redhat.lightblue.assoc.Conjunct;
-import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryPlanChooser;
 import com.redhat.lightblue.assoc.ResultDoc;
 import com.redhat.lightblue.assoc.DocReference;
@@ -72,14 +58,9 @@ import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.DocId;
-import com.redhat.lightblue.metadata.DocIdExtractor;
-import com.redhat.lightblue.metadata.PredefinedFields;
-import com.redhat.lightblue.metadata.Type;
 
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.Tuples;
-import com.redhat.lightblue.util.JsonDoc;
 
 public class CompositeFindImpl implements Finder {
 
@@ -264,20 +245,21 @@ public class CompositeFindImpl implements Finder {
             }
         }
 
-        if(ctx.hasErrors())
-        	rootDocs.clear();
-        LOGGER.debug("Root docs:{}",rootDocs.size());
-        List<DocCtx> resultDocuments=new ArrayList<>(rootDocs.size());
-        for(ResultDoc dgd:rootDocs) {
-            retrieveFragments(dgd);
-            DocCtx dctx=new DocCtx(dgd.getDoc());
-            dctx.setOutputDocument(dgd.getDoc());
-            resultDocuments.add(dctx);
+        if(rootDocs != null && ctx.hasErrors())
+            rootDocs.clear();
+        LOGGER.debug("Root docs:{}",(rootDocs == null ? 0 : rootDocs.size()));
+        List<DocCtx> resultDocuments=new ArrayList<>((rootDocs == null ? 0 : rootDocs.size()));
+        if (rootDocs != null) {
+            for(ResultDoc dgd:rootDocs) {
+                retrieveFragments(dgd);
+                DocCtx dctx=new DocCtx(dgd.getDoc());
+                dctx.setOutputDocument(dgd.getDoc());
+                resultDocuments.add(dctx);
+            }
         }
-
         CRUDFindResponse response=new CRUDFindResponse();
 
-        response.setSize(rootResponse.getSize());
+        response.setSize(rootResponse == null ? 0 : rootResponse.getSize());
         ctx.setDocuments(projectResults(ctx,resultDocuments,req.getProjection()));
         ctx.addErrors(errors);
         

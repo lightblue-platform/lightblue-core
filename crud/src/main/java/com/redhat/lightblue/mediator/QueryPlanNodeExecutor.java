@@ -174,7 +174,9 @@ public class QueryPlanNodeExecutor {
             findRequest.setTo(toIndex);
             response=execute(ctx,findRequest,null);
             if(ctx.hasErrors()) {
-                response.setSize(0);
+                if (response != null) {
+                    response.setSize(0);
+                }
                 docs.clear();
             }
         } else {
