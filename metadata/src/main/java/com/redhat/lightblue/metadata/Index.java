@@ -132,4 +132,10 @@ public class Index implements Serializable {
         }
         return false;
     }
+
+    public boolean isCaseInsensitiveKey(Path path) {
+        return fields.stream()
+            .filter(IndexSortKey::isCaseInsensitive)
+            .anyMatch(i -> i.getField().equals(path));
+    }
 }

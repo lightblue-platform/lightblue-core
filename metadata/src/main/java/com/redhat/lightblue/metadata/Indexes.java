@@ -22,7 +22,6 @@ import com.redhat.lightblue.util.Path;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -62,7 +61,7 @@ public class Indexes implements Serializable {
         return indexes.isEmpty();
     }
 
-    public boolean isCaseInsensitiveKey(Path path) {
+/*    public boolean isCaseInsensitiveKey(Path path) {
         return getCaseInsensitiveIndexes().stream()
                 .anyMatch(i -> i.getField().equals(path));
 
@@ -74,7 +73,7 @@ public class Indexes implements Serializable {
                 .flatMap(Collection::stream)
                 .filter(IndexSortKey::isCaseInsensitive)
                 .collect(Collectors.toList());
-    }
+    }*/
 
     /**
      * Returns the indexes that can be used to evaluate a search criteria
