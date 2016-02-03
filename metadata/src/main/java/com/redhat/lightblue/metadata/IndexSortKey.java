@@ -1,8 +1,9 @@
 /**
  *
  */
-package com.redhat.lightblue.query;
+package com.redhat.lightblue.metadata;
 
+import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Path;
 
 /**

@@ -3,13 +3,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.redhat.lightblue.metadata.types.StringType;
-import com.redhat.lightblue.query.IndexSortKey;
 import com.redhat.lightblue.util.Path;
 
 /**
