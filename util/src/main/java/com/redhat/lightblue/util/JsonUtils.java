@@ -50,7 +50,7 @@ public final class JsonUtils {
 
     /**
      * <p>Returns an object mapper to parse JSON text.</p>
-     * <p><b>NOTE:</b> {@link ObjectMapper} is not thread safe.</p>
+     * <p><b>NOTE:</b> {@link ObjectMapper} should not be shared among threads.</p>
      */
     public static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
