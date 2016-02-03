@@ -42,7 +42,6 @@ public class ValueTest {
      */
     @Test
     public void testToJson() throws IOException {
-        // if in int range returns IntNode
         Value instance = new Value(10L);
         JsonNode expResult = new LongNode(10);
         JsonNode result = instance.toJson();
