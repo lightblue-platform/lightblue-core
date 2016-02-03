@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -73,7 +74,6 @@ import com.redhat.lightblue.metadata.types.ReferenceType;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.SortKey;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 
@@ -312,12 +312,13 @@ public abstract class MetadataParser<T> {
                     for (T s : fields) {
                         String fld = getRequiredStringProperty(s, "field");
                         String dir = getStringProperty(s, "dir");
-                        String ci = getStringProperty(s, "caseInsensitive");
+                        // avoid npe
+                        Optional<Boolean> ci = Optional.ofNullable((Boolean) getValueProperty(s, "caseInsensitive"));
 
                         if (dir == null) {
                             dir = "$asc";
                         }
-                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir), Boolean.valueOf(ci));
+                        IndexSortKey sort = new IndexSortKey(new Path(fld), "$desc".equals(dir), ci.orElse(false));
                         f.add(sort);
                     }
                     index.setFields(f);
@@ -1306,10 +1307,11 @@ public abstract class MetadataParser<T> {
 
                     // for each field, add to a new fields array
                     Object indexObj = newArrayField(node, STR_FIELDS);
-                    for (SortKey p : i.getFields()) {
+                    for (IndexSortKey p : i.getFields()) {
                         T node2 = newNode();
                         putString(node2, "field", p.getField().toString());
                         putString(node2, "dir", p.isDesc() ? "$desc" : "$asc");
+                        putValue(node2, "caseInsensitive", p.isCaseInsensitive());
                         addObjectToArray(indexObj, node2);
                     }
                 }
