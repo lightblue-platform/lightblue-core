@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.query.IndexSortKey;
 import com.redhat.lightblue.util.Path;
 
 import java.io.Serializable;

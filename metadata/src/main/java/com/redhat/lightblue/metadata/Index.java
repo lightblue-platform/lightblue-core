@@ -18,11 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.query.IndexSortKey;
-import com.redhat.lightblue.util.Path;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.redhat.lightblue.util.Path;
 
 /**
  * Specifies that the combined value of one or more fields must be unique
