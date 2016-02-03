@@ -18,18 +18,18 @@
  */
 package com.redhat.lightblue.query;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.DoubleNode;
-import com.fasterxml.jackson.databind.node.FloatNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.LongNode;
-import com.redhat.lightblue.util.Error;
-import com.redhat.lightblue.util.JsonUtils;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.FloatNode;
+import com.fasterxml.jackson.databind.node.LongNode;
+import com.redhat.lightblue.util.JsonUtils;
 
 /**
  *
@@ -44,7 +44,7 @@ public class ValueTest {
     public void testToJson() throws IOException {
         // if in int range returns IntNode
         Value instance = new Value(10L);
-        JsonNode expResult = new IntNode(10);
+        JsonNode expResult = new LongNode(10);
         JsonNode result = instance.toJson();
         assertEquals(expResult, result);
 
