@@ -61,20 +61,6 @@ public class Indexes implements Serializable {
         return indexes.isEmpty();
     }
 
-/*    public boolean isCaseInsensitiveKey(Path path) {
-        return getCaseInsensitiveIndexes().stream()
-                .anyMatch(i -> i.getField().equals(path));
-
-    }
-
-    public List<IndexSortKey> getCaseInsensitiveIndexes() {
-        return this.indexes.stream()
-                .map(Index::getFields)
-                .flatMap(Collection::stream)
-                .filter(IndexSortKey::isCaseInsensitive)
-                .collect(Collectors.toList());
-    }*/
-
     /**
      * Returns the indexes that can be used to evaluate a search criteria
      * containing the given fields
