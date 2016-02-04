@@ -18,21 +18,25 @@
  */
 package com.redhat.lightblue.metadata.types;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.redhat.lightblue.metadata.Type;
-import com.redhat.lightblue.util.Error;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.util.Constants;
+import com.redhat.lightblue.util.Error;
 
 public class DateTypeTest {
 
@@ -69,7 +73,7 @@ public class DateTypeTest {
 
     @Test
     public void testToJson() {
-        DateFormat dateFormat = new SimpleDateFormat(DateType.DATE_FORMAT_STR);
+        DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_STR);
         //dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         String date = dateFormat.format(new Date());
@@ -80,7 +84,7 @@ public class DateTypeTest {
 
     @Test
     public void testFromJson() {
-        JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).textNode(new SimpleDateFormat(DateType.DATE_FORMAT_STR).format(new Date()));
+        JsonNode jsonNode = JsonNodeFactory.withExactBigDecimals(false).textNode(new SimpleDateFormat(Constants.DATE_FORMAT_STR).format(new Date()));
         Object fromJson = dateType.fromJson(jsonNode);
         assertTrue(fromJson instanceof Date);
     }
@@ -109,7 +113,7 @@ public class DateTypeTest {
 
     @Test
     public void testCastString() {
-        assertTrue(dateType.cast(new SimpleDateFormat(DateType.DATE_FORMAT_STR).format(new Date())) instanceof Date);
+        assertTrue(dateType.cast(new SimpleDateFormat(Constants.DATE_FORMAT_STR).format(new Date())) instanceof Date);
     }
 
     @Test(expected = Error.class)
