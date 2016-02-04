@@ -18,6 +18,13 @@
  */
 package com.redhat.lightblue.metadata;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.ListIterator;
+
+import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.MutablePath;
+
 /**
  * A composite schema is an extension of EntitySchema that replaces all
  * reference fields with references entity schema information. It contains a
@@ -41,6 +48,34 @@ public class CompositeSchema extends EntitySchema {
 
     public static CompositeSchema newSchemaWithEmptyFields(EntitySchema schema) {
         return new CompositeSchema(schema);
+    }
+
+    /**
+     * Returns the field name for the given field node relative to the entity it
+     * is contained in
+     */
+    @Override
+    public Path getEntityRelativeFieldName(FieldTreeNode fieldNode) {
+        MutablePath mp = new MutablePath();
+        if (fieldNode != null) {
+            List<String> list = new ArrayList<>();
+            FieldTreeNode trc = fieldNode;
+            do {
+                if (trc instanceof ArrayElement && trc.getParent() instanceof ResolvedReferenceField) {
+                    ListIterator<String> listItr = list.listIterator(list.size());
+                    while (listItr.hasPrevious()) {
+                        mp.push(listItr.previous());
+                    }
+                    return mp.immutableCopy();
+                } else if (trc != getFieldTreeRoot()) {
+                    list.add(trc.getName());
+                }
+                trc = trc.getParent();
+            } while (trc != null);
+            // If we're here, field is in the root
+            return fieldNode.getFullPath();
+        }
+        return null;
     }
 
 }

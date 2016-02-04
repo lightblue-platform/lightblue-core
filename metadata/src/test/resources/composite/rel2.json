@@ -1,0 +1,107 @@
+{
+    "entityInfo": {
+        "datastore": {
+            "backend": "mongo",
+            "collection": "rel2",
+            "datasource": "mongodata"
+        },
+        "enums": [
+            {
+                "name": "statusCode",
+                "values": [
+                    "active",
+                    "disabled",
+                    "inactive"
+                ]
+            }
+        ],
+        "name": "rel2"
+    },
+    "schema": {
+        "access": {
+            "delete": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": {
+                "constraints": {
+                    "identity": true
+                },
+                "type": "string"
+            },
+            "inventoryOperatingUnitCode": {
+                "constraints": {
+                    "required": true
+                },
+                "type": "string"
+            },
+            "objectType": {
+                "access": {
+                    "find": [
+                        "anyone"
+                    ],
+                    "update": [
+                        "noone"
+                    ]
+                },
+                "constraints": {
+                    "minLength": 1,
+                    "required": true
+                },
+                "type": "string"
+            },
+            "rels": {
+                "entity": "rel",
+                "query": {
+                    "$and": [
+                        {
+                            "field": "rootProduct.inventoryOperatingUnitCode",
+                            "op": "$eq",
+                            "rfield": "$parent.inventoryOperatingUnitCode"
+                        },
+                        {
+                            "$or": [
+                                {
+                                    "field": "skuTree.*.child.skuCode",
+                                    "op": "$eq",
+                                    "rfield": "$parent.skuCode"
+                                },
+                                {
+                                    "field": "skuTree.*.parent.skuCode",
+                                    "op": "$eq",
+                                    "rfield": "$parent.skuCode"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "type": "reference",
+                "versionValue": "1.0.5-SNAPSHOT"
+            },
+            "skuCode": {
+                "constraints": {
+                    "required": true
+                },
+                "type": "string"
+            }
+        },
+        "name": "rel2",
+        "status": {
+            "value": "active"
+        },
+        "version": {
+            "changelog": "test",
+            "value": "1.0.6-SNAPSHOT"
+        }
+    }
+}

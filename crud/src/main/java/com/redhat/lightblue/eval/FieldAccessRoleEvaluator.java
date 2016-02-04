@@ -32,6 +32,8 @@ import com.redhat.lightblue.metadata.FieldAccess;
 import com.redhat.lightblue.metadata.EntityAccess;
 import com.redhat.lightblue.metadata.Field;
 import com.redhat.lightblue.metadata.Access;
+import com.redhat.lightblue.metadata.Type;
+import com.redhat.lightblue.metadata.types.ContainerType;
 
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.ProjectionList;
@@ -40,10 +42,14 @@ import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.KeyValueCursor;
+import com.redhat.lightblue.util.JsonCompare;
+import com.redhat.lightblue.util.DocComparator;
 
 public final class FieldAccessRoleEvaluator {
     private final EntityMetadata md;
     private final Set<String> roles;
+    private JsonCompare comparator;
+    private DocComparator.Difference<JsonNode> diff;
 
     public static enum Operation {
         insert, update, insert_and_update, find
@@ -105,9 +111,9 @@ public final class FieldAccessRoleEvaluator {
      * during insertion. If the returned list is empty, the user can insert the
      * doc.
      */
-    public List<Path> getInaccessibleFields_Insert(JsonDoc doc) {
+    public Set<Path> getInaccessibleFields_Insert(JsonDoc doc) {
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.insert);
-        List<Path> ret = new ArrayList<>(inaccessibleFields.size());
+        Set<Path> ret = new HashSet<>(inaccessibleFields.size());
         for (Path x : inaccessibleFields) {
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(x);
             if (cursor.hasNext()) {
@@ -117,6 +123,10 @@ public final class FieldAccessRoleEvaluator {
         return ret;
     }
 
+    public DocComparator.Difference<JsonNode> getLastDiff() {
+        return diff;
+    }
+
     /**
      * Returns a list of fields in the doc inaccessible to the current user
      * during update.
@@ -124,14 +134,56 @@ public final class FieldAccessRoleEvaluator {
      * @param newDoc The new version of the document
      * @param oldDoc The old version of the document
      */
-    public List<Path> getInaccessibleFields_Update(JsonDoc newDoc, JsonDoc oldDoc) {
+    public Set<Path> getInaccessibleFields_Update(JsonDoc newDoc, JsonDoc oldDoc) {
+        // Initialize the comparator if not already
+        if(comparator==null) {
+            comparator=md.getEntitySchema().getDocComparator();
+        }
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.update);
-        List<Path> ret = new ArrayList<>(inaccessibleFields.size());
-        for (Path x : inaccessibleFields) {
-            KeyValueCursor<Path, JsonNode> oldCursor = oldDoc.getAllNodes(x);
-            KeyValueCursor<Path, JsonNode> newCursor = newDoc.getAllNodes(x);
-            if (different(oldCursor, newCursor)) {
-                ret.add(x);
+        Set<Path> ret=new HashSet<>();
+        if(!inaccessibleFields.isEmpty()) {
+            try {
+                diff=comparator.compareNodes(oldDoc.getRoot(),newDoc.getRoot());
+            } catch (Exception e) {
+                // Any exception at this point is a bug
+                throw new RuntimeException(e);
+            }
+            for(DocComparator.Delta<JsonNode> d:diff.getDelta()) {
+                if( (d instanceof DocComparator.Addition &&
+                     ((DocComparator.Addition<JsonNode>)d).getAddedNode().isValueNode() ) ||
+                    (d instanceof DocComparator.Removal &&
+                     ((DocComparator.Removal<JsonNode>)d).getRemovedNode().isValueNode()) ||
+                    (d instanceof DocComparator.Modification &&
+                     ((DocComparator.Modification<JsonNode>)d).getUnmodifiedNode().isValueNode()) ) {
+                    FieldTreeNode fieldMd=md.resolve(d.getField());
+                    boolean modified=true;
+                    if(d instanceof JsonCompare.Modification) {
+                        // Is it really modified
+                        Object o1=fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>)d).getUnmodifiedNode());
+                        Object o2=fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>)d).getModifiedNode());
+                        if(o1.equals(o2)) {
+                            modified=false;
+                        }
+                    }
+                    if(modified&&inaccessibleFields.contains(fieldMd.getFullPath())) {
+                        ret.add(d.getField());
+                    }
+                }
+                // In case of an addition, removal, or move, check if the parent node is an object or an array
+                // that is not accesible.
+                if(d instanceof DocComparator.Addition ||
+                   d instanceof DocComparator.Removal ||
+                   d instanceof DocComparator.Move) {
+                    Path field=d.getField();
+                    if(field.numSegments()>2) { // Not a top-level or first level variable
+                        // That means, it's parent is not the root level, so we can check access
+                        // to the parent itself.
+                        Path parent=md.resolve(field.prefix(-1)).getFullPath();
+                        
+                        if(inaccessibleFields.contains(parent))
+                            ret.add(parent);
+                    }
+                }
             }
         }
         return ret;
@@ -218,21 +270,4 @@ public final class FieldAccessRoleEvaluator {
         return false;
     }
 
-    private boolean different(KeyValueCursor<Path, JsonNode> c1,
-                              KeyValueCursor<Path, JsonNode> c2) {
-        while (c1.hasNext()) {
-            if (c2.hasNext()) {
-                c1.next();
-                c2.next();
-                JsonNode v1 = c1.getCurrentValue();
-                JsonNode v2 = c2.getCurrentValue();
-                if (!v1.equals(v2)) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
-        }
-        return c2.hasNext();
-    }
 }

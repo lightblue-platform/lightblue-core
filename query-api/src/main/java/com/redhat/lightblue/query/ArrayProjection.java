@@ -62,7 +62,7 @@ public abstract class ArrayProjection extends BasicProjection {
         ObjectNode node = getFactory().objectNode().
                 put("field", field.toString()).
                 put("include", include);
-        node.set("project", project.toJson());
+        node.set("projection", project.toJson());
         if (sort != null) {
             node.set("sort", sort.toJson());
         }

@@ -1,0 +1,87 @@
+{
+    "entityInfo": {
+        "name": "U",
+        "datastore":{
+           "datasource":"mongodata",
+           "collection":"U",
+           "backend":"mongo"
+               }
+    },
+         
+    "schema": {
+        "name": "U",
+        "version": {
+            "value": "0.0.1",
+            "changelog": "U"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "delete": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "authentications": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "uid": {
+                            "type": "string"
+                        },
+                        "principal": {
+                            "type": "string"
+                        },
+                        "providerName": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "legalEntities": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "fields": {
+                        "legalEntityId": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "legalEntity": {
+                            "type": "reference",
+                            "entity": "L",
+                            "versionValue": "0.0.1",
+                            "query": {
+                                "field": "_id",
+                                "op": "$eq",
+                                "rfield": "$parent.legalEntityId"
+                            }
+                        }
+                    }
+                }
+            },
+            "status": {
+                "type": "string"
+            },
+            "_id": {
+                "type": "integer",
+                "constraints": {
+                    "identity": true
+                }
+            }
+        }
+    }
+}

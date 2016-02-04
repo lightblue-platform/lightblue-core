@@ -29,21 +29,23 @@ import java.io.Serializable;
 public class FieldInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final Path absFieldName;
+    private final Path fieldName;    
+    private final Path clauseFieldName;
     private final Path context;
     private final QueryExpression clause;
 
     /**
      * Constructs the field info with the given information
      *
-     * @param absFieldName Absolute field name
+     * @param clauseFieldName Field name
      * @param context The context path under which the field is interpreted
      * @param clause The query clause containing the field
      */
-    public FieldInfo(Path absFieldName,
+    public FieldInfo(Path clauseFieldName,
                      Path context,
                      QueryExpression clause) {
-        this.absFieldName = absFieldName;
+        this.fieldName = context.isEmpty()?clauseFieldName:new Path(context,clauseFieldName);
+        this.clauseFieldName = clauseFieldName;
         this.context = context;
         this.clause = clause;
     }
@@ -52,14 +54,34 @@ public class FieldInfo implements Serializable {
      * Copy ctor, shallow copy
      */
     public FieldInfo(FieldInfo f) {
-        this(f.absFieldName, f.context, f.clause);
+        this.fieldName=f.fieldName;
+        this.clauseFieldName=f.clauseFieldName;
+        this.context=f.context;
+        this.clause=f.clause;
+    }
+
+    public FieldInfo(Path fieldName,
+                     Path clauseFieldName,
+                     Path context,
+                     QueryExpression clause) {
+        this.fieldName=fieldName;
+        this.clauseFieldName=clauseFieldName;
+        this.context=context;
+        this.clause=clause;
     }
 
     /**
-     * Returns the absolute field name
+     * Returns the field name within its context
      */
-    public Path getAbsFieldName() {
-        return absFieldName;
+    public Path getFieldName() {
+        return fieldName;
+    }
+
+    /**
+     * Returns the field name as it appears in the query clause, without the context
+     */
+    public Path getClauseFieldName() {
+        return clauseFieldName;
     }
 
     /**
@@ -77,6 +99,6 @@ public class FieldInfo implements Serializable {
     }
 
     public String toString() {
-        return absFieldName + "@(" + clause + ")";
+        return fieldName + "@(" + clause + ")";
     }
 }

@@ -28,13 +28,14 @@ import com.redhat.lightblue.query.Sort;
 /**
  * Request to find documents
  */
-public class FindRequest extends Request {
+public class FindRequest extends Request implements WithQuery, WithProjection {
 
     private final CRUDFindRequest cfr=new CRUDFindRequest();
 
     /**
      * The query
      */
+    @Override
     public QueryExpression getQuery() {
         return cfr.getQuery();
     }
@@ -49,6 +50,7 @@ public class FindRequest extends Request {
     /**
      * Specifies what fields of the documents to return
      */
+    @Override
     public Projection getProjection() {
         return cfr.getProjection();
     }
@@ -118,6 +120,12 @@ public class FindRequest extends Request {
         super.shallowCopyFrom(r);
         this.cfr.shallowCopyFrom(c);
     }
+
+    @Override
+    public CRUDOperation getOperation() {
+        return CRUDOperation.FIND;
+    }
+    
     /**
      * Returns JSON representation of this
      */

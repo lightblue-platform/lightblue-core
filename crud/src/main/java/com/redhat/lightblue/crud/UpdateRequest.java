@@ -29,7 +29,7 @@ import com.redhat.lightblue.query.UpdateExpression;
 /**
  * Request to update documents based on a query
  */
-public class UpdateRequest extends Request {
+public class UpdateRequest extends Request implements WithQuery, WithProjection {
 
     private QueryExpression query;
     private UpdateExpression updateExpression;
@@ -49,6 +49,11 @@ public class UpdateRequest extends Request {
         returnFields = p;
     }
 
+    @Override
+    public Projection getProjection() {
+        return returnFields;
+    }
+
     /**
      * The expression specifying how to modify the documents
      */
@@ -66,6 +71,7 @@ public class UpdateRequest extends Request {
     /**
      * The query specifying which documents to be updated
      */
+    @Override
     public QueryExpression getQuery() {
         return query;
     }
@@ -75,6 +81,11 @@ public class UpdateRequest extends Request {
      */
     public void setQuery(QueryExpression q) {
         query = q;
+    }
+
+    @Override
+    public CRUDOperation getOperation() {
+        return CRUDOperation.UPDATE;
     }
 
     /**

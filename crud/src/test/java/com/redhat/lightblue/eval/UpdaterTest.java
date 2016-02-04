@@ -123,6 +123,19 @@ public class UpdaterTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(1,jsonDoc.get(new Path("field7")).size());
     }
+    
+    @Test
+    public void null_nested_array_append() throws Exception {
+        // Set field11.0.arr. to null
+        jsonDoc.modify(new Path("field11.0.arr"), null, true);
+        Assert.assertNull(jsonDoc.get(new Path("field11.0.arr")));
+
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$append' : { 'field11.0.arr' : { 'id':1, 'x1':'x1_1'} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        updater.update(jsonDoc, md.getFieldTreeRoot(), new Path());
+
+        Assert.assertEquals(1, jsonDoc.get(new Path("field11.0.arr")).size());
+    }
 
     @Test
     public void null_array_set() throws Exception {
@@ -190,6 +203,17 @@ public class UpdaterTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void array_foreach_nullq() throws Exception {
+        jsonDoc.modify(new Path("field7.0.elemf1"),null,false);
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':null} , '$update' : {'$set': { 'elemf1':'test'}} } }");
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+
+        Assert.assertEquals(4, jsonDoc.get(new Path("field7")).size());
+        Assert.assertEquals("test", jsonDoc.get(new Path("field7.0.elemf1")).asText());
+    }
+
+    @Test
     public void array_foreach_append() throws Exception {
         jsonDoc = EvalTestContext.getDoc("./termsdata.json");
         md = EvalTestContext.getMd("./termsmd.json");
@@ -208,4 +232,20 @@ public class UpdaterTest extends AbstractJsonNodeTest {
         Assert.assertEquals(4, jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation")).size());
         Assert.assertEquals("lg", jsonDoc.get(new Path("termsVerbiage.0.termsVerbiageTranslation.0.localeCode")).asText());
     }
+
+    @Test
+    public void parent_parent_update() throws Exception {
+        UpdateExpression expr = EvalTestContext.
+            updateExpressionFromJson("{ '$foreach' : { 'arr13.*.level2.*.level3' : { 'field':'$parent.$parent.id','op':'=','rvalue':'1'},"+
+                                     "'$update' : {'$set':{'fld':'x' } }}}");
+        
+        Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
+        System.out.println("before:"+JsonUtils.prettyPrint(jsonDoc.getRoot()));
+        Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
+        System.out.println("After:"+JsonUtils.prettyPrint(jsonDoc.getRoot()));
+        
+        Assert.assertEquals("x", jsonDoc.get(new Path("arr13.0.level2.0.level3.0.fld")).asText());
+        Assert.assertEquals("value", jsonDoc.get(new Path("arr13.1.level2.0.level3.0.fld")).asText());
+    }
+
 }

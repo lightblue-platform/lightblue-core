@@ -53,6 +53,14 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void q_in() throws Exception {
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field3','op':'$in','values':[3]}");
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+    }
+
+    @Test
     public void q_field_comparison() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field4','op':'>','rfield':'field3'}");
         QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
@@ -110,6 +118,14 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
         qe = QueryEvaluator.getInstance(q, md);
         ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
+    }
+
+    @Test
+    public void q_compare_nonexistant_field_returns_false() throws Exception {
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{ '$and' : [{'field':'field1','regex':'Val.*','caseInsensitive':1},{'field':'field7.5.elemf1','op':'$eq','rvalue':'x'}]}");
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
+        Assert.assertFalse(ctx.getResult());
     }
 
 }

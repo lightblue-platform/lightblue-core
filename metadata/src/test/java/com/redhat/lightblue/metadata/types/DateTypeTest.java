@@ -70,7 +70,7 @@ public class DateTypeTest {
     @Test
     public void testToJson() {
         DateFormat dateFormat = new SimpleDateFormat(DateType.DATE_FORMAT_STR);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        //dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         String date = dateFormat.format(new Date());
         JsonNodeFactory jsonNodeFactory = new JsonNodeFactory(true);

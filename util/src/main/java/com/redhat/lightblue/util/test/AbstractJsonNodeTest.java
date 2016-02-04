@@ -19,6 +19,7 @@
 package com.redhat.lightblue.util.test;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,7 +47,7 @@ public abstract class AbstractJsonNodeTest {
      * @throws IOException
      */
     public static final JsonNode loadJsonNode(String resourceName) throws IOException {
-        return JsonUtils.json(loadResource(resourceName));
+        return JsonUtils.json(loadResource(resourceName), true);
     }
 
     /**
@@ -69,6 +70,9 @@ public abstract class AbstractJsonNodeTest {
      */
     public static final String loadResource(String resourceName, ClassLoader loader) throws IOException {
         try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            if (null == is) {
+                throw new FileNotFoundException(resourceName);
+            }
             return loadResource(is);
         }
     }
@@ -82,6 +86,9 @@ public abstract class AbstractJsonNodeTest {
      */
     public static final String loadResource(String resourceName, Class<?> loader) throws IOException {
         try (InputStream is = loader.getResourceAsStream(resourceName)) {
+            if (null == is) {
+                throw new FileNotFoundException(resourceName);
+            }
             return loadResource(is);
         }
     }

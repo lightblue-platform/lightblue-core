@@ -27,13 +27,14 @@ import com.redhat.lightblue.query.QueryExpression;
 /**
  * Request to delete documents matching a query
  */
-public class DeleteRequest extends Request {
+public class DeleteRequest extends Request implements WithQuery {
 
     private QueryExpression query;
 
     /**
      * The query whose result set will be deleted
      */
+    @Override
     public QueryExpression getQuery() {
         return query;
     }
@@ -43,6 +44,11 @@ public class DeleteRequest extends Request {
      */
     public void setQuery(QueryExpression q) {
         query = q;
+    }
+
+    @Override
+    public CRUDOperation getOperation() {
+        return CRUDOperation.DELETE;
     }
 
     /**

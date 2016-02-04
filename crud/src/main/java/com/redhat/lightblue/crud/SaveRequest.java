@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.crud;
 
-import com.redhat.lightblue.crud.DocRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -60,6 +59,11 @@ public class SaveRequest extends DocRequest {
      */
     public void setUpsert(boolean b) {
         upsert = b;
+    }
+
+    @Override
+    public CRUDOperation getOperation() {
+        return CRUDOperation.SAVE;
     }
 
     /**

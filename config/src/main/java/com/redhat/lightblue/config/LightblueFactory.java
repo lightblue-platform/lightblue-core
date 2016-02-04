@@ -18,12 +18,13 @@
  */
 package com.redhat.lightblue.config;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
+import com.redhat.lightblue.crud.BulkRequest;
 import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.DeleteRequest;
@@ -42,6 +44,10 @@ import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.interceptors.UIDInterceptor;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
+import com.redhat.lightblue.crud.valuegenerators.GeneratedFieldInterceptor;
+import com.redhat.lightblue.extensions.ExtensionSupport;
+import com.redhat.lightblue.extensions.synch.Locking;
+import com.redhat.lightblue.extensions.synch.LockingSupport;
 import com.redhat.lightblue.mediator.Mediator;
 import com.redhat.lightblue.metadata.EntityInfo;
 import com.redhat.lightblue.metadata.EntityMetadata;
@@ -53,9 +59,6 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
 import com.redhat.lightblue.util.JsonUtils;
-import com.redhat.lightblue.extensions.ExtensionSupport;
-import com.redhat.lightblue.extensions.synch.LockingSupport;
-import com.redhat.lightblue.extensions.synch.Locking;
 
 /**
  * Manager class that creates instances of Mediator, Factory, Metadata, etc.
@@ -78,13 +81,16 @@ public final class LightblueFactory implements Serializable {
     private transient volatile Mediator mediator = null;
     private transient volatile Factory factory;
     private transient volatile JsonTranslator jsonTranslator = null;
-    private transient volatile Map<String,LockingSupport> lockingMap=null; 
+    private transient volatile Map<String, LockingSupport> lockingMap = null;
 
     public LightblueFactory(DataSourcesConfiguration datasources) {
         this(datasources, null, null);
     }
 
     public LightblueFactory(DataSourcesConfiguration datasources, JsonNode crudNode, JsonNode metadataNode) {
+        if (datasources == null) {
+            throw new IllegalArgumentException("datasources cannot be null");
+        }
         this.datasources = datasources;
         this.crudNode = crudNode;
         this.metadataNode = metadataNode;
@@ -122,10 +128,14 @@ public final class LightblueFactory implements Serializable {
             JsonNode root = crudNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CrudConfiguration.FILENAME)) {
-                    root = JsonUtils.json(is);
+                    if (null == is) {
+                        throw new FileNotFoundException(CrudConfiguration.FILENAME);
+                    }
+                    root = JsonUtils.json(is,true);
                 }
-            } else
+            } else {
                 LOGGER.debug("Using passed in node to initialize factory");
+            }
             LOGGER.debug("Initializing factory from {}",root);
 
             // convert root to Configuration object
@@ -136,10 +146,12 @@ public final class LightblueFactory implements Serializable {
             getJsonTranslator().setValidation(Request.class, configuration.isValidateRequests());
 
             Factory f = new Factory();
+            f.setBulkParallelExecutions(configuration.getBulkParallelExecutions());
             f.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
 
             // Add default interceptors
             new UIDInterceptor().register(f.getInterceptors());
+            new GeneratedFieldInterceptor().register(f.getInterceptors());
 
             // validate
             if (!configuration.isValid()) {
@@ -164,7 +176,10 @@ public final class LightblueFactory implements Serializable {
             JsonNode root = metadataNode;
             if (root == null) {
                 try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MetadataConfiguration.FILENAME)) {
-                    root = JsonUtils.json(is);
+                    if (null == is) {
+                        throw new FileNotFoundException(MetadataConfiguration.FILENAME);
+                    }
+                    root = JsonUtils.json(is,true);
                 }
             }
             LOGGER.debug("Config root:{}", root);
@@ -174,8 +189,10 @@ public final class LightblueFactory implements Serializable {
                 throw new IllegalStateException(MetadataConstants.ERR_CONFIG_NOT_FOUND + " - type");
             }
 
-            MetadataConfiguration cfg = (MetadataConfiguration) Class.forName(cfgClass.asText()).newInstance();
+            MetadataConfiguration cfg = (MetadataConfiguration) Thread.currentThread().getContextClassLoader().loadClass(
+                    cfgClass.asText()).newInstance();
             injectDependencies(cfg);
+
             cfg.initializeFromJson(root);
 
             // Set validation flag for all metadata requests
@@ -248,6 +265,9 @@ public final class LightblueFactory implements Serializable {
                 tx.registerTranslation(UpdateRequest.class,
                         new JsonTranslator.StaticFactoryMethod(UpdateRequest.class, "fromJson", ObjectNode.class),
                         "json-schema/updateRequest.json");
+                tx.registerTranslation(BulkRequest.class,
+                        new JsonTranslator.StaticFactoryMethod(BulkRequest.class, "fromJson", ObjectNode.class),
+                        "json-schema/bulkRequest.json");
             } catch (RuntimeException re) {
                 throw re;
             } catch (Exception e) {
@@ -321,15 +341,17 @@ public final class LightblueFactory implements Serializable {
         return mediator;
     }
 
-    public Locking getLocking(String domain) 
+    public Locking getLocking(String domain)
         throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, IOException, NoSuchMethodException, InstantiationException {
-        if(lockingMap==null)
+        if(lockingMap==null) {
             initializeLockingMap();
+        }
         LockingSupport ls=lockingMap.get(domain);
-        if(ls!=null)
+        if(ls!=null) {
             return ls.getLockingInstance(domain);
-        else
+        } else {
             throw new RuntimeException("Unrecognized locking domain");
+        }
     }
 
     public JsonTranslator getJsonTranslator() {
@@ -348,4 +370,5 @@ public final class LightblueFactory implements Serializable {
             ((MediatorClientAware) o).setMediatorClient(new MediatorClient(this));
         }
     }
+
 }

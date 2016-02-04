@@ -129,8 +129,9 @@ public class RequiredCheckerTest {
 
         new RequiredChecker().checkConstraint(validator, null, path, constraint, doc);
 
-        verify(validator, never()).addDocError(any(Error.class));
+        verify(validator, times(1)).addDocError(any(Error.class));
     }
+
 
     /**
      * When all the paths exist, then no errors will be thrown.
@@ -200,6 +201,34 @@ public class RequiredCheckerTest {
         assertNotNull(results.get(0));
         assertEquals(fieldName, results.get(0).tail(0));
         assertEquals(parentPath, results.get(0).tail(1));
+    }
+
+    @Test
+    public void testMissinParent_anys(){
+        String fieldName = "FAKE_FIELD_NAME";
+        String parentPath = "FAKE_PATH";
+
+        Path path = mock(Path.class);
+        when(path.nAnys()).thenReturn(1);
+        when(path.prefix(-1)).thenReturn(mock(Path.class));
+        when(path.tail(0)).thenReturn(fieldName);
+
+        Path kvPath = mock(Path.class);
+        when(kvPath.toString()).thenReturn(parentPath);
+
+        @SuppressWarnings("unchecked")
+        KeyValueCursor<Path, JsonNode> kvCursor = mock(KeyValueCursor.class);
+        when(kvCursor.hasNext()).thenReturn(true, false);
+        when(kvCursor.getCurrentValue()).thenReturn(JsonNodeFactory.instance.nullNode());
+        when(kvCursor.getCurrentKey()).thenReturn(kvPath);
+
+        JsonDoc doc = mock(JsonDoc.class);
+        when(doc.getAllNodes(any(Path.class))).thenReturn(kvCursor);
+
+        List<Path> results = RequiredChecker.getMissingFields(path, doc);
+
+        assertNotNull(results);
+        assertEquals(0, results.size());
     }
 
     /**

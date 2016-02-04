@@ -77,6 +77,7 @@ public final class QueryRewriter extends Rewriter {
         register(ExtendINsInOR.INSTANCE);
         register(ExtendNINsInAND.INSTANCE);
         register(PromoteNestedAND.INSTANCE);
+        register(SimpleElemMatchIsComparison.INSTANCE);
     }
 
     protected QueryExpression rewriteIteration(QueryExpression q) {

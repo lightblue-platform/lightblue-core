@@ -1,0 +1,87 @@
+{
+  "entityInfo" : {
+    "datastore" : {
+      "backend" : "mongo",
+      "collection" : "child",
+      "datasource" : "mongodata"
+    },
+    "name" : "child_w_elem"
+  },
+  "schema": {
+    "access": {
+      "delete": [
+        "e"
+      ],
+      "find": [
+        "f"
+      ],
+      "insert": [
+        "g"
+      ],
+      "update": [
+        "h"
+      ]
+    },
+    "fields" : {
+        "_id": {
+            "constraints": {
+                "identity": true
+            },
+            "type": "string"
+        },
+      "tree" : {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "fields" : {
+            "child" : {
+              "constraints" : {
+                "required" : true
+              },
+              "type" : "object",
+              "fields" : {
+                "code1" : {
+                  "constraints" : {
+                    "required" : true
+                  },
+                  "type" : "string"
+                },
+                "code2" : {
+                  "constraints" : {
+                    "required" : true
+                  },
+                  "type" : "string"
+                }
+              }
+            },
+            "parent" : {
+              "type" : "object",
+              "fields" : {
+                "code1" : {
+                  "constraints" : {
+                    "required" : true
+                  },
+                  "type" : "string"
+                },
+                "code2" : {
+                  "constraints" : {
+                    "required" : true
+                  },
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "name" : "child_w_elem",
+    "status" : {
+      "value" : "active"
+    },
+    "version" : {
+      "changelog" : "log",
+      "value" : "1.0.0"
+    }
+  }
+}

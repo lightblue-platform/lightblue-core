@@ -58,6 +58,11 @@ public class CrudJsonSchemaTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void validateSchemaBulkReq() throws ProcessingException, IOException {
+        validateSchema("json-schema/bulkRequest.json");
+    }
+
+    @Test
     public void validResponseSimple() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/response.json", "crud/response/schema-test-response-simple.json");
     }
@@ -100,6 +105,31 @@ public class CrudJsonSchemaTest extends AbstractJsonSchemaTest {
     @Test
     public void validFindSimple() throws IOException, ProcessingException {
         runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-simple.json");
+    }
+
+    @Test
+    public void validFindSimple_FromTo() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-simple-from-to.json");
+    }
+
+    @Test
+    public void validFindSimple_From() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-simple-from.json");
+    }
+
+    @Test
+    public void validFindSimple_To() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-simple-to.json");
+    }
+
+    @Test
+    public void validBulk() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/bulkRequest.json", "crud/bulk/schema-test-bulk.json");
+    }
+
+    @Test
+    public void validFindNoq() throws IOException, ProcessingException {
+        runValidJsonTest("json-schema/findRequest.json", "crud/find/schema-test-find-noq.json");
     }
 
 }

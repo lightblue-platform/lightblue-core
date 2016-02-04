@@ -40,11 +40,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ContainerNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wrapper class around JSOn documents
@@ -124,7 +127,7 @@ public class JsonDoc implements Serializable {
      * an exception
      */
     private static class Resolver {
-        public JsonNode resolve(Path p, final JsonNode node, int level) {
+        public JsonNode resolve(Path p, final JsonNode root, final JsonNode node, int level) {
             JsonNode output = node;
 
             int n = p.numSegments();
@@ -136,7 +139,12 @@ public class JsonDoc implements Serializable {
                 } else if (name.equals(Path.THIS)) {
                     continue;
                 } else if (name.equals(Path.PARENT)) {
-                    output = node.findParent(p.head(findNextNonRealtiveSegment(p, l)));
+                    output = findParent(root,output);
+                    if(output instanceof ArrayNode)
+                    	output=findParent(root,output);
+                    if(output==null)
+                        throw new IllegalArgumentException(node.toString());
+                    
                     continue;
                 } else if (output instanceof ArrayNode) {
                     int index = Integer.valueOf(name);
@@ -174,19 +182,30 @@ public class JsonDoc implements Serializable {
 
     }
 
-    private static int findNextNonRealtiveSegment(Path path, int currentPosition) {
-        int indexOfSegment = 0;
-
-        for (int i = currentPosition; i < path.numSegments(); i++) {
-            String segment = path.head(i);
-            if (!Path.THIS.equals(segment) && !Path.PARENT.equals(segment)) {
-                indexOfSegment = i;
-                break;
+    /**
+     * This method here expands our horizons in writing code that
+     * sucks. JsonNodes have no parent pointer, so finding a parent
+     * involves iterating all nodes with the hope of finding the node,
+     * and returning the container that contains it.
+     *
+     * The whole JsonNode thing should be reengineered at some point.
+     */
+    public static JsonNode findParent(final JsonNode root,final JsonNode node) {
+        if(root instanceof ContainerNode) {
+            for(Iterator<JsonNode> itr=root.elements();itr.hasNext();) {
+                JsonNode child=itr.next();
+                if(child==node) {
+                    return root;
+                } else {
+                    JsonNode found=findParent(child,node);
+                    if(found!=null)
+                        return found;
+                }
             }
-        }
-
-        return indexOfSegment;
+        } 
+        return null;
     }
+
 
     /**
      * Given a path p=x_1.x_2...x_n, it creates all the intermediate nodes
@@ -271,7 +290,7 @@ public class JsonDoc implements Serializable {
 
         public PathCursor(Path p) {
             path = p;
-            nextNode = resolver.resolve(path, docRoot, 0);
+            nextNode = resolver.resolve(path, docRoot, docRoot, 0);
             if (nextNode != null) {
                 nextFound = true;
             }
@@ -338,7 +357,7 @@ public class JsonDoc implements Serializable {
                 do {
                     Iteration itr = resolver.iterators[level];
                     if (itr != null && itr.next()) {
-                        node = resolver.resolve(path, itr.getCurrentNode(), level + 1);
+                        node = resolver.resolve(path, docRoot, itr.getCurrentNode(), level + 1);
                         if (node != null) {
                             nextFound = true;
                             done = true;
@@ -427,7 +446,7 @@ public class JsonDoc implements Serializable {
      * Static utility to resolve a path relative to a node
      */
     public static JsonNode get(JsonNode root, Path p) {
-        return DEFAULT_RESOLVER.resolve(p, root, 0);
+        return DEFAULT_RESOLVER.resolve(p, root, root, 0);
     }
 
     /**
@@ -444,6 +463,41 @@ public class JsonDoc implements Serializable {
         return modify(docRoot,p,newValue,createPath);
     }
 
+    /**
+     * Recursively remove all null nodes in the given json subtree
+     *
+     * This method operates on the given root node, and returns the
+     * same root instance. It does not create a new copy.
+     */
+    public static JsonNode filterNulls(JsonNode root) {
+        if(root instanceof ArrayNode) {
+            ArrayNode a=(ArrayNode)root;
+            int n=a.size();
+            for(int i=n-1;i>=0;i--) {
+                JsonNode node=a.get(i);
+                if(node == null || node instanceof NullNode)
+                    a.remove(i);
+                else
+                    filterNulls(node);
+            }
+        } else if(root instanceof ObjectNode) {
+            ObjectNode o=(ObjectNode)root;
+            List<String> removeList=new ArrayList<>();
+            for(Iterator<Map.Entry<String,JsonNode> > itr=o.fields();itr.hasNext();) {
+                Map.Entry<String,JsonNode> entry=itr.next();
+                JsonNode value=entry.getValue();
+                if(value == null || value instanceof NullNode) {
+                    removeList.add(entry.getKey());
+                } else {
+                    filterNulls(entry.getValue());
+                }
+            }
+            for(String x:removeList)
+                o.remove(x);
+        }
+        return root;
+    }
+    
     /**
      * Modifies an existing node value
      *
@@ -532,10 +586,10 @@ public class JsonDoc implements Serializable {
     }
 
     private static JsonNode getParentNode(JsonNode docRoot, Path parent, boolean createPath, Path p) {
-        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
+        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0);
         if (parentNode == null && createPath) {
-            CREATING_RESOLVER.resolve(p, docRoot, 0);
-            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, 0);
+            CREATING_RESOLVER.resolve(p, docRoot, docRoot, 0);
+            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0);
         }
         if (parentNode != null) {
             if (!parentNode.isContainerNode()) {

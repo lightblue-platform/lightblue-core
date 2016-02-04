@@ -74,17 +74,7 @@ public class ValueTest {
         Value result = Value.fromJson(longNode);
         assertEquals(expResult, result);
 
-        boolean error = false;
-        try {
-            Value.fromJson(JsonUtils.json("[\"test\"]"));
-        } catch (Error e) {
-            error = true;
-            String exString = Error.get(QueryConstants.ERR_INVALID_VALUE, "[\"test\"]").toString();
-            assertEquals(exString, e.toString());
-        }
-        if (!error) {
-            fail("Expection was not thrown");
-        }
+        assertEquals("[\"test\"]",Value.fromJson(JsonUtils.json("[\"test\"]")).toJson().toString());
     }
 
     /**

@@ -22,13 +22,18 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.11.0-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-extensions</artifactId>
     <packaging>jar</packaging>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <dependencies>
+        <dependency>
+            <groupId>com.redhat.lightblue</groupId>
+            <artifactId>lightblue-core-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
     </build>

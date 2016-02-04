@@ -211,26 +211,7 @@ public class CompositeMetadata extends EntityMetadata {
      * is contained in
      */
     public Path getEntityRelativeFieldName(FieldTreeNode fieldNode) {
-        MutablePath mp = new MutablePath();
-        if (fieldNode != null) {
-            List<String> list = new ArrayList<>();
-            FieldTreeNode trc = fieldNode;
-            do {
-                if (trc instanceof ArrayElement && trc.getParent() instanceof ResolvedReferenceField) {
-                    ListIterator<String> listItr = list.listIterator(list.size());
-                    while (listItr.hasPrevious()) {
-                        mp.push(listItr.previous());
-                    }
-                    return mp.immutableCopy();
-                } else if (trc != getEntitySchema().getFieldTreeRoot()) {
-                    list.add(trc.getName());
-                }
-                trc = trc.getParent();
-            } while (trc != null);
-            // If we're here, field is in the root
-            return fieldNode.getFullPath();
-        }
-        return null;
+        return getEntitySchema().getEntityRelativeFieldName(fieldNode);
     }
 
     /**
@@ -242,8 +223,6 @@ public class CompositeMetadata extends EntityMetadata {
         Error.push("compositeMetadata");
         try {
             CompositeMetadata cmd = buildCompositeMetadata(root, gmd, new Path(), null, new MutablePath());
-            // Re-process all resolved references, rewrite their queries in absolute form
-            rewriteAssociationQueries(cmd);
             return cmd;
         } finally {
             LOGGER.debug("end buildCompositeMetadata");
@@ -366,26 +345,6 @@ public class CompositeMetadata extends EntityMetadata {
         }
     }
 
-    private static QueryExpression rewriteQuery(QueryExpression q, ResolvedReferenceField rr) {
-        return new AbsRewriteItr(rr.getElement()).iterate(q);
-    }
-
-    /**
-     * Recursively rewrites the association queries to replace all relative
-     * field references to absolute field references
-     */
-    private static void rewriteAssociationQueries(CompositeMetadata root) {
-        Set<Path> children = root.getChildPaths();
-        for (Path child : children) {
-            ResolvedReferenceField rr = root.getChildReference(child);
-            QueryExpression aq = rr.getReferenceField().getQuery();
-            if (aq != null) {
-                rr.setAbsQuery(rewriteQuery(aq, rr));
-                LOGGER.debug("Rewrote association query {} from root {} as {}", aq, root.getName(), rr.getAbsQuery());
-            }
-            rewriteAssociationQueries(rr.getReferencedMetadata());
-        }
-    }
 
     /**
      * Copy fields from source to dest.
@@ -463,7 +422,7 @@ public class CompositeMetadata extends EntityMetadata {
                     ResolvedReferenceField newField = resolveReference(reference, path, parentEntity, gmd);
                     if (newField != null) {
                         dest.put(newField);
-                    }
+                    } 
                 }
             } finally {
                 Error.pop();

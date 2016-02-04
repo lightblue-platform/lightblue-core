@@ -23,9 +23,15 @@ import com.redhat.lightblue.util.Path;
 
 import java.util.Iterator;
 
+/**
+ * Represents a simple field, e.g. string or number. Objects and arrays are not simple fields.
+ *
+ */
 public class SimpleField extends Field {
 
     private static final long serialVersionUID = 1L;
+
+    private ValueGenerator valueGenerator;
 
     public SimpleField(String name) {
         super(name);
@@ -33,6 +39,11 @@ public class SimpleField extends Field {
 
     public SimpleField(String name, Type type) {
         super(name, type);
+    }
+
+    public SimpleField(String name, Type type, ValueGenerator valueGenerator) {
+        this(name, type);
+        this.valueGenerator = valueGenerator;
     }
 
     @Override
@@ -52,8 +63,16 @@ public class SimpleField extends Field {
         } else if (Path.PARENT.equals(p.head(level))) {
             return this.getParent().resolve(p, level + 1);
         } else {
-            throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE);
+            throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,p.head(level)+" in "+p.toString());
         }
+    }
+
+    public ValueGenerator getValueGenerator() {
+        return valueGenerator;
+    }
+
+    public void setValueGenerator(ValueGenerator valueGenerator) {
+        this.valueGenerator = valueGenerator;
     }
 
 }

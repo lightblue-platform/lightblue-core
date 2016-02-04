@@ -69,7 +69,8 @@ public class RequiredChecker implements FieldConstraintDocChecker {
         int nAnys = fieldMetadataPath.nAnys();
         List<Path> errors = new ArrayList<Path>();
         if (nAnys == 0) {
-            if (doc.get(fieldMetadataPath) == null) {
+            JsonNode fieldNode=doc.get(fieldMetadataPath);
+            if (fieldNode == null) {
                 // Field does not exist. If the parent object does not exist either, constraint is ok
                 if(fieldMetadataPath.numSegments()>1) {
                     JsonNode parent=doc.get(fieldMetadataPath.prefix(-1));
@@ -82,6 +83,8 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                 } else {
                     errors.add(fieldMetadataPath);
                 }
+            } else if(fieldNode instanceof NullNode) {
+                errors.add(fieldMetadataPath);
             }
         } else {
             // The required field is a member of an object that's an element of an array
@@ -93,9 +96,12 @@ public class RequiredChecker implements FieldConstraintDocChecker {
             while (cursor.hasNext()) {
                 cursor.next();
                 JsonNode parentObject = cursor.getCurrentValue();
-                LOGGER.debug("Checking {}",cursor.getCurrentKey());
-                if (parentObject.get(fieldName) == null) {
-                    errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
+                if(!(parentObject instanceof NullNode)) {
+                    LOGGER.debug("Checking {}",cursor.getCurrentKey());
+                    JsonNode fieldNode=parentObject.get(fieldName);
+                    if (fieldNode == null || fieldNode instanceof NullNode) {
+                        errors.add(new Path(cursor.getCurrentKey() + "." + fieldName));
+                    }
                 }
             }
         }

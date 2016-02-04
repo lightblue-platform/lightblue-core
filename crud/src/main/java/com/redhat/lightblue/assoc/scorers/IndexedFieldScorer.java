@@ -184,11 +184,11 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             Set<Path> indexableFields=new HashSet<>();
             Indexes indexes=null;
             for(Conjunct cj:data.getConjuncts()) {
-                List<ResolvedFieldInfo> cjFields=cj.getFieldInfo();
+                ResolvedFieldInfo[] cjFields=cj.getFieldInfo();
                 // If conjunct has one field, index can be used to retrieve it
-                if(cjFields.size()==1) {
-                    indexableFields.add(cjFields.get(0).getEntityRelativeFieldName());
-                    indexes=cjFields.get(0).getFieldEntityMetadata().getEntityInfo().getIndexes();
+                if(cjFields.length==1) {
+                    indexableFields.add(cjFields[0].getEntityRelativeFieldName());
+                    indexes=cjFields[0].getFieldEntityMetadata().getEntityInfo().getIndexes();
                 }
             }
             data.setIndexableFields(indexableFields);

@@ -21,6 +21,7 @@ package com.redhat.lightblue.metadata;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
@@ -168,22 +169,55 @@ public class PredefinedFieldsTest {
     @Test
     public void testDocModify() throws Exception {
         JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(false);
-        ObjectNode node = factory.objectNode();
+        ObjectNode node = factory.objectNode();        
         JsonDoc doc = new JsonDoc(node);
-        node.
-                put("fld1", "value").
-                put("arr#", 1);
-        node.set("arr", factory.arrayNode().add(1).add(2));
-        node.set("arr2", factory.arrayNode().add(1).add(2).add(3));
-        ObjectNode obj = factory.objectNode();
-        obj.put("fld3", "val");
-        obj.set("arr3", factory.arrayNode().add(1).add(2).add(3).add(4));
-        node.set("obj", obj);
 
-        PredefinedFields.updateArraySizes(factory, node);
+        ObjectNode obj1;
+        node.put("obj1",obj1=factory.objectNode());
+        node.put("simpleString",factory.textNode("str"));
+        ArrayNode a1;
+        obj1.put("simpleArr",a1=factory.arrayNode());
+        a1.add(factory.textNode("a"));
+        ObjectNode o;
+        obj1.put("nested",o=factory.objectNode());
 
-        Assert.assertEquals(2, doc.get(new Path("arr#")).intValue());
-        Assert.assertEquals(3, doc.get(new Path("arr2#")).intValue());
-        Assert.assertEquals(4, doc.get(new Path("obj.arr3#")).intValue());
+        ArrayNode a2;
+        o.put("objArr",a2=factory.arrayNode());
+        a2.add(factory.objectNode());        
+        
+        PredefinedFields.updateArraySizes(getMD2(),factory, doc);
+        System.out.println(doc);
+
+        Assert.assertNotNull(doc.get(new Path("obj1.simpleArr")));
+        Assert.assertNull(doc.get(new Path("obj1.simpleArr#")));
+        Assert.assertEquals(1,doc.get(new Path("obj1.nested.objArr#")).intValue());
+    }
+
+    @Test
+    public void testDocModify_ovrLength() throws Exception {
+        JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(false);
+        ObjectNode node = factory.objectNode();        
+        JsonDoc doc = new JsonDoc(node);
+
+        ObjectNode obj1;
+        node.put("obj1",obj1=factory.objectNode());
+        node.put("simpleString",factory.textNode("str"));
+        ArrayNode a1;
+        obj1.put("simpleArr",a1=factory.arrayNode());        
+        a1.add(factory.textNode("a"));
+        ObjectNode o;
+        obj1.put("nested",o=factory.objectNode());
+
+        ArrayNode a2;
+        o.put("objArr",a2=factory.arrayNode());
+        o.put("objArr#",factory.numberNode(100));
+        a2.add(factory.objectNode());        
+        
+        PredefinedFields.updateArraySizes(getMD2(),factory, doc);
+        System.out.println(doc);
+
+        Assert.assertNotNull(doc.get(new Path("obj1.simpleArr")));
+        Assert.assertNull(doc.get(new Path("obj1.simpleArr#")));
+        Assert.assertEquals(1,doc.get(new Path("obj1.nested.objArr#")).intValue());
     }
 }

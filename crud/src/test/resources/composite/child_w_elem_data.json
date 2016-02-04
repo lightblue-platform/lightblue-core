@@ -1,0 +1,18 @@
+[
+    {
+        "_id":"child1",
+        "objectType":"child_w_elem",
+        "tree" :[
+            {
+                "child": {
+                    "code1":"A",
+                    "code2":"A"
+                },
+                "parent": {
+                    "code1":"B",
+                    "code2":"B"
+                }
+            }
+        ]
+    }
+]

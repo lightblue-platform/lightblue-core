@@ -25,6 +25,7 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.query.*;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import org.junit.Assert;
@@ -77,6 +78,21 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         }
     }
 
+    private class NonLimitingGMD extends AbstractGetMetadata {
+        public NonLimitingGMD(Projection p,QueryExpression q) {
+            super(p,q);
+        }
+        public EntityMetadata retrieveMetadata(Path injectionField,
+                                               String entityName,
+                                               String version) {
+            try {
+                return getMd("composite/" + entityName + ".json");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private class LimitingGMD implements CompositeMetadata.GetMetadata {
 
         private final int limit;
@@ -99,6 +115,14 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         }
     }
 
+    @Test
+    public void accessToRefTest() throws Exception {
+        EntityMetadata md = getMd("composite/C.json");
+        CompositeMetadata c = CompositeMetadata.buildCompositeMetadata(md, new SimpleGMD());
+
+        Assert.assertNotNull(c.resolve(new Path("obj1.d")));
+    }
+    
     @Test
     public void c_test() throws Exception {
         // C has two children, B and D
@@ -216,7 +240,21 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.obj1.c")));
         Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.r")));
     }
-
+    
+    @Test
+    public void uncontrolled_recursion_test() throws Exception {
+        EntityMetadata md = getMd("composite/rel.json");
+        CompositeMetadata r = CompositeMetadata.
+            buildCompositeMetadata(md, new NonLimitingGMD(new FieldProjection(new Path("*"),true,true),
+                                                          new ArrayMatchExpression(new Path("skuTree"),
+                                                                                   new NaryLogicalExpression(NaryLogicalOperator._or,
+                                                                                                             new ValueComparisonExpression(new Path("child.skuCode"),BinaryComparisonOperator._eq,new Value("X")),
+                                                                                                             new ValueComparisonExpression(new Path("parent.skuCode"),BinaryComparisonOperator._eq,new Value("X"))))));
+        
+        System.out.println(r.toTreeString());
+        Assert.assertEquals(0,r.getChildPaths().size());
+    }
+        
     @Test
     public void fields_a() throws Exception {
         EntityMetadata md = getMd("composite/A.json");

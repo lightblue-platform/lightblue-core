@@ -92,18 +92,32 @@ public class TestCrudController implements CRUDController {
                                  Sort sort,
                                  Long from,
                                  Long to) {
-        QueryEvaluator eval=QueryEvaluator.getInstance(query,ctx.getEntityMetadata(ctx.getEntityName()));
-        Projector projector=Projector.getInstance(projection,ctx.getEntityMetadata(ctx.getEntityName()));
+        QueryEvaluator eval=query==null?null:QueryEvaluator.getInstance(query,ctx.getEntityMetadata(ctx.getEntityName()));
+        Projector projector=projection==null?null:Projector.getInstance(projection,ctx.getEntityMetadata(ctx.getEntityName()));
         List<DocCtx> output=new ArrayList<>();
         for(JsonDoc doc:gd.getData(ctx.getEntityName())) {
-            QueryEvaluationContext qctx=eval.evaluate(doc);
-            if(qctx.getResult()) {
-                output.add(new DocCtx(projector.project(doc,nodeFactory)));
+            if(eval==null) {
+                output.add(new DocCtx(projector==null?new JsonDoc(nodeFactory.objectNode()):projector.project(doc,nodeFactory)));
+            } else {
+                QueryEvaluationContext qctx=eval.evaluate(doc);
+                if(qctx.getResult()) {
+                    output.add(new DocCtx(projector==null?new JsonDoc(nodeFactory.objectNode()):projector.project(doc,nodeFactory)));
+                }
             }
         }
-        ctx.setDocuments(output);
         CRUDFindResponse ret=new CRUDFindResponse();
         ret.setSize(output.size());
+        
+        int f=from==null?0:from.intValue();
+        int t=to==null?output.size():(to.intValue()+1);
+        if(t<f||f>=output.size()) {
+            output=new ArrayList<>();
+        } else {
+            if(t>output.size())
+                t=output.size();
+            output=output.subList(f,t);
+        }
+        ctx.setDocuments(output);
         return ret;
     }
 

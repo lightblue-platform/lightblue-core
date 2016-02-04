@@ -19,6 +19,9 @@
 package com.redhat.lightblue.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonObject;
 
@@ -27,9 +30,9 @@ import java.math.BigInteger;
 import java.util.Objects;
 
 /**
- * Wrapper for primitive values in queries. Provides the basics to convert a
- * primitive value to/from json. during query evaluation, metadata is used to
- * interpret the actual value.
+ * Wrapper for values in queries. Provides the basics to convert a
+ * primitive value to/from json. during query evaluation, metadata is
+ * used to interpret the actual value.
  */
 public class Value extends JsonObject {
 
@@ -74,6 +77,8 @@ public class Value extends JsonObject {
             return getFactory().booleanNode((Boolean) value);
         } else if (value == null) {
             return getFactory().nullNode();
+        } else if (value instanceof JsonNode) {
+            return (JsonNode)value;
         } else {
             return getFactory().textNode(value.toString());
         }
@@ -82,13 +87,20 @@ public class Value extends JsonObject {
     /**
      * Creates a value from a json node
      *
-     * If the node is decimal, double, or float, create s a BigDecimal value. If
-     * the node is BigInteger, creates a BigIngeter value. If the node is a long
-     * or int, creates a long or int value. If the node is a boolean, creates a
-     * boolean value. Otherwise, creates a string value.
+     * If the node is decimal, double, or float, creates a BigDecimal
+     * value. If the node is BigInteger, creates a BigIngeter
+     * value. If the node is a long or int, creates a long or int
+     * value. If the node is a boolean, creates a boolean value.If the
+     * node is an object or array, stores the value as is. Otherwise,
+     * creates a string value.
      */
     public static Value fromJson(JsonNode node) {
-        if (node.isValueNode()) {
+        if(node instanceof NullNode) {
+            return new Value(null);
+        } else if(node instanceof ObjectNode ||
+           node instanceof ArrayNode) {
+            return new Value(node);
+        } else  if (node.isValueNode()) {
             Object v = null;
             if (node.isNumber()) {
                 if (node.isBigDecimal() || node.isDouble() || node.isFloat()) {

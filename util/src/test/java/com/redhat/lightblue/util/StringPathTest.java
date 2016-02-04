@@ -20,6 +20,8 @@ package com.redhat.lightblue.util;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class StringPathTest extends AbstractPathTest<Path> {
 
@@ -40,4 +42,5 @@ public class StringPathTest extends AbstractPathTest<Path> {
         String pathString = createPathString(segments);
         return new Path(pathString);
     }
+
 }

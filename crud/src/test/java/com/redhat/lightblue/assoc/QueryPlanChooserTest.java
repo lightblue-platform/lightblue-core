@@ -156,4 +156,21 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
         Assert.assertEquals("C",chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
+
+    @Test
+    public void relationshipWithArrayElemMatchTest() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'relationships'}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/parent_w_elem.json"),gmd);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
+                                                      query("{'field':'code1','op':'=','rvalue':'X'}"),
+                                                      null);
+        chooser.choose();
+        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
+        Assert.assertEquals("parent_w_elem",chooser.getBestPlan().getSources()[0].getMetadata().getName());
+
+    }
 }

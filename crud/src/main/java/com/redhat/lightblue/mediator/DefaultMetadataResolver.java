@@ -106,7 +106,7 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
         LOGGER.debug("Collecting metadata roles");
         roles=new HashSet<>();
         addMetadataRoles(roles, cmd);
-        FieldCursor c = emd.getFieldCursor();
+        FieldCursor c = cmd.getFieldCursor();
         while (c.next()) {
             FieldTreeNode node = c.getCurrentNode();
             addFieldRoles(roles, node);

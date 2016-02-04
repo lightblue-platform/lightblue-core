@@ -174,7 +174,8 @@ public class HookManager {
                             doc.getEntityMetadata(),
                             project(doc.getPreDoc(), projector),
                             project(doc.getPostDoc(), projector),
-                            doc.getCRUDOperation()));
+                            doc.getCRUDOperation(),
+                            doc.getWho()));
                 }
             } else {
                 processedDocuments = hd.docs;

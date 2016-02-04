@@ -34,15 +34,14 @@ import com.redhat.lightblue.metadata.types.UIDType;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UIDTest {
-
-    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
+public class UIDTest extends AbstractJsonNodeTest {
 
     private EntityMetadata getMD1() {
         EntityMetadata entityMetadata = new EntityMetadata("test");
@@ -105,10 +104,10 @@ public class UIDTest {
     @Test
     public void nonReq() throws Exception {
         EntityMetadata md = getMD1();
-        ObjectNode node = nodeFactory.objectNode();
+        ObjectNode node = JSON_NODE_FACTORY.objectNode();
         node.put("simpleInteger", 10);
         JsonDoc doc = new JsonDoc(node);
-        UIDFields.initializeUIDFields(nodeFactory, md, doc);
+        UIDFields.initializeUIDFields(JSON_NODE_FACTORY, md, doc);
         Assert.assertEquals(10, doc.get(new Path("simpleInteger")).asInt());
         Assert.assertNull(doc.get(new Path("simpleUID")));
         Assert.assertNull(doc.get(new Path("obj1")));
@@ -118,10 +117,10 @@ public class UIDTest {
     @Test
     public void req() throws Exception {
         EntityMetadata md = getMDWithReq();
-        ObjectNode node = nodeFactory.objectNode();
+        ObjectNode node = JSON_NODE_FACTORY.objectNode();
         node.put("simpleInteger", 10);
         JsonDoc doc = new JsonDoc(node);
-        UIDFields.initializeUIDFields(nodeFactory, md, doc);
+        UIDFields.initializeUIDFields(JSON_NODE_FACTORY, md, doc);
         Assert.assertEquals(10, doc.get(new Path("simpleInteger")).asInt());
         Assert.assertNotNull(doc.get(new Path("simpleUID")).asText());
         Assert.assertNotNull(doc.get(new Path("obj1.nestedUID")).asText());
@@ -132,20 +131,20 @@ public class UIDTest {
     @Test
     public void reqArr() throws Exception {
         EntityMetadata md = getMDWithReq();
-        ObjectNode node = nodeFactory.objectNode();
+        ObjectNode node = JSON_NODE_FACTORY.objectNode();
         node.put("simpleInteger", 10);
 
-        ArrayNode arr = nodeFactory.arrayNode();
-        arr.add(nodeFactory.objectNode());
-        arr.add(nodeFactory.objectNode());
-        ObjectNode obj1 = nodeFactory.objectNode();
+        ArrayNode arr = JSON_NODE_FACTORY.arrayNode();
+        arr.add(JSON_NODE_FACTORY.objectNode());
+        arr.add(JSON_NODE_FACTORY.objectNode());
+        ObjectNode obj1 = JSON_NODE_FACTORY.objectNode();
         node.set("obj1", obj1);
-        ObjectNode nested = nodeFactory.objectNode();
+        ObjectNode nested = JSON_NODE_FACTORY.objectNode();
         obj1.set("nested", nested);
         nested.set("objArr", arr);
 
         JsonDoc doc = new JsonDoc(node);
-        UIDFields.initializeUIDFields(nodeFactory, md, doc);
+        UIDFields.initializeUIDFields(JSON_NODE_FACTORY, md, doc);
         Assert.assertNotNull(doc.get(new Path("obj1.nested.objArr.0.nestedArrObjUID")));
         Assert.assertNotNull(doc.get(new Path("obj1.nested.objArr.1.nestedArrObjUID")));
         Assert.assertNull(doc.get(new Path("obj1.nested.objArr.2.nestedArrObjUID")));
@@ -153,31 +152,35 @@ public class UIDTest {
 
     @Test
     public void userTest() throws Exception {
-        JsonNode node = JsonUtils.json(getClass().getResourceAsStream("/usermd.json"));
+        JsonNode node = loadJsonNode("usermd.json");
         Extensions<JsonNode> extensions = new Extensions<JsonNode>();
         extensions.addDefaultExtensions();
         extensions.registerDataStoreParser("mongo", new DataStoreParser<JsonNode>() {
+            @Override
             public String getDefaultName() {
                 return "mongo";
             }
 
+            @Override
             public DataStore parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
                 return new DataStore() {
+                    @Override
                     public String getBackend() {
                         return "mongo";
                     }
                 };
             }
 
+            @Override
             public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, DataStore object) {
             }
         });
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), nodeFactory);
+        JSONMetadataParser parser = new JSONMetadataParser(extensions, new DefaultTypes(), JSON_NODE_FACTORY);
         EntityMetadata md = parser.parseEntityMetadata(node);
 
-        JsonNode userNode = JsonUtils.json(getClass().getResourceAsStream("/userdata.json"));
+        JsonNode userNode = loadJsonNode("userdata.json");
         JsonDoc doc = new JsonDoc(userNode);
-        UIDFields.initializeUIDFields(nodeFactory, md, doc);
+        UIDFields.initializeUIDFields(JSON_NODE_FACTORY, md, doc);
         System.out.println(doc);
         Assert.assertTrue(doc.get(new Path("personalInfo.requid")).asText().length() > 0);
         Assert.assertTrue(doc.get(new Path("sites.0.streetAddress.requid")).asText().length() > 0);

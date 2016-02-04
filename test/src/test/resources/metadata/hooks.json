@@ -1,0 +1,30 @@
+{
+    "entityInfo": {
+         "hooks": [
+            {
+                "name": "someHook",
+                "actions": [
+                    "insert",
+                    "update",
+                    "delete"
+                ]
+            },
+            {
+                "name": "someOtherHook",
+                "actions": [
+                    "insert",
+                    "update",
+                    "delete"
+                ]
+            },
+            {
+                "name": "yetAnotherHook",
+                "actions": [
+                    "insert",
+                    "update",
+                    "delete"
+                ]
+            }
+        ]
+    }
+}

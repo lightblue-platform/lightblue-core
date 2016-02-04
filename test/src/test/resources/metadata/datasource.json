@@ -1,0 +1,7 @@
+{
+  "entityInfo": {
+    "datastore": {
+      "datasource": "somedatasource"
+    }
+  }
+}

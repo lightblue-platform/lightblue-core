@@ -21,6 +21,9 @@ package com.redhat.lightblue.hooks;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+
+import javax.management.RuntimeErrorException;
+
 import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -131,10 +134,29 @@ public class HookManagerTest extends AbstractJsonNodeTest {
             super("MH");
         }
     }
+    
+    public static class TestErrorHook extends AbstractHook {
+
+        public TestErrorHook() {
+            super("EH");
+        }
+        
+        @Override
+        public void processHook(EntityMetadata md, HookConfiguration cfg, List<HookDoc> processedDocuments) {
+            throw new RuntimeErrorException(null, "Processing of other hooks should continue.");
+        }
+        
+    }
+    
+    public static class TestErrorHookConfig implements HookConfiguration {
+        
+    }
+
 
     private TestHook1 hook1;
     private TestHook2 hook2;
     private TestMediatorHook mediatorHook;
+    private TestErrorHook errorHook;
 
     private HookResolver resolver;
 
@@ -158,7 +180,8 @@ public class HookManagerTest extends AbstractJsonNodeTest {
         hook1 = new TestHook1();
         hook2 = new TestHook2();
         mediatorHook = new TestMediatorHook();
-        resolver = new TestHookResolver(hook1, hook2, mediatorHook);
+        errorHook = new TestErrorHook();
+        resolver = new TestHookResolver(hook1, hook2, mediatorHook, errorHook);
     }
 
     private EntityMetadata getMD(String fname) throws Exception {
@@ -215,6 +238,9 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
     private TestOperationContext setupContext(CRUDOperation op) throws Exception {
         EntityMetadata md = getMD("./testMetadata.json");
+        
+        // error hook gets processed first so we can be sure the rest continue
+        addHook(md, "EH", null, new TestErrorHookConfig(), "update");
         addHook(md, "hook1", null, new TestHook1Config(), "insert", "update");
         addHook(md, "hook2", null, new TestHook2Config(), "find", "delete", "update");
         addHook(md, "MH", null, new TestMediatorHookConfig(), "insert", "update", "delete");

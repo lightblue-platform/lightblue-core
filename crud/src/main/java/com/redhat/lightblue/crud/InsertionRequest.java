@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.crud;
 
-import com.redhat.lightblue.crud.DocRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -27,7 +26,7 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to insert documents
  */
-public class InsertionRequest extends DocRequest {
+public class InsertionRequest extends DocRequest implements WithProjection {
 
     private Projection returnFields;
 
@@ -45,6 +44,16 @@ public class InsertionRequest extends DocRequest {
      */
     public void setReturnFields(Projection p) {
         returnFields = p;
+    }
+
+    @Override
+    public Projection getProjection() {
+        return returnFields;
+    }
+
+    @Override
+    public CRUDOperation getOperation() {
+        return CRUDOperation.INSERT;
     }
 
     /**

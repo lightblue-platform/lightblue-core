@@ -84,6 +84,13 @@ public class BigIntegerTypeTest {
     }
 
     @Test
+    public void testFromJsonStr() {
+        JsonNode jsonNode = JsonNodeFactory.instance.textNode("100");
+        Object fromJson = bigIntegerType.fromJson(jsonNode);
+        assertEquals(new BigInteger("100"),fromJson);
+    }
+
+    @Test
     public void testCastNull() {
         assertNull(bigIntegerType.cast(null));
     }

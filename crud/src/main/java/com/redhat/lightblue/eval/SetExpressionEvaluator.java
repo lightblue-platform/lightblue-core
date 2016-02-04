@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
@@ -40,6 +42,7 @@ import com.redhat.lightblue.query.FieldAndRValue;
 import com.redhat.lightblue.query.RValueExpression;
 import com.redhat.lightblue.query.SetExpression;
 import com.redhat.lightblue.query.UpdateOperator;
+import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
@@ -132,7 +135,6 @@ public class SetExpressionEvaluator extends Updater {
             if (mdNode instanceof SimpleField || mdNode instanceof SimpleArrayElement) {
                 data = initializeSimple(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ObjectField || mdNode instanceof ObjectArrayElement) {
-                // Only a dereference or empty object is acceptable here
                 data = initializeObject(rvalue, refMdNode, mdNode, field, refPath);
             } else if (mdNode instanceof ArrayField) {
                 data = initializeArray(rvalue,refMdNode,mdNode,field,refPath);
@@ -146,9 +148,10 @@ public class SetExpressionEvaluator extends Updater {
             if (!mdNode.getType().equals(refMdNode.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_DEREFERENCE + field + " <- " + refPath);
             }
-        } else if (rvalue.getType() == RValueExpression.RValueType._emptyObject||
-                   rvalue.getType() == RValueExpression.RValueType._emptyArray) {
-            throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
+        } else if(rvalue.getType()!=RValueExpression.RValueType._null) {
+            Value v=rvalue.getValue();
+            if(v.getValue() instanceof JsonNode)
+                throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- {}");
         }
 
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
@@ -159,9 +162,11 @@ public class SetExpressionEvaluator extends Updater {
             if (!(refMdNode instanceof ObjectField)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
-        } else if (rvalue.getType() == RValueExpression.RValueType._value||
-                   rvalue.getType() == RValueExpression.RValueType._emptyArray) {
-            throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
+        } else if(rvalue.getType()!=RValueExpression.RValueType._null) {
+            Value v=rvalue.getValue();
+            if(!(v.getValue() instanceof ObjectNode)) {
+                throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
+            }
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }
@@ -171,9 +176,11 @@ public class SetExpressionEvaluator extends Updater {
             if (!(refMdNode instanceof ArrayField)) {
                 throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + refPath);
             }
-        } else if (rvalue.getType() == RValueExpression.RValueType._value||
-                   rvalue.getType() == RValueExpression.RValueType._emptyObject) {
-            throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
+        } else if(rvalue.getType()!=RValueExpression.RValueType._null) {
+            Value v=rvalue.getValue();
+            if(!(v.getValue() instanceof ArrayNode)) {
+                throw new EvaluationError(CrudConstants.ERR_INCOMPATIBLE_ASSIGNMENT + field + " <- " + rvalue.getValue());
+            }
         }
         return new FieldData(field, mdNode.getType(), refPath, refMdNode == null ? null : refMdNode.getType(), rvalue, mdNode.getFullPath());
     }
@@ -190,7 +197,7 @@ public class SetExpressionEvaluator extends Updater {
         boolean ret = false;
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
-            LOGGER.debug("Set field {} in ctx: {}", df.field, contextPath);
+            LOGGER.debug("Set field {} in ctx: {} to {}/{}", df.field, contextPath,df.value, df.value.getType());
             JsonNode oldValueNode = null;
             JsonNode newValueNode = null;
             Object newValue = null;
@@ -198,12 +205,6 @@ public class SetExpressionEvaluator extends Updater {
             switch (df.value.getType()) {
             case _null:
                 newValueNode = factory.nullNode();
-                break;
-            case _emptyObject:
-                newValueNode = factory.objectNode();
-                break;
-            case _emptyArray:
-                newValueNode = factory.arrayNode();
                 break;
             case _dereference:
                 JsonNode refNode = doc.get(new Path(contextPath, df.refPath));
@@ -215,7 +216,7 @@ public class SetExpressionEvaluator extends Updater {
                 break;
             case _value:
                 newValue = df.value.getValue().getValue();
-                newValueNode = df.fieldType.toJson(factory, newValue);
+                newValueNode = newValue instanceof JsonNode?(JsonNode)newValue:df.fieldType.toJson(factory, newValue);
                 newValueType = df.fieldType;
                 break;
             }

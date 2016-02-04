@@ -21,9 +21,8 @@ package com.redhat.lightblue.assoc;
 import java.io.Serializable;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.FieldInfo;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
 
 import com.redhat.lightblue.util.Path;
 
@@ -41,7 +41,7 @@ import com.redhat.lightblue.util.Path;
  * related to that clause, such as the referred nodes of query plan,
  * fieldinfo, etc.
  *
- * Object identify of conjuncts are preserved during query plan
+ * Object identity of conjuncts are preserved during query plan
  * processing. That is, a Conjunct object created for a particular
  * query plan is used again for other incarnation of that query plan,
  * only node associations are changed. So, it is possible to keep maps
@@ -57,75 +57,91 @@ public class Conjunct implements Serializable {
     private static final Logger LOGGER=LoggerFactory.getLogger(Conjunct.class);
     
     /**
-     * The query clause
+     * The original query clause
      */
     private final QueryExpression clause;
-    
+
     /**
      * Field info for the fields in the clause
      */
-    private final List<ResolvedFieldInfo> fieldInfo=new ArrayList<>();
+    private final ResolvedFieldInfo[] fieldInfo;
     
-    /**
-     * A mapping from absolute field names to the query plan nodes
-     * containing that field
-     */
-    private final Map<Path,QueryPlanNode> fieldNodeMap=new HashMap();
-
     /**
      * The list of distinct query plan nodes referred by the clause
      */
-    private final List<QueryPlanNode> referredNodes=new ArrayList<>();
+    private final Set<QueryPlanNode> referredNodes=new HashSet<>();
+
+    /**
+     * Specifies if the query belongs to the request, or one of the reference fields
+     */
+    private final boolean requestQuery;
+
     
     public Conjunct(QueryExpression q,
                     CompositeMetadata compositeMetadata,
-                    QueryPlan qplan) {
+                    QueryPlan qplan,
+                    ResolvedReferenceField context) {
         this.clause=q;
-        List<FieldInfo> fInfo=clause.getQueryFields();
-        LOGGER.debug("Conjunct for query {} with fields {}",q,fieldInfo);
-        for(FieldInfo fi:fInfo) {
-            ResolvedFieldInfo rfi=new ResolvedFieldInfo(fi,compositeMetadata);
-            fieldInfo.add(rfi);
-            CompositeMetadata cmd=compositeMetadata.getEntityOfPath(rfi.getAbsFieldName());
-            if(cmd==null)
-                throw new IllegalArgumentException("Cannot find field in composite metadata "+rfi.getAbsFieldName()); 
-            QueryPlanNode qnode=qplan.getNode(cmd);
-            if(qnode==null)
-                throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata. Query:"+
-                                                   clause+" fieldInfo:"+rfi+" Composite metadata:"+cmd);
-            
-            boolean found=false;
-            for(QueryPlanNode n:referredNodes)
-                if(n==qnode) {
-                    found=true;
-                    break;
-                }
-            if(!found)
-                referredNodes.add(qnode);
-            fieldNodeMap.put(rfi.getAbsFieldName(),qnode);
+        this.requestQuery=context==null;
+        List<ResolvedFieldInfo> finfo=ResolvedFieldInfo.getQueryFields(clause,compositeMetadata,context,qplan);
+        LOGGER.debug("Conjunct for query {} with fields {}",q,finfo);
+        fieldInfo=finfo.toArray(new ResolvedFieldInfo[finfo.size()]);
+        for(ResolvedFieldInfo rfi:fieldInfo) {
+            referredNodes.add(rfi.getFieldQueryPlanNode());
         }
+    }
+
+    /**
+     * Returns true if the clause belongs to a request query, not to a reference field
+     */
+    public boolean isRequestQuery() {
+        return requestQuery;
+    }
+
+    /**
+     * Return the relative field name based on the original field name
+     */
+    public Path mapOriginalFieldName(Path originalFieldName) {
+        ResolvedFieldInfo fi=getFieldInfoByOriginalFieldName(originalFieldName);
+        if(fi==null)
+            return originalFieldName;
+        else
+            return fi.getEntityRelativeFieldName();
     }
 
     /**
      * Returns the nodes referenced by this clause
      */
-    public List<QueryPlanNode> getReferredNodes() {
+    public Set<QueryPlanNode> getReferredNodes() {
         return referredNodes;
-    }
-
-    /**
-     * Returns the query plan node referenced by the field. Null if the field is not in this conjunct
-     */
-    public QueryPlanNode getFieldNode(Path field) {
-        return fieldNodeMap.get(field);
     }
 
 
     /**
      * Returns the field information about the fields in the conjunct
      */
-    public List<ResolvedFieldInfo> getFieldInfo() {
+    public ResolvedFieldInfo[] getFieldInfo() {
         return fieldInfo;
+    }
+
+    /**
+     * Return the field info by the field name of the field as used in the unmodified query
+     */
+    public ResolvedFieldInfo getFieldInfoByOriginalFieldName(Path p) {
+        for(ResolvedFieldInfo fi:fieldInfo)
+            if(fi.getFieldName().equals(p))
+                return fi;
+        return null;
+    }
+
+    /**
+     * Returns the field info by the field name as it appears in the entity-relative query
+     */
+    public ResolvedFieldInfo getFieldInfoByRelativeFieldName(Path p) {
+        for(ResolvedFieldInfo fi:fieldInfo)
+            if(fi.getEntityRelativeFieldName().equals(p))
+                return fi;
+        return null;
     }
 
     /**

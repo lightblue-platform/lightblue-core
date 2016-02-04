@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>1.7.0-SNAPSHOT</version>
+        <version>1.11.0-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-metadata</artifactId>
@@ -32,17 +32,17 @@
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-util</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.11.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-api</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.11.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-query-api</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>1.11.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -92,7 +92,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.1</version>
+                <version>1.4.0</version>
                 <executions>
                     <execution>
                         <id>junit-prep.sh</id>

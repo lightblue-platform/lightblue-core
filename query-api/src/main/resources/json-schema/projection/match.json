@@ -28,6 +28,9 @@
         "project": {
             "$ref": "choice.json#/definitions/projection"
         },
+        "projection": {
+            "$ref": "choice.json#/definitions/projection"
+        },
         "sort": {
             "$ref": "/json-schema/sort/choice.json#" 
         }
@@ -35,8 +38,7 @@
     "required": [
         "field",
         "include",
-        "match",
-        "project"
+        "match"
     ],
     "additionalProperties": false
 }

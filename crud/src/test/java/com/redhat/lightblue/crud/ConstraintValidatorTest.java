@@ -57,8 +57,12 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Registry;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
+import com.redhat.lightblue.eval.EvalTestContext;
+import com.redhat.lightblue.mediator.MockCrudController;
+import java.io.InputStream;
 
-public class ConstraintValidatorTest {
+public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
@@ -129,11 +133,9 @@ public class ConstraintValidatorTest {
      */
     @Test
     public void testValidate_WithAllConstraintTypes_NoErrors() throws IOException {
-        JsonNode validatorNode = JsonUtils.json(getClass().getResourceAsStream(
-                "/crud/validator/schema-test-validation-simple.json"));
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-simple.json");
         EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, null);
         ConstraintValidator validator = createConstraintValidator(entityMetadata);
-
         validator.validateDocs(Arrays.asList(new JsonDoc(validatorNode)));
 
         assertFalse(validator.hasErrors());
@@ -148,8 +150,7 @@ public class ConstraintValidatorTest {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"validateDocs/validateDoc/Does Not Exist\",\"errorCode\":\"crud:NoConstraint\"}");
 
-        JsonNode validatorNode = JsonUtils.json(getClass().getResourceAsStream(
-                "/crud/validator/schema-test-validation-simple.json"));
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-simple.json");
         EntityMetadata entityMetadata = createEntityMetadata(validatorNode, Arrays.asList(new TestEntityConstraint("Does Not Exist")), null);
         ConstraintValidator validator = createConstraintValidator(entityMetadata);
 
@@ -158,7 +159,7 @@ public class ConstraintValidatorTest {
 
     @Test
     public void testSimpleArrayConstraint()  throws IOException {
-        JsonNode node=JsonUtils.json(getClass().getResourceAsStream("/crud/validator/testSimpleArrayConstraint.json"));
+        JsonNode node=loadJsonNode("crud/validator/testSimpleArrayConstraint.json");
         Map<String,FieldConstraintParser<JsonNode>> fcp=new HashMap<>();
         fcp.put(StringLengthConstraint.MINLENGTH,new StringLengthConstraintParser<JsonNode>());
         EntityMetadata md=createEntityMetadata(node, null,fcp);
@@ -169,16 +170,16 @@ public class ConstraintValidatorTest {
         fcc.put(StringLengthConstraint.MINLENGTH,new StringLengthChecker());
         ConstraintValidator validator=createConstraintValidator(md,fcc,null);
 
-        
-        JsonDoc doc=new JsonDoc(JsonUtils.json(getClass().getResourceAsStream("/crud/validator/valid-simple-array-constraint-doc.json")));
+
+        JsonDoc doc=new JsonDoc(loadJsonNode("crud/validator/valid-simple-array-constraint-doc.json"));
         validator.validateDoc(doc);
         Assert.assertFalse(validator.hasErrors());
 
-        doc=new JsonDoc(JsonUtils.json(getClass().getResourceAsStream("/crud/validator/valid-simple-array-constraint-emptyarray.json")));
+        doc=new JsonDoc(loadJsonNode("crud/validator/valid-simple-array-constraint-emptyarray.json"));
         validator.validateDoc(doc);
         Assert.assertFalse(validator.hasErrors());
 
-        doc=new JsonDoc(JsonUtils.json(getClass().getResourceAsStream("/crud/validator/invalid-simple-array-constraint-doc.json")));
+        doc=new JsonDoc(loadJsonNode("crud/validator/invalid-simple-array-constraint-doc.json"));
         validator.validateDoc(doc);
         Assert.assertTrue(validator.hasErrors());
     }
@@ -193,8 +194,7 @@ public class ConstraintValidatorTest {
         expectedEx.expect(com.redhat.lightblue.util.Error.class);
         expectedEx.expectMessage("{\"objectType\":\"error\",\"context\":\"validateDocs/validateDoc/field1/testFieldConstraintChecker\",\"errorCode\":\"crud:NoConstraint\"");
 
-        JsonNode validatorNode = JsonUtils.json(getClass().getResourceAsStream(
-                "/crud/validator/schema-test-validation-testFieldConstraint.json"));
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-testFieldConstraint.json");
 
         Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers = new HashMap<String, FieldConstraintParser<JsonNode>>();
         fieldConstraintParsers.put("testFieldConstraint", new TestFieldConstraintParser(new TestFieldConstraint("testFieldConstraintChecker")));
@@ -215,8 +215,7 @@ public class ConstraintValidatorTest {
     public void testValidate_WithUnsupportedFieldConstraint() throws IOException {
         String fieldConstraintCheckerName = "testFieldConstraintChecker";
 
-        JsonNode validatorNode = JsonUtils.json(getClass().getResourceAsStream(
-                "/crud/validator/schema-test-validation-testFieldConstraint.json"));
+        JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-testFieldConstraint.json");
 
         Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers = new HashMap<String, FieldConstraintParser<JsonNode>>();
         fieldConstraintParsers.put("testFieldConstraint", new TestFieldConstraintParser(new TestFieldConstraint(fieldConstraintCheckerName)));
@@ -232,6 +231,20 @@ public class ConstraintValidatorTest {
         validator.validateDocs(Arrays.asList(new JsonDoc(validatorNode)));
 
         assertFalse(validator.hasErrors());
+    }
+
+    @Test
+    public void testRequiredIdentity() throws Exception {
+        EntityMetadata md = EvalTestContext.getMd("./user-complex-md.json");
+        JsonDoc jd = EvalTestContext.getDoc("./user-complex.json");
+        Factory factory = new Factory();
+        factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
+        factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
+        factory.addCRUDController("mongo", new MockCrudController());
+
+        ConstraintValidator validator=factory.getConstraintValidator(md);
+        validator.validateDoc(jd);
+        Assert.assertEquals(1,validator.getDocErrors().size());
     }
 
     @SuppressWarnings("serial")

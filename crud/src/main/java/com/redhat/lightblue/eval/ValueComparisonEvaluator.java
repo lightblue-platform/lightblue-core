@@ -58,10 +58,13 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
 
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
+        ctx.setResult(false);
         Object value=rvalue.getValue();
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
         KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
+        boolean fieldValueExists=false;
         while (cursor.hasNext()) {
+        	fieldValueExists=true;
             cursor.next();
             JsonNode valueNode = cursor.getCurrentValue();
             Object docValue;
@@ -78,6 +81,9 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
                 break;
             }
         }
+        // If we're comparing equivalence to null, nonexistance of a field matches
+        if(value==null&&!fieldValueExists&&operator==BinaryComparisonOperator._eq)
+        	ctx.setResult(true);
         return ctx.getResult();
     }
 }

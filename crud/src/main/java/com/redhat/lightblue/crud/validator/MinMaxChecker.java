@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
@@ -44,17 +45,19 @@ public class MinMaxChecker implements FieldConstraintValueChecker {
                                 JsonNode fieldValue) {
         Number value = ((MinMaxConstraint) constraint).getValue();
         String type = ((MinMaxConstraint) constraint).getType();
-        int cmp = cmp(fieldValue, value);
-        // cmp==0: fieldValue=value
-        // cmp <0: fieldValue<value
-        // cmp >0: fieldValue>value
-        if (MinMaxConstraint.MIN.equals(type)) {
-            if (cmp < 0) {
-                validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_SMALL, fieldValue.asText()));
-            }
-        } else {
-            if (cmp > 0) {
-                validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
+        if(!(fieldValue instanceof NullNode)) {
+            int cmp = cmp(fieldValue, value);
+            // cmp==0: fieldValue=value
+            // cmp <0: fieldValue<value
+            // cmp >0: fieldValue>value
+            if (MinMaxConstraint.MIN.equals(type)) {
+                if (cmp < 0) {
+                    validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_SMALL, fieldValue.asText()));
+                }
+            } else {
+                if (cmp > 0) {
+                    validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
+                }
             }
         }
     }

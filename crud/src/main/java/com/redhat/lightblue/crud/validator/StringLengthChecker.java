@@ -19,6 +19,7 @@
 package com.redhat.lightblue.crud.validator;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.crud.ConstraintValidator;
 import com.redhat.lightblue.crud.CrudConstants;
 import com.redhat.lightblue.crud.FieldConstraintValueChecker;
@@ -41,14 +42,16 @@ public class StringLengthChecker implements FieldConstraintValueChecker {
                                 JsonNode fieldValue) {
         int value = ((StringLengthConstraint) constraint).getValue();
         String type = ((StringLengthConstraint) constraint).getType();
-        int len = fieldValue.asText().length();
-        if (StringLengthConstraint.MINLENGTH.equals(type)) {
-            if (len < value) {
-                validator.addDocError(Error.get(CrudConstants.ERR_TOO_SHORT, fieldValue.asText()));
-            }
-        } else {
-            if (len > value) {
-                validator.addDocError(Error.get(CrudConstants.ERR_TOO_LONG, fieldValue.asText()));
+        if(!(fieldValue instanceof NullNode)) { 
+            int len = fieldValue.asText().length();
+            if (StringLengthConstraint.MINLENGTH.equals(type)) {
+                if (len < value) {
+                    validator.addDocError(Error.get(CrudConstants.ERR_TOO_SHORT, fieldValue.asText()));
+                }
+            } else {
+                if (len > value) {
+                    validator.addDocError(Error.get(CrudConstants.ERR_TOO_LONG, fieldValue.asText()));
+                }
             }
         }
     }

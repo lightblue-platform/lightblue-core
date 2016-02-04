@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,7 @@ import com.redhat.lightblue.metadata.SimpleField;
 import com.redhat.lightblue.metadata.StatusChange;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.TypeResolver;
+import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.Version;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
@@ -98,6 +100,8 @@ public abstract class MetadataParser<T> {
     private static final String STR_ITEMS = "items";
     private static final String STR_UNIQUE = "unique";
     private static final String STR_INDEXES = "indexes";
+    private static final String STR_VALUE_GENERATOR = "valueGenerator";
+    private static final String STR_OVERWRITE = "overwrite";
     private static final String STR_TYPE = "type";
     private static final String STR_HOOKS = "hooks";
     private static final String STR_ENUMS = "enums";
@@ -154,7 +158,7 @@ public abstract class MetadataParser<T> {
             return parseHook(child);
         }
     };
-
+    
     public MetadataParser(Extensions<T> ex, TypeResolver typeResolver) {
         this.extensions = ex;
         this.typeResolver = typeResolver;
@@ -347,7 +351,7 @@ public abstract class MetadataParser<T> {
                 List<String> values = getStringList(object, STR_VALUES);
                 List<T> annotatedValues = getObjectList(object, STR_ANNOTATED_VALUES);
 
-                Set<EnumValue> enumValues = new HashSet<EnumValue>();
+                Set<EnumValue> enumValues = new HashSet<>();
                 if(annotatedValues != null){
                     for(T value : annotatedValues){
                         EnumValue enumValue = new EnumValue();
@@ -412,6 +416,44 @@ public abstract class MetadataParser<T> {
                     hook.setConfiguration(parser.parse(name, this, cfg));
                 }
                 return hook;
+            }
+        } catch (Error e) {
+            // rethrow lightblue error
+            throw e;
+        } catch (Exception e) {
+            // throw new Error (preserves current error context)
+            LOGGER.error(e.getMessage(), e);
+            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
+        } finally {
+            Error.pop();
+        }
+        return null;
+    }
+
+    public ValueGenerator parseValueGenerator(T object) {
+        Error.push("parseValueGenerator");
+        try {
+            if (object != null) {
+                String type = getStringProperty(object, STR_TYPE);
+                if (type == null) {
+                    throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_TYPE);
+                }
+
+                ValueGenerator valueGenerator = new ValueGenerator(ValueGenerator.ValueGeneratorType.valueOf(type));
+                Object x=getValueProperty(object,STR_OVERWRITE);
+                if(x instanceof Boolean)
+                    valueGenerator.setOverwrite((Boolean)x);
+
+                T config=getObjectProperty(object,STR_CONFIGURATION);
+                if(config!=null) {
+                    Set<String> names=getChildNames(config);
+                    for(String name:names) {
+                        Object value=getValueProperty(config,name);
+                        valueGenerator.getProperties().put(name, value);
+                    }
+                }
+                
+                return valueGenerator;
             }
         } catch (Error e) {
             // rethrow lightblue error
@@ -751,7 +793,9 @@ public abstract class MetadataParser<T> {
         Error.push(name);
         try {
             if (object != null) {
+                String descrption = getStringProperty(object, STR_DESCRIPTION);
                 String type = getRequiredStringProperty(object, STR_TYPE);
+                
                 if (type.equals(ArrayType.TYPE.getName())) {
                     field = parseArrayField(name, object);
                 } else if (type.equals(ObjectType.TYPE.getName())) {
@@ -759,8 +803,11 @@ public abstract class MetadataParser<T> {
                 } else if (type.equals(ReferenceType.TYPE.getName())) {
                     field = parseReferenceField(name, object);
                 } else {
-                    field = parseSimpleField(name, type);
+                    field = parseSimpleField(name, type, object);
                 }
+                
+                field.setDescription(descrption);
+                
                 parseFieldAccess(field.getAccess(),
                         getObjectProperty(object, STR_ACCESS));
                 parseFieldConstraints(field,
@@ -784,13 +831,19 @@ public abstract class MetadataParser<T> {
     }
 
     private SimpleField parseSimpleField(String name,
-            String type) {
+                                         String type,
+                                         T object) {
         SimpleField field = new SimpleField(name);
         Type t = typeResolver.getType(type);
         if (t == null) {
             throw Error.get(MetadataConstants.ERR_INVALID_TYPE, type);
         }
         field.setType(t);
+
+        T vg=getObjectProperty(object,STR_VALUE_GENERATOR);
+        if(vg!=null)
+            field.setValueGenerator(parseValueGenerator(vg));
+        
         return field;
     }
 
@@ -1115,12 +1168,15 @@ public abstract class MetadataParser<T> {
             try {
                 putObject(ret, field.getName(), fieldObject);
                 putString(fieldObject, STR_TYPE, field.getType().getName());
+                putString(fieldObject, STR_DESCRIPTION, field.getDescription());
                 if (field instanceof ArrayField) {
                     convertArrayField((ArrayField) field, fieldObject);
                 } else if (field instanceof ObjectField) {
                     convertObjectField((ObjectField) field, fieldObject);
                 } else if (field instanceof ReferenceField) {
                     convertReferenceField((ReferenceField) field, fieldObject);
+                } else if(field instanceof SimpleField) {
+                    convertValueGenerator( ((SimpleField)field).getValueGenerator(),fieldObject);
                 }
                 T access = convert(field.getAccess());
                 if (access != null) {
@@ -1141,6 +1197,28 @@ public abstract class MetadataParser<T> {
         }
         convertPropertyParser(ret, fields.getProperties());
         return ret;
+    }
+    
+    /**
+     * If vg is not null, populates a value generator object
+     */
+    public void convertValueGenerator(ValueGenerator vg,T fieldObject) {
+        if (vg != null) {
+            T vgNode=newNode();
+            putObject(fieldObject,STR_VALUE_GENERATOR,vgNode);
+            
+            putString(vgNode,STR_TYPE,vg.getValueGeneratorType().toString());
+            if(vg.isOverwrite())
+                putValue(vgNode,STR_OVERWRITE,Boolean.TRUE);
+            Properties p=vg.getProperties();
+            if(p!=null&&!p.isEmpty()) {
+                T config=newNode();
+                for(Map.Entry<Object,Object> entry: p.entrySet()) {
+                    putString(config,entry.getKey().toString(),entry.getValue().toString());
+                }
+                putObject(vgNode,STR_CONFIGURATION,config);
+            }
+        }
     }
 
     /**

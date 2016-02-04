@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.*;
 import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.crud.interceptors.*;
+import com.redhat.lightblue.crud.valuegenerators.*;
 import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
 import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
 import com.redhat.lightblue.metadata.*;
@@ -31,16 +32,14 @@ import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.metadata.test.DatabaseMetadata;
 import com.redhat.lightblue.metadata.types.DefaultTypes;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.query.UpdateExpression;
 import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,127 +51,7 @@ import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.containsString;
 
-public class MediatorTest extends AbstractJsonSchemaTest {
-    private Mediator mediator;
-    private final TestMetadata mdManager = new TestMetadata();
-    private final MockCrudController mockCrudController = new MockCrudController();
-
-    private static final JsonNodeFactory nodeFactory = JsonNodeFactory.withExactBigDecimals(false);
-
-    private static final class TestMetadata extends DatabaseMetadata {
-        EntityMetadata md;
-
-        @Override
-        public EntityMetadata getEntityMetadata(String entityName, String version) {
-            return md;
-        }
-    }
-
-    private static final class MockCrudController implements CRUDController {
-        CRUDUpdateResponse updateResponse;
-        CRUDSaveResponse saveResponse;
-        CRUDDeleteResponse deleteResponse;
-        CRUDFindResponse findResponse;
-        CRUDInsertionResponse insertResponse;
-        CRUDOperationContext ctx;
-
-        @Override
-        public CRUDInsertionResponse insert(CRUDOperationContext ctx,
-                                            Projection projection) {
-            this.ctx=ctx;
-            return insertResponse;
-        }
-
-        @Override
-        public CRUDSaveResponse save(CRUDOperationContext ctx,
-                                     boolean upsert,
-                                     Projection projection) {
-            this.ctx=ctx;
-            return saveResponse;
-        }
-
-        @Override
-        public CRUDUpdateResponse update(CRUDOperationContext ctx,
-                                         QueryExpression query,
-                                         UpdateExpression update,
-                                         Projection projection) {
-            this.ctx=ctx;
-            return updateResponse;
-        }
-
-        @Override
-        public CRUDDeleteResponse delete(CRUDOperationContext ctx,
-                                         QueryExpression query) {
-            return deleteResponse;
-        }
-
-        @Override
-        public CRUDFindResponse find(CRUDOperationContext ctx,
-                                     QueryExpression query,
-                                     Projection projection,
-                                     Sort sort,
-                                     Long from,
-                                     Long to) {
-            return findResponse;
-        }
-
-        @Override
-        public MetadataListener getMetadataListener() {
-            return null;
-        }
-
-        @Override
-        public void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc) {}
-
-    }
-
-    private static final class RestClientIdentification extends ClientIdentification {
-
-        private final Set<String> clientRoles;
-
-        public RestClientIdentification(List<String> roles) {
-            clientRoles = new HashSet<>();
-            clientRoles.addAll(roles);
-        }
-
-        @Override
-        public String getPrincipal() {
-            return "";
-        }
-
-        @Override
-        public boolean isUserInRole(String role) {
-            return clientRoles.contains(role);
-        }
-
-        @Override
-        public JsonNode toJson() {
-            return null;
-        }
-    }
-
-    private EntityMetadata getMd(String fname) throws Exception {
-        JsonNode node = loadJsonNode(fname);
-        Extensions<JsonNode> extensions = new Extensions<>();
-        extensions.addDefaultExtensions();
-        extensions.registerDataStoreParser("mongo", new TestDataStoreParser<JsonNode>());
-        TypeResolver resolver = new DefaultTypes();
-        JSONMetadataParser parser = new JSONMetadataParser(extensions, resolver, nodeFactory);
-        EntityMetadata md = parser.parseEntityMetadata(node);
-        PredefinedFields.ensurePredefinedFields(md);
-        return md;
-    }
-
-    @Before
-    public void initMediator() throws Exception {
-        Factory factory = new Factory();
-        factory.addFieldConstraintValidators(new DefaultFieldConstraintValidators());
-        factory.addEntityConstraintValidators(new EmptyEntityConstraintValidators());
-        new UIDInterceptor().register(factory.getInterceptors());
-        factory.addCRUDController("mongo", mockCrudController);
-        mdManager.md = getMd("./testMetadata.json");
-        mediator = new Mediator(mdManager, factory);
-    }
+public class MediatorTest extends AbstractMediatorTest {
 
     @Test
     public void disabledVersionTest() throws Exception {
@@ -429,7 +308,72 @@ public class MediatorTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
     }
 
+    @Test
+    public void optionalQueryTest() throws Exception {
+        FindRequest req = new FindRequest();
+        req.setEntityVersion(new EntityVersion("test", "1.0"));
+        req.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
 
+        mockCrudController.findResponse = new CRUDFindResponse();
+        Response response = mediator.find(req);
+        Assert.assertEquals(OperationStatus.COMPLETE,response.getStatus());
+    }
+
+    @Test
+    public void generatorTest() throws Exception {
+        MockValueGeneratorSupport.v=0;
+        mdManager.md = getMd("./generator-md.json");
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("user", "5.0.0"));
+        req.setEntityData(loadJsonNode("./userdata.json"));
+        req.setReturnFields(new FieldProjection(new Path("*"),true,true));
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+        Response response = mediator.insert(req);
+        System.out.println(response.getDataErrors());
+        JsonDoc doc=mockCrudController.ctx.getDocuments().get(0);
+        Assert.assertEquals(0,response.getErrors().size());
+        Assert.assertEquals(0,response.getDataErrors().size());
+        System.out.println(doc);
+        int v=doc.get(new Path("_id")).asInt();
+        // There are 13 generated values in this doc
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("requid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("iduid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("personalInfo.requid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        Assert.assertNull(doc.get(new Path("personalInfo.nonrequid")));
+        v=doc.get(new Path("sites.0.streetAddress.requid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("sites.0.streetAddress.nonrequid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+        v=doc.get(new Path("uid")).asInt();
+        Assert.assertTrue(v>=0&&v<=13);
+    }
+
+    @Test
+    public void generatorOverwriteTest() throws Exception {
+        MockValueGeneratorSupport.v=0;
+        mdManager.md = getMd("./overwrite-md.json");
+        InsertionRequest req = new InsertionRequest();
+        req.setEntityVersion(new EntityVersion("user", "5.0.0"));
+        JsonNode docNode=loadJsonNode("./gen-overwrite-testdata.json");
+        req.setEntityData(docNode);
+        req.setReturnFields(new FieldProjection(new Path("*"),true,true));
+        mockCrudController.insertResponse=new CRUDInsertionResponse();
+
+        String today=docNode.get("today").asText();
+        String id=docNode.get("_id").asText();
+
+        Response response = mediator.insert(req);
+        JsonDoc doc=mockCrudController.ctx.getDocuments().get(0);
+        System.out.println(doc);
+        
+        Assert.assertEquals(id,doc.get(new Path("_id")).asText());
+        Assert.assertTrue(!today.equals(doc.get(new Path("today")).asText()));
+        
+    }
 
     @Test
     public void uidTest() throws Exception {
