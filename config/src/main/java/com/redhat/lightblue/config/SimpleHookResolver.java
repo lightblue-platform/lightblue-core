@@ -20,6 +20,7 @@ public class SimpleHookResolver implements HookResolver {
     public SimpleHookResolver(List<HookConfigurationParser> hookConfigurationParsers, LightblueFactory lightblueFactory) {
         if (hookConfigurationParsers != null && !hookConfigurationParsers.isEmpty()) {
             for (HookConfigurationParser parser : hookConfigurationParsers) {
+                lightblueFactory.injectDependencies(parser);
                 CRUDHook hook = parser.getCRUDHook();
                 lightblueFactory.injectDependencies(hook);
                 map.put(parser.getName(), hook);
