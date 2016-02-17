@@ -89,7 +89,7 @@ public class CrudConfiguration implements JsonInitializable, Serializable {
      * Validate that the configuration has all data needed.
      */
     public boolean isValid() {
-        return (controllers != null && controllers.length > 0);
+        return controllers != null && controllers.length > 0;
     }
 
     @Override

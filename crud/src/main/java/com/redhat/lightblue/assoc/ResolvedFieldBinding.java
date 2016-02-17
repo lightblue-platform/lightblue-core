@@ -198,7 +198,7 @@ public class ResolvedFieldBinding implements Serializable {
             while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
                 fmd=fmd.getParent();
             CompositeMetadata arrayMd=fmd;
-            LOGGER.debug("Array metadata:{}",(arrayMd == null ? null : arrayMd.getName()));
+            LOGGER.debug("Array metadata:{}",arrayMd == null ? null : arrayMd.getName());
 
             Path absoluteArray;
             if(conjunct.isRequestQuery()) {

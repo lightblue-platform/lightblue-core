@@ -457,7 +457,7 @@ public class Mediator {
                     ctx.setStatus(OperationStatus.ERROR);
                 }
 
-                response.setMatchCount((result == null ? 0 : result.getSize()));
+                response.setMatchCount(result == null ? 0 : result.getSize());
                 List<DocCtx> documents = ctx.getDocuments();
                 if (documents != null) {
                     List<JsonDoc> resultList = new ArrayList<>(documents.size());
