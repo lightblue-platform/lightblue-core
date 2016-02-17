@@ -77,7 +77,7 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
             Map<String, ? extends EntityConstraintChecker> entityConstraintCheckers) {
 
         Registry<String, FieldConstraintChecker> fieldCheckerRegistry =
-                new DefaultRegistry<String, FieldConstraintChecker>();
+                new DefaultRegistry<>();
         fieldCheckerRegistry.add(new DefaultFieldConstraintValidators());
         if (fieldConstraintCheckers != null) {
             for (Entry<String, ? extends FieldConstraintChecker> checker : fieldConstraintCheckers.entrySet()) {
@@ -86,7 +86,7 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
         }
 
         Registry<String, EntityConstraintChecker> entityCheckerRegistry =
-                new DefaultRegistry<String, EntityConstraintChecker>();
+                new DefaultRegistry<>();
         entityCheckerRegistry.add(new EmptyEntityConstraintValidators());
         if (entityConstraintCheckers != null) {
             for (Entry<String, ? extends EntityConstraintChecker> checker : entityConstraintCheckers.entrySet()) {
@@ -102,9 +102,9 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
             List<? extends EntityConstraint> entityConstraints,
             Map<String,FieldConstraintParser<JsonNode>> fieldConstraintParsers) {
 
-        TestDataStoreParser<JsonNode> dsParser = new TestDataStoreParser<JsonNode>();
+        TestDataStoreParser<JsonNode> dsParser = new TestDataStoreParser<>();
 
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.registerDataStoreParser(dsParser.getDefaultName(), dsParser);
         extensions.addDefaultExtensions();
         if (fieldConstraintParsers != null) {
@@ -120,7 +120,7 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
 
         EntityMetadata entityMetadata = jsonParser.parseEntityMetadata(node);
         if ((entityConstraints != null) && !entityConstraints.isEmpty()) {
-            entityMetadata.setConstraints(new ArrayList<EntityConstraint>(entityConstraints));
+            entityMetadata.setConstraints(new ArrayList<>(entityConstraints));
         }
 
         return entityMetadata;
@@ -196,7 +196,7 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
 
         JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-testFieldConstraint.json");
 
-        Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers = new HashMap<String, FieldConstraintParser<JsonNode>>();
+        Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers = new HashMap<>();
         fieldConstraintParsers.put("testFieldConstraint", new TestFieldConstraintParser(new TestFieldConstraint("testFieldConstraintChecker")));
 
         EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, fieldConstraintParsers);
@@ -217,12 +217,12 @@ public class ConstraintValidatorTest extends AbstractJsonSchemaTest {
 
         JsonNode validatorNode = loadJsonNode("crud/validator/schema-test-validation-testFieldConstraint.json");
 
-        Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers = new HashMap<String, FieldConstraintParser<JsonNode>>();
+        Map<String, FieldConstraintParser<JsonNode>> fieldConstraintParsers = new HashMap<>();
         fieldConstraintParsers.put("testFieldConstraint", new TestFieldConstraintParser(new TestFieldConstraint(fieldConstraintCheckerName)));
 
         EntityMetadata entityMetadata = createEntityMetadata(validatorNode, null, fieldConstraintParsers);
 
-        Map<String, FieldConstraintChecker> fieldConstraintCheckers = new HashMap<String, FieldConstraintChecker>();
+        Map<String, FieldConstraintChecker> fieldConstraintCheckers = new HashMap<>();
         fieldConstraintCheckers.put(fieldConstraintCheckerName, new FieldConstraintChecker() {
         });
 

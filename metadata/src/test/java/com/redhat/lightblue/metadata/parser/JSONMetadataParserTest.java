@@ -507,7 +507,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String enumValue2 = "FakeEnumValue2";
 
         Enum e = new Enum(enumName);
-        e.setValues(new HashSet<EnumValue>(Arrays.asList(
+        e.setValues(new HashSet<>(Arrays.asList(
                 new EnumValue(enumValue1, null),
                 new EnumValue(enumValue2, null))));
 
@@ -535,7 +535,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         String enumDescription2 = "this is a fake description of enum value 2";
 
         Enum e = new Enum(enumName);
-        e.setValues(new HashSet<EnumValue>(Arrays.asList(
+        e.setValues(new HashSet<>(Arrays.asList(
                 new EnumValue(enumValue1, enumDescription1),
                 new EnumValue(enumValue2, enumDescription2))));
 

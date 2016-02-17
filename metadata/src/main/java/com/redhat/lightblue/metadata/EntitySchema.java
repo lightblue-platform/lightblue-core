@@ -296,7 +296,7 @@ public class EntitySchema implements Serializable {
                             Path idName=fieldName.suffix(-(lastAny+1));
                             List<Path> ids=idMap.get(arrayName);
                             if(ids==null) {
-                                idMap.put(arrayName,ids=new ArrayList<Path>());
+                                idMap.put(arrayName,ids=new ArrayList<>());
                             }
                             ids.add(idName);
                         }

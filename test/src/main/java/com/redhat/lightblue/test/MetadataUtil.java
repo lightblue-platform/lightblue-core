@@ -45,9 +45,9 @@ public final class MetadataUtil {
     public static JSONMetadataParser createJSONMetadataParser(
             String backend,
             Map<String, ? extends FieldConstraintParser<JsonNode>> fieldConstraintParsers){
-        FakeDataStoreParser<JsonNode> dsParser = new FakeDataStoreParser<JsonNode>(backend);
+        FakeDataStoreParser<JsonNode> dsParser = new FakeDataStoreParser<>(backend);
 
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.registerDataStoreParser(dsParser.getDefaultName(), dsParser);
         extensions.addDefaultExtensions();
         if (fieldConstraintParsers != null) {
@@ -82,7 +82,7 @@ public final class MetadataUtil {
 
         EntityMetadata entityMetadata = jsonParser.parseEntityMetadata(node);
         if ((entityConstraints != null) && !entityConstraints.isEmpty()) {
-            entityMetadata.setConstraints(new ArrayList<EntityConstraint>(entityConstraints));
+            entityMetadata.setConstraints(new ArrayList<>(entityConstraints));
         }
 
         return entityMetadata;
