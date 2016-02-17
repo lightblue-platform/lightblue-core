@@ -101,7 +101,7 @@ public class Value extends JsonObject {
            node instanceof ArrayNode) {
             return new Value(node);
         } else  if (node.isValueNode()) {
-            Object v = null;
+            Object v;
             if (node.isNumber()) {
                 if (node.isBigDecimal() || node.isDouble() || node.isFloat()) {
                     v = node.decimalValue();
