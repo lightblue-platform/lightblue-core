@@ -88,7 +88,7 @@ public class BigDecimalTypeTest {
     public void testFromJsonStr() {
         JsonNode jsonNode = JsonNodeFactory.instance.textNode("100");
         Object fromJson = bigDecimalType.fromJson(jsonNode);
-        assertEquals(new BigDecimal(100.0),fromJson);
+        assertEquals(BigDecimal.valueOf(100.0),fromJson);
     }
 
     @Test(expected = Error.class)

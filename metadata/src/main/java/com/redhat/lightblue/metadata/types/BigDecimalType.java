@@ -78,9 +78,9 @@ public final class BigDecimalType implements Type, Serializable {
             } else if (obj instanceof Number) {
                 if (obj instanceof Double
                         || obj instanceof Float) {
-                    value = new BigDecimal(((Number) obj).doubleValue());
+                    value = BigDecimal.valueOf(((Number) obj).doubleValue());
                 } else {
-                    value = new BigDecimal(((Number) obj).longValue());
+                    value = BigDecimal.valueOf(((Number) obj).longValue());
                 }
             } else if (obj instanceof Boolean) {
                 value = new BigDecimal(((Boolean) obj) ? 1 : 0);
