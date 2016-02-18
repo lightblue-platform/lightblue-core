@@ -18,5 +18,34 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-public class ForkStep implements ExecutionStep {
+/**
+ * Limits the resultset to at most n
+ */
+public class Limit<T> implements Step<T> {
+
+    private final int limit;
+    private final Step<T> source;
+    private int at;
+    
+    public Limit(int n,Step<T> source) {
+        this.source=source;
+        limit=n;
+        at=0;
+    }
+
+    public ResultStream<T> getResults(ExecutionContext ctx) {
+        
+        return new StreamWrapper<T>(source.getResults(ctx)) {
+            @Override
+            public T next() {
+                T ret;
+                if(at<limit)
+                    ret=sourceStream.next();
+                else
+                    ret=null;
+                at++;
+                return ret;
+            }
+        };
+    }
 }

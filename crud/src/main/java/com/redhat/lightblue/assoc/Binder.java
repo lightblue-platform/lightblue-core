@@ -16,8 +16,25 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.assoc.ep;
+package com.redhat.lightblue.assoc;
 
-public class MergeStep implements ExecutionStep {
+/**
+ * A binder contains a field binding and its value
+ */
+public class Binder {
+    private final FieldBinding binding;
+    private final Object value;
+
+    public Binder(FieldBinding binding,Object value) {
+        this.binding=binding;
+        this.value=value;
+    }
+
+    public FieldBinding getBinding() {
+        return binding;
+    }
+
+    public Object getValue() {
+        return value;
+    }
 }
-

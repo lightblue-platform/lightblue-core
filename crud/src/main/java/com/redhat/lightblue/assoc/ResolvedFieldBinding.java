@@ -170,85 +170,87 @@ public class ResolvedFieldBinding implements Serializable {
          */
         @Override
         protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-            // When this is called, any field in the query that belongs to a different
-            // entity should already be bound. So, (array + field) always points to the current
-            // entity for which this query is being rewritten. How the array field defined
-            // determines the outcome. If array field points to an array in this entity, we 
-            // rewrite the query by getting a suffix of the array. If array field points to
-            // an array in a parent entity, or if the array field points to the
-            // reference field, this is no longer an elemMatch query. We return the
-            // nested query instead.
-            LOGGER.debug("Rewriting {}",q);
-            Path arrayName=context.isEmpty()?q.getArray():new Path(context,q.getArray());
-            // Find a field with the array name as the prefix
-            ResolvedFieldInfo arrayDescendant=null;
-            for(ResolvedFieldInfo rfi:conjunct.getFieldInfo()) {
-                Path p=rfi.getFieldName();
-                if(arrayName.matchingPrefix(p)) {
-                    arrayDescendant=rfi;
-                    break;
-                }
-            }
+            // // When this is called, any field in the query that belongs to a different
+            // // entity should already be bound. So, (array + field) always points to the current
+            // // entity for which this query is being rewritten. How the array field defined
+            // // determines the outcome. If array field points to an array in this entity, we 
+            // // rewrite the query by getting a suffix of the array. If array field points to
+            // // an array in a parent entity, or if the array field points to the
+            // // reference field, this is no longer an elemMatch query. We return the
+            // // nested query instead.
+            // LOGGER.debug("Rewriting {}",q);
+            // Path arrayName=context.isEmpty()?q.getArray():new Path(context,q.getArray());
+            // // Find a field with the array name as the prefix
+            // ResolvedFieldInfo arrayDescendant=null;
+            // for(ResolvedFieldInfo rfi:conjunct.getFieldInfo()) {
+            //     Path p=rfi.getFieldName();
+            //     if(arrayName.matchingPrefix(p)) {
+            //         arrayDescendant=rfi;
+            //         break;
+            //     }
+            // }
             
-            if(arrayDescendant==null)
-                throw new RuntimeException("Unknown field:"+arrayName);
-            LOGGER.debug("Array descendant:{}",arrayDescendant);
-            // arrayDescendant is a field in the query with the array being the prefix. From here, we can figure out which entity array belongs to
-            CompositeMetadata fmd=arrayDescendant.getFieldEntityCompositeMetadata();
-            while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
-                fmd=fmd.getParent();
-            CompositeMetadata arrayMd=fmd;
-            LOGGER.debug("Array metadata:{}",(arrayMd == null ? null : arrayMd.getName()));
+            // if(arrayDescendant==null)
+            //     throw new RuntimeException("Unknown field:"+arrayName);
+            // LOGGER.debug("Array descendant:{}",arrayDescendant);
+            // // arrayDescendant is a field in the query with the array being the prefix. From here, we can figure out which entity array belongs to
+            // CompositeMetadata fmd=arrayDescendant.getFieldEntityCompositeMetadata();
+            // while(fmd!=null&&fmd.getEntityPath().numSegments()>arrayName.numSegments())
+            //     fmd=fmd.getParent();
+            // CompositeMetadata arrayMd=fmd;
+            // LOGGER.debug("Array metadata:{}",(arrayMd == null ? null : arrayMd.getName()));
 
-            Path absoluteArray;
-            if(conjunct.isRequestQuery()) {
-                absoluteArray=arrayName;
-            } else {
-                absoluteArray=(arrayMd!=null&&arrayMd.getParent()!=null)?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
-            }
-            LOGGER.debug("Absolute array:{}",absoluteArray);
-            if(arrayMd==thisMd&&!absoluteArray.equals(thisMd.getEntityPath())) {
-                // Convert array to relative, and return an elem match query
-                Path arrayPath = null;
-                if(arrayMd.getParent()==null) {
-                    arrayPath=absoluteArray;
-                } else {
-                    arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
-                }
-                QueryExpression newq = iterate(q.getElemMatch(),
-                                               new Path(new Path(context, arrayPath), Path.ANYPATH));
+            // Path absoluteArray;
+            // if(conjunct.isRequestQuery()) {
+            //     absoluteArray=arrayName;
+            // } else {
+            //     absoluteArray=(arrayMd!=null&&arrayMd.getParent()!=null)?new Path(arrayMd.getEntityPath(),new Path(Path.ANYPATH,arrayName)):arrayName;
+            // }
+            // LOGGER.debug("Absolute array:{}",absoluteArray);
+            // if(arrayMd==thisMd&&!absoluteArray.equals(thisMd.getEntityPath())) {
+            //     // Convert array to relative, and return an elem match query
+            //     Path arrayPath = null;
+            //     if(arrayMd.getParent()==null) {
+            //         arrayPath=absoluteArray;
+            //     } else {
+            //         arrayPath=absoluteArray.suffix(-(arrayMd.getEntityPath().numSegments()+1));
+            //     }
+            //     QueryExpression newq = iterate(q.getElemMatch(),
+            //                                    new Path(new Path(context, arrayPath), Path.ANYPATH));
                 
-                return new ArrayMatchExpression(arrayPath,newq);
-            } else {
-                // This is no longer an array match expression.
-                // We need to find out where the entity boundary is crossed
-                // So if the fields are like this, where c is a reference:
-                //   a . b . c | d . e . f
-                // and if the query is something like:
-                //   { array: a.b, elemMatch{ field: c.d.e } }
-                // then, the relative query is
-                //    {field: d.e }
-                // So: first find the length of the portion remaining in the other entity
-                int delta=thisMd.getEntityPath().numSegments() - absoluteArray.numSegments();
-                // We need to cut a prefix of 'delta' length from all fields
-                relativeSuffixLength+=delta;
-                QueryExpression ret=iterate(q.getElemMatch(),context);
-                relativeSuffixLength-=delta;
-                return ret;
-            }
+            //     return new ArrayMatchExpression(arrayPath,newq);
+            // } else {
+            //     // This is no longer an array match expression.
+            //     // We need to find out where the entity boundary is crossed
+            //     // So if the fields are like this, where c is a reference:
+            //     //   a . b . c | d . e . f
+            //     // and if the query is something like:
+            //     //   { array: a.b, elemMatch{ field: c.d.e } }
+            //     // then, the relative query is
+            //     //    {field: d.e }
+            //     // So: first find the length of the portion remaining in the other entity
+            //     int delta=thisMd.getEntityPath().numSegments() - absoluteArray.numSegments();
+            //     // We need to cut a prefix of 'delta' length from all fields
+            //     relativeSuffixLength+=delta;
+            //     QueryExpression ret=iterate(q.getElemMatch(),context);
+            //     relativeSuffixLength-=delta;
+            //     return ret;
+            // }
+            return null;
         }
 
         
         @Override
         protected Path map(Path p) {
             // Get a relative suffix
-            Path suffix=relativeSuffixLength>0?p.suffix(-relativeSuffixLength):p;
-            Path x=conjunct.mapOriginalFieldName(suffix);
-            // If path is unchanged, return null, so the clause is kept unmodified
-            if(x==p)
-                return null;
-            else
-                return x;  
+            // Path suffix=relativeSuffixLength>0?p.suffix(-relativeSuffixLength):p;
+            // Path x=conjunct.mapOriginalFieldName(suffix);
+            // // If path is unchanged, return null, so the clause is kept unmodified
+            // if(x==p)
+            //     return null;
+            // else
+            //     return x;
+            return null;
         }
     }
 
@@ -265,73 +267,74 @@ public class ResolvedFieldBinding implements Serializable {
     public static BindResult bind(List<Conjunct> clauses,
                                   QueryPlanNode atNode,
                                   CompositeMetadata root) {
-        BindResult ret = null;
-        if(clauses!=null&&!clauses.isEmpty()) {
-            List<ResolvedFieldBinding> bindings = new ArrayList<>();
-            List<QueryExpression> boundQueries=new ArrayList<>();
-            for(Conjunct conjunct:clauses) {
-                LOGGER.debug("Resolving bindings for {}",conjunct);
-                QueryExpression query=conjunct.getClause();
-                List<QueryInContext> bindable=query.getBindableClauses();
-                LOGGER.debug("Bindable clauses:{}",bindable);
+        // BindResult ret = null;
+        // if(clauses!=null&&!clauses.isEmpty()) {
+        //     List<ResolvedFieldBinding> bindings = new ArrayList<>();
+        //     List<QueryExpression> boundQueries=new ArrayList<>();
+        //     for(Conjunct conjunct:clauses) {
+        //         LOGGER.debug("Resolving bindings for {}",conjunct);
+        //         QueryExpression query=conjunct.getClause();
+        //         List<QueryInContext> bindable=query.getBindableClauses();
+        //         LOGGER.debug("Bindable clauses:{}",bindable);
 
-                // default the bound query to input query
-                QueryExpression boundQuery = query;
+        //         // default the bound query to input query
+        //         QueryExpression boundQuery = query;
                 
-                if(!bindable.isEmpty()) {
-                    LOGGER.debug("Building bind request");
-                    Set<Path> bindRequest=new HashSet<>();
-                    for(QueryInContext qic:bindable) {
-                        if(qic.getQuery() instanceof FieldComparisonExpression) {
-                            FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
-                            Path lfield=new Path(qic.getContext(),fce.getField());
-                            Path rfield=new Path(qic.getContext(),fce.getRfield());
-                            ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
-                            if (f != null) {
-                                bindRequest.add(f.getFieldName());
-                            }
-                        } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
-                            NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
-                            Path lfield=new Path(qic.getContext(),nfr.getField());
-                            Path rfield=new Path(qic.getContext(),nfr.getRfield());
-                            ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
-                            if (f != null) {
-                                bindRequest.add(f.getFieldName());
-                            }
-                        }
-                    }
+        //         if(!bindable.isEmpty()) {
+        //             LOGGER.debug("Building bind request");
+        //             Set<Path> bindRequest=new HashSet<>();
+        //             for(QueryInContext qic:bindable) {
+        //                 if(qic.getQuery() instanceof FieldComparisonExpression) {
+        //                     FieldComparisonExpression fce=(FieldComparisonExpression)qic.getQuery();
+        //                     Path lfield=new Path(qic.getContext(),fce.getField());
+        //                     Path rfield=new Path(qic.getContext(),fce.getRfield());
+        //                     ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
+        //                     if (f != null) {
+        //                         bindRequest.add(f.getFieldName());
+        //                     }
+        //                 } else if(qic.getQuery() instanceof NaryFieldRelationalExpression) {
+        //                     NaryFieldRelationalExpression nfr=(NaryFieldRelationalExpression)qic.getQuery();
+        //                     Path lfield=new Path(qic.getContext(),nfr.getField());
+        //                     Path rfield=new Path(qic.getContext(),nfr.getRfield());
+        //                     ResolvedFieldInfo f=getFieldToBind(lfield,rfield,conjunct,atNode);
+        //                     if (f != null) {
+        //                         bindRequest.add(f.getFieldName());
+        //                     }
+        //                 }
+        //             }
 
-                    LOGGER.debug("Bind fields:{}",bindRequest);
-                    List<FieldBinding> fb=new ArrayList<>();               
-                    // get the bound query
-                    boundQuery=query.bind(fb,bindRequest);
+        //             LOGGER.debug("Bind fields:{}",bindRequest);
+        //             List<FieldBinding> fb=new ArrayList<>();               
+        //             // get the bound query
+        //             boundQuery=query.bind(fb,bindRequest);
                     
-                    // collect bindings
-                    for(FieldBinding b:fb) {
-                        ResolvedFieldInfo rfi=conjunct.getFieldInfoByOriginalFieldName(b.getField());
-                        if (rfi != null) {
-                            bindings.add(new ResolvedFieldBinding(rfi.getEntityRelativeFieldName(),
-                                                                  b,
-                                                                  rfi.getFieldQueryPlanNode().getMetadata()));
-                        }
-                    }
-                }
-                RelativeRewriter rw=new RelativeRewriter(conjunct,root,atNode.getMetadata());
-                boundQueries.add(rw.iterate(boundQuery));
-            }
+        //             // collect bindings
+        //             for(FieldBinding b:fb) {
+        //                 ResolvedFieldInfo rfi=conjunct.getFieldInfoByOriginalFieldName(b.getField());
+        //                 if (rfi != null) {
+        //                     bindings.add(new ResolvedFieldBinding(rfi.getEntityRelativeFieldName(),
+        //                                                           b,
+        //                                                           rfi.getFieldQueryPlanNode().getMetadata()));
+        //                 }
+        //             }
+        //         }
+        //         RelativeRewriter rw=new RelativeRewriter(conjunct,root,atNode.getMetadata());
+        //         boundQueries.add(rw.iterate(boundQuery));
+        //     }
             
-            QueryExpression query;
-            if(boundQueries.size()==1) {
-                query=boundQueries.get(0);
-            } else {
-                query=new NaryLogicalExpression(NaryLogicalOperator._and,boundQueries);
-            }
+        //     QueryExpression query;
+        //     if(boundQueries.size()==1) {
+        //         query=boundQueries.get(0);
+        //     } else {
+        //         query=new NaryLogicalExpression(NaryLogicalOperator._and,boundQueries);
+        //     }
             
-            LOGGER.debug("Bound query:{}",query);
-            ret=new BindResult(bindings,query);
-        }
+        //     LOGGER.debug("Bound query:{}",query);
+        //     ret=new BindResult(bindings,query);
+        // }
 
-        return ret;
+        // return ret;
+        return null;
     }
 
     /**
@@ -341,15 +344,16 @@ public class ResolvedFieldBinding implements Serializable {
      * belongs to an ancestor.
      */
     private static ResolvedFieldInfo getFieldToBind(Path lfield,Path rfield,Conjunct clause,QueryPlanNode atNode) {
-        ResolvedFieldInfo lInfo=clause.getFieldInfoByOriginalFieldName(lfield);
-        ResolvedFieldInfo rInfo=clause.getFieldInfoByOriginalFieldName(rfield);
-        // If lfieldNode points to the destination node,
-        // rfieldNode points to an ancestor, or vice versa
-        if(lInfo != null && lInfo.getFieldQueryPlanNode().getName().equals(atNode.getName())) {
-            return rInfo;
-        } else {
-            return lInfo;
-        }
+        // ResolvedFieldInfo lInfo=clause.getFieldInfoByOriginalFieldName(lfield);
+        // ResolvedFieldInfo rInfo=clause.getFieldInfoByOriginalFieldName(rfield);
+        // // If lfieldNode points to the destination node,
+        // // rfieldNode points to an ancestor, or vice versa
+        // if(lInfo != null && lInfo.getFieldQueryPlanNode().getName().equals(atNode.getName())) {
+        //     return rInfo;
+        // } else {
+        //     return lInfo;
+        // }
+        return null;
     }
         
     /**

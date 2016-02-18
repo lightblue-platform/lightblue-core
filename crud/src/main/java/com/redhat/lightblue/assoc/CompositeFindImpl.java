@@ -91,9 +91,10 @@ public class CompositeFindImpl implements Finder {
         selectQueryPlan(req.getQuery(),minimalTree);
         LOGGER.debug("Search query plan:{}, retrieval query plan:{}",searchQPlan,retrievalQPlan);
 
-        executionPlan=new ExecutionPlan(req.getQuery(),
-                                        req.getProjection(),
+        executionPlan=new ExecutionPlan(req.getProjection(),
                                         req.getSort(),
+                                        req.getFrom(),
+                                        req.getTo(),
                                         root,
                                         searchQPlan,
                                         retrievalQPlan);
@@ -106,11 +107,24 @@ public class CompositeFindImpl implements Finder {
 
     /**
      * Selects the search and retrieval query plans based on the minimal tree and request query. 
+     *
+     * There is either only a retrieval plan, or both a search plan
+     * and retrieval plan. If search plan cannot retrieve the root
+     * entity, then we use the search plan to collect the entities
+     * matching the search criteria, and then the retrieval plan to
+     * retrieve those entities completely. If the search plan can both
+     * search and retrieve the entities, there will be only a
+     * retrieval plan.
+     *
      * 
      */
     private void selectQueryPlan(QueryExpression requestQuery,
                                  Set<CompositeMetadata> minimalTree) {
+        searchQPlan=retrievalQPlan=null;
+        
         if(minimalTree.size()>1) {
+            // There are multiple entities required to evaluate the query
+            
             // Choose a query plan
             QueryPlan searchQP=new QueryPlanChooser(root,
                                                     new BruteForceQueryPlanIterator(),
@@ -124,6 +138,9 @@ public class CompositeFindImpl implements Finder {
             QueryPlanNode[] roots=searchQP.getSources();
             if(roots.length==1&&roots[0].getMetadata()==root) {
                 LOGGER.debug("Search is trivial, root node is at query plan root, so search and retrieve");
+                // Build a new query plan containing all entities. This plan should
+                // have the same root as before. If not, something must be
+                // wrong, and we fall back to a search/retrieve query
                 QueryPlan fullPlan=new QueryPlanChooser(root,
                                                         new BruteForceQueryPlanIterator(),
                                                         new IndexedFieldScorer(),
@@ -132,15 +149,20 @@ public class CompositeFindImpl implements Finder {
                 // This plan must also have a single root
                 roots=fullPlan.getSources();
                 if(roots.length==1&&roots[0].getMetadata()==root) {
+                    // Retrieve everything, no separate search plan
                     retrievalQPlan=fullPlan;
                     searchQPlan=null;
                 } else {
+                    // Search and retrieve in separate phases
                     searchQPlan=searchQP;
                 }
             } else {
+                // Multiple roots, search and retrieve in separate phases
                 searchQPlan=searchQP;
             }
         } else {
+            // Minimal tree has only one entity. That entity must be the root entity
+            // That means, a single retrieval plan can search and retrieve            
             searchQPlan=null;
         }
         if(retrievalQPlan==null) {
@@ -152,11 +174,11 @@ public class CompositeFindImpl implements Finder {
                                                     requestQuery,
                                                     null).choose();
             } else {
-                // No search, only retrieve
+                // No search, only retrieve. No query.
                 retrievalQPlan=new QueryPlanChooser(root,
                                                     new First(),
                                                     new SimpleScorer(),
-                                                    requestQuery,
+                                                    null,
                                                     null).choose();
             }
         }

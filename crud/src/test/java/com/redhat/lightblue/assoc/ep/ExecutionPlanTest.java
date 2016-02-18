@@ -93,7 +93,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                                                new IndexedFieldScorer(),
                                                q,
                                                minimalTree).choose();
-       ExecutionPlan ep=new ExecutionPlan(q,p,null,md,searchQP,null);
+       ExecutionPlan ep=new ExecutionPlan(p,null,null,null,md,null,searchQP);
        ObjectNode j=(ObjectNode)ep.toJson();
        ObjectNode root=(ObjectNode)j.get("root");
        
@@ -127,7 +127,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                                                new IndexedFieldScorer(),
                                                q,
                                                minimalTree).choose();
-       ExecutionPlan ep=new ExecutionPlan(q,p,null,md,searchQP,null);
+       ExecutionPlan ep=new ExecutionPlan(p,null,null,null,md,searchQP,null);
        ObjectNode j=(ObjectNode)ep.toJson();
        ObjectNode root=(ObjectNode)j.get("root");
        
@@ -169,7 +169,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                                                   q,
                                                   minimalTree).choose();
        
-       ExecutionPlan ep=new ExecutionPlan(q,p,null,md,searchQP,retrievalQP);
+       ExecutionPlan ep=new ExecutionPlan(p,null,null,null,md,searchQP,retrievalQP);
        ObjectNode j=(ObjectNode)ep.toJson();
        ObjectNode root=(ObjectNode)j.get("root");
        
@@ -228,7 +228,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
                                                    q,
                                                    minimalTree).choose();
         
-        ExecutionPlan ep=new ExecutionPlan(q,p,null,md,searchQP,retrievalQP);
+        ExecutionPlan ep=new ExecutionPlan(p,null,null,null,md,searchQP,retrievalQP);
         ObjectNode j=(ObjectNode)ep.toJson();
         ObjectNode root=(ObjectNode)j.get("root");
         

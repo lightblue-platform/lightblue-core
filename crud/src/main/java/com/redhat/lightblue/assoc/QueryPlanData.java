@@ -38,6 +38,7 @@ public class QueryPlanData implements Serializable {
     private static final long serialVersionUID=1l;
     
     private List<Conjunct> conjuncts=new ArrayList<>();
+    private ResolvedReferenceField referenceField;
     
     /**
      * The query clauses associated with this node/edge
@@ -53,6 +54,21 @@ public class QueryPlanData implements Serializable {
         conjuncts=l;
     }
 
+    /**
+     * For edges, the reference field 
+     */
+    public ResolvedReferenceField getReference() {
+        return referenceField;
+    }
+
+    /**
+     * For edges, the reference field 
+     */
+    public void setReference(ResolvedReferenceField reference) {
+        this.referenceField=reference;
+    }
+
+    
     /**
      * Copies contents of <code>source</code> into this. Subclasses should override this
      */

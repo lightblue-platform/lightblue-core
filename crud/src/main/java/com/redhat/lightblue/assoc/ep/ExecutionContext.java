@@ -16,36 +16,20 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.assoc;
-
-import com.redhat.lightblue.query.Value;
+package com.redhat.lightblue.assoc.ep;
 
 /**
- * A modifiable primitive value. When one of the fields in a
- * FieldComparisonExpression is bound to a value, that expression is rewritten
- * as a ValueComparisonExpression with a BoundValue, so the caller can change
- * the underlying value for every execution.
+ * Keeps state information for the execution
  */
-public class BoundValue extends Value {
+public class ExecutionContext {
+    private final OperationContext opctx;
+    private final ExecutorService executor;
 
-    /**
-     * Creates a BoundValue with value=null
-     */
-    public BoundValue() {
-        this(null);
+    public ExecutionContext(OperationContext ctx) {
+        this.opctx=opctx;
     }
 
-    /**
-     * Creates a BoundValue with value=o
-     */
-    public BoundValue(Object o) {
-        super(o);
-    }
-
-    /**
-     * Sets the value
-     */
-    public void setValue(Object o) {
-        value = o;
+    public OperationContext getOperationContext() {
+        return opctx;
     }
 }

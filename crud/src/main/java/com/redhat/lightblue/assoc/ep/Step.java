@@ -18,6 +18,7 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-public class AssociateStep implements ExecutionStep {
-}
+public interface Step<R> {
 
+    ResultStream<R> getResults(ExecutionContext ctx);
+}

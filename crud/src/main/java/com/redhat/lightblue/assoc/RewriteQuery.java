@@ -240,8 +240,8 @@ public class RewriteQuery extends QueryIterator {
         /**
          * Binds the given field to a value.
          */
-        private BoundValue bind(QueryFieldInfo fi) {
-            BoundValue value=new BoundValue();
+        private Value bind(QueryFieldInfo fi) {
+            Value value=new Value(null);
             bindings.add(new ValueBinding(fi,value));
             return value;
         }
@@ -249,8 +249,8 @@ public class RewriteQuery extends QueryIterator {
         /**
          * Binds the given field to a list of values
          */
-        private BoundValueList bindList(QueryFieldInfo fi) {
-            BoundValueList value=new BoundValueList();
+        private List<Value> bindList(QueryFieldInfo fi) {
+            List<Value> value=new ArrayList<>();
             bindings.add(new ListBinding(fi,value));
             return value;
         }
@@ -288,7 +288,7 @@ public class RewriteQuery extends QueryIterator {
             QueryFieldInfo rfi=findFieldInfo(q.getRfield(),q);
             if(lfi.getFieldEntity()==currentEntity) {
                 if(rfi.getFieldEntity()!=currentEntity) {
-                    BoundValue value=bind(rfi);
+                    Value value=bind(rfi);
                     return new ValueComparisonExpression(addPrefix(lfi.getEntityRelativeFieldName()),q.getOp(),value);
                 } else {
                     if(nestedFieldPrefix.isEmpty())
@@ -297,7 +297,7 @@ public class RewriteQuery extends QueryIterator {
                         return new FieldComparisonExpression(addPrefix(q.getField()),q.getOp(),addPrefix(q.getRfield()));
                 }
             } else if(rfi.getFieldEntity()==currentEntity) {
-                BoundValue value=bind(lfi);
+                Value value=bind(lfi);
                 return new ValueComparisonExpression(addPrefix(rfi.getEntityRelativeFieldName()),q.getOp().invert(),value);
             } else {
                 return new TruePH();
@@ -337,7 +337,7 @@ public class RewriteQuery extends QueryIterator {
             QueryFieldInfo rfi=findFieldInfo(q.getRfield(),q);
             if(lfi.getFieldEntity()==currentEntity) {
                 if(rfi.getFieldEntity()!=currentEntity) {
-                    BoundValueList value=bindList(rfi);
+                    List<Value> value=bindList(rfi);
                     return new NaryValueRelationalExpression(addPrefix(lfi.getEntityRelativeFieldName()),q.getOp(),value);
                 } else {
                     if(nestedFieldPrefix.isEmpty())
@@ -346,7 +346,7 @@ public class RewriteQuery extends QueryIterator {
                         return new NaryFieldRelationalExpression(addPrefix(q.getField()),q.getOp(),addPrefix(q.getRfield()));
                 }
             } else if(rfi.getFieldEntity()==currentEntity) {
-                BoundValue value=bind(lfi);
+                Value value=bind(lfi);
                 List<Value> list=new ArrayList<>(1);
                 list.add(value);
                 return new ArrayContainsExpression(addPrefix(rfi.getEntityRelativeFieldName()),

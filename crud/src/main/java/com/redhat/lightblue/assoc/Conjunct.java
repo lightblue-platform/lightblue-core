@@ -22,24 +22,18 @@ import java.io.Serializable;
 
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.FieldInfo;
-
 import com.redhat.lightblue.metadata.CompositeMetadata;
-import com.redhat.lightblue.metadata.ResolvedReferenceField;
-
-import com.redhat.lightblue.util.Path;
 
 /**
  * A query clause that cannot be further broken into conjuncts of a
- * conjunctive normal form query. This class also keeps metadata
- * related to that clause, such as the referred nodes of query plan,
- * fieldinfo, etc.
+ * conjunctive normal form query. This class also keeps query
+ * analysis information along with the clause
  *
  * Object identity of conjuncts are preserved during query plan
  * processing. That is, a Conjunct object created for a particular
@@ -61,87 +55,34 @@ public class Conjunct implements Serializable {
      */
     private final QueryExpression clause;
 
-    /**
-     * Field info for the fields in the clause
-     */
-    private final ResolvedFieldInfo[] fieldInfo;
-    
-    /**
-     * The list of distinct query plan nodes referred by the clause
-     */
-    private final Set<QueryPlanNode> referredNodes=new HashSet<>();
+    private final List<QueryFieldInfo> fieldInfo;
 
-    /**
-     * Specifies if the query belongs to the request, or one of the reference fields
-     */
-    private final boolean requestQuery;
-
+    private final ResolvedReferenceField reference;
     
     public Conjunct(QueryExpression q,
-                    CompositeMetadata compositeMetadata,
-                    QueryPlan qplan,
-                    ResolvedReferenceField context) {
+                    List<QueryFieldInfo> fieldInfo,
+                    ResolvedReferenceField reference) {
         this.clause=q;
-        this.requestQuery=context==null;
-        List<ResolvedFieldInfo> finfo=ResolvedFieldInfo.getQueryFields(clause,compositeMetadata,context,qplan);
-        LOGGER.debug("Conjunct for query {} with fields {}",q,finfo);
-        fieldInfo=finfo.toArray(new ResolvedFieldInfo[finfo.size()]);
-        for(ResolvedFieldInfo rfi:fieldInfo) {
-            referredNodes.add(rfi.getFieldQueryPlanNode());
-        }
+        this.reference=reference;
+        this.fieldInfo=fieldInfo;
     }
 
     /**
      * Returns true if the clause belongs to a request query, not to a reference field
      */
     public boolean isRequestQuery() {
-        return requestQuery;
+        return reference==null;
     }
 
-    /**
-     * Return the relative field name based on the original field name
-     */
-    public Path mapOriginalFieldName(Path originalFieldName) {
-        ResolvedFieldInfo fi=getFieldInfoByOriginalFieldName(originalFieldName);
-        if(fi==null)
-            return originalFieldName;
-        else
-            return fi.getEntityRelativeFieldName();
+    public ResolvedReferenceField getReference() {
+        return reference;
     }
-
-    /**
-     * Returns the nodes referenced by this clause
-     */
-    public Set<QueryPlanNode> getReferredNodes() {
-        return referredNodes;
-    }
-
 
     /**
      * Returns the field information about the fields in the conjunct
      */
-    public ResolvedFieldInfo[] getFieldInfo() {
+    public List<QueryFieldInfo> getFieldInfo() {
         return fieldInfo;
-    }
-
-    /**
-     * Return the field info by the field name of the field as used in the unmodified query
-     */
-    public ResolvedFieldInfo getFieldInfoByOriginalFieldName(Path p) {
-        for(ResolvedFieldInfo fi:fieldInfo)
-            if(fi.getFieldName().equals(p))
-                return fi;
-        return null;
-    }
-
-    /**
-     * Returns the field info by the field name as it appears in the entity-relative query
-     */
-    public ResolvedFieldInfo getFieldInfoByRelativeFieldName(Path p) {
-        for(ResolvedFieldInfo fi:fieldInfo)
-            if(fi.getEntityRelativeFieldName().equals(p))
-                return fi;
-        return null;
     }
 
     /**
@@ -151,13 +92,17 @@ public class Conjunct implements Serializable {
         return clause;
     }
 
+    /**
+     * Returns a set of entities this conjunct refers to
+     */
+    public Set<CompositeMetadata> getEntities() {
+        return fieldInfo.stream().
+            map(QueryFieldInfo::getFieldEntity).
+            collect(Collectors.toSet());
+    }
+
+    @Override
     public String toString() {
-        StringBuilder bld=new StringBuilder();
-        bld.append("clause=").append(clause.toString()).
-            append(" entities=");
-        for(QueryPlanNode n:referredNodes)
-            bld.append(' ').append(n.getName());
-        
-        return bld.toString();
+        return clause.toString();
     }
 }

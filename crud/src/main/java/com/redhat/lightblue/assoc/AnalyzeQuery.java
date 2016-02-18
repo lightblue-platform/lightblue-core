@@ -56,7 +56,7 @@ public class AnalyzeQuery extends QueryIterator {
      */
     private final ResolvedReferenceField ref;
 
-    private List<QueryFieldInfo> fieldInfo=new ArrayList<>();
+    private List<QueryFieldInfo> fieldInfo;
 
     /**
      * Ctor
@@ -76,6 +76,12 @@ public class AnalyzeQuery extends QueryIterator {
         return fieldInfo;
     }
 
+    @Override
+    public QueryExpression iterate(QueryExpression q, Path context) {
+        fieldInfo=new ArrayList<>();
+        return super.iterate(q,context);
+    }
+    
     /**
      * Resolve the given field, find its metadata. Throw exception if it cannot be resolved.
      */

@@ -18,23 +18,38 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 /**
- * This execution block executes its child nodes.
+ * Skips the first n results in a stream. 
+ *
+ * Input: Step<T>
+ * Output: Step<T>
  */
-public class ForkBlock extends ExecutionBlock {
+public class Skip<T> implements Step<T> {
 
-    public ForkBlock(ExecutionPlan plan) {
-        super(plan);
-        append(new ForkStep());
-    }
+    private final int skip;
+    private final Step<T> source;
+    private int at;
     
-    @Override
-    public String toString() {
-        return "Fork";
+    public Skip(int n,Step<T> source) {
+        this.source=source;
+        skip=n;
+        at=-1;
     }
+
+    @Override
+    public ResultStream<T> getResults(ExecutionContex ctx) {       
+        return new StreamWrapper<T>(source.getResults(ctx)) {
+            @Override
+            public T next() {
+                T ret;
+                while(at<skip) {
+                    ret=source.next();
+                    if(ret==null)
+                        break;
+                    at++;
+                }
+                return ret;
+            }
+        };
+    }           
 }

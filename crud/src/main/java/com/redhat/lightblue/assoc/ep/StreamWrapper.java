@@ -18,6 +18,13 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-public class LimitStep implements ExecutionStep {
-}
+/**
+ * An abstract stream that wraps another one
+ */
+public abstract class StreamWrapper<T> implements ResultStream<T> {
+    protected final ResultStream<T> sourceStream;
 
+    public StreamWrapper(ResultStream<T> source) {
+        this.sourceStream=source;
+    }
+}

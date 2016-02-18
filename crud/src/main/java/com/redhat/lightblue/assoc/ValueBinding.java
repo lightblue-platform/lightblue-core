@@ -18,20 +18,22 @@
  */
 package com.redhat.lightblue.assoc;
 
+import com.redhat.lightblue.query.Value;
+
 /**
  * Represents a field bound to a value. This contains the value within
  * a query clause that is bound to a field in another document.
  */
 public class ValueBinding extends FieldBinding {
-    private final BoundValue value;
+    private final Value value;
 
     public ValueBinding(QueryFieldInfo fieldInfo,
-                        BoundValue value) {
+                        Value value) {
         super(fieldInfo);
         this.value=value;
     }
 
-    public BoundValue getValue() {
+    public Value getValue() {
         return value;
     }
 }

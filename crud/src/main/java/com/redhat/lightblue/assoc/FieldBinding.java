@@ -23,7 +23,7 @@ package com.redhat.lightblue.assoc;
  * field information for the field that is bound to a value.
  */
 public abstract class FieldBinding {
-    private final QueryFieldInfo fieldInfo;
+    protected final QueryFieldInfo fieldInfo;
 
     public FieldBinding(QueryFieldInfo fieldInfo) {
         this.fieldInfo=fieldInfo;

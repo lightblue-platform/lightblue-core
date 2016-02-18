@@ -18,6 +18,29 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-public class SortStep implements ExecutionStep {
-}
+/**
+ * Streams the result documents to the next stage in the pipeline
+ */
+public interface ResultStream<T> {
 
+    public static final ResultStream<T> EMPTY=new ResultStream<T>() {
+            @Override public T next() {return null;}
+            @Override public boolean canRewind() {return true;}
+            @Override public void rewind() {}
+        };
+    
+    /**
+     * Returns the next element in the result. If finished, returns null.
+     */
+    T next();
+
+    /**
+     * Returns if the stream can rewind
+     */
+    public default boolean canRewind() {return false;}
+
+    /**
+     * Rewind the stream. Throws an exception if stream cannot be rewound
+     */
+    public default void rewind() { throw new UnsupportedOperationException();}
+}

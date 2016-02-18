@@ -187,7 +187,7 @@ public abstract class QueryExpression extends JsonObject {
 
     private static boolean isFieldQueried(Path field, Path qField, Path context) {
         LOGGER.debug("Checking if field {} is included in qfield={} with context={}",field,qField,context);
-        Path absField = new Path(context, qField);
+        Path absField = context.isEmpty()?qField:new Path(context, qField);
         if (field.matchingPrefix(absField)) {
             LOGGER.debug("Field {} is queried", absField);
             return true;
