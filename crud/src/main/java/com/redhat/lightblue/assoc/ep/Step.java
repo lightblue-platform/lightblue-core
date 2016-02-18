@@ -18,7 +18,9 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
+import java.util.stream.Stream;
+
 public interface Step<R> {
 
-    ResultStream<R> getResults(ExecutionContext ctx);
+    Stream<R> getResults(ExecutionContext ctx);
 }

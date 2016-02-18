@@ -4,6 +4,7 @@ public class ResultDocument {
     private final JsonDoc doc;
     private final QueryPlanNode qpNode;
     private final Map<QueryPlanNode,List<Slot>>  childDocumentSlots=new HashMap<>();
+    // parent node?
 
     public static class Slot {
         private final Path containerField;

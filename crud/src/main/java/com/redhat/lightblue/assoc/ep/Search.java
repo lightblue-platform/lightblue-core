@@ -71,12 +71,12 @@ public class Search implements Step<ResultDocument> {
     }
 
     @Override
-    public ResultStream<ResultDocument> getResults(ExecutionContext ctx) {
+    public Stream<ResultDocument> getResults(ExecutionContext ctx) {
         OperationContext result=search(ctx);
-        if(result!=null)
-            return new SearchResults(ctx);
-        else
-            return ResultStream.EMPTY;
+        if(result!=null) {
+            List<DocCtx> documents=result.getDocuments();
+            return documents.stream().map(doc -> doc.getOutputDocument());
+        }
     }
 
     protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
