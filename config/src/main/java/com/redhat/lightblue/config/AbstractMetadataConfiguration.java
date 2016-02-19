@@ -90,7 +90,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     String clazz = e.asText();
 
                     // instantiate the class
-                    Object o = null;
+                    Object o;
                     try {
                         o = Thread.currentThread().getContextClassLoader().loadClass(clazz).newInstance();
                     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {

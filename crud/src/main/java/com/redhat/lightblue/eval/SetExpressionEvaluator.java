@@ -198,7 +198,7 @@ public class SetExpressionEvaluator extends Updater {
         LOGGER.debug("Starting");
         for (FieldData df : setValues) {
             LOGGER.debug("Set field {} in ctx: {} to {}/{}", df.field, contextPath,df.value, df.value.getType());
-            JsonNode oldValueNode = null;
+            JsonNode oldValueNode;
             JsonNode newValueNode = null;
             Object newValue = null;
             Type newValueType = null;
