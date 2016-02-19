@@ -49,7 +49,7 @@ import com.redhat.lightblue.Request;
  */
 abstract class AbstractBulkJsonObject<T extends JsonObject> extends JsonObject {
 
-    protected final List<T> entries=new ArrayList<T>();
+    protected final List<T> entries=new ArrayList<>();
 
     /**
      * Returns all entries in the bulk object

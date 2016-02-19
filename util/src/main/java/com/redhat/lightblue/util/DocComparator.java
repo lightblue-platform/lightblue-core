@@ -149,7 +149,7 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
          * Constructs a Difference denoting no difference
          */
         public Difference(int numFields) {
-            delta=new ArrayList<Delta<T>>();
+            delta=new ArrayList<>();
             numUnchangedFields=numFields;
         }
 
@@ -458,10 +458,10 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
             return compareObjects(field1,asObject(node1),field2,asObject(node2));
         } else {
             if(!(isNull(node1) && isNull(node2)) ) {
-                return new Difference<BaseType>(new Modification(field1,node1,field2,node2));
+                return new Difference<>(new Modification(field1, node1, field2, node2));
             }
         }
-        return new Difference<BaseType>(1);
+        return new Difference<>(1);
     }
     
     /**

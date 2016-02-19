@@ -275,7 +275,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public Set<String> findFieldsNotIn(JsonNode elements, Set<String> removeAllFields) {
-        final HashSet<String> strings = new HashSet<String>();
+        final HashSet<String> strings = new HashSet<>();
         final Iterator<String> stringIterator = elements.fieldNames();
         while (stringIterator.hasNext()) {
             String next = stringIterator.next();
