@@ -377,6 +377,8 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
 
         @Override
         public boolean equals(Object x) {
+            if(x == null || x.getClass() != this.getClass())
+                return false;
             try {
                 DefaultIdentity d=(DefaultIdentity)x;
                 for(int i=0;i<nodes.length;i++) {
@@ -592,6 +594,8 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
         }
 
         public boolean equals(Object o) {
+            if(o == null || o.getClass() != this.getClass())
+                return false;
             try {
                 return ((Pair)o).i1==i1&&
                     ((Pair)o).i2==i2;

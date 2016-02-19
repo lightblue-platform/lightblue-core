@@ -77,6 +77,8 @@ public class SortableItem implements Comparable<SortableItem> {
     
     @Override
     public boolean equals(Object x) {
+        if(x == null || x.getClass() != this.getClass())
+            return false;
         try {
             return compareTo((SortableItem)x)==0;
         } catch (Exception e) {

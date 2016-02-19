@@ -34,7 +34,7 @@ class GeneratorKey {
     }
 
     public boolean equals(Object x) {
-        if(x!=null)
+        if(x!=null && x.getClass() == this.getClass())
             try {
                 return ((GeneratorKey)x).type==type&&
                     (  (backend==null&& ((GeneratorKey)x).backend==null) ||
