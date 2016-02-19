@@ -17,11 +17,10 @@ public class SimpleHookResolver implements HookResolver {
 
     private final Map<String, CRUDHook> map = new HashMap<>();
 
-    private LightblueFactory lightblueFactory;
-
     public SimpleHookResolver(List<HookConfigurationParser> hookConfigurationParsers, LightblueFactory lightblueFactory) {
         if (hookConfigurationParsers != null && !hookConfigurationParsers.isEmpty()) {
             for (HookConfigurationParser parser : hookConfigurationParsers) {
+                lightblueFactory.injectDependencies(parser);
                 CRUDHook hook = parser.getCRUDHook();
                 lightblueFactory.injectDependencies(hook);
                 map.put(parser.getName(), hook);

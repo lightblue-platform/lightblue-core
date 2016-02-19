@@ -255,7 +255,7 @@ public abstract class LightblueTestHarness {
      * {@link #REMOVE_ALL_HOOKS}, which will remove all hooks.
      */
     public Set<String> getHooksToRemove() {
-        return new HashSet<String>(Arrays.asList(REMOVE_ALL_HOOKS));
+        return new HashSet<>(Arrays.asList(REMOVE_ALL_HOOKS));
     }
 
     /**

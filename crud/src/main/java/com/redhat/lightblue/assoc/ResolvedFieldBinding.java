@@ -209,7 +209,7 @@ public class ResolvedFieldBinding implements Serializable {
             LOGGER.debug("Absolute array:{}",absoluteArray);
             if(arrayMd==thisMd&&!absoluteArray.equals(thisMd.getEntityPath())) {
                 // Convert array to relative, and return an elem match query
-                Path arrayPath = null;
+                Path arrayPath;
                 if(arrayMd.getParent()==null) {
                     arrayPath=absoluteArray;
                 } else {
@@ -405,7 +405,7 @@ public class ResolvedFieldBinding implements Serializable {
             if(valueNode==null) 
                 ((ListBinding)binding).getList().setList(new ArrayList());
             else {
-                List<Value> l=new ArrayList<Value>( ((ArrayNode)valueNode).size());
+                List<Value> l=new ArrayList<>(((ArrayNode) valueNode).size());
                 for(Iterator<JsonNode> itr=((ArrayNode)valueNode).elements();itr.hasNext();) {
                     l.add(new Value(type.fromJson(itr.next())));
                 }

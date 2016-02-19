@@ -82,7 +82,7 @@ public class SortAndLimit {
         int size=resultList.size();
         int f=from==null?0:from.intValue();
         if(f>=size)
-            return new ArrayList<ResultDoc>();
+            return new ArrayList<>();
         
         int t=to==null?size-1:to.intValue();
         if(t>=size)

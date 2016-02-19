@@ -277,7 +277,7 @@ public abstract class AbstractTreeCursor<N> {
     protected abstract boolean hasChildren(N node);
 
     private void push() {
-        stack.addLast(new LevelState<N>(currentNode, currentCursor));
+        stack.addLast(new LevelState<>(currentNode, currentCursor));
     }
 
     private void pop() {

@@ -172,7 +172,7 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
         // an order of magnitude slower.
         int count = 1000000;
 
-        long timeStringBuilder = 0;
+        long timeStringBuilder;
         {
             long before = System.currentTimeMillis();
             StringBuilder bld = new StringBuilder();
@@ -186,7 +186,7 @@ public class QueryPlanTest extends AbstractJsonNodeTest {
             timeStringBuilder = after-before;
         }
 
-        long timeString= 0;
+        long timeString;
         {
             long before = System.currentTimeMillis();
             for (int i = 0; i < count; i++) {

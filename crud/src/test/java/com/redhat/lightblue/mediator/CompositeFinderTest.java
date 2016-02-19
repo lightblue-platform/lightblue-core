@@ -169,7 +169,7 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         factory.addCRUDController("mongo", new CompositeTestCrudController(new TestCrudController.GetData() {
                 public List<JsonDoc> getData(String entityName) {
                     try {
-                        List<JsonDoc> docs=new ArrayList<JsonDoc>();
+                        List<JsonDoc> docs=new ArrayList<>();
                         JsonNode node=loadJsonNode("composite/"+entityName+"_data.json");
                         if(node instanceof ArrayNode) {
                             for(Iterator<JsonNode> itr=((ArrayNode)node).elements();itr.hasNext();)
