@@ -40,7 +40,7 @@ public class ArithTest {
 
     @Test
     public void testAddBigDecimalWithBigDecimalOutput() {
-        Assert.assertEquals(new BigDecimal(20), Arith.add(new BigDecimal(10.0), new BigDecimal(10.0), BigDecimalType.TYPE));
+        Assert.assertEquals(BigDecimal.valueOf(20), Arith.add(BigDecimal.valueOf(10.0), BigDecimal.valueOf(10.0), BigDecimalType.TYPE));
     }
 
     @Test
@@ -50,12 +50,12 @@ public class ArithTest {
 
     @Test
     public void testAddDoubleWithDoubleOutput() {
-        Assert.assertEquals(new Double(20), Arith.add(new Double(10), new Double(10), DoubleType.TYPE));
+        Assert.assertEquals(Double.valueOf(20), Arith.add(Double.valueOf(10), Double.valueOf(10), DoubleType.TYPE));
     }
 
     @Test
     public void testAddLongWithLongOutput() {
-        Assert.assertEquals(new Long(20), Arith.add(new Long(10), new Long(10), IntegerType.TYPE));
+        Assert.assertEquals(Long.valueOf(20), Arith.add(Long.valueOf(10), Long.valueOf(10), IntegerType.TYPE));
     }
 
     @Test
