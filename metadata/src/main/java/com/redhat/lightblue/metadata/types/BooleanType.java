@@ -70,7 +70,7 @@ public final class BooleanType implements Type, Serializable {
         Boolean value = null;
         if (obj != null) {
             if (obj instanceof Boolean) {
-                value = ((Boolean) obj);
+                value = (Boolean) obj;
             } else if (obj instanceof Number) {
                 value = ((Number) obj).intValue() != 0;
             } else if (obj instanceof String) {

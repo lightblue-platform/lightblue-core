@@ -105,7 +105,7 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
 
     private void copy() {
         if (copiedList == null) {
-            copiedList = new ArrayList<T>(list);
+            copiedList = new ArrayList<>(list);
         }
     }
 }

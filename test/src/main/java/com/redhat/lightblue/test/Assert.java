@@ -51,7 +51,7 @@ public final class Assert {
      * @throws MultipleFailureException
      */
     public static void assertNoDataErrors(Response response) throws MultipleFailureException{
-        List<Throwable> errors = new ArrayList<Throwable>();
+        List<Throwable> errors = new ArrayList<>();
         for(DataError error : response.getDataErrors()){
             errors.add(new Exception("DataError: " + error.toJson().toString()));
         }

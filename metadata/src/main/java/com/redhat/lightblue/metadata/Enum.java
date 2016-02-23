@@ -55,7 +55,7 @@ public class Enum implements Serializable {
     }
 
     public void setValues(Collection<String> values){
-        Set<EnumValue> evSet = new HashSet<EnumValue>();
+        Set<EnumValue> evSet = new HashSet<>();
         for(String string : values){
             evSet.add(new EnumValue(string, null));
         }
@@ -66,14 +66,14 @@ public class Enum implements Serializable {
      * The {@link EnumValue}s allowed in this enumeration.
      */
     public Set<EnumValue> getEnumValues() {
-        return new HashSet<EnumValue>(values);
+        return new HashSet<>(values);
     }
 
     /**
      * The values allowed in this enumeration.
      */
     public Set<String> getValues(){
-        Set<String> strings = new HashSet<String>();
+        Set<String> strings = new HashSet<>();
         for(EnumValue v : values){
             strings.add(v.getName());
         }

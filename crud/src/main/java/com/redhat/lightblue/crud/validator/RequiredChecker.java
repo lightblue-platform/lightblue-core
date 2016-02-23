@@ -67,7 +67,7 @@ public class RequiredChecker implements FieldConstraintDocChecker {
                                               JsonDoc doc) {
         LOGGER.debug("Checking {}",fieldMetadataPath);
         int nAnys = fieldMetadataPath.nAnys();
-        List<Path> errors = new ArrayList<Path>();
+        List<Path> errors = new ArrayList<>();
         if (nAnys == 0) {
             JsonNode fieldNode=doc.get(fieldMetadataPath);
             if (fieldNode == null) {

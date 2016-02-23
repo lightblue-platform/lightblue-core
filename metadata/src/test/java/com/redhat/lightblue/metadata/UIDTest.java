@@ -153,7 +153,7 @@ public class UIDTest extends AbstractJsonNodeTest {
     @Test
     public void userTest() throws Exception {
         JsonNode node = loadJsonNode("usermd.json");
-        Extensions<JsonNode> extensions = new Extensions<JsonNode>();
+        Extensions<JsonNode> extensions = new Extensions<>();
         extensions.addDefaultExtensions();
         extensions.registerDataStoreParser("mongo", new DataStoreParser<JsonNode>() {
             @Override

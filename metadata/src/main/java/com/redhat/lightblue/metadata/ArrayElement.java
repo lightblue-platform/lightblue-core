@@ -32,7 +32,7 @@ public abstract class ArrayElement implements FieldTreeNode, Serializable {
     private Type type;
 
     private FieldTreeNode parent = null;
-    private final Map<String, Object> properties = new HashMap<String, Object>();
+    private final Map<String, Object> properties = new HashMap<>();
 
     public ArrayElement() {
     }

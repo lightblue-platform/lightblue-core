@@ -97,7 +97,7 @@ public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
      * Returns field information about the query
      */
     public static List<FieldInfo> getQueryFields(QueryExpression q) {
-        List<FieldInfo> list = new ArrayList<FieldInfo>(16);
+        List<FieldInfo> list = new ArrayList<>(16);
         getQueryFields(list,q);
         return list;
     }
@@ -115,7 +115,7 @@ public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
      * The implementation should populate the list with the field information
      */
     public static <T extends FieldInfo> void getQueryFields(List<T> fields, QueryExpression q,Path ctx) {
-        new GetQueryFields<T>(fields).iterate(q, ctx);
+        new GetQueryFields<>(fields).iterate(q, ctx);
     }
 
 }

@@ -145,6 +145,6 @@ public class BindFields<T extends FieldBinding> extends QueryIterator {
                                                                 Path ctx,
                                                                 List<T> bindingResult,
                                                                 Set<Path> bindRequest) {
-        return new BindFields<T>(bindingResult, bindRequest).iterate(q, ctx);
+        return new BindFields<>(bindingResult, bindRequest).iterate(q, ctx);
     }
 }

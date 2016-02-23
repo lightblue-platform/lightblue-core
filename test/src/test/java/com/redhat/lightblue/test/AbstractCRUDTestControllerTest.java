@@ -18,7 +18,7 @@ public class AbstractCRUDTestControllerTest {
     public void testStripHooks_All() throws Exception {
         JsonNode node = loadJsonNode("./metadata/hooks.json");
         LightblueTestHarness.stripHooks(node,
-                new HashSet<String>(Arrays.asList(
+                new HashSet<>(Arrays.asList(
                         LightblueTestHarness.REMOVE_ALL_HOOKS)));
 
         assertNull(node.get("entityInfo").get("hooks"));
@@ -28,7 +28,7 @@ public class AbstractCRUDTestControllerTest {
     public void testStripHooks_Selective() throws Exception {
         JsonNode node = loadJsonNode("./metadata/hooks.json");
         LightblueTestHarness.stripHooks(node,
-                new HashSet<String>(Arrays.asList("someHook")));
+                new HashSet<>(Arrays.asList("someHook")));
 
         JsonNode hooksNode = node.get("entityInfo").get("hooks");
         assertNotNull(hooksNode);

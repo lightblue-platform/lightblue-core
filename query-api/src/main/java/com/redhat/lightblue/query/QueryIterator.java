@@ -119,7 +119,7 @@ public abstract class QueryIterator extends QueryIteratorSkeleton<QueryExpressio
      * expressions and returns that.
      */
     protected QueryExpression itrNaryLogicalExpression(NaryLogicalExpression q, Path context) {
-        CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<QueryExpression>(q.getQueries());
+        CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<>(q.getQueries());
         while (itr.hasNext()) {
             QueryExpression nestedq = itr.next();
             QueryExpression newq = iterate(nestedq, context);

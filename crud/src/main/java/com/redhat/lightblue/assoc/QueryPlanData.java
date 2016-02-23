@@ -76,7 +76,7 @@ public class QueryPlanData implements Serializable {
      */
     public void copyFrom(QueryPlanData source) {
         if(source.conjuncts!=null)
-            conjuncts=new ArrayList<Conjunct>(source.conjuncts);
+            conjuncts=new ArrayList<>(source.conjuncts);
         else
             conjuncts=null;
     }

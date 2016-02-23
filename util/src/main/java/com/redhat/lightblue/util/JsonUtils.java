@@ -18,6 +18,18 @@
  */
 package com.redhat.lightblue.util;
 
+import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.lang3.text.StrSubstitutor;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,17 +42,6 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
-import org.apache.commons.lang3.text.StrSubstitutor;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.Map;
-
-import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 
 /**
  * Generic utilities for dealing with JSON
@@ -48,11 +49,13 @@ import static com.redhat.lightblue.util.test.AbstractJsonNodeTest.loadJsonNode;
 public final class JsonUtils {
 
     /**
-     * Returns an object mapper to parse JSON text
+     * <p>Returns an object mapper to parse JSON text.</p>
+     * <p><b>NOTE:</b> {@link ObjectMapper} should not be shared among threads.</p>
      */
     public static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+        mapper.setDateFormat(Constants.getDateFormat());
         return mapper;
     }
 
@@ -80,11 +83,11 @@ public final class JsonUtils {
      * Parses a JSON stream
      */
     public static JsonNode json(InputStream stream,boolean systemPropertySubstitution) throws IOException {
-        return json((Reader) new InputStreamReader(stream, Charset.defaultCharset()),systemPropertySubstitution);
+        return json(new InputStreamReader(stream, Charset.defaultCharset()),systemPropertySubstitution);
     }
 
     public static JsonNode json(InputStream stream) throws IOException {
-        return json((Reader) new InputStreamReader(stream, Charset.defaultCharset()));
+        return json(new InputStreamReader(stream, Charset.defaultCharset()));
     }
 
     /**

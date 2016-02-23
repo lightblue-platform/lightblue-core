@@ -102,6 +102,9 @@ public abstract class Request extends JsonObject {
         if (execution != null) {
             node.set("execution", execution.toJson());
         }
+        if (getOperation() != null) {
+            node.put("op", getOperation().name());
+        }
         return node;
     }
 

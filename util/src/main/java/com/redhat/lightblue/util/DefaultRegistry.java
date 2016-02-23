@@ -54,7 +54,7 @@ public class DefaultRegistry<K, V> implements Registry<K, V>, Serializable {
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
             if(!items.containsKey(pair.getKey())){
-                items.put(((K)pair.getKey()),((V)pair.getValue()));
+                items.put((K)pair.getKey(), (V)pair.getValue());
             }
         }
     }

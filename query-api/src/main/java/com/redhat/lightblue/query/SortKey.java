@@ -69,7 +69,7 @@ public class SortKey extends Sort {
         String fieldString = node.fieldNames().next();
         String dir = node.get(fieldString).asText();
         Path field = new Path(fieldString);
-        boolean desc = false;
+        boolean desc;
         switch (dir) {
             case "$asc":
                 desc = false;

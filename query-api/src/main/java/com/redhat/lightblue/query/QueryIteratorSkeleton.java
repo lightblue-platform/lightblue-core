@@ -41,7 +41,7 @@ public abstract class QueryIteratorSkeleton<T> {
      * interpreted relative to the given context
      */
     public T iterate(QueryExpression q, Path context) {
-        T ret=null;
+        T ret;
         if (q instanceof ValueComparisonExpression) {
             ret=itrValueComparisonExpression((ValueComparisonExpression) q, context);
         } else if (q instanceof FieldComparisonExpression) {

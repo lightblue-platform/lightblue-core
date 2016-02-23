@@ -32,7 +32,7 @@ public class FakeClientIdentification extends ClientIdentification {
     private final Set<String> validUserRoles;
 
     public FakeClientIdentification(String principal, String... validUserRoles){
-        this(principal, new HashSet<String>(Arrays.asList(validUserRoles)));
+        this(principal, new HashSet<>(Arrays.asList(validUserRoles)));
     }
 
     public FakeClientIdentification(String principal, Set<String> validUserRoles){

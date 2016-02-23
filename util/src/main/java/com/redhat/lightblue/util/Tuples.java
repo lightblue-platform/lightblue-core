@@ -90,8 +90,8 @@ public class Tuples<T> {
 
         public TupleItr(List<Iterable<X>> list) {
             coll = new ArrayList<>(list);
-            tuple = new ArrayList<X>(Collections.nCopies(coll.size(), (X) null));
-            itrList = new ArrayList<Iterator<X>>(Collections.nCopies(coll.size(), (Iterator<X>) null));
+            tuple = new ArrayList<>(Collections.nCopies(coll.size(), (X) null));
+            itrList = new ArrayList<>(Collections.nCopies(coll.size(), (Iterator<X>) null));
         }
 
         @Override

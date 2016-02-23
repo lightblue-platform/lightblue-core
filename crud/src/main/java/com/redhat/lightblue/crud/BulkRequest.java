@@ -27,10 +27,9 @@ import java.util.Comparator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-
-import com.redhat.lightblue.util.JsonObject;
 import com.redhat.lightblue.Request;
+import static com.redhat.lightblue.util.JsonUtils.json;
+import java.math.BigDecimal;
 
 /**
  * Contains a list of requests. Each request has a sequence number
@@ -49,8 +48,18 @@ import com.redhat.lightblue.Request;
  */
 public class BulkRequest extends AbstractBulkJsonObject<Request> {
 
+    @Override
     public JsonNode toJson() {
-        throw new UnsupportedOperationException();
+        ObjectNode rootJson = getFactory().objectNode();
+        ArrayNode requestsJson = getFactory().arrayNode();
+        rootJson.set("requests", requestsJson);
+        int seq = 0;
+        for (Request request : getEntries()) {
+            ObjectNode requestJson = (ObjectNode) request.toJson();
+            requestJson.put("seq", seq++);
+            requestsJson.add(requestJson);
+        }
+        return rootJson;
     }
     
     public static BulkRequest fromJson(ObjectNode node) {
@@ -58,7 +67,6 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
         req.parse((ArrayNode)node.get("requests"));
         return req;
     }
-    
 
     protected Request parseEntry(ObjectNode node) {
         JsonNode opNode=node.get("op");
@@ -113,9 +121,10 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
             JsonNode val=x.get("seq");
             if(val!=null) {
                 int seq=val.asInt();
-                if(first)
+                if(first) {
                     lastSeq=seq;
-                else {
+                    first = false;
+                } else {
                     if(seq<lastSeq)
                         ooo=true;
                     else
@@ -127,6 +136,7 @@ public class BulkRequest extends AbstractBulkJsonObject<Request> {
         }
         if(ooo)
             Collections.sort(list,new Comparator<SReq>() {
+                    @Override
                     public int compare(SReq r1,SReq r2) {
                         return r1.seq-r2.seq;
                     }

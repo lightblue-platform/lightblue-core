@@ -46,6 +46,7 @@ public class DeleteRequest extends Request implements WithQuery {
         query = q;
     }
 
+    @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.DELETE;
     }
