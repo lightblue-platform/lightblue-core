@@ -82,9 +82,9 @@ public class RewriteQuery extends QueryIterator {
 
     public static final class RewriteQueryResult {
         public final QueryExpression query;
-        public final List<FieldBinding> bindings;
+        public final List<BoundObject> bindings;
 
-        public RewriteQueryResult(QueryExpression query,List<FieldBinding> bindings) {
+        public RewriteQueryResult(QueryExpression query,List<BoundObject> bindings) {
             this.query=query;
             this.bindings=bindings;
         }
@@ -127,7 +127,7 @@ public class RewriteQuery extends QueryIterator {
         // Set by rewriteQuery before calling
         private final List<QueryFieldInfo> fieldInfo;        
         // Set by rewriteQuery before calling
-        private final List<FieldBinding> bindings=new ArrayList<>(16);
+        private final List<BoundObject> bindings=new ArrayList<>(16);
         
         // This is prefixed to all field names
         private Path nestedFieldPrefix=Path.EMPTY;
@@ -143,7 +143,7 @@ public class RewriteQuery extends QueryIterator {
             this.fieldInfo=fieldInfo;
         }
         
-        public List<FieldBinding> getBindings() {
+        public List<BoundObject> getBindings() {
             return bindings;
         }
         
@@ -241,18 +241,18 @@ public class RewriteQuery extends QueryIterator {
          * Binds the given field to a value.
          */
         private Value bind(QueryFieldInfo fi) {
-            Value value=new Value(null);
-            bindings.add(new ValueBinding(fi,value));
-            return value;
+            BoundValue b=new BoundValue(fi);
+            bindings.add(b);
+            return b;
         }
         
         /**
          * Binds the given field to a list of values
          */
         private List<Value> bindList(QueryFieldInfo fi) {
-            List<Value> value=new ArrayList<>();
-            bindings.add(new ListBinding(fi,value));
-            return value;
+            BoundList b=new BoundList(fi);
+            bindings.add(b);
+            return b;
         }
         
         /**

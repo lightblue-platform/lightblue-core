@@ -18,25 +18,13 @@
  */
 package com.redhat.lightblue.assoc;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import com.redhat.lightblue.query.Value;
 
 /**
- * Represents a field bound to a list of values. This contains the
- * list within a query clause that is bound to an array field in
- * another document.
+ * Interface definition for BoundObject
  */
-public class ListBinding extends FieldBinding {
-    private final List<Value> value;
-
-    public ListBinding(QueryFieldInfo fieldInfo,
-                       List<Value> value) {
-        super(fieldInfo);
-        this.value=value;
-    }
-    
-    public List<Value> getValue() {
-        return value;
-    }
+public interface BoundObject  {
+    QueryFieldInfo getFieldInfo();
 }

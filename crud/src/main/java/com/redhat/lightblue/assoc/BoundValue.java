@@ -18,17 +18,25 @@
  */
 package com.redhat.lightblue.assoc;
 
+import com.redhat.lightblue.query.Value;
+
 /**
- * Common base class for ValueBinding and ListBinding. Contains the
- * field information for the field that is bound to a value.
+ * An extension of value with fixed null value, but containing field
+ * query field info for the field. When a query is rewritten, all
+ * fields referenced in the query that belong to another entity are
+ * replaced with a BoundValue instance. When the actual value of the
+ * field is determined, the query is rewritten to replace the
+ * BoundValue with the actual value.
  */
-public abstract class FieldBinding {
+public class BoundValue extends Value implements BoundObject {
     protected final QueryFieldInfo fieldInfo;
 
-    public FieldBinding(QueryFieldInfo fieldInfo) {
+    public BoundValue(QueryFieldInfo fieldInfo) {
+        super(null);
         this.fieldInfo=fieldInfo;
     }
 
+    @Override
     public QueryFieldInfo getFieldInfo() {
         return fieldInfo;
     }

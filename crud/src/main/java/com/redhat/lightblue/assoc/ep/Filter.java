@@ -24,26 +24,31 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/**
- * Limits the resultset to at most n
- */
-public class Limit<T> extends Step<T> {
+import com.redhat.lightblue.eval.QueryEvaluator;
+import com.redhat.lightblue.query.QueryExpression;
 
-    private final int limit;
-    private final Step<T> source;
+/**
+ * Filters the result set based on a query
+ */
+public class Filter extends Step<ResultDocument> {
+
+    private final QueryEvaluator qe;
+    private final QueryExpression q;
+    private final Step<ResultDocument> source;
     
-    public Limit(ExecutionBlock block,int n,Step<T> source) {
+    public Filter(ExecutionBlock block,Step<ResultDocument> source,QueryExpression q) {
         super(block);
         this.source=source;
-        limit=n;
+        this.q=q;
+        this.qe=QueryEvaluator.getInstance(q,block.getMetadata());
     }
 
     @Override
-    public StepResult<T> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<T>(source.getResults(ctx)) {
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
             @Override
-            public Stream<T> stream() {
-                return super.stream().limit(limit);
+            public Stream<ResultDocument> stream() {
+                return super.stream().filter(doc->qe.evaluate(doc.getDoc()).getResult());
             }
         };        
     }
@@ -51,7 +56,7 @@ public class Limit<T> extends Step<T> {
     @Override
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("limit",JsonNodeFactory.instance.numberNode(limit));
+        o.set("filter",q.toJson());
         o.set("source",source.toJson());
         return o;
     }

@@ -18,22 +18,27 @@
  */
 package com.redhat.lightblue.assoc;
 
+import java.util.ArrayList;
+
 import com.redhat.lightblue.query.Value;
 
 /**
- * Represents a field bound to a value. This contains the value within
- * a query clause that is bound to a field in another document.
+ * An extension of List<Value> with empty list, but containing field
+ * query field info for the field. When a query is rewritten, all list
+ * fields referenced in the query that belong to another entity are
+ * replaced with a BoundList instance. When the actual value of the
+ * field is determined, the query is rewritten to replace the
+ * BoundList with the actual value.
  */
-public class ValueBinding extends FieldBinding {
-    private final Value value;
-
-    public ValueBinding(QueryFieldInfo fieldInfo,
-                        Value value) {
-        super(fieldInfo);
-        this.value=value;
+public class BoundList extends ArrayList<Value> implements BoundObject {
+    protected final QueryFieldInfo fieldInfo;
+    
+    public BoundList(QueryFieldInfo fieldInfo) {
+        this.fieldInfo=fieldInfo;
     }
 
-    public Value getValue() {
-        return value;
+    @Override
+    public QueryFieldInfo getFieldInfo() {
+        return fieldInfo;
     }
 }

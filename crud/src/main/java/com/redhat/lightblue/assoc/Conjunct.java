@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
 
 /**
  * A query clause that cannot be further broken into conjuncts of a

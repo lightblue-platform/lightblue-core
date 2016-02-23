@@ -18,6 +18,10 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
+import java.util.concurrent.ExecutorService;
+
+import com.redhat.lightblue.mediator.OperationContext;
+
 /**
  * Keeps state information for the execution
  */
@@ -25,11 +29,16 @@ public class ExecutionContext {
     private final OperationContext opctx;
     private final ExecutorService executor;
 
-    public ExecutionContext(OperationContext ctx) {
-        this.opctx=opctx;
+    public ExecutionContext(OperationContext ctx,ExecutorService executor) {
+        this.opctx=ctx;
+        this.executor=executor;
     }
 
     public OperationContext getOperationContext() {
         return opctx;
     }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }   
 }

@@ -1,6 +1,7 @@
 package com.redhat.lightblue.assoc;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -26,7 +27,7 @@ import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
 import com.redhat.lightblue.TestDataStoreParser;
 import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 
-public class RewriteQueryTest extends AbstractJsonNodeTest {
+public class BindQueryTest extends AbstractJsonNodeTest {
 
     private class GMD extends AbstractGetMetadata {
         public GMD(Projection p,QueryExpression q) {
@@ -69,35 +70,6 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         return Projection.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
 
-    @Test
-    public void testReqQuery() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-
-        // Process request query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        
-        QueryExpression q=query("{'$and':[ { 'field':'field1','op':'=','rvalue':'x'},{'field':'obj1.c.*.field1','op':'=','rvalue':'y'}]}");
-        pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
-
-        // Rewrite the query at root
-        RewriteQuery rw=new RewriteQuery(md,md);
-        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
-        QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(0,bindings.size());
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
-        JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:x}", newq.toString(), false);
-
-        rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
-        result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
-        Assert.assertEquals(0,bindings.size());        
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
-        JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:y}", newq.toString(), false);      
-    }
 
     @Test
     public void testSimpleAssocQuery() throws Exception {
@@ -113,19 +85,21 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
         RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
         QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(1,bindings.size());
-        Assert.assertTrue(bindings.get(0) instanceof BoundValue);
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
+        List<Binder> binders=new ArrayList<>();
+        binders.add(new Binder(result.bindings.get(0),new Value("x")));
+        BindQuery bq=new BindQuery(binders);
+        newq=bq.iterate(newq);
+        JSONAssert.assertEquals("{field:_id,op:$eq,rvalue:x}",newq.toString(),false);
 
         // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
         rw=new RewriteQuery(md,md);
         result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
         newq=result.query;
-        Assert.assertEquals(1,bindings.size());
-        Assert.assertTrue(bindings.get(0) instanceof BoundValue);
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
+        binders=new ArrayList<>();
+        binders.add(new Binder(result.bindings.get(0),new Value("x")));
+        bq=new BindQuery(binders);
+        newq=bq.iterate(newq);
+        JSONAssert.assertEquals("{field:obj1.c_ref,op:$eq,rvalue:x}",newq.toString(),false);
         
     }
 
@@ -143,19 +117,20 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
         RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
         QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(1,bindings.size());
-        Assert.assertTrue(bindings.get(0) instanceof BoundValue);
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
+        List<Binder> binders=new ArrayList<>();
+        binders.add(new Binder(result.bindings.get(0),new Value("x")));
+        BindQuery bq=new BindQuery(binders);
+        newq=bq.iterate(newq);
+        JSONAssert.assertEquals("{field:_id,op:$eq,rvalue:x}",newq.toString(),false);
 
         // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
         rw=new RewriteQuery(md,md);
         result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
-        Assert.assertEquals(1,bindings.size());
-        Assert.assertTrue(bindings.get(0) instanceof BoundValue);
-        Assert.assertTrue(newq instanceof ValueComparisonExpression);
+        binders=new ArrayList<>();
+        binders.add(new Binder(result.bindings.get(0),new Value("x")));
+        bq=new BindQuery(binders);
+        newq=bq.iterate(result.query);
+        JSONAssert.assertEquals("{field:obj1.c_ref,op:$eq,rvalue:x}",newq.toString(),false);
         
     }
 
@@ -179,18 +154,29 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("users")));
         RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
         QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(2,bindings.size());
-        Assert.assertTrue(bindings.get(0) instanceof BoundValue);
+        List<Binder> binders=new ArrayList<>();
+        binders.add(new Binder(result.bindings.get(0),new Value("x")));
+        binders.add(new Binder(result.bindings.get(1),new Value("y")));
+        BindQuery bq=new BindQuery(binders);
+        newq=bq.iterate(newq);
+        JSONAssert.assertEquals("{$and:[{field:_id,op:$eq,rvalue:x},"+
+                                "{array:authentications,elemMatch:{$and:["+
+                                "{field:providerName,op:$eq,rvalue:p},"+
+                                "{field:principal,op:$eq,rvalue:y}]}}]}",newq.toString(),false);
 
         // Rewrite for UC. That means, U docs are retrieved, and we'll retrieve UC
         // This is the reverse case
         rw=new RewriteQuery(md,md);
         result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
         newq=result.query;
         System.out.println(newq);
-        Assert.assertEquals(2,bindings.size());
+        binders=new ArrayList<>();
+        binders.add(new Binder(result.bindings.get(0),new Value("x")));
+        binders.add(new Binder(result.bindings.get(1),new Value("y")));
+        bq=new BindQuery(binders);
+        newq=bq.iterate(newq);
+        JSONAssert.assertEquals("{$and:[{field:userId,op:$eq,rvalue:x},"+
+                                "{field:userRedHatPrincipal,op:$eq,rvalue:y}]}",newq.toString(),false);
     }
     
 }

@@ -19,9 +19,14 @@
 package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
@@ -36,7 +41,6 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.DocCtx;
 
 import com.redhat.lightblue.assoc.Conjunct;
-import com.redhat.lightblue.assoc.FieldBinding;
 
 /**
  * Performs search
@@ -44,15 +48,20 @@ import com.redhat.lightblue.assoc.FieldBinding;
  * Input: n/a
  * Output: ResultDocument
  */
-public class Search implements Step<ResultDocument> {
+public class Search extends Step<ResultDocument> {
     
-    private static final Logger LOGGER=LoggerFactory.getLogger(SearchStep.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(Search.class);
     
     protected QueryExpression query;
     protected Projection projection;
     protected Sort sort;
     protected Long from,to;
+    protected List<Conjunct> conjuncts;
 
+    public Search(ExecutionBlock block) {
+        super(block);
+    }
+    
     public void setSort(Sort sort) {
         this.sort=sort;
     }
@@ -66,20 +75,30 @@ public class Search implements Step<ResultDocument> {
         this.projection=p;
     }
     
-    public void addQueryClause(List<Conjunct> conjuncts) {
-
+    public void setQueries(List<Conjunct> conjuncts) {
+        this.conjuncts=conjuncts;
+        List<QueryExpression> l=new ArrayList<>(conjuncts.size());
+        for(Conjunct c:conjuncts) {
+            l.add(c.getClause());
+        }
+        query=l.size()==1?l.get(0):new NaryLogicalExpression(NaryLogicalOperator._and,l);
     }
-
+    
     @Override
-    public Stream<ResultDocument> getResults(ExecutionContext ctx) {
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
         OperationContext result=search(ctx);
         if(result!=null) {
             List<DocCtx> documents=result.getDocuments();
-            return documents.stream().map(doc -> doc.getOutputDocument());
+            return new StepResult<ResultDocument>() {
+                @Override
+                public Stream<ResultDocument> stream() {
+                    return documents.stream().map(doc -> doc.getOutputDocument());
+                }
+            };
         }
     }
 
-    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
+    public CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
         CRUDFindRequest findRequest=new CRUDFindRequest();
         findRequest.setQuery(query);
         findRequest.setProjection(projection);
@@ -89,7 +108,7 @@ public class Search implements Step<ResultDocument> {
         return findRequest;
     }
 
-    protected OperationContext search(ExecutionContext ctx) {
+    public OperationContext search(ExecutionContext ctx) {
         CRUDFindRequest req=buildFindRequest(ctx);
         if(req!=null)
             return search(ctx,req);
@@ -97,7 +116,7 @@ public class Search implements Step<ResultDocument> {
             return null;
     }
     
-    protected OperationContext search(ExecutionContext ctx,CRUDFindRequest findRequest) {
+    public OperationContext search(ExecutionContext ctx,CRUDFindRequest findRequest) {
         OperationContext searchCtx=null;
         CRUDFindRequest findRequest=buildFindRequest(ctx);
         if(findRequest!=null) {
@@ -127,6 +146,17 @@ public class Search implements Step<ResultDocument> {
             }
         } 
         return searchCtx;
-    }    
+    }
+
+    @Override
+    public JsonNode toJson() {
+        ObjectNode o=JsonNodeFactory.objectNode();
+        o.set("search",query==null?JsonNodeFactory.instance.nullNode():query.toJson());
+        o.set("projection",projection==null?JsonNodeFactory.instance.nullNode():projection.toJson());
+        o.set("sort",sort==null?JsonNodeFactory.instance.nullNode():sort.toJson());
+        o.set("from",from==null?JsonNodeFactory.instance.nullNode():JsonNodeFactory.instance.numberNode(from));
+        o.set("to",to==null?JsonNodeFactory.instance.nullNode():JsonNodeFactory.instance.numberNode(to));
+        return o;
+    }
 }
 

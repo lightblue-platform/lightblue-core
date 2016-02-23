@@ -22,15 +22,15 @@ package com.redhat.lightblue.assoc;
  * A binder contains a field binding and its value
  */
 public class Binder {
-    private final FieldBinding binding;
+    private final BoundObject binding;
     private final Object value;
 
-    public Binder(FieldBinding binding,Object value) {
+    public Binder(BoundObject binding,Object value) {
         this.binding=binding;
         this.value=value;
     }
 
-    public FieldBinding getBinding() {
+    public BoundObject getBinding() {
         return binding;
     }
 

@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
+
 /**
  * Instances of this class is used to associate additional data to
  * query plan nodes and edges. The actual implementation of

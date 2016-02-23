@@ -20,6 +20,16 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -28,17 +38,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.FieldProjection;
+import com.redhat.lightblue.query.ProjectionList;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.NaryLogicalExpression;
+import com.redhat.lightblue.query.NaryLogicalOperator;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
+import com.redhat.lightblue.metadata.ObjectField;
+import com.redhat.lightblue.metadata.ArrayField;
+import com.redhat.lightblue.metadata.ArrayElement;
 
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.RewriteQuery;
 import com.redhat.lightblue.assoc.QueryPlanData;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
+
+import com.redhat.lightblue.eval.SortFieldInfo;
 
 import com.redhat.lightblue.util.JsonUtils;
+import com.redhat.lightblue.util.Path;
 
 /**
  * Execution plan is a tree of execution blocks. Every node in the
@@ -49,10 +70,10 @@ import com.redhat.lightblue.util.JsonUtils;
  */
 public class ExecutionPlan {
 
+    static private final Logger LOGGER=LoggerFactory.getLogger(ExecutionPlan.class);
+    
     private final CompositeMetadata rootMd;
 
-    private ExecutionBlock rootBlock;
-    
     private int parallelism=1;
 
     /**
@@ -79,194 +100,224 @@ public class ExecutionPlan {
                          QueryPlan searchQueryPlan,
                          QueryPlan retrievalQueryPlan) {
         this.rootMd=rootMd;
-        // either both searchQueryPlan and retrievalQueryPlan is nonnull, in which case
-        // we append retrievalQueryPlan to searchQueryPlan and create an execution plan
-        // from those, or searchQueryPlan is null, and there is only
-        // retrievalQueryPlan
-        QueryPlanNode[] searchQPNodes=searchQueryPlan==null?null:searchQueryPlan.getAllNodes();
-        QueryPlanNode[] retrievalQPNodes=retrievalQueryPlan.getAllNodes();
-
-        // Create an execution block for each query plan node
-        PlanNodeExecutionBlock searchRoot=null;
-        // if(searchQPNodes!=null) {
-            
-        //     // First, create a block for each query plan node
-        //     for(QueryPlanNode qpNode:searchQPNodes) {
-        //         PlanNodeExecutionBlock block=new PlanNodeExecutionBlock(this,qpNode);
-        //         qpNode.setProperty(PlanNodeExecutionBlock.class, block);
-        //         if(block.isRootEntity())
-        //             searchRoot=block;
-        //     }
-
-        //     for(QueryPlanNode qpNode:searchQPNodes) {
-        //         PlanNodeExecutionBlock block=qpNode.getProperty(PlanNodeExecutionBlock.class);
-        //         RewriteQuery rewriter=new RewriteQuery(rootMd,qpNode.getMetadata());
-                
-        //         QueryPlanNode[] sources=qpNode.getSources();
-        //         if(sources.length>0) {
-        //             List<QueryPlanNode> children=new ArrayList<>(sources.length);
-        //             QueryPlanNode parent=splitParentAndChildren(qpNode,sources,children);
-        //             //   sources: array of all source nodes
-        //             //   parent: Pointer to a source node that is the parent
-        //             //   entity if this node, can be null
-        //             //   children: List of nodes that are child entities of this node,
-        //             //   can be empty
-                    
-        //             // A source node that is a parent entity is the
-        //             // straight forward solution. We execute this search
-        //             // node for every document retrieved for the parent
-        //             // entity. For doc in parent node, there can be
-        //             // multiple child docs, but for every child doc in
-        //             // this node, there is only one parent.
-                    
-        //             // A source node that is a child entity is more
-        //             // involved. A document in this node can be associated
-        //             // with multiple documents in the source node, because
-        //             // those docs are child docs.
-        //             block.addStep(new JoinStep(parent,children));
-                    
-
-
-
-            
-
-            
-        //         SearchStep searchStep=block.getStep(SearchStep.class);
-        //         searchStep.setProjection(FieldProjection.ALL);
-        //        } 
-        //     }
-        // }
-        // for(QueryPlanNode qpNode:retrievalQPNodes) {
-        //     if(qpNode.getMetadata().getParent()==null) {
-        //         // This is the root entity node
-        //         // If searchRoot is nonnull, then
-        //         // we have to get the results of that block, limit and
-        //         // sort them, and continue building rest of the
-        //         // execution plan rooted at a search and retrieve block
-        //         if(searchRoot!=null) {
-        //             // Sort and limit the result set
-        //             List<Conjunct> clauses=searchQueryPlan.getUnassignedClauses();
-        //             if(!clauses.isEmpty()) {
-        //                 searchRoot.append(new FilterStep(clauses));
-        //             }
-        //             if(requestSort!=null) {
-        //                 searchRoot.append(new SortStep(requestSort));
-        //             }
-        //             if(from!=null||to!=null) {
-        //                 searchRoot.append(new LimitStep(from,to));
-        //             }
-        //             // Embed this search plan into search and retrieve block
-        //             rootBlock=new SearchAndRetrieveBlock(this,qpNode,searchRoot);
-        //             qpNode.setProperty(PlanNodeExecutionBlock.class,(PlanNodeExecutionBlock)rootBlock);
-        //         } else {
-        //             // There was no search plan, initialize 
-        //             rootBlock=initializeBlock(qpNode);
-        //             // Since this is the root block, we can sort and limit at the search step
-        //             SearchStep search=rootBlock.getStep(SearchStep.class);
-        //             search.setSort(requestSort);
-        //             search.setLimit(from,to);
-        //         }
-        //     } else {
-        //         initializeBlock(qpNode);
-        //     }
-        // }
-
-        // // All the nodes of the execution plan are created. Now we process the edges
-
-        // // If there is a search plan:
-        // //
-        // // Search plan includes only those nodes that are required to find 
-        // // the root-level objects. So, execution plan creates the same
-        // // node layout of the search plan
-        // if(searchQPNodes!=null) {
-        //     for(QueryPlanNode qpNode:searchQPNodes) {
-        //         PlanNodeExecutionBlock block=qpNode.getProperty(PlanNodeExecutionBlock.class);
-        //         SearchStep searchStep=block.getStep(SearchStep.class);
-        //         searchStep.setProjection(FieldProjection.ALL);
-
-        //         QueryPlanNode[] sources=qpNode.getSources();                
-        //         if(sources.length==0) {
-        //             // This is a source node
-        //             // No edge queries
-
-        //         } else {
-                    
-        //             List<QueryPlanNode> children=new ArrayList<>(sources.length);
-        //             QueryPlanNode parent=splitParentAndChildren(qpNode,sources,children);
-                    
-        //             // Here:
-        //             //   sources: array of all source nodes
-        //             //   parent: Pointer to a source node that is the parent
-        //             //   entity if this node, can be null
-        //             //   children: List of nodes that are child entities of this node,
-        //             //   can be empty
-                    
-        //             // A source node that is a parent entity is the
-        //             // straight forward solution. We execute this search
-        //             // node for every document retrieved for the parent
-        //             // entity. For doc in parent node, there can be
-        //             // multiple child docs, but for every child doc in
-        //             // this node, there is only one parent.
-                    
-        //             // A source node that is a child entity is more
-        //             // involved. A document in this node can be associated
-        //             // with multiple documents in the source node, because
-        //             // those docs are child docs.
-                    
-        //             // Since there are some parent nodes, we first join, and compute tuples
-        //             block.addBefore(new JoinStep(parent,children),searchStep);
-
-        //             // If there are child documents in the parent block, then
-        //             // we have to associate the documents obtained from the search step
-        //             // with the documents in the parent block
-        //             if(!children.isEmpty()) {
-        //                 block.addAfter(new AssociateStep(),searchStep);
-        //             }
-                    
-        //             for(QueryPlanNode source:sources) {
-        //                 PlanNodeExecutionBlock sourceBlock=source.getProperty(PlanNodeExecutionBlock.class);
-        //                 block.addSourceBlock(sourceBlock);
-        //                 // Move edge queries into the destination block
-        //                 QueryPlanData edgeData=searchQueryPlan.getEdgeData(source,qpNode);
-        //                 if(edgeData!=null) {
-        //                     addQueries(edgeData.getConjuncts(),searchStep,
-        //                                new RewriteQuery(rootMd,qpNode.getMetadata()));
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
         
-        
-        // // We process edges of the retrieval plan
-        // for(QueryPlanNode qpNode:retrievalQPNodes) {
-        //     PlanNodeExecutionBlock block=qpNode.getProperty(PlanNodeExecutionBlock.class);
-        //     SearchStep searchStep=block.getStep(SearchStep.class);
-        //     searchStep.setProjection(FieldProjection.ALL);
+        // First, create execution blocks for every node in the search and
+        // retrieval plans. We keep a map of query plan nodes to execution
+        // blocks to keep query plan immutable.
+
+        // This needs to be done in two steps: first we create the
+        // nodes, then we attach them to each other.
+        ExecutionBlock queryRoot=null;
+        Map<QueryPlanNode,ExecutionBlock> qp2BlockMap=new HashMap<>();
+        if(searchQueryPlan!=null) {
+            // Create nodes
+            for(QueryPlanNode node:searchQueryPlan.getAllNodes()) {
+                ExecutionBlock block=new ExecutionBlock(rootMd,node);
+                if(node.getMetadata().getParent()==null)
+                    queryRoot=block;
+                qp2BlockMap.put(node,block);
+            }
+        }
+        ExecutionBlock retrievalRoot=null;
+        for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
+            ExecutionBlock block=new ExecutionBlock(rootMd,node);
+            if(node.getMetadata().getParent()==null)
+                retrievalRoot=block;
+            qp2BlockMap.put(node,block);
+        }
+        // Connect the blocks
+        for(Map.Entry<QueryPlanNode,ExecutionBlock> entry:qp2BlockMap.entrySet()) {
+            for(QueryPlanNode source:entry.getKey().getSources())
+                entry.getValue().addSourceBlock(qp2BlockMap.get(source));
+        }
+
+        boolean sorted=false;
+        boolean limited=false;
+        if(searchQueryPlan!=null) {
+            LOGGER.debug("Building execution plan from search query plan:{}",searchQueryPlan);
+            List<Conjunct> unassigned=searchQueryPlan.getUnassignedClauses();
+
+            List<QueryFieldInfo> qfi=getAllQueryFieldInfo(searchQueryPlan);            
+            // Lets see if the root entity is the only source of this plan
+            QueryPlanNode[] qpSources=searchQueryPlan.getSources();
+            boolean rootIsTheOnlySource=qpSources.length==1&&qpSources[0].getMetadata().getParent()==null;
             
-        //     QueryPlanNode[] sources=qpNode.getSources();
-        //     if(sources.length>0) {
-        //         List<QueryPlanNode> children=new ArrayList<>(sources.length);
-        //         QueryPlanNode parent=splitParentAndChildren(qpNode,sources,children);
-        //         block.addBefore(new JoinStep(parent,children),searchStep);
-                
-        //         if(!children.isEmpty()) {
-        //             block.addAfter(new AssociateStep(),searchStep);
-        //         }
-        //         for(QueryPlanNode source:sources) {
-        //             PlanNodeExecutionBlock sourceBlock=source.getProperty(PlanNodeExecutionBlock.class);
-        //             block.addSourceBlock(sourceBlock);
-        //             // Move edge queries into the destination block
-        //             QueryPlanData edgeData=retrievalQueryPlan.getEdgeData(source,qpNode);
-        //             if(edgeData!=null) {
-        //                 addQueries(edgeData.getConjuncts(),searchStep,
-        //                            new RewriteQuery(rootMd,qpNode.getMetadata()));
-        //             }
-        //         }
-        //     }
-        // }
+            for(QueryPlanNode node:searchQueryPlan.getAllNodes()) {
+                ExecutionBlock block=qp2BlockMap.get(node);
+                Search search;
+                if(block.getSourceBlocks().isEmpty()) {
+                    // Block has no sources. We run a search
+                    search=new Search(block);
+                } else {
+                    for(ExecutionBlock source:block.getSourceBlocks()) {
+                        QueryPlanData edgeData=searchQueryPlan.getEdgeData(source.getQueryPlanNode(),
+                                                                           block.getQueryPlanNode());
+                        if(edgeData!=null) {
+                            AssociationQuery aq=new AssociationQuery(rootMd,
+                                                                     block.getMetadata(),
+                                                                     block.getReference(),
+                                                                     edgeData.getConjuncts());
+                            block.setAssociationQuery(source,aq);
+                        }
+                                                                 
+                    }
+                    // Block has sources. Join them
+                    List<Step<ResultDocument>> list=(List<Step<ResultDocument>>)block.getSourceBlocks().stream().
+                        map(ExecutionBlock::getFinalStep).
+                        collect(Collectors.toList());
+                    Join join=new Join(block,list.toArray(new Step[list.size()]));
+                    search=new ConstrainedSearch(block,join);
+                }
+                // Now that we have the search, we set the queries, projection, and limits
+
+                // The queries for the search are already set in the query plan node
+                search.setQueries(node.getData().getConjuncts());
+                if(block==queryRoot) {
+                    // This is the block for the root entity
+                    if(rootIsTheOnlySource) {
+                        if(unassigned.isEmpty()) {
+                            // Root is the only source, and there are no unassigned clauses
+                            // We can sort/limit here
+                            search.setLimit(from,to);
+                            search.setSort(requestSort);
+                            sorted=limited=true;
+                        } else {
+                            // There are unassigned clauses. We can sort during search, but we have to filter and limit
+                            search.setSort(requestSort);
+                            sorted=true;
+                            Filter f=new Filter(block,search,getFilterQuery(unassigned));
+                            Step<ResultDocument> last=f;
+                            if(from!=null)
+                                last=new Skip(block,from,last);
+                            if(to!=null)
+                                last=new Limit(block,to-from+1,last);
+                            limited=true;
+                        }
+                    } else {
+                        // Root is not the only source
+                        // Root can be an intermediate query plan node, or there may be more than one sources
+
+                        // Make sure we have unique docs
+                        Step<ResultDocument> last=new Unique(block,search);
+                        // Make sure we only have what we need
+                        if(!unassigned.isEmpty()) {
+                            last=new Filter(block,last,getFilterQuery(unassigned));
+                        }
+                        // Sort the results
+                        if(requestSort!=null) {
+                            last=new Sort(block,last,sortFieldInfo);
+                            sorted=true;
+                        }
+                        // Limit
+                        if(from!=null)
+                            last=new Skip(block,from,last);
+                        if(to!=null)
+                            last=new Limit(block,to-from+1,last);
+                        limited=true;
+                    }
+                    // Set the root projection
+                    Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
+                    fields.addAll(getIncludedFieldsOfEntityForProjection(block,qfi,requestProjection));
+                    fields.addAll(getIncludedFieldsOfRootEntityForSort(root,requestSort));
+                    Projection p=writeProjection(fields);
+                    LOGGER.debug("Projection for block {}:{}",block.getQueryPlanNode().getName(),p);
+                    search.setProjection(p);
+                } else {
+                    // An intermediate node. No sort/limit/unique is necessary
+                    // Set the projection
+                    Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
+                    fields.addAll(getIncludedFieldsOfEntityForProjection(block,root,null));
+                    Projection p=writeProjection(fields);
+                    LOGGER.debug("Projection for block {}:{}",block.getQueryPlanNode().getName(),p);
+                    search.setProjection(p);
+                }
+            }
+
+        }
+
+        // Done with the search plan. Now we build the execution plan for retrieval
+        LOGGER.debug("Building execution plan from retrieval query plan:{}",retrievalQueryPlan);
+        List<Conjunct> unassigned=retrievalQueryPlan.getUnassignedClauses();
+        List<QueryFieldInfo> qfi=getAllQueryFieldInfo(retrievalQueryPlan);
+        for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
+            ExecutionBlock block=qp2BlockMap.get(node);
+            QueryPlanNode[] destinationNodes=node.getDestinations();
+            ExecutionBlock[] destinationBlocks=new ExecutionBlock[destinationNodes.length];
+            for(int i=0;i<destinationNodes.length;i++) {
+                destinationBlocks[i]=qp2BlockMap.get(destinationNodes[i]);
+            }
+            if(block==retrievalRoot) {
+                // Processing the root node
+                // If there is a search plan, then we already have the root documents, so simply stream
+                // those docs from the search plan. If there is not a search plan, we search the documents
+                // here
+                Step<ResultDocument> last;
+                if(queryRoot!=null) {
+                    // There is a search plan. Trim the documents to contain the root only
+                    last=new Trim(block,queryRoot);
+                } else {
+                    Step<ResultDocument> search=last=new Search(block);
+                    if(unassigned.isEmpty()) {
+                        // There are no unassigned clauses
+                        // We can sort/limit here
+                        search.setLimit(from,to);
+                        search.setSort(requestSort);
+                        sorted=limited=true;
+                    } else {
+                        // There are unassigned clauses. We can sort during search, but we have to filter and limit
+                        search.setSort(requestSort);
+                        sorted=true;
+                        Filter f=new Filter(block,search,getFilterQuery(unassigned));
+                        Step<ResultDocument> last=f;
+                        if(from!=null)
+                            last=new Skip(block,from,last);
+                        if(to!=null)
+                            last=new Limit(block,to-from+1,last);
+                        limited=true;
+                    }
+                }
+                new Assemble(block,search,destinationBlocks);
+            } else {
+                // Processing one of the associated entity nodes
+                // For retrieval plan, there can be only one source node
+                ExecutionBlock source=block.getSourceBlocks().get(0);
+                QueryPlanData edgeData=retrievalQueryPlan.getEdgeData(source.getQueryPlanNode(),
+                                                                      block.getQueryPlanNode());
+                if(edgeData!=null) {
+                    AssociationQuery aq=new AssociationQuery(root,
+                                                             block.getMetadata(),
+                                                             block.getReference(),
+                                                             edgeData.getConjuncts());
+                    block.setAssociationQuery(source,aq);
+                }
+                List<Step<ResultDocument>> list=block.getSourceBlocks().stream().
+                    map(ExecutionBlock::getFinalStep).
+                    collect(Collectors.toList());
+                Join join=new Join(block,new Step[] {source.getFinalStep()});
+                search=new ConstrainedSearch(block,join);
+                new Assemble(block,search,destinationBlocks);
+            }
+        }
     }
 
+
+    private List<QueryFieldInfo> getAllQueryFieldInfo(QueryPlan qp) {
+        // Build a list of all query field info to determine projections
+        List<QueryFieldInfo> qfi=new ArrayList<>();
+        qp.getUnassignedClauses().stream().forEach(c->qfi.addAll(c.getFieldInfo()));
+        QueryPlanNode[] allNodes=qp.getAllNodes();
+        for(QueryPlanNode node:allNodes) {
+            if(node.getData()!=null)
+                node.getData().getConjuncts().stream().forEach(c->qfi.addAll(c.getFieldInfo()));
+            for(QueryPlanNode source:node.getSourceNodes()) {
+                QueryPlanData edgeData=searchQueryPlan.getEdgeData(source,node);
+                if(edgeData!=null)
+                    edgeData.getConjuncts().stream().forEach(c->qfi.addAll(c.getFieldInfo()));
+            }
+        }
+        return qfi;
+    }
+        
         
 
     /**
@@ -280,56 +331,160 @@ public class ExecutionPlan {
             parallelism=10;
     }
 
-    
-    private void addQueries(List<Conjunct> conjuncts,SearchStep search,RewriteQuery rewriter) {
-        if(conjuncts!=null) {
-            for(Conjunct q:conjuncts) {
-                RewriteQuery.RewriteQueryResult result=rewriter.rewriteQuery(q.getClause(),
-                                                                             q.getFieldInfo());
-                search.addQueryClause(q,result.query,result.bindings);
-            }
-        }
+
+    /**
+     * Writes a projection to include the given set of fields
+     */
+    public static Projection writeProjection(Collection<Path> fields) {
+        List<Projection> list=new ArrayList<>(fields.size());
+        for(Path p:fields)
+            list.add(new FieldProjection(p,true,false));
+        return list.size()==1?list.get(0):new ProjectionList(list);
     }
 
     /**
-     * Split the parent entity and child entities in sources
-     *
-     * @param qpNode This node
-     * @param sources The source query plan nodes
-     * @param children The list that will receive the child nodes
-     *
-     * @return The parent node, or null if there isn't a parent node
+     * Returns the included fields of an entity based on query
+     * information. This is to be used for search plan nodes only
      */
-    private QueryPlanNode splitParentAndChildren(QueryPlanNode qpNode,
-                                                 QueryPlanNode[] sources,
-                                                 List<QueryPlanNode> children) {
-        QueryPlanNode parentNode=null;
-        for(int i=0;i<sources.length;i++) {
-            if(qpNode.getMetadata().getParent()==sources[i].getMetadata()) {
-                // Found the parent node
-                parentNode=sources[i];
-                for(int j=0;j<sources.length;j++) {
-                    if(j!=i)
-                        children.add(sources[i]);
+    public static Set<Path> getIncludedFieldsOfEntityForSearch(ExecutionBlock block,
+                                                               List<QueryFieldInfo> fieldInfo) {
+        CompositeMetadata md=block.getMetadata();
+        Set<Path> ret=fieldInfo.stream().filter(fi->md==fi.getFieldMd()&&!(fi.getFieldMd() instanceof ArrayField ||
+                                                                           fi.getFieldMd() instanceof ObjectField)).
+            map(fi->fi.getEntityRelativeFieldNameWithContext()).
+            collect(Collectors.toSet());
+        // Add the identities
+        for(Path p:block.getIdentityFields())
+            ret.add(p);
+        return ret;
+    }
+
+    /**
+     * Returns the fields included based on the requested projection and reference field projection
+     */
+    public static Set<Path> getIncludedFieldsOfEntityForProjection(ExecutionBlock block,
+                                                                   CompositeMetadata root,
+                                                                   Projection requestProjection) {
+        Set<Path> fields=new HashSet<>();
+        // What is the path prefix for this entity?
+        CompositeMetadata md=block.getMetadata();
+        Path entityPath=md.getEntityPath();
+        Path globalPrefix=entityPath.isEmpty()?Path.EMPTY:new Path(entityPath,Path.ANY_PATH);
+        // entityPath is either empty, meaning this is the root, or a path to a reference field
+        // If entityPath is not empty, then find the projection in the reference field
+        ResolvedReferenceField reference=block.getReference();
+        Projection localProjection;
+        if(reference!=null) {
+            localProjection=reference.getReferenceField().getProjection();
+        } else {
+            localProjection=null;
+        }
+        FieldCursor cursor=md.getFieldCursor();
+        Path skipPrefix=null;
+        Path globalField;
+        while(cursor.next()) {
+            Path localField=cursor.getCurrentPath();
+            globalField=globalPrefix.isEmpty()?localField:new Path(globalPrefix,localField);
+            FieldTreeNode node=cursor.getCurrentNode();
+            if(skipPrefix!=null) {
+                if(!localField.matchingDescendant(skipPrefix)) {
+                    skipPrefix=null;
+                }
+            }
+            if(skipPrefix==null) {
+                if(node instanceof ResolvedReferenceField||
+                   node instanceof ReferenceField) {
+                    skipPrefix=localField;
+                } else  {
+                    if( (node instanceof ObjectField) ||
+                        (node instanceof ArrayField && ((ArrayField)node).getElement() instanceof ObjectArrayElement) ||
+                        (node instanceof ArrayElement)) {
+                        // include its member fields
+                    } else {
+                        if(localProjection!=null&&localProjection.isFieldRequiredToEvaluateProjection(localField)) {
+                            LOGGER.debug("{}: required",localField);
+                            fields.add(localField);
+                        }
+                        if(requestProjection!=null&&requestProjection.isFieldRequiredToEvaluateProjection(globalField)) {
+                            LOGGER.debug("{}: required",localField);
+                            fields.add(localField);
+                        }
+                    }
                 }
             }
         }
-        if(parentNode==null) {
-            for(QueryPlanNode node:sources)
-                children.add(node);
-        }
-        return parentNode;
+        return fields;
     }
 
-    public JsonNode toJson() {
-        ObjectNode rootNode=JsonNodeFactory.instance.objectNode();
-        rootNode.set("root",rootBlock.toJson());
-        return rootNode;
+    public static Set<Path> getIncludedFieldsOfRootEntityForSort(CompositeMetadata root,
+                                                                 Sort rootSort) {
+        Set<Path> ret=new HashSet<Path>();
+        if(rootSort!=null) {
+            SortFieldInfo[] sfi=SortFieldInfo.buildSortFields(rootSort,root.getFieldTreeRoot());
+            for(SortFieldInfo fi:sfi)
+                ret.add(fi.getName());
+        }
+        return ret;
     }
+
+    public static Set<Path> getIncludedFieldsOfEntityForSort(ExecutionBlock block) {
+        Set<Path> ret=new HashSet<Path>();
+        ResolvedReferenceField reference=block.getReference();
+        if(reference!=null) {
+            Sort sort=reference.getReferenceField().getSort();
+            SortFieldInfo[] sfi=SortFieldInfo.buildSortFields(sort,block.getMetadata().getFieldTreeRoot());
+            for(SortFieldInfo fi:sfi)
+                ret.add(fi.getName());
+        }
+        return ret;
+    }
+                                                                  
+
+    private QueryExpression getFilterQuery(List<Conjunct> list) {
+        List<QueryExpression> l=list.stream().map(c->c.getClause()).collect(Collectors.toList());
+        return l.size()==1?l.get(0):new NaryLogicalExpression(NaryLogicalOperator._and,l);
+    }
+
     
-    @Override
-    public String toString() {
-        return JsonUtils.prettyPrint(toJson());
-    }
+    // private void addQueries(List<Conjunct> conjuncts,SearchStep search,RewriteQuery rewriter) {
+    //     if(conjuncts!=null) {
+    //         for(Conjunct q:conjuncts) {
+    //             RewriteQuery.RewriteQueryResult result=rewriter.rewriteQuery(q.getClause(),
+    //                                                                          q.getFieldInfo());
+    //             search.addQueryClause(q,result.query,result.bindings);
+    //         }
+    //     }
+    // }
+
+    // /**
+    //  * Split the parent entity and child entities in sources
+    //  *
+    //  * @param qpNode This node
+    //  * @param sources The source query plan nodes
+    //  * @param children The list that will receive the child nodes
+    //  *
+    //  * @return The parent node, or null if there isn't a parent node
+    //  */
+    // private QueryPlanNode splitParentAndChildren(QueryPlanNode qpNode,
+    //                                              QueryPlanNode[] sources,
+    //                                              List<QueryPlanNode> children) {
+    //     QueryPlanNode parentNode=null;
+    //     for(int i=0;i<sources.length;i++) {
+    //         if(qpNode.getMetadata().getParent()==sources[i].getMetadata()) {
+    //             // Found the parent node
+    //             parentNode=sources[i];
+    //             for(int j=0;j<sources.length;j++) {
+    //                 if(j!=i)
+    //                     children.add(sources[i]);
+    //             }
+    //         }
+    //     }
+    //     if(parentNode==null) {
+    //         for(QueryPlanNode node:sources)
+    //             children.add(node);
+    //     }
+    //     return parentNode;
+    // }
+
 }
 

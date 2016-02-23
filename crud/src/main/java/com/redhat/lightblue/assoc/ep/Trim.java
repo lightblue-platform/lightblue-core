@@ -25,34 +25,35 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Limits the resultset to at most n
+ * Modifies the documents to contain only the root entity. This only
+ * works for root
+ *
+ * Input: Step<ResultDocument>
+ * Output: Step<ResultDocument>
  */
-public class Limit<T> extends Step<T> {
+public class Trim extends Step<ResultDocument> {
 
-    private final int limit;
-    private final Step<T> source;
+    private final Step<ResultDocument> source;
     
-    public Limit(ExecutionBlock block,int n,Step<T> source) {
+    public Trim(ExecutionBlock block,Step<ResultDocument> source) {
         super(block);
         this.source=source;
-        limit=n;
     }
 
     @Override
-    public StepResult<T> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<T>(source.getResults(ctx)) {
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
             @Override
-            public Stream<T> stream() {
-                return super.stream().limit(limit);
+            public Stream<ResultDocument> stream() {
+                return super.stream().map(ResultDocument::trim);
             }
-        };        
-    }
+        };
+    }           
 
     @Override
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("limit",JsonNodeFactory.instance.numberNode(limit));
-        o.set("source",source.toJson());
+        o.set("strip",source.toJson());
         return o;
     }
 }

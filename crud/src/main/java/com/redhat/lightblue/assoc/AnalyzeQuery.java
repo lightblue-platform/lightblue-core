@@ -57,6 +57,7 @@ public class AnalyzeQuery extends QueryIterator {
     private final ResolvedReferenceField ref;
 
     private List<QueryFieldInfo> fieldInfo;
+    private int nested=0;
 
     /**
      * Ctor
@@ -78,8 +79,14 @@ public class AnalyzeQuery extends QueryIterator {
 
     @Override
     public QueryExpression iterate(QueryExpression q, Path context) {
-        fieldInfo=new ArrayList<>();
-        return super.iterate(q,context);
+    	if(nested==0)
+            fieldInfo=new ArrayList<>();
+        nested++;
+    	try {
+            return super.iterate(q,context);
+    	} finally {
+            nested--;
+    	}
     }
     
     /**

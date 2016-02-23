@@ -40,15 +40,10 @@ public class BindQuery extends QueryIterator {
         this.bindings=bindings;
     }
 
-    private Binder getBoundValue(QueryExpression clause) {
+    private Binder getBoundValue(Object v) {
         for(Binder binding:bindings) {
-            if(binding instanceof ValueBinding) {
-                if(((ValueBinding)binding).getValue()==v)
-                    return binding;
-            } else {
-                if(((ListBinding)binding).getValue()==v)
-                    return binding;
-            }
+            if(binding.getBinding()==v)
+                return binding;
         }
         return null;
     }
@@ -74,7 +69,7 @@ public class BindQuery extends QueryIterator {
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
         Binder binding=getBoundValue(q.getValues());
         if(binding!=null) {
-            return new ArrayContainsExpression(q.getField(),q.getOp(),(List<Value>)binding.getValue());
+            return new ArrayContainsExpression(q.getArray(),q.getOp(),(List<Value>)binding.getValue());
         } else {
             return q;
         }

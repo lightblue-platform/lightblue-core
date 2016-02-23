@@ -36,7 +36,6 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.DocCtx;
 
 import com.redhat.lightblue.assoc.Conjunct;
-import com.redhat.lightblue.assoc.FieldBinding;
 
 /**
  * Performs searches based on the n-tuple of result documents obtained from the source steps
@@ -44,29 +43,34 @@ import com.redhat.lightblue.assoc.FieldBinding;
  * Input: [ ResultDocument ]
  * Output: ResultDocument
  */
-public class ConstrainedSearch extends Search {
+public class ConstrainedSearch extends Step<ResultDocument> {
     
     private static final Logger LOGGER=LoggerFactory.getLogger(ConstrainedSearch.class);
 
-    private Step<List<ResultDocument>> source;
-    private ExecutionBlock block;
+    private final Step<List<ResultDocument>> source;
 
-    private List<AssociationQuery> associationQueries;
+    private final List<AssociationQuery> associationQueries;
     private QueryExpression combinedAssociationQuery;
     
-    public ConstrainedSearch(Step<List<ResultDocument>> source) {
+    public ConstrainedSearch(ExecutionBlock block,Step<List<ResultDocument>> source) {
+        super(block);
         this.source=source;
+        List<ExecutionBlock> sources=block.getSourceBlocks();
+        if(sources!=null) {
+            associationQueries=sources.stream().
+                map(t->block.getAssociationQueryForEdge(t)).
+                collect(Collectors.toList());
+            List<QueryExpression> ql=associationQueries.stream().
+                map(AssociationQuery::getQuery).
+                filter(q-> q!=null).
+                collect(Collectors.toList());
+            if(ql.size()==1)
+                combinedAssociationQuery=ql.get(0);
+            else if(ql.size()>0)
+                combinedAssociationQuery=new NaryLogicalExpression(NaryLogicalOperator._and,ql);
+        } 
     }
     
-    @Override
-    public ResultStream<ResultDocument> getResults(ExecutionContext ctx) {
-        return new ConstrainedSearchResultStream(source.getResults(ctx),ctx);
-    }
-
-    @Override
-    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
-    }
-
     /**
      * Returns true if the entity associated with sourceNode is the
      * parent entity of the entity associated with this node
@@ -75,118 +79,87 @@ public class ConstrainedSearch extends Search {
         return block.getQueryPlanNode().getMetada().getParent()==sourceNode.getMetadata();
     }
 
-    private void initialize() {
-        if(associationQueries==null) {
-            List<ExecutionBlock> sources=block.getSourceBlocks();
-            if(sources!=null) {
-                associationQueries=sources.stream().
-                    map(t->block.getAssociationQueryForEdge(t.getQueryPlanNode().getProperty(ExecutionBlock.class))).
-                    collect(Collectors.toList());
-                List<QueryExpression> ql=associationQueries.stream().
-                    map(AssociationQuery::getQuery).
-                    filter(q-> q!=null).
-                    collect(Collectors.toList());
-                if(ql.size()==1)
-                    combinedAssociationQuery=ql.get(0);
-                else if(ql.size()>0)
-                    combinedAssociationQuery=new NaryLogicalExpression(NaryLogicalOperator._and,ql);
-            } 
-        }
-    }
 
+    // /**
+    //  * Return a list of queries based on the document tuple retrieved from a join
+    //  */
+    // private List<QueryExpression> getQueries(List<ResultDocument> tuple) {
 
-    /**
-     * Return a list of queries based on the document tuple retrieved from a join
-     */
-    private List<QueryExpression> getQueries(List<ResultDocument> tuple) {
+    //     // Lazy initialization of result document bindings
+    //     int n=tuple.size();
+    //     for(int i=0;i<n;i++) {
+    //         ResultDocument doc=tuple.get(i);
+    //         if(doc.getBindings()==null) {
+    //             doc.initializeBindings(aqList.get(i));
+    //         }
+    //     }
 
-        // Lazy initialization of result document bindings
-        int n=tuple.size();
-        for(int i=0;i<n;i++) {
-            ResultDocument doc=tuple.get(i);
-            if(doc.getBindings()==null) {
-                doc.initializeBindings(aqList.get(i));
-            }
-        }
+    //     // Create a tuple from all document binder values
+    //     Tuples<Binder> bindingTuples=new Tuples<>();
+    //     for(int i=0;i<n;i++) {
+    //         ResultDocument doc=tuple.get(i);
+    //         for(List<Binder> bind:doc.getBindings().getBindings().values)
+    //             bindingTuples.add(bind);
+    //     }
 
-        // Create a tuple from all document binder values
-        Tuples<Binder> bindingTuples=new Tuples<>();
-        for(int i=0;i<n;i++) {
-            ResultDocument doc=tuple.get(i);
-            for(List<Binder> bind:doc.getBindings().getBindings().values)
-                bindingTuples.add(bind);
-        }
+    //     // Iterate the tuple, and create a query for each value
+    //     // If there are no tuples, there is only one query
+    //     List<QueryExpression> queries=new ArrayList<>();
+    //     for(Iterator<List<Binder>> itr=tuples.iterator();itr.hasNext();) {
+    //         hasTuples=true;
+    //         List<Binder> binders=itr.next();
+    //         BindQuery binder=new BindQuery(binders);
+    //         QueryExpression query=binder.iterate(combinedAssociationQuery);
+    //         queries.add(query);
+    //     }
+    //     if(queries.isEmpty()) {
+    //         // Nothing to bind in the query
+    //         if(combinedAssociationQuery!=null)
+    //             queries.add(combinedAssociationQuery);
+    //     }
+    //     LOGGER.debug("Queries to execute: {}",queries);
+    //     return queries;
+    // }
 
-        // Iterate the tuple, and create a query for each value
-        // If there are no tuples, there is only one query
-        List<QueryExpression> queries=new ArrayList<>();
-        for(Iterator<List<Binder>> itr=tuples.iterator();itr.hasNext();) {
-            hasTuples=true;
-            List<Binder> binders=itr.next();
-            BindQuery binder=new BindQuery(binders);
-            QueryExpression query=binder.iterate(combinedAssociationQuery);
-            queries.add(query);
-        }
-        if(queries.isEmpty()) {
-            // Nothing to bind in the query
-            if(combinedAssociationQuery!=null)
-                queries.add(combinedAssociationQuery);
-        }
-        LOGGER.debug("Queries to execute: {}",queries);
-        return queries;
-    }
+    // private List<ResultDocument> executeQuery(ExecutionContext ctx,QueryExpression query) {
+    //     CRUDFindRequest findRequest=new CRUDFindRequest();
+    //     findRequest.setQuery(query);
+    //     findRequest.setProjection(projection);
+    //     findRequest.setSort(sort);
+    //     findRequest.setFrom(from);
+    //     findRequest.setTo(to);
+    //     OperationContext octx=super.search(ctx,findRequest);
+    //     if(octx!=null) {
+    //         return octx.getDocuments();
+    //     } else {
+    //         return null;
+    //     }
+    // }
 
-    private List<ResultDocument> executeQuery(ExecutionContext ctx,QueryExpression query) {
-        CRUDFindRequest findRequest=new CRUDFindRequest();
-        findRequest.setQuery(query);
-        findRequest.setProjection(projection);
-        findRequest.setSort(sort);
-        findRequest.setFrom(from);
-        findRequest.setTo(to);
-        OperationContext octx=super.search(ctx,findRequest);
-        if(octx!=null) {
-            return octx.getDocuments();
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Insert the child document into the parent document
-     *
-     * @param parentDoc The parent document
-     * @param childDocs A list of child docs
-     * @param dest The destination field name to insert the result set
-     */
-    private static ResultDocument insertChildDocs(ResultDocument parentDoc,
-                                                  List<ResultDocument>> childDocs,
-                                                  Path dest) {
-
-    }
     
-    @Override
-    public ResultStream<ResultDocument> getResults(ExecutionContext ctx) {
-        initialize();
-        return new ConstrainedSearchResultStream(source.getResults(ctx));
-    }
+    // @Override
+    // public ResultStream<ResultDocument> getResults(ExecutionContext ctx) {
+    //     initialize();
+    //     return new ConstrainedSearchResultStream(source.getResults(ctx));
+    // }
 
     
     
-    private class ConstrainedSearchResultStream extends AbstractResultStream<ResultDocument> {
+    // private class ConstrainedSearchResultStream extends AbstractResultStream<ResultDocument> {
         
-        private final ResultStream<List<ResultDocument>> sourceStream;
+    //     private final ResultStream<List<ResultDocument>> sourceStream;
 
-        public ConstrainedSearchResultStream(ResultStream<List<ResultDocument>> sourceStream) {
-            this.sourceStream=sourceStream;
-        }
+    //     public ConstrainedSearchResultStream(ResultStream<List<ResultDocument>> sourceStream) {
+    //         this.sourceStream=sourceStream;
+    //     }
         
-        protected ResultDocument nextItem() {
-            List<ResultDocument> tuple=sourceStream.next();
-            if(tuple!=null) {
+    //     protected ResultDocument nextItem() {
+    //         List<ResultDocument> tuple=sourceStream.next();
+    //         if(tuple!=null) {
                 
-            }
-            return null;
-        }
-    }
+    //         }
+    //         return null;
+    //     }
+    // }
 }
 

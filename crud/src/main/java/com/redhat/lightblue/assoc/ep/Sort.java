@@ -24,34 +24,53 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/**
- * Limits the resultset to at most n
- */
-public class Limit<T> extends Step<T> {
+import com.redhat.lightblue.eval.SortFieldInfo;
+import com.redhat.lightblue.eval.SortableItem;
 
-    private final int limit;
-    private final Step<T> source;
+/**
+ * Sorts the result set
+ */
+public class Sort extends Step<ResultDocument> {
+
+    private final SortFieldInfo[] sortFields;
+    private final Sort sort;
+    private final Step<ResultDocument> source;
     
-    public Limit(ExecutionBlock block,int n,Step<T> source) {
+    public Sort(ExecutionBlock block,Step<ResultDocument> source,Sort sort) {
         super(block);
         this.source=source;
-        limit=n;
+        this.sort=sort;
+        this.sortFields=SortFieldInfo.buildSortFields(sort,block.getMetadata());
     }
 
     @Override
-    public StepResult<T> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<T>(source.getResults(ctx)) {
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
             @Override
-            public Stream<T> stream() {
-                return super.stream().limit(limit);
-            }
+            public Stream<ResultDocument> stream() {
+                return super.stream().
+                    map(d->new SortableDoc(d,sortFields)).
+                    sort().
+                    map(d->getDoc());
+        }
         };        
+    }
+
+    private static class SortableDoc extends SortableItem {
+        private final ResultDocument doc;
+        public SortableDoc(ResultDocument doc,SortFieldInfo[] fields) {
+            super(doc.getDoc().getRoot(),fields);
+            this.doc=doc;
+        }
+        public ResultDocument getDoc() {
+            return doc;
+        }
     }
 
     @Override
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("limit",JsonNodeFactory.instance.numberNode(limit));
+        o.set("sort",sort.toJson());
         o.set("source",source.toJson());
         return o;
     }

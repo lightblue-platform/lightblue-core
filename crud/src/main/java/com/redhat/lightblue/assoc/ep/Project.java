@@ -24,26 +24,31 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/**
- * Limits the resultset to at most n
- */
-public class Limit<T> extends Step<T> {
+import com.redhat.lightblue.eval.Projector;
+import com.redhat.lightblue.query.Projection;
 
-    private final int limit;
-    private final Step<T> source;
+/**
+ * Projects the result
+ */
+public class Project extends Step<ResultDocument> {
+
+    private final Projector p;
+    private final Projection projection;
+    private final Step<ResultDocument> source;
     
-    public Limit(ExecutionBlock block,int n,Step<T> source) {
+    public Project(ExecutionBlock block,Step<ResultDocument> source,Projection projection) {
         super(block);
         this.source=source;
-        limit=n;
+        this.projection=projection;
+        this.p=Projector.getInstance(projection,block.getMetadata());
     }
 
     @Override
-    public StepResult<T> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<T>(source.getResults(ctx)) {
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
             @Override
-            public Stream<T> stream() {
-                return super.stream().limit(limit);
+            public Stream<ResultDocument> stream() {
+                return super.stream().map(doc->new ResultDocument(p.project(doc.getDoc(),JsonNodeFactory.instance),doc));
             }
         };        
     }
@@ -51,7 +56,7 @@ public class Limit<T> extends Step<T> {
     @Override
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("limit",JsonNodeFactory.instance.numberNode(limit));
+        o.set("project",projection.toJson());
         o.set("source",source.toJson());
         return o;
     }

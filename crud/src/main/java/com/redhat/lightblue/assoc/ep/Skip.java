@@ -18,38 +18,44 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
+import java.util.stream.Stream;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  * Skips the first n results in a stream. 
  *
  * Input: Step<T>
  * Output: Step<T>
  */
-public class Skip<T> implements Step<T> {
+public class Skip<T> extends Step<T> {
 
     private final int skip;
     private final Step<T> source;
-    private int at;
     
-    public Skip(int n,Step<T> source) {
+    public Skip(ExecutionBlock block,int n,Step<T> source) {
+        super(block);
         this.source=source;
         skip=n;
-        at=-1;
     }
 
     @Override
-    public ResultStream<T> getResults(ExecutionContex ctx) {       
-        return new StreamWrapper<T>(source.getResults(ctx)) {
+    public StepResult<T> getResults(ExecutionContext ctx) {
+        return new StepResultWrapper<T>(source.getResults(ctx)) {
             @Override
-            public T next() {
-                T ret;
-                while(at<skip) {
-                    ret=source.next();
-                    if(ret==null)
-                        break;
-                    at++;
-                }
-                return ret;
+            public Stream<T> stream() {
+                return super.stream().skip(skip);
             }
         };
     }           
+
+    @Override
+    public JsonNode toJson() {
+        ObjectNode o=JsonNodeFactory.instance.objectNode();
+        o.set("skip",JsonNodeFactory.instance.numberNode(skip));
+        o.set("source",source.toJson());
+        return o;
+    }
 }

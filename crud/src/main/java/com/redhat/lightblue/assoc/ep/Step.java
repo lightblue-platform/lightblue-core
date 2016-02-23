@@ -20,7 +20,25 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.stream.Stream;
 
-public interface Step<R> {
+import com.fasterxml.jackson.databind.JsonNode;
 
-    Stream<R> getResults(ExecutionContext ctx);
+import com.redhat.lightblue.util.JsonUtils;
+
+public abstract class Step<R> {
+
+    protected final ExecutionBlock block;
+
+    public Step(ExecutionBlock block) {
+        this.block=block;
+        block.finalStep=this;
+    }
+    
+    public abstract StepResult<R> getResults(ExecutionContext ctx);
+
+    public abstract JsonNode toJson();
+
+    @Override
+    public String toString() {
+        return JsonUtils.prettyPrint(toJson());
+    }
 }
