@@ -78,7 +78,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
  */
 public class JsonCompare extends DocComparator<JsonNode,ValueNode,ObjectNode,ArrayNode> {
 
-    public static class DefaultIdentityExtractor implements IdentityExtractor<JsonNode> {
+    public class DefaultIdentityExtractor implements IdentityExtractor<JsonNode> {
         private final Path[] fields;
 
         public DefaultIdentityExtractor(ArrayIdentityFields fields) {
@@ -167,5 +167,13 @@ public class JsonCompare extends DocComparator<JsonNode,ValueNode,ObjectNode,Arr
     @Override
     protected int size(ArrayNode value) {
         return value.size();
+    }
+
+    public static void main(String[] args) throws Exception {
+        JsonNode f1=JsonUtils.json(new java.io.FileReader(args[0]),false);
+        JsonNode f2=JsonUtils.json(new java.io.FileReader(args[1]),false);
+        JsonCompare cmp=new JsonCompare();
+        DocComparator.Difference<JsonNode> diff=cmp.compareNodes(f1,f2);
+        System.out.println(diff);
     }
 }
