@@ -51,7 +51,7 @@ public class BindQuery extends QueryIterator {
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
         Binder binding=getBoundValue(q.getRvalue());
         if(binding!=null) {
-            return new ValueComparisonExpression(q.getField(),q.getOp(),(Value)binding.getValue());
+            return new ValueComparisonExpression(q.getField(),q.getOp(), (Value)binding.getValue());
         } else {
             return q;
         }

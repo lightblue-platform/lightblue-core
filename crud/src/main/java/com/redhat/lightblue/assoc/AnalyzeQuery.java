@@ -119,7 +119,16 @@ public class AnalyzeQuery extends QueryIterator {
                 trc.getParent()==null )) {
             String name=trc.getName();
             if(Path.ANY.equals(name)) {
-                list.add(normalizedFieldName.head(n));
+            	if(n>=0) {
+            		String head=normalizedFieldName.head(n);
+            		if(!head.equals("$parent")) {
+            			list.add(head);
+            		} else {
+            			list.add(Path.ANY);
+            		}
+            	} else {
+            		list.add(Path.ANY);
+            	}
             } else {
                 list.add(name);
             }

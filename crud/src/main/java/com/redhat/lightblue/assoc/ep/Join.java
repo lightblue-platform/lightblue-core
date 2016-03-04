@@ -19,6 +19,9 @@
 package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.concurrent.Future;
@@ -32,6 +35,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import com.redhat.lightblue.metadata.ResolvedReferenceField;
+
 import com.redhat.lightblue.util.Tuples;
 
 /**
@@ -41,7 +46,7 @@ import com.redhat.lightblue.util.Tuples;
  * Output: List [ ResultDocument ], each element of the list is a ResultDocument 
  * from the corresponding source
  */
-public class Join extends Step<List<ResultDocument>> {
+public class Join extends Step<JoinTuple> {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(Join.class);
     
@@ -67,11 +72,15 @@ public class Join extends Step<List<ResultDocument>> {
      * a stream that joins them
      */
     @Override
-    public StepResult<List<ResultDocument>> getResults(ExecutionContext ctx) {
+    public StepResult<JoinTuple> getResults(ExecutionContext ctx) {
+        // One of the parent blocks can be a parent document block, separate that out
+        int parentIndex=-1;
         // get all document streams from result steps
         Future<StepResult<ResultDocument>> [] futureResults=new Future[sources.length];
         int i=0;
         for(Step<ResultDocument> source:sources) {
+            if(source.getBlock().getMetadata()==block.getMetadata().getParent())
+                parentIndex=i;
             futureResults[i++]=ctx.getExecutor().submit(() -> source.getResults(ctx));
         }
         
@@ -89,21 +98,122 @@ public class Join extends Step<List<ResultDocument>> {
                 }
                 );
         }
-        return new JoinStream(tuples);
+        return new JoinStream(tuples,parentIndex,parentIndex==-1?null:
+                              block.getAssociationQueryForEdge(sources[parentIndex].getBlock()).
+                              getReference());
     }
 
        
-    private class JoinStream implements StepResult<List<ResultDocument>> {
+    private static class JoinStream implements StepResult<JoinTuple> {
         private final Tuples<ResultDocument> tuples;
+        private final int parentIndex;
+        private final ResolvedReferenceField parentReference;
 
-        public JoinStream(Tuples<ResultDocument> tuples) {
+        public JoinStream(Tuples<ResultDocument> tuples,
+                          int parentIndex,
+                          ResolvedReferenceField parentReference) {
             this.tuples=tuples;
+            this.parentIndex=parentIndex;
+            this.parentReference=parentReference;
         }
 
         @Override
-        public Stream<List<ResultDocument>> stream() {
-            Iterable<List<ResultDocument>> itr=() -> tuples.tuples();
+        public Stream<JoinTuple> stream() {
+            Iterable<JoinTuple> itr=() -> new JoinTupleIterator(tuples.tuples(),parentIndex,parentReference);
             return StreamSupport.stream(itr.spliterator(),false);
+        }
+    }
+
+    /**
+     * Converts an iterator over doc tuples to an iterator over join
+     * tuples. The difference is that if there is a source block that
+     * is a parent document of this block, then the slots of that
+     * parent doc is iterated.
+     */
+    private static class JoinTupleIterator implements Iterator {
+        private final Iterator<List<ResultDocument>> tuples;
+        private final int parentIndex;
+        private final ResolvedReferenceField reference;
+
+        private List<ResultDocument> currentTuple;
+        private Iterator<JoinTuple> joinTuples;
+        private JoinTuple nextTuple;
+                
+        public JoinTupleIterator(Iterator<List<ResultDocument>> tuples,
+                                 int parentIndex,
+                                 ResolvedReferenceField reference) {
+            this.tuples=tuples;
+            this.parentIndex=parentIndex;
+            this.reference=reference;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if(nextTuple==null)
+                nextTuple=getNext();
+            return nextTuple!=null;
+        }
+
+        public JoinTuple next() {
+            if(nextTuple==null)
+                nextTuple=getNext();
+            if(nextTuple==null)
+                throw new NoSuchElementException();
+            JoinTuple ret=nextTuple;
+            nextTuple=null;
+            return ret;
+        }
+
+        private JoinTuple getNext() {
+            do {
+                if(joinTuples==null) {
+                    seekNextDoc();
+                    if(joinTuples==null)
+                        return null;
+                }
+                if(joinTuples.hasNext()) {
+                    return joinTuples.next();
+                } else {
+                    joinTuples=null;
+                }
+            } while(true);
+                    
+        }
+        
+        /**
+         * Moves to the next document tuple in tuples
+         */
+        private void seekNextDoc() {
+            currentTuple=null;
+            joinTuples=null;
+            if(tuples.hasNext()) {
+                currentTuple=tuples.next();
+                computeJoinTuples();
+            } 
+        }
+
+        /**
+         * Computes a new list of join tuples based on current tuple
+         */
+        private void computeJoinTuples() {
+            List<JoinTuple> l=new ArrayList<>();
+            if(parentIndex!=-1) {
+                ResultDocument parentDoc=currentTuple.get(parentIndex);
+                List<ChildSlot> slots=parentDoc.getSlots().get(reference);
+                List<ResultDocument> childDocs=new ArrayList<>(currentTuple.size());
+                for(ResultDocument doc:currentTuple) {
+                    if(doc!=parentDoc)
+                        childDocs.add(doc);
+                }
+                if(slots!=null) {
+                    for(ChildSlot slot:slots) {
+                        l.add(new JoinTuple(parentDoc,slot,childDocs));
+                    }
+                }
+            } else {
+                l.add(new JoinTuple(null,null,currentTuple));
+            }
+            joinTuples=l.iterator();
         }
     }
 

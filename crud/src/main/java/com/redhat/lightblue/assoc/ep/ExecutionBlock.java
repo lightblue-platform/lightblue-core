@@ -21,6 +21,9 @@ import com.redhat.lightblue.util.Path;
  * performed on documents.
  */
 public class ExecutionBlock {
+
+    private final CompositeMetadata rootMd;
+    
     /**
      * The query plan node corresponding to this execution block
      */
@@ -51,7 +54,15 @@ public class ExecutionBlock {
      */
     private final ResolvedReferenceField reference;
 
+    /**
+     * List of all reference fields pointing to child docs
+     */
+    private List<ChildSlot> childSlots=new ArrayList<>();
+
+    private boolean slotsHaveAnys=false;
+
     public ExecutionBlock(CompositeMetadata root,QueryPlanNode qpNode) {
+        this.rootMd=root;
         this.qpNode=qpNode;
         Field[] f=getMetadata().getEntitySchema().getIdentityFields();
         Path[] identityFields=new Path[f.length];
@@ -62,8 +73,46 @@ public class ExecutionBlock {
         if(entityPath.isEmpty()) {
             reference=null;
         } else {
-            reference=root.getChildReference(entityPath);
+            reference=root.getDescendantReference(entityPath);
         }
+    }
+
+    /**
+     * This should be called after all execution blocks are built
+     */
+    public void initialize() {
+        // Build a list of all reference fields that need to be populated for the docs produces by this block
+        // But to do that, we need the destination nodes of this block. We don't have that.
+        // What we have is the sources. So, we populate the reference fields of our sources instead.
+        for(ExecutionBlock source:sourceBlocks) {
+            if(reference!=null) {
+                // Is this node really a child of the source node?
+                if(getMetadata().getParent()==source.getMetadata()) {
+                    source.addChildSlot(reference);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the slots for the child documents of the documents of this block
+     */
+    public List<ChildSlot> getChildSlots() {
+        return childSlots;
+    }
+
+    /**
+     * This returns true if at least one of the child slots contains an array reference
+     */
+    public boolean childSlotsHaveArrays() {
+        return slotsHaveAnys;
+    }
+
+    public void addChildSlot(ResolvedReferenceField reference) {
+        ChildSlot slot=new ChildSlot(rootMd,reference);
+        if(slot.hasAnys())
+            slotsHaveAnys=true;
+        childSlots.add(slot);
     }
     
     /**

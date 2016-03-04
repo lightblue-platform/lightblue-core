@@ -42,12 +42,13 @@ public class Trim extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
-            @Override
-            public Stream<ResultDocument> stream() {
-                return super.stream().map(ResultDocument::trim);
-            }
-        };
+        // return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
+        //     @Override
+        //     public Stream<ResultDocument> stream() {
+        //         return super.stream().map(ResultDocument::trim);
+        //     }
+        // };
+        return null;
     }           
 
     @Override

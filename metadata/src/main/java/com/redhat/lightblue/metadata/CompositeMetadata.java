@@ -130,6 +130,34 @@ public class CompositeMetadata extends EntityMetadata {
     }
 
     /**
+     * Returns a descendant resolved reference of this metadata
+     *
+     * @param entityPath The absolute path to the field containing the requested child
+     */
+    public ResolvedReferenceField getDescendantReference(Path entityPath) {
+        ResolvedReferenceField rf=getChildReference(entityPath);
+        if(rf==null) {
+            for(Map.Entry<Path,ResolvedReferenceField> entry:children.entrySet()) {
+                rf=entry.getValue().getReferencedMetadata().getDescendantReference(entityPath);
+                if(rf!=null)
+                    break;
+            }
+        }
+        return rf;
+    }
+    
+    /**
+     * Returns descendant of this metadata
+     *
+     * @param entityPath The absolute path to the field containing the requested child
+     */
+    public CompositeMetadata getDescendantMetadata(Path entityPath) {
+        ResolvedReferenceField rf=getDescendantReference(entityPath);
+        return rf==null?null:rf.getReferencedMetadata();
+    }
+
+
+        /**
      * Returns a direct child resolved reference of this metadata.
      *
      * @param entityPath The absolute path to the field containing the requested

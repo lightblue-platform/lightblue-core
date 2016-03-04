@@ -48,6 +48,10 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ArrayElement;
+import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.ReferenceField;
+import com.redhat.lightblue.metadata.FieldTreeNode;
+import com.redhat.lightblue.metadata.FieldCursor;
 
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
@@ -67,6 +71,22 @@ import com.redhat.lightblue.util.Path;
  * same way query plan nodes are connected. Each execution block
  * contains a pipeline, and every step of the pipeline performs a step
  * of the operation.
+ *
+ * The search plan and retrieval plan are constructed differently.
+ *
+ * In the retrieval plan, the root entity is at the root, and every
+ * destination node is a child node. So, the assembler first runs the
+ * parent node, gets the docs, and then runs the child nodes and
+ * attaches the documents to the slots.
+ *
+ * The query plan can be laid out differently. All that we do with the
+ * query plan is to retrieve the root node documents. but the root
+ * node can be an intermediate node. So, every block runs searches and
+ * also assembles the highest document in the document tree. For
+ * instance, if metadata is defined as A->B->C, and if the query
+ * executed as C -> B -> A, then C returns docs of type C, B returns
+ * B, and A returns A. If the query executes as C->B and A->B, then A
+ * returns A, C returns C, and B returns A.
  */
 public class ExecutionPlan {
 
@@ -144,159 +164,164 @@ public class ExecutionPlan {
             
             for(QueryPlanNode node:searchQueryPlan.getAllNodes()) {
                 ExecutionBlock block=qp2BlockMap.get(node);
-                Search search;
-                if(block.getSourceBlocks().isEmpty()) {
-                    // Block has no sources. We run a search
-                    search=new Search(block);
-                } else {
-                    for(ExecutionBlock source:block.getSourceBlocks()) {
-                        QueryPlanData edgeData=searchQueryPlan.getEdgeData(source.getQueryPlanNode(),
-                                                                           block.getQueryPlanNode());
-                        if(edgeData!=null) {
-                            AssociationQuery aq=new AssociationQuery(rootMd,
-                                                                     block.getMetadata(),
-                                                                     block.getReference(),
-                                                                     edgeData.getConjuncts());
-                            block.setAssociationQuery(source,aq);
-                        }
+        //         Search search;
+        //         if(block.getSourceBlocks().isEmpty()) {
+        //             // Block has no sources. We run a search
+        //             search=new Search(block);
+        //         } else {
+        //             for(ExecutionBlock source:block.getSourceBlocks()) {
+        //                 QueryPlanData edgeData=searchQueryPlan.getEdgeData(source.getQueryPlanNode(),
+        //                                                                    block.getQueryPlanNode());
+        //                 if(edgeData!=null) {
+        //                     AssociationQuery aq=new AssociationQuery(rootMd,
+        //                                                              block.getMetadata(),
+        //                                                              block.getReference(),
+        //                                                              edgeData.getConjuncts());
+        //                     block.setAssociationQuery(source,aq);
+        //                 }
                                                                  
-                    }
-                    // Block has sources. Join them
-                    List<Step<ResultDocument>> list=(List<Step<ResultDocument>>)block.getSourceBlocks().stream().
-                        map(ExecutionBlock::getFinalStep).
-                        collect(Collectors.toList());
-                    Join join=new Join(block,list.toArray(new Step[list.size()]));
-                    search=new ConstrainedSearch(block,join);
-                }
-                // Now that we have the search, we set the queries, projection, and limits
+        //             }
+        //             // Block has sources. Join them
+        //             List<Step<ResultDocument>> list=(List<Step<ResultDocument>>)block.getSourceBlocks().stream().
+        //                 map(ExecutionBlock::getFinalStep).
+        //                 collect(Collectors.toList());
+        //             Join join=new Join(block,list.toArray(new Step[list.size()]));
+        //             search=new ConstrainedSearch(block,join);
+        //         }
+        //         // Now that we have the search, we set the queries, projection, and limits
 
-                // The queries for the search are already set in the query plan node
-                search.setQueries(node.getData().getConjuncts());
-                if(block==queryRoot) {
-                    // This is the block for the root entity
-                    if(rootIsTheOnlySource) {
-                        if(unassigned.isEmpty()) {
-                            // Root is the only source, and there are no unassigned clauses
-                            // We can sort/limit here
-                            search.setLimit(from,to);
-                            search.setSort(requestSort);
-                            sorted=limited=true;
-                        } else {
-                            // There are unassigned clauses. We can sort during search, but we have to filter and limit
-                            search.setSort(requestSort);
-                            sorted=true;
-                            Filter f=new Filter(block,search,getFilterQuery(unassigned));
-                            Step<ResultDocument> last=f;
-                            if(from!=null)
-                                last=new Skip(block,from,last);
-                            if(to!=null)
-                                last=new Limit(block,to-from+1,last);
-                            limited=true;
-                        }
-                    } else {
-                        // Root is not the only source
-                        // Root can be an intermediate query plan node, or there may be more than one sources
+        //         // The queries for the search are already set in the query plan node
+        //         search.setQueries(node.getData().getConjuncts());
+        //         if(block==queryRoot) {
+        //             // This is the block for the root entity
+        //             if(rootIsTheOnlySource) {
+        //                 if(unassigned.isEmpty()) {
+        //                     // Root is the only source, and there are no unassigned clauses
+        //                     // We can sort/limit here
+        //                     search.setLimit(from,to);
+        //                     search.setSort(requestSort);
+        //                     sorted=limited=true;
+        //                 } else {
+        //                     // There are unassigned clauses. We can sort during search, but we have to filter and limit
+        //                     search.setSort(requestSort);
+        //                     sorted=true;
+        //                     Filter f=new Filter(block,search,getFilterQuery(unassigned));
+        //                     Step<ResultDocument> last=f;
+        //                     if(from!=null)
+        //                         last=new Skip(block,from.intValue(),last);
+        //                     if(to!=null)
+        //                         last=new Limit(block,to.intValue()-from.intValue()+1,last);
+        //                     limited=true;
+        //                 }
+        //             } else {
+        //                 // Root is not the only source
+        //                 // Root can be an intermediate query plan node, or there may be more than one sources
 
-                        // Make sure we have unique docs
-                        Step<ResultDocument> last=new Unique(block,search);
-                        // Make sure we only have what we need
-                        if(!unassigned.isEmpty()) {
-                            last=new Filter(block,last,getFilterQuery(unassigned));
-                        }
-                        // Sort the results
-                        if(requestSort!=null) {
-                            last=new Sort(block,last,sortFieldInfo);
-                            sorted=true;
-                        }
-                        // Limit
-                        if(from!=null)
-                            last=new Skip(block,from,last);
-                        if(to!=null)
-                            last=new Limit(block,to-from+1,last);
-                        limited=true;
-                    }
-                    // Set the root projection
-                    Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
-                    fields.addAll(getIncludedFieldsOfEntityForProjection(block,qfi,requestProjection));
-                    fields.addAll(getIncludedFieldsOfRootEntityForSort(root,requestSort));
-                    Projection p=writeProjection(fields);
-                    LOGGER.debug("Projection for block {}:{}",block.getQueryPlanNode().getName(),p);
-                    search.setProjection(p);
-                } else {
-                    // An intermediate node. No sort/limit/unique is necessary
-                    // Set the projection
-                    Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
-                    fields.addAll(getIncludedFieldsOfEntityForProjection(block,root,null));
-                    Projection p=writeProjection(fields);
-                    LOGGER.debug("Projection for block {}:{}",block.getQueryPlanNode().getName(),p);
-                    search.setProjection(p);
-                }
+        //                 // Make sure we have unique docs
+        //                 Step<ResultDocument> last=new Unique(block,search);
+        //                 // Make sure we only have what we need
+        //                 if(!unassigned.isEmpty()) {
+        //                     last=new Filter(block,last,getFilterQuery(unassigned));
+        //                 }
+        //                 // Sort the results
+        //                 if(requestSort!=null) {
+        //                     last=new SortResults(block,last,requestSort);
+        //                     sorted=true;
+        //                 }
+        //                 // Limit
+        //                 if(from!=null)
+        //                     last=new Skip(block,from.intValue(),last);
+        //                 if(to!=null)
+        //                     last=new Limit(block,to.intValue()-from.intValue()+1,last);
+        //                 limited=true;
+        //             }
+        //             // Set the root projection
+        //             Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
+        //             fields.addAll(getIncludedFieldsOfEntityForProjection(block,rootMd,requestProjection));
+        //             fields.addAll(getIncludedFieldsOfRootEntityForSort(rootMd,requestSort));
+        //             Projection p=writeProjection(fields);
+        //             LOGGER.debug("Projection for block {}:{}",block.getQueryPlanNode().getName(),p);
+        //             search.setProjection(p);
+        //         } else {
+        //             // An intermediate node. No sort/limit/unique is necessary
+        //             // Set the projection
+        //             Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
+        //             fields.addAll(getIncludedFieldsOfEntityForProjection(block,rootMd,null));
+        //             Projection p=writeProjection(fields);
+        //             LOGGER.debug("Projection for block {}:{}",block.getQueryPlanNode().getName(),p);
+        //             search.setProjection(p);
+        //         }
             }
 
         }
 
-        // Done with the search plan. Now we build the execution plan for retrieval
-        LOGGER.debug("Building execution plan from retrieval query plan:{}",retrievalQueryPlan);
-        List<Conjunct> unassigned=retrievalQueryPlan.getUnassignedClauses();
-        List<QueryFieldInfo> qfi=getAllQueryFieldInfo(retrievalQueryPlan);
-        for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
-            ExecutionBlock block=qp2BlockMap.get(node);
-            QueryPlanNode[] destinationNodes=node.getDestinations();
-            ExecutionBlock[] destinationBlocks=new ExecutionBlock[destinationNodes.length];
-            for(int i=0;i<destinationNodes.length;i++) {
-                destinationBlocks[i]=qp2BlockMap.get(destinationNodes[i]);
-            }
-            if(block==retrievalRoot) {
-                // Processing the root node
-                // If there is a search plan, then we already have the root documents, so simply stream
-                // those docs from the search plan. If there is not a search plan, we search the documents
-                // here
-                Step<ResultDocument> last;
-                if(queryRoot!=null) {
-                    // There is a search plan. Trim the documents to contain the root only
-                    last=new Trim(block,queryRoot);
-                } else {
-                    Step<ResultDocument> search=last=new Search(block);
-                    if(unassigned.isEmpty()) {
-                        // There are no unassigned clauses
-                        // We can sort/limit here
-                        search.setLimit(from,to);
-                        search.setSort(requestSort);
-                        sorted=limited=true;
-                    } else {
-                        // There are unassigned clauses. We can sort during search, but we have to filter and limit
-                        search.setSort(requestSort);
-                        sorted=true;
-                        Filter f=new Filter(block,search,getFilterQuery(unassigned));
-                        Step<ResultDocument> last=f;
-                        if(from!=null)
-                            last=new Skip(block,from,last);
-                        if(to!=null)
-                            last=new Limit(block,to-from+1,last);
-                        limited=true;
-                    }
-                }
-                new Assemble(block,search,destinationBlocks);
-            } else {
-                // Processing one of the associated entity nodes
-                // For retrieval plan, there can be only one source node
-                ExecutionBlock source=block.getSourceBlocks().get(0);
-                QueryPlanData edgeData=retrievalQueryPlan.getEdgeData(source.getQueryPlanNode(),
-                                                                      block.getQueryPlanNode());
-                if(edgeData!=null) {
-                    AssociationQuery aq=new AssociationQuery(root,
-                                                             block.getMetadata(),
-                                                             block.getReference(),
-                                                             edgeData.getConjuncts());
-                    block.setAssociationQuery(source,aq);
-                }
-                List<Step<ResultDocument>> list=block.getSourceBlocks().stream().
-                    map(ExecutionBlock::getFinalStep).
-                    collect(Collectors.toList());
-                Join join=new Join(block,new Step[] {source.getFinalStep()});
-                search=new ConstrainedSearch(block,join);
-                new Assemble(block,search,destinationBlocks);
-            }
+        // // Done with the search plan. Now we build the execution plan for retrieval
+        // LOGGER.debug("Building execution plan from retrieval query plan:{}",retrievalQueryPlan);
+        // List<Conjunct> unassigned=retrievalQueryPlan.getUnassignedClauses();
+        // List<QueryFieldInfo> qfi=getAllQueryFieldInfo(retrievalQueryPlan);
+        // for(QueryPlanNode node:retrievalQueryPlan.getAllNodes()) {
+        //     ExecutionBlock block=qp2BlockMap.get(node);
+        //     QueryPlanNode[] destinationNodes=node.getDestinations();
+        //     ExecutionBlock[] destinationBlocks=new ExecutionBlock[destinationNodes.length];
+        //     for(int i=0;i<destinationNodes.length;i++) {
+        //         destinationBlocks[i]=qp2BlockMap.get(destinationNodes[i]);
+        //     }
+        //     if(block==retrievalRoot) {
+        //         // Processing the root node
+        //         // If there is a search plan, then we already have the root documents, so simply stream
+        //         // those docs from the search plan. If there is not a search plan, we search the documents
+        //         // here
+        //         Step<ResultDocument> last;
+        //         if(queryRoot!=null) {
+        //             // There is a search plan. Trim the documents to contain the root only
+        //             last=new Trim(block,queryRoot.getLastStep());
+        //         } else {
+        //             Search search=new Search(block);
+        //             last=search;
+        //             if(unassigned.isEmpty()) {
+        //                 // There are no unassigned clauses
+        //                 // We can sort/limit here
+        //                 search.setLimit(from,to);
+        //                 search.setSort(requestSort);
+        //                 sorted=limited=true;
+        //             } else {
+        //                 // There are unassigned clauses. We can sort during search, but we have to filter and limit
+        //                 search.setSort(requestSort);
+        //                 sorted=true;
+        //                 Filter f=new Filter(block,search,getFilterQuery(unassigned));
+        //                 last=f;
+        //                 if(from!=null)
+        //                     last=new Skip(block,from.intValue(),last);
+        //                 if(to!=null)
+        //                     last=new Limit(block,to.intValue()-from.intValue()+1,last);
+        //                 limited=true;
+        //             }
+        //         }
+        //         new Assemble(block,search,destinationBlocks);
+        //     } else {
+        //         // Processing one of the associated entity nodes
+        //         // For retrieval plan, there can be only one source node
+        //         ExecutionBlock source=block.getSourceBlocks().get(0);
+        //         QueryPlanData edgeData=retrievalQueryPlan.getEdgeData(source.getQueryPlanNode(),
+        //                                                               block.getQueryPlanNode());
+        //         if(edgeData!=null) {
+        //             AssociationQuery aq=new AssociationQuery(rootMd,
+        //                                                      block.getMetadata(),
+        //                                                      block.getReference(),
+        //                                                      edgeData.getConjuncts());
+        //             block.setAssociationQuery(source,aq);
+        //         }
+        //         List<Step<ResultDocument>> list=(List<Step<ResultDocument>>)block.getSourceBlocks().stream().
+        //             map(ExecutionBlock::getFinalStep).
+        //             collect(Collectors.toList());
+        //         Join join=new Join(block,new Step[] {source.getFinalStep()});
+        //         search=new ConstrainedSearch(block,join);
+        //         new Assemble(block,search,destinationBlocks);
+        //     }
+        // }
+
+        for(ExecutionBlock block:qp2BlockMap.values()) {
+            block.initialize();
         }
     }
 
@@ -309,8 +334,8 @@ public class ExecutionPlan {
         for(QueryPlanNode node:allNodes) {
             if(node.getData()!=null)
                 node.getData().getConjuncts().stream().forEach(c->qfi.addAll(c.getFieldInfo()));
-            for(QueryPlanNode source:node.getSourceNodes()) {
-                QueryPlanData edgeData=searchQueryPlan.getEdgeData(source,node);
+            for(QueryPlanNode source:node.getSources()) {
+                QueryPlanData edgeData=qp.getEdgeData(source,node);
                 if(edgeData!=null)
                     edgeData.getConjuncts().stream().forEach(c->qfi.addAll(c.getFieldInfo()));
             }
@@ -369,7 +394,7 @@ public class ExecutionPlan {
         // What is the path prefix for this entity?
         CompositeMetadata md=block.getMetadata();
         Path entityPath=md.getEntityPath();
-        Path globalPrefix=entityPath.isEmpty()?Path.EMPTY:new Path(entityPath,Path.ANY_PATH);
+        Path globalPrefix=entityPath.isEmpty()?Path.EMPTY:new Path(entityPath,Path.ANYPATH);
         // entityPath is either empty, meaning this is the root, or a path to a reference field
         // If entityPath is not empty, then find the projection in the reference field
         ResolvedReferenceField reference=block.getReference();

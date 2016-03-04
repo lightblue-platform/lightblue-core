@@ -24,19 +24,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import com.redhat.lightblue.query.Sort;
+
 import com.redhat.lightblue.eval.SortFieldInfo;
 import com.redhat.lightblue.eval.SortableItem;
 
 /**
  * Sorts the result set
  */
-public class Sort extends Step<ResultDocument> {
+public class SortResults extends Step<ResultDocument> {
 
     private final SortFieldInfo[] sortFields;
     private final Sort sort;
     private final Step<ResultDocument> source;
     
-    public Sort(ExecutionBlock block,Step<ResultDocument> source,Sort sort) {
+    public SortResults(ExecutionBlock block,Step<ResultDocument> source,Sort sort) {
         super(block);
         this.source=source;
         this.sort=sort;
@@ -50,8 +52,8 @@ public class Sort extends Step<ResultDocument> {
             public Stream<ResultDocument> stream() {
                 return super.stream().
                     map(d->new SortableDoc(d,sortFields)).
-                    sort().
-                    map(d->getDoc());
+                    sorted().
+                    map(d->d.getDoc());
         }
         };        
     }

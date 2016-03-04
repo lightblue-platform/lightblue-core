@@ -34,6 +34,9 @@ public class Binder {
         return binding;
     }
 
+    /**
+     * This is either a Value or a List<Value>
+     */
     public Object getValue() {
         return value;
     }

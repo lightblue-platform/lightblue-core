@@ -79,6 +79,7 @@ public class QueryPlanData implements Serializable {
             conjuncts=new ArrayList<>(source.conjuncts);
         else
             conjuncts=null;
+        referenceField=source.referenceField;
     }
 
     /**

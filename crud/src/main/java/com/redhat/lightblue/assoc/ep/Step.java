@@ -37,6 +37,10 @@ public abstract class Step<R> {
 
     public abstract JsonNode toJson();
 
+    public ExecutionBlock getBlock() {
+        return block;
+    }
+
     @Override
     public String toString() {
         return JsonUtils.prettyPrint(toJson());

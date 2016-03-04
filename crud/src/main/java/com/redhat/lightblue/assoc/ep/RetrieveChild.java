@@ -49,44 +49,47 @@ import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.BindQuery;
 import com.redhat.lightblue.assoc.Binder;
 
-import com.redhat.lightblue.util.Tuples;
-
 /**
- * Performs searches based on the n-tuple of result documents obtained from the source steps
+ * Given a parent document, retrieves child documents for a slot, and attaches them to the corresponding slots
  * 
- * Input: [ ResultDocument ]
+ * Input: ResultDocument
  * Output: ResultDocument
  */
-public class ConstrainedSearch extends Step<ResultDocument> {
+public class RetrieveChild extends Step<ResultDocument> {
     
-    private static final Logger LOGGER=LoggerFactory.getLogger(ConstrainedSearch.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(RetrieveChild.class);
 
-    private final Step<JoinTuple> source;
+    private final Step<ResultDocument> parent;
 
-    public ConstrainedSearch(ExecutionBlock block,Step<JoinTuple> source) {
+    public RetrieveChild(ExecutionBlock block,Step<ResultDocument> source) {
         super(block);
-        this.source=source;
-        List<ExecutionBlock> sources=block.getSourceBlocks();
+        this.parent=source;
     }
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+        // return new StepResult<ResultDocument>() {
+        //     public Stream<ResultDocument> stream() {
+        //         return parent.getResults(ctx).stream().
+        //             map(parentDoc -> {
+        //                     Map<ChildSlot,QueryExpression> queries=writeChildQueriesFromParentDoc(aq,parentDoc);
+        //                     for(Map.Entry<ChildSlot,QueryExpression> q:queries) {
+        //                         StepResult<ResultDocument> results=searchAndRetrieve(q);
+        //                         parentDoc.insertChildDocs(q.getKey(),results.stream());
+        //                     }
+        //                     return parentDoc;
+        //                 }
+        //                 );
+        //     };
+        // };
         return null;
     }
-    
-    /**
-     * Returns true if the entity associated with sourceNode is the
-     * parent entity of the entity associated with this node
-     */
-    private boolean isParentEntity(QueryPlanNode sourceNode) {
-        return block.getMetadata().getParent()==sourceNode.getMetadata();
-    }
-
 
     @Override
     public JsonNode toJson() {
         return null;
     }
-
+    
+    
 }
 

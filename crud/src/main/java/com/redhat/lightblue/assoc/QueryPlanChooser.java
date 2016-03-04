@@ -147,10 +147,10 @@ public class QueryPlanChooser {
             Set<Path> childPaths = root.getChildPaths();
             QueryPlanNode sourceNode=qplan.getNode(root);
             for (Path childPath : childPaths) {
-                ResolvedReferenceField rrf = root.getChildReference(childPath);
+                ResolvedReferenceField rrf = root.getDescendantReference(childPath);
                 QueryPlanNode destNode=qplan.getNode(rrf.getReferencedMetadata());
                 QueryPlanData qd=qplan.getEdgeData(sourceNode,destNode);
-                if(qd==null)
+                if(qd==null) 
                     qplan.setEdgeData(sourceNode,destNode,qd=qplan.newData());
                 qd.setReference(rrf);
                 ReferenceField ref = rrf.getReferenceField();
@@ -181,7 +181,8 @@ public class QueryPlanChooser {
      * nodes. These are fixed assignments, and don't change from one
      * query plan to the other
      */
-    private void assignQueriesToPlanNodesAndEdges(List<Conjunct> queries,List<Conjunct> unassigned) {
+    private void assignQueriesToPlanNodesAndEdges(List<Conjunct> queries,
+                                                  List<Conjunct> unassigned) {
         Error.push("assignQueriesToPlanNodesAndEdges");
         LOGGER.debug("Assigning queries to query plan nodes and edges");
         try {
@@ -207,8 +208,9 @@ public class QueryPlanChooser {
                     if(qplan.isUndirectedConnected(node1,node2)) {
                         LOGGER.debug("Conjunct is assigned to an edge");
                         QueryPlanData qd=qplan.getEdgeData(node1,node2);
-                        if(qd==null)
+                        if(qd==null) {
                             qplan.setEdgeData(node1,node2,qd=qplan.newData());
+                        }
                         qd.getConjuncts().add(c);
                         break;
                     }

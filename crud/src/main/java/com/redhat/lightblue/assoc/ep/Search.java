@@ -21,6 +21,8 @@ package com.redhat.lightblue.assoc.ep;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.Sort;
+import com.redhat.lightblue.query.NaryLogicalExpression;
+import com.redhat.lightblue.query.NaryLogicalOperator;
 
 import com.redhat.lightblue.mediator.Finder;
 import com.redhat.lightblue.mediator.OperationContext;
@@ -92,10 +96,11 @@ public class Search extends Step<ResultDocument> {
             return new StepResult<ResultDocument>() {
                 @Override
                 public Stream<ResultDocument> stream() {
-                    return documents.stream().map(doc -> doc.getOutputDocument());
+                    return documents.stream().map(doc -> new ResultDocument(block,doc.getOutputDocument()));
                 }
             };
-        }
+        } else
+            return null;
     }
 
     public CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
@@ -116,41 +121,35 @@ public class Search extends Step<ResultDocument> {
             return null;
     }
     
-    public OperationContext search(ExecutionContext ctx,CRUDFindRequest findRequest) {
-        OperationContext searchCtx=null;
-        CRUDFindRequest findRequest=buildFindRequest(ctx);
-        if(findRequest!=null) {
-            PlanNodeExecutionBlock block=getPlanNodeBlock();
-            OperationContext searchCtx=ctx.getOperationContext().
-                getDerivedOperationContext(block.getEntityMetadata().getName(),
-                                           findRequest);
-            LOGGER.debug("SearchStep {}: entity={}, query={}, projection={}, sort={}, from={}, to={}",
+    public OperationContext search(ExecutionContext ctx,CRUDFindRequest req) {
+        OperationContext searchCtx=ctx.getOperationContext().
+            getDerivedOperationContext(block.getMetadata().getName(),req);
+        LOGGER.debug("SearchStep {}: entity={}, query={}, projection={}, sort={}, from={}, to={}",
+                     block.getQueryPlanNode().getName(),
+                     searchCtx.getEntityName(),
+                     req.getQuery(),
+                     req.getProjection(),
+                     req.getSort(),
+                     req.getFrom(),
+                     req.getTo());
+        
+        Finder finder=new SimpleFindImpl(block.getMetadata(),searchCtx.getFactory());
+        CRUDFindResponse response=finder.find(searchCtx,req);
+        
+        if(searchCtx.hasErrors()) {
+            ctx.getOperationContext().addErrors(searchCtx.getErrors());
+            searchCtx=null;
+        } else {
+            LOGGER.debug("execute {}: returning {} documents",
                          block.getQueryPlanNode().getName(),
-                         searchCtx.getEntityName(),
-                         findRequest.getQuery(),
-                         findRequest.getProjection(),
-                         findRequest.getSort(),
-                         findRequest.getFrom(),
-                         findRequest.getTo());
-                        
-            Finder finder=new SimpleFindImpl(block.getEntityMetadata(),ctx.getFactory());
-            CRUDFindResponse response=finder.find(searchCtx,findRequest);
-            
-            if(searchCtx.hasErrors()) {
-                ctx.getOperationContext().addErrors(searchCtx.getErrors());
-                searchCtx=null;
-            } else {
-                LOGGER.debug("execute {}: returning {} documents",
-                             block.getQueryPlanNode().getName(),
-                             searchCtx.getDocuments().size());
-            }
-        } 
+                         searchCtx.getDocuments().size());
+        }        
         return searchCtx;
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.objectNode();
+        ObjectNode o=JsonNodeFactory.instance.objectNode();
         o.set("search",query==null?JsonNodeFactory.instance.nullNode():query.toJson());
         o.set("projection",projection==null?JsonNodeFactory.instance.nullNode():projection.toJson());
         o.set("sort",sort==null?JsonNodeFactory.instance.nullNode():sort.toJson());
