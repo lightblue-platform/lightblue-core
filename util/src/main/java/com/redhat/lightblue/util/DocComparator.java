@@ -19,6 +19,7 @@
 package com.redhat.lightblue.util;
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -348,17 +349,22 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
         public Path[] getFields() {
             return fields;
         }
+
+        @Override
+        public String toString() {
+            return Arrays.toString(fields);
+        }
     }
 
     /**
      * Default array identity object. Contains the identity values,
      * computes hashcode from them
      */
-    public static class DefaultIdentity<T> {
-        private final T[] nodes;
+    public class DefaultIdentity {
+        private final BaseType[] nodes;
         private Integer hcode;
 
-        public DefaultIdentity(T[] nodes) {
+        public DefaultIdentity(BaseType[] nodes) {
             this.nodes=nodes;
         }
 
@@ -380,7 +386,7 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
             try {
                 DefaultIdentity d=(DefaultIdentity)x;
                 for(int i=0;i<nodes.length;i++) {
-                    if(!d.nodes[i].equals(nodes[i]))
+                    if(!DocComparator.this.equals(asValue(d.nodes[i]),asValue(nodes[i])))
                         return false;
                 }
             } catch (Exception e) {
@@ -433,6 +439,10 @@ public abstract class DocComparator<BaseType,ValueType,ObjectType,ArrayType> {
      */
     public void addArrayIdentity(Path array,Path...identities) {
         arrayIdentities.put(array,new ArrayIdentityFields(identities));
+    }
+
+    public Map<Path,ArrayIdentityFields> getArrayIdentities() {
+        return arrayIdentities;
     }
 
     /**
