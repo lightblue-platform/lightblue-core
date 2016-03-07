@@ -18,20 +18,15 @@
  */
 package com.redhat.lightblue.util;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ListIterator;
-import java.util.LinkedList;
 import java.util.Iterator;
-import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import java.io.FileReader;
 
 /**
  * Compares two json documents and builds an list of all changes
@@ -170,10 +165,13 @@ public class JsonCompare extends DocComparator<JsonNode,ValueNode,ObjectNode,Arr
     }
 
     public static void main(String[] args) throws Exception {
-        JsonNode f1=JsonUtils.json(new java.io.FileReader(args[0]),false);
-        JsonNode f2=JsonUtils.json(new java.io.FileReader(args[1]),false);
-        JsonCompare cmp=new JsonCompare();
-        DocComparator.Difference<JsonNode> diff=cmp.compareNodes(f1,f2);
-        System.out.println(diff);
+        try (FileReader fr1 = new java.io.FileReader(args[0]);
+                FileReader fr2 = new java.io.FileReader(args[1])) {
+            JsonNode f1=JsonUtils.json(fr1,false);
+            JsonNode f2=JsonUtils.json(fr2,false);
+            JsonCompare cmp=new JsonCompare();
+            DocComparator.Difference<JsonNode> diff=cmp.compareNodes(f1,f2);
+            System.out.println(diff);
+        }
     }
 }
