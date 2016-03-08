@@ -38,6 +38,10 @@ public class ExecutionOptions extends JsonObject {
     public Map<String,String> getOptions() {
         return options;
     }
+    
+    public String getOptionValueFor(String optionName) {
+        return options.get(optionName);
+    }
 
     /**
      * Returns a json representation of this
