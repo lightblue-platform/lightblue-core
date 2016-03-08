@@ -19,6 +19,9 @@
 package com.redhat.lightblue.util;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -165,6 +168,47 @@ public class JsonCompareTest {
         Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Modification.class,null,"d.2.q"));
         Assert.assertTrue(hasDelta(diff.getDelta(),JsonCompare.Modification.class,null,"d.2.w"));
    }
+
+    @Test
+    public void testArrayIdentityComparisonSanity() throws Exception {
+        JsonCompare cmp=new JsonCompare();
+        JsonNode doc1=json("{'lastUpdatedBy':'test','lastUpdateDate':'20160304T09:44:13.813-0700','personalInformation':{'firstName':'cxKIFfirst','localeCode':'en_US','prefix':'Dr.','timeZone':'America/Halifax','lastNames':'ptZUYlast'},'creationDate':'20160304T09:44:13.813-0700','authentications':[{'principal':'IAECY','uid':100,'principalDisplay':'iaECy','providerName':'Red Hat'}],'isUserSimple':false,'createdBy':'test','legalEntities':[{'emails':[{'uid':'bd594540-d35c-48b5-93ff-d7760ac206f7','address':'iaECy@redhat.com','isPrimary':true,'validation':{'creationDate':'20160304T09:44:13.587-0700','key':'sr4Jt9BDJP','attempts':0},'status':'enabled'}],'uid':'776b2b6f-0dee-479d-ab13-1bd5a542d6f9','legalEntityId':123,'permissions':[{'uid':'d2e5a5c6-7eda-4c09-9598-792069f03a9c','accessLevel':'admin','permissionCode':'portal_manage_subscriptions','startDate':'20160304T09:44:13.587-0700'}],'telephones':[{'uid':'dee2dcda-3647-4721-9386-02bce9e2b8d4','phoneType':'other','isPrimary':true,'rawNumber':'555-555-5555','status':'enabled'},{'uid':'5b24315e-5645-42c2-9f98-ac2665500d18','phoneType':'fax','isPrimary':true,'rawNumber':'666-666-6666','status':'enabled'}],'physicalAddresses':[{'defaultFlag':true,'city':'Raleigh','countryIso2Code':'US','postalCode':'27601','county':'Wake','description':'Default','addressTypes':[{'uid':25000000,'code':'market','status':'enabled'}],'uid':25000000,'street':['100 E Davie St'],'state':'NC','status':'enabled'}],'title':'Tester','startDate':'20160304T09:44:13.587-0700'}],'_id':50000000,'status':'enabled','objectType':'user','authentications#':1,'legalEntities#':1}");
+        JsonNode doc2=json("{'_id':50000000,'isUserSimple':false,'creationDate':'20160304T09:44:13.813-0700','createdBy':'test','lastUpdateDate':'20160304T09:44:13.813-0700','lastUpdatedBy':'test','status':'enabled','personalInformation':{'firstName':'cxKIFfirst','lastNames':'ptZUYlast','prefix':'Dr.','timeZone':'America/Halifax','localeCode':'en_US'},'authentications':[{'uid':100,'principal':'IAECY','principalDisplay':'iaECy','providerName':'Red Hat'}],'legalEntities':[{'uid':'776b2b6f-0dee-479d-ab13-1bd5a542d6f9','legalEntityId':123,'title':'Tester','startDate':'20160304T09:44:13.587-0700','physicalAddresses':[{'uid':25000000,'street':['100 E Davie St'],'city':'Raleigh','state':'NC','postalCode':'27601','county':'Wake','addressTypes':[{'uid':25000000,'code':'market','status':'enabled'}],'countryIso2Code':'US','status':'enabled','defaultFlag':true,'description':'Default'}],'telephones':[{'uid':'dee2dcda-3647-4721-9386-02bce9e2b8d4','phoneType':'other','rawNumber':'555-555-5555','status':'enabled','isPrimary':true},{'uid':'5b24315e-5645-42c2-9f98-ac2665500d18','phoneType':'fax','rawNumber':'666-666-6666','status':'enabled','isPrimary':true}],'emails':[{'uid':'bd594540-d35c-48b5-93ff-d7760ac206f7','address':'FQFIB@redhat.com','validation':{'key':'sr4Jt9BDJP','creationDate':'20160304T09:44:13.587-0700','attempts':0},'status':'enabled','isPrimary':true}],'permissions':[{'uid':'d2e5a5c6-7eda-4c09-9598-792069f03a9c','startDate':'20160304T09:44:13.587-0700','permissionCode':'portal_manage_subscriptions','accessLevel':'admin'}]}],'authentications#':1,'legalEntities#':1,'objectType':'user'}");
+        JsonCompare.Difference<JsonNode> diff=cmp.compareNodes(doc1,doc2);
+        System.out.println(diff);
+        // There should be only one diff, email is changed
+        Assert.assertEquals(1,diff.getDelta().size());
+        Assert.assertEquals("legalEntities.0.emails.0.address",diff.getDelta().get(0).getField().toString());
+
+        Map<Path,List<Path>> idMap=new HashMap();
+        List<Path> l=new ArrayList<>();
+        l.add(new Path("uid"));
+        idMap.put(new Path("authentications"),l);
+        l=new ArrayList<>();
+        l.add(new Path("uid"));
+        idMap.put(new Path("legalEntities"),l);
+        l=new ArrayList<>();
+        l.add(new Path("uid"));
+        idMap.put(new Path("legalEntities.*.physicalAddresses.*.addressTypes"),l);
+        l=new ArrayList<>();
+        l.add(new Path("uid"));
+        idMap.put(new Path("legalEntities.*.physicalAddresses"),l);
+        l=new ArrayList<>();
+        l.add(new Path("uid"));
+        idMap.put(new Path("legalEntities.*.emails"),l);
+        l=new ArrayList<>();
+        l.add(new Path("uid"));
+        idMap.put(new Path("legalEntities.*.permissions"),l);
+        for(Map.Entry<Path,List<Path>> entry:idMap.entrySet()) {
+            cmp.addArrayIdentity(entry.getKey(),entry.getValue().toArray(new Path[entry.getValue().size()]));
+        }
+        diff=cmp.compareNodes(doc1,doc2);
+        System.out.println(diff);
+        // There should be only one diff, email is changed
+        Assert.assertEquals(1,diff.getDelta().size());
+        Assert.assertEquals("legalEntities.0.emails.0.address",diff.getDelta().get(0).getField().toString());
+        
+    }
     
     /**
      * Returns if the given type delta exists, with given fields. Any field can be null
