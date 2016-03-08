@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import com.redhat.lightblue.DataError;
+import com.redhat.lightblue.ExecutionOptions;
 import com.redhat.lightblue.hooks.HookManager;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
@@ -50,6 +51,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     private final Map<String, Object> propertyMap = new HashMap<>();
     private final CRUDOperation CRUDOperation;
     private final HookManager hookManager;
+    private final ExecutionOptions executionOptions;
 
     /**
      * This is the constructor used to represent the context of an operation
@@ -57,7 +59,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     public CRUDOperationContext(CRUDOperation op,
                                 String entityName,
                                 Factory f,
-                                List<JsonDoc> docs) {
+                                List<JsonDoc> docs,
+                                ExecutionOptions eo) {
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
@@ -65,6 +68,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         addDocuments(docs);
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
         this.callerRoles=new HashSet<>();
+        this.executionOptions=eo;
     }
 
     public CRUDOperationContext(CRUDOperation op,
@@ -72,13 +76,15 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
                                 Factory f,
                                 Set<String> callerRoles,
                                 HookManager hookManager,
-                                List<JsonDoc> docs) {
+                                List<JsonDoc> docs,
+                                ExecutionOptions eo) {
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
         addDocuments(docs);
         this.callerRoles=callerRoles;
         this.hookManager=hookManager;
+        this.executionOptions=eo;
     }
 
     /**
@@ -90,13 +96,22 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
                                 Factory f,
                                 List<DocCtx> docs,
                                 Set<String> callerRoles,
-                                HookManager hookManager) {
+                                HookManager hookManager,
+                                ExecutionOptions eo) {
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
         this.documents =docs;
         this.callerRoles=callerRoles;
         this.hookManager=hookManager;
+        this.executionOptions=eo;
+    }
+
+    /**
+     * Returns the execution options
+     */
+    public ExecutionOptions getExecutionOptions() {
+        return executionOptions;
     }
 
     /**

@@ -67,7 +67,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                                     CRUDOperation op,
                                     Factory f,
                                     List<JsonDoc> docs) {
-            super(op, "test", f, docs);
+            super(op, "test", f, docs,null);
             this.md = md;
             if (CRUDOperation.UPDATE.equals(op) || CRUDOperation.DELETE.equals(op)) {
                 // for update and delete setup the original document so pre isn't null in hooks
