@@ -55,17 +55,8 @@
         },
         "execution": {
             "type": "object",
-            "properties": {
-                "timeLimit": {
-                    "type": "integer",
-                    "description": "The upper time limit for the call in milliseconds. If the call does not complete before the limit expires, call fails with partial results written. The return status will contain what items are written."
-                },
-                "asynchronous": {
-                    "type": "integer",
-                    "description": "Given as a time limit in milliseconds. Once that limit is exceeded, the call returns, but execution continues. The return value will contain a task handle that can be used to check for execution status."
-                }
-            },
-            "additionalProperties": false
+            "description": "Execution options captured as key/value pairs.  See documentation on http://lightblue.io for what is supporeted",
+            "additionalProperties": true
         },
         "client": {
             "description": "If omitted, the call executes as role 'anyone'. This field contains the authentication information for the caller, which is auth implementation specific, or a session identifier obtained from an earlier call.",
