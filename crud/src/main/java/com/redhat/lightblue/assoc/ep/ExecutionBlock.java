@@ -40,9 +40,14 @@ public class ExecutionBlock {
     private final Map<ExecutionBlock,AssociationQuery> associationQueries=new HashMap<>();
 
     /**
-     * Final step is set by Step constructor. 
+     * Result step of this block
      */
-    protected Step<?> finalStep;
+    protected Step<ResultDocument> resultStep;
+
+    /**
+     * All steps of this block
+     */
+    protected final List<Step<?>> steps=new ArrayList<Step<?>>();
 
     /**
      * Document ID extractor for the documents of this block
@@ -165,10 +170,31 @@ public class ExecutionBlock {
     }
 
     /**
-     * Returns the final step of this block
+     * Returns a step of the given type
      */
-    public Step<?> getFinalStep() {
-        return finalStep;
+    public <X> X getStep(Class<X> clazz) {
+        for(Step<?> x:steps)
+            if(clazz.isAssignableFrom(x.getClass()))
+                return (X)x;
+        return null;
+    }
+
+    public void registerStep(Step<?> step) {
+        steps.add(step);
+    }
+
+    /**
+     * Returns the result step of this block
+     */
+    public Step<ResultDocument> getResultStep() {
+        return resultStep;
+    }
+
+    /**
+     * Sets the result step of this block
+     */
+    public void setResultStep(Step<ResultDocument> resultStep) {
+        this.resultStep=resultStep;
     }
 
 

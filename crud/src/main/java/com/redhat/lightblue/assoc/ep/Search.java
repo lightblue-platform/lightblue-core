@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,58 +53,30 @@ import com.redhat.lightblue.assoc.Conjunct;
  * Input: n/a
  * Output: ResultDocument
  */
-public class Search extends Step<ResultDocument> {
+public class Search extends AbstractSearchStep {
     
     private static final Logger LOGGER=LoggerFactory.getLogger(Search.class);
     
-    protected QueryExpression query;
-    protected Projection projection;
-    protected Sort sort;
-    protected Long from,to;
-    protected List<Conjunct> conjuncts;
-
     public Search(ExecutionBlock block) {
         super(block);
     }
-    
-    public void setSort(Sort sort) {
-        this.sort=sort;
+
+    protected List<ResultDocument> postProcess(OperationContext result,ExecutionContext ctx) {
+        return result.getDocuments().stream().
+            map(doc->new ResultDocument(block,doc.getOutputDocument())).
+            collect(Collectors.toList());        
     }
     
-    public void setLimit(Long from,Long to) {
-        this.from=from;
-        this.to=to;
-    }
-    
-    public void setProjection(Projection p) {
-        this.projection=p;
-    }
-    
-    public void setQueries(List<Conjunct> conjuncts) {
-        this.conjuncts=conjuncts;
-        List<QueryExpression> l=new ArrayList<>(conjuncts.size());
-        for(Conjunct c:conjuncts) {
-            l.add(c.getClause());
-        }
-        query=l.size()==1?l.get(0):new NaryLogicalExpression(NaryLogicalOperator._and,l);
-    }
-    
-    @Override
-    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        OperationContext result=search(ctx);
-        if(result!=null) {
-            List<DocCtx> documents=result.getDocuments();
-            return new StepResult<ResultDocument>() {
-                @Override
-                public Stream<ResultDocument> stream() {
-                    return documents.stream().map(doc -> new ResultDocument(block,doc.getOutputDocument()));
-                }
-            };
-        } else
+    public OperationContext search(ExecutionContext ctx) {
+        CRUDFindRequest req=buildFindRequest(ctx);
+        if(req!=null)
+            return search(ctx,req);
+        else
             return null;
     }
 
-    public CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
+
+    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
         CRUDFindRequest findRequest=new CRUDFindRequest();
         findRequest.setQuery(query);
         findRequest.setProjection(projection);
@@ -113,49 +86,15 @@ public class Search extends Step<ResultDocument> {
         return findRequest;
     }
 
-    public OperationContext search(ExecutionContext ctx) {
-        CRUDFindRequest req=buildFindRequest(ctx);
-        if(req!=null)
-            return search(ctx,req);
-        else
-            return null;
-    }
-    
-    public OperationContext search(ExecutionContext ctx,CRUDFindRequest req) {
-        OperationContext searchCtx=ctx.getOperationContext().
-            getDerivedOperationContext(block.getMetadata().getName(),req);
-        LOGGER.debug("SearchStep {}: entity={}, query={}, projection={}, sort={}, from={}, to={}",
-                     block.getQueryPlanNode().getName(),
-                     searchCtx.getEntityName(),
-                     req.getQuery(),
-                     req.getProjection(),
-                     req.getSort(),
-                     req.getFrom(),
-                     req.getTo());
-        
-        Finder finder=new SimpleFindImpl(block.getMetadata(),searchCtx.getFactory());
-        CRUDFindResponse response=finder.find(searchCtx,req);
-        
-        if(searchCtx.hasErrors()) {
-            ctx.getOperationContext().addErrors(searchCtx.getErrors());
-            searchCtx=null;
-        } else {
-            LOGGER.debug("execute {}: returning {} documents",
-                         block.getQueryPlanNode().getName(),
-                         searchCtx.getDocuments().size());
-        }        
-        return searchCtx;
+    @Override
+    protected List<ResultDocument> getSearchResults(ExecutionContext ctx) {
+        OperationContext result=search(ctx);
+        if(result!=null) {
+            List<DocCtx> documents=result.getDocuments();
+            return postProcess(result,ctx);
+        } else
+            return new ArrayList<>();
     }
 
-    @Override
-    public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("search",query==null?JsonNodeFactory.instance.nullNode():query.toJson());
-        o.set("projection",projection==null?JsonNodeFactory.instance.nullNode():projection.toJson());
-        o.set("sort",sort==null?JsonNodeFactory.instance.nullNode():sort.toJson());
-        o.set("from",from==null?JsonNodeFactory.instance.nullNode():JsonNodeFactory.instance.numberNode(from));
-        o.set("to",to==null?JsonNodeFactory.instance.nullNode():JsonNodeFactory.instance.numberNode(to));
-        return o;
-    }
 }
 

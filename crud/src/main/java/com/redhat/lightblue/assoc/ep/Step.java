@@ -30,7 +30,7 @@ public abstract class Step<R> {
 
     public Step(ExecutionBlock block) {
         this.block=block;
-        block.finalStep=this;
+        block.registerStep(this);
     }
     
     public abstract StepResult<R> getResults(ExecutionContext ctx);

@@ -35,12 +35,7 @@ public class AssociationQuery {
             queries.add(result.query);
             fieldBindings.addAll(result.bindings);
         }
-        if(queries.size()>1)
-            query=new NaryLogicalExpression(NaryLogicalOperator._and,queries);
-        else if(queries.size()==1)
-            query=queries.get(0);
-        else
-            query=null;
+        query=Searches._and(queries);
     }
 
     public QueryExpression getQuery() {

@@ -19,6 +19,7 @@
 package com.redhat.lightblue.assoc;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import com.redhat.lightblue.query.*;
 
@@ -40,12 +41,23 @@ public class BindQuery extends QueryIterator {
         this.bindings=bindings;
     }
 
+    public static BindQuery combine(List<BindQuery> binders) {
+        List<Binder> allb=new ArrayList<>();
+        for(BindQuery b:binders)
+            allb.addAll(b.bindings);
+        return new BindQuery(allb);
+    }
+
     private Binder getBoundValue(Object v) {
         for(Binder binding:bindings) {
             if(binding.getBinding()==v)
                 return binding;
         }
         return null;
+    }
+
+    public List<Binder> getBindings() {
+        return bindings;
     }
     
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {

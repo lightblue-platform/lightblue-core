@@ -18,43 +18,27 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-import java.util.stream.Stream;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 
 /**
- * Modifies the documents to contain only the root entity. This only
- * works for root
- *
- * Input: Step<ResultDocument>
- * Output: Step<ResultDocument>
+ * Copies the results from another step
  */
-public class Trim extends Step<ResultDocument> {
+public class Copy extends AbstractSearchStep {
 
     private final Step<ResultDocument> source;
     
-    public Trim(ExecutionBlock block,Step<ResultDocument> source) {
+    public Copy(ExecutionBlock block,Step<ResultDocument> source) {
         super(block);
         this.source=source;
     }
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        // return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
-        //     @Override
-        //     public Stream<ResultDocument> stream() {
-        //         return super.stream().map(ResultDocument::trim);
-        //     }
-        // };
-        return null;
-    }           
+        return source.getResults(ctx);
+    }
 
     @Override
-    public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("strip",source.toJson());
-        return o;
+    protected final List<ResultDocument> getSearchResults(ExecutionContext ctx) {
+        return null;
     }
 }

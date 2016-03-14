@@ -223,6 +223,51 @@ public class SearchesTest extends AbstractJsonSchemaTest {
         JSONAssert.assertEquals("{field:legalEntities.*.legalEntityId,op:$eq,rvalue:1}",queries.get(0).toString(),false);
     }
 
+    @Test
+    public void writeQueriesForJoin2() throws Exception {
+        CompositeMetadata umd=getCmd("U",projection("[{'field':'legalEntities.*.legalEntity'},{'field':'legalEntities.*.legalEntity.*.us'}]"));
+        CompositeMetadata lmd=umd.getChildMetadata(new Path("legalEntities.*.legalEntity"));
+        CompositeMetadata u2md=lmd.getChildMetadata(new Path("legalEntities.*.legalEntity.*.us"));
+        QueryPlanChooser chooser=new QueryPlanChooser(umd,new First(),
+                                                      new SimpleScorer(),query("{'field':'_id','op':'=','rvalue':1}"),
+                                                      null);
+        QueryPlan qp=chooser.choose();
+        // setup:
+        //    U -> L
+        //    U2 -> L
+        qp.flip(qp.getNode(u2md),qp.getNode(lmd));
+        
+        ExecutionBlock ublock=new ExecutionBlock(umd,qp.getNode(umd));
+        ExecutionBlock u2block=new ExecutionBlock(umd,qp.getNode(u2md));
+        ExecutionBlock lblock=new ExecutionBlock(umd,qp.getNode(lmd));
+        
+        QueryPlanData data=qp.getEdgeData(qp.getNode(umd),qp.getNode(lmd));
+        AssociationQuery a1=new AssociationQuery(umd,lmd,data.getReference(),data.getConjuncts());
+        lblock.setAssociationQuery(ublock,a1);
+        data=qp.getEdgeData(qp.getNode(u2md),qp.getNode(lmd));
+        AssociationQuery a2=new AssociationQuery(u2md,lmd,data.getReference(),data.getConjuncts());
+        lblock.setAssociationQuery(u2block,a2);
+
+        lblock.addSourceBlock(ublock);
+        lblock.addSourceBlock(u2block);
+
+        ublock.initialize();
+        u2block.initialize();
+        lblock.initialize();
+
+        ResultDocument parentDoc=resultDoc(ublock,"{'_id':1,'legalEntities':[{'legalEntityId':1},{'legalEntityId':2}]}");
+        ArrayList<ResultDocument> ulist=new ArrayList<>();
+        ulist.add(resultDoc(u2block,"{'_id':2,'legalEntities':[{'legalEntityId':3},{'legalEntityId':4}]}"));
+        JoinTuple tuple=new JoinTuple(parentDoc,parentDoc.getSlots().get(a1.getReference()).get(0),ulist);
+        List<QueryExpression> queries=Searches.writeQueriesForJoinTuple(tuple,lblock);
+        System.out.println(queries);
+        Assert.assertEquals(2,queries.size());
+        JSONAssert.assertEquals("{$and:[{field:_id,op:$eq,rvalue:1},{field:_id,op:$eq,rvalue:3}]}",
+                queries.get(0).toString(),false);
+        JSONAssert.assertEquals("{$and:[{field:_id,op:$eq,rvalue:1},{field:_id,op:$eq,rvalue:4}]}",
+                queries.get(1).toString(),false);
+    }
+
     private ChildSlot findSlot(Map<ChildSlot,QueryExpression> map,String container) {
         Path c=new Path(container);
         for(ChildSlot s:map.keySet())

@@ -16,11 +16,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.KeyValueCursor;
+import com.redhat.lightblue.util.Tuples;
 
 import com.redhat.lightblue.query.Value;
 
 import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Binder;
+import com.redhat.lightblue.assoc.BindQuery;
 import com.redhat.lightblue.assoc.BoundObject;
 
 import com.redhat.lightblue.metadata.DocId;
@@ -105,16 +107,17 @@ public class ResultDocument {
 
     /**
      * If this document is the parent document of a destination block
-     * documents, then the child documents will be inserted into this
-     * document. This function builds a list of binders for each
-     * slot. If the child document attaches to an array element, then
-     * there will be multiple slots in the returned map, one for each
-     * array element. If not, there will be only one item. The child
-     * block will retrieve documents based on this query, and attach
-     * the child documents to the corresponding slot
+     * documents, then the child documents will be inserted into the
+     * slots of this document. This function builds a BindQuery object
+     * for each slot. If the child document attaches to an array
+     * element, then there will be multiple slots in the returned map,
+     * one for each array element. If not, there will be only one slot
+     * for each field. The child block will retrieve documents based
+     * on queries written using the binder, and attach the child
+     * documents to the corresponding slot
      */
-    public Map<ChildSlot,List<Binder>> getBindersForChild(AssociationQuery childAq) {
-        Map<ChildSlot,List<Binder>> ret=new HashMap<>();
+    public Map<ChildSlot,BindQuery> getBindersForChild(AssociationQuery childAq) {
+        Map<ChildSlot,BindQuery> ret=new HashMap<>();
         if(childAq.getQuery()!=null) {
             List<ChildSlot> slots=this.slots.get(childAq.getReference());
             if(slots!=null) {
@@ -127,60 +130,55 @@ public class ResultDocument {
     }
 
     /**
-     * Returns binders for a slot. If the child document attaches to an array element, then
-     * there will be multiple slots in the returned map, one for each
-     * array element. If not, there will be only one item. The child
-     * block will retrieve documents based on this query, and attach
-     * the child documents to the corresponding slot
+     * Returns a query binder for a slot. The slot cannot have '*' in it
+     * (i.e. there must be only one location for the slot in the
+     * document).
      */
-    public List<Binder> getBindersForSlot(ChildSlot slot,AssociationQuery childAq) {
+    public BindQuery getBindersForSlot(ChildSlot slot,AssociationQuery childAq) {
         List<Binder> binders=new ArrayList<>();
         for(BoundObject bo:childAq.getFieldBindings()) {
             // Interpret field based on this slot
             Path field=bo.getFieldInfo().getEntityRelativeFieldNameWithContext();
             Path fieldAtSlot=field.mutableCopy().rewriteIndexes(slot.getLocalContainerName()).immutableCopy();
             if(fieldAtSlot.nAnys()>0) {
-                KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(fieldAtSlot);
-                while(cursor.hasNext()) {
-                    cursor.next();
-                    binders.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),cursor.getCurrentValue())));
-                }
-            } else {
-                binders.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),doc.get(fieldAtSlot))));
+                throw new IllegalArgumentException(fieldAtSlot.toString());
             }
+            binders.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),doc.get(fieldAtSlot))));
         }
-        return binders;
+        return new BindQuery(binders);
     }
 
     /**
-     * If this document is a child document of a destination block
-     * document, then this document will be inserted into the slots of
-     * those destination documents, but the destination documents are
-     * not found yet. The destination block needs queries based on the
-     * values in this document to retrieve those documents.
+     * This document is a child document, and it will be used to
+     * locate the parent. The destination block needs queries based on
+     * the values in this document to retrieve those documents.
      *
-     * The return value is a list of [Binder]s. Each element of the
-     * return value is a list, containing only one item if the bound
-     * field refers to a field that's not in an array, or multiple
-     * items if the bound field is in an array.
+     * The return value is a list of BindQuery objects, each should be
+     * used to write queries to search for parent documents.
      */
-    public List<List<Binder>> getBindersForParent(AssociationQuery parentAq) {
-        List<List<Binder>> ret=new ArrayList<>();
+    public List<BindQuery> getBindersForParent(AssociationQuery parentAq) {
+        List<BindQuery> ret=new ArrayList<>();
         if(parentAq.getQuery()!=null) {
-            List<Binder> binders=new ArrayList<>();
+            Tuples<Binder> binderTuple=new Tuples();
+           
             for(BoundObject bo:parentAq.getFieldBindings()) {
                 Path field=bo.getFieldInfo().getEntityRelativeFieldNameWithContext();
                 if(field.nAnys()>0) {
+                    List<Binder> l=new ArrayList<>();
                     KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(field);
                     while(cursor.hasNext()) {   
                         cursor.next();
-                        binders.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),cursor.getCurrentValue())));
+                        l.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),cursor.getCurrentValue())));
                     }
+                    binderTuple.add(l);
                 } else {
-                    binders.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),doc.get(field))));
+                    List<Binder> l=new ArrayList<>(1);
+                    l.add(new Binder(bo,getValue(bo.getFieldInfo().getFieldMd(),doc.get(field))));
+                    binderTuple.add(l);
                 }
             }
-            ret.add(binders);
+            for(Iterator<List<Binder>> itr=binderTuple.tuples();itr.hasNext();)
+                ret.add(new BindQuery(itr.next()));
         }
         return ret;
     }
@@ -227,73 +225,7 @@ public class ResultDocument {
             arrayField.add(docItr.next().doc.getRoot());
     }
     
-    
-    // /**
-    //  * Associate child documents with their parents. The association
-    //  * query is for the association from the child to the parent, so
-    //  * caller must flip it before sending it in if necessary. The
-    //  * caller also make sure parentDocs is a unique stream.
-    //  */
-    // public static void  associateDocs(Stream<ResultDocument> parentDocs,
-    //                                   QueryPlanNode parentNode,
-    //                                   List<ResultDocument> childDocs,
-    //                                   QueryPlanNode childNode,
-    //                                   AssociationQuery aq) {
-    //     if(!childDocs.isEmpty()) {
-    //         // This is an expensive operation, might benefit from a parallel stream
-    //         parentDocs.parellel().forEach(parentDoc -> {
-    //                 List<Slot> parentSlots=parentDoc.getChildSlots(childDocs);
-    //                 QueryExpression query=aq==null?null:aq.getQuery();
-    //                 if(parentSlots!=null) {
-    //                     for(Slot slot:parentSlots) {
-    //                         if(query!=null) {
-    //                             Tuple<Binder> binders=slot.getBinders();
-    //                             for(Iterator<List<Binder>> bindings:binders.iterator()) {
-    //                                 // Bind query
-    //                                 BindQuery bq=new BindQuery(bindings);
-    //                                 QueryExpression boundQuery=bq.iterate(query);
-    //                                 LOGGER.debug("Bound query:{}",boundQuery);
-    //                                 QueryEvaluator qeval=QueryEvaluator.getInstance(boundQuery,parentNode.getMetadata());
-    //                                 parentDoc.insertChildDocs(slot,childDocs.stream().filter(doc->qeval.evaluate(doc).getResult()));
-    //                             }
-    //                         } else {
-    //                             parentDoc.insertChildDocs(slot,childDocs.stream());
-    //                         }
-    //                     }
-    //                 }
-    //             });
-    //     }
-    // }
-
-    // /**
-    //  * Adds a destination to this document for child documents
-    //  */
-    // public void addChildDocumentDestination(QueryPlanNode childNode,AssociationQuery aq) {
-    //     ResolvedReferenceField reference=aq.getReference();
-    //     Path destinationArrayField=reference.getFullPath();
-    //     Path destinationReferenceParent=destinationArrayField.prefix(-1);
-    //     List<Slot> slots=new ArrayList<>();
-    //     childDocumentSlots.put(childNode,slots);
         
-    //     if(destinationReferenceParent.nAnys()>0) {
-    //         KeyValueCursor<Path,JsonNode> cursor=doc.getAllNodes(destinationReferenceParent);
-    //         while(cursor.hasNext()) {
-    //             cursor.next();
-    //             Path destinationReferenceParentInstance=cursor.getCurrentPath();
-    //             // Create a slot with the parent container and the field name
-    //             Slot s=new Slot(destinationReferenceParentInstance,reference.getReferenceField().getName());
-    //             s.fill(doc,aq.getFieldBindings());
-    //             slots.add(s);
-    //         }
-    //     } else {
-    //         // The destination field is not in an array, there is only one slot
-    //         Slot s=new Slot(destinationReferenceParent,reference.getReferenceField().getName());
-    //         s.fill(doc,aq.getFieldBindings());
-    //         slots.add(s);
-    //     }
-    // }
-
-    
     @Override
     public String toString() {
         return doc.toString();

@@ -20,15 +20,16 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
@@ -45,48 +46,36 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.DocCtx;
 
 import com.redhat.lightblue.assoc.Conjunct;
-import com.redhat.lightblue.assoc.QueryPlanNode;
-import com.redhat.lightblue.assoc.BindQuery;
-import com.redhat.lightblue.assoc.Binder;
-
-import com.redhat.lightblue.util.Tuples;
 
 /**
- * Performs searches based on the n-tuple of result documents obtained from the source steps
+ * Performs search for doc retrieval. Provides the 'setQuery' API to
+ * modify search criteria for every retrieval
  * 
- * Input: [ ResultDocument ]
+ * Input: n/a
  * Output: ResultDocument
  */
-public class ConstrainedSearch extends Step<ResultDocument> {
+public class Retrieve extends Search {
     
-    private static final Logger LOGGER=LoggerFactory.getLogger(ConstrainedSearch.class);
+    private static final Logger LOGGER=LoggerFactory.getLogger(Retrieve.class);
 
-    private final Step<JoinTuple> source;
-
-    public ConstrainedSearch(ExecutionBlock block,Step<JoinTuple> source) {
+    private QueryExpression searchQuery;
+    
+    public Retrieve(ExecutionBlock block) {
         super(block);
-        this.source=source;
-        List<ExecutionBlock> sources=block.getSourceBlocks();
     }
 
-    @Override
-    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return null;
+    public void setQuery(QueryExpression q) {
+        this.searchQuery=q;
     }
     
-    /**
-     * Returns true if the entity associated with sourceNode is the
-     * parent entity of the entity associated with this node
-     */
-    private boolean isParentEntity(QueryPlanNode sourceNode) {
-        return block.getMetadata().getParent()==sourceNode.getMetadata();
+    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
+        CRUDFindRequest findRequest=new CRUDFindRequest();
+        findRequest.setQuery(Searches._and(query,searchQuery));
+        findRequest.setProjection(projection);
+        findRequest.setSort(sort);
+        findRequest.setFrom(from);
+        findRequest.setTo(to);
+        return findRequest;
     }
-
-
-    @Override
-    public JsonNode toJson() {
-        return null;
-    }
-
 }
 
