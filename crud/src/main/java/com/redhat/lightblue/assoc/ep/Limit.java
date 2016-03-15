@@ -30,9 +30,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class Limit<T> extends Step<T> {
 
     private final int limit;
-    private final Step<T> source;
+    private final Source<T> source;
     
-    public Limit(ExecutionBlock block,int n,Step<T> source) {
+    public Limit(ExecutionBlock block,int n,Source<T> source) {
         super(block);
         this.source=source;
         limit=n;
@@ -40,7 +40,7 @@ public class Limit<T> extends Step<T> {
 
     @Override
     public StepResult<T> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<T>(source.getResults(ctx)) {
+        return new StepResultWrapper<T>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<T> stream() {
                 return super.stream().limit(limit);
@@ -52,7 +52,7 @@ public class Limit<T> extends Step<T> {
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         o.set("limit",JsonNodeFactory.instance.numberNode(limit));
-        o.set("source",source.toJson());
+        o.set("source",source.getStep().toJson());
         return o;
     }
 }

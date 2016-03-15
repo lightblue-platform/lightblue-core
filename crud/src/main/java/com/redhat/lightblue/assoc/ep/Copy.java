@@ -19,26 +19,43 @@
 package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
+import java.util.stream.Stream;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 /**
  * Copies the results from another step
  */
 public class Copy extends AbstractSearchStep {
 
-    private final Step<ResultDocument> source;
+    private final Source<ResultDocument> source;
     
-    public Copy(ExecutionBlock block,Step<ResultDocument> source) {
+    public Copy(ExecutionBlock block,Source<ResultDocument> source) {
         super(block);
         this.source=source;
     }
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return source.getResults(ctx);
+        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
+            @Override
+            public Stream<ResultDocument> stream() {
+                return super.stream().map(d->new ResultDocument(block,d.getDoc()));
+            }
+        };
     }
 
     @Override
     protected final List<ResultDocument> getSearchResults(ExecutionContext ctx) {
         return null;
+    }
+
+    @Override
+    public JsonNode toJson() {
+        ObjectNode node=JsonNodeFactory.instance.objectNode();
+        node.set("copy",source.getStep().toJson());
+        return node;
     }
 }

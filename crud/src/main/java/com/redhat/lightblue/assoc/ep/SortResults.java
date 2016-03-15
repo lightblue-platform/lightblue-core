@@ -36,9 +36,9 @@ public class SortResults extends Step<ResultDocument> {
 
     private final SortFieldInfo[] sortFields;
     private final Sort sort;
-    private final Step<ResultDocument> source;
+    private final Source<ResultDocument> source;
     
-    public SortResults(ExecutionBlock block,Step<ResultDocument> source,Sort sort) {
+    public SortResults(ExecutionBlock block,Source<ResultDocument> source,Sort sort) {
         super(block);
         this.source=source;
         this.sort=sort;
@@ -47,7 +47,7 @@ public class SortResults extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
+        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<ResultDocument> stream() {
                 return super.stream().
@@ -73,7 +73,7 @@ public class SortResults extends Step<ResultDocument> {
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         o.set("sort",sort.toJson());
-        o.set("source",source.toJson());
+        o.set("source",source.getStep().toJson());
         return o;
     }
 }

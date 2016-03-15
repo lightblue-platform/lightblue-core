@@ -73,6 +73,8 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
+import com.redhat.lightblue.assoc.CompositeFindImpl;
+
 /**
  * The mediator looks at a request, performs basic validation, and passes the
  * operation to one or more of the controllers based on the request attributes.

@@ -127,10 +127,14 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         o.set("search",query==null?JsonNodeFactory.instance.nullNode():query.toJson());
-        o.set("projection",projection==null?JsonNodeFactory.instance.nullNode():projection.toJson());
-        o.set("sort",sort==null?JsonNodeFactory.instance.nullNode():sort.toJson());
-        o.set("from",from==null?JsonNodeFactory.instance.nullNode():JsonNodeFactory.instance.numberNode(from));
-        o.set("to",to==null?JsonNodeFactory.instance.nullNode():JsonNodeFactory.instance.numberNode(to));
+        if(projection!=null)
+            o.set("projection",projection.toJson());
+        if(sort!=null)
+            o.set("sort",sort.toJson());
+        if(from!=null)
+            o.set("from",JsonNodeFactory.instance.numberNode(from));
+        if(to!=null)
+            o.set("to",JsonNodeFactory.instance.numberNode(to));
         return o;
     }
 }

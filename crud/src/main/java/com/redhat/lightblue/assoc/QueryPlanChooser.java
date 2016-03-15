@@ -196,7 +196,15 @@ public class QueryPlanChooser {
                     // depend on multiple entities, their assignments may change
                     // based on the query plan.
                     LOGGER.debug("Conjunct has one entity");
-                    qplan.getNode(entities.iterator().next()).getData().getConjuncts().add(c);
+                    // Rewrite the query for that node
+                    QueryPlanNode node=qplan.getNode(entities.iterator().next());
+                    RewriteQuery rw=new RewriteQuery(compositeMetadata,node.getMetadata());
+                    QueryExpression q=rw.rewriteQuery(c.getClause(),c.getFieldInfo()).query;
+                    AnalyzeQuery analyzer=new AnalyzeQuery(node.getMetadata(),c.getReference());
+                    analyzer.iterate(q);
+                    node.getData().getConjuncts().add(new Conjunct(q,
+                                                                   analyzer.getFieldInfo(),
+                                                                   c.getReference()));
                     break;
 
                 case 2:

@@ -32,6 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
@@ -41,24 +44,22 @@ public class Assemble extends Step<ResultDocument> {
     private static final Logger LOGGER=LoggerFactory.getLogger(Assemble.class);
 
     private final ExecutionBlock[] destinationBlocks;
-    private final Step<ResultDocument> source;
     private Map<ExecutionBlock,Assemble> destinations;
     
     public Assemble(ExecutionBlock block,
                     ExecutionBlock[] destinationBlocks) {
         super(block);
-        this.source=block.getResultStep();
         this.destinationBlocks=destinationBlocks;
     }
 
     public List<ResultDocument> getResultList(QueryExpression q,ExecutionContext ctx) {
-        if(source instanceof Retrieve) {
-            ((Retrieve)source).setQuery(q);
-            StepResult<ResultDocument> results=source.getResults(ctx);
+        if(block.getResultStep() instanceof Retrieve) {
+            ((Retrieve)block.getResultStep()).setQuery(q);
+            StepResult<ResultDocument> results=block.getResultStep().getResults(ctx);
             return results.stream().collect(Collectors.toList());
         } else
             throw new IllegalStateException("Source must have been an instance of Retrieve, but "+
-                                            source.getClass().getName());
+                                            block.getResultStep().getClass().getName());
     }
 
     @Override
@@ -72,15 +73,17 @@ public class Assemble extends Step<ResultDocument> {
                 throw new IllegalArgumentException("No assemble step in "+x);
         }
         // Get the results from the source
-        StepResult<ResultDocument> sourceResults=source.getResults(ctx);
+        StepResult<ResultDocument> sourceResults=block.getResultStep().getResults(ctx);
         List<ResultDocument> results=sourceResults.stream().collect(Collectors.toList());
-
+        if(ctx.hasErrors())
+            return StepResult.EMPTY;
+        
         List<Future> assemblers=new ArrayList<>();
         for(Map.Entry<ExecutionBlock,Assemble> destination:destinations.entrySet()) {
             AssociationQuery aq=destination.getKey().getAssociationQueryForEdge(block);
             BatchAssembler batchAssembler=new BatchAssembler(256,aq,destination.getValue(),ctx);
             assemblers.add(ctx.getExecutor().submit(() -> {
-                        if(aq.getQuery()!=null) {
+                        if(aq.getQuery()==null) {
                             results.stream().forEach(batchAssembler::addDoc);
                             batchAssembler.endDoc();
                         } else {
@@ -101,6 +104,8 @@ public class Assemble extends Step<ResultDocument> {
         } catch (Exception ie) {
             throw new RuntimeException(ie);
         }
+        if(ctx.hasErrors())
+            return StepResult.EMPTY;
         // Stream results
         return new ListStepResult(results);
     }
@@ -164,7 +169,15 @@ public class Assemble extends Step<ResultDocument> {
 
     @Override
     public JsonNode toJson() {
-        return null;
+        ObjectNode o=JsonNodeFactory.instance.objectNode();
+        ObjectNode a=JsonNodeFactory.instance.objectNode();
+        o.set("assemble",a);
+        a.set("left",block.getResultStep().toJson());
+        ArrayNode array=JsonNodeFactory.instance.arrayNode();
+        a.set("right",array);
+        for(ExecutionBlock b:destinationBlocks)
+            array.add(b.toJson());        
+        return o;
     }
 }
 

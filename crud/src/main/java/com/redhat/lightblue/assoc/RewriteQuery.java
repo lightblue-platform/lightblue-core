@@ -403,7 +403,9 @@ public class RewriteQuery extends QueryIterator {
             }
             if(itr.isCopied()) {
                 List<QueryExpression> newList=itr.getCopiedList();
-                if(newList.size()==1)
+                if(newList.size()==0)
+                	return new TruePH();
+                else if(newList.size()==1)
                     return newList.get(0);
                 else
                     return new NaryLogicalExpression(q.getOp(),newList);
@@ -472,6 +474,11 @@ public class RewriteQuery extends QueryIterator {
                         else
                             return new ArrayMatchExpression(addPrefix(closestArray),em);
                     }
+                } else if(currentEntity.getParent()!=null) {
+                    // The array is pointing to a field in current entity, and current entity is not the root
+                    // Remove any parts of the array field before the reference
+                    Path relative=qfi.getEntityRelativeFieldName();
+                    return new ArrayMatchExpression(relative,iterate(q.getElemMatch(),context));                    
                 } else {
                     QueryExpression em=iterate(q.getElemMatch(),context);
                     if(em instanceof TruePH||

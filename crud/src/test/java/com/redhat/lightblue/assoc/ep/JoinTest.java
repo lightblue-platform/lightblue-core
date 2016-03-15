@@ -151,7 +151,7 @@ public class JoinTest extends AbstractJsonSchemaTest {
                                 resultDoc(bblock,"{'_id':'b'}"),
                                 resultDoc(bblock,"{'_id':'c'}"),
                                 resultDoc(bblock,"{'_id':'d'}"));
-        Join join=new Join(cblock,new TestStep[] {a,b});
+        Join join=new Join(cblock,new Source[]{new Source<>(a),new Source<>(b)});
         ExecutionContext ctx=new ExecutionContext(null,Executors.newSingleThreadExecutor());
         StepResult<JoinTuple> result=join.getResults(ctx);
         Stream<JoinTuple> stream=result.stream();
@@ -188,7 +188,7 @@ public class JoinTest extends AbstractJsonSchemaTest {
                                 resultDoc(ablock,"{'_id':4}"),
                                 resultDoc(ablock,"{'_id':5}"),
                                 resultDoc(ablock,"{'_id':6}"));
-        Join join=new Join(cblock,new TestStep[] {a});
+        Join join=new Join(cblock,new Source[]{new Source<>(a)});
         ExecutionContext ctx=new ExecutionContext(null,Executors.newSingleThreadExecutor());
         StepResult<JoinTuple> result=join.getResults(ctx);
         Stream<JoinTuple> stream=result.stream();

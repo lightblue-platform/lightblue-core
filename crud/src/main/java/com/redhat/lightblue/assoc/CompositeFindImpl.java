@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 
+import java.util.concurrent.Executors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,17 +32,23 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.DocCtx;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
 
 import com.redhat.lightblue.mediator.Finder;
 import com.redhat.lightblue.mediator.OperationContext;
+import com.redhat.lightblue.mediator.Mediator;
 
 import com.redhat.lightblue.assoc.scorers.IndexedFieldScorer;
 import com.redhat.lightblue.assoc.iterators.BruteForceQueryPlanIterator;
 import com.redhat.lightblue.assoc.scorers.SimpleScorer;
 import com.redhat.lightblue.assoc.iterators.First;
+
 import com.redhat.lightblue.assoc.ep.ExecutionPlan;
+import com.redhat.lightblue.assoc.ep.StepResult;
+import com.redhat.lightblue.assoc.ep.ResultDocument;
+import com.redhat.lightblue.assoc.ep.ExecutionContext;
 
 public class CompositeFindImpl implements Finder {
     
@@ -62,12 +70,25 @@ public class CompositeFindImpl implements Finder {
     private transient QueryPlan retrievalQPlan;
 
     private transient ExecutionPlan executionPlan;
+    private int parallelism=1;
 
     public CompositeFindImpl(CompositeMetadata md,
                              Factory factory) {
         this.root=md;
         this.factory=factory;
     }
+
+    /**
+     * Set maximum number of threads that can run in parallel. There's a hard limit on 10
+     */
+    public void setParallelism(int n) {
+        parallelism=n;
+        if(parallelism<1)
+            parallelism=1;
+        if(parallelism>10)
+            parallelism=10;
+    }
+
 
     @Override
     public CRUDFindResponse find(OperationContext ctx,
@@ -98,11 +119,17 @@ public class CompositeFindImpl implements Finder {
                                         root,
                                         searchQPlan,
                                         retrievalQPlan);
+        ctx.setProperty(Mediator.CTX_QPLAN,searchQPlan==null?retrievalQPlan:searchQPlan);
         LOGGER.debug("Execution plan:{}",executionPlan);
-        
-        
+
+        CRUDFindResponse response=new CRUDFindResponse();
+        ExecutionContext executionContext=new ExecutionContext(ctx,
+                                                               Executors.newWorkStealingPool(parallelism));
+        StepResult<ResultDocument> results=executionPlan.getResults(executionContext);       
+        results.stream().map(d->new DocCtx(d.getDoc())).forEach(d->ctx.addDocument(d));
+        response.setSize(ctx.getDocuments().size());
         LOGGER.debug("Composite find: end");
-        return null;
+        return response;
    }
 
     /**

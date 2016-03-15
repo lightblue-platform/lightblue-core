@@ -50,12 +50,12 @@ public class Join extends Step<JoinTuple> {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(Join.class);
     
-    private final Step<ResultDocument>[] sources;
+    private final Source<ResultDocument>[] sources;
 
     /**
      * Construct the join with the given sources
      */
-    public Join(ExecutionBlock block,Step<ResultDocument>[] sources) {
+    public Join(ExecutionBlock block,Source<ResultDocument>[] sources) {
         super(block);
         this.sources=sources;
     }
@@ -63,7 +63,7 @@ public class Join extends Step<JoinTuple> {
     /**
      * Returns the sources of the join
      */
-    public Step<ResultDocument>[] getSources() {
+    public Source<ResultDocument>[] getSources() {
         return sources;
     }
 
@@ -78,10 +78,12 @@ public class Join extends Step<JoinTuple> {
         // get all document streams from result steps
         Future<StepResult<ResultDocument>> [] futureResults=new Future[sources.length];
         int i=0;
-        for(Step<ResultDocument> source:sources) {
-            if(source.getBlock().getMetadata()==block.getMetadata().getParent())
+        for(Source<ResultDocument> source:sources) {
+            if(source.getStep().getBlock().getMetadata()==block.getMetadata().getParent())
                 parentIndex=i;
-            futureResults[i++]=ctx.getExecutor().submit(() -> source.getResults(ctx));
+            futureResults[i++]=ctx.getExecutor().submit(() -> {
+            	return source.getStep().getResults(ctx);
+            } );
         }
         
         Tuples<ResultDocument> tuples=new Tuples();
@@ -98,6 +100,8 @@ public class Join extends Step<JoinTuple> {
                 }
                 );
         }
+        if(ctx.hasErrors())
+            return StepResult.EMPTY;
         return new JoinStream(tuples,parentIndex,parentIndex==-1?null:
                               block.getAssociationQueryForEdge(sources[parentIndex].getBlock()).
                               getReference());
@@ -221,8 +225,8 @@ public class Join extends Step<JoinTuple> {
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         ArrayNode arr=JsonNodeFactory.instance.arrayNode();
-        for(Step<ResultDocument> s:sources) {
-            arr.add(s.toJson());
+        for(Source<ResultDocument> s:sources) {
+            arr.add(s.getStep().toJson());
         }
         o.set("join",arr);
         return o;

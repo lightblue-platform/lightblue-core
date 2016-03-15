@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import com.redhat.lightblue.assoc.QueryPlanNode;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -72,7 +74,7 @@ public class ExecutionBlock {
         Field[] f=getMetadata().getEntitySchema().getIdentityFields();
         Path[] identityFields=new Path[f.length];
         for(int i=0;i<f.length;i++)
-            identityFields[i]=f[i].getFullPath();
+            identityFields[i]=getMetadata().getEntityRelativeFieldName(f[i]);
         idx=new DocIdExtractor(identityFields);
         Path entityPath=getMetadata().getEntityPath();
         if(entityPath.isEmpty()) {
@@ -197,6 +199,10 @@ public class ExecutionBlock {
         this.resultStep=resultStep;
     }
 
+    public void setResultStep(Source<ResultDocument> resultStep) {
+        this.resultStep=resultStep.getStep();
+    }
+
 
     /**
      * Returns the association query for the edge coming from the
@@ -211,5 +217,14 @@ public class ExecutionBlock {
      */
     public void setAssociationQuery(ExecutionBlock sourceBlock,AssociationQuery q) {
         associationQueries.put(sourceBlock,q);
+    }
+
+    @Override
+    public String toString() {
+        return qpNode.toString();
+    }
+    
+    public JsonNode toJson() {
+        return resultStep.toJson();
     }
 }

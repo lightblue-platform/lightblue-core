@@ -40,5 +40,9 @@ public class ExecutionContext {
 
     public ExecutorService getExecutor() {
         return executor;
-    }   
+    }
+
+    public boolean hasErrors() {
+        return opctx.hasErrors();
+    }
 }

@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +64,9 @@ public class JoinSearch extends AbstractSearchStep {
     
     private static final Logger LOGGER=LoggerFactory.getLogger(JoinSearch.class);
 
-    private final Step<JoinTuple> source;
+    private final Source<JoinTuple> source;
 
-    public JoinSearch(ExecutionBlock block,Step<JoinTuple> source) {
+    public JoinSearch(ExecutionBlock block,Source<JoinTuple> source) {
         super(block);
         this.source=source;
     }
@@ -72,7 +74,7 @@ public class JoinSearch extends AbstractSearchStep {
     @Override
     protected List<ResultDocument> getSearchResults(ExecutionContext ctx) {
         BatchQueryExecutor executor=new BatchQueryExecutor(256,ctx);
-        source.getResults(ctx).stream().forEach(x->executor.add(x));
+        source.getStep().getResults(ctx).stream().forEach(x->executor.add(x));
         return executor.getResults();
     }
 
@@ -116,8 +118,26 @@ public class JoinSearch extends AbstractSearchStep {
         }
 
         public List<ResultDocument> getResults() {
+        	executeBatch();
             return docs;
         }
+    }
+
+    @Override
+    public JsonNode toJson() {
+        ObjectNode o=JsonNodeFactory.instance.objectNode();
+        o.set("join-search",source.getStep().toJson());
+        if(query!=null)
+            o.set("query",query.toJson());
+        if(projection!=null)
+            o.set("projection",projection.toJson());
+        if(sort!=null)
+            o.set("sort",sort.toJson());
+        if(from!=null)
+            o.set("from",JsonNodeFactory.instance.numberNode(from));
+        if(to!=null)
+            o.set("to",JsonNodeFactory.instance.numberNode(to));
+        return o;
     }
 }
 

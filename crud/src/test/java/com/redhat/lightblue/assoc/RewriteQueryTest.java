@@ -160,6 +160,36 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void testReqQuery_forEach_arr_points_into_ref() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'us','include':1}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+
+        AnalyzeQuery pq=new AnalyzeQuery(md,null);
+        QueryExpression q=query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }");
+        pq.iterate(q);
+        List<QueryFieldInfo> list=pq.getFieldInfo();
+        
+        // L is the parent, U is the child
+        
+        // Rewrite for U. This means, L docs are retrieved, now we'll retrieve U docs
+        // This is the trivial rewrite case
+        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("us")));
+        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
+        QueryExpression newq=result.query;
+        System.out.println(newq);
+        List<BoundObject> bindings=result.bindings;
+        Assert.assertEquals("authentications", ((ArrayMatchExpression)newq).getArray().toString());
+        // Rewrite for L. That means, U docs are retrieved, and we'll retrieve L
+        // This is the reverse case
+        rw=new RewriteQuery(md,md);
+        result=rw.rewriteQuery(q,list);
+        bindings=result.bindings;
+        newq=result.query;
+        System.out.println(newq);
+        Assert.assertTrue(newq instanceof RewriteQuery.TruePH);
+    }
+    
+    @Test
     public void testAssocQuery_forEach_arr_points_to_ref() throws Exception {
         GMD gmd=new GMD(projection("{'field':'users','include':1}"),null);
         CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/UC.json"),gmd);
@@ -192,5 +222,4 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         System.out.println(newq);
         Assert.assertEquals(2,bindings.size());
     }
-    
 }

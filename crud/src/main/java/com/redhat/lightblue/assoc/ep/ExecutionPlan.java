@@ -94,7 +94,7 @@ public class ExecutionPlan {
     
     private final CompositeMetadata rootMd;
 
-    private int parallelism=1;
+    private Step<ResultDocument> resultStep;
 
     /**
      * Creates an execution plan
@@ -183,11 +183,11 @@ public class ExecutionPlan {
                     }
                     
                     // Block has sources. Join them
-                    List<Step<ResultDocument>> list=(List<Step<ResultDocument>>)block.getSourceBlocks().stream().
-                        map(ExecutionBlock::getResultStep).
+                    List<Source<ResultDocument>> list=(List<Source<ResultDocument>>)block.getSourceBlocks().stream().
+                        map(Source<ResultDocument>::new).
                         collect(Collectors.toList());
-                    Join join=new Join(block,list.toArray(new Step[list.size()]));
-                    search=new JoinSearch(block,join);                    
+                    Join join=new Join(block,list.toArray(new Source[list.size()]));
+                    search=new JoinSearch(block,new Source<>(join));                    
                     block.setResultStep(search);
                 }
                 // Now that we have the search, we set the queries, projection, and limits
@@ -213,10 +213,10 @@ public class ExecutionPlan {
                         // Root can be an intermediate query plan node, or there may be more than one sources
                         
                         // Make sure we have unique docs
-                        Step<ResultDocument> last=new Unique(block,search);
+                        Source<ResultDocument> last=new Source<>(new Unique(block,new Source<>(search)));
                         // Sort the results
                         if(requestSort!=null) {
-                            last=new SortResults(block,last,requestSort);
+                            last=new Source<>(new SortResults(block,last,requestSort));
                             sorted=true;
                         }
                         block.setResultStep(last);
@@ -260,14 +260,14 @@ public class ExecutionPlan {
                 AbstractSearchStep search;
                 if(queryRoot!=null) {
                     // There is a search plan. The search root contains the documents
-                    search=new Copy(block,queryRoot.getResultStep());
+                    search=new Copy(block,new Source<>(queryRoot.getResultStep()));
                     block.setResultStep(search);
                     // Project only required data
                 } else {
                     //There is not a search plan. We'll search documents here
-                    Step<ResultDocument> last;
+                    Source<ResultDocument> last;
                     search=new Search(block);
-                    last=search;
+                    last=new Source<>(search);
                     if(unassigned.isEmpty()) {
                         // There are no unassigned clauses
                         // We can sort/limit here
@@ -278,17 +278,23 @@ public class ExecutionPlan {
                         // There are unassigned clauses. We can sort during search, but we have to filter and limit
                         search.setSort(requestSort);
                         sorted=true;
-                        Filter f=new Filter(block,search,getFilterQuery(unassigned));
-                        last=f;
+                        Filter f=new Filter(block,new Source<>(search),getFilterQuery(unassigned));
+                        last=new Source<>(f);
                         if(from!=null)
-                            last=new Skip(block,from.intValue(),last);
+                            last=new Source<>(new Skip(block,from.intValue(),last));
                         if(to!=null)
-                            last=new Limit(block,to.intValue()-from.intValue()+1,last);
+                            last=new Source<>(new Limit(block,to.intValue()-from.intValue()+1,last));
                         limited=true;
                     }
                     block.setResultStep(last);
                 }
+                
+                Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
+                fields.addAll(getIncludedFieldsOfEntityForProjection(block,rootMd,requestProjection));
+                search.setProjection(writeProjection(fields));
                 search.setQueries(node.getData().getConjuncts());
+                resultStep=new Assemble(block,destinationBlocks);
+                resultStep=new Project(block,new Source<>(resultStep),requestProjection);
             } else {
                 // Processing one of the associated entity nodes
                 // Reuse the batching algorithm in join                
@@ -304,14 +310,21 @@ public class ExecutionPlan {
                 }
                 Retrieve search=new Retrieve(block);
                 search.setQueries(node.getData().getConjuncts());
+                Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
+                fields.addAll(getIncludedFieldsOfEntityForProjection(block,rootMd,requestProjection));
+                search.setProjection(writeProjection(fields));
                 block.setResultStep(search);
+                new Assemble(block,destinationBlocks);
             }
-            new Assemble(block,destinationBlocks);
         }
 
         for(ExecutionBlock block:qp2BlockMap.values()) {
             block.initialize();
         }
+    }
+
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+        return resultStep.getResults(ctx);
     }
 
 
@@ -335,18 +348,6 @@ public class ExecutionPlan {
         
 
     /**
-     * Set maximum number of threads that can run in parallel. There's a hard limit on 10
-     */
-    public void setParallelism(int n) {
-        parallelism=n;
-        if(parallelism<1)
-            parallelism=1;
-        if(parallelism>10)
-            parallelism=10;
-    }
-
-
-    /**
      * Writes a projection to include the given set of fields
      */
     public static Projection writeProjection(Collection<Path> fields) {
@@ -363,10 +364,13 @@ public class ExecutionPlan {
     public static Set<Path> getIncludedFieldsOfEntityForSearch(ExecutionBlock block,
                                                                List<QueryFieldInfo> fieldInfo) {
         CompositeMetadata md=block.getMetadata();
-        Set<Path> ret=fieldInfo.stream().filter(fi->md==fi.getFieldMd()&&!(fi.getFieldMd() instanceof ArrayField ||
-                                                                           fi.getFieldMd() instanceof ObjectField)).
-            map(fi->fi.getEntityRelativeFieldNameWithContext()).
-            collect(Collectors.toSet());
+        Set<Path> ret=new HashSet<>();
+        for(QueryFieldInfo fi:fieldInfo) {
+        	if(md==fi.getFieldEntity()&&!(fi.getFieldMd() instanceof ArrayField ||
+                                          fi.getFieldMd() instanceof ObjectField)) {
+        		ret.add(fi.getEntityRelativeFieldNameWithContext());
+        	}
+        }
         // Add the identities
         for(Path p:block.getIdentityFields())
             ret.add(p);

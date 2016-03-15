@@ -40,9 +40,9 @@ import com.redhat.lightblue.util.Path;
 public class Unique extends Step<ResultDocument> {
 
     private final DocIdExtractor idx;
-    private final Step<ResultDocument> source;
+    private final Source<ResultDocument> source;
     
-    public Unique(ExecutionBlock block,Step<ResultDocument> source) {
+    public Unique(ExecutionBlock block,Source<ResultDocument> source) {
         super(block);
         this.source=source;
         this.idx=block.getIdExtractor();
@@ -50,7 +50,7 @@ public class Unique extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
+        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<ResultDocument> stream() {
                 return super.stream().filter(new Predicate<ResultDocument>() {
@@ -71,7 +71,7 @@ public class Unique extends Step<ResultDocument> {
         for(Path p:idx.getIdentityFields())
             arr.add(JsonNodeFactory.instance.textNode(p.toString()));
         o.set("unique",arr);
-        o.set("source",source.toJson());
+        o.set("source",source.getStep().toJson());
         return o;
     }
 }

@@ -34,9 +34,9 @@ public class Project extends Step<ResultDocument> {
 
     private final Projector p;
     private final Projection projection;
-    private final Step<ResultDocument> source;
+    private final Source<ResultDocument> source;
     
-    public Project(ExecutionBlock block,Step<ResultDocument> source,Projection projection) {
+    public Project(ExecutionBlock block,Source<ResultDocument> source,Projection projection) {
         super(block);
         this.source=source;
         this.projection=projection;
@@ -45,7 +45,7 @@ public class Project extends Step<ResultDocument> {
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new StepResultWrapper<ResultDocument>(source.getResults(ctx)) {
+        return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<ResultDocument> stream() {
                 return super.stream().map(doc->new ResultDocument(p.project(doc.getDoc(),JsonNodeFactory.instance),doc));
@@ -57,7 +57,7 @@ public class Project extends Step<ResultDocument> {
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         o.set("project",projection.toJson());
-        o.set("source",source.toJson());
+        o.set("source",source.getStep().toJson());
         return o;
     }
 }
