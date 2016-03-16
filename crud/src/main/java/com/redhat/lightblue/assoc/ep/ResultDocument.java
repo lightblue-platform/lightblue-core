@@ -31,6 +31,12 @@ import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.ArrayField;
 
+/**
+ * A document, and its slots. Slots are organized by their reference
+ * fields. If a slot is in an array element, the constructor creates
+ * slots for every element in that array. Thus, every slot is
+ * connected to a path containing no '*'s
+ */
 public class ResultDocument {
     private JsonDoc doc;
     private final ExecutionBlock block;

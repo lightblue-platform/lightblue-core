@@ -50,6 +50,23 @@ import com.redhat.lightblue.assoc.ep.StepResult;
 import com.redhat.lightblue.assoc.ep.ResultDocument;
 import com.redhat.lightblue.assoc.ep.ExecutionContext;
 
+/**
+ * Finder for searches involving composite entities
+ *
+ * This implementation builds a search and retrieval plan based on the
+ * query plan. The generation of search plan is optional, if it
+ * discovers that the entities can be searched and retrieve with a
+ * single plan, it only generates a retrieval plan. The retrieval plan
+ * has the same structure as the entity composite metadata. First the
+ * documents for the root entity are retrieved, then, recursively, the
+ * associated documents. 
+ *
+ * The search plan, if exists, has a different structure than the
+ * document structure. It is based on the request query, and
+ * terminates as soon as the root entity documents are retrieved. Once
+ * the root documents are retrieved, that list is used to execute the
+ * retrieval plan.
+ */
 public class CompositeFindImpl implements Finder {
     
     private static final Logger LOGGER=LoggerFactory.getLogger(CompositeFindImpl.class);

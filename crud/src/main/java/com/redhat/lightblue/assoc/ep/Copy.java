@@ -42,6 +42,8 @@ public class Copy extends AbstractSearchStep {
         return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<ResultDocument> stream() {
+                // Create new documents for each document in the source. This will
+                // create the correct slots based on this execution block
                 return super.stream().map(d->new ResultDocument(block,d.getDoc()));
             }
         };

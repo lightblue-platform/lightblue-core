@@ -79,14 +79,10 @@ import com.redhat.lightblue.util.Path;
  * parent node, gets the docs, and then runs the child nodes and
  * attaches the documents to the slots.
  *
- * The query plan can be laid out differently. All that we do with the
- * query plan is to retrieve the root node documents. but the root
- * node can be an intermediate node. So, every block runs searches and
- * also assembles the highest document in the document tree. For
- * instance, if metadata is defined as A->B->C, and if the query
- * executed as C -> B -> A, then C returns docs of type C, B returns
- * B, and A returns A. If the query executes as C->B and A->B, then A
- * returns A, C returns C, and B returns A.
+ * Query plan is optional, and it has a different layout than the
+ * retrieval plan. All that we do with the query plan is to retrieve
+ * the root node documents, so query plan does not retrieve all
+ * associated entities.
  */
 public class ExecutionPlan {
 

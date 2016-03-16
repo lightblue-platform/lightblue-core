@@ -24,6 +24,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.JsonUtils;
 
+/**
+ * Base class for execution step. Each execution step is associated
+ * with an execution block. When the step is created, it registers
+ * itself with its block. Step contains the <code>getResults</code>
+ * api that computes the results of this step, and returns it for
+ * processing by the next step.
+ *
+ */
 public abstract class Step<R> {
 
     protected final ExecutionBlock block;
@@ -32,11 +40,17 @@ public abstract class Step<R> {
         this.block=block;
         block.registerStep(this);
     }
-    
+
+    /**
+     * Compute and return a result stream
+     */
     public abstract StepResult<R> getResults(ExecutionContext ctx);
 
     public abstract JsonNode toJson();
 
+    /**
+     * Returns the associated block of this step
+     */
     public ExecutionBlock getBlock() {
         return block;
     }

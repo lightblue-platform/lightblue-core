@@ -39,6 +39,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
+/**
+ * There are two sides to an Assemble step: Assemble gets results from
+ * the source, and for each of those documents, it runs the
+ * associated queries on the destinations, gets the results, and inserts
+ * those documents to the document it got from the source side.
+ */
 public class Assemble extends Step<ResultDocument> {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(Assemble.class);

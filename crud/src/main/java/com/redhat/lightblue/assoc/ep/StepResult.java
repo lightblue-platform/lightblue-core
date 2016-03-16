@@ -2,6 +2,10 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.stream.Stream;
 
+/**
+ * The result type returned from steps. Contains stream() to return
+ * the result stream.
+ */
 public interface StepResult<T> {
 
     public static StepResult EMPTY=new StepResult() {
