@@ -18,49 +18,29 @@
  */
 package com.redhat.lightblue;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.util.JsonObject;
 
 /**
- * Execution options setting time limit and whether the execution is to be
- * completed asynchronously
+ * Execution options are name-value pairs
  */
 public class ExecutionOptions extends JsonObject {
 
     private static final long serialVersionUID = 1L;
 
-    private long timeLimit;
-    private long asynchronous;
+    private final Map<String,String> options=new HashMap<>();
 
-    /**
-     * The time limit within which the call should complete. The call stops
-     * execution once the limit is exceeded, and partial results are returned
-     */
-    public long getTimeLimit() {
-        return timeLimit;
+    public Map<String,String> getOptions() {
+        return options;
     }
-
-    /**
-     * The time limit within which the call should complete. The call stops
-     * execution once the limit is exceeded, and partial results are returned
-     */
-    public void setTimeLimit(long l) {
-        timeLimit = l;
-    }
-
-    /**
-     * If execution lasts longer than this timeout, continue asynchronously
-     */
-    public long getAsynchronous() {
-        return asynchronous;
-    }
-
-    /**
-     * If execution lasts longer than this timeout, continue asynchronously
-     */
-    public void setAsynchronous(long b) {
-        asynchronous = b;
+    
+    public String getOptionValueFor(String optionName) {
+        return options.get(optionName);
     }
 
     /**
@@ -69,8 +49,9 @@ public class ExecutionOptions extends JsonObject {
     @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
-        node.put("timeLimit", timeLimit);
-        node.put("asynchronous", asynchronous);
+        for(Map.Entry<String,String> entry:options.entrySet()) {
+            node.put(entry.getKey(),getFactory().textNode(entry.getValue()));
+        }
         return node;
     }
 
@@ -80,13 +61,9 @@ public class ExecutionOptions extends JsonObject {
      */
     public static ExecutionOptions fromJson(ObjectNode node) {
         ExecutionOptions ret = new ExecutionOptions();
-        JsonNode x = node.get("timeLimit");
-        if (x != null) {
-            ret.timeLimit = x.asLong();
-        }
-        x = node.get("asynchronous");
-        if (x != null) {
-            ret.asynchronous = x.asLong();
+        for(Iterator<Map.Entry<String,JsonNode>> itr=node.fields();itr.hasNext();) {
+            Map.Entry<String,JsonNode> entry=itr.next();
+            ret.options.put(entry.getKey(),entry.getValue().asText());
         }
         return ret;
     }

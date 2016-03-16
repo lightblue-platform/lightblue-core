@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-pom</artifactId>
     <packaging>pom</packaging>
-    <version>1.11.0-SNAPSHOT</version>
+    <version>1.12.0-SNAPSHOT</version>
     <name>lightblue-core: ${project.groupId}|${project.artifactId}</name>
     <description>Lightblue Core components</description>
     <licenses>
@@ -299,9 +299,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
-                                <configuration>
-                                    <additionalparam>-Xdoclint:none</additionalparam>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -317,14 +314,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses />.
             </build>
         </profile>
         <profile>
-            <id>java8-disable-strict-javadoc</id>
+            <id>doclint-java8-disable</id>
             <activation>
                 <jdk>[1.8,)</jdk>
             </activation>
-            <properties>
-                <!-- none: disables doclint -->
-                <javadoc.doclint.none>-Xdoclint:none</javadoc.doclint.none>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
     <reporting>
