@@ -44,22 +44,25 @@ public class Assemble extends Step<ResultDocument> {
     private static final Logger LOGGER=LoggerFactory.getLogger(Assemble.class);
 
     private final ExecutionBlock[] destinationBlocks;
+    private final Source<ResultDocument> source;
     private Map<ExecutionBlock,Assemble> destinations;
     
     public Assemble(ExecutionBlock block,
+                    Source<ResultDocument> source,
                     ExecutionBlock[] destinationBlocks) {
         super(block);
+        this.source=source;
         this.destinationBlocks=destinationBlocks;
     }
 
     public List<ResultDocument> getResultList(QueryExpression q,ExecutionContext ctx) {
-        if(block.getResultStep() instanceof Retrieve) {
-            ((Retrieve)block.getResultStep()).setQuery(q);
+        Retrieve r=block.getStep(Retrieve.class);
+        if(r!=null) {
+            r.setQuery(q);
             StepResult<ResultDocument> results=block.getResultStep().getResults(ctx);
             return results.stream().collect(Collectors.toList());
         } else
-            throw new IllegalStateException("Source must have been an instance of Retrieve, but "+
-                                            block.getResultStep().getClass().getName());
+            throw new IllegalStateException("Cannot find a Retrieve step in block");
     }
 
     @Override
@@ -73,7 +76,7 @@ public class Assemble extends Step<ResultDocument> {
                 throw new IllegalArgumentException("No assemble step in "+x);
         }
         // Get the results from the source
-        StepResult<ResultDocument> sourceResults=block.getResultStep().getResults(ctx);
+        StepResult<ResultDocument> sourceResults=source.getStep().getResults(ctx);
         List<ResultDocument> results=sourceResults.stream().collect(Collectors.toList());
         if(ctx.hasErrors())
             return StepResult.EMPTY;
@@ -172,7 +175,7 @@ public class Assemble extends Step<ResultDocument> {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         ObjectNode a=JsonNodeFactory.instance.objectNode();
         o.set("assemble",a);
-        a.set("left",block.getResultStep().toJson());
+        a.set("left",source.getStep().toJson());
         ArrayNode array=JsonNodeFactory.instance.arrayNode();
         a.set("right",array);
         for(ExecutionBlock b:destinationBlocks)

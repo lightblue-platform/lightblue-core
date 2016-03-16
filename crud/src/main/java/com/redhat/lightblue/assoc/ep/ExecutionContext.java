@@ -28,6 +28,7 @@ import com.redhat.lightblue.mediator.OperationContext;
 public class ExecutionContext {
     private final OperationContext opctx;
     private final ExecutorService executor;
+    private int matchCount;
 
     public ExecutionContext(OperationContext ctx,ExecutorService executor) {
         this.opctx=ctx;
@@ -44,5 +45,13 @@ public class ExecutionContext {
 
     public boolean hasErrors() {
         return opctx.hasErrors();
+    }
+
+    public int getMatchCount() {
+        return matchCount;
+    }
+
+    public void setMatchCount(int c) {
+        matchCount=c;
     }
 }

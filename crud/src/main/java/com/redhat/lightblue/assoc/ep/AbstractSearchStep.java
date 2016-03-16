@@ -58,7 +58,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
     protected Sort sort;
     protected Long from,to;
     protected List<Conjunct> conjuncts;
-
+    protected boolean recordResultSetSize=false;
 
     public AbstractSearchStep(ExecutionBlock block) {
         super(block);
@@ -83,12 +83,18 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
         for(Conjunct c:conjuncts) {
             l.add(c.getClause());
         }
-        query=l.size()==1?l.get(0):new NaryLogicalExpression(NaryLogicalOperator._and,l);
+        if(l.isEmpty())
+        	query=null;
+        else if(l.size()==1)
+        	query=l.get(0);
+        else
+        	query=new NaryLogicalExpression(NaryLogicalOperator._and,l);
     }
     
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        return new ListStepResult(getSearchResults(ctx));
+        List<ResultDocument> list=getSearchResults(ctx);
+        return new ListStepResult(list);
     }
 
     protected abstract List<ResultDocument> getSearchResults(ExecutionContext ctx);
@@ -97,7 +103,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
         return search(block,ctx,req);
     }
 
-    public static OperationContext search(ExecutionBlock block,ExecutionContext ctx,CRUDFindRequest req) {
+    public OperationContext search(ExecutionBlock block,ExecutionContext ctx,CRUDFindRequest req) {
         OperationContext searchCtx=ctx.getOperationContext().
             getDerivedOperationContext(block.getMetadata().getName(),req);
         LOGGER.debug("SearchStep {}: entity={}, query={}, projection={}, sort={}, from={}, to={}",
@@ -116,11 +122,17 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
             ctx.getOperationContext().addErrors(searchCtx.getErrors());
             searchCtx=null;
         } else {
+            if(recordResultSetSize)
+                ctx.setMatchCount((int)response.getSize());
             LOGGER.debug("execute {}: returning {} documents",
                          block.getQueryPlanNode().getName(),
                          searchCtx.getDocuments().size());
         }        
         return searchCtx;
+    }
+
+    public void recordResultSetSize(boolean b) {
+        recordResultSetSize=b;
     }
 
     @Override

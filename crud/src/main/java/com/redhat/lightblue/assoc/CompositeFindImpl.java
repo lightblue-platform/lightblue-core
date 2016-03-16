@@ -127,7 +127,7 @@ public class CompositeFindImpl implements Finder {
                                                                Executors.newWorkStealingPool(parallelism));
         StepResult<ResultDocument> results=executionPlan.getResults(executionContext);       
         results.stream().map(d->new DocCtx(d.getDoc())).forEach(d->ctx.addDocument(d));
-        response.setSize(ctx.getDocuments().size());
+        response.setSize(executionContext.getMatchCount());
         LOGGER.debug("Composite find: end");
         return response;
    }

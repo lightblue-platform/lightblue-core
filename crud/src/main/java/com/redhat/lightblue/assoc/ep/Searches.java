@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Arrays;
 
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,12 +185,13 @@ public final class Searches {
     }
     
     public static QueryExpression combine(NaryLogicalOperator op,List<QueryExpression> list) {
-        if(list.size()==0)
+        List<QueryExpression> l=list.stream().filter(q->q!=null).collect(Collectors.toList());
+        if(l.size()==0)
             return null;
-        else if(list.size()==1)
+        else if(l.size()==1)
             return list.get(0);
-        else
-            return new NaryLogicalExpression(op,list);
+        else 
+            return new NaryLogicalExpression(op,l);
     }
     
 }

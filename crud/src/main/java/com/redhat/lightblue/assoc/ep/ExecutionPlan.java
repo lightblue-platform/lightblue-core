@@ -204,7 +204,7 @@ public class ExecutionPlan {
                             search.setSort(requestSort);
                             sorted=limited=true;
                         } else {
-                            // There are unassigned clauses. We can sort during search, but we can't to filter or limit
+                            // There are unassigned clauses. We can sort during search, but we can't do filter or limit
                             search.setSort(requestSort);
                             sorted=true;
                         }
@@ -219,6 +219,10 @@ public class ExecutionPlan {
                             last=new Source<>(new SortResults(block,last,requestSort));
                             sorted=true;
                         }
+                        if(from!=null)
+                            last=new Source<>(new Skip(block,from.intValue(),last));
+                        if(to!=null)
+                            last=new Source<>(new Limit(block,to.intValue()-from.intValue()+1,last));
                         block.setResultStep(last);
                     }
                     // Set the root projection
@@ -257,15 +261,14 @@ public class ExecutionPlan {
                 // If there is a search plan, then we already have the root documents, so simply stream
                 // those docs from the search plan. If there is not a search plan, we search the documents
                 // here
+                Source<ResultDocument> last;
                 AbstractSearchStep search;
                 if(queryRoot!=null) {
                     // There is a search plan. The search root contains the documents
                     search=new Copy(block,new Source<>(queryRoot.getResultStep()));
-                    block.setResultStep(search);
-                    // Project only required data
+                    last=new Source(search);
                 } else {
                     //There is not a search plan. We'll search documents here
-                    Source<ResultDocument> last;
                     search=new Search(block);
                     last=new Source<>(search);
                     if(unassigned.isEmpty()) {
@@ -286,15 +289,16 @@ public class ExecutionPlan {
                             last=new Source<>(new Limit(block,to.intValue()-from.intValue()+1,last));
                         limited=true;
                     }
-                    block.setResultStep(last);
                 }
+                search.recordResultSetSize(true);
                 
                 Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
                 fields.addAll(getIncludedFieldsOfEntityForProjection(block,rootMd,requestProjection));
                 search.setProjection(writeProjection(fields));
                 search.setQueries(node.getData().getConjuncts());
-                resultStep=new Assemble(block,destinationBlocks);
+                resultStep=new Assemble(block,last,destinationBlocks);
                 resultStep=new Project(block,new Source<>(resultStep),requestProjection);
+                block.setResultStep(resultStep);
             } else {
                 // Processing one of the associated entity nodes
                 // Reuse the batching algorithm in join                
@@ -313,8 +317,7 @@ public class ExecutionPlan {
                 Set<Path> fields=getIncludedFieldsOfEntityForSearch(block,qfi);
                 fields.addAll(getIncludedFieldsOfEntityForProjection(block,rootMd,requestProjection));
                 search.setProjection(writeProjection(fields));
-                block.setResultStep(search);
-                new Assemble(block,destinationBlocks);
+                block.setResultStep(new Assemble(block,new Source<>(search),destinationBlocks));
             }
         }
 
@@ -463,46 +466,13 @@ public class ExecutionPlan {
         return Searches._and(l);
     }
 
-    
-    // private void addQueries(List<Conjunct> conjuncts,SearchStep search,RewriteQuery rewriter) {
-    //     if(conjuncts!=null) {
-    //         for(Conjunct q:conjuncts) {
-    //             RewriteQuery.RewriteQueryResult result=rewriter.rewriteQuery(q.getClause(),
-    //                                                                          q.getFieldInfo());
-    //             search.addQueryClause(q,result.query,result.bindings);
-    //         }
-    //     }
-    // }
+    public JsonNode toJson() {
+    	return resultStep.toJson();
+    }
 
-    // /**
-    //  * Split the parent entity and child entities in sources
-    //  *
-    //  * @param qpNode This node
-    //  * @param sources The source query plan nodes
-    //  * @param children The list that will receive the child nodes
-    //  *
-    //  * @return The parent node, or null if there isn't a parent node
-    //  */
-    // private QueryPlanNode splitParentAndChildren(QueryPlanNode qpNode,
-    //                                              QueryPlanNode[] sources,
-    //                                              List<QueryPlanNode> children) {
-    //     QueryPlanNode parentNode=null;
-    //     for(int i=0;i<sources.length;i++) {
-    //         if(qpNode.getMetadata().getParent()==sources[i].getMetadata()) {
-    //             // Found the parent node
-    //             parentNode=sources[i];
-    //             for(int j=0;j<sources.length;j++) {
-    //                 if(j!=i)
-    //                     children.add(sources[i]);
-    //             }
-    //         }
-    //     }
-    //     if(parentNode==null) {
-    //         for(QueryPlanNode node:sources)
-    //             children.add(node);
-    //     }
-    //     return parentNode;
-    // }
-
+    @Override
+    public String toString() {
+    	return toJson().toString();
+    }
 }
 
