@@ -38,25 +38,6 @@ public abstract class QueryExpression extends JsonObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryExpression.class);
 
-    private static final class BindableClausesItr extends QueryIterator {
-        private List<QueryInContext> list;
-
-        public BindableClausesItr(List<QueryInContext> l) {
-            this.list = l;
-        }
-
-        @Override
-        protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
-            list.add(new QueryInContext(ctx, q));
-            return q;
-        }
-        @Override
-        protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
-            list.add(new QueryInContext(ctx,q));
-            return q;
-        }
-    }
-
     /**
      * Returns field information about the query
      */
@@ -78,53 +59,6 @@ public abstract class QueryExpression extends JsonObject {
      */
     public void getQueryFields(List<FieldInfo> fields, Path ctx) {
         GetQueryFields.getQueryFields(fields,this,ctx);
-    }
-
-    /**
-     * Returns the query expressions that can be bound to a value
-     *
-     * These clauses are bindable:
-     * <ul>
-     * <li>FieldComparisonExpression</li>
-     * <li>NaryFieldRelationalExpression</li>
-     * </ul>
-     */
-    public List<QueryInContext> getBindableClauses() {
-        List<QueryInContext> list = new ArrayList<>();
-        getBindableClauses(list, Path.EMPTY);
-        return list;
-    }
-
-    /**
-     * Adds the query expressions that can be bound to a value to the given list
-     */
-    public void getBindableClauses(List<QueryInContext> list, Path ctx) {
-        new BindableClausesItr(list).iterate(this, ctx);
-    }
-
-    public QueryExpression bind(List<FieldBinding> bindingResult,
-                                Set<Path> bindRequest) {
-        return BindFields.bind(this, bindingResult, bindRequest);
-    }
-
-    /**
-     * Binds all the bindable fields in the bindRequest, populates the
-     * bindingResult with binding information, and return a new QueryExpression
-     * with bound values.
-     *
-     * @param ctx Context
-     * @param bindingResult The results of the bindings will be added to this
-     * list
-     * @param bindRequest Full paths to the fields to be bound. If there are
-     * array elements, '*' must be used
-     *
-     * @return A new instance of the query object with boun values. If there are
-     * no bindable values, the same query object will be returned.
-     */
-    public QueryExpression bind(Path ctx,
-                                List<FieldBinding> bindingResult,
-                                Set<Path> bindRequest) {
-        return BindFields.bind(this,ctx,bindingResult, bindRequest);
     }
 
     /**
