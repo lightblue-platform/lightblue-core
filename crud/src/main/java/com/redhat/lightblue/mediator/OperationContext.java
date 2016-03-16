@@ -124,7 +124,7 @@ public final class OperationContext extends CRUDOperationContext {
      * @param callerRoles Roles of the current caller
      * @param hookManager the hook manager
      */
-    private OperationContext(Request request,
+    public OperationContext(Request request,
                              Metadata metadata,
                              Factory factory,
                              CRUDOperation CRUDOperation,

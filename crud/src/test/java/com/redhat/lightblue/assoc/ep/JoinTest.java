@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import java.util.concurrent.Executors;
 
@@ -21,9 +22,13 @@ import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
+import com.redhat.lightblue.*;
+
 import com.redhat.lightblue.query.*;
+import com.redhat.lightblue.crud.*;
 import com.redhat.lightblue.assoc.*;
 import com.redhat.lightblue.assoc.scorers.*;
+import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.metadata.*;
 import com.redhat.lightblue.metadata.parser.Extensions;
 import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
@@ -56,7 +61,7 @@ public class JoinTest extends AbstractJsonSchemaTest {
             throw new RuntimeException(e);
         }
     }
-
+    
     private CompositeMetadata getCmd(String fname,Projection p) {
         EntityMetadata md=getMd(fname);
         return CompositeMetadata.buildCompositeMetadata(md,new GMD(p,null));
@@ -152,7 +157,17 @@ public class JoinTest extends AbstractJsonSchemaTest {
                                 resultDoc(bblock,"{'_id':'c'}"),
                                 resultDoc(bblock,"{'_id':'d'}"));
         Join join=new Join(cblock,new Source[]{new Source<>(a),new Source<>(b)});
-        ExecutionContext ctx=new ExecutionContext(null,Executors.newSingleThreadExecutor());
+        FindRequest freq=new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test","1"));
+        OperationContext opctx=new OperationContext(freq,
+                                                    null,
+                                                    new Factory(),
+                                                    CRUDOperation.FIND,
+                                                    null,
+                                                    null,
+                                                    new HashSet<String>(),
+                                                    null);
+        ExecutionContext ctx=new ExecutionContext(opctx,Executors.newSingleThreadExecutor());
         StepResult<JoinTuple> result=join.getResults(ctx);
         Stream<JoinTuple> stream=result.stream();
         stream.forEach(tuple->System.out.println(tuple));
@@ -189,7 +204,17 @@ public class JoinTest extends AbstractJsonSchemaTest {
                                 resultDoc(ablock,"{'_id':5}"),
                                 resultDoc(ablock,"{'_id':6}"));
         Join join=new Join(cblock,new Source[]{new Source<>(a)});
-        ExecutionContext ctx=new ExecutionContext(null,Executors.newSingleThreadExecutor());
+        FindRequest freq=new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test","1"));
+        OperationContext opctx=new OperationContext(freq,
+                                                    null,
+                                                    new Factory(),
+                                                    CRUDOperation.FIND,
+                                                    null,
+                                                    null,
+                                                    new HashSet<String>(),
+                                                    null);
+        ExecutionContext ctx=new ExecutionContext(opctx,Executors.newSingleThreadExecutor());
         StepResult<JoinTuple> result=join.getResults(ctx);
         Stream<JoinTuple> stream=result.stream();
         stream.forEach(tuple->System.out.println(tuple));
