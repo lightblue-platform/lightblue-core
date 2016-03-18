@@ -52,56 +52,50 @@ abstract class ExtendRelationalInLogical extends Rewriter {
     @Override
     public QueryExpression rewrite(QueryExpression q) {
         NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) {
-            if(le.getOp()==logicalOp) {
-                // Get all in expressions in a list, keep a modified flag
-                boolean queryModified=false;
-                List<NaryValueRelationalExpression> newExp=new ArrayList<>();
-                List<QueryExpression> removedExp=new ArrayList<>();
-                for(QueryExpression iq:le.getQueries()) {
-                    NaryValueRelationalExpression naryExp=dyncast(NaryValueRelationalExpression.class,iq);
-                    if(naryExp!=null&&naryExp.getOp()==relationalOp) {
-                        boolean expModified=false;
-                        // See if there are any value expressions with the same field and operator
-                        for(QueryExpression vq:le.getQueries()) {
-                            ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,vq);
-                            if(vce!=null) {
-                                if(vce.getField().equals(naryExp.getField())&&vce.getOp()==binaryOp) {
-                                    // Add this value to the new expression list
-                                    if(!removedExp.contains(vce)) {
-                                        if(!expModified) {
-                                            expModified=true;
-                                            naryExp=new NaryValueRelationalExpression(naryExp.getField(),
-                                                                                      naryExp.getOp(),
-                                                                                      new ArrayList<>(naryExp.getValues()));
-                                        }
-                                        boolean found=false;
-                                        for(Value x:naryExp.getValues())
-                                            if(x.equals(vce.getRvalue())) {
-                                                found=true;
-                                                break;
-                                            }
-                                        if(!found)
-                                            naryExp.getValues().add(vce.getRvalue());
-                                        newExp.add(naryExp);
-                                        removedExp.add(vce);
-                                        removedExp.add(naryExp);
-                                    }
-                                }
+        if(le!=null && le.getOp()==logicalOp) {
+            // Get all in expressions in a list, keep a modified flag
+            boolean queryModified=false;
+            List<NaryValueRelationalExpression> newExp=new ArrayList<>();
+            List<QueryExpression> removedExp=new ArrayList<>();
+            for(QueryExpression iq:le.getQueries()) {
+                NaryValueRelationalExpression naryExp=dyncast(NaryValueRelationalExpression.class,iq);
+                if(naryExp!=null&&naryExp.getOp()==relationalOp) {
+                    boolean expModified=false;
+                    // See if there are any value expressions with the same field and operator
+                    for(QueryExpression vq:le.getQueries()) {
+                        ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,vq);
+                        if(vce!=null && vce.getField().equals(naryExp.getField())&&vce.getOp()==binaryOp && !removedExp.contains(vce)) {
+                            // Add this value to the new expression list
+                            if(!expModified) {
+                                expModified=true;
+                                naryExp=new NaryValueRelationalExpression(naryExp.getField(),
+                                                                          naryExp.getOp(),
+                                                                          new ArrayList<>(naryExp.getValues()));
                             }
+                            boolean found=false;
+                            for(Value x:naryExp.getValues())
+                                if(x.equals(vce.getRvalue())) {
+                                    found=true;
+                                    break;
+                                }
+                            if(!found)
+                                naryExp.getValues().add(vce.getRvalue());
+                            newExp.add(naryExp);
+                            removedExp.add(vce);
+                            removedExp.add(naryExp);
                         }
-                        if(expModified)
-                            queryModified=true;
                     }
+                    if(expModified)
+                        queryModified=true;
                 }
-                if(queryModified) {
-                    List<QueryExpression> newList=new ArrayList<>();
-                    for(QueryExpression ip:le.getQueries())
-                        if(!removedExp.contains(ip))
-                            newList.add(ip);
-                    newList.addAll(newExp);
-                    return new NaryLogicalExpression(logicalOp,newList);
-                }
+            }
+            if(queryModified) {
+                List<QueryExpression> newList=new ArrayList<>();
+                for(QueryExpression ip:le.getQueries())
+                    if(!removedExp.contains(ip))
+                        newList.add(ip);
+                newList.addAll(newExp);
+                return new NaryLogicalExpression(logicalOp,newList);
             }
         }
         return q;

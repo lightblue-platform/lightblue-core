@@ -61,50 +61,48 @@ abstract class CombineComparisonsToInNotIn extends Rewriter {
     @Override
     public QueryExpression rewrite(QueryExpression q) {
         NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) {
-            if(le.getOp()==logicalOp) {
-                LOGGER.debug("Processing q={}",le);
-                // group value comparison expressions with given logical operator ($and/$or)
-                boolean needCombine=false;
-                Map<Path,List<ValueComparisonExpression>> map=new HashMap<>();
-                for(QueryExpression x:le.getQueries()) {
-                    ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,x);
-                    if(vce!=null&&vce.getOp()==binaryOp) {
-                        List<ValueComparisonExpression> values=map.get(vce.getField());
-                        if(values==null)
-                            map.put(vce.getField(),values=new ArrayList<>());
-                        else if(!needCombine)
-                            needCombine=true; // There exists more than one matching value comparison for this path, so need to combine to one
-                        values.add(vce);
+        if(le!=null && le.getOp()==logicalOp) {
+            LOGGER.debug("Processing q={}",le);
+            // group value comparison expressions with given logical operator ($and/$or)
+            boolean needCombine=false;
+            Map<Path,List<ValueComparisonExpression>> map=new HashMap<>();
+            for(QueryExpression x:le.getQueries()) {
+                ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,x);
+                if(vce!=null&&vce.getOp()==binaryOp) {
+                    List<ValueComparisonExpression> values=map.get(vce.getField());
+                    if(values==null)
+                        map.put(vce.getField(),values=new ArrayList<>());
+                    else if(!needCombine)
+                        needCombine=true; // There exists more than one matching value comparison for this path, so need to combine to one
+                    values.add(vce);
+                }
+            }
+            LOGGER.debug("Grouped expressions={}",map);
+            if(needCombine) {
+                LOGGER.debug("Query expressions can be combined");
+                List<QueryExpression> newList=new ArrayList<>(le.getQueries().size());
+                for(Map.Entry<Path,List<ValueComparisonExpression>> entry:map.entrySet()) {
+                    if(entry.getValue().size()>1) {
+                        // Combine them into an Nary ($in/$nin) expression
+                        Set<Value> valueList=new HashSet<>();
+                        for(ValueComparisonExpression x:entry.getValue())
+                            valueList.add(x.getRvalue());
+                        newList.add(new NaryValueRelationalExpression(entry.getKey(),relationalOp,
+                                                                      new ArrayList<>(valueList)));
+                    } else {
+                        newList.addAll(entry.getValue());
                     }
                 }
-                LOGGER.debug("Grouped expressions={}",map);
-                if(needCombine) {
-                    LOGGER.debug("Query expressions can be combined");
-                    List<QueryExpression> newList=new ArrayList<>(le.getQueries().size());
-                    for(Map.Entry<Path,List<ValueComparisonExpression>> entry:map.entrySet()) {
-                        if(entry.getValue().size()>1) {
-                            // Combine them into an Nary ($in/$nin) expression
-                            Set<Value> valueList=new HashSet<>();
-                            for(ValueComparisonExpression x:entry.getValue())
-                                valueList.add(x.getRvalue());
-                            newList.add(new NaryValueRelationalExpression(entry.getKey(),relationalOp,
-                                                                          new ArrayList<>(valueList)));
-                        } else {
-                            newList.addAll(entry.getValue());
-                        }
-                    }
-                    // Add all the expressions that are not value comparison expressions
-                    for(QueryExpression x:le.getQueries())
-                        if(x instanceof ValueComparisonExpression) {
-                            if(((ValueComparisonExpression)x).getOp()!=binaryOp)
-                                newList.add(x);
-                        } else
+                // Add all the expressions that are not value comparison expressions
+                for(QueryExpression x:le.getQueries())
+                    if(x instanceof ValueComparisonExpression) {
+                        if(((ValueComparisonExpression)x).getOp()!=binaryOp)
                             newList.add(x);
-                    LOGGER.debug("Combined expression list={}",newList);
-                    return new NaryLogicalExpression(logicalOp,newList);
-                } 
-            }
+                    } else
+                        newList.add(x);
+                LOGGER.debug("Combined expression list={}",newList);
+                return new NaryLogicalExpression(logicalOp,newList);
+            } 
         }
         return q;
     }

@@ -40,9 +40,8 @@ public class EliminateSingleANDOR extends Rewriter {
     @Override
     public QueryExpression rewrite(QueryExpression q) {
         NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) 
-            if(le.getQueries().size()==1)
-                return le.getQueries().get(0);
+        if(le!=null && le.getQueries().size()==1)
+            return le.getQueries().get(0);
         return q;
     }
 }
