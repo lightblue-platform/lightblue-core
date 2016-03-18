@@ -5,7 +5,9 @@
            "datasource":"mongodata",
            "collection":"U",
            "backend":"mongo"
-               }
+        },
+        "indexes":[
+            ]
     },
          
     "schema": {

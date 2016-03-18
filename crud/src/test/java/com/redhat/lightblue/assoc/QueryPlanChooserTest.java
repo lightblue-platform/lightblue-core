@@ -173,4 +173,21 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         Assert.assertEquals("parent_w_elem",chooser.getBestPlan().getSources()[0].getMetadata().getName());
 
     }
+
+    @Test
+    public void preferPrimaryKeys() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'us'}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
+                                                      query("{'$and':[{'field':'_id','op':'$in','values':[1,2]},"+
+                                                            "{'field':'us.*.authentications','op':'=','rvalue':null}]}"),
+                                                      null);
+        chooser.choose();
+        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        Assert.assertEquals("L",chooser.getBestPlan().getSources()[0].getMetadata().getName());
+       
+    }
 }
