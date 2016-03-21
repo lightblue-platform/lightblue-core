@@ -50,8 +50,8 @@ public class IndexedFieldScorerData extends QueryPlanData {
      *                       Cost      Size
      *  IdentitySearch        1         1
      *  Indexed search        2         5
-     *  Nonindexed search   100         5
-     *  No criteria          10       100
+     *  Nonindexed search 10000         5
+     *  No criteria          10     10000
      */
 
     /**
@@ -67,7 +67,7 @@ public class IndexedFieldScorerData extends QueryPlanData {
     /**
      * Cost of running a query without an indexed field
      */
-    private static final BigInteger COST_UNINDEXED=new BigInteger("100");
+    private static final BigInteger COST_UNINDEXED=new BigInteger("10000");
 
     /*
      * Cost associated with not having a query
@@ -89,20 +89,10 @@ public class IndexedFieldScorerData extends QueryPlanData {
      * caller is not stupid enough to attempt to retrieve all data of
      * a 1M record DB
      */
-    private static final BigInteger SZ_NOQ=new BigInteger("100");
+    private static final BigInteger SZ_NOQ=new BigInteger("10000");
 
     public BigInteger estimateNodeCostPerQ() {
-        if(identitySearch) {
-            return COST_ID;
-        } else if(hasQueries()) {
-            if(hasUsefulIndexes()) {
-                return COST_INDEXED;
-            } else {
-                return COST_UNINDEXED;
-            }
-        } else {
-            return COST_NOQ;
-        }
+        return estimateCost(identitySearch,hasQueries(),hasUsefulIndexes());
     }
 
     public BigInteger estimateNodeResultSetSizePerQ() {
@@ -113,6 +103,20 @@ public class IndexedFieldScorerData extends QueryPlanData {
         } else {
             return SZ_NOQ;
         }
+    }
+
+    public static BigInteger estimateCost(boolean identitySearch,boolean hasQueries,boolean hasUsefulIndexes) {
+        if(identitySearch) {
+            return COST_ID;
+        } else if(hasQueries) {
+            if(hasUsefulIndexes) {
+                return COST_INDEXED;
+            } else {
+                return COST_UNINDEXED;
+            }
+        } else {
+            return COST_NOQ;
+        }        
     }
 
 
@@ -230,10 +234,14 @@ public class IndexedFieldScorerData extends QueryPlanData {
     public void copyFrom(QueryPlanData source) {
         super.copyFrom(source);
         if (source instanceof IndexedFieldScorerData) {
-            if (((IndexedFieldScorerData) source).indexableFields != null)
-                indexableFields = new HashSet<>(((IndexedFieldScorerData) source).indexableFields);
-            if (((IndexedFieldScorerData) source).indexMap != null)
-                indexMap = new HashMap<>(((IndexedFieldScorerData) source).indexMap);
+        	IndexedFieldScorerData s=(IndexedFieldScorerData)source;
+            idIndex=s.idIndex;
+            idFields=s.idFields;
+            indexableFields=s.indexableFields;
+            indexMap=s.indexMap;
+            rootNode=s.rootNode;
+            identitySearch=s.identitySearch;
+            cs=s.cs;
         }
     }
 

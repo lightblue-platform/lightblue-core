@@ -74,8 +74,10 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
         QueryPlanNode[] sources=qp.getSources();
         QueryPlanNode root=null;
         for(QueryPlanNode node:nodes) {
-            if(node.getMetadata().getParent()==null)
+            if(node.getMetadata().getParent()==null) {
                 root=node;
+                break;
+            }
         }
 
         if (null == root) {
@@ -97,7 +99,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             }
         } else {
             // Multiple roots, there is both a query and retrieval phase
-            CostAndSize cs=computeQueryCost(root);
+            CostAndSize cs=computeQueryCost(root,qp);
             // Have to retrieve for every result in query
             finalCost=cs.cost.add(cs.size);
         }
@@ -115,16 +117,34 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
         return cost;
     }
 
-    private CostAndSize computeQueryCost(QueryPlanNode root) {
+    private CostAndSize computeQueryCost(QueryPlanNode root,QueryPlan qp) {
         // Compute cost to retrieve source nodes
         QueryPlanNode[] sources=root.getSources();
         BigInteger cost=BigInteger.ONE;
         if(sources!=null&&sources.length>0) {
             // There is a join, that means, the result set size is a product of sources
             BigInteger size=BigInteger.ONE;
-            for(QueryPlanNode source:sources)
-                size=size.multiply(((IndexedFieldScorerData)source.getData()).getCostAndSize().size);
-            cost=((IndexedFieldScorerData)root.getData()).getCostAndSize().cost.multiply(size);
+            BigInteger sourceCost=BigInteger.ZERO;
+            BigInteger totalAssociationCost=BigInteger.ZERO;
+            for(QueryPlanNode source:sources) {
+            	CostAndSize src=computeQueryCost(source,qp);
+            	sourceCost=sourceCost.add(src.cost);
+                size=size.multiply(src.size);
+                // If there is an edge query with a usable index, the cost is low
+                // Otherwise, the cost is dependent on the node query only
+                // We'll assume that if there is an edge query, that is an efficient query
+                BigInteger associationCost=((IndexedFieldScorerData)root.getData()).getCostAndSize().cost;
+                QueryPlanData edgeData=qp.getEdgeData(root,source);
+                if(edgeData!=null) {
+                    List<Conjunct> conjuncts=edgeData.getConjuncts();
+                    if(conjuncts!=null&&!conjuncts.isEmpty()) {
+                        associationCost=IndexedFieldScorerData.estimateCost(false,true,true).min(associationCost);
+                    } 
+                }
+                totalAssociationCost=totalAssociationCost.add(associationCost);
+            }
+            cost=totalAssociationCost.multiply(size);
+            cost=cost.add(sourceCost);
         }
         return new CostAndSize(cost,((IndexedFieldScorerData)root.getData()).getCostAndSize().size);
     }

@@ -7,6 +7,12 @@
            "backend":"mongo"
         },
         "indexes":[
+            {
+                "fields":[{"field":"authentications.*.principal","dir":"$asc"}]
+            },
+            {
+                "fields":[{"field":"legalEntities.*.legalEntityId","dir":"$asc"}]
+            }
             ]
     },
          

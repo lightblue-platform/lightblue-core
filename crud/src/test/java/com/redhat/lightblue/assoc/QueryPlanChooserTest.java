@@ -190,4 +190,35 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         Assert.assertEquals("L",chooser.getBestPlan().getSources()[0].getMetadata().getName());
        
     }
+
+    @Test
+    public void preferQueryOverNothing() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'us'}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
+                                                      query("{'field':'us.*.authentications','op':'=','rvalue':null}"),
+                                                      null);
+        chooser.choose();
+        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        Assert.assertEquals("U",chooser.getBestPlan().getSources()[0].getMetadata().getName());       
+    }
+
+    @Test
+    public void preferIndexedSearchOverNonIndexed() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'us'}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+        QueryPlanChooser chooser=new QueryPlanChooser(md,
+                                                      new BruteForceQueryPlanIterator(),
+                                                      new IndexedFieldScorer(),
+                                                      query("{'$and':[{'field':'us.*.authentications.*.principal','op':'=','rvalue':'x'},"+
+                                                            "{'field':'status','op':'=','rvalue':'r'}]}"),
+                                                      null);
+        chooser.choose();
+        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        Assert.assertEquals("U",chooser.getBestPlan().getSources()[0].getMetadata().getName());       
+    }
 }
