@@ -18,11 +18,14 @@
  */
 package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.query.SortKey;
-import com.redhat.lightblue.util.Path;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.redhat.lightblue.util.Path;
 
 /**
  * Specifies that the combined value of one or more fields must be unique
@@ -33,7 +36,7 @@ public class Index implements Serializable {
 
     private String name;
     private boolean unique = false;
-    private final ArrayList<SortKey> fields = new ArrayList<>();
+    private final ArrayList<IndexSortKey> fields = new ArrayList<>();
 
     /**
      * Default ctor
@@ -41,8 +44,8 @@ public class Index implements Serializable {
     public Index() {
     }
 
-    public Index(SortKey... f) {
-        for (SortKey k : f) {
+    public Index(IndexSortKey... f) {
+        for (IndexSortKey k : f) {
             fields.add(k);
         }
     }
@@ -80,15 +83,15 @@ public class Index implements Serializable {
      * unique
      */
     @SuppressWarnings("unchecked")
-    public List<SortKey> getFields() {
-        return (ArrayList<SortKey>) fields.clone();
+    public List<IndexSortKey> getFields() {
+        return (ArrayList<IndexSortKey>) fields.clone();
     }
 
     /**
      * The fields such that the ordered combination of their values must be
      * unique
      */
-    public void setFields(List<SortKey> f) {
+    public void setFields(List<IndexSortKey> f) {
         fields.clear();
         if (f != null) {
             fields.addAll(f);
@@ -101,7 +104,7 @@ public class Index implements Serializable {
      */
     public Set<Path> getUsefulness(Collection<Path> searchFields) {
         Set<Path> ret = new HashSet<>();
-        for (SortKey key : fields) {
+        for (IndexSortKey key : fields) {
             boolean found = false;
             for (Path searchField : searchFields) {
                 if (key.getField().equals(searchField)) {
@@ -122,11 +125,17 @@ public class Index implements Serializable {
      * Returns if this index can be useful to search the given field
      */
     public boolean isUseful(Path field) {
-        for (SortKey k : fields) {
+        for (IndexSortKey k : fields) {
             if (k.getField().equals(field)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public boolean isCaseInsensitiveKey(Path path) {
+        return fields.stream()
+            .filter(IndexSortKey::isCaseInsensitive)
+            .anyMatch(i -> i.getField().equals(path));
     }
 }
