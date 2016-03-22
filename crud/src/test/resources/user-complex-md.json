@@ -629,9 +629,7 @@
                 },
                 "valueGenerator": {
                     "type": "CurrentTime",
-                    "configuration": {
-                        "overwrite": true
-                    }
+                    "overwrite": true
                 }
             },
             "lastUpdatedBy": {
