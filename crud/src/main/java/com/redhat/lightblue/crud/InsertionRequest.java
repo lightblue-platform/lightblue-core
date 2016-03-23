@@ -20,15 +20,16 @@ package com.redhat.lightblue.crud;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.query.Projection;
 
 /**
  * Request to insert documents
  */
-public class InsertionRequest extends DocRequest implements WithProjection {
+public class InsertionRequest extends DocRequest implements WithProjection, withRange {
 
     private Projection returnFields;
+    private Long from;
+    private Long to;
 
     /**
      * Specifies the fields of the inserted entities to return. This can be used
@@ -52,6 +53,24 @@ public class InsertionRequest extends DocRequest implements WithProjection {
     }
 
     @Override
+    public Long getFrom() {
+        return from;
+    }
+
+    public void setFrom(Long from) {
+        this.from = from;
+    }
+
+    @Override
+    public Long getTo() {
+        return to;
+    }
+
+    public void setTo(Long to) {
+        this.to = to;
+    }
+
+    @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.INSERT;
     }
@@ -65,6 +84,7 @@ public class InsertionRequest extends DocRequest implements WithProjection {
         if (returnFields != null) {
             node.set("projection", returnFields.toJson());
         }
+        withRange.toJson(this, getFactory(), node);
         return node;
     }
 
@@ -79,6 +99,9 @@ public class InsertionRequest extends DocRequest implements WithProjection {
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
+        Range r = withRange.fromJson(node);
+        req.setFrom(r.from);
+        req.setTo(r.to);
         return req;
     }
 }
