@@ -21,10 +21,11 @@ package com.redhat.lightblue.mediator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public class Mediator {
 
     public Mediator(Metadata md,
             Factory factory) {
-        metadata = md;
+        this.metadata = md;
         this.factory = factory;
     }
 
@@ -263,9 +264,9 @@ public class Mediator {
                     LOGGER.debug("Composite search required for update");
                     QueryExpression q=rewriteUpdateQueryForCompositeSearch(md,ctx);
                     LOGGER.debug("New query:{}",q);
-                    if(q!=null) {
+                    if(q!=null)
                         updateResponse=controller.update(ctx,q,req.getUpdateExpression(),req.getReturnFields());
-                    } else {
+                    else {
                         updateResponse=new CRUDUpdateResponse();
                         updateResponse.setNumUpdated(0);
                         updateResponse.setNumFailed(0);
@@ -327,14 +328,14 @@ public class Mediator {
                     LOGGER.debug("Composite search required for delete");
                     QueryExpression q=rewriteUpdateQueryForCompositeSearch(md,ctx);
                     LOGGER.debug("New query:{}",q);
-                    if(q!=null) {
+                    if(q!=null)
                         result=controller.delete(ctx,q);
-                    } else {
+                    else {
                         result=new CRUDDeleteResponse();
                         result.setNumDeleted(0);
                     }
                 }
-
+                
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 response.setModifiedCount(result == null ? 0 : result.getNumDeleted());
                 if (ctx.hasErrors()) {
@@ -361,7 +362,7 @@ public class Mediator {
         return response;
     }
 
-
+    
     private QueryExpression rewriteUpdateQueryForCompositeSearch(CompositeMetadata md,OperationContext ctx) {
         // Construct a new find request with the composite query
         // Retrieve only the identities
@@ -377,12 +378,11 @@ public class Mediator {
         freq.setQuery(((WithQuery)ctx.getRequest()).getQuery());
         // Project the identity fields
         List<Projection> pl=new ArrayList<>(identityFields.length);
-        for(Path field:identityFields) {
+        for(Path field:identityFields)
             pl.add(new FieldProjection(field,true,false));
-        }
         freq.setProjection(new ProjectionList(pl));
         LOGGER.debug("Query:{} projection:{}",freq.getQuery(),freq.getProjection());
-
+        
         OperationContext findCtx=new OperationContext(freq,CRUDOperation.FIND,ctx);
         Finder finder=new CompositeFindImpl(md,factory);
         CRUDFindResponse response=finder.find(findCtx,freq.getCRUDFindRequest());
@@ -403,22 +403,20 @@ public class Mediator {
                 }
             }
             QueryExpression idq;
-            if(idList.size()==1) {
+            if(idList.size()==1)
                 idq=idList.get(0);
-            } else {
+            else
                 idq=new NaryLogicalExpression(NaryLogicalOperator._and,idList);
-            }
             orq.add(idq);
         }
-        if(orq.isEmpty()) {
+        if(orq.isEmpty())
             return null;
-        } else if(orq.size()==1) {
+        else if(orq.size()==1)
             return orq.get(0);
-        } else {
+        else
             return new NaryLogicalExpression(NaryLogicalOperator._or,orq);
-        }
     }
-
+    
     /**
      * Finds documents
      *
@@ -521,20 +519,20 @@ public class Mediator {
         return new Callable<Response>() {
             @Override
             public Response call() {
-                return find(req);
+                return find((FindRequest)req);
             }
         };
     }
-
+    
     public BulkResponse bulkRequest(BulkRequest requests) {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
         ExecutorService executor=Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
-        LOGGER.debug("Executing {} find requests in parallel",factory.getBulkParallelExecutions());
-        List<Request> requestList=requests.getEntries();
+        LOGGER.debug("Executing {} find requests in parallel",factory.getBulkParallelExecutions());        
+        List<Request> requestList=requests.getEntries();        
         int n=requestList.size();
         BulkExecutionContext ctx=new BulkExecutionContext(n);
-
+        
         for(int i=0;i<n;i++) {
             Request req=requestList.get(i);
             if(req.getOperation()==CRUDOperation.FIND) {
@@ -552,7 +550,7 @@ public class Mediator {
         wait(ctx);
         LOGGER.debug("Bulk execution completed");
         BulkResponse response=new BulkResponse();
-        response.setEntries(ctx.responses);
+        response.setEntries(ctx.responses);        
         Error.pop();
         return response;
     }
@@ -623,7 +621,7 @@ public class Mediator {
         }
         return ret;
     }
-
+    
     List<JsonDoc> applyRange(withRange requestWithRange, List<JsonDoc> responseDocuments) {
         Long from = requestWithRange.getFrom();
         Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
