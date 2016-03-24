@@ -624,7 +624,7 @@ public class Mediator {
         return ret;
     }
 
-    private List<JsonDoc> applyRange(withRange requestWithRange, List<JsonDoc> responseDocuments){
+    List<JsonDoc> applyRange(withRange requestWithRange, List<JsonDoc> responseDocuments) {
         Long from = requestWithRange.getFrom();
         Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
 
@@ -633,8 +633,11 @@ public class Mediator {
                 return responseDocuments.subList(from.intValue(), to.intValue());
             }
             else{
-                return responseDocuments.subList(from.intValue(), responseDocuments.size() - 1);
+                return responseDocuments.subList(from.intValue(), responseDocuments.size());
             }
+        }
+        else if (to != null) {
+            return responseDocuments.subList(0, to.intValue());
         }
         else{
             return responseDocuments;

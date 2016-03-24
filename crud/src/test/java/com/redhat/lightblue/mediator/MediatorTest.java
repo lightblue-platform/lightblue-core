@@ -18,38 +18,38 @@
  */
 package com.redhat.lightblue.mediator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.redhat.lightblue.*;
-import com.redhat.lightblue.crud.*;
-import com.redhat.lightblue.crud.interceptors.*;
-import com.redhat.lightblue.crud.valuegenerators.*;
-import com.redhat.lightblue.crud.validator.DefaultFieldConstraintValidators;
-import com.redhat.lightblue.crud.validator.EmptyEntityConstraintValidators;
-import com.redhat.lightblue.metadata.*;
-import com.redhat.lightblue.metadata.parser.Extensions;
-import com.redhat.lightblue.metadata.parser.JSONMetadataParser;
-import com.redhat.lightblue.metadata.test.DatabaseMetadata;
-import com.redhat.lightblue.metadata.types.DefaultTypes;
+import com.redhat.lightblue.EntityVersion;
+import com.redhat.lightblue.OperationStatus;
+import com.redhat.lightblue.Response;
+import com.redhat.lightblue.crud.CRUDDeleteResponse;
+import com.redhat.lightblue.crud.CRUDFindResponse;
+import com.redhat.lightblue.crud.CRUDInsertionResponse;
+import com.redhat.lightblue.crud.CRUDSaveResponse;
+import com.redhat.lightblue.crud.CRUDUpdateResponse;
+import com.redhat.lightblue.crud.CrudConstants;
+import com.redhat.lightblue.crud.DeleteRequest;
+import com.redhat.lightblue.crud.FindRequest;
+import com.redhat.lightblue.crud.InsertionRequest;
+import com.redhat.lightblue.crud.SaveRequest;
+import com.redhat.lightblue.crud.UpdateRequest;
+import com.redhat.lightblue.crud.withRange;
+import com.redhat.lightblue.metadata.MetadataStatus;
+import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.Value;
 import com.redhat.lightblue.query.ValueComparisonExpression;
-import com.redhat.lightblue.query.BinaryComparisonOperator;
-import com.redhat.lightblue.util.test.AbstractJsonSchemaTest;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.containsString;
 
 public class MediatorTest extends AbstractMediatorTest {
 
@@ -115,7 +115,7 @@ public class MediatorTest extends AbstractMediatorTest {
         req.setClientId(new RestClientIdentification(Arrays.asList("test.field1-insert", "test-insert")));
         // lastUpdatedBy is required, set that to null
         ((ObjectNode)req.getEntityData()).set("lastUpdatedBy",JsonNodeFactory.instance.nullNode());
-        
+
         Response response = mediator.insert(req);
         // there should be no errors
     }
@@ -369,10 +369,10 @@ public class MediatorTest extends AbstractMediatorTest {
         Response response = mediator.insert(req);
         JsonDoc doc=mockCrudController.ctx.getDocuments().get(0);
         System.out.println(doc);
-        
+
         Assert.assertEquals(id,doc.get(new Path("_id")).asText());
         Assert.assertTrue(!today.equals(doc.get(new Path("today")).asText()));
-        
+
     }
 
     @Test
@@ -420,5 +420,136 @@ public class MediatorTest extends AbstractMediatorTest {
         Assert.assertEquals(0,response.getErrors().size());
         Assert.assertEquals(0,response.getDataErrors().size());
         System.out.println(mockCrudController.ctx.getDocuments().get(0));
+    }
+
+    @Test
+    public void testApplyRange_FromNull_ToNull() {
+        List<JsonDoc> responseDocuments = new ArrayList<>();
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
+
+        List<JsonDoc> modified = mediator.applyRange(
+                new withRange() {
+                    @Override
+                    public Long getFrom() {
+                        return null;
+                    }
+
+                    @Override
+                    public Long getTo() {
+                        return null;
+                    }
+                }, responseDocuments);
+
+        Assert.assertNotNull(modified);
+        Assert.assertEquals(3, modified.size());
+        Assert.assertEquals(1, modified.get(0).getRoot().asInt());
+        Assert.assertEquals(2, modified.get(1).getRoot().asInt());
+        Assert.assertEquals(3, modified.get(2).getRoot().asInt());
+    }
+
+    @Test
+    public void testApplyRange_FromNull_ToOne() {
+        List<JsonDoc> responseDocuments = new ArrayList<>();
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
+
+        List<JsonDoc> modified = mediator.applyRange(
+                new withRange() {
+                    @Override
+                    public Long getFrom() {
+                        return null;
+                    }
+
+                    @Override
+                    public Long getTo() {
+                        return 1L;
+                    }
+                }, responseDocuments);
+
+        Assert.assertNotNull(modified);
+        Assert.assertEquals(2, modified.size());
+        Assert.assertEquals(1, modified.get(0).getRoot().asInt());
+        Assert.assertEquals(2, modified.get(1).getRoot().asInt());
+    }
+
+    @Test
+    public void testApplyRange_FromZero_ToOne() {
+        List<JsonDoc> responseDocuments = new ArrayList<>();
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
+
+        List<JsonDoc> modified = mediator.applyRange(
+                new withRange() {
+                    @Override
+                    public Long getFrom() {
+                        return 0L;
+                    }
+
+                    @Override
+                    public Long getTo() {
+                        return 1L;
+                    }
+                }, responseDocuments);
+
+        Assert.assertNotNull(modified);
+        Assert.assertEquals(2, modified.size());
+        Assert.assertEquals(1, modified.get(0).getRoot().asInt());
+        Assert.assertEquals(2, modified.get(1).getRoot().asInt());
+    }
+
+    @Test
+    public void testApplyRange_FromOne_ToNull() {
+        List<JsonDoc> responseDocuments = new ArrayList<>();
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
+
+        List<JsonDoc> modified = mediator.applyRange(
+                new withRange() {
+                    @Override
+                    public Long getFrom() {
+                        return 1L;
+                    }
+
+                    @Override
+                    public Long getTo() {
+                        return null;
+                    }
+                }, responseDocuments);
+
+        Assert.assertNotNull(modified);
+        Assert.assertEquals(2, modified.size());
+        Assert.assertEquals(2, modified.get(0).getRoot().asInt());
+        Assert.assertEquals(3, modified.get(1).getRoot().asInt());
+    }
+    
+    @Test
+    public void testApplyRange_FromOne_ToTwo() {
+        List<JsonDoc> responseDocuments = new ArrayList<>();
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(1)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(2)));
+        responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
+
+        List<JsonDoc> modified = mediator.applyRange(
+                new withRange() {
+                    @Override
+                    public Long getFrom() {
+                        return 1L;
+                    }
+
+                    @Override
+                    public Long getTo() {
+                        return 2L;
+                    }
+                }, responseDocuments);
+
+        Assert.assertNotNull(modified);
+        Assert.assertEquals(2, modified.size());
+        Assert.assertEquals(2, modified.get(0).getRoot().asInt());
+        Assert.assertEquals(3, modified.get(1).getRoot().asInt());
     }
 }
