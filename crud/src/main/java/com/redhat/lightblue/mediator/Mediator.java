@@ -626,7 +626,7 @@ public class Mediator {
 
     private List<JsonDoc> applyRange(withRange requestWithRange, List<JsonDoc> responseDocuments){
         Long from = requestWithRange.getFrom();
-        Long to = requestWithRange.getTo();
+        Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
 
         if (from != null) {
             if (to != null) {
