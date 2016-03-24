@@ -78,17 +78,17 @@ public class CRUDFindRequestTest extends AbstractJsonNodeTest {
         CRUDFindRequest req = new CRUDFindRequest();
         req.fromJson((ObjectNode) node);
 
-        Assert.assertEquals(0, req.getTo().longValue());
+        Assert.assertEquals(-1, req.getTo().longValue());
         Assert.assertNull(req.getFrom());
     }
-    
+
     @Test
     public void test_one_maxResults() throws IOException {
         JsonNode node = loadJsonNode("crud/find/schema-test-find-simple-1-max.json");
         CRUDFindRequest req = new CRUDFindRequest();
         req.fromJson((ObjectNode) node);
 
-        Assert.assertEquals(1, req.getTo().longValue());
+        Assert.assertEquals(0, req.getTo().longValue());
         Assert.assertNull(req.getFrom());
     }
 
