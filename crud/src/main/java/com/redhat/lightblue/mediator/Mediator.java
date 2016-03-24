@@ -51,6 +51,7 @@ import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithQuery;
+import com.redhat.lightblue.crud.WithRange;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -126,7 +127,7 @@ public class Mediator {
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> insertedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (insertedDocuments != null && !insertedDocuments.isEmpty()) {
-                        response.setEntityData(JsonDoc.listToDoc(insertedDocuments, factory.getNodeFactory()));
+                        response.setEntityData(JsonDoc.listToDoc(applyRange(req, insertedDocuments), factory.getNodeFactory()));
                         response.setModifiedCount(insertedDocuments.size());
                     }
                     if (!ctx.hasErrors()&&!ctx.hasDocumentErrors()&&
@@ -194,7 +195,7 @@ public class Mediator {
                     ctx.getHookManager().queueMediatorHooks(ctx);
                     List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                     if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
-                        response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
+                        response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
                         response.setModifiedCount(updatedDocuments.size());
                     }
                     if (!ctx.hasErrors()&&!ctx.hasDocumentErrors()&&
@@ -276,7 +277,7 @@ public class Mediator {
                 response.setModifiedCount(updateResponse.getNumUpdated());
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
-                    response.setEntityData(JsonDoc.listToDoc(updatedDocuments, factory.getNodeFactory()));
+                    response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));
                 }
                 if (ctx.hasErrors()) {
                     ctx.setStatus(OperationStatus.ERROR);
@@ -619,5 +620,25 @@ public class Mediator {
             }
         }
         return ret;
+    }
+    
+    List<JsonDoc> applyRange(WithRange requestWithRange, List<JsonDoc> responseDocuments) {
+        Long from = requestWithRange.getFrom();
+        Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
+
+        if (from != null) {
+            if (to != null) {
+                return responseDocuments.subList(from.intValue(), to.intValue());
+            }
+            else{
+                return responseDocuments.subList(from.intValue(), responseDocuments.size());
+            }
+        }
+        else if (to != null) {
+            return responseDocuments.subList(0, to.intValue());
+        }
+        else{
+            return responseDocuments;
+        }
     }
 }

@@ -28,7 +28,7 @@ import com.redhat.lightblue.query.Sort;
 /**
  * Request to find documents
  */
-public class FindRequest extends Request implements WithQuery, WithProjection {
+public class FindRequest extends Request implements WithQuery, WithProjection, WithRange {
 
     private final CRUDFindRequest cfr=new CRUDFindRequest();
 
@@ -76,10 +76,7 @@ public class FindRequest extends Request implements WithQuery, WithProjection {
         cfr.setSort(s);
     }
 
-    /**
-     * Specifies the index in the result set to start returning documents.
-     * Meaningful only if sort is given. Starts from 0.
-     */
+    @Override
     public Long getFrom() {
         return cfr.getFrom();
     }
@@ -92,10 +89,7 @@ public class FindRequest extends Request implements WithQuery, WithProjection {
         cfr.setFrom(l);
     }
 
-    /**
-     * Specifies the last index of the document in the result set to be
-     * returned. Meaningful only if sort is given. Starts from 0.
-     */
+    @Override
     public Long getTo() {
         return cfr.getTo();
     }
@@ -118,14 +112,14 @@ public class FindRequest extends Request implements WithQuery, WithProjection {
 
     public void shallowCopyFrom(Request r, CRUDFindRequest c) {
         super.shallowCopyFrom(r);
-        this.cfr.shallowCopyFrom(c);
+        cfr.shallowCopyFrom(c);
     }
 
     @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.FIND;
     }
-    
+
     /**
      * Returns JSON representation of this
      */

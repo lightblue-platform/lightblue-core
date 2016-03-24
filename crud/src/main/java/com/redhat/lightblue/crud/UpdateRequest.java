@@ -21,7 +21,6 @@ package com.redhat.lightblue.crud;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.lightblue.Request;
-
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.UpdateExpression;
@@ -29,11 +28,13 @@ import com.redhat.lightblue.query.UpdateExpression;
 /**
  * Request to update documents based on a query
  */
-public class UpdateRequest extends Request implements WithQuery, WithProjection {
+public class UpdateRequest extends Request implements WithQuery, WithProjection, WithRange {
 
     private QueryExpression query;
     private UpdateExpression updateExpression;
     private Projection returnFields;
+    private Long from;
+    private Long to;
 
     /**
      * The fields to return from the updated documents
@@ -84,6 +85,24 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection 
     }
 
     @Override
+    public Long getFrom() {
+        return from;
+    }
+
+    public void setFrom(Long from) {
+        this.from = from;
+    }
+
+    @Override
+    public Long getTo() {
+        return to;
+    }
+
+    public void setTo(Long to) {
+        this.to = to;
+    }
+
+    @Override
     public CRUDOperation getOperation() {
         return CRUDOperation.UPDATE;
     }
@@ -103,6 +122,7 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection 
         if (returnFields != null) {
             node.set("projection", returnFields.toJson());
         }
+        WithRange.toJson(this, getFactory(), node);
         return node;
     }
 
@@ -124,6 +144,9 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection 
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
+        Range r = WithRange.fromJson(node);
+        req.setFrom(r.from);
+        req.setTo(r.to);
         return req;
     }
 }
