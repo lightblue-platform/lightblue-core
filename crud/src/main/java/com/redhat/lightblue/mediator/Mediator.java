@@ -51,7 +51,7 @@ import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
 import com.redhat.lightblue.crud.WithQuery;
-import com.redhat.lightblue.crud.withRange;
+import com.redhat.lightblue.crud.WithRange;
 import com.redhat.lightblue.eval.FieldAccessRoleEvaluator;
 import com.redhat.lightblue.interceptor.InterceptPoint;
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -622,7 +622,7 @@ public class Mediator {
         return ret;
     }
     
-    List<JsonDoc> applyRange(withRange requestWithRange, List<JsonDoc> responseDocuments) {
+    List<JsonDoc> applyRange(WithRange requestWithRange, List<JsonDoc> responseDocuments) {
         Long from = requestWithRange.getFrom();
         Long to = (requestWithRange.getTo() == null) ? null : requestWithRange.getTo() + 1;
 

@@ -30,7 +30,7 @@ import com.redhat.lightblue.query.Sort;
 /**
  * Request to find documents
  */
-public class CRUDFindRequest implements Serializable, withRange {
+public class CRUDFindRequest implements Serializable, WithRange {
 
     private static final long serialVersionUID = 1;
 
@@ -140,7 +140,7 @@ public class CRUDFindRequest implements Serializable, withRange {
         if (sort != null) {
             node.set("sort", sort.toJson());
         }
-        withRange.toJson(this, factory, node);
+        WithRange.toJson(this, factory, node);
     }
 
     /**
@@ -160,7 +160,7 @@ public class CRUDFindRequest implements Serializable, withRange {
         if (x != null) {
             sort = Sort.fromJson(x);
         }
-        Range r = withRange.fromJson(node);
+        Range r = WithRange.fromJson(node);
         setFrom(r.from);
         setTo(r.to);
     }

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * Marker interface for requests containing a range
  */
-public interface withRange {
+public interface WithRange {
 
     /**
      * Specifies the index in the result set to start returning documents.
@@ -22,7 +22,7 @@ public interface withRange {
      */
     Long getTo();
 
-    public static void toJson(withRange range, JsonNodeFactory factory, ObjectNode node) {
+    public static void toJson(WithRange range, JsonNodeFactory factory, ObjectNode node) {
         if (range.getFrom() != null) {
             node.set("from", factory.numberNode(range.getFrom()));
             if (range.getTo() != null) {

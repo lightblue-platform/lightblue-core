@@ -42,7 +42,7 @@ import com.redhat.lightblue.crud.FindRequest;
 import com.redhat.lightblue.crud.InsertionRequest;
 import com.redhat.lightblue.crud.SaveRequest;
 import com.redhat.lightblue.crud.UpdateRequest;
-import com.redhat.lightblue.crud.withRange;
+import com.redhat.lightblue.crud.WithRange;
 import com.redhat.lightblue.metadata.MetadataStatus;
 import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.query.FieldProjection;
@@ -430,7 +430,7 @@ public class MediatorTest extends AbstractMediatorTest {
         responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
 
         List<JsonDoc> modified = mediator.applyRange(
-                new withRange() {
+                new WithRange() {
                     @Override
                     public Long getFrom() {
                         return null;
@@ -457,7 +457,7 @@ public class MediatorTest extends AbstractMediatorTest {
         responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
 
         List<JsonDoc> modified = mediator.applyRange(
-                new withRange() {
+                new WithRange() {
                     @Override
                     public Long getFrom() {
                         return null;
@@ -483,7 +483,7 @@ public class MediatorTest extends AbstractMediatorTest {
         responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
 
         List<JsonDoc> modified = mediator.applyRange(
-                new withRange() {
+                new WithRange() {
                     @Override
                     public Long getFrom() {
                         return 0L;
@@ -509,7 +509,7 @@ public class MediatorTest extends AbstractMediatorTest {
         responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
 
         List<JsonDoc> modified = mediator.applyRange(
-                new withRange() {
+                new WithRange() {
                     @Override
                     public Long getFrom() {
                         return 1L;
@@ -535,7 +535,7 @@ public class MediatorTest extends AbstractMediatorTest {
         responseDocuments.add(new JsonDoc(JsonNodeFactory.instance.numberNode(3)));
 
         List<JsonDoc> modified = mediator.applyRange(
-                new withRange() {
+                new WithRange() {
                     @Override
                     public Long getFrom() {
                         return 1L;

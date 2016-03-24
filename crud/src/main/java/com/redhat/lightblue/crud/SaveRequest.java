@@ -25,7 +25,7 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to save documents
  */
-public class SaveRequest extends DocRequest implements withRange {
+public class SaveRequest extends DocRequest implements WithRange {
 
     private Projection returnFields;
     private boolean upsert;
@@ -95,7 +95,7 @@ public class SaveRequest extends DocRequest implements withRange {
             node.set("projection", returnFields.toJson());
         }
         node.put("upsert", upsert);
-        withRange.toJson(this, getFactory(), node);
+        WithRange.toJson(this, getFactory(), node);
         return node;
     }
 
@@ -113,7 +113,7 @@ public class SaveRequest extends DocRequest implements withRange {
         if (x != null) {
             req.upsert = x.asBoolean();
         }
-        Range r = withRange.fromJson(node);
+        Range r = WithRange.fromJson(node);
         req.setFrom(r.from);
         req.setTo(r.to);
         return req;

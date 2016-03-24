@@ -28,7 +28,7 @@ import com.redhat.lightblue.query.UpdateExpression;
 /**
  * Request to update documents based on a query
  */
-public class UpdateRequest extends Request implements WithQuery, WithProjection, withRange {
+public class UpdateRequest extends Request implements WithQuery, WithProjection, WithRange {
 
     private QueryExpression query;
     private UpdateExpression updateExpression;
@@ -122,7 +122,7 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection,
         if (returnFields != null) {
             node.set("projection", returnFields.toJson());
         }
-        withRange.toJson(this, getFactory(), node);
+        WithRange.toJson(this, getFactory(), node);
         return node;
     }
 
@@ -144,7 +144,7 @@ public class UpdateRequest extends Request implements WithQuery, WithProjection,
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
-        Range r = withRange.fromJson(node);
+        Range r = WithRange.fromJson(node);
         req.setFrom(r.from);
         req.setTo(r.to);
         return req;

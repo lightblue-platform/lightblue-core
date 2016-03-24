@@ -28,7 +28,7 @@ import com.redhat.lightblue.query.Sort;
 /**
  * Request to find documents
  */
-public class FindRequest extends Request implements WithQuery, WithProjection, withRange {
+public class FindRequest extends Request implements WithQuery, WithProjection, WithRange {
 
     private final CRUDFindRequest cfr=new CRUDFindRequest();
 

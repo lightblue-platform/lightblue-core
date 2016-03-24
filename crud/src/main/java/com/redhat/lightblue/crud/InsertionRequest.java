@@ -25,7 +25,7 @@ import com.redhat.lightblue.query.Projection;
 /**
  * Request to insert documents
  */
-public class InsertionRequest extends DocRequest implements WithProjection, withRange {
+public class InsertionRequest extends DocRequest implements WithProjection, WithRange {
 
     private Projection returnFields;
     private Long from;
@@ -84,7 +84,7 @@ public class InsertionRequest extends DocRequest implements WithProjection, with
         if (returnFields != null) {
             node.set("projection", returnFields.toJson());
         }
-        withRange.toJson(this, getFactory(), node);
+        WithRange.toJson(this, getFactory(), node);
         return node;
     }
 
@@ -99,7 +99,7 @@ public class InsertionRequest extends DocRequest implements WithProjection, with
         if (x != null) {
             req.returnFields = Projection.fromJson(x);
         }
-        Range r = withRange.fromJson(node);
+        Range r = WithRange.fromJson(node);
         req.setFrom(r.from);
         req.setTo(r.to);
         return req;
