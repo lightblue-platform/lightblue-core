@@ -20,7 +20,7 @@ package com.redhat.lightblue.assoc.scorers;
 
 import java.math.BigInteger;
 
-public class CostAndSize {
+class CostAndSize {
     BigInteger cost=BigInteger.ONE;
     BigInteger size=BigInteger.ONE;
 
