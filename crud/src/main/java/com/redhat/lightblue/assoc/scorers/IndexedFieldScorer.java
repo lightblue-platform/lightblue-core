@@ -44,8 +44,10 @@ import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryPlanChooser;
 import com.redhat.lightblue.assoc.ResolvedFieldInfo;
+import com.redhat.lightblue.assoc.AssocConstants;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Query plan scoring based on search clauses on indexed fields. These are the heuristics it uses:
@@ -92,7 +94,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             // If the root entity has identity search and the query plan
             // node for the root entity is at the plan root, then this is
             // the lowest cost option
-            if(((IndexedFieldScorerData)root.getData()).isIdentitySearch() ) {
+            if( getData(root).isIdentitySearch() ) {
                 finalCost=BigInteger.ZERO;
             } else {
                 finalCost=computeRetrievalCost(root);
@@ -108,7 +110,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
     }
 
     private BigInteger computeRetrievalCost(QueryPlanNode root) {
-        CostAndSize cs=((IndexedFieldScorerData)root.getData()).getCostAndSize();
+        CostAndSize cs=getData(root).getCostAndSize();
         BigInteger cost=cs.cost;
         // Compute cost to retrieve destination nodes
         for(QueryPlanNode dest:root.getDestinations()) {
@@ -133,7 +135,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
                 // If there is an edge query with a usable index, the cost is low
                 // Otherwise, the cost is dependent on the node query only
                 // We'll assume that if there is an edge query, that is an efficient query
-                BigInteger associationCost=((IndexedFieldScorerData)root.getData()).getCostAndSize().cost;
+                BigInteger associationCost=getData(root).getCostAndSize().cost;
                 QueryPlanData edgeData=qp.getEdgeData(root,source);
                 if(edgeData!=null) {
                     List<Conjunct> conjuncts=edgeData.getConjuncts();
@@ -146,7 +148,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             cost=totalAssociationCost.multiply(size);
             cost=cost.add(sourceCost);
         }
-        return new CostAndSize(cost,((IndexedFieldScorerData)root.getData()).getCostAndSize().size);
+        return new CostAndSize(cost,getData(root).getCostAndSize().size);
     }
 
     @Override
@@ -158,7 +160,7 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             if (!(node.getData() instanceof IndexedFieldScorerData)) {
                 throw new IllegalStateException("Expected instance of " + IndexedFieldScorerData.class.getName() + " but got: " + node.getData().getClass().getName());
             }
-            IndexedFieldScorerData data=(IndexedFieldScorerData)node.getData();
+            IndexedFieldScorerData data=getData(node);
             CompositeMetadata md=node.getMetadata();
             data.setRootNode(md.getParent()==null);
             Field[] identities=md.getEntitySchema().getIdentityFields();
@@ -199,4 +201,11 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
         }
     }
 
+    private IndexedFieldScorerData getData(QueryPlanNode node) {
+        try {
+            return (IndexedFieldScorerData)node.getData();
+        } catch (ClassCastException e) {
+            throw Error.get(AssocConstants.ERR_INVALID_QUERYPLAN);
+        }
+    }
 }
