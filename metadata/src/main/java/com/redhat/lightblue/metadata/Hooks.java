@@ -18,14 +18,11 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Hooks implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Hooks extends MetadataObject {
 
     private final ArrayList<Hook> hooks = new ArrayList<>();
 

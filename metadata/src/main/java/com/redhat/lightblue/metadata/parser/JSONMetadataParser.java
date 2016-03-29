@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.query.Projection;
@@ -52,6 +53,19 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         this.factory = factory;
     }
 
+    @Override
+    public MetadataParser.PropertyType getType(Object object) {
+        if(object instanceof ArrayNode) {
+            return MetadataParser.PropertyType.LIST;
+        } else if(object instanceof ObjectNode) {
+            return MetadataParser.PropertyType.MAP;
+        } else if(object==null||object instanceof NullNode) {
+            return MetadataParser.PropertyType.NULL;
+        } else {
+            return MetadataParser.PropertyType.VALUE;
+        }
+    }
+    
     @Override
     public String getStringProperty(JsonNode object, String name) {
         Error.push(name);
@@ -219,72 +233,46 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             return new HashSet<>();
         }
     }
-
+  
     @Override
-    public void putString(JsonNode object, String name, String value) {
-        putValue(object, name, value);
+    public void put(JsonNode object, String name, Object value) {
+        ((ObjectNode)object).set(name,toJsonNode(value));
     }
 
-    @Override
-    public void putObject(JsonNode object, String name, Object value) {
-        ((ObjectNode) object).set(name, (JsonNode) value);
-    }
-
-    @Override
-    public void putValue(JsonNode object, String name, Object value) {
-        ObjectNode o = (ObjectNode) object;
-        if (value == null) {
-            o.set(name, factory.nullNode());
+    private JsonNode toJsonNode(Object value) {
+        if(value==null) {
+            return factory.nullNode();
+        } else if(value instanceof JsonNode) {
+            return (JsonNode)value;
         } else if (value instanceof Boolean) {
-            o.put(name, (Boolean) value);
+            return factory.booleanNode((Boolean) value);
         } else if (value instanceof BigDecimal) {
-            o.put(name, (BigDecimal) value);
+            return factory.numberNode( (BigDecimal) value);
         } else if (value instanceof BigInteger) {
-            o.set(name, factory.numberNode((BigInteger) value));
+            return factory.numberNode((BigInteger) value);
         } else if (value instanceof Double) {
-            o.put(name, (Double) value);
+            return factory.numberNode((Double) value);
         } else if (value instanceof Float) {
-            o.put(name, (Float) value);
+            return factory.numberNode((Float) value);
         } else if (value instanceof Integer) {
-            o.put(name, (Integer) value);
+            return factory.numberNode((Integer) value);
         } else if (value instanceof Long) {
-            o.put(name, (Long) value);
+            return factory.numberNode( (Long) value);
         } else if (value instanceof Short) {
-            o.put(name, (Short) value);
+            return factory.numberNode((Short) value);
         } else {
-            o.put(name, value.toString());
+            return factory.textNode(value.toString());
         }
     }
 
     @Override
-    public Object newArrayField(JsonNode object, String name) {
-        ArrayNode node = factory.arrayNode();
-        ((ObjectNode) object).set(name, node);
-        return node;
+    public Object newArray() {
+        return factory.arrayNode();
     }
 
     @Override
-    public void addStringToArray(Object array, String value) {
-        ((ArrayNode) array).add(value);
-    }
-
-    @Override
-    public void addObjectToArray(Object array, Object value) {
-        ((ArrayNode) array).add((JsonNode) value);
-    }
-
-    @Override
-    public Set<String> findFieldsNotIn(JsonNode elements, Set<String> removeAllFields) {
-        final HashSet<String> strings = new HashSet<>();
-        final Iterator<String> stringIterator = elements.fieldNames();
-        while (stringIterator.hasNext()) {
-            String next = stringIterator.next();
-            if (!removeAllFields.contains(next)) {
-                strings.add(next);
-            }
-        }
-
-        return strings;
+    public void addArrayElement(Object array, Object element) {
+        ((ArrayNode)array).add(toJsonNode(element));
     }
 
     @Override

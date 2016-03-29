@@ -104,20 +104,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
             }
         });
-        extensions.registerPropertyParser("rdbms", new PropertyParser<JsonNode>() {
-            @Override
-            public Object parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
-                p.getStringProperty(node, "answer");
-                return 42;
-            }
-
-            @Override
-            public void convert(MetadataParser<JsonNode> p, JsonNode parent, Object object) {
-                JsonNode t = p.newNode();
-                p.putObject(parent, "rdbms", t);
-                p.putString(t, "answer", object.toString());
-            }
-        });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
 

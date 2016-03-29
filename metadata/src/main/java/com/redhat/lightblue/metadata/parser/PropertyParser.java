@@ -19,10 +19,80 @@
 package com.redhat.lightblue.metadata.parser;
 
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
-public abstract class PropertyParser<T> implements Parser<T, Object> {
-    public void parseProperty(MetadataParser<T> MetadataParser, String name, Map<String, Object> properties, T objectProperty) {
-        final Object obj = parse(name, MetadataParser, objectProperty);
-        properties.put(name, obj);
+/**
+ * Base class for metadata property parsers. The default behavior is
+ * to store unrecognized properties as a java value, list, or map.
+ */
+public class PropertyParser<T>  {
+    
+    public Object parseProperty(MetadataParser<T> p,
+                                T container,
+                                String name) {
+        MetadataParser.PropertyType type=p.getType(p.getObjectProperty(container,name));
+        if(type==MetadataParser.PropertyType.VALUE) {
+            return p.getValueProperty(container,name);
+        } else if(type==MetadataParser.PropertyType.LIST) {
+            return parseProperty(p,p.getObjectList(container,name));
+        } else if(type==MetadataParser.PropertyType.MAP) {
+            return parseProperty(p,p.getObjectProperty(container,name));
+        }
+        return null;
+    }
+
+    protected Object parseProperty(MetadataParser<T> p,
+                                   Object property) {
+        switch(p.getType(property)) {
+        case VALUE: return property;
+        case LIST:
+            ArrayList<Object> resultList=new ArrayList<>();
+            List<T> list=p.getObjectList((T)property);
+            for(T element:list) {
+                resultList.add(parseProperty(p,element));
+            }
+            return resultList;
+        case MAP:
+            Set<String> children=p.getChildNames((T)property);
+            Map<String,Object> resultMap=new HashMap<>();
+            for(String child:children) {
+                resultMap.put(child,parseProperty(p,p.getObjectProperty((T)property,child)));
+            }
+            return resultMap;
+        }
+        return null;
+    }
+
+    protected Object convertProperty(MetadataParser<T> metadataParser,
+                                     Object propertyValue) {
+        switch(metadataParser.getType(propertyValue)) {
+        case VALUE:
+            return propertyValue;
+        case LIST:
+            Object arr=metadataParser.newArray();
+            List<Object> list=(List<Object>)propertyValue;
+            for(Object x:list) {
+                metadataParser.addArrayElement(arr,convertProperty(metadataParser,x));
+            }
+            return arr;
+        case MAP:
+            T node=metadataParser.newNode();
+            Map<String,Object> map=(Map<String,Object>)propertyValue;
+            for(Map.Entry<String,Object> entry:map.entrySet()) {
+                convertProperty(metadataParser,node,entry.getKey(),entry.getValue());
+            }
+            return node;
+        }
+        return null;
+    }
+    
+    public void convertProperty(MetadataParser<T> metadataParser,
+                                T container,
+                                String propertyName,
+                                Object propertyValue) {
+        metadataParser.put(container,propertyName,convertProperty(metadataParser,propertyValue));
     }
 }

@@ -18,37 +18,27 @@
  */
 package com.redhat.lightblue.metadata;
 
-public class FieldAccess extends MetadataObject implements MetadataAccess {
+import java.io.Serializable;
 
-    private final Access find = new Access();
-    private final Access update = new Access();
-    private final Access insert = new Access();
+import java.util.Map;
+import java.util.HashMap;
 
-    /**
-     * Gets the value of find
-     *
-     * @return the value of find
-     */
-    public Access getFind() {
-        return this.find;
+/**
+ * Base class for metadata objects, contains properties not recognized
+ * by the parser for the metadata object
+ */
+public abstract class MetadataObject implements Serializable {
+
+    private static final long serialVersionUID = 1l;
+
+    protected final Map<String,Object> properties=new HashMap<>();
+
+    public Map<String,Object> getProperties() {
+        return properties;
     }
 
-    /**
-     * Gets the value of update
-     *
-     * @return the value of update
-     */
-    public Access getUpdate() {
-        return this.update;
+    public void shallowCopyFrom(MetadataObject source) {
+        properties.clear();
+        properties.putAll(source.properties);
     }
-
-    /**
-     * Gets the value of insert
-     *
-     * @return the value of insert
-     */
-    public Access getInsert() {
-        return this.insert;
-    }
-
 }

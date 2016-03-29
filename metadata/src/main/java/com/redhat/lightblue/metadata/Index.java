@@ -18,7 +18,6 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,9 +29,7 @@ import com.redhat.lightblue.util.Path;
 /**
  * Specifies that the combined value of one or more fields must be unique
  */
-public class Index implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class Index extends MetadataObject {
 
     private String name;
     private boolean unique = false;

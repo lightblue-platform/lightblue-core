@@ -229,34 +229,18 @@ public abstract class MetadataParser<T> {
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
 
-            parsePropertyParser(object, info.getProperties());
-
             return info;
         } finally {
             Error.pop();
         }
     }
 
-    public void parsePropertyParser(T object, Map<String, Object> properties) {
-        Error.push("parsePropertyParser");
-        try {
-
-            Set<String> propertyFields = findFieldsNotIn(object, ENTITY_INFO_FIELDS);
-            for (String property : propertyFields) {
-                PropertyParser p = extensions.getPropertyParser(property);
-                if (p != null) {
-                    p.parseProperty(this, property, properties, getObjectProperty(object, property));
-                }
-            }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
+    private void parseProperties(MetadataObject dest,
+                                 T object,
+                                 String... recognizedProperties) {
+        Set<String> children=getChildNames(object);
+        for(String child:children) {
+            
         }
     }
 
@@ -500,8 +484,6 @@ public abstract class MetadataParser<T> {
 
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
             parseEntityConstraints(schema, constraints);
-
-            parsePropertyParser(object, schema.getProperties());
 
             return schema;
         } catch (Error e) {
@@ -817,7 +799,6 @@ public abstract class MetadataParser<T> {
                 parseFieldConstraints(field,
                         getObjectProperty(object, STR_CONSTRAINTS));
 
-                parsePropertyParser(object, field.getProperties());
             } else {
                 field = null;
             }
@@ -954,17 +935,6 @@ public abstract class MetadataParser<T> {
                 convertDataStore(dsNode, info.getDataStore());
                 putObject(ret, STR_DATASTORE, dsNode);
             }
-            if (info.getProperties() != null && !info.getProperties().isEmpty()) {
-                for (String s : info.getProperties().keySet()) {
-                    PropertyParser p = extensions.getPropertyParser(s);
-                    if (p != null) {
-                        T node = newNode();
-                        p.convert(this, node, info.getProperties().get(s));
-                        putObject(ret, s, node);
-                    }
-                }
-            }
-            convertPropertyParser(ret, info.getProperties());
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -992,7 +962,6 @@ public abstract class MetadataParser<T> {
             putObject(ret, STR_STATUS, convert(schema.getStatus(), schema.getStatusChangeLog()));
             putObject(ret, STR_ACCESS, convert(schema.getAccess()));
             putObject(ret, STR_FIELDS, convert(schema.getFields()));
-            convertPropertyParser(ret, schema.getProperties());
             convertEntityConstraints(ret, schema.getConstraints());
             return ret;
         } catch (Error e) {
@@ -1002,22 +971,6 @@ public abstract class MetadataParser<T> {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    public void convertPropertyParser(T object, Map<String, Object> properties) {
-        Error.push("convertPropertyParser");
-        try {
-
-            for (Entry entry : properties.entrySet()) {
-                String key = (String) entry.getKey();
-                PropertyParser p = extensions.getPropertyParser(key);
-                if (p != null) {
-                    p.convert(this, object, entry.getValue());
-                }
-            }
         } finally {
             Error.pop();
         }
@@ -1187,7 +1140,6 @@ public abstract class MetadataParser<T> {
                     putObject(fieldObject, STR_ACCESS, access);
                 }
                 convertFieldConstraints(fieldObject, field.getConstraints());
-                convertPropertyParser(ret, field.getProperties());
             } catch (Error e) {
                 // rethrow lightblue error
                 throw e;
@@ -1199,7 +1151,6 @@ public abstract class MetadataParser<T> {
                 Error.pop();
             }
         }
-        convertPropertyParser(ret, fields.getProperties());
         return ret;
     }
 
@@ -1613,6 +1564,15 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    public static enum PropertyType { VALUE, LIST, MAP, NULL };
+
+
+    /**
+     * Returns whether the object is a list, map, or value
+     */
+    public abstract PropertyType getType(Object object);
+        
+
     /**
      * Returns a property that is a simple value
      *
@@ -1687,34 +1647,62 @@ public abstract class MetadataParser<T> {
     /**
      * Adds a new string field to the object.
      */
-    public abstract void putString(T object, String name, String value);
+    public void putString(T object, String name, String value) {
+        putValue(object,name,value);
+    }
 
     /**
      * Adds a new object field to the object.
      */
-    public abstract void putObject(T object, String name, Object value);
+    public void putObject(T object, String name, Object value) {
+        put(object,name,value);
+    }
 
     /**
      * Adds a simple value field
      */
-    public abstract void putValue(T object, String name, Object value);
+    public void putValue(T object, String name, Object value) {
+        put(object,name,value);
+    }
+
+    /**
+     * Adds a value, object, or array field
+     */
+    public abstract void put(T object, String name, Object value);
 
     /**
      * Creates a new array field
      */
-    public abstract Object newArrayField(T object, String name);
+    public Object newArrayField(T object, String name) {
+        Object arr=newArray();
+        put(object,name,arr);
+        return arr;
+    }
+
+    /**
+     * Creates a new array field
+     */
+    public abstract Object newArray();
+
+    /**
+     * Adds an array element. It should be able to handle nested array
+     * value, object value (of type T), or simple values
+     */
+    public abstract void addArrayElement(Object array,Object value);
 
     /**
      * Adds an element to the array
      */
-    public abstract void addStringToArray(Object array, String value);
+    public  void addStringToArray(Object array, String value) {
+        addArrayElement(array,value);
+    }
 
     /**
      * Adds an element to the array
      */
-    public abstract void addObjectToArray(Object array, Object value);
-
-    public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields);
+    public void addObjectToArray(Object array, Object value) {
+        addArrayElement(array,value);
+    }
 
     /**
      * Convert a projection to T

@@ -21,15 +21,12 @@ package com.redhat.lightblue.metadata;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * Represents arrays and objects.
  */
-public abstract class Field implements FieldTreeNode, Serializable {
-
-    private static final long serialVersionUID = 1l;
+public abstract class Field extends MetadataObject implements FieldTreeNode {
 
     private final String name;
     private String description;
@@ -55,6 +52,7 @@ public abstract class Field implements FieldTreeNode, Serializable {
      * @param source
      */
     public void shallowCopyFrom(Field source) {
+        super.shallowCopyFrom(source);
         setType(source.getType());
         setDescription(source.getDescription());
 
@@ -135,9 +133,6 @@ public abstract class Field implements FieldTreeNode, Serializable {
         return getFullPath(new MutablePath()).immutableCopy();
     }
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
 
     @Override
     public abstract FieldTreeNode resolve(Path p, int level);

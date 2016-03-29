@@ -22,6 +22,7 @@ import com.redhat.lightblue.metadata.DataStore;
 import com.redhat.lightblue.metadata.EntityConstraint;
 import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.HookConfiguration;
+import com.redhat.lightblue.util.DefaultRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class Extensions<T> {
     private final ParserRegistry<T, EntityConstraint> entityConstraintParsers = new ParserRegistry<>();
     private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
     private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<>();
-    private final ParserRegistry<T, Object> propertyParsers = new ParserRegistry<>();
+    private final DefaultRegistry<String, PropertyParser<T>> propertyParsers = new DefaultRegistry<>();
 
     /**
      * Initializes this to include the default extensions
