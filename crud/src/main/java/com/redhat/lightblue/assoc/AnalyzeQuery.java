@@ -188,7 +188,15 @@ public class AnalyzeQuery extends QueryIterator {
                                          ((ArrayElement)trc).getParent() instanceof ResolvedReferenceField ));
         return new NearestCommonNode(null,n);
     }
-    
+
+    /**
+     * This is the function that builds the QueryFieldInfo. Given the
+     * clause field name (the field name as it appears in the clause),
+     * the context (any array references if this is an elem-match
+     * query), and the closest query clause, this function determines
+     * the field metadata, the entity the field is in, and the entity
+     * relative field name of the field, and returns this information in QueryFieldInfo
+     */
     private QueryFieldInfo resolveField(Path clauseFieldName,
                                         Path context,
                                         QueryExpression clause) {

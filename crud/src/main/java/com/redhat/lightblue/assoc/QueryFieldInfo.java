@@ -18,6 +18,8 @@
  */
 package com.redhat.lightblue.assoc;
 
+import java.io.Serializable;
+
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 
@@ -54,7 +56,10 @@ import com.redhat.lightblue.util.Path;
  * <li>clause: {field:'x.y', op:'=',rvalue:<value>}</li>
  * </ul>
  */
-public class QueryFieldInfo {
+public class QueryFieldInfo implements Serializable {
+
+    private static final long serialVersionUID=1l;
+    
     private final Path fieldNameInClause;
     private final Path fullFieldName;
     private final FieldTreeNode fieldMd;
