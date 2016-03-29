@@ -213,7 +213,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public List<JsonNode> getObjectList(JsonNode object) {
+    public List<JsonNode> getObjectList(Object object) {
         Error.push("getObjectList");
         try {
             if (object instanceof ArrayNode) {

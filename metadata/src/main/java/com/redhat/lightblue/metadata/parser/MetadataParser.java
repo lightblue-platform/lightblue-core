@@ -1679,7 +1679,7 @@ public abstract class MetadataParser<T> {
      *
      * @return Object list of all children, or null if there are no children
      */
-    public abstract List<T> getObjectList(T object);
+    public abstract List<T> getObjectList(Object object);
 
     /**
      * Returns the names of the child elements
