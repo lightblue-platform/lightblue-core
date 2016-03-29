@@ -47,7 +47,7 @@ public class PropertyParser<T>  {
     protected Object parseProperty(MetadataParser<T> p,
                                    Object property) {
         switch(p.getType(property)) {
-        case VALUE: return property;
+        case VALUE: return p.getValue(property);
         case LIST:
             ArrayList<Object> resultList=new ArrayList<>();
             List<T> list=p.getObjectList((T)property);
@@ -68,25 +68,23 @@ public class PropertyParser<T>  {
 
     protected Object convertProperty(MetadataParser<T> metadataParser,
                                      Object propertyValue) {
-        switch(metadataParser.getType(propertyValue)) {
-        case VALUE:
-            return propertyValue;
-        case LIST:
+    	if(propertyValue instanceof List) {    		
             Object arr=metadataParser.newArray();
             List<Object> list=(List<Object>)propertyValue;
             for(Object x:list) {
                 metadataParser.addArrayElement(arr,convertProperty(metadataParser,x));
             }
             return arr;
-        case MAP:
+    	} else if(propertyValue instanceof Map) {
             T node=metadataParser.newNode();
             Map<String,Object> map=(Map<String,Object>)propertyValue;
             for(Map.Entry<String,Object> entry:map.entrySet()) {
                 convertProperty(metadataParser,node,entry.getKey(),entry.getValue());
             }
-            return node;
-        }
-        return null;
+            return node;   		
+    	} else {
+            return propertyValue;
+    	}
     }
     
     public void convertProperty(MetadataParser<T> metadataParser,

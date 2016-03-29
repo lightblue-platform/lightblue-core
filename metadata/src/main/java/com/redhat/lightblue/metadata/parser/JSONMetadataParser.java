@@ -30,10 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.redhat.lightblue.metadata.MetadataConstants;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.query.Projection;
@@ -97,6 +94,30 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     @Override
     public JsonNode getObjectProperty(JsonNode object, String name) {
         return object.get(name);
+    }
+
+    @Override
+    public Object getValue(Object value) {
+        if(value instanceof JsonNode) {
+            if(value instanceof NullNode) {
+                return null;
+            } else if(value instanceof BigIntegerNode) {
+                return ((ValueNode)value).bigIntegerValue();
+            } else if(value instanceof BooleanNode) {
+                return ((ValueNode)value).booleanValue();
+            } else if(value instanceof DecimalNode) {
+                return ((ValueNode)value).decimalValue();
+            } else if(value instanceof DoubleNode || value instanceof FloatNode) {
+                return ((ValueNode)value).doubleValue();
+            } else if(value instanceof IntNode) {
+                return ((ValueNode)value).intValue();
+            } else if(value instanceof LongNode) {
+                return ((ValueNode)value).longValue();
+            } else {
+                return ((ValueNode)value).asText();
+            }
+        } else
+            return value;
     }
 
     @Override

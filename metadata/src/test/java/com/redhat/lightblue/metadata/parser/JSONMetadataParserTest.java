@@ -156,8 +156,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue("More than a single property (it should contain just rdbms)", properties.size() == 1);
         Object rdbms = properties.get("rdbms");
         Assert.assertNotNull(rdbms);
-        Assert.assertEquals(42, rdbms);
-        // TODO There is an error in the conversion that does not make the new JSON object equals to the original one. Maybe it is a default value. I checked that it is not related to RDBMS
+        Assert.assertEquals("42",((Map<String,Object>)rdbms).get("answer"));
         JsonNode c = parser.convert(em);
         Assert.assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
     }
