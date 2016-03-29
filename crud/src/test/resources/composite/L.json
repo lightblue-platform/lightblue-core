@@ -5,7 +5,14 @@
             "datasource": "mongodata",
             "collection": "L",
             "backend": "mongo"
-        }
+        },
+        "indexes": [
+            {
+                "fields":[
+                    { "field":"_id","dir":"$asc" }                        
+                  ]
+            }
+        ]
     },
     "schema": {
         "name": "L",

@@ -16,17 +16,22 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.assoc;
+package com.redhat.lightblue.assoc.scorers;
 
-public final class AssocConstants {
+import java.math.BigInteger;
 
-    public static final String ERR_CANNOT_CREATE_CHOOSER="assoc:CannotCreateQueryPlanChooser";
-    public static final String ERR_UNRELATED_ENTITY_Q="assoc:unsupported:QueryForUnrelatedEntities";
-    public static final String ERR_MORE_THAN_TWO_Q="assoc:unsupported:QueryForMoreThanTwoEntities";
-    public static final String ERR_REWRITE="assoc:QueryRewriteError";
-    public static final String ERR_ARRAY_EXPECTED="assoc:ArrayFieldExpected";
-    public static final String ERR_CANNOT_FIND_FIELD="assoc:NoField";
-    public static final String ERR_INVALID_QUERYPLAN="assoc:InvalidQueryPlan";
+class CostAndSize {
+    BigInteger cost=BigInteger.ONE;
+    BigInteger size=BigInteger.ONE;
 
-    private AssocConstants() {}
+    public CostAndSize(BigInteger cost,BigInteger size) {
+        this.cost=cost;
+        this.size=size;
+    }
+
+    public CostAndSize() {}
+    
+    public String toString() {
+        return "cost:"+cost+" size:"+size;
+    }
 }

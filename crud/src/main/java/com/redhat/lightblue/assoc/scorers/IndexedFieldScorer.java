@@ -25,13 +25,17 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redhat.lightblue.metadata.Indexes;
 import com.redhat.lightblue.metadata.Index;
+import com.redhat.lightblue.metadata.CompositeMetadata;
+import com.redhat.lightblue.metadata.Field;
 
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanScorer;
@@ -40,8 +44,10 @@ import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryPlanChooser;
+import com.redhat.lightblue.assoc.AssocConstants;
 
 import com.redhat.lightblue.util.Path;
+import com.redhat.lightblue.util.Error;
 
 /**
  * Query plan scoring based on search clauses on indexed fields. These are the heuristics it uses:
@@ -58,62 +64,20 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
     private static final Logger LOGGER=LoggerFactory.getLogger(IndexedFieldScorer.class);
 
-    private static class Score implements Comparable {
-
-        private BigInteger cost;
-
-        public Score(BigInteger cost) {
-            this.cost=cost;
-        }
-
-        @Override
-        public int compareTo(Object t) {
-            if(t instanceof Score) {
-                return cost.compareTo( ((Score)t).cost);
-            } else
-                throw new IllegalArgumentException("Expecting a score, got "+t);
-        }
-        
-        @Override
-        public boolean equals(Object t) {
-            return compareTo(t)==0;
-        }
-
-        @Override
-        public int hashCode() {
-            return cost.hashCode();
-        }
-
-        public String toString() {
-            return "cost:"+cost;
-        }
-    }
-
     @Override
     public QueryPlanData newDataInstance() {
         return new IndexedFieldScorerData();
     }
-
-    private static class CostAndSize {
-        BigInteger cost=BigInteger.ONE;
-        BigInteger size=BigInteger.ONE;
-
-        public String toString() {
-            return "cost:"+cost+" size:"+size;
-        }
-    }
-
     @Override
     public Comparable score(QueryPlan qp) {
         LOGGER.debug("score begin");
-        
-        // Compute the cost of retrieval up to root node
-        // We get root, and then go backwards from there
+
         QueryPlanNode[] nodes=qp.getAllNodes();
+        QueryPlanNode[] sources=qp.getSources();
         QueryPlanNode root=null;
-        for (QueryPlanNode node: nodes) {
-            if (node.getMetadata().getParent() == null) {
-                root = node;
+        for(QueryPlanNode node:nodes) {
+            if(node.getMetadata().getParent()==null) {
+                root=node;
                 break;
             }
         }
@@ -123,52 +87,69 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             throw new IllegalStateException("Unable to find root metadata");
         }
 
-        CostAndSize rootCost=getAncestorCostAndSize(root);
-        LOGGER.debug("up to root: {}",rootCost);
-        
-        // Evaluation changes after root is retrieved. Any query
-        // evaluation won't affect the result set size, but add to the
-        // cost, because that means we have to manually filter out
-        // results
-
-        BigInteger cost=BigInteger.ONE;
-        for(QueryPlanNode dst:root.getDestinations()) {
-            // If there's a query here, increase the cost based on root size
-            cost=cost.multiply(((IndexedFieldScorerData)dst.getData()).estimatedRootDescendantCost(rootCost.size));
-        }
-        // cost is based on size so far, multiple this by root cost for final cost
-        cost=cost.multiply(rootCost.cost);
-        LOGGER.debug("Final cost:{}",cost);
-        return new Score(cost);
-
-    }
-
-    private CostAndSize getAncestorCostAndSize(QueryPlanNode anc) {
-        CostAndSize incoming=null;
-        for(QueryPlanNode src:anc.getSources()) {
-            CostAndSize acs=getAncestorCostAndSize(src);
-            
-            if(incoming==null)
-                incoming=new CostAndSize();
-            
-            // The input result set size is the join size of all incoming nodes
-            incoming.size=incoming.size.multiply( acs.size );
-            // Add up costs
-            incoming.cost=incoming.cost.add( acs.cost );
-        }
-        CostAndSize cs=new CostAndSize();
-
-        if(incoming!=null) {
-            // We'll run this node incoming.size times
-            cs.cost=incoming.size.multiply( ((IndexedFieldScorerData)anc.getData()).estimatedCost() );
-            cs.size=incoming.size.multiply( ((IndexedFieldScorerData)anc.getData()).estimatedResultSize() );
+        BigInteger finalCost;
+        // If the root entity node is the root node, then there is only the cost of retrieval
+        // Otherwise, the cost of retrieval and cost of query must be considered
+        if(sources.length==1&&sources[0]==root) {            
+            // If the root entity has identity search and the query plan
+            // node for the root entity is at the plan root, then this is
+            // the lowest cost option
+            if( getData(root).isIdentitySearch() ) {
+                finalCost=BigInteger.ZERO;
+            } else {
+                finalCost=computeRetrievalCost(root);
+            }
         } else {
-            cs.cost= ((IndexedFieldScorerData)anc.getData()).estimatedCost();
-            cs.size= ((IndexedFieldScorerData)anc.getData()).estimatedResultSize();
+            // Multiple roots, there is both a query and retrieval phase
+            CostAndSize cs=computeQueryCost(root,qp);
+            // Have to retrieve for every result in query
+            finalCost=cs.cost.add(cs.size);
         }
-        return cs;
+        LOGGER.debug("Final cost:{}",finalCost);
+        return finalCost;
     }
 
+    private BigInteger computeRetrievalCost(QueryPlanNode root) {
+        CostAndSize cs=getData(root).getCostAndSize();
+        BigInteger cost=cs.cost;
+        // Compute cost to retrieve destination nodes
+        for(QueryPlanNode dest:root.getDestinations()) {
+            cost=cost.add(cs.size.multiply(computeRetrievalCost(dest)));
+        }
+        return cost;
+    }
+
+    private CostAndSize computeQueryCost(QueryPlanNode root,QueryPlan qp) {
+        // Compute cost to retrieve source nodes
+        QueryPlanNode[] sources=root.getSources();
+        BigInteger cost=BigInteger.ONE;
+        if(sources!=null&&sources.length>0) {
+            // There is a join, that means, the result set size is a product of sources
+            BigInteger size=BigInteger.ONE;
+            BigInteger sourceCost=BigInteger.ZERO;
+            BigInteger totalAssociationCost=BigInteger.ZERO;
+            for(QueryPlanNode source:sources) {
+            	CostAndSize src=computeQueryCost(source,qp);
+            	sourceCost=sourceCost.add(src.cost);
+                size=size.multiply(src.size);
+                // If there is an edge query with a usable index, the cost is low
+                // Otherwise, the cost is dependent on the node query only
+                // We'll assume that if there is an edge query, that is an efficient query
+                BigInteger associationCost=getData(root).getCostAndSize().cost;
+                QueryPlanData edgeData=qp.getEdgeData(root,source);
+                if(edgeData!=null) {
+                    List<Conjunct> conjuncts=edgeData.getConjuncts();
+                    if(conjuncts!=null&&!conjuncts.isEmpty()) {
+                        associationCost=IndexedFieldScorerData.estimateCost(false,true,true).min(associationCost);
+                    } 
+                }
+                totalAssociationCost=totalAssociationCost.add(associationCost);
+            }
+            cost=totalAssociationCost.multiply(size);
+            cost=cost.add(sourceCost);
+        }
+        return new CostAndSize(cost,getData(root).getCostAndSize().size);
+    }
 
     @Override
     public void reset(QueryPlanChooser c) {
@@ -179,25 +160,52 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
             if (!(node.getData() instanceof IndexedFieldScorerData)) {
                 throw new IllegalStateException("Expected instance of " + IndexedFieldScorerData.class.getName() + " but got: " + node.getData().getClass().getName());
             }
-            IndexedFieldScorerData data=(IndexedFieldScorerData)node.getData();
-            data.setRootNode(node.getMetadata().getParent()==null);
+            IndexedFieldScorerData data=getData(node);
+            CompositeMetadata md=node.getMetadata();
+            data.setRootNode(md.getParent()==null);
+            Field[] identities=md.getEntitySchema().getIdentityFields();
+            if(identities!=null&&identities.length>0) {
+                List<Path> idFields=new ArrayList<Path>(identities.length);
+                for(Field f:identities)
+                    idFields.add(md.getEntityRelativeFieldName(f));
+                Map<Index,Set<Path>> idIndexes=md.getEntityInfo().getIndexes().getUsefulIndexes(idFields);
+                for(Map.Entry<Index,Set<Path>> s:idIndexes.entrySet()) {
+                    if(s.getValue().size()==idFields.size()  ) {
+                        data.setIdIndex(s.getKey());
+                        break;
+                    }
+                }
+                data.setIdFields(idFields);
+            }
+            
             Set<Path> indexableFields=new HashSet<>();
-            Indexes indexes=null;
             for(Conjunct cj:data.getConjuncts()) {
                 List<QueryFieldInfo> cjFields=cj.getFieldInfo();
                 // If conjunct has one field, index can be used to retrieve it
                 if(cjFields.size()==1) {
                     indexableFields.add(cjFields.get(0).getEntityRelativeFieldNameWithContext());
-                    indexes=cjFields.get(0).getFieldEntity().getEntityInfo().getIndexes();
                 }
             }
             data.setIndexableFields(indexableFields);
-            if(indexes!=null) 
-                data.setIndexMap(indexes.getUsefulIndexes(indexableFields));
-            else
+            if(md.getEntityInfo().getIndexes()!=null) {
+                data.setIndexMap(md.getEntityInfo().getIndexes().getUsefulIndexes(indexableFields));
+                Index idIndex=data.getIdIndex();
+                if(idIndex!=null) {
+                    Set<Path> usefulness=idIndex.getUsefulness(indexableFields);
+                    if(usefulness.size()==idIndex.getFields().size())
+                        data.setIdentitySearch(true);
+                }
+            } else
                 data.setIndexMap(new HashMap<Index,Set<Path>>());
             LOGGER.debug("Node data for node {} is {}",node.getName(),data);
         }
     }
 
+    private IndexedFieldScorerData getData(QueryPlanNode node) {
+        try {
+            return (IndexedFieldScorerData)node.getData();
+        } catch (ClassCastException e) {
+            throw Error.get(AssocConstants.ERR_INVALID_QUERYPLAN);
+        }
+    }
 }

@@ -329,6 +329,10 @@ public class EntitySchema implements Serializable {
         return -1;
     }
 
+    /**
+     * Returns the identity fields for this entity. It does not
+     * descend down the relations. 
+     */
     public Field[] getIdentityFields() {
         FieldCursor cursor = getFieldCursor();
         TreeMap<Path, Field> fieldMap = new TreeMap<>();

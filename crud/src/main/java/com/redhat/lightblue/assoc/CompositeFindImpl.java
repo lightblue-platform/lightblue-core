@@ -213,8 +213,8 @@ public class CompositeFindImpl implements Finder {
             if(searchQPlan==null) {
                 // Search and retrieve
                 retrievalQPlan=new QueryPlanChooser(root,
-                                                    new BruteForceQueryPlanIterator(),
-                                                    new IndexedFieldScorer(),
+                                                    new First(),
+                                                    new SimpleScorer(),
                                                     requestQuery,
                                                     null).choose();
             } else {
