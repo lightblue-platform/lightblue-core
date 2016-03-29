@@ -208,8 +208,10 @@ public class QueryPlanChooser {
                     break;
 
                 case 2:
-                    // There are two or more entities referred to in the conjunct
-                    // This clause can be associated with an edge
+                    // There are two entities referred to in the conjunct
+                    // This clause can be associated with the edge between those two entities.
+                    // If the two entities are not associated, then the conjunct goes into the
+                    // unassigned queries list.
                     Iterator<CompositeMetadata> itr=entities.iterator();
                     QueryPlanNode node1=qplan.getNode(itr.next());
                     QueryPlanNode node2=qplan.getNode(itr.next());

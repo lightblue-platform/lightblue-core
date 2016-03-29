@@ -94,7 +94,7 @@ public class RewriteQuery extends QueryIterator {
      * Construct a class to rewrite queries to retrieve an entity, potentially evaluated at another entity
      *
      * @param root The root entity
-     * @param correntEntity The query will be rewritten relative to this entity
+     * @param currentEntity The query will be rewritten relative to this entity
      *
      * The root entity is the entity that will be retrieved
      * ultimately. That entity may contain associations to other
