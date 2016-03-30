@@ -18,10 +18,6 @@
  */
 package com.redhat.lightblue.assoc;
 
-import java.util.ArrayList;
-
-import com.redhat.lightblue.query.Value;
-
 /**
  * Interface definition for BoundObject
  */

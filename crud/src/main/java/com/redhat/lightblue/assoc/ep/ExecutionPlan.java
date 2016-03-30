@@ -32,17 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.Projection;
 import com.redhat.lightblue.query.FieldProjection;
 import com.redhat.lightblue.query.ProjectionList;
 import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
-
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.metadata.ObjectField;
@@ -56,13 +50,11 @@ import com.redhat.lightblue.metadata.FieldCursor;
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Conjunct;
-import com.redhat.lightblue.assoc.RewriteQuery;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryFieldInfo;
 
 import com.redhat.lightblue.eval.SortFieldInfo;
 
-import com.redhat.lightblue.util.JsonUtils;
 import com.redhat.lightblue.util.Path;
 
 /**
@@ -144,8 +136,6 @@ public class ExecutionPlan {
                 entry.getValue().addSourceBlock(qp2BlockMap.get(source));
         }
 
-        boolean sorted=false;
-        boolean limited=false;
         if(searchQueryPlan!=null) {
             LOGGER.debug("Building execution plan from search query plan:{}",searchQueryPlan);
             List<Conjunct> unassigned=searchQueryPlan.getUnassignedClauses();
@@ -195,11 +185,9 @@ public class ExecutionPlan {
                             // We can sort/limit here
                             search.setLimit(from,to);
                             search.setSort(requestSort);
-                            sorted=limited=true;
                         } else {
                             // There are unassigned clauses. We can sort during search, but we can't do filter or limit
                             search.setSort(requestSort);
-                            sorted=true;
                         }
                     } else {
                         // Root is not the only source
@@ -210,7 +198,6 @@ public class ExecutionPlan {
                         // Sort the results
                         if(requestSort!=null) {
                             last=new Source<>(new SortResults(block,last,requestSort));
-                            sorted=true;
                         }
                         if(from!=null)
                             last=new Source<>(new Skip(block,from.intValue(),last));
@@ -269,18 +256,15 @@ public class ExecutionPlan {
                         // We can sort/limit here
                         search.setLimit(from,to);
                         search.setSort(requestSort);
-                        sorted=limited=true;
                     } else {
                         // There are unassigned clauses. We can sort during search, but we have to filter and limit
                         search.setSort(requestSort);
-                        sorted=true;
                         Filter f=new Filter(block,new Source<>(search),getFilterQuery(unassigned));
                         last=new Source<>(f);
                         if(from!=null)
                             last=new Source<>(new Skip(block,from.intValue(),last));
                         if(to!=null)
                             last=new Source<>(new Limit(block,to.intValue()-from.intValue()+1,last));
-                        limited=true;
                     }
                 }
                 search.recordResultSetSize(true);

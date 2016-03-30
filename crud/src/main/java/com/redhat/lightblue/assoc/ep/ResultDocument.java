@@ -20,7 +20,6 @@ import com.redhat.lightblue.util.Tuples;
 
 import com.redhat.lightblue.query.Value;
 
-import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.Binder;
 import com.redhat.lightblue.assoc.BindQuery;
 import com.redhat.lightblue.assoc.BoundObject;
@@ -165,7 +164,7 @@ public class ResultDocument {
     public List<BindQuery> getBindersForParent(AssociationQuery parentAq) {
         List<BindQuery> ret=new ArrayList<>();
         if(parentAq.getQuery()!=null) {
-            Tuples<Binder> binderTuple=new Tuples();
+            Tuples<Binder> binderTuple=new Tuples<>();
            
             for(BoundObject bo:parentAq.getFieldBindings()) {
                 Path field=bo.getFieldInfo().getEntityRelativeFieldNameWithContext();

@@ -386,7 +386,7 @@ public class Mediator {
         LOGGER.debug("Query:{} projection:{}",freq.getQuery(),freq.getProjection());
         
         OperationContext findCtx=new OperationContext(freq,CRUDOperation.FIND,ctx);
-        CompositeFindImpl finder=new CompositeFindImpl(md,factory);
+        CompositeFindImpl finder=new CompositeFindImpl(md);
         finder.setParallelism(9);
         CRUDFindResponse response=finder.find(findCtx,freq.getCRUDFindRequest());
         List<JsonDoc> docs=findCtx.getOutputDocumentsWithoutErrors();
@@ -447,7 +447,7 @@ public class Mediator {
                     finder=new SimpleFindImpl(md,factory);
                 } else {
                     LOGGER.debug("Composite entity");
-                    finder=new CompositeFindImpl(md,factory);
+                    finder=new CompositeFindImpl(md);
                     // This can be read from a configuration
                     ((CompositeFindImpl)finder).setParallelism(9);
                 }

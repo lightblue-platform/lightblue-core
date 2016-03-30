@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
-import com.redhat.lightblue.assoc.Binder;
 import com.redhat.lightblue.assoc.BindQuery;
 
 import com.redhat.lightblue.eval.QueryEvaluator;
@@ -144,7 +143,6 @@ public final class Searches {
         if(!childDocs.isEmpty()) {
             LOGGER.debug("Associating docs");
             ExecutionBlock childBlock=childDocs.get(0).getBlock();
-            ExecutionBlock parentBlock=parentDoc.getBlock();            
             ArrayNode destNode=(ArrayNode)parentDoc.getDoc().get(parentSlot.getSlotFieldName()); 
             BindQuery binders=parentDoc.getBindersForSlot(parentSlot,aq);
             // No binders means all child docs will be added to the parent            

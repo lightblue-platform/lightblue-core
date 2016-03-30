@@ -18,34 +18,12 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import java.util.stream.Stream;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
-
-import com.redhat.lightblue.mediator.Finder;
-import com.redhat.lightblue.mediator.OperationContext;
-import com.redhat.lightblue.mediator.SimpleFindImpl;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
-import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.DocCtx;
-
-import com.redhat.lightblue.assoc.Conjunct;
 
 /**
  * Performs search for doc retrieval. Provides the 'setQuery' API to

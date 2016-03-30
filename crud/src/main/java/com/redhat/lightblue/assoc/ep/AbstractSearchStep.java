@@ -21,8 +21,6 @@ package com.redhat.lightblue.assoc.ep;
 import java.util.List;
 import java.util.ArrayList;
 
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +40,6 @@ import com.redhat.lightblue.mediator.SimpleFindImpl;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.DocCtx;
-
 import com.redhat.lightblue.assoc.Conjunct;
 
 /**

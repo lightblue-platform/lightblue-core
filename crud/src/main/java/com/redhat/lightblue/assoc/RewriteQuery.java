@@ -26,13 +26,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
-import com.redhat.lightblue.metadata.FieldTreeNode;
-import com.redhat.lightblue.metadata.ArrayElement;
-
 import com.redhat.lightblue.query.*;
 
 import com.redhat.lightblue.util.Path;
-import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.CopyOnWriteIterator;
 
@@ -50,11 +46,6 @@ import com.redhat.lightblue.util.CopyOnWriteIterator;
  */
 public class RewriteQuery extends QueryIterator {
 
-    /**
-     * The root composite metadata
-     */
-    private final CompositeMetadata root;
-    
     /**
      * The entity for which the query is being rewritten
      */
@@ -105,7 +96,6 @@ public class RewriteQuery extends QueryIterator {
      */
     public RewriteQuery(CompositeMetadata root,
                         CompositeMetadata currentEntity) {
-        this.root=root;
         this.currentEntity=currentEntity;
     }
 
@@ -141,10 +131,6 @@ public class RewriteQuery extends QueryIterator {
          */
         public RewriteQueryImpl(List<QueryFieldInfo> fieldInfo) {
             this.fieldInfo=fieldInfo;
-        }
-        
-        public List<BoundObject> getBindings() {
-            return bindings;
         }
         
         /**

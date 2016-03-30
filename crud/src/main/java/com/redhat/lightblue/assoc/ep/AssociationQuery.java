@@ -11,8 +11,6 @@ import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.RewriteQuery;
 
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.NaryLogicalExpression;
-import com.redhat.lightblue.query.NaryLogicalOperator;
 
 /**
  * Keeps an edge query along with its binding information. 

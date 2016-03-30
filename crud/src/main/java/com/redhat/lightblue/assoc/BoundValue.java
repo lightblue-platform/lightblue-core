@@ -29,7 +29,9 @@ import com.redhat.lightblue.query.Value;
  * BoundValue with the actual value.
  */
 public class BoundValue extends Value implements BoundObject {
-    protected final QueryFieldInfo fieldInfo;
+	private static final long serialVersionUID = 1L;
+	
+	protected final QueryFieldInfo fieldInfo;
 
     public BoundValue(QueryFieldInfo fieldInfo) {
         super(null);

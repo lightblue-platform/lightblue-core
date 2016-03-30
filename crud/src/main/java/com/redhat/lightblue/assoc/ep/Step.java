@@ -18,8 +18,6 @@
  */
 package com.redhat.lightblue.assoc.ep;
 
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 import com.redhat.lightblue.util.JsonUtils;

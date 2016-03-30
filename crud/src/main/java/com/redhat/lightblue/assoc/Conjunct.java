@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
@@ -48,8 +45,6 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 public class Conjunct implements Serializable {
 
     private static final long serialVersionUID=1l;
-    
-    private static final Logger LOGGER=LoggerFactory.getLogger(Conjunct.class);
     
     /**
      * The original query clause

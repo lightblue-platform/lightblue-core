@@ -20,12 +20,6 @@ package com.redhat.lightblue.assoc.ep;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -34,25 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redhat.lightblue.query.QueryExpression;
-import com.redhat.lightblue.query.Projection;
-import com.redhat.lightblue.query.Sort;
-import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
-import com.redhat.lightblue.mediator.Finder;
 import com.redhat.lightblue.mediator.OperationContext;
-import com.redhat.lightblue.mediator.SimpleFindImpl;
-
 import com.redhat.lightblue.crud.CRUDFindRequest;
-import com.redhat.lightblue.crud.CRUDFindResponse;
-import com.redhat.lightblue.crud.DocCtx;
-
-import com.redhat.lightblue.assoc.Conjunct;
-import com.redhat.lightblue.assoc.QueryPlanNode;
-import com.redhat.lightblue.assoc.BindQuery;
-import com.redhat.lightblue.assoc.Binder;
-
-import com.redhat.lightblue.util.Tuples;
 
 /**
  * Performs searches based on the n-tuple of result documents obtained from the source steps
@@ -83,7 +62,7 @@ public class JoinSearch extends AbstractSearchStep {
         private List<JoinTuple> jtBatch;;
         private List<QueryExpression> qBatch;
         private final ExecutionContext ctx;
-        private List<ResultDocument> docs=new ArrayList();
+        private List<ResultDocument> docs=new ArrayList<>();
         
         public BatchQueryExecutor(int batchSize,ExecutionContext ctx) {
             this.batchSize=batchSize;

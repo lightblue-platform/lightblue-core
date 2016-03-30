@@ -31,7 +31,9 @@ import com.redhat.lightblue.query.Value;
  * BoundList with the actual value.
  */
 public class BoundList extends ArrayList<Value> implements BoundObject {
-    protected final QueryFieldInfo fieldInfo;
+	private static final long serialVersionUID = 1L;
+	
+	protected final QueryFieldInfo fieldInfo;
     
     public BoundList(QueryFieldInfo fieldInfo) {
         this.fieldInfo=fieldInfo;

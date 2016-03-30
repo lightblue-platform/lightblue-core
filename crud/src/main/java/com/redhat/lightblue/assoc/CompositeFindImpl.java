@@ -31,7 +31,6 @@ import com.redhat.lightblue.query.QueryExpression;
 
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.CRUDFindRequest;
-import com.redhat.lightblue.crud.Factory;
 import com.redhat.lightblue.crud.DocCtx;
 
 import com.redhat.lightblue.metadata.CompositeMetadata;
@@ -72,7 +71,7 @@ public class CompositeFindImpl implements Finder {
     private static final Logger LOGGER=LoggerFactory.getLogger(CompositeFindImpl.class);
     
     private final CompositeMetadata root;
-    private final Factory factory;
+    
 
     // Instance state data. This class is meant to be thrown away after used once.
 
@@ -89,10 +88,8 @@ public class CompositeFindImpl implements Finder {
     private transient ExecutionPlan executionPlan;
     private int parallelism=1;
 
-    public CompositeFindImpl(CompositeMetadata md,
-                             Factory factory) {
+    public CompositeFindImpl(CompositeMetadata md) {
         this.root=md;
-        this.factory=factory;
     }
 
     /**

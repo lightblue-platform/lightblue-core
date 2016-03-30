@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.Iterator;
 
-import com.redhat.lightblue.crud.CrudConstants;
-import com.redhat.lightblue.metadata.MetadataConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
