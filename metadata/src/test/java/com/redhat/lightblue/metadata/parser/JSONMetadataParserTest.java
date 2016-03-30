@@ -629,4 +629,27 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertEquals("seq",props.get("name").asText());
         Assert.assertEquals("1000",props.get("initialValue").asText());
     }
+
+    @Test
+    public void testProperties() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-properties.json");
+        EntitySchema em = parser.parseEntitySchema(object);
+        List<Integer> list=(List<Integer>)em.getAccess().getProperties().get("accessProperty");
+        Assert.assertEquals(list.size(),5);
+        Assert.assertTrue(list.contains(new Integer(1)));
+        Assert.assertTrue(list.contains(new Integer(2)));
+        Assert.assertTrue(list.contains(new Integer(3)));
+        Assert.assertTrue(list.contains(new Integer(4)));
+        Assert.assertTrue(list.contains(new Integer(5)));
+
+        SimpleField field=(SimpleField)em.resolve(new Path("name"));
+        Assert.assertEquals("y",(String)((Map<String,Object>)field.getProperties().get("nameProperty")).get("x"));
+
+        field=(SimpleField)em.resolve(new Path("customerType"));
+        Assert.assertEquals(new Integer(1),(Integer)((Map<String,Object>)field.getProperties()).get("customerTypeProperty"));
+
+        Map<String,Object> scp=(Map<String,Object>)em.getProperties().get("schemaProperty");
+        Map<String,Object> scpa=(Map<String,Object>)scp.get("a");
+        Assert.assertEquals("c",(String)scpa.get("b"));
+    }
 }
