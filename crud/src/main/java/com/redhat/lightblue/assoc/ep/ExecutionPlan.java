@@ -88,8 +88,6 @@ public class ExecutionPlan {
 
     static private final Logger LOGGER=LoggerFactory.getLogger(ExecutionPlan.class);
     
-    private final CompositeMetadata rootMd;
-
     private Step<ResultDocument> resultStep;
 
     /**
@@ -115,7 +113,6 @@ public class ExecutionPlan {
                          CompositeMetadata rootMd,
                          QueryPlan searchQueryPlan,
                          QueryPlan retrievalQueryPlan) {
-        this.rootMd=rootMd;
         
         // First, create execution blocks for every node in the search and
         // retrieval plans. We keep a map of query plan nodes to execution
