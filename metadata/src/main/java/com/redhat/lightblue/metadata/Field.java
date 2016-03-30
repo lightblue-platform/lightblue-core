@@ -33,7 +33,6 @@ public abstract class Field extends MetadataObject implements FieldTreeNode {
     private Type type;
     private final FieldAccess access = new FieldAccess();
     private final List<FieldConstraint> constraints = new ArrayList<>();
-    private final Map<String, Object> properties = new HashMap<>();
 
     private FieldTreeNode parent;
 

@@ -809,8 +809,6 @@ public abstract class MetadataParser<T> {
         return names.iterator().next();
     }
 
-    private static final Set<String> FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS);
-    
     private Field parseField(String name, T object) {
         Field field;
         Error.push(name);
@@ -835,7 +833,6 @@ public abstract class MetadataParser<T> {
                         getObjectProperty(object, STR_ACCESS));
                 parseFieldConstraints(field,
                         getObjectProperty(object, STR_CONSTRAINTS));
-                parseProperties(field,object,FIELD_ELEMENTS);
 
             } else {
                 field = null;
@@ -853,6 +850,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    private static final Set<String> SIMPLE_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_VALUE_GENERATOR);
+    
     private SimpleField parseSimpleField(String name,
                                          String type,
                                          T object) {
@@ -866,10 +865,13 @@ public abstract class MetadataParser<T> {
         T vg=getObjectProperty(object,STR_VALUE_GENERATOR);
         if(vg!=null)
             field.setValueGenerator(parseValueGenerator(vg));
+        parseProperties(field,object,SIMPLE_FIELD_ELEMENTS);
 
         return field;
     }
 
+    private static final Set<String> REFERENCE_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_ENTITY,STR_VERSION_VALUE,STR_PROJECTION,STR_QUERY,STR_SORT);
+    
     private ReferenceField parseReferenceField(String name,
             T object) {
         ReferenceField field = new ReferenceField(name);
@@ -878,21 +880,26 @@ public abstract class MetadataParser<T> {
         field.setProjection(getProjection(object, STR_PROJECTION));
         field.setQuery(getQuery(object, STR_QUERY));
         field.setSort(getSort(object, STR_SORT));
+        parseProperties(field,object,REFERENCE_FIELD_ELEMENTS);
 
         return field;
     }
 
-    private ObjectField parseObjectField(String name, T object) {
+    private static final Set<String> OBJECT_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_FIELDS);
+   private ObjectField parseObjectField(String name, T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
         parseFields(field.getFields(), fields);
+        parseProperties(field,object,OBJECT_FIELD_ELEMENTS);
         return field;
     }
 
+    private static final Set<String> ARRAY_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_ITEMS);
     private ArrayField parseArrayField(String name, T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, STR_ITEMS);
         field.setElement(parseArrayItem(items));
+        parseProperties(field,object,ARRAY_FIELD_ELEMENTS);
         return field;
     }
 
@@ -1537,18 +1544,6 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Returns a string child property
-     *
-     * @param object The object containing the property
-     * @param name Name of the property to return
-     *
-     * If the property is not a string, should throw exception
-     *
-     * @return The string property requested, or null if property does not exist
-     */
-    public abstract String getStringProperty(T object, String name);
-
-    /**
      * Returns a string child property, fail if the child property is not found.
      *
      * @param object The object containing the property
@@ -1579,18 +1574,6 @@ public abstract class MetadataParser<T> {
             Error.pop();
         }
     }
-
-    /**
-     * Returns an object child property
-     *
-     * @param object The object containing the property
-     * @param name Name of the property to return
-     *
-     * If the property is not an object, should throw an exception
-     *
-     * @return The property requested, or null if property does not exist
-     */
-    public abstract T getObjectProperty(T object, String name);
 
     /**
      * Returns an object child property, fail if the child property is not
@@ -1625,14 +1608,36 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public static enum PropertyType { VALUE, LIST, MAP, NULL };
-
-
     /**
-     * Returns whether the object is a list, map, or value
+     * Returns a string child property
+     *
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not a string, should throw exception
+     *
+     * @return The string property requested, or null if property does not exist
      */
-    public abstract PropertyType getType(Object object);
-        
+    public String getStringProperty(T object, String name) {
+        Object x=asValue(getMapProperty(object,name));
+        return x==null?null:x.toString();
+    }
+    
+    
+    /**
+     * Returns an object child property
+     *
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not an object, should throw an exception
+     *
+     * @return The property requested, or null if property does not exist
+     */
+    public  T getObjectProperty(T object, String name) {
+        return getMapProperty(object,name);
+    }
+
 
     /**
      * Returns a property that is a simple value
@@ -1645,13 +1650,11 @@ public abstract class MetadataParser<T> {
      * @return The property value requested (String, Number, Boolean, etc), or
      * null if property does not exist
      */
-    public abstract Object getValueProperty(T object, String name);
+    public Object getValueProperty(T object, String name) {
+        return asValue(getMapProperty(object,name));
+    }
 
-    /**
-     * Convert the given value to java object
-     */
-    public abstract Object getValue(Object value);
-
+    
     /**
      * Returns a string list child property
      *
@@ -1660,7 +1663,19 @@ public abstract class MetadataParser<T> {
      *
      * @return The string list property, or null if property does not exist
      */
-    public abstract List<String> getStringList(T object, String name);
+    public List<String> getStringList(T object, String name) {
+        T list=getMapProperty(object,name);
+        if(list!=null) {
+            int n=getListSize(list);
+            List<String> ret=new ArrayList<>(n);
+            for(int i=0;i<n;i++) {
+            	Object x=asValue(getListElement(list,i));
+                ret.add(x==null?null:x.toString());
+            }
+            return ret;
+        }
+        return null;
+    }
 
     /**
      * Returns an object list of child property
@@ -1670,16 +1685,21 @@ public abstract class MetadataParser<T> {
      *
      * @return Object list property, or null if property does not exist
      */
-    public abstract List<T> getObjectList(T object, String name);
+    public List<T> getObjectList(T object, String name) {
+        return getObjectList(getMapProperty(object,name));
+    }
 
-    /**
-     * Returns an object list of all children
-     *
-     * @param object The parent object.
-     *
-     * @return Object list of all children, or null if there are no children
-     */
-    public abstract List<T> getObjectList(Object object);
+    public List<T> getObjectList(T object) {
+        if(object!=null) {
+            int n=getListSize(object);
+            List<T> ret=new ArrayList<>(n);
+            for(int i=0;i<n;i++) {
+                ret.add(getListElement(object,i));
+            }
+            return ret;
+        }
+        return null;
+    }
 
     /**
      * Returns the names of the child elements
@@ -1688,7 +1708,9 @@ public abstract class MetadataParser<T> {
      *
      * @return The names of child elements
      */
-    public abstract Set<String> getChildNames(T object);
+    public Set<String> getChildNames(T object) {
+        return getMapPropertyNames(object);
+    }
 
     /**
      * Parse and return a projection
@@ -1705,10 +1727,13 @@ public abstract class MetadataParser<T> {
      */
     public abstract Sort getSort(T object, String name);
 
+
     /**
      * Creates a new node
      */
-    public abstract T newNode();
+    public  T newNode() {
+        return newMap();
+    }
 
     /**
      * Adds a new string field to the object.
@@ -1721,53 +1746,38 @@ public abstract class MetadataParser<T> {
      * Adds a new object field to the object.
      */
     public void putObject(T object, String name, Object value) {
-        put(object,name,value);
+        setMapProperty(object,name,asRepresentation(value));
     }
 
     /**
      * Adds a simple value field
      */
     public void putValue(T object, String name, Object value) {
-        put(object,name,value);
+        setMapProperty(object,name,asRepresentation(value));
     }
-
-    /**
-     * Adds a value, object, or array field
-     */
-    public abstract void put(T object, String name, Object value);
-
+    
+    
     /**
      * Creates a new array field
      */
     public Object newArrayField(T object, String name) {
-        Object arr=newArray();
-        put(object,name,arr);
+        T arr=newList();
+        setMapProperty(object,name,arr);
         return arr;
     }
-
-    /**
-     * Creates a new array field
-     */
-    public abstract Object newArray();
-
-    /**
-     * Adds an array element. It should be able to handle nested array
-     * value, object value (of type T), or simple values
-     */
-    public abstract void addArrayElement(Object array,Object value);
 
     /**
      * Adds an element to the array
      */
     public  void addStringToArray(Object array, String value) {
-        addArrayElement(array,value);
+        addListElement((T)array,asRepresentation(value));
     }
 
     /**
      * Adds an element to the array
      */
     public void addObjectToArray(Object array, Object value) {
-        addArrayElement(array,value);
+        addListElement((T)array,asRepresentation(value));
     }
 
     /**
@@ -1784,5 +1794,76 @@ public abstract class MetadataParser<T> {
      * Convert a sort to T
      */
     public abstract void putSort(T object,String name,Sort s);
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // The above abstract methods were added based on need, and they sufffer badly from a strict top-down approach.
+    // There are multiple methods that do the same thing, and there are missing methods for crucial functionaloty.
+    // Don't use them. Use the ones below. 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+
+    public static enum PropertyType { VALUE, LIST, MAP, NULL };
+
+
+    /**
+     * Creates a new map object. The returned object can be placed in another map, or a list
+     */
+    public abstract T newMap();
+
+    /**
+     * Returns the value of a property in a map. The returned value is a  value, a map, or a list.
+     */
+    public abstract T getMapProperty(T map,String name);
+
+    /**
+     * Returns the property names of a map
+     */
+    public abstract Set<String> getMapPropertyNames(T map);
+
+    /**
+     * Sets a property of a map. The value is a java value, a map, or a list.
+     */
+    public abstract void setMapProperty(T map,String name,T value);
+
+
+    /**
+     * Creates a new list object, and returns it
+     */
+    public abstract T newList();
+
+    /**
+     * Returns list size
+     */
+    public abstract int getListSize(T list);
+
+    /**
+     * Returns a list element
+     */
+    public abstract T getListElement(T list,int n);
+
+    /**
+     * Adds a list element. The element is a value, map, or list.
+     */
+    public abstract void addListElement(T list,T element);
+
+
+    /**
+     * Returns a Java value of a value
+     */
+    public abstract Object asValue(T value);
+
+    /**
+     * Converts a java value to its representation
+     */
+    public abstract T asRepresentation(Object value);
+
+    
+    /**
+     * Returns whether the object is a list, map, or value
+     */
+    public abstract PropertyType getType(T object);
+        
+
+
 
 }

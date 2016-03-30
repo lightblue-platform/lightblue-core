@@ -51,202 +51,20 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public MetadataParser.PropertyType getType(Object object) {
-        if(object instanceof ArrayNode) {
-            return MetadataParser.PropertyType.LIST;
-        } else if(object instanceof ObjectNode) {
-            return MetadataParser.PropertyType.MAP;
-        } else if(object==null||object instanceof NullNode) {
-            return MetadataParser.PropertyType.NULL;
-        } else {
-            return MetadataParser.PropertyType.VALUE;
-        }
-    }
-    
-    @Override
-    public String getStringProperty(JsonNode object, String name) {
-        Error.push(name);
-        try {
-            JsonNode x = object.get(name);
-            if (x != null) {
-                if (x.isContainerNode()) {
-                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
-                } else if (x instanceof com.fasterxml.jackson.databind.node.NullNode) {
-                    return null;
-                } else {
-                    return x.asText();
-                }
-            } else {
-                return null;
-            }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    @Override
-    public JsonNode getObjectProperty(JsonNode object, String name) {
-        return object.get(name);
-    }
-
-    @Override
-    public Object getValue(Object value) {
-        if(value instanceof JsonNode) {
-            if(value instanceof NullNode) {
-                return null;
-            } else if(value instanceof BigIntegerNode) {
-                return ((ValueNode)value).bigIntegerValue();
-            } else if(value instanceof BooleanNode) {
-                return ((ValueNode)value).booleanValue();
-            } else if(value instanceof DecimalNode) {
-                return ((ValueNode)value).decimalValue();
-            } else if(value instanceof DoubleNode || value instanceof FloatNode) {
-                return ((ValueNode)value).doubleValue();
-            } else if(value instanceof IntNode) {
-                return ((ValueNode)value).intValue();
-            } else if(value instanceof LongNode) {
-                return ((ValueNode)value).longValue();
-            } else {
-                return ((ValueNode)value).asText();
-            }
-        } else
-            return value;
-    }
-
-    @Override
-    public Object getValueProperty(JsonNode object, String name) {
-        Error.push(name);
-        try {
-            JsonNode x = object.get(name);
-            if (x != null) {
-                if (x.isValueNode()) {
-                    if (x.isNumber()) {
-                        return x.numberValue();
-                    } else if (x.isBoolean()) {
-                        return x.booleanValue();
-                    } else {
-                        return x.asText();
-                    }
-                } else {
-                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
-                }
-            } else {
-                return null;
-            }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    @Override
-    public List<String> getStringList(JsonNode object, String name) {
-        Error.push(name);
-        try {
-            JsonNode x = object.get(name);
-            if (x != null) {
-                if (x instanceof ArrayNode) {
-                    ArrayList<String> ret = new ArrayList<>();
-                    for (Iterator<JsonNode> itr = ((ArrayNode) x).elements(); itr.hasNext();) {
-                        ret.add(itr.next().asText());
-                    }
-                    return ret;
-                } else {
-                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
-                }
-            } else {
-                return null;
-            }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    @Override
-    public List<JsonNode> getObjectList(JsonNode object, String name) {
-        Error.push(name);
-        try {
-            JsonNode x = object.get(name);
-            if (x != null) {
-                if (x instanceof ArrayNode) {
-                    ArrayList<JsonNode> ret = new ArrayList<>();
-                    for (Iterator<JsonNode> itr = ((ArrayNode) x).elements(); itr.hasNext();) {
-                        ret.add(itr.next());
-                    }
-                    return ret;
-                } else {
-                    throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, name);
-                }
-            } else {
-                return null;
-            }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    @Override
-    public List<JsonNode> getObjectList(Object object) {
-        Error.push("getObjectList");
-        try {
-            if (object instanceof ArrayNode) {
-                ArrayList<JsonNode> ret = new ArrayList<>();
-                for (Iterator<JsonNode> itr = ((ArrayNode) object).elements(); itr.hasNext();) {
-                    ret.add(itr.next());
-                }
-                return ret;
-            } else {
-                return null;
-            }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    @Override
-    public ObjectNode newNode() {
+    public JsonNode newMap() {
         return factory.objectNode();
     }
 
     @Override
-    public Set<String> getChildNames(JsonNode object) {
-        if (object instanceof ObjectNode) {
+    public JsonNode getMapProperty(JsonNode map,String name) {
+        return ((ObjectNode)map).get(name);
+    }
+
+    @Override
+    public Set<String> getMapPropertyNames(JsonNode map) {
+        if (map instanceof ObjectNode) {
             HashSet<String> names = new HashSet<>();
-            for (Iterator<String> itr = ((ObjectNode) object).fieldNames(); itr.hasNext();) {
+            for (Iterator<String> itr = ((ObjectNode) map).fieldNames(); itr.hasNext();) {
                 names.add(itr.next());
             }
             return names;
@@ -254,13 +72,58 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
             return new HashSet<>();
         }
     }
-  
+
     @Override
-    public void put(JsonNode object, String name, Object value) {
-        ((ObjectNode)object).set(name,toJsonNode(value));
+    public void setMapProperty(JsonNode map,String name,JsonNode value) {
+        ((ObjectNode)map).set(name,value);
     }
 
-    private JsonNode toJsonNode(Object value) {
+
+    @Override
+    public  JsonNode newList() {
+        return factory.arrayNode();
+    }
+
+    @Override
+    public int getListSize(JsonNode list) {
+        return ((ArrayNode)list).size();
+    }
+
+    @Override
+    public JsonNode getListElement(JsonNode list,int n) {
+        return ((ArrayNode)list).get(n);
+    }
+
+    @Override
+    public void addListElement(JsonNode list,JsonNode element) {
+        ((ArrayNode)list).add(element);
+    }
+
+    @Override
+    public Object asValue(JsonNode value) {
+        if(value==null) {
+            return null;
+        } else if(value instanceof NullNode) {
+            return null;
+        } else if(value instanceof BigIntegerNode) {
+            return ((ValueNode)value).bigIntegerValue();
+        } else if(value instanceof BooleanNode) {
+            return ((ValueNode)value).booleanValue();
+        } else if(value instanceof DecimalNode) {
+            return ((ValueNode)value).decimalValue();
+        } else if(value instanceof DoubleNode || value instanceof FloatNode) {
+            return ((ValueNode)value).doubleValue();
+        } else if(value instanceof IntNode) {
+            return ((ValueNode)value).intValue();
+        } else if(value instanceof LongNode) {
+            return ((ValueNode)value).longValue();
+        } else {
+            return ((ValueNode)value).asText();
+        }
+    }
+
+    @Override
+    public JsonNode asRepresentation(Object value) {
         if(value==null) {
             return factory.nullNode();
         } else if(value instanceof JsonNode) {
@@ -286,16 +149,20 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         }
     }
 
+    
     @Override
-    public Object newArray() {
-        return factory.arrayNode();
+    public MetadataParser.PropertyType getType(JsonNode object) {
+        if(object instanceof ArrayNode) {
+            return MetadataParser.PropertyType.LIST;
+        } else if(object instanceof ObjectNode) {
+            return MetadataParser.PropertyType.MAP;
+        } else if(object==null||object instanceof NullNode) {
+            return MetadataParser.PropertyType.NULL;
+        } else {
+            return MetadataParser.PropertyType.VALUE;
+        }
     }
-
-    @Override
-    public void addArrayElement(Object array, Object element) {
-        ((ArrayNode)array).add(toJsonNode(element));
-    }
-
+    
     @Override
     public Projection getProjection(JsonNode object,String name) {
         JsonNode node=object.get(name);

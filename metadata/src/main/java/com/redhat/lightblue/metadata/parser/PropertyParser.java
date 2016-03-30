@@ -33,57 +33,60 @@ public class PropertyParser<T>  {
     public Object parseProperty(MetadataParser<T> p,
                                 T container,
                                 String name) {
-        MetadataParser.PropertyType type=p.getType(p.getObjectProperty(container,name));
+        T value=p.getMapProperty(container,name);
+        MetadataParser.PropertyType type=p.getType(value);
         if(type==MetadataParser.PropertyType.VALUE) {
-            return p.getValueProperty(container,name);
+            return p.asValue(value);
         } else if(type==MetadataParser.PropertyType.LIST) {
-            return parseProperty(p,p.getObjectList(container,name));
+            return parseProperty(p,value);
         } else if(type==MetadataParser.PropertyType.MAP) {
-            return parseProperty(p,p.getObjectProperty(container,name));
+            return parseProperty(p,value);
         }
         return null;
     }
-
+    
     protected Object parseProperty(MetadataParser<T> p,
-                                   Object property) {
+                                   T property) {
         switch(p.getType(property)) {
-        case VALUE: return p.getValue(property);
+        case VALUE: return p.asValue(property);
         case LIST:
-            ArrayList<Object> resultList=new ArrayList<>();
-            List<T> list=p.getObjectList((T)property);
-            for(T element:list) {
-                resultList.add(parseProperty(p,element));
+            int n=p.getListSize(property);
+            ArrayList<Object> resultList=new ArrayList<>(n);
+            for(int i=0;i<n;i++) {
+                resultList.add(parseProperty(p,p.getListElement(property,i)));
             }
             return resultList;
         case MAP:
-            Set<String> children=p.getChildNames((T)property);
+            Set<String> children=p.getMapPropertyNames(property);
             Map<String,Object> resultMap=new HashMap<>();
             for(String child:children) {
-                resultMap.put(child,parseProperty(p,p.getObjectProperty((T)property,child)));
+                resultMap.put(child,parseProperty(p,p.getMapProperty(property,child)));
             }
             return resultMap;
         }
         return null;
     }
 
-    protected Object convertProperty(MetadataParser<T> metadataParser,
-                                     Object propertyValue) {
+    protected T convertProperty(MetadataParser<T> metadataParser,
+                                Object propertyValue) {
     	if(propertyValue instanceof List) {    		
-            Object arr=metadataParser.newArray();
+            T arr=metadataParser.newList();
             List<Object> list=(List<Object>)propertyValue;
             for(Object x:list) {
-                metadataParser.addArrayElement(arr,convertProperty(metadataParser,x));
+                metadataParser.addListElement(arr,convertProperty(metadataParser,x));
             }
             return arr;
     	} else if(propertyValue instanceof Map) {
-            T node=metadataParser.newNode();
+            T node=metadataParser.newMap();
             Map<String,Object> map=(Map<String,Object>)propertyValue;
             for(Map.Entry<String,Object> entry:map.entrySet()) {
                 convertProperty(metadataParser,node,entry.getKey(),entry.getValue());
             }
             return node;   		
-    	} else {
-            return propertyValue;
+    	} else if(propertyValue==null) {
+            return null;
+        } else {
+            return metadataParser.asRepresentation(propertyValue);
     	}
     }
     
@@ -91,6 +94,6 @@ public class PropertyParser<T>  {
                                 T container,
                                 String propertyName,
                                 Object propertyValue) {
-        metadataParser.put(container,propertyName,convertProperty(metadataParser,propertyValue));
+        metadataParser.setMapProperty(container,propertyName,convertProperty(metadataParser,propertyValue));
     }
 }
