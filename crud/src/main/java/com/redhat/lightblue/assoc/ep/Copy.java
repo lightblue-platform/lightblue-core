@@ -51,7 +51,8 @@ public class Copy extends AbstractSearchStep {
 
     @Override
     protected final List<ResultDocument> getSearchResults(ExecutionContext ctx) {
-        return null;
+        // This should be called at all
+        throw new IllegalStateException();
     }
 
     @Override

@@ -98,7 +98,7 @@ public final class Searches {
             if(aq.getQuery()!=null)
                 queries.add(aq.getQuery());
         }
-        QueryExpression query=_and(queries);
+        QueryExpression query=and(queries);
         ArrayList<QueryExpression> ret=new ArrayList<>();
         if(query!=null) {
             for(Iterator<List<BindQuery>> itr=btuples.tuples();itr.hasNext();) {
@@ -176,11 +176,11 @@ public final class Searches {
     /**
      * Combines queries with AND. Queries can be null, but at least one of them must be non-null
      */
-    public static QueryExpression _and(QueryExpression... q) {
+    public static QueryExpression and(QueryExpression... q) {
         return combine(NaryLogicalOperator._and,Arrays.asList(q));
     }
 
-    public static QueryExpression _and(List<QueryExpression> list) {
+    public static QueryExpression and(List<QueryExpression> list) {
         return combine(NaryLogicalOperator._and,list);
     }
     

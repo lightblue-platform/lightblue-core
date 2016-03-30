@@ -106,7 +106,7 @@ public class JoinSearch extends AbstractSearchStep {
             if(!qBatch.isEmpty()) {
                 QueryExpression q=Searches.combine(NaryLogicalOperator._or,qBatch);
                 CRUDFindRequest findRequest=new CRUDFindRequest();
-                findRequest.setQuery(Searches._and(q,query));
+                findRequest.setQuery(Searches.and(q,query));
                 findRequest.setProjection(projection);
                 findRequest.setSort(sort);
                 findRequest.setFrom(from);

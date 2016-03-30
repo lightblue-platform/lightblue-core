@@ -445,7 +445,7 @@ public class RewriteQuery extends QueryIterator {
                     // Example: in: { array: x.*.obj.ref, elemMatch: { field: _id, op:$eq, rfield: $parent.ref_id } }
                     //         out: { array: x, elemMatch: { field: obj.ref_id, op: $eq, rvalue: < _id value> } }
 
-                    // Find the closes array containing the reference
+                    // Find the closest array containing the reference
                     Path arrName=qfi.getEntityRelativeFieldName();
                     int lastAny=-1;
                     int n=arrName.numSegments();

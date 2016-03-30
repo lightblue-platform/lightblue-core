@@ -70,7 +70,7 @@ public class Retrieve extends Search {
     
     protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
         CRUDFindRequest findRequest=new CRUDFindRequest();
-        findRequest.setQuery(Searches._and(query,searchQuery));
+        findRequest.setQuery(Searches.and(query,searchQuery));
         findRequest.setProjection(projection);
         findRequest.setSort(sort);
         findRequest.setFrom(from);

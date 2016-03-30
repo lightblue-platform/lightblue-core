@@ -35,7 +35,7 @@ public class AssociationQuery {
             queries.add(result.query);
             fieldBindings.addAll(result.bindings);
         }
-        query=Searches._and(queries);
+        query=Searches.and(queries);
     }
 
     public QueryExpression getQuery() {

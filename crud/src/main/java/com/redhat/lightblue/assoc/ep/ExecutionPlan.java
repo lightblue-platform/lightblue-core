@@ -435,7 +435,7 @@ public class ExecutionPlan {
 
     public static Set<Path> getIncludedFieldsOfRootEntityForSort(CompositeMetadata root,
                                                                  Sort rootSort) {
-        Set<Path> ret=new HashSet<Path>();
+        Set<Path> ret=new HashSet<>();
         if(rootSort!=null) {
             SortFieldInfo[] sfi=SortFieldInfo.buildSortFields(rootSort,root.getFieldTreeRoot());
             for(SortFieldInfo fi:sfi)
@@ -445,7 +445,7 @@ public class ExecutionPlan {
     }
 
     public static Set<Path> getIncludedFieldsOfEntityForSort(ExecutionBlock block) {
-        Set<Path> ret=new HashSet<Path>();
+        Set<Path> ret=new HashSet<>();
         ResolvedReferenceField reference=block.getReference();
         if(reference!=null) {
             Sort sort=reference.getReferenceField().getSort();
@@ -459,7 +459,7 @@ public class ExecutionPlan {
 
     private QueryExpression getFilterQuery(List<Conjunct> list) {
         List<QueryExpression> l=list.stream().map(c->c.getClause()).collect(Collectors.toList());
-        return Searches._and(l);
+        return Searches.and(l);
     }
 
     public JsonNode toJson() {
