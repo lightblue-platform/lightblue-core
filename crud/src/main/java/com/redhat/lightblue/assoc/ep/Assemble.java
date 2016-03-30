@@ -181,11 +181,12 @@ public class Assemble extends Step<ResultDocument> {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
         ObjectNode a=JsonNodeFactory.instance.objectNode();
         o.set("assemble",a);
+        a.set("entity",JsonNodeFactory.instance.textNode(block.getMetadata().getName()));
         a.set("left",source.getStep().toJson());
         ArrayNode array=JsonNodeFactory.instance.arrayNode();
         a.set("right",array);
         for(ExecutionBlock b:destinationBlocks)
-            array.add(b.toJson());        
+            array.add(b.toJson());
         return o;
     }
 }

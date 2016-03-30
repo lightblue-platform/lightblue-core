@@ -138,6 +138,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
     @Override
     public JsonNode toJson() {
         ObjectNode o=JsonNodeFactory.instance.objectNode();
+        o.set("entity",JsonNodeFactory.instance.textNode(block.getMetadata().getName()));
         o.set("search",query==null?JsonNodeFactory.instance.nullNode():query.toJson());
         if(projection!=null)
             o.set("projection",projection.toJson());
