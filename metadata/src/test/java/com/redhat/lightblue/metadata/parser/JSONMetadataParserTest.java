@@ -104,20 +104,6 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
             }
         });
-        extensions.registerPropertyParser("rdbms", new PropertyParser<JsonNode>() {
-            @Override
-            public Object parse(String name, MetadataParser<JsonNode> p, JsonNode node) {
-                p.getStringProperty(node, "answer");
-                return 42;
-            }
-
-            @Override
-            public void convert(MetadataParser<JsonNode> p, JsonNode parent, Object object) {
-                JsonNode t = p.newNode();
-                p.putObject(parent, "rdbms", t);
-                p.putString(t, "answer", object.toString());
-            }
-        });
         parser = new JSONMetadataParser(extensions, new DefaultTypes(), factory);
     }
 
@@ -170,8 +156,7 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         Assert.assertTrue("More than a single property (it should contain just rdbms)", properties.size() == 1);
         Object rdbms = properties.get("rdbms");
         Assert.assertNotNull(rdbms);
-        Assert.assertEquals(42, rdbms);
-        // TODO There is an error in the conversion that does not make the new JSON object equals to the original one. Maybe it is a default value. I checked that it is not related to RDBMS
+        Assert.assertEquals("42",((Map<String,Object>)rdbms).get("answer"));
         JsonNode c = parser.convert(em);
         Assert.assertEquals(object.get("schema").get("rdbms"), c.get("schema").get("rdbms"));
     }
@@ -643,5 +628,28 @@ public class JSONMetadataParserTest extends AbstractJsonSchemaTest {
         ObjectNode props=(ObjectNode)obj.get("configuration");
         Assert.assertEquals("seq",props.get("name").asText());
         Assert.assertEquals("1000",props.get("initialValue").asText());
+    }
+
+    @Test
+    public void testProperties() throws IOException {
+        JsonNode object = loadJsonNode("JSONMetadataParserTest-properties.json");
+        EntitySchema em = parser.parseEntitySchema(object);
+        List<Integer> list=(List<Integer>)em.getAccess().getProperties().get("accessProperty");
+        Assert.assertEquals(list.size(),5);
+        Assert.assertTrue(list.contains(new Integer(1)));
+        Assert.assertTrue(list.contains(new Integer(2)));
+        Assert.assertTrue(list.contains(new Integer(3)));
+        Assert.assertTrue(list.contains(new Integer(4)));
+        Assert.assertTrue(list.contains(new Integer(5)));
+
+        SimpleField field=(SimpleField)em.resolve(new Path("name"));
+        Assert.assertEquals("y",(String)((Map<String,Object>)field.getProperties().get("nameProperty")).get("x"));
+
+        field=(SimpleField)em.resolve(new Path("customerType"));
+        Assert.assertEquals(new Integer(1),(Integer)((Map<String,Object>)field.getProperties()).get("customerTypeProperty"));
+
+        Map<String,Object> scp=(Map<String,Object>)em.getProperties().get("schemaProperty");
+        Map<String,Object> scpa=(Map<String,Object>)scp.get("a");
+        Assert.assertEquals("c",(String)scpa.get("b"));
     }
 }

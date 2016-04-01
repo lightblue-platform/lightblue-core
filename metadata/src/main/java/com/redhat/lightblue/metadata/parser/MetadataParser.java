@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Arrays;;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +68,7 @@ import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.TypeResolver;
 import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.Version;
+import com.redhat.lightblue.metadata.MetadataObject;
 import com.redhat.lightblue.metadata.types.ArrayType;
 import com.redhat.lightblue.metadata.types.DateType;
 import com.redhat.lightblue.metadata.types.ObjectType;
@@ -181,6 +183,13 @@ public abstract class MetadataParser<T> {
         return this.extensions;
     }
 
+    private static Set<String> asSet(String... x) {
+        return new HashSet<String>(Arrays.asList(x));
+    }
+
+    private static final Set<String> ENTITY_METADATA_ELEMENTS=asSet(STR_ENTITY_INFO,STR_SCHEMA);
+    private static final Set<String> ENTITY_INFO_ELEMENTS=asSet(STR_NAME,STR_DEFAULT_VERSION,STR_INDEXES,STR_ENUMS,STR_HOOKS,STR_DATASTORE);
+
     /**
      * Entry point for entity metadata parser. Expects an Object corresponding
      * to the EntityMetadata object.
@@ -194,7 +203,7 @@ public abstract class MetadataParser<T> {
             EntitySchema schema = parseEntitySchema(getRequiredObjectProperty(object, STR_SCHEMA));
 
             EntityMetadata md = new EntityMetadata(info, schema);
-
+            parseProperties(md,object,ENTITY_METADATA_ELEMENTS);
             return md;
         } catch (Error e) {
             // rethrow lightblue error
@@ -207,6 +216,7 @@ public abstract class MetadataParser<T> {
             Error.pop();
         }
     }
+
 
     /**
      * Entry point for entity info parser. Expects an Object corresponding to
@@ -228,8 +238,7 @@ public abstract class MetadataParser<T> {
 
             T backend = getRequiredObjectProperty(object, STR_DATASTORE);
             info.setDataStore(parseDataStore(backend));
-
-            parsePropertyParser(object, info.getProperties());
+            parseProperties(info,object,ENTITY_INFO_ELEMENTS);
 
             return info;
         } finally {
@@ -237,26 +246,18 @@ public abstract class MetadataParser<T> {
         }
     }
 
-    public void parsePropertyParser(T object, Map<String, Object> properties) {
-        Error.push("parsePropertyParser");
-        try {
-
-            Set<String> propertyFields = findFieldsNotIn(object, ENTITY_INFO_FIELDS);
-            for (String property : propertyFields) {
-                PropertyParser p = extensions.getPropertyParser(property);
-                if (p != null) {
-                    p.parseProperty(this, property, properties, getObjectProperty(object, property));
+    private void parseProperties(MetadataObject dest,
+                                 T object,
+                                 Set<String> recognizedProperties) {
+        if(object!=null) {
+            Set<String> children=getChildNames(object);
+            for(String child:children) {
+                if(!recognizedProperties.contains(child)) {
+                    PropertyParser parser=extensions.getPropertyParser(child);
+                    Object data=parser.parseProperty(this,object,child);
+                    dest.getProperties().put(child,data);
                 }
             }
-        } catch (Error e) {
-            // rethrow lightblue error
-            throw e;
-        } catch (Exception e) {
-            // throw new Error (preserves current error context)
-            LOGGER.error(e.getMessage(), e);
-            throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
         }
     }
 
@@ -288,6 +289,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    private static final Set<String> INDEX_ELEMENTS=asSet(STR_NAME,STR_UNIQUE,STR_FIELDS);
+    
     public Index parseIndex(T object) {
         Error.push("parseIndex");
         try {
@@ -325,6 +328,7 @@ public abstract class MetadataParser<T> {
                 } else {
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_FIELDS);
                 }
+                parseProperties(index,object,INDEX_ELEMENTS);
 
                 return index;
             } else {
@@ -342,6 +346,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    private static final Set<String> ENUM_ELEMENTS=asSet(STR_NAME,STR_VALUES,STR_ANNOTATED_VALUES);
+    
     public Enum parseEnum(T object) {
         Error.push("parseEnum");
         try {
@@ -373,7 +379,7 @@ public abstract class MetadataParser<T> {
                 if(enumValues.isEmpty()){
                     throw Error.get(MetadataConstants.ERR_PARSE_MISSING_ELEMENT, STR_VALUES);
                 }
-
+                parseProperties(e,object,ENUM_ELEMENTS);
                 e.setValues(enumValues);
                 return e;
             } else {
@@ -390,6 +396,8 @@ public abstract class MetadataParser<T> {
             Error.pop();
         }
     }
+
+    private static final Set<String> HOOK_ELEMENTS=asSet(STR_NAME,STR_PROJECTION,STR_ACTIONS,STR_CONFIGURATION);
 
     public Hook parseHook(T object) {
         Error.push("parseHook");
@@ -419,6 +427,7 @@ public abstract class MetadataParser<T> {
                     }
                     hook.setConfiguration(parser.parse(name, this, cfg));
                 }
+                parseProperties(hook,object,HOOK_ELEMENTS);
                 return hook;
             }
         } catch (Error e) {
@@ -456,7 +465,6 @@ public abstract class MetadataParser<T> {
                         valueGenerator.getProperties().put(name, value);
                     }
                 }
-
                 return valueGenerator;
             }
         } catch (Error e) {
@@ -471,6 +479,8 @@ public abstract class MetadataParser<T> {
         }
         return null;
     }
+
+    private static final Set<String> ENTITY_SCHEMA_ELEMENTS=asSet(STR_NAME,STR_VERSION,STR_STATUS,STR_ACCESS,STR_FIELDS,STR_CONSTRAINTS);
 
     /**
      * Entry point for entity schema parser. Expects an Object corresponding to
@@ -500,8 +510,7 @@ public abstract class MetadataParser<T> {
 
             List<T> constraints = getObjectList(object, STR_CONSTRAINTS);
             parseEntityConstraints(schema, constraints);
-
-            parsePropertyParser(object, schema.getProperties());
+            parseProperties(schema,object,ENTITY_SCHEMA_ELEMENTS);
 
             return schema;
         } catch (Error e) {
@@ -588,6 +597,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    private static final Set<String> ENTITY_ACCESS_ELEMENTS=asSet(STR_FIND,STR_UPDATE,STR_DELETE,STR_INSERT);
+
     /**
      * Parses metadata entity access
      *
@@ -603,6 +614,7 @@ public abstract class MetadataParser<T> {
                 parseAccess(access.getUpdate(), getStringList(object, STR_UPDATE));
                 parseAccess(access.getDelete(), getStringList(object, STR_DELETE));
                 parseAccess(access.getInsert(), getStringList(object, STR_INSERT));
+                parseProperties(access,object,ENTITY_ACCESS_ELEMENTS);
             }
         } catch (Error e) {
             // rethrow lightblue error
@@ -693,6 +705,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    private static final Set<String> FIELD_ACCESS_ELEMENTS=asSet(STR_FIND,STR_UPDATE,STR_INSERT);
+    
     /**
      * Parses field access
      *
@@ -707,6 +721,7 @@ public abstract class MetadataParser<T> {
                 parseAccess(access.getFind(), getStringList(object, STR_FIND));
                 parseAccess(access.getUpdate(), getStringList(object, STR_UPDATE));
                 parseAccess(access.getInsert(), getStringList(object, STR_INSERT));
+                parseProperties(access,object,FIELD_ACCESS_ELEMENTS);
             }
         } catch (Error e) {
             // rethrow lightblue error
@@ -817,7 +832,6 @@ public abstract class MetadataParser<T> {
                 parseFieldConstraints(field,
                         getObjectProperty(object, STR_CONSTRAINTS));
 
-                parsePropertyParser(object, field.getProperties());
             } else {
                 field = null;
             }
@@ -834,6 +848,8 @@ public abstract class MetadataParser<T> {
         }
     }
 
+    private static final Set<String> SIMPLE_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_VALUE_GENERATOR);
+    
     private SimpleField parseSimpleField(String name,
                                          String type,
                                          T object) {
@@ -847,10 +863,13 @@ public abstract class MetadataParser<T> {
         T vg=getObjectProperty(object,STR_VALUE_GENERATOR);
         if(vg!=null)
             field.setValueGenerator(parseValueGenerator(vg));
+        parseProperties(field,object,SIMPLE_FIELD_ELEMENTS);
 
         return field;
     }
 
+    private static final Set<String> REFERENCE_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_ENTITY,STR_VERSION_VALUE,STR_PROJECTION,STR_QUERY,STR_SORT);
+    
     private ReferenceField parseReferenceField(String name,
             T object) {
         ReferenceField field = new ReferenceField(name);
@@ -859,23 +878,31 @@ public abstract class MetadataParser<T> {
         field.setProjection(getProjection(object, STR_PROJECTION));
         field.setQuery(getQuery(object, STR_QUERY));
         field.setSort(getSort(object, STR_SORT));
+        parseProperties(field,object,REFERENCE_FIELD_ELEMENTS);
 
         return field;
     }
 
-    private ObjectField parseObjectField(String name, T object) {
+    private static final Set<String> OBJECT_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_FIELDS);
+   private ObjectField parseObjectField(String name, T object) {
         ObjectField field = new ObjectField(name);
         T fields = getRequiredObjectProperty(object, STR_FIELDS);
         parseFields(field.getFields(), fields);
+        parseProperties(field,object,OBJECT_FIELD_ELEMENTS);
         return field;
     }
 
+    private static final Set<String> ARRAY_FIELD_ELEMENTS=asSet(STR_DESCRIPTION,STR_TYPE,STR_ACCESS,STR_CONSTRAINTS,STR_ITEMS);
     private ArrayField parseArrayField(String name, T object) {
         ArrayField field = new ArrayField(name);
         T items = getRequiredObjectProperty(object, STR_ITEMS);
         field.setElement(parseArrayItem(items));
+        parseProperties(field,object,ARRAY_FIELD_ELEMENTS);
         return field;
     }
+
+    private static final Set<String> OBJECT_ITEM_ELEMENTS=asSet(STR_TYPE,STR_FIELDS);
+    private static final Set<String> SIMPLE_ITEM_ELEMENTS=asSet(STR_TYPE,STR_CONSTRAINTS);
 
     private ArrayElement parseArrayItem(T items) {
         String type = getRequiredStringProperty(items, STR_TYPE);
@@ -885,6 +912,7 @@ public abstract class MetadataParser<T> {
             ObjectArrayElement ret = new ObjectArrayElement();
             ret.setType(ObjectType.TYPE);
             parseFields(ret.getFields(), fields);
+            parseProperties(ret,items,OBJECT_ITEM_ELEMENTS);
             return ret;
         } else if (type.equals(ArrayType.TYPE.getName())
                 || type.equals(ReferenceType.TYPE.getName())) {
@@ -899,10 +927,20 @@ public abstract class MetadataParser<T> {
             List<FieldConstraint> constraints=parseFieldConstraints(getObjectProperty(items, STR_CONSTRAINTS));
             if(constraints!=null&&!constraints.isEmpty())
                 ret.setConstraints(constraints);
+            parseProperties(ret,items,SIMPLE_ITEM_ELEMENTS);
             return ret;
         }
     }
 
+    private void convertProperties(MetadataObject object,T dest) {
+        if(object!=null) {
+            for(Map.Entry<String,Object> entry:object.getProperties().entrySet()) {
+                PropertyParser<T> p=extensions.getPropertyParser(entry.getKey());
+                p.convertProperty(this,dest,entry.getKey(),entry.getValue());
+            }
+        }
+    }
+    
     /**
      * Converts the entity metadata to T
      */
@@ -912,6 +950,7 @@ public abstract class MetadataParser<T> {
             T ret = newNode();
             putObject(ret, STR_ENTITY_INFO, convert(md.getEntityInfo()));
             putObject(ret, STR_SCHEMA, convert(md.getEntitySchema()));
+            convertProperties(md,ret);
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -954,17 +993,7 @@ public abstract class MetadataParser<T> {
                 convertDataStore(dsNode, info.getDataStore());
                 putObject(ret, STR_DATASTORE, dsNode);
             }
-            if (info.getProperties() != null && !info.getProperties().isEmpty()) {
-                for (String s : info.getProperties().keySet()) {
-                    PropertyParser p = extensions.getPropertyParser(s);
-                    if (p != null) {
-                        T node = newNode();
-                        p.convert(this, node, info.getProperties().get(s));
-                        putObject(ret, s, node);
-                    }
-                }
-            }
-            convertPropertyParser(ret, info.getProperties());
+            convertProperties(info,ret);
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -992,8 +1021,8 @@ public abstract class MetadataParser<T> {
             putObject(ret, STR_STATUS, convert(schema.getStatus(), schema.getStatusChangeLog()));
             putObject(ret, STR_ACCESS, convert(schema.getAccess()));
             putObject(ret, STR_FIELDS, convert(schema.getFields()));
-            convertPropertyParser(ret, schema.getProperties());
             convertEntityConstraints(ret, schema.getConstraints());
+            convertProperties(schema,ret);
             return ret;
         } catch (Error e) {
             // rethrow lightblue error
@@ -1002,22 +1031,6 @@ public abstract class MetadataParser<T> {
             // throw new Error (preserves current error context)
             LOGGER.error(e.getMessage(), e);
             throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, e.getMessage());
-        } finally {
-            Error.pop();
-        }
-    }
-
-    public void convertPropertyParser(T object, Map<String, Object> properties) {
-        Error.push("convertPropertyParser");
-        try {
-
-            for (Entry entry : properties.entrySet()) {
-                String key = (String) entry.getKey();
-                PropertyParser p = extensions.getPropertyParser(key);
-                if (p != null) {
-                    p.convert(this, object, entry.getValue());
-                }
-            }
         } finally {
             Error.pop();
         }
@@ -1111,6 +1124,7 @@ public abstract class MetadataParser<T> {
                 convertRoles(ret, STR_UPDATE, access.getUpdate());
                 convertRoles(ret, STR_FIND, access.getFind());
                 convertRoles(ret, STR_DELETE, access.getDelete());
+                convertProperties(access,ret);
                 return ret;
             } catch (Error e) {
                 // rethrow lightblue error
@@ -1144,6 +1158,7 @@ public abstract class MetadataParser<T> {
                 if (access.getUpdate().getRoles().size() > 0) {
                     convertRoles(ret, STR_UPDATE, access.getUpdate());
                 }
+                convertProperties(access,ret);
                 return ret;
             } catch (Error e) {
                 // rethrow lightblue error
@@ -1187,7 +1202,7 @@ public abstract class MetadataParser<T> {
                     putObject(fieldObject, STR_ACCESS, access);
                 }
                 convertFieldConstraints(fieldObject, field.getConstraints());
-                convertPropertyParser(ret, field.getProperties());
+                convertProperties(field,fieldObject);
             } catch (Error e) {
                 // rethrow lightblue error
                 throw e;
@@ -1199,7 +1214,6 @@ public abstract class MetadataParser<T> {
                 Error.pop();
             }
         }
-        convertPropertyParser(ret, fields.getProperties());
         return ret;
     }
 
@@ -1314,6 +1328,7 @@ public abstract class MetadataParser<T> {
                         putValue(node2, "caseInsensitive", p.isCaseInsensitive());
                         addObjectToArray(indexObj, node2);
                     }
+                    convertProperties(i,node);
                 }
             }
         } catch (Error e) {
@@ -1369,6 +1384,7 @@ public abstract class MetadataParser<T> {
                         putObject(node,STR_CONFIGURATION,cfgNode);
                         parser.convert(this,cfgNode,cfg);
                     }
+                    convertProperties(h,node);
                 }
             }
         } catch (Error e) {
@@ -1417,6 +1433,7 @@ public abstract class MetadataParser<T> {
                             addObjectToArray(annotatedValuesObj, enumNode);
                         }
                     }
+                    convertProperties(e,node);
                 }
             }
         } catch (Error e) {
@@ -1525,18 +1542,6 @@ public abstract class MetadataParser<T> {
     }
 
     /**
-     * Returns a string child property
-     *
-     * @param object The object containing the property
-     * @param name Name of the property to return
-     *
-     * If the property is not a string, should throw exception
-     *
-     * @return The string property requested, or null if property does not exist
-     */
-    public abstract String getStringProperty(T object, String name);
-
-    /**
      * Returns a string child property, fail if the child property is not found.
      *
      * @param object The object containing the property
@@ -1567,18 +1572,6 @@ public abstract class MetadataParser<T> {
             Error.pop();
         }
     }
-
-    /**
-     * Returns an object child property
-     *
-     * @param object The object containing the property
-     * @param name Name of the property to return
-     *
-     * If the property is not an object, should throw an exception
-     *
-     * @return The property requested, or null if property does not exist
-     */
-    public abstract T getObjectProperty(T object, String name);
 
     /**
      * Returns an object child property, fail if the child property is not
@@ -1614,6 +1607,39 @@ public abstract class MetadataParser<T> {
     }
 
     /**
+     * Returns a string child property
+     *
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not a string, should throw exception
+     *
+     * @return The string property requested, or null if property does not exist
+     * @deprecated
+     */
+    public String getStringProperty(T object, String name) {
+        Object x=asValue(getMapProperty(object,name));
+        return x==null?null:x.toString();
+    }
+    
+    
+    /**
+     * Returns an object child property
+     *
+     * @param object The object containing the property
+     * @param name Name of the property to return
+     *
+     * If the property is not an object, should throw an exception
+     *
+     * @return The property requested, or null if property does not exist
+     * @deprecated
+     */
+    public  T getObjectProperty(T object, String name) {
+        return getMapProperty(object,name);
+    }
+
+
+    /**
      * Returns a property that is a simple value
      *
      * @param object The object containing the property
@@ -1623,9 +1649,13 @@ public abstract class MetadataParser<T> {
      *
      * @return The property value requested (String, Number, Boolean, etc), or
      * null if property does not exist
+     * @deprecated
      */
-    public abstract Object getValueProperty(T object, String name);
+    public Object getValueProperty(T object, String name) {
+        return asValue(getMapProperty(object,name));
+    }
 
+    
     /**
      * Returns a string list child property
      *
@@ -1633,8 +1663,21 @@ public abstract class MetadataParser<T> {
      * @param name Name of the string list
      *
      * @return The string list property, or null if property does not exist
-     */
-    public abstract List<String> getStringList(T object, String name);
+      * @deprecated
+    */
+    public List<String> getStringList(T object, String name) {
+        T list=getMapProperty(object,name);
+        if(list!=null) {
+            int n=getListSize(list);
+            List<String> ret=new ArrayList<>(n);
+            for(int i=0;i<n;i++) {
+            	Object x=asValue(getListElement(list,i));
+                ret.add(x==null?null:x.toString());
+            }
+            return ret;
+        }
+        return null;
+    }
 
     /**
      * Returns an object list of child property
@@ -1643,17 +1686,26 @@ public abstract class MetadataParser<T> {
      * @param name Name of the property
      *
      * @return Object list property, or null if property does not exist
-     */
-    public abstract List<T> getObjectList(T object, String name);
+      * @deprecated
+    */
+    public List<T> getObjectList(T object, String name) {
+        return getObjectList(getMapProperty(object,name));
+    }
 
     /**
-     * Returns an object list of all children
-     *
-     * @param object The parent object.
-     *
-     * @return Object list of all children, or null if there are no children
+     * @deprecated
      */
-    public abstract List<T> getObjectList(T object);
+    public List<T> getObjectList(T object) {
+        if(object!=null) {
+            int n=getListSize(object);
+            List<T> ret=new ArrayList<>(n);
+            for(int i=0;i<n;i++) {
+                ret.add(getListElement(object,i));
+            }
+            return ret;
+        }
+        return null;
+    }
 
     /**
      * Returns the names of the child elements
@@ -1661,8 +1713,155 @@ public abstract class MetadataParser<T> {
      * @param object The object
      *
      * @return The names of child elements
+     * @deprecated
      */
-    public abstract Set<String> getChildNames(T object);
+    public Set<String> getChildNames(T object) {
+        return getMapPropertyNames(object);
+    }
+
+    /**
+     * Creates a new node
+      * @deprecated
+    */
+    public  T newNode() {
+        return newMap();
+    }
+
+    /**
+     * Adds a new string field to the object.
+     * @deprecated
+     */
+    public void putString(T object, String name, String value) {
+        putValue(object,name,value);
+    }
+
+    /**
+     * Adds a new object field to the object.
+     * @deprecated
+     */
+    public void putObject(T object, String name, Object value) {
+        setMapProperty(object,name,asRepresentation(value));
+    }
+
+    /**
+     * Adds a simple value field
+      * @deprecated
+    */
+    public void putValue(T object, String name, Object value) {
+        setMapProperty(object,name,asRepresentation(value));
+    }
+    
+    
+    /**
+     * Creates a new array field
+     * @deprecated
+     */
+    public Object newArrayField(T object, String name) {
+        T arr=newList();
+        setMapProperty(object,name,arr);
+        return arr;
+    }
+
+    /**
+     * Adds an element to the array
+     * @deprecated
+     */
+    public  void addStringToArray(Object array, String value) {
+        addListElement((T)array,asRepresentation(value));
+    }
+
+    /**
+     * Adds an element to the array
+      * @deprecated
+    */
+    public void addObjectToArray(Object array, Object value) {
+        addListElement((T)array,asRepresentation(value));
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // The above abstract methods were added based on need, and they sufffer badly from a strict top-down approach.
+    // There are multiple methods that do the same thing, and there are missing methods for crucial functionaloty.
+    // Don't use them. Use the ones below. 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+
+    public static enum PropertyType { VALUE, LIST, MAP, NULL };
+
+
+    /**
+     * Creates a new map object. The returned object can be placed in another map, or a list
+     */
+    public abstract T newMap();
+
+    /**
+     * Returns the value of a property in a map. The returned value is a  value, a map, or a list.
+     */
+    public abstract T getMapProperty(T map,String name);
+
+    /**
+     * Returns the property names of a map
+     */
+    public abstract Set<String> getMapPropertyNames(T map);
+
+    /**
+     * Sets a property of a map. The value is a java value, a map, or a list.
+     */
+    public abstract void setMapProperty(T map,String name,T value);
+
+
+    /**
+     * Creates a new list object, and returns it
+     */
+    public abstract T newList();
+
+    /**
+     * Returns list size
+     */
+    public abstract int getListSize(T list);
+
+    /**
+     * Returns a list element
+     */
+    public abstract T getListElement(T list,int n);
+
+    /**
+     * Adds a list element. The element is a value, map, or list.
+     */
+    public abstract void addListElement(T list,T element);
+
+
+    /**
+     * Returns a Java value of a value
+     */
+    public abstract Object asValue(T value);
+
+    /**
+     * Converts a java value to its representation
+     */
+    public abstract T asRepresentation(Object value);
+
+    
+    /**
+     * Returns whether the object is a list, map, or value
+     */
+    public abstract PropertyType getType(T object);
+        
+    /**
+     * Convert a projection to T
+     */
+    public abstract void putProjection(T object,String name,Projection p);
+
+    /**
+     * Convert a query to T
+     */
+    public abstract void putQuery(T object,String name,QueryExpression q);
+
+    /**
+     * Convert a sort to T
+     */
+    public abstract void putSort(T object,String name,Sort s);
+
+
 
     /**
      * Parse and return a projection
@@ -1678,57 +1877,5 @@ public abstract class MetadataParser<T> {
      * Parse and return a sort
      */
     public abstract Sort getSort(T object, String name);
-
-    /**
-     * Creates a new node
-     */
-    public abstract T newNode();
-
-    /**
-     * Adds a new string field to the object.
-     */
-    public abstract void putString(T object, String name, String value);
-
-    /**
-     * Adds a new object field to the object.
-     */
-    public abstract void putObject(T object, String name, Object value);
-
-    /**
-     * Adds a simple value field
-     */
-    public abstract void putValue(T object, String name, Object value);
-
-    /**
-     * Creates a new array field
-     */
-    public abstract Object newArrayField(T object, String name);
-
-    /**
-     * Adds an element to the array
-     */
-    public abstract void addStringToArray(Object array, String value);
-
-    /**
-     * Adds an element to the array
-     */
-    public abstract void addObjectToArray(Object array, Object value);
-
-    public abstract Set<String> findFieldsNotIn(T elements, Set<String> removeAllFields);
-
-    /**
-     * Convert a projection to T
-     */
-    public abstract void putProjection(T object,String name,Projection p);
-
-    /**
-     * Convert a query to T
-     */
-    public abstract void putQuery(T object,String name,QueryExpression q);
-
-    /**
-     * Convert a sort to T
-     */
-    public abstract void putSort(T object,String name,Sort s);
 
 }
