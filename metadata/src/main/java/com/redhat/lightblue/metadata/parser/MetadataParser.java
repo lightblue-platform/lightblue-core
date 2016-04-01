@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Arrays;;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,10 +184,7 @@ public abstract class MetadataParser<T> {
     }
 
     private static Set<String> asSet(String... x) {
-        HashSet<String> set=new HashSet<>();
-        for(String a:x)
-            set.add(a);
-        return set;
+        return new HashSet<String>(Arrays.asList(x));
     }
 
     private static final Set<String> ENTITY_METADATA_ELEMENTS=asSet(STR_ENTITY_INFO,STR_SCHEMA);
@@ -1617,6 +1615,7 @@ public abstract class MetadataParser<T> {
      * If the property is not a string, should throw exception
      *
      * @return The string property requested, or null if property does not exist
+     * @deprecated
      */
     public String getStringProperty(T object, String name) {
         Object x=asValue(getMapProperty(object,name));
@@ -1633,6 +1632,7 @@ public abstract class MetadataParser<T> {
      * If the property is not an object, should throw an exception
      *
      * @return The property requested, or null if property does not exist
+     * @deprecated
      */
     public  T getObjectProperty(T object, String name) {
         return getMapProperty(object,name);
@@ -1649,6 +1649,7 @@ public abstract class MetadataParser<T> {
      *
      * @return The property value requested (String, Number, Boolean, etc), or
      * null if property does not exist
+     * @deprecated
      */
     public Object getValueProperty(T object, String name) {
         return asValue(getMapProperty(object,name));
@@ -1662,7 +1663,8 @@ public abstract class MetadataParser<T> {
      * @param name Name of the string list
      *
      * @return The string list property, or null if property does not exist
-     */
+      * @deprecated
+    */
     public List<String> getStringList(T object, String name) {
         T list=getMapProperty(object,name);
         if(list!=null) {
@@ -1684,11 +1686,15 @@ public abstract class MetadataParser<T> {
      * @param name Name of the property
      *
      * @return Object list property, or null if property does not exist
-     */
+      * @deprecated
+    */
     public List<T> getObjectList(T object, String name) {
         return getObjectList(getMapProperty(object,name));
     }
 
+    /**
+     * @deprecated
+     */
     public List<T> getObjectList(T object) {
         if(object!=null) {
             int n=getListSize(object);
@@ -1707,36 +1713,23 @@ public abstract class MetadataParser<T> {
      * @param object The object
      *
      * @return The names of child elements
+     * @deprecated
      */
     public Set<String> getChildNames(T object) {
         return getMapPropertyNames(object);
     }
 
     /**
-     * Parse and return a projection
-     */
-    public abstract Projection getProjection(T object, String name);
-
-    /**
-     * Parse and return a query
-     */
-    public abstract QueryExpression getQuery(T object, String name);
-
-    /**
-     * Parse and return a sort
-     */
-    public abstract Sort getSort(T object, String name);
-
-
-    /**
      * Creates a new node
-     */
+      * @deprecated
+    */
     public  T newNode() {
         return newMap();
     }
 
     /**
      * Adds a new string field to the object.
+     * @deprecated
      */
     public void putString(T object, String name, String value) {
         putValue(object,name,value);
@@ -1744,6 +1737,7 @@ public abstract class MetadataParser<T> {
 
     /**
      * Adds a new object field to the object.
+     * @deprecated
      */
     public void putObject(T object, String name, Object value) {
         setMapProperty(object,name,asRepresentation(value));
@@ -1751,7 +1745,8 @@ public abstract class MetadataParser<T> {
 
     /**
      * Adds a simple value field
-     */
+      * @deprecated
+    */
     public void putValue(T object, String name, Object value) {
         setMapProperty(object,name,asRepresentation(value));
     }
@@ -1759,6 +1754,7 @@ public abstract class MetadataParser<T> {
     
     /**
      * Creates a new array field
+     * @deprecated
      */
     public Object newArrayField(T object, String name) {
         T arr=newList();
@@ -1768,6 +1764,7 @@ public abstract class MetadataParser<T> {
 
     /**
      * Adds an element to the array
+     * @deprecated
      */
     public  void addStringToArray(Object array, String value) {
         addListElement((T)array,asRepresentation(value));
@@ -1775,25 +1772,11 @@ public abstract class MetadataParser<T> {
 
     /**
      * Adds an element to the array
-     */
+      * @deprecated
+    */
     public void addObjectToArray(Object array, Object value) {
         addListElement((T)array,asRepresentation(value));
     }
-
-    /**
-     * Convert a projection to T
-     */
-    public abstract void putProjection(T object,String name,Projection p);
-
-    /**
-     * Convert a query to T
-     */
-    public abstract void putQuery(T object,String name,QueryExpression q);
-
-    /**
-     * Convert a sort to T
-     */
-    public abstract void putSort(T object,String name,Sort s);
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1863,7 +1846,36 @@ public abstract class MetadataParser<T> {
      */
     public abstract PropertyType getType(T object);
         
+    /**
+     * Convert a projection to T
+     */
+    public abstract void putProjection(T object,String name,Projection p);
+
+    /**
+     * Convert a query to T
+     */
+    public abstract void putQuery(T object,String name,QueryExpression q);
+
+    /**
+     * Convert a sort to T
+     */
+    public abstract void putSort(T object,String name,Sort s);
 
 
+
+    /**
+     * Parse and return a projection
+     */
+    public abstract Projection getProjection(T object, String name);
+
+    /**
+     * Parse and return a query
+     */
+    public abstract QueryExpression getQuery(T object, String name);
+
+    /**
+     * Parse and return a sort
+     */
+    public abstract Sort getSort(T object, String name);
 
 }
