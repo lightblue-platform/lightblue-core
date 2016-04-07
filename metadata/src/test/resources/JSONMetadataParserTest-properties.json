@@ -1,0 +1,45 @@
+{
+    "name": "test",
+    "version": {
+        "value": "1.0.0",
+        "changelog": "Initial version"
+    },
+    "status": {
+        "value": "active"
+    },
+    "access": {
+        "insert": ["admin"],
+        "find": ["admin", "all"],
+        "update": ["admin"],
+        "delete": ["admin"],
+        "accessProperty": [1,2,3,4,5]
+    },
+    "datastore": {
+        "backend": "empty"
+    },
+    "fields": {
+        "name": {
+            "type": "string",
+            "valueGenerator": {
+                "type":"IntSequence",
+                "configuration":{
+                    "name":"seq",
+                    "initialValue":1000
+                }
+            },
+            "nameProperty":{ "x":"y"}
+        },
+        "customerType": {
+            "type": "string",
+            "enum": ["person", "organization"],
+            "customerTypeProperty":1
+        },
+        "creationDate": {
+            "type": "date"
+        },
+        "lastUpdateDate": {
+            "type": "date"
+        }
+    },
+    "schemaProperty":{"a":{"b":"c"}}
+}

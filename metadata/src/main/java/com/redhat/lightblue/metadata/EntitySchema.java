@@ -27,7 +27,6 @@ import com.redhat.lightblue.util.JsonCompare;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -35,10 +34,8 @@ import java.util.*;
  *
  * @author nmalik
  */
-public class EntitySchema implements Serializable {
+public class EntitySchema extends MetadataObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntitySchema.class);
-
-    private static final long serialVersionUID = 1l;
 
     private final String name;
     private Version version;
@@ -49,9 +46,8 @@ public class EntitySchema implements Serializable {
     private final ArrayList<EntityConstraint> constraints;
     private Fields fields;
     private FieldTreeNode fieldRoot;
-    private final Map<String, Object> properties;
 
-    protected class RootNode implements FieldTreeNode, Serializable {
+    protected class RootNode implements FieldTreeNode {
 
         private static final long serialVersionUID = 1L;
 
@@ -108,7 +104,6 @@ public class EntitySchema implements Serializable {
         this.statusChangeLog = new ArrayList<>();
         this.access = new EntityAccess();
         this.constraints = new ArrayList<>();
-        this.properties = new HashMap<>();
     }
 
     /**
@@ -123,7 +118,7 @@ public class EntitySchema implements Serializable {
         this.constraints = source.constraints;
         this.fields = source.fields;
         this.fieldRoot = source.fieldRoot;
-        this.properties = source.properties;
+        super.shallowCopyFrom(source);
     }
 
     /**
@@ -264,10 +259,6 @@ public class EntitySchema implements Serializable {
         } finally {
             Error.pop();
         }
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
     }
 
     /**

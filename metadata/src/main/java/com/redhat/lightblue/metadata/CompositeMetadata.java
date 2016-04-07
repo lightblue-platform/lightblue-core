@@ -457,7 +457,6 @@ public class CompositeMetadata extends EntityMetadata {
             }
             path.pop();
         }
-        dest.getProperties().putAll(source.getProperties());
     }
 
     private static ResolvedReferenceField resolveReference(ReferenceField source,

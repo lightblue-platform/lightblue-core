@@ -21,11 +21,10 @@ package com.redhat.lightblue.metadata;
 import com.redhat.lightblue.util.MutablePath;
 import com.redhat.lightblue.util.Path;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ArrayElement implements FieldTreeNode, Serializable {
+public abstract class ArrayElement extends MetadataObject implements FieldTreeNode {
 
     private static final long serialVersionUID = 1l;
 

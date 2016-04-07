@@ -20,16 +20,14 @@ package com.redhat.lightblue.metadata;
 
 import com.redhat.lightblue.util.Path;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  *
  * @author nmalik
  */
-public class Indexes implements Serializable {
+public class Indexes extends MetadataObject {
 
-    private static final long serialVersionUID = 1L;
     private final ArrayList<Index> indexes = new ArrayList<>();
 
     public Indexes() {

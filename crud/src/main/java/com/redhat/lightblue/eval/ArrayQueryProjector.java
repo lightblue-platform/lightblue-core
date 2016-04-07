@@ -63,6 +63,6 @@ public class ArrayQueryProjector extends ArrayProjector {
             LOGGER.debug("query evaluates to true");
             return isIncluded() ? Projection.Inclusion.explicit_inclusion:Projection.Inclusion.explicit_exclusion;
         }
-        return Projection.Inclusion.explicit_exclusion;
+        return isIncluded()?Projection.Inclusion.explicit_exclusion:Projection.Inclusion.explicit_inclusion;
     }
 }

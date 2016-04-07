@@ -18,9 +18,7 @@
  */
 package com.redhat.lightblue.metadata;
 
-import java.io.Serializable;
-
-public class EnumValue implements Serializable{
+public class EnumValue extends MetadataObject {
 
     private static final long serialVersionUID = -1182170538084137297L;
 

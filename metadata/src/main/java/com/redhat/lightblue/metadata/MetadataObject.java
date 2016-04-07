@@ -16,10 +16,29 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.config;
+package com.redhat.lightblue.metadata;
 
-import com.redhat.lightblue.metadata.parser.MetadataParser;
-import com.redhat.lightblue.metadata.parser.PropertyParser;
+import java.io.Serializable;
 
-public class TestPropertyParser extends PropertyParser {
+import java.util.Map;
+import java.util.HashMap;
+
+/**
+ * Base class for metadata objects, contains properties not recognized
+ * by the parser for the metadata object
+ */
+public abstract class MetadataObject implements Serializable {
+
+    private static final long serialVersionUID = 1l;
+
+    protected final Map<String,Object> properties=new HashMap<>();
+
+    public Map<String,Object> getProperties() {
+        return properties;
+    }
+
+    public void shallowCopyFrom(MetadataObject source) {
+        properties.clear();
+        properties.putAll(source.properties);
+    }
 }

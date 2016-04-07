@@ -23,7 +23,6 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.JsonCompare;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,9 +32,7 @@ import java.util.List;
  *
  * @author nmalik
  */
-public class EntityMetadata implements Serializable {
-
-    private static final long serialVersionUID = 1l;
+public class EntityMetadata extends MetadataObject {
 
     private final EntityInfo info;
     private final EntitySchema schema;
