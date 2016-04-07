@@ -33,6 +33,8 @@ import com.redhat.lightblue.util.Path;
  * <pre>
  *   q={ field: X.*.x op value | y }
  * </pre>
+ *
+ * This doesn't work for nary comparisons
  */
 public class SimpleElemMatchIsComparison extends Rewriter {
 
@@ -52,11 +54,7 @@ public class SimpleElemMatchIsComparison extends Rewriter {
                 newq=new ValueComparisonExpression(normalize(ae,vce.getField()),vce.getOp(),vce.getRvalue());
             } else if( (fce=dyncast(FieldComparisonExpression.class,nestedq))!=null) {
                 newq=new FieldComparisonExpression(normalize(ae,fce.getField()),fce.getOp(),normalize(ae,fce.getRfield()));
-            } else if( (nvre=dyncast(NaryValueRelationalExpression.class,nestedq))!=null) {
-                newq=new NaryValueRelationalExpression(normalize(ae,nvre.getField()),nvre.getOp(),nvre.getValues());
-            } else if( (nfre=dyncast(NaryFieldRelationalExpression.class,nestedq))!=null) {
-                newq=new NaryFieldRelationalExpression(normalize(ae,nfre.getField()),nfre.getOp(),nfre.getRfield());
-            }
+            } 
         }
         return newq;
     }

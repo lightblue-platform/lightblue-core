@@ -598,4 +598,27 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Assert.assertEquals(1,response.getErrors().size());
 
     }
+
+    @Test
+    public void assocQWithNull() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'$and': [ {'array':'authentications','elemMatch':{'field':'providerName','op':'$nin','values':['x',null]}}, {'field':'_id','op':'$in','values':[1,2]}]}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("U","0.0.1"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+    }
+
+    @Test
+    public void assocQWithNull2() throws Exception {
+        FindRequest fr=new FindRequest();
+        fr.setQuery(query("{'$and': [ {'field':'authentications.*.providerName','op':'$nin','values':['x',null]},{'field':'_id','op':'$in','values':[1,2]}]}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("U","0.0.1"));
+        Response response=mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1,response.getEntityData().size());
+    }
+
 }

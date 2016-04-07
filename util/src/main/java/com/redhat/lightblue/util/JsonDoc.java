@@ -304,8 +304,9 @@ public class JsonDoc implements Serializable {
         public PathCursor(Path p,boolean returnMissingNodes) {
             this.returnMissingNodes=returnMissingNodes;
             path = p;
-            nextNode = resolver.resolve(path, docRoot, docRoot, 0).node;
-            if (nextNode != null) {
+            NodeAndLevel nl = resolver.resolve(path, docRoot, docRoot, 0);
+            nextNode=nl.node;
+            if (nextNode != null||(returnMissingNodes&&nl.level==path.numSegments()-1)) {
                 nextFound = true;
             }
             if (resolver.iterators == null) {
