@@ -121,17 +121,29 @@ public class JsonDoc implements Serializable {
         }
     }
 
+    private static class NodeAndLevel {
+    	final JsonNode node;
+    	final int level;
+    	
+    	public NodeAndLevel(JsonNode node,int level) {
+    		this.node=node;
+    		this.level=level;
+    	}
+    }
+    
     /**
      * Internal class containing the algorithm for path resolution starting from
      * a node and path level. Handling of '*' is overridable, by default, throws
      * an exception
      */
     private static class Resolver {
-        public JsonNode resolve(Path p, final JsonNode root, final JsonNode node, int level) {
+        public NodeAndLevel resolve(Path p, final JsonNode root, final JsonNode node, int level) {
             JsonNode output = node;
 
             int n = p.numSegments();
+            int newLevel=level;
             for (int l = level; l < n; l++) {
+            	newLevel=l;
                 String name = p.head(l);
                 JsonNode newOutput;
                 if (name.equals(Path.ANY)) {
@@ -169,7 +181,7 @@ public class JsonDoc implements Serializable {
                 }
 
             }
-            return output;
+            return new NodeAndLevel(output,newLevel);
         }
 
         protected JsonNode handleNullChild(JsonNode parent, Path p, int level) {
@@ -281,6 +293,7 @@ public class JsonDoc implements Serializable {
         private final Path path;
         private final MutablePath mpath;
         private final CursorResolver resolver = new CursorResolver();
+        private final boolean returnMissingNodes;
 
         private JsonNode nextNode;
         private boolean ended = false;
@@ -288,9 +301,10 @@ public class JsonDoc implements Serializable {
         private JsonNode currentNode;
         private Path currentPath;
 
-        public PathCursor(Path p) {
+        public PathCursor(Path p,boolean returnMissingNodes) {
+            this.returnMissingNodes=returnMissingNodes;
             path = p;
-            nextNode = resolver.resolve(path, docRoot, docRoot, 0);
+            nextNode = resolver.resolve(path, docRoot, docRoot, 0).node;
             if (nextNode != null) {
                 nextFound = true;
             }
@@ -357,10 +371,16 @@ public class JsonDoc implements Serializable {
                 do {
                     Iteration itr = resolver.iterators[level];
                     if (itr != null && itr.next()) {
-                        node = resolver.resolve(path, docRoot, itr.getCurrentNode(), level + 1);
+                    	NodeAndLevel nl=resolver.resolve(path, docRoot, itr.getCurrentNode(), level + 1);
+                        node = nl.node;
+                        level=nl.level;
                         if (node != null) {
                             nextFound = true;
                             done = true;
+                        } else if(returnMissingNodes&&level==path.numSegments()-1) {
+                            nextFound=true;
+                            node=null;
+                            done=true;
                         } else {
                             continue;
                         }
@@ -426,7 +446,11 @@ public class JsonDoc implements Serializable {
      * Returns a cursor iterating through all nodes of arrays, if any
      */
     public KeyValueCursor<Path, JsonNode> getAllNodes(Path p) {
-        return new PathCursor(p);
+        return getAllNodes(p,false);
+    }
+
+    public KeyValueCursor<Path, JsonNode> getAllNodes(Path p,boolean returnMissingNodes) {
+        return new PathCursor(p,returnMissingNodes);
     }
 
     /**
@@ -446,7 +470,7 @@ public class JsonDoc implements Serializable {
      * Static utility to resolve a path relative to a node
      */
     public static JsonNode get(JsonNode root, Path p) {
-        return DEFAULT_RESOLVER.resolve(p, root, root, 0);
+        return DEFAULT_RESOLVER.resolve(p, root, root, 0).node;
     }
 
     /**
@@ -586,10 +610,10 @@ public class JsonDoc implements Serializable {
     }
 
     private static JsonNode getParentNode(JsonNode docRoot, Path parent, boolean createPath, Path p) {
-        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0);
+        JsonNode parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0).node;
         if (parentNode == null && createPath) {
             CREATING_RESOLVER.resolve(p, docRoot, docRoot, 0);
-            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0);
+            parentNode = DEFAULT_RESOLVER.resolve(parent, docRoot, docRoot, 0).node;
         }
         if (parentNode != null) {
             if (!parentNode.isContainerNode()) {
