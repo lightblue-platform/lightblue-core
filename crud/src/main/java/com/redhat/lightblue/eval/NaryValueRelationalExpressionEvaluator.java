@@ -62,7 +62,7 @@ public class NaryValueRelationalExpressionEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         LOGGER.debug("evaluate {} {} {}", field, operator, values);
-        KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
+        KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field,true);
         boolean ret = false;
         while (cursor.hasNext()) {
             cursor.next();

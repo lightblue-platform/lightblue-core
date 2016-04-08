@@ -139,4 +139,51 @@ public class JsonNodeDocTest extends AbstractJsonNodeTest {
         Assert.assertEquals(1, c.getCurrentValue().asInt());
         Assert.assertTrue(!c.hasNext());
     }
+
+    @Test
+    public void itrmissing() {
+        JsonNode node = createJsonNode("arraywithmissingelements");
+        JsonDoc doc = new JsonDoc(node);
+
+        KeyValueCursor<Path, JsonNode> c = doc.getAllNodes(new Path("array1.*.fld1"));
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertEquals("1",c.getCurrentValue().asText());
+        Assert.assertFalse(c.hasNext());
+
+        c = doc.getAllNodes(new Path("array2.*.nested.*.fld1"));
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertEquals("1",c.getCurrentValue().asText());
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertEquals("7",c.getCurrentValue().asText());
+        Assert.assertFalse(c.hasNext());
+        
+
+        c = doc.getAllNodes(new Path("array1.*.fld1"),true);
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertEquals("1",c.getCurrentValue().asText());
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertNull(c.getCurrentValue());
+        Assert.assertFalse(c.hasNext());
+
+        c = doc.getAllNodes(new Path("array2.*.nested.*.fld1"),true);
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertEquals("1",c.getCurrentValue().asText());
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertNull(c.getCurrentValue());
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertNull(c.getCurrentValue());
+        Assert.assertTrue(c.hasNext());
+        c.next();
+        Assert.assertEquals("7",c.getCurrentValue().asText());
+        Assert.assertFalse(c.hasNext());
+
+    }
 }
