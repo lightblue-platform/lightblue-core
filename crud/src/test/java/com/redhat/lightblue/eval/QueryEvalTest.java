@@ -128,4 +128,12 @@ public class QueryEvalTest extends AbstractJsonNodeTest {
         Assert.assertFalse(ctx.getResult());
     }
 
+    @Test
+    public void nullObjcmp() throws Exception {
+        QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field6','op':'!=','rvalue':null}");
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
+        Assert.assertTrue(ctx.getResult());
+    }
+
 }
