@@ -270,11 +270,13 @@ public class Mediator {
                         updateResponse=new CRUDUpdateResponse();
                         updateResponse.setNumUpdated(0);
                         updateResponse.setNumFailed(0);
+                        updateResponse.setNumMatched(0);
                     }
                 }
                 ctx.getHookManager().queueMediatorHooks(ctx);
                 LOGGER.debug("# Updated", updateResponse.getNumUpdated());
                 response.setModifiedCount(updateResponse.getNumUpdated());
+                response.setMatchCount(updateResponse.getNumMatched());
                 List<JsonDoc> updatedDocuments = ctx.getOutputDocumentsWithoutErrors();
                 if (updatedDocuments != null && !updatedDocuments.isEmpty()) {
                     response.setEntityData(JsonDoc.listToDoc(applyRange(req, updatedDocuments), factory.getNodeFactory()));

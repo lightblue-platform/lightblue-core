@@ -197,10 +197,11 @@ public class MediatorTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getUpdate().setRoles("anyone");
         mockCrudController.updateResponse.setNumUpdated(1);
+        mockCrudController.updateResponse.setNumMatched(1);
         response = mediator.update(req);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
-        Assert.assertEquals(0, response.getMatchCount());
+        Assert.assertEquals(1, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
     }
