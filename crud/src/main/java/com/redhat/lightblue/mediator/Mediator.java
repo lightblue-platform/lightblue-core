@@ -530,31 +530,35 @@ public class Mediator {
         LOGGER.debug("Bulk request start");
         Error.push("bulk operation");
         ExecutorService executor=Executors.newFixedThreadPool(factory.getBulkParallelExecutions());
-        LOGGER.debug("Executing {} find requests in parallel",factory.getBulkParallelExecutions());        
-        List<Request> requestList=requests.getEntries();        
-        int n=requestList.size();
-        BulkExecutionContext ctx=new BulkExecutionContext(n);
-        
-        for(int i=0;i<n;i++) {
-            Request req=requestList.get(i);
-            if(req.getOperation()==CRUDOperation.FIND) {
-                ctx.futures[i]=executor.submit(getAsyncFind((FindRequest)req));
-            } else {
-                wait(ctx);
-                switch(req.getOperation()) {
-                case INSERT: ctx.responses[i]=insert((InsertionRequest)req);break;
-                case DELETE: ctx.responses[i]=delete((DeleteRequest)req);break;
-                case UPDATE: ctx.responses[i]=update((UpdateRequest)req);break;
-                case SAVE: ctx.responses[i]=save((SaveRequest)req);break;
+        try {
+            LOGGER.debug("Executing {} find requests in parallel",factory.getBulkParallelExecutions());
+            List<Request> requestList=requests.getEntries();
+            int n=requestList.size();
+            BulkExecutionContext ctx=new BulkExecutionContext(n);
+
+            for(int i=0;i<n;i++) {
+                Request req=requestList.get(i);
+                if(req.getOperation()==CRUDOperation.FIND) {
+                    ctx.futures[i]=executor.submit(getAsyncFind((FindRequest)req));
+                } else {
+                    wait(ctx);
+                    switch(req.getOperation()) {
+                    case INSERT: ctx.responses[i]=insert((InsertionRequest)req);break;
+                    case DELETE: ctx.responses[i]=delete((DeleteRequest)req);break;
+                    case UPDATE: ctx.responses[i]=update((UpdateRequest)req);break;
+                    case SAVE: ctx.responses[i]=save((SaveRequest)req);break;
+                    }
                 }
             }
+            wait(ctx);
+            LOGGER.debug("Bulk execution completed");
+            BulkResponse response=new BulkResponse();
+            response.setEntries(ctx.responses);
+            Error.pop();
+            return response;
+        } finally {
+            executor.shutdown();
         }
-        wait(ctx);
-        LOGGER.debug("Bulk execution completed");
-        BulkResponse response=new BulkResponse();
-        response.setEntries(ctx.responses);        
-        Error.pop();
-        return response;
     }
 
 
