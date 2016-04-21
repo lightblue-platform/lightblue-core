@@ -94,7 +94,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                     try {
                         o = Thread.currentThread().getContextClassLoader().loadClass(clazz).newInstance();
                     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
-                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, ex.getMessage());
+                        throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, ex);
                     }
 
                     // add to list or fail
