@@ -139,11 +139,15 @@ public class CompositeFindImpl implements Finder {
         CRUDFindResponse response=new CRUDFindResponse();
         ExecutionContext executionContext=new ExecutionContext(ctx,
                                                                Executors.newWorkStealingPool(parallelism));
-        StepResult<ResultDocument> results=executionPlan.getResults(executionContext);       
-        results.stream().map(d->new DocCtx(d.getDoc())).forEach(d->ctx.addDocument(d));
-        response.setSize(executionContext.getMatchCount());
-        LOGGER.debug("Composite find: end");
-        return response;
+        try {
+            StepResult<ResultDocument> results=executionPlan.getResults(executionContext);       
+            results.stream().map(d->new DocCtx(d.getDoc())).forEach(d->ctx.addDocument(d));
+            response.setSize(executionContext.getMatchCount());
+            LOGGER.debug("Composite find: end");
+            return response;
+        } finally {
+            executionContext.close();
+        }
    }
 
     /**

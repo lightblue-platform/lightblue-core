@@ -54,4 +54,8 @@ public class ExecutionContext {
     public void setMatchCount(int c) {
         matchCount=c;
     }
+
+    public void close() {
+        executor.shutdown();
+    }
 }
