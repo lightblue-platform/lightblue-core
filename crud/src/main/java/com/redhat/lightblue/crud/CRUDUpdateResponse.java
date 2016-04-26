@@ -29,6 +29,7 @@ public class CRUDUpdateResponse implements Serializable {
 
     private int numUpdated;
     private int numFailed;
+    private int numMatched;
 
     /**
      * Returns the number of updated docs
@@ -58,4 +59,17 @@ public class CRUDUpdateResponse implements Serializable {
         numFailed = n;
     }
 
+    /**
+     * Number of documents matched the update criteria
+     */
+    public int getNumMatched() {
+        return numMatched;
+    }
+
+    /**
+     * Number of documents matched the update criteria
+     */
+    public void setNumMatched(int n) {
+        numMatched=n;
+    }
 }
