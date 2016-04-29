@@ -60,6 +60,7 @@ public final class Searches {
     public static Map<ChildSlot,QueryExpression> writeChildQueriesFromParentDoc(AssociationQuery aq,
                                                                                 ResultDocument parentDocument) {
         Map<ChildSlot,BindQuery> binders=parentDocument.getBindersForChild(aq);
+        LOGGER.debug("writeChildQueriesForParentDoc: aq={} binders={}",aq,binders);
         Map<ChildSlot,QueryExpression> queries=new HashMap<>();
         for(Map.Entry<ChildSlot,BindQuery> entry:binders.entrySet()) {
             if(aq.getQuery()!=null) {
@@ -68,6 +69,7 @@ public final class Searches {
                 queries.put(entry.getKey(),null);
             }
         }
+        LOGGER.debug("Queries:{}",queries);
         return queries;
     }
 
@@ -75,6 +77,7 @@ public final class Searches {
      * Writes queries form a join tuple
      */
     public static List<QueryExpression> writeQueriesForJoinTuple(JoinTuple tuple,ExecutionBlock childBlock) {
+        LOGGER.debug("writeQueriesForJoinTuples tuple:{}, child:{}",tuple,childBlock);
         Tuples<BindQuery> btuples=new Tuples<>();
         if(tuple.getParentDocument()!=null) {
             AssociationQuery aq=childBlock.getAssociationQueryForEdge(tuple.getParentDocument().getBlock());
@@ -106,6 +109,7 @@ public final class Searches {
                 ret.add(allBinders.iterate(query));
             }
         }
+        LOGGER.debug("queries={}",ret);
         return ret;
     }
 
@@ -187,7 +191,7 @@ public final class Searches {
         if(l.size()==0)
             return null;
         else if(l.size()==1)
-            return list.get(0);
+            return l.get(0);
         else 
             return new NaryLogicalExpression(op,l);
     }

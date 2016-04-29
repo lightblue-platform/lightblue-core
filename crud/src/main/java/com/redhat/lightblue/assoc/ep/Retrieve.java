@@ -46,9 +46,11 @@ public class Retrieve extends Search {
         this.searchQuery=q;
     }
     
-    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
+    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {                   
         CRUDFindRequest findRequest=new CRUDFindRequest();
         findRequest.setQuery(Searches.and(query,searchQuery));
+        LOGGER.debug("Building find request with q={}",
+                     findRequest.getQuery());
         findRequest.setProjection(projection);
         findRequest.setSort(sort);
         findRequest.setFrom(from);

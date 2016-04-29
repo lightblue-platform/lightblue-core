@@ -49,4 +49,9 @@ public final class Source<T> {
             sourceBlock=sourceStep.getBlock();
         return sourceBlock;
     }
+
+    @Override
+    public String toString() {
+        return "Step:"+getStep()+" block:"+getBlock();
+    }    
 }

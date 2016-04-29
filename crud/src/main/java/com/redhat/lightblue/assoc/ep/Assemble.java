@@ -61,6 +61,7 @@ public class Assemble extends Step<ResultDocument> {
     }
 
     public List<ResultDocument> getResultList(QueryExpression q,ExecutionContext ctx) {
+        LOGGER.debug("getResultList q={} block={}",q,block);
         Retrieve r=block.getStep(Retrieve.class);
         if(r!=null) {
             r.setQuery(q);
@@ -80,6 +81,7 @@ public class Assemble extends Step<ResultDocument> {
             else
                 throw new IllegalArgumentException("No assemble step in "+x);
         }
+        LOGGER.debug("getResults, source:{}, destinations={}",source,destinations);
         // Get the results from the source
         StepResult<ResultDocument> sourceResults=source.getStep().getResults(ctx);
         List<ResultDocument> results=sourceResults.stream().collect(Collectors.toList());
@@ -89,6 +91,7 @@ public class Assemble extends Step<ResultDocument> {
         List<Future> assemblers=new ArrayList<>();
         for(Map.Entry<ExecutionBlock,Assemble> destination:destinations.entrySet()) {
             AssociationQuery aq=destination.getKey().getAssociationQueryForEdge(block);
+            LOGGER.debug("Scheduling batch assembler with aq={} block={}",aq,destination.getKey());
             BatchAssembler batchAssembler=new BatchAssembler(256,aq,destination.getValue(),ctx);
             assemblers.add(ctx.getExecutor().submit(() -> {
                         if(aq.getQuery()==null) {
