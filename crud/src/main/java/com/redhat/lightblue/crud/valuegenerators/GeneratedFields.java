@@ -149,13 +149,6 @@ public final class GeneratedFields {
         }
     }
 
-    public static Object generateValue(Factory factory,String valueGenerator,EntityMetadata md) {
-        ValueGeneratorSupport vgs=factory.getValueGenerator(valueGenerator,md.getDataStore().getBackend());
-        if(vgs==null)
-            throw new IllegalArgumentException("Cannot generate value for "+valueGenerator);
-        return vgs.generateValue(md,valueGenerator);        
-    }
-    
     public static JsonNode generate(Factory factory,
                                     SimpleField field,
                                     EntityMetadata md) {
