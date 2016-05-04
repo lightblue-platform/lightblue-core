@@ -47,6 +47,12 @@ public class SimpleField extends Field {
     }
 
     @Override
+    public void shallowCopyFrom(Field source) {
+        super.shallowCopyFrom(source);
+        this.valueGenerator=((SimpleField)source).valueGenerator;
+    }
+    
+    @Override
     public Iterator<FieldTreeNode> getChildren() {
         return FieldTreeNode.EMPTY;
     }
