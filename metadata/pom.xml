@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.redhat.lightblue</groupId>
         <artifactId>lightblue-core-pom</artifactId>
-        <version>1.16.0-SNAPSHOT</version>
+        <version>1.15.0-SNAPSHOT</version>
     </parent>
     <groupId>com.redhat.lightblue</groupId>
     <artifactId>lightblue-core-metadata</artifactId>
@@ -32,17 +32,17 @@
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-util</artifactId>
-            <version>1.16.0-SNAPSHOT</version>
+            <version>1.15.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-api</artifactId>
-            <version>1.16.0-SNAPSHOT</version>
+            <version>1.15.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.redhat.lightblue</groupId>
             <artifactId>lightblue-core-query-api</artifactId>
-            <version>1.16.0-SNAPSHOT</version>
+            <version>1.15.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
