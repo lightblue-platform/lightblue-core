@@ -161,5 +161,33 @@ public class AnalyzeQueryTest extends AbstractJsonNodeTest {
         Assert.assertTrue(md==list.get(2).getFieldEntity());
         Assert.assertEquals(new Path("obj1.c_ref"),list.get(2).getEntityRelativeFieldName());
     }
-    
+
+    @Test
+    public void testNestedElemMatch() throws Exception {
+        GMD gmd=new GMD(projection("{'field':'us','include':1}"),null);
+        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+
+        // Process query at root
+        AnalyzeQuery pq=new AnalyzeQuery(md,null);
+        QueryExpression q=query("{'array':'us','elemMatch':{'array':'authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }}");
+        pq.iterate(q);
+        List<QueryFieldInfo> list=pq.getFieldInfo();
+        System.out.println(list);
+        Assert.assertEquals(new Path("us"),list.get(0).getFullFieldName());
+        Assert.assertEquals(new Path("us"),list.get(0).getEntityRelativeFieldNameWithContext());
+        Assert.assertFalse(list.get(0).isLeaf());
+
+        Assert.assertEquals(new Path("us.*.authentications"),list.get(1).getFullFieldName());
+        Assert.assertEquals(new Path("authentications"),list.get(1).getEntityRelativeFieldNameWithContext());
+        Assert.assertFalse(list.get(1).isLeaf());
+
+        Assert.assertEquals(new Path("us.*.authentications.*.principal"),list.get(2).getFullFieldName());
+        Assert.assertEquals(new Path("authentications.*.principal"),list.get(2).getEntityRelativeFieldNameWithContext());
+        Assert.assertTrue(list.get(2).isLeaf());
+
+        Assert.assertEquals(new Path("us.*.authentications.*.providerName"),list.get(3).getFullFieldName());
+        Assert.assertEquals(new Path("authentications.*.providerName"),list.get(3).getEntityRelativeFieldNameWithContext ());
+        Assert.assertTrue(list.get(3).isLeaf());
+    }
+
 }

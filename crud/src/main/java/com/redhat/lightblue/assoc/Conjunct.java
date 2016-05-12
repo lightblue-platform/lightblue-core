@@ -93,6 +93,7 @@ public class Conjunct implements Serializable {
      */
     public Set<CompositeMetadata> getEntities() {
         return fieldInfo.stream().
+            filter(qfi->qfi.isLeaf()).
             map(QueryFieldInfo::getFieldEntity).
             collect(Collectors.toSet());
     }

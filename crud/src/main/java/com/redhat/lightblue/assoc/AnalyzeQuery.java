@@ -199,7 +199,8 @@ public class AnalyzeQuery extends QueryIterator {
      */
     private QueryFieldInfo resolveField(Path clauseFieldName,
                                         Path context,
-                                        QueryExpression clause) {
+                                        QueryExpression clause,
+                                        boolean leaf) {
         // fullFieldName: The name of the field, including any enclosing elemMatch queries
         Path fullFieldName=context.isEmpty()?clauseFieldName:new Path(context,clauseFieldName);
         // The field node in metadata. Resolved relative to the
@@ -274,19 +275,20 @@ public class AnalyzeQuery extends QueryIterator {
                                   fieldMd,
                                   entityRelativeFieldName,
                                   entityRelativeFieldNameWithContext,
-                                  clause);
+                                  clause,
+                                  leaf);
     }
     
     @Override
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
-        fieldInfo.add(resolveField(q.getField(),context,q));
+        fieldInfo.add(resolveField(q.getField(),context,q,true));
         return q;
     }
 
     @Override
     protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
-        QueryFieldInfo lField=resolveField(q.getField(),context,q);
-        QueryFieldInfo rField=resolveField(q.getRfield(),context,q);
+        QueryFieldInfo lField=resolveField(q.getField(),context,q,true);
+        QueryFieldInfo rField=resolveField(q.getRfield(),context,q,true);
         fieldInfo.add(lField);
         fieldInfo.add(rField);
         return q;
@@ -294,20 +296,20 @@ public class AnalyzeQuery extends QueryIterator {
 
     @Override
     protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
-        fieldInfo.add(resolveField(q.getField(),context,q));
+        fieldInfo.add(resolveField(q.getField(),context,q,true));
         return q;
     }
 
     @Override
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
-        fieldInfo.add(resolveField(q.getField(),context,q));
+        fieldInfo.add(resolveField(q.getField(),context,q,true));
         return q;
     }
 
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
-        QueryFieldInfo lField=resolveField(q.getField(),context,q);
-        QueryFieldInfo rField=resolveField(q.getRfield(),context,q);
+        QueryFieldInfo lField=resolveField(q.getField(),context,q,true);
+        QueryFieldInfo rField=resolveField(q.getRfield(),context,q,true);
         fieldInfo.add(lField);
         fieldInfo.add(rField);
         return q;
@@ -315,7 +317,7 @@ public class AnalyzeQuery extends QueryIterator {
 
     @Override
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
-        fieldInfo.add(resolveField(q.getArray(),context,q));
+        fieldInfo.add(resolveField(q.getArray(),context,q,true));
         return q;
     }
 
@@ -331,7 +333,7 @@ public class AnalyzeQuery extends QueryIterator {
 
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-        fieldInfo.add(resolveField(q.getArray(),context,q));
+        fieldInfo.add(resolveField(q.getArray(),context,q,false));
         return super.itrArrayMatchExpression(q,context);
     }
 

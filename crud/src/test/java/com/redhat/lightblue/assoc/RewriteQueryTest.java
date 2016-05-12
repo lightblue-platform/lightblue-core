@@ -222,4 +222,5 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
         System.out.println(newq);
         Assert.assertEquals(2,bindings.size());
     }
+
 }
