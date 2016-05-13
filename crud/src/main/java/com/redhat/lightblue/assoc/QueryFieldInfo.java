@@ -42,6 +42,7 @@ import com.redhat.lightblue.util.Path;
  * <li>entityRelativeFieldName: x.y, the relative field name of the field in the entity containing it, as it appears in clause</li>
  * <li>entityRelativeFieldNameWithContext: x.y, the relative field name of the field in the entity containing it, including any enclosing arrays</li>
  * <li>clause: The query clause</li>
+ * <li>leaf: true (whether of not the field is used in an actual comparison)</li>
  * </ul>
  * 
  * <pre>
@@ -54,6 +55,7 @@ import com.redhat.lightblue.util.Path;
  * <li>entityRelativeFieldName: If a.b.* is a reference field, entity relative field name is x.y.<li>
  * <li>entityRelativeFieldNameWithContext: If a.b.* is a reference field, entity relative field name is a.b.*.x.y.<li>
  * <li>clause: {field:'x.y', op:'=',rvalue:<value>}</li>
+ * <li>leaf: For a.b, false, for a.b.*.x.y, true</li>
  * </ul>
  */
 public class QueryFieldInfo implements Serializable {
@@ -67,6 +69,7 @@ public class QueryFieldInfo implements Serializable {
     private final Path entityRelativeFieldName;
     private final Path entityRelativeFieldNameWithContext;
     private final QueryExpression clause;
+    private final boolean leaf;
 
     public QueryFieldInfo(Path fieldNameInClause,
                           Path fullFieldName,
@@ -74,7 +77,8 @@ public class QueryFieldInfo implements Serializable {
                           CompositeMetadata fieldEntity,
                           Path entityRelativeFieldName,
                           Path entityRelativeFieldNameWithContext,
-                          QueryExpression clause) {
+                          QueryExpression clause,
+                          boolean leaf) {
         this.fieldNameInClause=fieldNameInClause;
         this.fullFieldName=fullFieldName;
         this.fieldMd=fieldMd;
@@ -82,9 +86,17 @@ public class QueryFieldInfo implements Serializable {
         this.entityRelativeFieldName=entityRelativeFieldName;
         this.entityRelativeFieldNameWithContext=entityRelativeFieldNameWithContext;
         this.clause=clause;
+        this.leaf=leaf;
     }
 
 
+    /**
+     * Whether the field is a leaf, i.e. the field is used in a comparison and not an intermediate array
+     */
+    public boolean isLeaf() {
+        return leaf;
+    }
+    
     /**
      * Name of the field in the clause containing the field. 
      */
