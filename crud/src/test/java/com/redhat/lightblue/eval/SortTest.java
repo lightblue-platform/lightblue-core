@@ -67,12 +67,11 @@ public class SortTest extends AbstractJsonNodeTest {
         return Sort.fromJson(JsonUtils.json(s.replace('\'', '\"')));
     }
 
-
     @Test
     public void sortTest() throws Exception {
-        EntityMetadata md=getMd("usermd.json");
+        EntityMetadata md = getMd("usermd.json");
         // Create some docs
-        List<JsonNode> docs=new ArrayList<>();
+        List<JsonNode> docs = new ArrayList<>();
         // Each doc will have _ids: 0,1,2,3,4,5,6,7,8,9
         // Sites: [ 00,10,20,30,40,50]
         //        [ 01,11,21,31,41,51]
@@ -80,54 +79,57 @@ public class SortTest extends AbstractJsonNodeTest {
         //
         // So, ascending sort by siteid should match _id order
         //     descending sort by siteid should match reverse _id order
-        for(int i=0;i<9;i++) {
-            ObjectNode root=JsonNodeFactory.instance.objectNode();
-            root.set("_id",JsonNodeFactory.instance.textNode(""+i));
-            ArrayNode sites=JsonNodeFactory.instance.arrayNode();
-            root.set("sites",sites);
-            for(int s=0;s<5;s++) {
-                ObjectNode site=JsonNodeFactory.instance.objectNode();
-                site.set("siteId",JsonNodeFactory.instance.textNode(""+s+i));
+        for (int i = 0; i < 9; i++) {
+            ObjectNode root = JsonNodeFactory.instance.objectNode();
+            root.set("_id", JsonNodeFactory.instance.textNode("" + i));
+            ArrayNode sites = JsonNodeFactory.instance.arrayNode();
+            root.set("sites", sites);
+            for (int s = 0; s < 5; s++) {
+                ObjectNode site = JsonNodeFactory.instance.objectNode();
+                site.set("siteId", JsonNodeFactory.instance.textNode("" + s + i));
                 sites.add(site);
             }
             docs.add(root);
         }
 
-        Sort sort=sort("{'sites.*.siteId':'$asc'}");
-        SortFieldInfo[] si=SortFieldInfo.buildSortFields(sort,md);
-        Assert.assertEquals(1,si.length);
-        List<SortableItem> list=new ArrayList<>();
-        for(JsonNode doc:docs)
-            list.add(new SortableItem(doc,si));
-
-        Collections.sort(list);
-
-        String last=null;
-        for(SortableItem doc:list) {
-            String id=doc.getNode().get("_id").asText();
-            if(last==null)
-                last=id;
-            else
-                Assert.assertTrue(id.compareTo(last)>0);
+        Sort sort = sort("{'sites.*.siteId':'$asc'}");
+        SortFieldInfo[] si = SortFieldInfo.buildSortFields(sort, md);
+        Assert.assertEquals(1, si.length);
+        List<SortableItem> list = new ArrayList<>();
+        for (JsonNode doc : docs) {
+            list.add(new SortableItem(doc, si));
         }
 
-
-        sort=sort("{'sites.*.siteId':'$desc'}");
-        si=SortFieldInfo.buildSortFields(sort,md);
-        Assert.assertEquals(1,si.length);
-        list=new ArrayList<>();
-        for(JsonNode doc:docs)
-            list.add(new SortableItem(doc,si));
-        
         Collections.sort(list);
-        
-        last=null;
-        for(SortableItem doc:list) {
-            String id=doc.getNode().get("_id").asText();
-            if(last==null)
-                last=id;
-            else
-                Assert.assertTrue(id.compareTo(last)<0);
+
+        String last = null;
+        for (SortableItem doc : list) {
+            String id = doc.getNode().get("_id").asText();
+            if (last == null) {
+                last = id;
+            } else {
+                Assert.assertTrue(id.compareTo(last) > 0);
+            }
+        }
+
+        sort = sort("{'sites.*.siteId':'$desc'}");
+        si = SortFieldInfo.buildSortFields(sort, md);
+        Assert.assertEquals(1, si.length);
+        list = new ArrayList<>();
+        for (JsonNode doc : docs) {
+            list.add(new SortableItem(doc, si));
+        }
+
+        Collections.sort(list);
+
+        last = null;
+        for (SortableItem doc : list) {
+            String id = doc.getNode().get("_id").asText();
+            if (last == null) {
+                last = id;
+            } else {
+                Assert.assertTrue(id.compareTo(last) < 0);
+            }
         }
 
     }

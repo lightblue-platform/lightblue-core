@@ -54,7 +54,7 @@ public class ExtensionsTest {
 
         @Override
         public void convert(MetadataParser<JsonNode> p, JsonNode emptyNode, HookConfiguration object) {
-            p.putString(emptyNode,"testField",((TestHookCfg)object).testName);
+            p.putString(emptyNode, "testField", ((TestHookCfg) object).testName);
         }
 
         @Override
@@ -124,23 +124,23 @@ public class ExtensionsTest {
         ex.registerHookConfigurationParser("testHook", hookParser);
         ex.registerDataStoreParser("test", new TestDataStoreParser());
 
-        EntityInfo ei=new EntityInfo("test");
-        ArrayList<Hook> hooks=new ArrayList<>();
-        Hook hook=new Hook("testHook");
+        EntityInfo ei = new EntityInfo("test");
+        ArrayList<Hook> hooks = new ArrayList<>();
+        Hook hook = new Hook("testHook");
         hook.setInsert(true);
-        hook.setProjection(new FieldProjection(new Path("*"),true,true));
+        hook.setProjection(new FieldProjection(new Path("*"), true, true));
         hook.setConfiguration(new TestHookCfg("test"));
         hooks.add(hook);
         ei.getHooks().setHooks(hooks);
 
         JSONMetadataParser parser = new JSONMetadataParser(ex, new DefaultTypes(), nodeFactory);
-        JsonNode node=parser.convert(ei);
+        JsonNode node = parser.convert(ei);
         System.out.println(node);
         JSONAssert.assertEquals(node.toString(), json("{'name':'test','datastore':{'backend':'test' }, "
-                                                      + "'hooks':[ "
-                                                      + "{'name':'testHook','actions':['insert'],"
-                                                      + "'projection':{'field':'*','include':true,'recursive':true},"
-                                                      + "'configuration':{'testField':'test'} } ] }").toString(), false);
-     
+                + "'hooks':[ "
+                + "{'name':'testHook','actions':['insert'],"
+                + "'projection':{'field':'*','include':true,'recursive':true},"
+                + "'configuration':{'testField':'test'} } ] }").toString(), false);
+
     }
 }

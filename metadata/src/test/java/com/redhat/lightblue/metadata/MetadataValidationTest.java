@@ -41,28 +41,28 @@ public class MetadataValidationTest {
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
-        com.redhat.lightblue.metadata.Enum enumdef=new  com.redhat.lightblue.metadata.Enum("en");
-        Set<String> envalues=new HashSet<>();
+        com.redhat.lightblue.metadata.Enum enumdef = new com.redhat.lightblue.metadata.Enum("en");
+        Set<String> envalues = new HashSet<>();
         envalues.add("value");
         enumdef.setValues(envalues);
         e.getEntityInfo().getEnums().addEnum(enumdef);
 
-        SimpleField s=new SimpleField("z",StringType.TYPE);
-        ArrayList<FieldConstraint> enumsc=new ArrayList<>();
-        EnumConstraint enumc=new EnumConstraint();
+        SimpleField s = new SimpleField("z", StringType.TYPE);
+        ArrayList<FieldConstraint> enumsc = new ArrayList<>();
+        EnumConstraint enumc = new EnumConstraint();
         enumc.setName("en");
         enumsc.add(enumc);
         s.setConstraints(enumsc);
         e.getFields().put(s);
 
-        s=new SimpleField("x",StringType.TYPE);
-        enumsc=new ArrayList<>();
-        enumc=new EnumConstraint();
+        s = new SimpleField("x", StringType.TYPE);
+        enumsc = new ArrayList<>();
+        enumc = new EnumConstraint();
         enumc.setName("en");
         enumsc.add(enumc);
         s.setConstraints(enumsc);
         o.getFields().put(s);
-        
+
         e.validate();
     }
 
@@ -76,15 +76,15 @@ public class MetadataValidationTest {
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
-        com.redhat.lightblue.metadata.Enum enumdef=new  com.redhat.lightblue.metadata.Enum("blah");
-        Set<String> envalues=new HashSet<>();
+        com.redhat.lightblue.metadata.Enum enumdef = new com.redhat.lightblue.metadata.Enum("blah");
+        Set<String> envalues = new HashSet<>();
         envalues.add("value");
         enumdef.setValues(envalues);
         e.getEntityInfo().getEnums().addEnum(enumdef);
 
-        SimpleField s=new SimpleField("z",StringType.TYPE);
-        ArrayList<FieldConstraint> enumsc=new ArrayList<>();
-        EnumConstraint enumc=new EnumConstraint();
+        SimpleField s = new SimpleField("z", StringType.TYPE);
+        ArrayList<FieldConstraint> enumsc = new ArrayList<>();
+        EnumConstraint enumc = new EnumConstraint();
         enumc.setName("en");
         enumsc.add(enumc);
         s.setConstraints(enumsc);
@@ -92,7 +92,8 @@ public class MetadataValidationTest {
         try {
             e.validate();
             Assert.fail();
-        } catch (Error ex) {}
+        } catch (Error ex) {
+        }
     }
 
     // Check if a second-level field enum constraint is validated
@@ -105,15 +106,15 @@ public class MetadataValidationTest {
         ObjectField o = new ObjectField("field2");
         o.getFields().put(new SimpleField("x", IntegerType.TYPE));
         e.getFields().put(o);
-        com.redhat.lightblue.metadata.Enum enumdef=new  com.redhat.lightblue.metadata.Enum("blah");
-        Set<String> envalues=new HashSet<>();
+        com.redhat.lightblue.metadata.Enum enumdef = new com.redhat.lightblue.metadata.Enum("blah");
+        Set<String> envalues = new HashSet<>();
         envalues.add("value");
         enumdef.setValues(envalues);
         e.getEntityInfo().getEnums().addEnum(enumdef);
 
-        SimpleField s=new SimpleField("x",StringType.TYPE);
-        ArrayList<FieldConstraint> enumsc=new ArrayList<>();
-        EnumConstraint enumc=new EnumConstraint();
+        SimpleField s = new SimpleField("x", StringType.TYPE);
+        ArrayList<FieldConstraint> enumsc = new ArrayList<>();
+        EnumConstraint enumc = new EnumConstraint();
         enumc.setName("en");
         enumsc.add(enumc);
         s.setConstraints(enumsc);
@@ -121,6 +122,7 @@ public class MetadataValidationTest {
         try {
             e.validate();
             Assert.fail();
-        } catch (Error ex) {}
+        } catch (Error ex) {
+        }
     }
 }

@@ -121,13 +121,13 @@ public class RValueExpressionTest {
     @Test
     public void testHashCode() {
         assertEquals(new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())).hashCode(),
-                     new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())).hashCode());
+                new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())).hashCode());
     }
 
     @Test
     public void testEquals() {
         assertEquals(new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())),
-                     new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())));
+                new RValueExpression(new Value(JsonNodeFactory.instance.objectNode())));
         RValueExpression instance = new RValueExpression(new Value(JsonNodeFactory.instance.objectNode()));
         assertFalse(instance.equals(null));
         assertFalse(instance.equals(""));

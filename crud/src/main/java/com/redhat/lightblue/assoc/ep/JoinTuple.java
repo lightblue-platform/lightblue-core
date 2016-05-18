@@ -22,21 +22,20 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * A join tuple is a tuple representing a slot in a parent document,
- * if there is one, and a list of child documents. These slot and
- * child documents will be used to retrieve a new batch of documents,
- * and they will be attached to the parent document slot if there is
- * one.
+ * A join tuple is a tuple representing a slot in a parent document, if there is
+ * one, and a list of child documents. These slot and child documents will be
+ * used to retrieve a new batch of documents, and they will be attached to the
+ * parent document slot if there is one.
  */
 public class JoinTuple {
     private final ResultDocument parentDocument;
     private final ChildSlot parentDocumentSlot;
     private final List<ResultDocument> childTuple;
 
-    public JoinTuple(ResultDocument parentDocument,ChildSlot slot,List<ResultDocument> children) {
-        this.parentDocument=parentDocument;
-        this.parentDocumentSlot=slot;
-        this.childTuple=children;
+    public JoinTuple(ResultDocument parentDocument, ChildSlot slot, List<ResultDocument> children) {
+        this.parentDocument = parentDocument;
+        this.parentDocumentSlot = slot;
+        this.childTuple = children;
     }
 
     public ResultDocument getParentDocument() {
@@ -52,18 +51,21 @@ public class JoinTuple {
     }
 
     public List<ExecutionBlock> getBlocks() {
-        List<ExecutionBlock> blocks=new ArrayList<>();
-        if(parentDocument!=null)
+        List<ExecutionBlock> blocks = new ArrayList<>();
+        if (parentDocument != null) {
             blocks.add(parentDocument.getBlock());
-        if(childTuple!=null)
-            for(ResultDocument d:childTuple)
+        }
+        if (childTuple != null) {
+            for (ResultDocument d : childTuple) {
                 blocks.add(d.getBlock());
+            }
+        }
         return blocks;
     }
 
     @Override
     public String toString() {
-        return "P:"+parentDocumentSlot+"/"+parentDocument+" C:"+childTuple;
+        return "P:" + parentDocumentSlot + "/" + parentDocument + " C:" + childTuple;
     }
 
 }

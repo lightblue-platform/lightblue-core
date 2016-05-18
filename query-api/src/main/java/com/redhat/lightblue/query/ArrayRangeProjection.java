@@ -25,47 +25,47 @@ import com.redhat.lightblue.util.Path;
 
 public class ArrayRangeProjection extends ArrayProjection {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final Integer from;
-	private final Integer to;
+    private final Integer from;
+    private final Integer to;
 
-	public ArrayRangeProjection(Path field, boolean include, Projection project, Sort sort, Integer from, Integer to) {
-		super(field, include, project, sort);
-		this.from = from;
-		this.to = to;
-	}
+    public ArrayRangeProjection(Path field, boolean include, Projection project, Sort sort, Integer from, Integer to) {
+        super(field, include, project, sort);
+        this.from = from;
+        this.to = to;
+    }
 
-	public ArrayRangeProjection(Path field, boolean include, Projection project, Integer from, Integer to) {
-		this(field, include, project, null, from, to);
-	}
+    public ArrayRangeProjection(Path field, boolean include, Projection project, Integer from, Integer to) {
+        this(field, include, project, null, from, to);
+    }
 
-	public Integer getFrom() {
-		return this.from;
-	}
+    public Integer getFrom() {
+        return this.from;
+    }
 
-	public Integer getTo() {
-		return this.to;
-	}
+    public Integer getTo() {
+        return this.to;
+    }
 
-	@Override
-	public JsonNode toJson() {
-		ArrayNode arr = getFactory().arrayNode();
-		if (from == null) {
-			arr.add(getFactory().nullNode());
-			if (to == null) {
-				arr.add(getFactory().nullNode());
-			} else {
-				arr.add(getFactory().numberNode(to));
-			}
-		} else if (from != null) {
-			arr.add(getFactory().numberNode(from));
-			if (to == null) {
-				arr.add(getFactory().nullNode());
-			} else {
-				arr.add(getFactory().numberNode(to));
-			}
-		}
-		return ((ObjectNode) super.toJson()).set("range", arr);
-	}
+    @Override
+    public JsonNode toJson() {
+        ArrayNode arr = getFactory().arrayNode();
+        if (from == null) {
+            arr.add(getFactory().nullNode());
+            if (to == null) {
+                arr.add(getFactory().nullNode());
+            } else {
+                arr.add(getFactory().numberNode(to));
+            }
+        } else if (from != null) {
+            arr.add(getFactory().numberNode(from));
+            if (to == null) {
+                arr.add(getFactory().nullNode());
+            } else {
+                arr.add(getFactory().numberNode(to));
+            }
+        }
+        return ((ObjectNode) super.toJson()).set("range", arr);
+    }
 }

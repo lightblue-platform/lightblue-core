@@ -83,16 +83,12 @@ public class HookManager {
             // If we're deleting, post copy is null
             if (op == CRUDOperation.DELETE) {
                 post = null;
+            } else if (doc.getUpdatedDocument() != null) {
+                post = doc.getUpdatedDocument().copy();
+            } else if (doc.getOriginalDocument() == doc && pre != null) {
+                post = pre;
             } else {
-                if(doc.getUpdatedDocument() != null) {
-                    post = doc.getUpdatedDocument().copy();
-                } else {
-                    if (doc.getOriginalDocument() == doc && pre != null) {
-                        post = pre;
-                    } else {
-                        post = doc.copy();
-                    }
-                }
+                post = doc.copy();
             }
             this.hooks = hooks;
         }
@@ -185,8 +181,7 @@ public class HookManager {
             } catch (RuntimeException e) {
                 if (e.getClass().isAnnotationPresent(StopHookProcessing.class)) {
                     throw e;
-                }
-                else {
+                } else {
                     LOGGER.error("Exception while processing hook of type: " + hd.crudHook.getClass(), e);
                 }
             }
@@ -274,8 +269,8 @@ public class HookManager {
 
                     // extract the who from the context if possible
                     String who = null;
-                    if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null &&
-                            ((OperationContext) ctx).getRequest().getClientId() != null) {
+                    if (ctx instanceof OperationContext && ((OperationContext) ctx).getRequest() != null
+                            && ((OperationContext) ctx).getRequest().getClientId() != null) {
                         who = ((OperationContext) ctx).getRequest().getClientId().getPrincipal();
                     }
 

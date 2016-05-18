@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Skips the first n results in a stream. 
+ * Skips the first n results in a stream.
  *
  * Input: Step<T>
  * Output: Step<T>
@@ -34,11 +34,11 @@ public class Skip<T> extends Step<T> {
 
     private final int skip;
     private final Source<T> source;
-    
-    public Skip(ExecutionBlock block,int n,Source<T> source) {
+
+    public Skip(ExecutionBlock block, int n, Source<T> source) {
         super(block);
-        this.source=source;
-        skip=n;
+        this.source = source;
+        skip = n;
     }
 
     @Override
@@ -49,13 +49,13 @@ public class Skip<T> extends Step<T> {
                 return super.stream().skip(skip);
             }
         };
-    }           
+    }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("skip",JsonNodeFactory.instance.numberNode(skip));
-        o.set("source",source.getStep().toJson());
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("skip", JsonNodeFactory.instance.numberNode(skip));
+        o.set("source", source.getStep().toJson());
         return o;
     }
 }

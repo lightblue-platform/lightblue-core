@@ -39,7 +39,7 @@ public class UIDInterceptor implements CRUDDocInterceptor, MediatorInterceptor {
 
     public void register(InterceptorManager mgr) {
         mgr.registerInterceptor(UID_SEQ, this, InterceptPoint.PRE_CRUD_INSERT_DOC,
-                                InterceptPoint.PRE_MEDIATOR_SAVE,
+                InterceptPoint.PRE_MEDIATOR_SAVE,
                 InterceptPoint.PRE_CRUD_UPDATE_DOC,
                 InterceptPoint.PRE_MEDIATOR_INSERT);
     }

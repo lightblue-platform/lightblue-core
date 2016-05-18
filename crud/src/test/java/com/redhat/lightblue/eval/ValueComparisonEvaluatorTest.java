@@ -177,9 +177,9 @@ public class ValueComparisonEvaluatorTest extends AbstractJsonNodeTest {
     @Test
     public void compareWithNull() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'field':'field1','op':'=','rvalue':null}");
-        jsonDoc.modify(new Path("field1"),JsonNodeFactory.instance.nullNode(),false);
-        QueryEvaluator qe = QueryEvaluator.getInstance(q,md);
-        QueryEvaluationContext ctx=qe.evaluate(jsonDoc);
+        jsonDoc.modify(new Path("field1"), JsonNodeFactory.instance.nullNode(), false);
+        QueryEvaluator qe = QueryEvaluator.getInstance(q, md);
+        QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertTrue(ctx.getResult());
     }
 }

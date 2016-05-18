@@ -30,9 +30,9 @@ public class ExecutionContext {
     private final ExecutorService executor;
     private int matchCount;
 
-    public ExecutionContext(OperationContext ctx,ExecutorService executor) {
-        this.opctx=ctx;
-        this.executor=executor;
+    public ExecutionContext(OperationContext ctx, ExecutorService executor) {
+        this.opctx = ctx;
+        this.executor = executor;
     }
 
     public OperationContext getOperationContext() {
@@ -52,7 +52,7 @@ public class ExecutionContext {
     }
 
     public void setMatchCount(int c) {
-        matchCount=c;
+        matchCount = c;
     }
 
     public void close() {

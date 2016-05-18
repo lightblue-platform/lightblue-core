@@ -67,7 +67,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
                                     CRUDOperation op,
                                     Factory f,
                                     List<JsonDoc> docs) {
-            super(op, "test", f, docs,null);
+            super(op, "test", f, docs, null);
             this.md = md;
             if (CRUDOperation.UPDATE.equals(op) || CRUDOperation.DELETE.equals(op)) {
                 // for update and delete setup the original document so pre isn't null in hooks
@@ -134,24 +134,23 @@ public class HookManagerTest extends AbstractJsonNodeTest {
             super("MH");
         }
     }
-    
+
     public static class TestErrorHook extends AbstractHook {
 
         public TestErrorHook() {
             super("EH");
         }
-        
+
         @Override
         public void processHook(EntityMetadata md, HookConfiguration cfg, List<HookDoc> processedDocuments) {
             throw new RuntimeErrorException(null, "Processing of other hooks should continue.");
         }
-        
-    }
-    
-    public static class TestErrorHookConfig implements HookConfiguration {
-        
+
     }
 
+    public static class TestErrorHookConfig implements HookConfiguration {
+
+    }
 
     private TestHook1 hook1;
     private TestHook2 hook2;
@@ -238,7 +237,7 @@ public class HookManagerTest extends AbstractJsonNodeTest {
 
     private TestOperationContext setupContext(CRUDOperation op) throws Exception {
         EntityMetadata md = getMD("./testMetadata.json");
-        
+
         // error hook gets processed first so we can be sure the rest continue
         addHook(md, "EH", null, new TestErrorHookConfig(), "update");
         addHook(md, "hook1", null, new TestHook1Config(), "insert", "update");

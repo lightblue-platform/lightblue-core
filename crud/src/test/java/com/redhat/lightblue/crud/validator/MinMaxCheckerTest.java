@@ -45,68 +45,61 @@ import com.redhat.lightblue.util.Error;
 public class MinMaxCheckerTest {
 
     /**
-     * Col1: For debugging purposes to know which test case had issues
-     * Col2: A instantiation to test with. Should always represent 2.
+     * Col1: For debugging purposes to know which test case had issues Col2: A
+     * instantiation to test with. Should always represent 2.
      */
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-                {Integer.class, new Integer(2)},
-                {Byte.class, new Byte(new Integer(2).byteValue())},
-                {Short.class, new Short(new Integer(2).shortValue())},
-                {Long.class, new Long(2L)},
-                {Float.class, new Float(2F)},
-                {Double.class, new Double(2D)},
-                {BigInteger.class, new BigInteger("2")},
-                {BigDecimal.class, new BigDecimal(2)}
+        return Arrays.asList(new Object[][]{
+            {Integer.class, new Integer(2)},
+            {Byte.class, new Byte(new Integer(2).byteValue())},
+            {Short.class, new Short(new Integer(2).shortValue())},
+            {Long.class, new Long(2L)},
+            {Float.class, new Float(2F)},
+            {Double.class, new Double(2D)},
+            {BigInteger.class, new BigInteger("2")},
+            {BigDecimal.class, new BigDecimal(2)}
         });
     }
 
     private final Number number;
 
-    public MinMaxCheckerTest(Class<Number> type, Number number) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
+    public MinMaxCheckerTest(Class<Number> type, Number number) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         this.number = number;
     }
 
-    protected JsonNode mockFieldValue(JsonNode mock, int value){
-        if((number instanceof Integer)
+    protected JsonNode mockFieldValue(JsonNode mock, int value) {
+        if ((number instanceof Integer)
                 || (number instanceof Byte)
                 || (number instanceof Short)
                 || (number instanceof Long)) {
             when(mock.asLong()).thenReturn(new Long(value));
-        }
-        else if((number instanceof Float)
-                || (number instanceof Double)){
+        } else if ((number instanceof Float)
+                || (number instanceof Double)) {
             when(mock.asDouble()).thenReturn(new Double(value));
-        }
-        else if(number instanceof BigInteger){
+        } else if (number instanceof BigInteger) {
             when(mock.bigIntegerValue()).thenReturn(new BigInteger(String.valueOf(value)));
-        }
-        else if(number instanceof BigDecimal){
+        } else if (number instanceof BigDecimal) {
             when(mock.decimalValue()).thenReturn(new BigDecimal(value));
-        }
-        else{
+        } else {
             throw new IllegalArgumentException("Not a supported Number type: " + number.getClass());
         }
 
         return mock;
     }
 
-    protected Number convertInt(int value){
-        if((number instanceof Integer)
+    protected Number convertInt(int value) {
+        if ((number instanceof Integer)
                 || (number instanceof Byte)
                 || (number instanceof Short)
                 || (number instanceof Long)) {
             return new Long(value);
-        }
-        else if((number instanceof Float)
-                || (number instanceof Double)){
+        } else if ((number instanceof Float)
+                || (number instanceof Double)) {
             return new Double(value);
-        }
-        else if(number instanceof BigInteger){
+        } else if (number instanceof BigInteger) {
             return new BigInteger(String.valueOf(value));
-        }
-        else if(number instanceof BigDecimal){
+        } else if (number instanceof BigDecimal) {
             return new BigDecimal(value);
         }
 
@@ -114,7 +107,7 @@ public class MinMaxCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MIN_TooSmall(){
+    public void testCheckConstraint_MIN_TooSmall() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
@@ -129,7 +122,7 @@ public class MinMaxCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MIN_Equal_Pass(){
+    public void testCheckConstraint_MIN_Equal_Pass() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
@@ -144,7 +137,7 @@ public class MinMaxCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MIN_Pass(){
+    public void testCheckConstraint_MIN_Pass() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         MinMaxConstraint constraint = new MinMaxConstraint(MinMaxConstraint.MIN);
@@ -159,7 +152,7 @@ public class MinMaxCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MAX_TooLarge(){
+    public void testCheckConstraint_MAX_TooLarge() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         MinMaxConstraint constraint = new MinMaxConstraint("Fake Type");
@@ -174,7 +167,7 @@ public class MinMaxCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MAX_Equal_Pass(){
+    public void testCheckConstraint_MAX_Equal_Pass() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         MinMaxConstraint constraint = new MinMaxConstraint("Fake Type");
@@ -189,7 +182,7 @@ public class MinMaxCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MAX_Pass(){
+    public void testCheckConstraint_MAX_Pass() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         MinMaxConstraint constraint = new MinMaxConstraint("Fake Type");

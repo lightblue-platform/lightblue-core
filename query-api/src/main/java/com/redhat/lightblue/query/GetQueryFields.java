@@ -24,19 +24,17 @@ import java.util.ArrayList;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Query iterator that collects field information from a query
- * expression. A FieldInfo object is returned for every field the
- * query. For array elemMatch queries, the fields from the nested
- * expressions are returned along with their context, and absolute
- * field names. For instance:
+ * Query iterator that collects field information from a query expression. A
+ * FieldInfo object is returned for every field the query. For array elemMatch
+ * queries, the fields from the nested expressions are returned along with their
+ * context, and absolute field names. For instance:
  * <pre>
  *  { array:a, elemMatch: {field:x, op:$eq, rvalue:1}}
- * </pre>
- * For this query, a fieldInfo is returned for 'a.*.x', but not 'a'.
+ * </pre> For this query, a fieldInfo is returned for 'a.*.x', but not 'a'.
  */
 public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
     private List<T> fields;
-    
+
     public GetQueryFields(List<T> fields) {
         this.fields = fields;
     }
@@ -44,49 +42,49 @@ public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
     /**
      * Override this method to create a subclass of FieldInfo if necessary
      */
-    protected T newFieldInfo(Path clauseField,Path ctx,QueryExpression clause) {
-        return (T)new FieldInfo(clauseField,ctx,clause);
+    protected T newFieldInfo(Path clauseField, Path ctx, QueryExpression clause) {
+        return (T) new FieldInfo(clauseField, ctx, clause);
     }
-    
+
     @Override
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path ctx) {
         fields.add(newFieldInfo(q.getArray(), ctx, q));
         return q;
     }
-    
+
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path ctx) {
         // Array match expression does not have the array itself as a field.
         // All the fields references in the nested expression are the fields used by this expression
-        return super.itrArrayMatchExpression(q,ctx);
+        return super.itrArrayMatchExpression(q, ctx);
     }
-    
+
     @Override
     protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
         fields.add(newFieldInfo(q.getField(), ctx, q));
         fields.add(newFieldInfo(q.getRfield(), ctx, q));
         return q;
     }
-    
+
     @Override
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
         fields.add(newFieldInfo(q.getField(), ctx, q));
         return q;
     }
-    
+
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
         fields.add(newFieldInfo(q.getField(), ctx, q));
         fields.add(newFieldInfo(q.getRfield(), ctx, q));
         return q;
     }
-    
+
     @Override
     protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path ctx) {
         fields.add(newFieldInfo(q.getField(), ctx, q));
         return q;
     }
-    
+
     @Override
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path ctx) {
         fields.add(newFieldInfo(q.getField(), ctx, q));
@@ -98,7 +96,7 @@ public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
      */
     public static List<FieldInfo> getQueryFields(QueryExpression q) {
         List<FieldInfo> list = new ArrayList<>(16);
-        getQueryFields(list,q);
+        getQueryFields(list, q);
         return list;
     }
 
@@ -107,14 +105,14 @@ public class GetQueryFields<T extends FieldInfo> extends QueryIterator {
      *
      * @param fields The call adds the field information to this list
      */
-    public static <T extends FieldInfo>  void getQueryFields(List<T> fields,QueryExpression q) {
+    public static <T extends FieldInfo> void getQueryFields(List<T> fields, QueryExpression q) {
         getQueryFields(fields, q, Path.EMPTY);
     }
 
     /**
      * The implementation should populate the list with the field information
      */
-    public static <T extends FieldInfo> void getQueryFields(List<T> fields, QueryExpression q,Path ctx) {
+    public static <T extends FieldInfo> void getQueryFields(List<T> fields, QueryExpression q, Path ctx) {
         new GetQueryFields<>(fields).iterate(q, ctx);
     }
 

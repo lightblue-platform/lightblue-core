@@ -51,14 +51,12 @@ public class ForEachExpressionEvaluator extends Updater {
     private UpdateInfo updateInfo = null;
     private int numAny = 0;
 
-
     public ForEachExpressionEvaluator(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr) {
-        this.memento = new Memento(factory,context,expr);
+        this.memento = new Memento(factory, context, expr);
         this.factory = factory;
         this.numAny = expr.getField().nAnys();
         // Resolve the field, make sure it is an array
         this.updateInfo = generateProcessedInfo(context, expr, null, null);
-
 
     }
 
@@ -68,7 +66,7 @@ public class ForEachExpressionEvaluator extends Updater {
         QueryEvaluator queryEvaluator;
         Updater updater;
 
-        if(informedField == null) {
+        if (informedField == null) {
             field = expr.getField();
         } else {
             field = informedField;
@@ -89,7 +87,7 @@ public class ForEachExpressionEvaluator extends Updater {
             queryEvaluator = QueryEvaluator.getInstance(query, fieldMd.getElement());
         }
 
-        if(updaterInstance == null) {
+        if (updaterInstance == null) {
             // Get an updater to execute on each matching element
             UpdateExpression upd = expr.getUpdate();
             if (upd instanceof RemoveElementExpression) {
@@ -115,19 +113,20 @@ public class ForEachExpressionEvaluator extends Updater {
     public boolean update(JsonDoc doc, FieldTreeNode contextMd, Path contextPath) {
         boolean ret = false;
 
-        if(numAny > 0) {
+        if (numAny > 0) {
             KeyValueCursor<Path, JsonNode> cursor = doc.getAllNodes(memento.expr.getField());
 
             boolean b = cursor.hasNext();
-            while(b){
+            while (b) {
                 cursor.next();
                 Path currentKey = cursor.getCurrentKey();
                 JsonNode currentValue = cursor.getCurrentValue();
 
                 UpdateInfo updateInfoInstance = generateProcessedInfo(memento.context, memento.expr, currentKey, this.updateInfo.updater);
 
-                if(update(doc, contextPath, updateInfoInstance))
-                	ret=true;
+                if (update(doc, contextPath, updateInfoInstance)) {
+                    ret = true;
+                }
                 b = cursor.hasNext();
             }
 
@@ -156,14 +155,14 @@ public class ForEachExpressionEvaluator extends Updater {
             // Copy the nodes to a separate list, so we iterate on the
             // new copy, and modify the original
             ArrayList<JsonNode> nodes = new ArrayList<>();
-            for (Iterator<JsonNode> itr = arrayNode.elements(); itr.hasNext(); ) {
+            for (Iterator<JsonNode> itr = arrayNode.elements(); itr.hasNext();) {
                 nodes.add(itr.next());
             }
             for (JsonNode elementNode : nodes) {
                 itrPath.setLast(index);
                 Path elementPath = itrPath.immutableCopy();
                 LOGGER.debug("itr:{}", elementPath);
-                QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot(),elementNode, elementPath);
+                QueryEvaluationContext ctx = new QueryEvaluationContext(doc.getRoot(), elementNode, elementPath);
                 if (updateInfo.queryEvaluator.evaluate(ctx)) {
                     LOGGER.debug("query matches {}", elementPath);
                     LOGGER.debug("Calling updater {}", updateInfo.updater);
@@ -195,9 +194,9 @@ public class ForEachExpressionEvaluator extends Updater {
         private final ForEachExpression expr;
 
         public Memento(JsonNodeFactory factory, FieldTreeNode context, ForEachExpression expr) {
-            this.factory =factory;
-            this.context =context;
-            this.expr =expr;
+            this.factory = factory;
+            this.context = context;
+            this.expr = expr;
         }
     }
 
@@ -214,7 +213,6 @@ public class ForEachExpressionEvaluator extends Updater {
             this.updater = updater;
         }
     }
-
 
     /**
      * Inner class for $all

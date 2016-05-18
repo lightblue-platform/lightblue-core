@@ -67,13 +67,13 @@ public class QueryEvaluationContext {
     }
 
     public KeyValueCursor<Path, JsonNode> getNodes(Path relativePath) {
-        return new JsonDoc(root).getAllNodes(contextPath.isEmpty()?relativePath:new Path(contextPath,relativePath));
+        return new JsonDoc(root).getAllNodes(contextPath.isEmpty() ? relativePath : new Path(contextPath, relativePath));
     }
 
-    public KeyValueCursor<Path, JsonNode> getNodes(Path relativePath,boolean returnMissingNodes) {
-        return new JsonDoc(root).getAllNodes(contextPath.isEmpty()?relativePath:new Path(contextPath,relativePath),returnMissingNodes);
+    public KeyValueCursor<Path, JsonNode> getNodes(Path relativePath, boolean returnMissingNodes) {
+        return new JsonDoc(root).getAllNodes(contextPath.isEmpty() ? relativePath : new Path(contextPath, relativePath), returnMissingNodes);
     }
-    
+
     public Path getPath() {
         return contextPath.immutableCopy();
     }

@@ -68,10 +68,10 @@ public class IdentityFieldsTest extends AbstractJsonNodeTest {
         Assert.assertTrue("_id".equals(idf[0].getName()) || "_id".equals(idf[1].getName()));
         Assert.assertTrue("iduid".equals(idf[0].getName()) || "iduid".equals(idf[1].getName()));
 
-        Map<Path,List<Path>> idMap=md.getEntitySchema().getArrayIdentities();
-        Assert.assertEquals(1,idMap.size());
-        Assert.assertEquals(1,idMap.get(new Path("sites")).size());
-        Assert.assertEquals(new Path("siteId"),idMap.get(new Path("sites")).get(0));
+        Map<Path, List<Path>> idMap = md.getEntitySchema().getArrayIdentities();
+        Assert.assertEquals(1, idMap.size());
+        Assert.assertEquals(1, idMap.get(new Path("sites")).size());
+        Assert.assertEquals(new Path("siteId"), idMap.get(new Path("sites")).get(0));
     }
 
     @Test

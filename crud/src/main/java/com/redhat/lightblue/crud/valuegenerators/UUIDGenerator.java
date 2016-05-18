@@ -27,17 +27,17 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 public class UUIDGenerator implements ValueGeneratorSupport {
 
-    public static final ValueGenerator.ValueGeneratorType[] TYPES={ValueGenerator.ValueGeneratorType.UUID};
+    public static final ValueGenerator.ValueGeneratorType[] TYPES = {ValueGenerator.ValueGeneratorType.UUID};
 
-    public static final UUIDGenerator instance=new UUIDGenerator();
-    
+    public static final UUIDGenerator instance = new UUIDGenerator();
+
     @Override
     public ValueGenerator.ValueGeneratorType[] getSupportedGeneratorTypes() {
         return TYPES;
     }
 
     @Override
-    public Object generateValue(EntityMetadata md,ValueGenerator generator) {
+    public Object generateValue(EntityMetadata md, ValueGenerator generator) {
         return UUID.randomUUID().toString();
     }
 }

@@ -39,114 +39,119 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.NaryLogicalOperator;
 
 /**
- * There are two sides to an Assemble step: Assemble gets results from
- * the source, and for each of those documents, it runs the
- * associated queries on the destinations, gets the results, and inserts
- * those documents to the document it got from the source side.
+ * There are two sides to an Assemble step: Assemble gets results from the
+ * source, and for each of those documents, it runs the associated queries on
+ * the destinations, gets the results, and inserts those documents to the
+ * document it got from the source side.
  */
 public class Assemble extends Step<ResultDocument> {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(Assemble.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Assemble.class);
 
     private final ExecutionBlock[] destinationBlocks;
     private final Source<ResultDocument> source;
-    private Map<ExecutionBlock,Assemble> destinations;
-    
+    private Map<ExecutionBlock, Assemble> destinations;
+
     public Assemble(ExecutionBlock block,
                     Source<ResultDocument> source,
                     ExecutionBlock[] destinationBlocks) {
         super(block);
-        this.source=source;
-        this.destinationBlocks=destinationBlocks;
+        this.source = source;
+        this.destinationBlocks = destinationBlocks;
     }
 
-    public List<ResultDocument> getResultList(QueryExpression q,ExecutionContext ctx) {
-        LOGGER.debug("getResultList q={} block={}",q,block);
-        Retrieve r=block.getStep(Retrieve.class);
-        if(r!=null) {
+    public List<ResultDocument> getResultList(QueryExpression q, ExecutionContext ctx) {
+        LOGGER.debug("getResultList q={} block={}", q, block);
+        Retrieve r = block.getStep(Retrieve.class);
+        if (r != null) {
             r.setQuery(q);
-            StepResult<ResultDocument> results=block.getResultStep().getResults(ctx);
+            StepResult<ResultDocument> results = block.getResultStep().getResults(ctx);
             return results.stream().collect(Collectors.toList());
-        } else
+        } else {
             throw new IllegalStateException("Cannot find a Retrieve step in block");
+        }
     }
 
     @Override
     public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
-        destinations=new HashMap<ExecutionBlock,Assemble>();
-        for(ExecutionBlock x:destinationBlocks) {
-            Assemble a=x.getStep(Assemble.class);
-            if(a!=null)
-                destinations.put(x,a);
-            else
-                throw new IllegalArgumentException("No assemble step in "+x);
+        destinations = new HashMap<ExecutionBlock, Assemble>();
+        for (ExecutionBlock x : destinationBlocks) {
+            Assemble a = x.getStep(Assemble.class);
+            if (a != null) {
+                destinations.put(x, a);
+            } else {
+                throw new IllegalArgumentException("No assemble step in " + x);
+            }
         }
-        LOGGER.debug("getResults, source:{}, destinations={}",source,destinations);
+        LOGGER.debug("getResults, source:{}, destinations={}", source, destinations);
         // Get the results from the source
-        StepResult<ResultDocument> sourceResults=source.getStep().getResults(ctx);
-        List<ResultDocument> results=sourceResults.stream().collect(Collectors.toList());
-        if(ctx.hasErrors())
+        StepResult<ResultDocument> sourceResults = source.getStep().getResults(ctx);
+        List<ResultDocument> results = sourceResults.stream().collect(Collectors.toList());
+        if (ctx.hasErrors()) {
             return StepResult.EMPTY;
-        
-        List<Future> assemblers=new ArrayList<>();
-        for(Map.Entry<ExecutionBlock,Assemble> destination:destinations.entrySet()) {
-            AssociationQuery aq=destination.getKey().getAssociationQueryForEdge(block);
-            LOGGER.debug("Scheduling batch assembler with aq={} block={}",aq,destination.getKey());
-            BatchAssembler batchAssembler=new BatchAssembler(256,aq,destination.getValue(),ctx);
+        }
+
+        List<Future> assemblers = new ArrayList<>();
+        for (Map.Entry<ExecutionBlock, Assemble> destination : destinations.entrySet()) {
+            AssociationQuery aq = destination.getKey().getAssociationQueryForEdge(block);
+            LOGGER.debug("Scheduling batch assembler with aq={} block={}", aq, destination.getKey());
+            BatchAssembler batchAssembler = new BatchAssembler(256, aq, destination.getValue(), ctx);
             assemblers.add(ctx.getExecutor().submit(() -> {
-                        if(aq.getQuery()==null) {
-                            results.stream().forEach(batchAssembler::addDoc);
-                            batchAssembler.endDoc();
-                        } else {
-                            results.stream().forEach(doc -> {
-                                    batchAssembler.addDoc(doc);
-                                    Map<ChildSlot,QueryExpression> queries=Searches.
-                                        writeChildQueriesFromParentDoc(aq,doc);
-                                    queries.values().stream().forEach(batchAssembler::addQuery);
-                                    batchAssembler.endDoc();
-                                });
-                        }
-                        batchAssembler.commit();
-                    }));
+                if (aq.getQuery() == null) {
+                    results.stream().forEach(batchAssembler::addDoc);
+                    batchAssembler.endDoc();
+                } else {
+                    results.stream().forEach(doc -> {
+                        batchAssembler.addDoc(doc);
+                        Map<ChildSlot, QueryExpression> queries = Searches.
+                                writeChildQueriesFromParentDoc(aq, doc);
+                        queries.values().stream().forEach(batchAssembler::addQuery);
+                        batchAssembler.endDoc();
+                    });
+                }
+                batchAssembler.commit();
+            }));
         }
         try {
-            for(Future x:assemblers)
+            for (Future x : assemblers) {
                 x.get();
+            }
         } catch (Exception ie) {
             throw new RuntimeException(ie);
         }
-        if(ctx.hasErrors())
+        if (ctx.hasErrors()) {
             return StepResult.EMPTY;
+        }
         // Stream results
         return new ListStepResult(results);
     }
 
     private static class DocAndQ {
         private final ResultDocument doc;
-        private final List<QueryExpression> queries=new ArrayList<>();
+        private final List<QueryExpression> queries = new ArrayList<>();
 
         public DocAndQ(ResultDocument doc) {
-            this.doc=doc;
+            this.doc = doc;
         }
     }
-    
+
     private static class BatchAssembler {
-        private List<DocAndQ> docs=new ArrayList<>();
-        private List<QueryExpression> queries=new ArrayList<>();
+        private List<DocAndQ> docs = new ArrayList<>();
+        private List<QueryExpression> queries = new ArrayList<>();
         private final int batchSize;
         private final AssociationQuery aq;
         private final Assemble dest;
         private final ExecutionContext ctx;
 
-        public BatchAssembler(int batchSize,AssociationQuery aq,Assemble dest,ExecutionContext ctx) {
-            this.batchSize=batchSize;
-            this.dest=dest;
-            this.aq=aq;
-            this.ctx=ctx;
+        public BatchAssembler(int batchSize, AssociationQuery aq, Assemble dest, ExecutionContext ctx) {
+            this.batchSize = batchSize;
+            this.dest = dest;
+            this.aq = aq;
+            this.ctx = ctx;
         }
-        
+
         public void addQuery(QueryExpression q) {
-            docs.get(docs.size()-1).queries.add(q);
+            docs.get(docs.size() - 1).queries.add(q);
             queries.add(q);
         }
 
@@ -155,42 +160,42 @@ public class Assemble extends Step<ResultDocument> {
         }
 
         public void endDoc() {
-            if(queries.size()>=batchSize)
+            if (queries.size() >= batchSize) {
                 commit();
+            }
         }
-        
+
         public void commit() {
-            if(!docs.isEmpty()) {
+            if (!docs.isEmpty()) {
                 QueryExpression combinedQuery;
-                if(!queries.isEmpty()) {
-                    combinedQuery=Searches.combine(NaryLogicalOperator._or,queries);
-                    LOGGER.debug("Combined retrieval query:{}",combinedQuery);
+                if (!queries.isEmpty()) {
+                    combinedQuery = Searches.combine(NaryLogicalOperator._or, queries);
+                    LOGGER.debug("Combined retrieval query:{}", combinedQuery);
                 } else {
-                    combinedQuery=null;
+                    combinedQuery = null;
                 }
-                List<ResultDocument> destResults=dest.getResultList(combinedQuery,ctx);
-                for(DocAndQ parentDocAndQ:docs) {
-                    Searches.associateDocs(parentDocAndQ.doc,destResults,aq);                    
+                List<ResultDocument> destResults = dest.getResultList(combinedQuery, ctx);
+                for (DocAndQ parentDocAndQ : docs) {
+                    Searches.associateDocs(parentDocAndQ.doc, destResults, aq);
                 }
             }
-            docs=new ArrayList<>();
-            queries=new ArrayList<>();
+            docs = new ArrayList<>();
+            queries = new ArrayList<>();
         }
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        ObjectNode a=JsonNodeFactory.instance.objectNode();
-        o.set("assemble",a);
-        a.set("entity",JsonNodeFactory.instance.textNode(block.getMetadata().getName()));
-        a.set("left",source.getStep().toJson());
-        ArrayNode array=JsonNodeFactory.instance.arrayNode();
-        a.set("right",array);
-        for(ExecutionBlock b:destinationBlocks)
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        ObjectNode a = JsonNodeFactory.instance.objectNode();
+        o.set("assemble", a);
+        a.set("entity", JsonNodeFactory.instance.textNode(block.getMetadata().getName()));
+        a.set("left", source.getStep().toJson());
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        a.set("right", array);
+        for (ExecutionBlock b : destinationBlocks) {
             array.add(b.toJson());
+        }
         return o;
     }
 }
-
-

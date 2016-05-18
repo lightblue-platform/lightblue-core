@@ -25,11 +25,11 @@ import com.redhat.lightblue.metadata.parser.MetadataParser;
 import com.redhat.lightblue.test.metadata.FakeDataStore;
 import com.redhat.lightblue.util.Error;
 
-public class FakeDataStoreParser<NodeType> implements DataStoreParser<NodeType>{
+public class FakeDataStoreParser<NodeType> implements DataStoreParser<NodeType> {
 
     private final String backend;
 
-    public FakeDataStoreParser(String backend){
+    public FakeDataStoreParser(String backend) {
         this.backend = backend;
     }
 

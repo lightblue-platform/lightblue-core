@@ -48,7 +48,7 @@ public class MatchesChecker implements FieldConstraintValueChecker {
 
         Matcher matcher = pattern.matcher(fieldValue.asText());
 
-        if(!(fieldValue instanceof NullNode)&& !"".equals(fieldValue.asText()) && !matcher.matches()) {
+        if (!(fieldValue instanceof NullNode) && !"".equals(fieldValue.asText()) && !matcher.matches()) {
             validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENTITY, fieldValue.asText()));
         }
     }

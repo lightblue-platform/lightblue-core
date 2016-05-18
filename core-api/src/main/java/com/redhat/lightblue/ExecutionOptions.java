@@ -33,12 +33,12 @@ public class ExecutionOptions extends JsonObject {
 
     private static final long serialVersionUID = 1L;
 
-    private final Map<String,String> options=new HashMap<>();
+    private final Map<String, String> options = new HashMap<>();
 
-    public Map<String,String> getOptions() {
+    public Map<String, String> getOptions() {
         return options;
     }
-    
+
     public String getOptionValueFor(String optionName) {
         return options.get(optionName);
     }
@@ -49,8 +49,8 @@ public class ExecutionOptions extends JsonObject {
     @Override
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
-        for(Map.Entry<String,String> entry:options.entrySet()) {
-            node.put(entry.getKey(),getFactory().textNode(entry.getValue()));
+        for (Map.Entry<String, String> entry : options.entrySet()) {
+            node.put(entry.getKey(), getFactory().textNode(entry.getValue()));
         }
         return node;
     }
@@ -61,9 +61,9 @@ public class ExecutionOptions extends JsonObject {
      */
     public static ExecutionOptions fromJson(ObjectNode node) {
         ExecutionOptions ret = new ExecutionOptions();
-        for(Iterator<Map.Entry<String,JsonNode>> itr=node.fields();itr.hasNext();) {
-            Map.Entry<String,JsonNode> entry=itr.next();
-            ret.options.put(entry.getKey(),entry.getValue().asText());
+        for (Iterator<Map.Entry<String, JsonNode>> itr = node.fields(); itr.hasNext();) {
+            Map.Entry<String, JsonNode> entry = itr.next();
+            ret.options.put(entry.getKey(), entry.getValue().asText());
         }
         return ret;
     }

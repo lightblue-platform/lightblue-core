@@ -24,20 +24,19 @@ import com.redhat.lightblue.query.NaryRelationalOperator;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$or:{...,{$in:{field:x,values:[v]},..,{$in:{field:x,values=[w]}...}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q={$or:{...,{$in:{field:x,values:[v w]}},...}}
  * </pre>
  */
 public class CombineINsInOR extends CombineInsNotIns {
 
-    public static final Rewriter INSTANCE=new CombineINsInOR();
+    public static final Rewriter INSTANCE = new CombineINsInOR();
 
     public CombineINsInOR() {
-        super(NaryLogicalOperator._or,NaryRelationalOperator._in);
+        super(NaryLogicalOperator._or, NaryRelationalOperator._in);
     }
 }

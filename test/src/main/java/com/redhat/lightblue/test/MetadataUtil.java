@@ -37,14 +37,17 @@ public final class MetadataUtil {
 
     /**
      * Creates an instance of {@link JSONMetadataParser}.
+     *
      * @param backend - Name of backend to use.
-     * @param fieldConstraintParsers - <i>(optional)</i> {@link FieldConstraintParser}s to register on the {@link Extensions} used to parse
-     * the {@link EntityMetadata}. If <code>null</code> then nothing will be set.
+     * @param fieldConstraintParsers - <i>(optional)</i>
+     * {@link FieldConstraintParser}s to register on the {@link Extensions} used
+     * to parse the {@link EntityMetadata}. If <code>null</code> then nothing
+     * will be set.
      * @return An instance of {@link JSONMetadataParser}.
      */
     public static JSONMetadataParser createJSONMetadataParser(
             String backend,
-            Map<String, ? extends FieldConstraintParser<JsonNode>> fieldConstraintParsers){
+            Map<String, ? extends FieldConstraintParser<JsonNode>> fieldConstraintParsers) {
         FakeDataStoreParser<JsonNode> dsParser = new FakeDataStoreParser<>(backend);
 
         Extensions<JsonNode> extensions = new Extensions<>();
@@ -64,12 +67,16 @@ public final class MetadataUtil {
 
     /**
      * Creates an instance of {@link EntityMetadata} for testing purposes.
+     *
      * @param backend - Name of backend to use.
      * @param node - Json node to parse metadata from.
-     * @param entityConstraints - <i>(optional)</i> {@link EntityConstraint}s to set on the {@link EntityMetadata}.
-     * If <code>null</code> then nothing will be set.
-     * @param fieldConstraintParsers - <i>(optional)</i> {@link FieldConstraintParser}s to register on the {@link Extensions} used to parse
-     * the {@link EntityMetadata}. If <code>null</code> then nothing will be set.
+     * @param entityConstraints - <i>(optional)</i> {@link EntityConstraint}s to
+     * set on the {@link EntityMetadata}. If <code>null</code> then nothing will
+     * be set.
+     * @param fieldConstraintParsers - <i>(optional)</i>
+     * {@link FieldConstraintParser}s to register on the {@link Extensions} used
+     * to parse the {@link EntityMetadata}. If <code>null</code> then nothing
+     * will be set.
      * @return An instance of {@link EntityMetadata} for testing purposes.
      */
     public static EntityMetadata createEntityMetadata(
@@ -88,6 +95,7 @@ public final class MetadataUtil {
         return entityMetadata;
     }
 
-    private MetadataUtil(){}
+    private MetadataUtil() {
+    }
 
 }

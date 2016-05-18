@@ -29,8 +29,8 @@ import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 public class RewriteQueryTest extends AbstractJsonNodeTest {
 
     private class GMD extends AbstractGetMetadata {
-        public GMD(Projection p,QueryExpression q) {
-            super(p,q);
+        public GMD(Projection p, QueryExpression q) {
+            super(p, q);
         }
 
         @Override
@@ -38,7 +38,7 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
                                                   String entityName,
                                                   String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -71,156 +71,154 @@ public class RewriteQueryTest extends AbstractJsonNodeTest {
 
     @Test
     public void testReqQuery() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
 
         // Process request query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        
-        QueryExpression q=query("{'$and':[ { 'field':'field1','op':'=','rvalue':'x'},{'field':'obj1.c.*.field1','op':'=','rvalue':'y'}]}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, null);
+
+        QueryExpression q = query("{'$and':[ { 'field':'field1','op':'=','rvalue':'x'},{'field':'obj1.c.*.field1','op':'=','rvalue':'y'}]}");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
+        List<QueryFieldInfo> list = pq.getFieldInfo();
 
         // Rewrite the query at root
-        RewriteQuery rw=new RewriteQuery(md,md);
-        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
-        QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(0,bindings.size());
+        RewriteQuery rw = new RewriteQuery(md, md);
+        RewriteQuery.RewriteQueryResult result = rw.rewriteQuery(q, list);
+        QueryExpression newq = result.query;
+        List<BoundObject> bindings = result.bindings;
+        Assert.assertEquals(0, bindings.size());
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
         JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:x}", newq.toString(), false);
 
-        rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
-        result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
-        Assert.assertEquals(0,bindings.size());        
+        rw = new RewriteQuery(md, md.getChildMetadata(new Path("obj1.c")));
+        result = rw.rewriteQuery(q, list);
+        bindings = result.bindings;
+        newq = result.query;
+        Assert.assertEquals(0, bindings.size());
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
-        JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:y}", newq.toString(), false);      
+        JSONAssert.assertEquals("{field:field1,op:$eq,rvalue:y}", newq.toString(), false);
     }
 
     @Test
     public void testSimpleAssocQuery() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        
-        AnalyzeQuery pq=new AnalyzeQuery(md,md.getResolvedReferenceOfField(new Path("obj1.c")));
-        QueryExpression q=query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+
+        AnalyzeQuery pq = new AnalyzeQuery(md, md.getResolvedReferenceOfField(new Path("obj1.c")));
+        QueryExpression q = query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
+        List<QueryFieldInfo> list = pq.getFieldInfo();
 
         // Rewrite for C. This means, A docs are retrieved, now we'll retrieve C docs
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
-        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
-        QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(1,bindings.size());
+        RewriteQuery rw = new RewriteQuery(md, md.getChildMetadata(new Path("obj1.c")));
+        RewriteQuery.RewriteQueryResult result = rw.rewriteQuery(q, list);
+        QueryExpression newq = result.query;
+        List<BoundObject> bindings = result.bindings;
+        Assert.assertEquals(1, bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof BoundValue);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
 
         // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
-        rw=new RewriteQuery(md,md);
-        result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
-        Assert.assertEquals(1,bindings.size());
+        rw = new RewriteQuery(md, md);
+        result = rw.rewriteQuery(q, list);
+        bindings = result.bindings;
+        newq = result.query;
+        Assert.assertEquals(1, bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof BoundValue);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
-        
+
     }
 
     @Test
     public void testReqQuery_forEach_arr_points_to_ref() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
 
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        QueryExpression q=query("{'array' : 'obj1.c', 'elemMatch':{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, null);
+        QueryExpression q = query("{'array' : 'obj1.c', 'elemMatch':{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}}");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
+        List<QueryFieldInfo> list = pq.getFieldInfo();
 
         // Rewrite for C. This means, A docs are retrieved, now we'll retrieve C docs
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("obj1.c")));
-        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
-        QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(1,bindings.size());
+        RewriteQuery rw = new RewriteQuery(md, md.getChildMetadata(new Path("obj1.c")));
+        RewriteQuery.RewriteQueryResult result = rw.rewriteQuery(q, list);
+        QueryExpression newq = result.query;
+        List<BoundObject> bindings = result.bindings;
+        Assert.assertEquals(1, bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof BoundValue);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
 
         // Rewrite for A. This means, C docs are retrieved, and we'll retrieve A docs (reverse relationship)
-        rw=new RewriteQuery(md,md);
-        result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
-        Assert.assertEquals(1,bindings.size());
+        rw = new RewriteQuery(md, md);
+        result = rw.rewriteQuery(q, list);
+        bindings = result.bindings;
+        newq = result.query;
+        Assert.assertEquals(1, bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof BoundValue);
         Assert.assertTrue(newq instanceof ValueComparisonExpression);
-        
+
     }
 
     @Test
     public void testReqQuery_forEach_arr_points_into_ref() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'us','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'us','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"), gmd);
 
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        QueryExpression q=query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }");
+        AnalyzeQuery pq = new AnalyzeQuery(md, null);
+        QueryExpression q = query("{'array':'us.*.authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
-        
+        List<QueryFieldInfo> list = pq.getFieldInfo();
+
         // L is the parent, U is the child
-        
         // Rewrite for U. This means, L docs are retrieved, now we'll retrieve U docs
         // This is the trivial rewrite case
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("us")));
-        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
-        QueryExpression newq=result.query;
+        RewriteQuery rw = new RewriteQuery(md, md.getChildMetadata(new Path("us")));
+        RewriteQuery.RewriteQueryResult result = rw.rewriteQuery(q, list);
+        QueryExpression newq = result.query;
         System.out.println(newq);
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals("authentications", ((ArrayMatchExpression)newq).getArray().toString());
+        List<BoundObject> bindings = result.bindings;
+        Assert.assertEquals("authentications", ((ArrayMatchExpression) newq).getArray().toString());
         // Rewrite for L. That means, U docs are retrieved, and we'll retrieve L
         // This is the reverse case
-        rw=new RewriteQuery(md,md);
-        result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
+        rw = new RewriteQuery(md, md);
+        result = rw.rewriteQuery(q, list);
+        bindings = result.bindings;
+        newq = result.query;
         System.out.println(newq);
         Assert.assertTrue(newq instanceof RewriteQuery.TruePH);
     }
-    
+
     @Test
     public void testAssocQuery_forEach_arr_points_to_ref() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'users','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/UC.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'users','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/UC.json"), gmd);
 
-        AnalyzeQuery pq=new AnalyzeQuery(md,md.getResolvedReferenceOfField(new Path("users")));
-        QueryExpression q=query("{'$and':[ { 'field': '_id','op': '$eq','rfield': '$parent.userId' },"+
-                                "{'array': 'authentications','elemMatch': {'$and': ["+
-                                "{'field': 'providerName','op': '$eq','rvalue': 'p'},"+
-                                "{'field': 'principal','op': '$eq','rfield': '$parent.$parent.userRedHatPrincipal'}]} } ] }");
+        AnalyzeQuery pq = new AnalyzeQuery(md, md.getResolvedReferenceOfField(new Path("users")));
+        QueryExpression q = query("{'$and':[ { 'field': '_id','op': '$eq','rfield': '$parent.userId' },"
+                + "{'array': 'authentications','elemMatch': {'$and': ["
+                + "{'field': 'providerName','op': '$eq','rvalue': 'p'},"
+                + "{'field': 'principal','op': '$eq','rfield': '$parent.$parent.userRedHatPrincipal'}]} } ] }");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
+        List<QueryFieldInfo> list = pq.getFieldInfo();
 
         // UC is the parent, U is the child
-        
         // Rewrite for U. This means, UC docs are retrieved, now we'll retrieve U docs
         // This is the trivial rewrite case
-        RewriteQuery rw=new RewriteQuery(md,md.getChildMetadata(new Path("users")));
-        RewriteQuery.RewriteQueryResult result=rw.rewriteQuery(q,list);
-        QueryExpression newq=result.query;
-        List<BoundObject> bindings=result.bindings;
-        Assert.assertEquals(2,bindings.size());
+        RewriteQuery rw = new RewriteQuery(md, md.getChildMetadata(new Path("users")));
+        RewriteQuery.RewriteQueryResult result = rw.rewriteQuery(q, list);
+        QueryExpression newq = result.query;
+        List<BoundObject> bindings = result.bindings;
+        Assert.assertEquals(2, bindings.size());
         Assert.assertTrue(bindings.get(0) instanceof BoundValue);
 
         // Rewrite for UC. That means, U docs are retrieved, and we'll retrieve UC
         // This is the reverse case
-        rw=new RewriteQuery(md,md);
-        result=rw.rewriteQuery(q,list);
-        bindings=result.bindings;
-        newq=result.query;
+        rw = new RewriteQuery(md, md);
+        result = rw.rewriteQuery(q, list);
+        bindings = result.bindings;
+        newq = result.query;
         System.out.println(newq);
-        Assert.assertEquals(2,bindings.size());
+        Assert.assertEquals(2, bindings.size());
     }
 
 }

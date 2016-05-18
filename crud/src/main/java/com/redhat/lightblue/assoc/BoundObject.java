@@ -21,6 +21,6 @@ package com.redhat.lightblue.assoc;
 /**
  * Interface definition for BoundObject
  */
-public interface BoundObject  {
+public interface BoundObject {
     QueryFieldInfo getFieldInfo();
 }

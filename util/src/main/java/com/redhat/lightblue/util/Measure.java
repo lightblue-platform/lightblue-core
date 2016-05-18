@@ -24,59 +24,61 @@ import java.util.ArrayList;
 
 public class Measure {
 
-    private final Map<String,Stat> map=new HashMap<>();
+    private final Map<String, Stat> map = new HashMap<>();
 
     private static class Stat {
         private long total;
         private long numSamples;
-        private final ArrayList<Long> stack=new ArrayList<>(32);
+        private final ArrayList<Long> stack = new ArrayList<>(32);
 
         public void push(long l) {
             stack.add(l);
         }
 
         public void pop(long l) {
-            int n=stack.size();
-            if(n>0) {
+            int n = stack.size();
+            if (n > 0) {
                 n--;
-                long entry=stack.get(n);
+                long entry = stack.get(n);
                 stack.remove(n);
-                next(l-entry);
+                next(l - entry);
             }
         }
 
         public void next(long value) {
-            total+=value;
+            total += value;
             numSamples++;
         }
 
         public long avg() {
-            return numSamples==0?0:total/numSamples;
+            return numSamples == 0 ? 0 : total / numSamples;
         }
 
         public String toString() {
-            return numSamples+","+total+","+avg();
+            return numSamples + "," + total + "," + avg();
         }
     }
-    
+
     public void begin(String f) {
-        Stat s=map.get(f);
-        if(s==null)
-            map.put(f,s=new Stat());
+        Stat s = map.get(f);
+        if (s == null) {
+            map.put(f, s = new Stat());
+        }
         s.push(System.nanoTime());
     }
 
     public void end(String f) {
-        Stat s=map.get(f);
-        if(s!=null)
+        Stat s = map.get(f);
+        if (s != null) {
             s.pop(System.nanoTime());
+        }
     }
 
     public String toString() {
-        StringBuilder bld=new StringBuilder();
-        for(Map.Entry<String,Stat> entry:map.entrySet())
+        StringBuilder bld = new StringBuilder();
+        for (Map.Entry<String, Stat> entry : map.entrySet()) {
             bld.append(entry.getKey()).append(',').append(entry.getValue().toString()).append('\n');
+        }
         return bld.toString();
     }
 }
-

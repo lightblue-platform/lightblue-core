@@ -31,24 +31,24 @@ import com.redhat.lightblue.util.Error;
 public class AssertTest {
 
     @Test
-    public void testAssertNoErrors_pass() throws MultipleFailureException{
+    public void testAssertNoErrors_pass() throws MultipleFailureException {
         assertNoErrors(new Response(null));
     }
 
     @Test(expected = MultipleFailureException.class)
-    public void testAssertNoErrors_fail() throws MultipleFailureException{
+    public void testAssertNoErrors_fail() throws MultipleFailureException {
         Response response = new Response(null);
         response.getErrors().add(Error.get("fake error"));
         assertNoErrors(response);
     }
 
     @Test
-    public void testAssertNoDataErrors_pass() throws MultipleFailureException{
+    public void testAssertNoDataErrors_pass() throws MultipleFailureException {
         assertNoDataErrors(new Response(null));
     }
 
     @Test(expected = MultipleFailureException.class)
-    public void testAssertNoDataErrors_fail() throws MultipleFailureException{
+    public void testAssertNoDataErrors_fail() throws MultipleFailureException {
         Response response = new Response(null);
         response.getDataErrors().add(new DataError());
         assertNoDataErrors(response);

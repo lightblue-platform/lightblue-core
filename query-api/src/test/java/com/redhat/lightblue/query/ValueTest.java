@@ -73,7 +73,7 @@ public class ValueTest {
         Value result = Value.fromJson(longNode);
         assertEquals(expResult, result);
 
-        assertEquals("[\"test\"]",Value.fromJson(JsonUtils.json("[\"test\"]")).toJson().toString());
+        assertEquals("[\"test\"]", Value.fromJson(JsonUtils.json("[\"test\"]")).toJson().toString());
     }
 
     /**

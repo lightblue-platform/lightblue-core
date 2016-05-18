@@ -38,7 +38,7 @@ public class Extensions<T> {
     private final ParserRegistry<T, FieldConstraint> fieldConstraintParsers = new ParserRegistry<>();
     private final ParserRegistry<T, HookConfiguration> hookConfigurationParsers = new ParserRegistry<>();
     private final DefaultRegistry<String, PropertyParser<T>> propertyParsers = new DefaultRegistry<>();
-    private final PropertyParser<T> defaultPropertyParser=new PropertyParser<>();
+    private final PropertyParser<T> defaultPropertyParser = new PropertyParser<>();
 
     /**
      * Initializes this to include the default extensions
@@ -143,11 +143,11 @@ public class Extensions<T> {
     }
 
     public PropertyParser<T> getPropertyParser(String propertyName) {
-        PropertyParser<T> p=(PropertyParser<T>) propertyParsers.find(propertyName);
-        return p==null?defaultPropertyParser:p;
+        PropertyParser<T> p = (PropertyParser<T>) propertyParsers.find(propertyName);
+        return p == null ? defaultPropertyParser : p;
     }
 
-    public void mergeWith(Extensions e){
+    public void mergeWith(Extensions e) {
         this.backendParsers.mergeWith(e.backendParsers);
         this.entityConstraintParsers.mergeWith(e.entityConstraintParsers);
         this.fieldConstraintParsers.mergeWith(e.fieldConstraintParsers);

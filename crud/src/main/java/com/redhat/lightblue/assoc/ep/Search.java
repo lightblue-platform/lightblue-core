@@ -33,35 +33,34 @@ import com.redhat.lightblue.crud.DocCtx;
 
 /**
  * Performs search
- * 
- * Input: n/a
- * Output: ResultDocument
+ *
+ * Input: n/a Output: ResultDocument
  */
 public class Search extends AbstractSearchStep {
-    
-    private static final Logger LOGGER=LoggerFactory.getLogger(Search.class);
-    
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
+
     public Search(ExecutionBlock block) {
         super(block);
     }
 
-    protected List<ResultDocument> postProcess(OperationContext result,ExecutionContext ctx) {
+    protected List<ResultDocument> postProcess(OperationContext result, ExecutionContext ctx) {
         return result.getDocuments().stream().
-            map(doc->new ResultDocument(block,doc.getOutputDocument())).
-            collect(Collectors.toList());        
-    }
-    
-    public OperationContext search(ExecutionContext ctx) {
-        CRUDFindRequest req=buildFindRequest(ctx);
-        if(req!=null)
-            return search(ctx,req);
-        else
-            return null;
+                map(doc -> new ResultDocument(block, doc.getOutputDocument())).
+                collect(Collectors.toList());
     }
 
+    public OperationContext search(ExecutionContext ctx) {
+        CRUDFindRequest req = buildFindRequest(ctx);
+        if (req != null) {
+            return search(ctx, req);
+        } else {
+            return null;
+        }
+    }
 
     protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
-        CRUDFindRequest findRequest=new CRUDFindRequest();
+        CRUDFindRequest findRequest = new CRUDFindRequest();
         findRequest.setQuery(query);
         findRequest.setProjection(projection);
         findRequest.setSort(sort);
@@ -72,12 +71,12 @@ public class Search extends AbstractSearchStep {
 
     @Override
     protected List<ResultDocument> getSearchResults(ExecutionContext ctx) {
-        OperationContext result=search(ctx);
-        if(result!=null) {
-            return postProcess(result,ctx);
-        } else
+        OperationContext result = search(ctx);
+        if (result != null) {
+            return postProcess(result, ctx);
+        } else {
             return new ArrayList<>();
+        }
     }
 
 }
-

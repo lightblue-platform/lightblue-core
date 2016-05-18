@@ -40,7 +40,7 @@ public class FakeMetadata extends AbstractMetadata {
     private final Map<String, EntityInfo> entityInfoMap = new HashMap<>();
     private final Map<EntityInfo, Map<String, Data>> dataMap = new HashMap<>();
 
-    public void setDependencies(String entityName, String version, Response dependencies){
+    public void setDependencies(String entityName, String version, Response dependencies) {
         Data data = getOrCreateDataForVersion(entityName, version, true);
         data.setDependencies(dependencies);
     }
@@ -48,13 +48,13 @@ public class FakeMetadata extends AbstractMetadata {
     @Override
     public Response getDependencies(String entityName, String version) {
         Data data = getOrCreateDataForVersion(entityName, version, false);
-        if(data == null){
+        if (data == null) {
             return null;
         }
         return data.getDependency();
     }
 
-    public void setAccess(String entityName, String version, Response access){
+    public void setAccess(String entityName, String version, Response access) {
         Data data = getOrCreateDataForVersion(entityName, version, true);
         data.setAccess(access);
     }
@@ -62,13 +62,13 @@ public class FakeMetadata extends AbstractMetadata {
     @Override
     public Response getAccess(String entityName, String version) {
         Data data = getOrCreateDataForVersion(entityName, version, false);
-        if(data == null){
+        if (data == null) {
             return null;
         }
         return data.getAccess();
     }
 
-    public void setEntityMetadata(String entityName, String version, EntityMetadata entityMetadata){
+    public void setEntityMetadata(String entityName, String version, EntityMetadata entityMetadata) {
         Data data = getOrCreateDataForVersion(entityName, version, true);
         data.setEntityMetadata(entityMetadata);
     }
@@ -76,13 +76,13 @@ public class FakeMetadata extends AbstractMetadata {
     @Override
     public EntityMetadata getEntityMetadata(String entityName, String version) {
         Data data = getOrCreateDataForVersion(entityName, version, false);
-        if(data == null){
+        if (data == null) {
             return null;
         }
         return data.getEntityMetadata();
     }
 
-    public void setEntityInfo(EntityInfo info){
+    public void setEntityInfo(EntityInfo info) {
         entityInfoMap.put(info.getName(), info);
     }
 
@@ -113,7 +113,7 @@ public class FakeMetadata extends AbstractMetadata {
 
     @Override
     public void updateEntityInfo(EntityInfo info) {
-        if(entityInfoMap.get(info.getName()) == null){
+        if (entityInfoMap.get(info.getName()) == null) {
             throw new IllegalStateException("No EntityInfo currently exists with name: " + info.getName());
         }
 
@@ -122,14 +122,14 @@ public class FakeMetadata extends AbstractMetadata {
 
     @Override
     public void setMetadataStatus(String entityName, String version,
-            MetadataStatus newStatus, String comment) {
+                                  MetadataStatus newStatus, String comment) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void removeEntity(String entityName) {
         EntityInfo info = entityInfoMap.get(entityName);
-        if(info == null){
+        if (info == null) {
             return;
         }
 
@@ -140,11 +140,11 @@ public class FakeMetadata extends AbstractMetadata {
     @Override
     protected boolean checkVersionExists(String entityName, String version) {
         EntityInfo info = entityInfoMap.get(entityName);
-        if(info == null){
+        if (info == null) {
             return false;
         }
 
-        if(dataMap.get(info) == null){
+        if (dataMap.get(info) == null) {
             return false;
         }
         return dataMap.get(info).containsKey(version);
@@ -157,22 +157,23 @@ public class FakeMetadata extends AbstractMetadata {
 
     /**
      * Gets or creates a new {@link Data} for the passed in name and version.
+     *
      * @param entityName - entity name
      * @param version - version
-     * @param createIfNull - <code>true</code> if a new {@link Data} should be created and returned,
-     * otherwise <code>false</code> and <code>null</code> will be returned.
+     * @param createIfNull - <code>true</code> if a new {@link Data} should be
+     * created and returned, otherwise <code>false</code> and <code>null</code>
+     * will be returned.
      * @return the {@link Data} node for the passed in name and version.
      */
-    private Data getOrCreateDataForVersion(String entityName, String version, boolean createIfNull){
+    private Data getOrCreateDataForVersion(String entityName, String version, boolean createIfNull) {
         Map<String, Data> versionedData = getOrCreateVersionedData(entityName, createIfNull);
         if (versionedData == null) {
             return null;
         }
-        if(versionedData.get(version) == null){
-            if(createIfNull){
+        if (versionedData.get(version) == null) {
+            if (createIfNull) {
                 versionedData.put(version, new Data());
-            }
-            else{
+            } else {
                 return null;
             }
         }
@@ -181,22 +182,23 @@ public class FakeMetadata extends AbstractMetadata {
 
     /**
      * Gets or creates the mapped data for the passed in name
+     *
      * @param entityName - entity name
-     * @param createIfNull - <code>true</code> if a new map should be created and returned,
-     * otherwise <code>false</code> and <code>null</code> will be returned.
+     * @param createIfNull - <code>true</code> if a new map should be created
+     * and returned, otherwise <code>false</code> and <code>null</code> will be
+     * returned.
      * @return the mapped data for the passed in entity name.
      */
-    private Map<String, Data> getOrCreateVersionedData(String entityName, boolean createIfNull){
+    private Map<String, Data> getOrCreateVersionedData(String entityName, boolean createIfNull) {
         EntityInfo info = entityInfoMap.get(entityName);
-        if(info == null){
+        if (info == null) {
             throw new IllegalStateException("EntityInfo has not yet been set.");
         }
 
-        if (dataMap.get(info) == null){
-            if(createIfNull){
+        if (dataMap.get(info) == null) {
+            if (createIfNull) {
                 dataMap.put(info, new HashMap<String, Data>());
-            }
-            else{
+            } else {
                 return null;
             }
         }

@@ -39,29 +39,34 @@ import com.redhat.lightblue.util.Path;
  * <li>fullFieldName: x.y</li>
  * <li>fieldMd: Metadata node for x.y</li>
  * <li>fieldEntity: The metadata for the entity containing x.y</li>
- * <li>entityRelativeFieldName: x.y, the relative field name of the field in the entity containing it, as it appears in clause</li>
- * <li>entityRelativeFieldNameWithContext: x.y, the relative field name of the field in the entity containing it, including any enclosing arrays</li>
+ * <li>entityRelativeFieldName: x.y, the relative field name of the field in the
+ * entity containing it, as it appears in clause</li>
+ * <li>entityRelativeFieldNameWithContext: x.y, the relative field name of the
+ * field in the entity containing it, including any enclosing arrays</li>
  * <li>clause: The query clause</li>
- * <li>leaf: true (whether of not the field is used in an actual comparison)</li>
+ * <li>leaf: true (whether of not the field is used in an actual
+ * comparison)</li>
  * </ul>
- * 
+ *
  * <pre>
  *  { array: 'a.b', elemMatch: { field:'x.y', op:'=',rvalue:<value>} }
  * </pre>
- * 
+ *
  * <ul>
  * <li>fieldNameInClause: x.y</li>
  * <li>fullFieldName: a.b.*.x.y</li>
- * <li>entityRelativeFieldName: If a.b.* is a reference field, entity relative field name is x.y.<li>
- * <li>entityRelativeFieldNameWithContext: If a.b.* is a reference field, entity relative field name is a.b.*.x.y.<li>
+ * <li>entityRelativeFieldName: If a.b.* is a reference field, entity relative
+ * field name is x.y.<li>
+ * <li>entityRelativeFieldNameWithContext: If a.b.* is a reference field, entity
+ * relative field name is a.b.*.x.y.<li>
  * <li>clause: {field:'x.y', op:'=',rvalue:<value>}</li>
  * <li>leaf: For a.b, false, for a.b.*.x.y, true</li>
  * </ul>
  */
 public class QueryFieldInfo implements Serializable {
 
-    private static final long serialVersionUID=1l;
-    
+    private static final long serialVersionUID = 1l;
+
     private final Path fieldNameInClause;
     private final Path fullFieldName;
     private final FieldTreeNode fieldMd;
@@ -79,34 +84,34 @@ public class QueryFieldInfo implements Serializable {
                           Path entityRelativeFieldNameWithContext,
                           QueryExpression clause,
                           boolean leaf) {
-        this.fieldNameInClause=fieldNameInClause;
-        this.fullFieldName=fullFieldName;
-        this.fieldMd=fieldMd;
-        this.fieldEntity=fieldEntity;
-        this.entityRelativeFieldName=entityRelativeFieldName;
-        this.entityRelativeFieldNameWithContext=entityRelativeFieldNameWithContext;
-        this.clause=clause;
-        this.leaf=leaf;
+        this.fieldNameInClause = fieldNameInClause;
+        this.fullFieldName = fullFieldName;
+        this.fieldMd = fieldMd;
+        this.fieldEntity = fieldEntity;
+        this.entityRelativeFieldName = entityRelativeFieldName;
+        this.entityRelativeFieldNameWithContext = entityRelativeFieldNameWithContext;
+        this.clause = clause;
+        this.leaf = leaf;
     }
 
-
     /**
-     * Whether the field is a leaf, i.e. the field is used in a comparison and not an intermediate array
+     * Whether the field is a leaf, i.e. the field is used in a comparison and
+     * not an intermediate array
      */
     public boolean isLeaf() {
         return leaf;
     }
-    
+
     /**
-     * Name of the field in the clause containing the field. 
+     * Name of the field in the clause containing the field.
      */
     public Path getFieldNameInClause() {
         return fieldNameInClause;
     }
 
     /**
-     * Full name of the field. This includes the array name if the
-     * field appears in an elemMatch clause.
+     * Full name of the field. This includes the array name if the field appears
+     * in an elemMatch clause.
      */
     public Path getFullFieldName() {
         return fullFieldName;
@@ -134,7 +139,8 @@ public class QueryFieldInfo implements Serializable {
     }
 
     /**
-     * The name of the field relative to the entity containing it, including any arrays enclosing this field
+     * The name of the field relative to the entity containing it, including any
+     * arrays enclosing this field
      */
     public Path getEntityRelativeFieldNameWithContext() {
         return entityRelativeFieldNameWithContext;
@@ -149,9 +155,10 @@ public class QueryFieldInfo implements Serializable {
 
     @Override
     public String toString() {
-        if(entityRelativeFieldName.equals(fullFieldName))
-            return fullFieldName+"@"+fieldEntity.getName();
-        else
-            return entityRelativeFieldName+"@"+fieldEntity.getName()+":"+fullFieldName;
+        if (entityRelativeFieldName.equals(fullFieldName)) {
+            return fullFieldName + "@" + fieldEntity.getName();
+        } else {
+            return entityRelativeFieldName + "@" + fieldEntity.getName() + ":" + fullFieldName;
+        }
     }
 }

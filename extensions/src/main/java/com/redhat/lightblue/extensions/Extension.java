@@ -20,13 +20,12 @@ package com.redhat.lightblue.extensions;
 
 /**
  * Marker interface for all extension implementations
- * 
+ *
  * Here's how it all comes together:
  *
- * - XXXCrudController: implement ExtensionSupport
- *       interface. Implement the getExtensionInstance that returns an
- *      instance of the requested extension.
- * - The extension implementation extends Extension interface. 
+ * - XXXCrudController: implement ExtensionSupport interface. Implement the
+ * getExtensionInstance that returns an instance of the requested extension. -
+ * The extension implementation extends Extension interface.
  */
 public interface Extension {
 }

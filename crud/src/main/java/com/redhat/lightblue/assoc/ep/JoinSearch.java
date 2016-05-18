@@ -34,89 +34,94 @@ import com.redhat.lightblue.mediator.OperationContext;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 
 /**
- * Performs searches based on the n-tuple of result documents obtained from the source steps
- * 
- * Input: JoinTuple
- * Output: ResultDocument
+ * Performs searches based on the n-tuple of result documents obtained from the
+ * source steps
+ *
+ * Input: JoinTuple Output: ResultDocument
  */
 public class JoinSearch extends AbstractSearchStep {
-    
-    private static final Logger LOGGER=LoggerFactory.getLogger(JoinSearch.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JoinSearch.class);
 
     private final Source<JoinTuple> source;
 
-    public JoinSearch(ExecutionBlock block,Source<JoinTuple> source) {
+    public JoinSearch(ExecutionBlock block, Source<JoinTuple> source) {
         super(block);
-        this.source=source;
+        this.source = source;
     }
 
     @Override
     protected List<ResultDocument> getSearchResults(ExecutionContext ctx) {
-        BatchQueryExecutor executor=new BatchQueryExecutor(256,ctx);
-        source.getStep().getResults(ctx).stream().forEach(x->executor.add(x));
+        BatchQueryExecutor executor = new BatchQueryExecutor(256, ctx);
+        source.getStep().getResults(ctx).stream().forEach(x -> executor.add(x));
         return executor.getResults();
     }
 
     public class BatchQueryExecutor {
         private final int batchSize;
-        private List<JoinTuple> jtBatch;;
+        private List<JoinTuple> jtBatch;
+        ;
         private List<QueryExpression> qBatch;
         private final ExecutionContext ctx;
-        private List<ResultDocument> docs=new ArrayList<>();
-        
-        public BatchQueryExecutor(int batchSize,ExecutionContext ctx) {
-            this.batchSize=batchSize;
-            this.jtBatch=new ArrayList<>(batchSize);
-            this.qBatch=new ArrayList<>(batchSize);
-            this.ctx=ctx;
+        private List<ResultDocument> docs = new ArrayList<>();
+
+        public BatchQueryExecutor(int batchSize, ExecutionContext ctx) {
+            this.batchSize = batchSize;
+            this.jtBatch = new ArrayList<>(batchSize);
+            this.qBatch = new ArrayList<>(batchSize);
+            this.ctx = ctx;
         }
 
         public void add(JoinTuple tuple) {
             jtBatch.add(tuple);
-            qBatch.addAll(Searches.writeQueriesForJoinTuple(tuple,block));
-            if(qBatch.size()>=batchSize) {
+            qBatch.addAll(Searches.writeQueriesForJoinTuple(tuple, block));
+            if (qBatch.size() >= batchSize) {
                 executeBatch();
-                qBatch=new ArrayList<>(batchSize);
-                jtBatch=new ArrayList<>(batchSize);
+                qBatch = new ArrayList<>(batchSize);
+                jtBatch = new ArrayList<>(batchSize);
             }
         }
 
         public void executeBatch() {
-            if(!qBatch.isEmpty()) {
-                QueryExpression q=Searches.combine(NaryLogicalOperator._or,qBatch);
-                CRUDFindRequest findRequest=new CRUDFindRequest();
-                findRequest.setQuery(Searches.and(q,query));
+            if (!qBatch.isEmpty()) {
+                QueryExpression q = Searches.combine(NaryLogicalOperator._or, qBatch);
+                CRUDFindRequest findRequest = new CRUDFindRequest();
+                findRequest.setQuery(Searches.and(q, query));
                 findRequest.setProjection(projection);
                 findRequest.setSort(sort);
                 findRequest.setFrom(from);
                 findRequest.setTo(to);
-                OperationContext opctx=search(ctx,findRequest);
+                OperationContext opctx = search(ctx, findRequest);
                 opctx.getDocuments().stream().
-                    forEach(doc->docs.add(new ResultDocument(block,doc.getOutputDocument())));
+                        forEach(doc -> docs.add(new ResultDocument(block, doc.getOutputDocument())));
             }
         }
 
         public List<ResultDocument> getResults() {
-        	executeBatch();
+            executeBatch();
             return docs;
         }
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("join-search",source.getStep().toJson());
-        if(query!=null)
-            o.set("query",query.toJson());
-        if(projection!=null)
-            o.set("projection",projection.toJson());
-        if(sort!=null)
-            o.set("sort",sort.toJson());
-        if(from!=null)
-            o.set("from",JsonNodeFactory.instance.numberNode(from));
-        if(to!=null)
-            o.set("to",JsonNodeFactory.instance.numberNode(to));
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("join-search", source.getStep().toJson());
+        if (query != null) {
+            o.set("query", query.toJson());
+        }
+        if (projection != null) {
+            o.set("projection", projection.toJson());
+        }
+        if (sort != null) {
+            o.set("sort", sort.toJson());
+        }
+        if (from != null) {
+            o.set("from", JsonNodeFactory.instance.numberNode(from));
+        }
+        if (to != null) {
+            o.set("to", JsonNodeFactory.instance.numberNode(to));
+        }
         return o;
     }
 }
-

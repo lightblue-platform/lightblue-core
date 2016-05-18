@@ -37,12 +37,12 @@ public class SortResults extends Step<ResultDocument> {
     private final SortFieldInfo[] sortFields;
     private final Sort sort;
     private final Source<ResultDocument> source;
-    
-    public SortResults(ExecutionBlock block,Source<ResultDocument> source,Sort sort) {
+
+    public SortResults(ExecutionBlock block, Source<ResultDocument> source, Sort sort) {
         super(block);
-        this.source=source;
-        this.sort=sort;
-        this.sortFields=SortFieldInfo.buildSortFields(sort,block.getMetadata());
+        this.source = source;
+        this.sort = sort;
+        this.sortFields = SortFieldInfo.buildSortFields(sort, block.getMetadata());
     }
 
     @Override
@@ -51,19 +51,21 @@ public class SortResults extends Step<ResultDocument> {
             @Override
             public Stream<ResultDocument> stream() {
                 return super.stream().
-                    map(d->new SortableDoc(d,sortFields)).
-                    sorted().
-                    map(d->d.getDoc());
-        }
-        };        
+                        map(d -> new SortableDoc(d, sortFields)).
+                        sorted().
+                        map(d -> d.getDoc());
+            }
+        };
     }
 
     private static class SortableDoc extends SortableItem {
         private final ResultDocument doc;
-        public SortableDoc(ResultDocument doc,SortFieldInfo[] fields) {
-            super(doc.getDoc().getRoot(),fields);
-            this.doc=doc;
+
+        public SortableDoc(ResultDocument doc, SortFieldInfo[] fields) {
+            super(doc.getDoc().getRoot(), fields);
+            this.doc = doc;
         }
+
         public ResultDocument getDoc() {
             return doc;
         }
@@ -71,9 +73,9 @@ public class SortResults extends Step<ResultDocument> {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("sort",sort.toJson());
-        o.set("source",source.getStep().toJson());
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("sort", sort.toJson());
+        o.set("source", source.getStep().toJson());
         return o;
     }
 }

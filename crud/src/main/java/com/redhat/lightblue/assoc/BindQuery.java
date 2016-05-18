@@ -28,30 +28,33 @@ import com.redhat.lightblue.util.Path;
 /**
  * Creates a copy of a bound query containing the bound query values
  *
- * The caller prepares a list of Binder objects containing the field bindings, and their corresponding values.
- * For each query value, this class finds the fieldBinding.value that is used in a clause, and replaces that
- * clause with the new value.
+ * The caller prepares a list of Binder objects containing the field bindings,
+ * and their corresponding values. For each query value, this class finds the
+ * fieldBinding.value that is used in a clause, and replaces that clause with
+ * the new value.
  *
  */
 public class BindQuery extends QueryIterator {
 
     private final List<Binder> bindings;
-    
+
     public BindQuery(List<Binder> bindings) {
-        this.bindings=bindings;
+        this.bindings = bindings;
     }
 
     public static BindQuery combine(List<BindQuery> binders) {
-        List<Binder> allb=new ArrayList<>();
-        for(BindQuery b:binders)
+        List<Binder> allb = new ArrayList<>();
+        for (BindQuery b : binders) {
             allb.addAll(b.bindings);
+        }
         return new BindQuery(allb);
     }
 
     private Binder getBoundValue(Object v) {
-        for(Binder binding:bindings) {
-            if(binding.getBinding()==v)
+        for (Binder binding : bindings) {
+            if (binding.getBinding() == v) {
                 return binding;
+            }
         }
         return null;
     }
@@ -59,29 +62,29 @@ public class BindQuery extends QueryIterator {
     public List<Binder> getBindings() {
         return bindings;
     }
-    
+
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
-        Binder binding=getBoundValue(q.getRvalue());
-        if(binding!=null) {
-            return new ValueComparisonExpression(q.getField(),q.getOp(), (Value)binding.getValue());
+        Binder binding = getBoundValue(q.getRvalue());
+        if (binding != null) {
+            return new ValueComparisonExpression(q.getField(), q.getOp(), (Value) binding.getValue());
         } else {
             return q;
         }
     }
-    
+
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
-        Binder binding=getBoundValue(q.getValues());
-        if(binding!=null) {
-            return new NaryValueRelationalExpression(q.getField(),q.getOp(),(List<Value>)binding.getValue());
+        Binder binding = getBoundValue(q.getValues());
+        if (binding != null) {
+            return new NaryValueRelationalExpression(q.getField(), q.getOp(), (List<Value>) binding.getValue());
         } else {
             return q;
         }
     }
 
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
-        Binder binding=getBoundValue(q.getValues());
-        if(binding!=null) {
-            return new ArrayContainsExpression(q.getArray(),q.getOp(),(List<Value>)binding.getValue());
+        Binder binding = getBoundValue(q.getValues());
+        if (binding != null) {
+            return new ArrayContainsExpression(q.getArray(), q.getOp(), (List<Value>) binding.getValue());
         } else {
             return q;
         }

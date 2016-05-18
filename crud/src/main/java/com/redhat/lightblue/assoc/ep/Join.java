@@ -40,24 +40,24 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.util.Tuples;
 
 /**
- * Given n source steps, returns n-tuples containing the documents from those steps
+ * Given n source steps, returns n-tuples containing the documents from those
+ * steps
  *
- * Input: Result documents from multiple sources
- * Output: List [ ResultDocument ], each element of the list is a ResultDocument 
- * from the corresponding source
+ * Input: Result documents from multiple sources Output: List [ ResultDocument
+ * ], each element of the list is a ResultDocument from the corresponding source
  */
 public class Join extends Step<JoinTuple> {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(Join.class);
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(Join.class);
+
     private final Source<ResultDocument>[] sources;
 
     /**
      * Construct the join with the given sources
      */
-    public Join(ExecutionBlock block,Source<ResultDocument>[] sources) {
+    public Join(ExecutionBlock block, Source<ResultDocument>[] sources) {
         super(block);
-        this.sources=sources;
+        this.sources = sources;
     }
 
     /**
@@ -68,46 +68,47 @@ public class Join extends Step<JoinTuple> {
     }
 
     /**
-     * Asynchronously retrieves results from the sources, and returns
-     * a stream that joins them
+     * Asynchronously retrieves results from the sources, and returns a stream
+     * that joins them
      */
     @Override
     public StepResult<JoinTuple> getResults(ExecutionContext ctx) {
         // One of the parent blocks can be a parent document block, separate that out
-        int parentIndex=-1;
+        int parentIndex = -1;
         // get all document streams from result steps
-        Future<StepResult<ResultDocument>> [] futureResults=new Future[sources.length];
-        int i=0;
-        for(Source<ResultDocument> source:sources) {
-            if(source.getStep().getBlock().getMetadata()==block.getMetadata().getParent())
-                parentIndex=i;
-            futureResults[i++]=ctx.getExecutor().submit(() -> {
-            	return source.getStep().getResults(ctx);
-            } );
+        Future<StepResult<ResultDocument>>[] futureResults = new Future[sources.length];
+        int i = 0;
+        for (Source<ResultDocument> source : sources) {
+            if (source.getStep().getBlock().getMetadata() == block.getMetadata().getParent()) {
+                parentIndex = i;
+            }
+            futureResults[i++] = ctx.getExecutor().submit(() -> {
+                return source.getStep().getResults(ctx);
+            });
         }
-        
-        Tuples<ResultDocument> tuples=new Tuples();
-        i=0;
-        for(Future<StepResult<ResultDocument>> futureResult:futureResults) {
+
+        Tuples<ResultDocument> tuples = new Tuples();
+        i = 0;
+        for (Future<StepResult<ResultDocument>> futureResult : futureResults) {
             tuples.add(() -> {
-                    try {
-                        return futureResult.get().stream().iterator();
-                    } catch (InterruptedException x) {
-                        throw new RuntimeException(x);
-                    } catch (ExecutionException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                try {
+                    return futureResult.get().stream().iterator();
+                } catch (InterruptedException x) {
+                    throw new RuntimeException(x);
+                } catch (ExecutionException ex) {
+                    throw new RuntimeException(ex);
                 }
-                );
+            }
+            );
         }
-        if(ctx.hasErrors())
+        if (ctx.hasErrors()) {
             return StepResult.EMPTY;
-        return new JoinStream(tuples,parentIndex,parentIndex==-1?null:
-                              block.getAssociationQueryForEdge(sources[parentIndex].getBlock()).
-                              getReference());
+        }
+        return new JoinStream(tuples, parentIndex, parentIndex == -1 ? null
+                : block.getAssociationQueryForEdge(sources[parentIndex].getBlock()).
+                getReference());
     }
 
-       
     private static class JoinStream implements StepResult<JoinTuple> {
         private final Tuples<ResultDocument> tuples;
         private final int parentIndex;
@@ -116,23 +117,22 @@ public class Join extends Step<JoinTuple> {
         public JoinStream(Tuples<ResultDocument> tuples,
                           int parentIndex,
                           ResolvedReferenceField parentReference) {
-            this.tuples=tuples;
-            this.parentIndex=parentIndex;
-            this.parentReference=parentReference;
+            this.tuples = tuples;
+            this.parentIndex = parentIndex;
+            this.parentReference = parentReference;
         }
 
         @Override
         public Stream<JoinTuple> stream() {
-            Iterable<JoinTuple> itr=() -> new JoinTupleIterator(tuples.tuples(),parentIndex,parentReference);
-            return StreamSupport.stream(itr.spliterator(),false);
+            Iterable<JoinTuple> itr = () -> new JoinTupleIterator(tuples.tuples(), parentIndex, parentReference);
+            return StreamSupport.stream(itr.spliterator(), false);
         }
     }
 
     /**
-     * Converts an iterator over doc tuples to an iterator over join
-     * tuples. The difference is that if there is a source block that
-     * is a parent document of this block, then the slots of that
-     * parent doc is iterated.
+     * Converts an iterator over doc tuples to an iterator over join tuples. The
+     * difference is that if there is a source block that is a parent document
+     * of this block, then the slots of that parent doc is iterated.
      */
     private static class JoinTupleIterator implements Iterator {
         private final Iterator<List<ResultDocument>> tuples;
@@ -142,94 +142,98 @@ public class Join extends Step<JoinTuple> {
         private List<ResultDocument> currentTuple;
         private Iterator<JoinTuple> joinTuples;
         private JoinTuple nextTuple;
-                
+
         public JoinTupleIterator(Iterator<List<ResultDocument>> tuples,
                                  int parentIndex,
                                  ResolvedReferenceField reference) {
-            this.tuples=tuples;
-            this.parentIndex=parentIndex;
-            this.reference=reference;
+            this.tuples = tuples;
+            this.parentIndex = parentIndex;
+            this.reference = reference;
         }
 
         @Override
         public boolean hasNext() {
-            if(nextTuple==null)
-                nextTuple=getNext();
-            return nextTuple!=null;
+            if (nextTuple == null) {
+                nextTuple = getNext();
+            }
+            return nextTuple != null;
         }
 
         public JoinTuple next() {
-            if(nextTuple==null)
-                nextTuple=getNext();
-            if(nextTuple==null)
+            if (nextTuple == null) {
+                nextTuple = getNext();
+            }
+            if (nextTuple == null) {
                 throw new NoSuchElementException();
-            JoinTuple ret=nextTuple;
-            nextTuple=null;
+            }
+            JoinTuple ret = nextTuple;
+            nextTuple = null;
             return ret;
         }
 
         private JoinTuple getNext() {
             do {
-                if(joinTuples==null) {
+                if (joinTuples == null) {
                     seekNextDoc();
-                    if(joinTuples==null)
+                    if (joinTuples == null) {
                         return null;
+                    }
                 }
-                if(joinTuples.hasNext()) {
+                if (joinTuples.hasNext()) {
                     return joinTuples.next();
                 } else {
-                    joinTuples=null;
+                    joinTuples = null;
                 }
-            } while(true);
-                    
+            } while (true);
+
         }
-        
+
         /**
          * Moves to the next document tuple in tuples
          */
         private void seekNextDoc() {
-            currentTuple=null;
-            joinTuples=null;
-            if(tuples.hasNext()) {
-                currentTuple=tuples.next();
+            currentTuple = null;
+            joinTuples = null;
+            if (tuples.hasNext()) {
+                currentTuple = tuples.next();
                 computeJoinTuples();
-            } 
+            }
         }
 
         /**
          * Computes a new list of join tuples based on current tuple
          */
         private void computeJoinTuples() {
-            List<JoinTuple> l=new ArrayList<>();
-            if(parentIndex!=-1) {
-                ResultDocument parentDoc=currentTuple.get(parentIndex);
-                List<ChildSlot> slots=parentDoc.getSlots().get(reference);
-                List<ResultDocument> childDocs=new ArrayList<>(currentTuple.size());
-                for(ResultDocument doc:currentTuple) {
-                    if(doc!=parentDoc)
+            List<JoinTuple> l = new ArrayList<>();
+            if (parentIndex != -1) {
+                ResultDocument parentDoc = currentTuple.get(parentIndex);
+                List<ChildSlot> slots = parentDoc.getSlots().get(reference);
+                List<ResultDocument> childDocs = new ArrayList<>(currentTuple.size());
+                for (ResultDocument doc : currentTuple) {
+                    if (doc != parentDoc) {
                         childDocs.add(doc);
+                    }
                 }
-                if(slots!=null) {
-                    for(ChildSlot slot:slots) {
-                        l.add(new JoinTuple(parentDoc,slot,childDocs));
+                if (slots != null) {
+                    for (ChildSlot slot : slots) {
+                        l.add(new JoinTuple(parentDoc, slot, childDocs));
                     }
                 }
             } else {
-                l.add(new JoinTuple(null,null,currentTuple));
+                l.add(new JoinTuple(null, null, currentTuple));
             }
-            joinTuples=l.iterator();
+            joinTuples = l.iterator();
         }
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        ArrayNode arr=JsonNodeFactory.instance.arrayNode();
-        for(Source<ResultDocument> s:sources) {
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        ArrayNode arr = JsonNodeFactory.instance.arrayNode();
+        for (Source<ResultDocument> s : sources) {
             arr.add(s.getStep().toJson());
         }
-        o.set("join",arr);
+        o.set("join", arr);
         return o;
     }
 }
-

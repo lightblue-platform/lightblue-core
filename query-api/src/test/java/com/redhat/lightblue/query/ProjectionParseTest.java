@@ -96,7 +96,7 @@ public class ProjectionParseTest {
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
     }
-    
+
     @Test
     public void doc4pTest() throws Exception {
         Projection p = Projection.fromJson(JsonUtils.json(doc4p));
@@ -113,7 +113,6 @@ public class ProjectionParseTest {
         Assert.assertTrue(((FieldProjection) x.getProject()).isInclude());
         Assert.assertTrue(!((FieldProjection) x.getProject()).isRecursive());
     }
-
 
     @Test
     public void doc4sTest() throws Exception {
@@ -149,7 +148,7 @@ public class ProjectionParseTest {
         Assert.assertEquals(1, x.getFrom().intValue());
         Assert.assertEquals(4, x.getTo().intValue());
     }
-    
+
     @Test
     public void doc6pTest() throws Exception {
         Projection p = Projection.fromJson(JsonUtils.json(doc6p));
@@ -164,7 +163,7 @@ public class ProjectionParseTest {
         Assert.assertEquals(1, x.getFrom().intValue());
         Assert.assertEquals(4, x.getTo().intValue());
     }
-    
+
     @Test
     public void doc6pTestZeroUpperBound() throws Exception {
         Projection p = Projection.fromJson(JsonUtils.json(doc60));
@@ -173,7 +172,7 @@ public class ProjectionParseTest {
         Assert.assertEquals(1, x.getFrom().intValue());
         Assert.assertEquals(0, x.getTo().intValue());
     }
-    
+
     @Test
     public void doc6pTestNegativeUpperBound() throws Exception {
         Projection p = Projection.fromJson(JsonUtils.json(doc6neg));
@@ -182,7 +181,6 @@ public class ProjectionParseTest {
         Assert.assertEquals(1, x.getFrom().intValue());
         Assert.assertEquals(-8, x.getTo().intValue());
     }
-
 
     @Test
     public void doc6sTest() throws Exception {

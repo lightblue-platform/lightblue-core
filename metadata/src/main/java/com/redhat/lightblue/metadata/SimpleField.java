@@ -24,7 +24,8 @@ import com.redhat.lightblue.util.Path;
 import java.util.Iterator;
 
 /**
- * Represents a simple field, e.g. string or number. Objects and arrays are not simple fields.
+ * Represents a simple field, e.g. string or number. Objects and arrays are not
+ * simple fields.
  *
  */
 public class SimpleField extends Field {
@@ -49,9 +50,9 @@ public class SimpleField extends Field {
     @Override
     public void shallowCopyFrom(Field source) {
         super.shallowCopyFrom(source);
-        this.valueGenerator=((SimpleField)source).valueGenerator;
+        this.valueGenerator = ((SimpleField) source).valueGenerator;
     }
-    
+
     @Override
     public Iterator<FieldTreeNode> getChildren() {
         return FieldTreeNode.EMPTY;
@@ -69,7 +70,7 @@ public class SimpleField extends Field {
         } else if (Path.PARENT.equals(p.head(level))) {
             return this.getParent().resolve(p, level + 1);
         } else {
-            throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,p.head(level)+" in "+p.toString());
+            throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE, p.head(level) + " in " + p.toString());
         }
     }
 

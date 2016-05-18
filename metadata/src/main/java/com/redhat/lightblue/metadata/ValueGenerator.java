@@ -22,7 +22,7 @@ public class ValueGenerator implements Serializable {
     // defines how values are generated
     private final ValueGeneratorType valueGeneratorType;
     private final Properties properties = new Properties();
-    private boolean overwrite=false;
+    private boolean overwrite = false;
 
     public ValueGenerator(ValueGeneratorType valueGeneratorType) {
         super();
@@ -42,6 +42,6 @@ public class ValueGenerator implements Serializable {
     }
 
     public void setOverwrite(boolean b) {
-        overwrite=b;
+        overwrite = b;
     }
 }

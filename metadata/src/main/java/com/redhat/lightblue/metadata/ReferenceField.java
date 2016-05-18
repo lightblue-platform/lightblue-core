@@ -98,12 +98,12 @@ public class ReferenceField extends Field {
         } else if (Path.PARENT.equals(p.head(level))) {
             return this.getParent().resolve(p, level + 1);
         } else {
-            throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE,p.head(level)+" in "+p.toString());
+            throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE, p.head(level) + " in " + p.toString());
         }
     }
 
     @Override
     public String toString() {
-        return getName()+"->"+entityName+"@"+version;
+        return getName() + "->" + entityName + "@" + version;
     }
 }

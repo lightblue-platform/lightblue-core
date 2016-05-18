@@ -24,25 +24,26 @@ import com.redhat.lightblue.query.NaryLogicalExpression;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$or:{x}} or q={$and:{x}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
- *   q={x} 
+ *   q={x}
  * </pre>
  */
 public class EliminateSingleANDOR extends Rewriter {
 
-    public static final Rewriter INSTANCE=new EliminateSingleANDOR();
+    public static final Rewriter INSTANCE = new EliminateSingleANDOR();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) 
-            if(le.getQueries().size()==1)
+        NaryLogicalExpression le = dyncast(NaryLogicalExpression.class, q);
+        if (le != null) {
+            if (le.getQueries().size() == 1) {
                 return le.getQueries().get(0);
+            }
+        }
         return q;
     }
 }

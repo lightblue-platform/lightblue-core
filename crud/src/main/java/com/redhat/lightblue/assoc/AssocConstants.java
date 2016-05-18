@@ -20,13 +20,14 @@ package com.redhat.lightblue.assoc;
 
 public final class AssocConstants {
 
-    public static final String ERR_CANNOT_CREATE_CHOOSER="assoc:CannotCreateQueryPlanChooser";
-    public static final String ERR_UNRELATED_ENTITY_Q="assoc:unsupported:QueryForUnrelatedEntities";
-    public static final String ERR_MORE_THAN_TWO_Q="assoc:unsupported:QueryForMoreThanTwoEntities";
-    public static final String ERR_REWRITE="assoc:QueryRewriteError";
-    public static final String ERR_ARRAY_EXPECTED="assoc:ArrayFieldExpected";
-    public static final String ERR_CANNOT_FIND_FIELD="assoc:NoField";
-    public static final String ERR_INVALID_QUERYPLAN="assoc:InvalidQueryPlan";
+    public static final String ERR_CANNOT_CREATE_CHOOSER = "assoc:CannotCreateQueryPlanChooser";
+    public static final String ERR_UNRELATED_ENTITY_Q = "assoc:unsupported:QueryForUnrelatedEntities";
+    public static final String ERR_MORE_THAN_TWO_Q = "assoc:unsupported:QueryForMoreThanTwoEntities";
+    public static final String ERR_REWRITE = "assoc:QueryRewriteError";
+    public static final String ERR_ARRAY_EXPECTED = "assoc:ArrayFieldExpected";
+    public static final String ERR_CANNOT_FIND_FIELD = "assoc:NoField";
+    public static final String ERR_INVALID_QUERYPLAN = "assoc:InvalidQueryPlan";
 
-    private AssocConstants() {}
+    private AssocConstants() {
+    }
 }

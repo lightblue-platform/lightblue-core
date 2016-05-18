@@ -41,11 +41,11 @@ public class Unique extends Step<ResultDocument> {
 
     private final DocIdExtractor idx;
     private final Source<ResultDocument> source;
-    
-    public Unique(ExecutionBlock block,Source<ResultDocument> source) {
+
+    public Unique(ExecutionBlock block, Source<ResultDocument> source) {
         super(block);
-        this.source=source;
-        this.idx=block.getIdExtractor();
+        this.source = source;
+        this.idx = block.getIdExtractor();
     }
 
     @Override
@@ -54,24 +54,26 @@ public class Unique extends Step<ResultDocument> {
             @Override
             public Stream<ResultDocument> stream() {
                 return super.stream().filter(new Predicate<ResultDocument>() {
-                        private final Set<DocId> uniqueIds=new HashSet<>();
-                        @Override
-                        public boolean test(ResultDocument doc) {
-                            return uniqueIds.add(doc.getDocId());
-                        }
-                    });
+                    private final Set<DocId> uniqueIds = new HashSet<>();
+
+                    @Override
+                    public boolean test(ResultDocument doc) {
+                        return uniqueIds.add(doc.getDocId());
+                    }
+                });
             }
-        };        
+        };
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        ArrayNode arr=JsonNodeFactory.instance.arrayNode();
-        for(Path p:idx.getIdentityFields())
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        ArrayNode arr = JsonNodeFactory.instance.arrayNode();
+        for (Path p : idx.getIdentityFields()) {
             arr.add(JsonNodeFactory.instance.textNode(p.toString()));
-        o.set("unique",arr);
-        o.set("source",source.getStep().toJson());
+        }
+        o.set("unique", arr);
+        o.set("source", source.getStep().toJson());
         return o;
     }
 }

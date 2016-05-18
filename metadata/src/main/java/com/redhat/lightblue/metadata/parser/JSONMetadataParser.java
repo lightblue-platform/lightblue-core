@@ -44,8 +44,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     private final JsonNodeFactory factory;
 
     public JSONMetadataParser(Extensions<JsonNode> ex,
-            TypeResolver resolver,
-            JsonNodeFactory factory) {
+                              TypeResolver resolver,
+                              JsonNodeFactory factory) {
         super(ex, resolver);
         this.factory = factory;
     }
@@ -56,8 +56,8 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public JsonNode getMapProperty(JsonNode map,String name) {
-        return ((ObjectNode)map).get(name);
+    public JsonNode getMapProperty(JsonNode map, String name) {
+        return ((ObjectNode) map).get(name);
     }
 
     @Override
@@ -74,64 +74,63 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
     }
 
     @Override
-    public void setMapProperty(JsonNode map,String name,JsonNode value) {
-        ((ObjectNode)map).set(name,value);
+    public void setMapProperty(JsonNode map, String name, JsonNode value) {
+        ((ObjectNode) map).set(name, value);
     }
 
-
     @Override
-    public  JsonNode newList() {
+    public JsonNode newList() {
         return factory.arrayNode();
     }
 
     @Override
     public int getListSize(JsonNode list) {
-        return ((ArrayNode)list).size();
+        return ((ArrayNode) list).size();
     }
 
     @Override
-    public JsonNode getListElement(JsonNode list,int n) {
-        return ((ArrayNode)list).get(n);
+    public JsonNode getListElement(JsonNode list, int n) {
+        return ((ArrayNode) list).get(n);
     }
 
     @Override
-    public void addListElement(JsonNode list,JsonNode element) {
-        ((ArrayNode)list).add(element);
+    public void addListElement(JsonNode list, JsonNode element) {
+        ((ArrayNode) list).add(element);
     }
 
     @Override
     public Object asValue(JsonNode value) {
-        if(value==null) {
+        if (value == null) {
             return null;
-        } else if(value instanceof NullNode) {
+        } else if (value instanceof NullNode) {
             return null;
-        } else if(value instanceof BigIntegerNode) {
-            return ((ValueNode)value).bigIntegerValue();
-        } else if(value instanceof BooleanNode) {
-            return ((ValueNode)value).booleanValue();
-        } else if(value instanceof DecimalNode) {
-            return ((ValueNode)value).decimalValue();
-        } else if(value instanceof DoubleNode || value instanceof FloatNode) {
-            return ((ValueNode)value).doubleValue();
-        } else if(value instanceof IntNode) {
-            return ((ValueNode)value).intValue();
-        } else if(value instanceof LongNode) {
-            return ((ValueNode)value).longValue();
+        } else if (value instanceof BigIntegerNode) {
+            return ((ValueNode) value).bigIntegerValue();
+        } else if (value instanceof BooleanNode) {
+            return ((ValueNode) value).booleanValue();
+        } else if (value instanceof DecimalNode) {
+            return ((ValueNode) value).decimalValue();
+        } else if (value instanceof DoubleNode || value instanceof FloatNode) {
+            return ((ValueNode) value).doubleValue();
+        } else if (value instanceof IntNode) {
+            return ((ValueNode) value).intValue();
+        } else if (value instanceof LongNode) {
+            return ((ValueNode) value).longValue();
         } else {
-            return ((ValueNode)value).asText();
+            return ((ValueNode) value).asText();
         }
     }
 
     @Override
     public JsonNode asRepresentation(Object value) {
-        if(value==null) {
+        if (value == null) {
             return factory.nullNode();
-        } else if(value instanceof JsonNode) {
-            return (JsonNode)value;
+        } else if (value instanceof JsonNode) {
+            return (JsonNode) value;
         } else if (value instanceof Boolean) {
             return factory.booleanNode((Boolean) value);
         } else if (value instanceof BigDecimal) {
-            return factory.numberNode( (BigDecimal) value);
+            return factory.numberNode((BigDecimal) value);
         } else if (value instanceof BigInteger) {
             return factory.numberNode((BigInteger) value);
         } else if (value instanceof Double) {
@@ -141,7 +140,7 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         } else if (value instanceof Integer) {
             return factory.numberNode((Integer) value);
         } else if (value instanceof Long) {
-            return factory.numberNode( (Long) value);
+            return factory.numberNode((Long) value);
         } else if (value instanceof Short) {
             return factory.numberNode((Short) value);
         } else {
@@ -149,53 +148,55 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
         }
     }
 
-    
     @Override
     public MetadataParser.PropertyType getType(JsonNode object) {
-        if(object instanceof ArrayNode) {
+        if (object instanceof ArrayNode) {
             return MetadataParser.PropertyType.LIST;
-        } else if(object instanceof ObjectNode) {
+        } else if (object instanceof ObjectNode) {
             return MetadataParser.PropertyType.MAP;
-        } else if(object==null||object instanceof NullNode) {
+        } else if (object == null || object instanceof NullNode) {
             return MetadataParser.PropertyType.NULL;
         } else {
             return MetadataParser.PropertyType.VALUE;
         }
     }
-    
+
     @Override
-    public Projection getProjection(JsonNode object,String name) {
-        JsonNode node=object.get(name);
+    public Projection getProjection(JsonNode object, String name) {
+        JsonNode node = object.get(name);
         return node == null ? null : Projection.fromJson(node);
     }
 
     @Override
-    public QueryExpression getQuery(JsonNode object,String name) {
-        JsonNode node=object.get(name);
+    public QueryExpression getQuery(JsonNode object, String name) {
+        JsonNode node = object.get(name);
         return node == null ? null : QueryExpression.fromJson(node);
     }
 
     @Override
-    public Sort getSort(JsonNode object,String name) {
-        JsonNode node=object.get(name);
+    public Sort getSort(JsonNode object, String name) {
+        JsonNode node = object.get(name);
         return node == null ? null : Sort.fromJson(node);
     }
 
     @Override
-    public void putProjection(JsonNode object,String name,Projection p) {
-        if(p!=null)
-            ((ObjectNode)object).set(name,p.toJson());
+    public void putProjection(JsonNode object, String name, Projection p) {
+        if (p != null) {
+            ((ObjectNode) object).set(name, p.toJson());
+        }
     }
 
     @Override
-    public void putQuery(JsonNode object,String name,QueryExpression q) {
-        if(q!=null)
-            ((ObjectNode)object).set(name,q.toJson());
+    public void putQuery(JsonNode object, String name, QueryExpression q) {
+        if (q != null) {
+            ((ObjectNode) object).set(name, q.toJson());
+        }
     }
 
     @Override
-    public void putSort(JsonNode object,String name,Sort s) {
-        if(s!=null)
-            ((ObjectNode)object).set(name,s.toJson());
+    public void putSort(JsonNode object, String name, Sort s) {
+        if (s != null) {
+            ((ObjectNode) object).set(name, s.toJson());
+        }
     }
 }

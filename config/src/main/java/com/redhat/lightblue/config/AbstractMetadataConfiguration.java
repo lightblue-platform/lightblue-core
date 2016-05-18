@@ -44,10 +44,10 @@ import com.redhat.lightblue.util.Error;
 public abstract class AbstractMetadataConfiguration implements MetadataConfiguration {
 
     private final List<HookConfigurationParser> hookConfigurationParsers = new ArrayList<>();
-    private final List<Map.Entry<String,DataStoreParser>> backendParsers = new ArrayList<>();
-    private final List<Map.Entry<String,PropertyParser>> propertyParsers = new ArrayList<>();
-    private final Map<MetadataRole,List<String>> roleMap = new HashMap<>();
-    private boolean validateRequests=false;
+    private final List<Map.Entry<String, DataStoreParser>> backendParsers = new ArrayList<>();
+    private final List<Map.Entry<String, PropertyParser>> propertyParsers = new ArrayList<>();
+    private final Map<MetadataRole, List<String>> roleMap = new HashMap<>();
+    private boolean validateRequests = false;
 
     @Override
     public boolean isValidateRequests() {
@@ -55,7 +55,7 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
     }
 
     public void setValidateRequests(boolean b) {
-        validateRequests=b;
+        validateRequests = b;
     }
 
     /**
@@ -73,8 +73,8 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
         }
     }
 
-    protected Map<MetadataRole,List<String>> getMappedRoles() {
-        return  roleMap;
+    protected Map<MetadataRole, List<String>> getMappedRoles() {
+        return roleMap;
     }
 
     @Override
@@ -106,9 +106,8 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
                 }
             }
 
-
             ArrayNode backendParsersJs = (ArrayNode) node.get("backendParsers");
-            if(backendParsersJs != null) {
+            if (backendParsersJs != null) {
                 Iterator<JsonNode> bpjsItr = backendParsersJs.iterator();
                 while (bpjsItr.hasNext()) {
                     JsonNode jsonNode = bpjsItr.next();
@@ -130,8 +129,8 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
             }
 
             ArrayNode propertyParserJs = (ArrayNode) node.get("propertyParsers");
-            if(propertyParserJs != null) {
-                for (JsonNode jsonNode:propertyParserJs) {
+            if (propertyParserJs != null) {
+                for (JsonNode jsonNode : propertyParserJs) {
                     String name = jsonNode.get("name").asText();
                     String clazz = jsonNode.get("clazz").asText();
 
@@ -151,33 +150,33 @@ public abstract class AbstractMetadataConfiguration implements MetadataConfigura
             }
 
             JsonNode roleMapJs = node.get("roleMap");
-            if(roleMapJs != null) {
+            if (roleMapJs != null) {
                 // If the roleMap element is defined, it is expected to have all the roles mapped
                 MetadataRole[] values = MetadataRole.values();
                 for (MetadataRole value : values) {
                     String name = value.toString();
-                    ArrayNode rolesJs =  (ArrayNode) roleMapJs.get(name);
+                    ArrayNode rolesJs = (ArrayNode) roleMapJs.get(name);
 
                     if (rolesJs == null || rolesJs.size() == 0) {
                         throw Error.get(MetadataConstants.ERR_CONFIG_NOT_VALID, "roleMap missing the role \"" + name + "\"");
                     }
 
                     roleMap.put(value, new ArrayList<String>());
-                    for (JsonNode jsonNode: rolesJs) {
+                    for (JsonNode jsonNode : rolesJs) {
                         roleMap.get(value).add(jsonNode.textValue());
                     }
                 }
             }
 
-            x=node.get("validateRequests");
-            if(x!=null) {
-                validateRequests=x.booleanValue();
+            x = node.get("validateRequests");
+            if (x != null) {
+                validateRequests = x.booleanValue();
             }
         }
     }
 
     @Override
-    public List<HookConfigurationParser> getHookConfigurationParsers(){
+    public List<HookConfigurationParser> getHookConfigurationParsers() {
         return hookConfigurationParsers;
     }
 }

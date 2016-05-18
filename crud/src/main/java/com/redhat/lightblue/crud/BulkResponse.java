@@ -26,8 +26,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.redhat.lightblue.Response;
 
 /**
- * Contains a list of responses. Each request has a sequence number
- * matching the sequence number of the request.
+ * Contains a list of responses. Each request has a sequence number matching the
+ * sequence number of the request.
  * <pre>
  *   {
  *     "responses": [
@@ -37,7 +37,7 @@ import com.redhat.lightblue.Response;
  *         }
  *     ]
  *   }
- * </pre> 
+ * </pre>
  */
 public class BulkResponse extends AbstractBulkJsonObject<Response> {
 
@@ -46,14 +46,14 @@ public class BulkResponse extends AbstractBulkJsonObject<Response> {
      */
     @Override
     public JsonNode toJson() {
-        JsonNodeFactory factory=getFactory();
+        JsonNodeFactory factory = getFactory();
         ObjectNode node = factory.objectNode();
-        ArrayNode arr=factory.arrayNode();
-        int seq=0;
-        for(Response x:entries) {
-            ObjectNode entryNode=factory.objectNode();
-            entryNode.set("seq",factory.numberNode(seq++));
-            entryNode.set("response",x.toJson());
+        ArrayNode arr = factory.arrayNode();
+        int seq = 0;
+        for (Response x : entries) {
+            ObjectNode entryNode = factory.objectNode();
+            entryNode.set("seq", factory.numberNode(seq++));
+            entryNode.set("response", x.toJson());
             arr.add(entryNode);
         }
         node.put("responses", arr);

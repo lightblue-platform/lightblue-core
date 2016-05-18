@@ -66,9 +66,10 @@ class PathRep implements Serializable, Comparable<PathRep> {
         } else {
             n = k + x;
         }
-        for (String s: data.segments) {
-            if (n <= 0)
+        for (String s : data.segments) {
+            if (n <= 0) {
                 break;
+            }
             segments.add(s);
             n--;
         }

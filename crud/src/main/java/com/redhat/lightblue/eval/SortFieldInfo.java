@@ -36,11 +36,11 @@ public class SortFieldInfo {
     private final SimpleField field;
     private final Path name;
     private final boolean descending;
-    
-    public SortFieldInfo(SimpleField field,Path name,boolean descending) {
-        this.field=field;
-        this.name=name;
-        this.descending=descending;
+
+    public SortFieldInfo(SimpleField field, Path name, boolean descending) {
+        this.field = field;
+        this.name = name;
+        this.descending = descending;
     }
 
     /**
@@ -49,7 +49,7 @@ public class SortFieldInfo {
     public SimpleField getField() {
         return field;
     }
-    
+
     /**
      * Field name
      */
@@ -67,32 +67,32 @@ public class SortFieldInfo {
     /**
      * Build sort field info
      */
-    public static SortFieldInfo[] buildSortFields(Sort sort,EntityMetadata md) {
-        return buildSortFields(sort,md.getFieldTreeRoot());
+    public static SortFieldInfo[] buildSortFields(Sort sort, EntityMetadata md) {
+        return buildSortFields(sort, md.getFieldTreeRoot());
     }
-    
+
     /**
      * Build sort field info starting from the given metadata context
      */
-    public static SortFieldInfo[] buildSortFields(Sort sort,FieldTreeNode context) {
-        if(sort instanceof SortKey) {
-            return new SortFieldInfo[] {getSortField(((SortKey)sort).getField(),context,((SortKey)sort).isDesc())};
+    public static SortFieldInfo[] buildSortFields(Sort sort, FieldTreeNode context) {
+        if (sort instanceof SortKey) {
+            return new SortFieldInfo[]{getSortField(((SortKey) sort).getField(), context, ((SortKey) sort).isDesc())};
         } else {
-            List<SortKey> keys=((CompositeSortKey)sort).getKeys();
-            SortFieldInfo[] arr=new SortFieldInfo[ keys.size() ];
-            int i=0;
-            for(SortKey key:keys) {
-                arr[i++]=getSortField(key.getField(),context,key.isDesc());
+            List<SortKey> keys = ((CompositeSortKey) sort).getKeys();
+            SortFieldInfo[] arr = new SortFieldInfo[keys.size()];
+            int i = 0;
+            for (SortKey key : keys) {
+                arr[i++] = getSortField(key.getField(), context, key.isDesc());
             }
             return arr;
         }
     }
-    
-    private static SortFieldInfo getSortField(Path field,FieldTreeNode context,boolean descending) {
-        FieldTreeNode fieldMd=context.resolve(field);
-        if(! (fieldMd instanceof SimpleField) ) {
-            throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE+":"+field);
+
+    private static SortFieldInfo getSortField(Path field, FieldTreeNode context, boolean descending) {
+        FieldTreeNode fieldMd = context.resolve(field);
+        if (!(fieldMd instanceof SimpleField)) {
+            throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE + ":" + field);
         }
-        return new SortFieldInfo((SimpleField)fieldMd,field,descending);
+        return new SortFieldInfo((SimpleField) fieldMd, field, descending);
     }
 }

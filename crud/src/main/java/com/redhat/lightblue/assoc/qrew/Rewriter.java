@@ -21,22 +21,22 @@ package com.redhat.lightblue.assoc.qrew;
 import com.redhat.lightblue.query.QueryExpression;
 
 /**
- * This is the basic interface all query rewriters have to
- * implement. The implementation should inspect the query expression,
- * and return a rewritten version of the query if possible. The
- * implementation should treat the query passed into it as a read-only
- * object, not modifying it directly or indirectly. If there are any
- * modification to the query, a new query object must be returned.
+ * This is the basic interface all query rewriters have to implement. The
+ * implementation should inspect the query expression, and return a rewritten
+ * version of the query if possible. The implementation should treat the query
+ * passed into it as a read-only object, not modifying it directly or
+ * indirectly. If there are any modification to the query, a new query object
+ * must be returned.
  */
 public abstract class Rewriter {
-    
+
     public abstract QueryExpression rewrite(QueryExpression q);
 
     public static <T> T dyncast(Class<T> t, QueryExpression q) {
-        if(t.isAssignableFrom(q.getClass()))
-            return (T)q;
-        else
+        if (t.isAssignableFrom(q.getClass())) {
+            return (T) q;
+        } else {
             return null;
+        }
     }
 }
-
