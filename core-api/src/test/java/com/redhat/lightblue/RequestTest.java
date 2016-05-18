@@ -38,9 +38,9 @@ public class RequestTest {
         public CRUDOperation getOperation() {
             return null;
         }
-        
+
         public static TestRequest fromJson(ObjectNode node) {
-            TestRequest req=new TestRequest();
+            TestRequest req = new TestRequest();
             req.parse(node);
             return req;
         }
@@ -77,10 +77,10 @@ public class RequestTest {
 
     @Test
     public void toJsonFromJsonNullv() {
-        Request request=new TestRequest();
-        request.setEntityVersion(new EntityVersion("e",null));
-        Request parsed=TestRequest.fromJson((ObjectNode)request.toJson());
-        Assert.assertEquals(request.getEntityVersion().getEntity(),parsed.getEntityVersion().getEntity());
-        Assert.assertEquals(request.getEntityVersion().getVersion(),parsed.getEntityVersion().getVersion());
+        Request request = new TestRequest();
+        request.setEntityVersion(new EntityVersion("e", null));
+        Request parsed = TestRequest.fromJson((ObjectNode) request.toJson());
+        Assert.assertEquals(request.getEntityVersion().getEntity(), parsed.getEntityVersion().getEntity());
+        Assert.assertEquals(request.getEntityVersion().getVersion(), parsed.getEntityVersion().getVersion());
     }
 }

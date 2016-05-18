@@ -31,8 +31,8 @@ public class ListBinding extends FieldBinding {
                        BoundValueList list,
                        QueryExpression originalQ,
                        QueryExpression boundQ) {
-        super(field,originalQ,boundQ);
-        this.list=list;
+        super(field, originalQ, boundQ);
+        this.list = list;
     }
 
     /**

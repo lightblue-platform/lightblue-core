@@ -38,9 +38,9 @@ public class MatchesConstraintParser<T> implements FieldConstraintParser<T> {
         MatchesConstraint ret = new MatchesConstraint();
 
         if (value instanceof String) {
-            try{
+            try {
                 ret.setValue(Pattern.compile((String) value));
-            } catch(PatternSyntaxException ex){
+            } catch (PatternSyntaxException ex) {
                 throw Error.get(MetadataConstants.ERR_ILL_FORMED_METADATA, ret.getType());
             }
         } else {

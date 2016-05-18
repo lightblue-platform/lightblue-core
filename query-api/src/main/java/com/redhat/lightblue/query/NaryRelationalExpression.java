@@ -28,8 +28,7 @@ import com.redhat.lightblue.util.Path;
  * nary_relational_expression := { field: <field>,
  *                                 op: nary_comparison_operator,
  *                                 values: value_list_array }
- * </pre>
- * or
+ * </pre> or
  * <pre>
  * nary_relational_expression := { field: <field>,
  *                                 op: nary_comparison_operator,
@@ -72,7 +71,7 @@ public abstract class NaryRelationalExpression extends RelationalExpression {
         if (node.size() == 3) {
             if (node.get("rfield") != null) {
                 return NaryFieldRelationalExpression.fromJson(node);
-            } else if(node.get("values")!=null) {
+            } else if (node.get("values") != null) {
                 return NaryValueRelationalExpression.fromJson(node);
             }
         }

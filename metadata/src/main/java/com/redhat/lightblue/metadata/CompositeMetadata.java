@@ -345,7 +345,6 @@ public class CompositeMetadata extends EntityMetadata {
         }
     }
 
-
     /**
      * Copy fields from source to dest.
      *
@@ -381,7 +380,7 @@ public class CompositeMetadata extends EntityMetadata {
             Field field = itr.next();
             Error.push(field.getName());
             path.push(field.getName()); // push even for simple field since it won't matter in that case
-            LOGGER.debug("Processing {}",path);
+            LOGGER.debug("Processing {}", path);
             try {
                 if (field instanceof SimpleField) {
                     SimpleField newField = new SimpleField(field.getName(), field.getType());
@@ -391,10 +390,10 @@ public class CompositeMetadata extends EntityMetadata {
                     ObjectField newField = new ObjectField(field.getName());
                     newField.shallowCopyFrom(field);
                     copyFields(newField.getFields(),
-                               ((ObjectField) field).getFields(),
-                               path,
-                               parentEntity,
-                               gmd);
+                            ((ObjectField) field).getFields(),
+                            path,
+                            parentEntity,
+                            gmd);
                     dest.put(newField);
                 } else if (field instanceof ArrayField) {
                     ArrayElement sourceEl = ((ArrayField) field).getElement();
@@ -404,10 +403,10 @@ public class CompositeMetadata extends EntityMetadata {
                         // Need to copy an Object array, there is a Fields object in it
                         newElement = new ObjectArrayElement();
                         copyFields(((ObjectArrayElement) newElement).getFields(),
-                                   ((ObjectArrayElement) sourceEl).getFields(),
-                                   path,
-                                   parentEntity,
-                                   gmd);
+                                ((ObjectArrayElement) sourceEl).getFields(),
+                                path,
+                                parentEntity,
+                                gmd);
                         path.pop();
                     } else {
                         newElement = new SimpleArrayElement(((SimpleArrayElement) sourceEl).getType());
@@ -422,7 +421,7 @@ public class CompositeMetadata extends EntityMetadata {
                     ResolvedReferenceField newField = resolveReference(reference, path, parentEntity, gmd);
                     if (newField != null) {
                         dest.put(newField);
-                    } 
+                    }
                 }
             } finally {
                 Error.pop();
@@ -435,7 +434,7 @@ public class CompositeMetadata extends EntityMetadata {
                                                            MutablePath path,
                                                            CompositeMetadata parentEntity,
                                                            GetMetadata gmd) {
-        LOGGER.debug("resolveReference {}:{}",path,source);        
+        LOGGER.debug("resolveReference {}:{}", path, source);
         EntityMetadata md = gmd.getMetadata(path.immutableCopy(),
                 source.getEntityName(),
                 source.getVersionValue());

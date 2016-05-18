@@ -46,7 +46,7 @@ public class FieldInfoTest {
     @Test
     public void test_nary_field_comparison() throws Exception {
         List<FieldInfo> fields = getq("{'field':'x','op':'$in','rfield':'y'}").getQueryFields();
-        check(fields, "x", "","y","");
+        check(fields, "x", "", "y", "");
     }
 
     @Test
@@ -100,19 +100,19 @@ public class FieldInfoTest {
     @Test
     public void test_not_array_elemMatch_value_comparison() throws Exception {
         List<FieldInfo> fields = getq("{'$not':{'array':'a','elemMatch':{'field':'x','op':'=','rvalue':'value'}}}").getQueryFields();
-        check(fields,  "a.*.x", "a.*");
+        check(fields, "a.*.x", "a.*");
     }
 
     @Test
     public void test_array_elemMatch_field_comparison() throws Exception {
         List<FieldInfo> fields = getq("{'array':'a','elemMatch':{'field':'x','op':'>=','rfield':'y'}}").getQueryFields();
-        check(fields,  "a.*.x", "a.*", "a.*.y", "a.*");
+        check(fields, "a.*.x", "a.*", "a.*.y", "a.*");
     }
 
     @Test
     public void test_not_array_elemMatch_field_comparison() throws Exception {
         List<FieldInfo> fields = getq("{'$not':{'array':'a','elemMatch':{'field':'x','op':'=','rfield':'y'}}}").getQueryFields();
-        check(fields,  "a.*.x", "a.*", "a.*.y", "a.*");
+        check(fields, "a.*.x", "a.*", "a.*.y", "a.*");
     }
 
     /**

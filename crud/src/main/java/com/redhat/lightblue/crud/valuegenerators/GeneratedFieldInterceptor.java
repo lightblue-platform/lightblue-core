@@ -38,10 +38,10 @@ public class GeneratedFieldInterceptor implements CRUDDocInterceptor, MediatorIn
 
     public void register(InterceptorManager mgr) {
         mgr.registerInterceptor(GEN_SEQ, this,
-                                InterceptPoint.PRE_CRUD_INSERT_DOC,
-                                InterceptPoint.PRE_MEDIATOR_SAVE,
-                                InterceptPoint.PRE_CRUD_UPDATE_DOC_VALIDATION,
-                                InterceptPoint.PRE_MEDIATOR_INSERT);
+                InterceptPoint.PRE_CRUD_INSERT_DOC,
+                InterceptPoint.PRE_MEDIATOR_SAVE,
+                InterceptPoint.PRE_CRUD_UPDATE_DOC_VALIDATION,
+                InterceptPoint.PRE_MEDIATOR_INSERT);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class GeneratedFieldInterceptor implements CRUDDocInterceptor, MediatorIn
     @Override
     public void run(CRUDOperationContext ctx, DocCtx doc) {
         GeneratedFields.initializeGeneratedFields(ctx.getFactory(),
-                                                  ctx.getEntityMetadata(ctx.getEntityName()),
-                                                  doc);
+                ctx.getEntityMetadata(ctx.getEntityName()),
+                doc);
     }
 }

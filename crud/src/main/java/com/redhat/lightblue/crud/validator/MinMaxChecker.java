@@ -45,7 +45,7 @@ public class MinMaxChecker implements FieldConstraintValueChecker {
                                 JsonNode fieldValue) {
         Number value = ((MinMaxConstraint) constraint).getValue();
         String type = ((MinMaxConstraint) constraint).getType();
-        if(!(fieldValue instanceof NullNode)) {
+        if (!(fieldValue instanceof NullNode)) {
             int cmp = cmp(fieldValue, value);
             // cmp==0: fieldValue=value
             // cmp <0: fieldValue<value
@@ -54,10 +54,8 @@ public class MinMaxChecker implements FieldConstraintValueChecker {
                 if (cmp < 0) {
                     validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_SMALL, fieldValue.asText()));
                 }
-            } else {
-                if (cmp > 0) {
-                    validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
-                }
+            } else if (cmp > 0) {
+                validator.addDocError(Error.get(CrudConstants.ERR_VALUE_TOO_LARGE, fieldValue.asText()));
             }
         }
     }

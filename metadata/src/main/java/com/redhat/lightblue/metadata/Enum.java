@@ -51,9 +51,9 @@ public class Enum extends MetadataObject {
         }
     }
 
-    public void setValues(Collection<String> values){
+    public void setValues(Collection<String> values) {
         Set<EnumValue> evSet = new HashSet<>();
-        for(String string : values){
+        for (String string : values) {
             evSet.add(new EnumValue(string, null));
         }
         setValues(evSet);
@@ -69,9 +69,9 @@ public class Enum extends MetadataObject {
     /**
      * The values allowed in this enumeration.
      */
-    public Set<String> getValues(){
+    public Set<String> getValues() {
         Set<String> strings = new HashSet<>();
-        for(EnumValue v : values){
+        for (EnumValue v : values) {
             strings.add(v.getName());
         }
         return strings;

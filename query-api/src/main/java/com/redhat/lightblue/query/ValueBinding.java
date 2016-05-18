@@ -30,7 +30,7 @@ public class ValueBinding extends FieldBinding {
                         BoundValue value,
                         QueryExpression originalQ,
                         QueryExpression boundQ) {
-        super(field,originalQ,boundQ);
+        super(field, originalQ, boundQ);
         this.value = value;
     }
 

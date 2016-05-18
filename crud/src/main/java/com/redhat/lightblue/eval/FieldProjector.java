@@ -60,13 +60,15 @@ public class FieldProjector extends Projector {
                 // If this field is exclusively excluded, exclude it
             }
             // Otherwise, this projection does not tell anything about this particular field.
-        } else if (recursive &&  // If this is a recursive projection
-                   p.numSegments() > field.numSegments() &&   // If we're checking a field deeper than our field
-                   p.prefix(field.numSegments()).matches(field) // And if we're checking a field under the subtree of our field
-                   ) {
+        } else if (recursive
+                && // If this is a recursive projection
+                p.numSegments() > field.numSegments()
+                && // If we're checking a field deeper than our field
+                p.prefix(field.numSegments()).matches(field) // And if we're checking a field under the subtree of our field
+                ) {
             // This is an implied inclusion or exclusion, because the
             // projection is for an ancestor of this field.
-            return include ? Projection.Inclusion.implicit_inclusion:Projection.Inclusion.implicit_exclusion;
+            return include ? Projection.Inclusion.implicit_inclusion : Projection.Inclusion.implicit_exclusion;
         }
         return Projection.Inclusion.undecided;
     }

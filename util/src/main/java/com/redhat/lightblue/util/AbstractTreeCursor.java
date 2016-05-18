@@ -186,7 +186,7 @@ public abstract class AbstractTreeCursor<N> {
         if (hasChildren(currentNode)) {
             push();
             currentCursor = getCursor(currentNode);
-            if(!currentCursor.hasNext()) {
+            if (!currentCursor.hasNext()) {
                 pop();
                 return false;
             }
@@ -251,14 +251,12 @@ public abstract class AbstractTreeCursor<N> {
                 } else if (!parent()) {
                     done = true;
                 }
+            } else if (firstChild() || nextSibling()) {
+                return true;
+            } else if (!parent()) {
+                done = true;
             } else {
-                if (firstChild() || nextSibling()) {
-                    return true;
-                } else if (!parent()) {
-                    done = true;
-                } else {
-                    backing = true;
-                }
+                backing = true;
             }
         } while (!done);
         return false;

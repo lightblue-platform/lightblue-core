@@ -50,17 +50,17 @@ import com.redhat.lightblue.util.Path;
 import com.redhat.lightblue.util.Error;
 
 /**
- * This implementation combines the implementations for GetMetadata
- * interface used by CompositeMetadata, and MetadataResolver interface
- * used by the CRUD subsystem to access metadata by name.
+ * This implementation combines the implementations for GetMetadata interface
+ * used by CompositeMetadata, and MetadataResolver interface used by the CRUD
+ * subsystem to access metadata by name.
  */
 public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(DefaultMetadataResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMetadataResolver.class);
 
-    private final Map<String,EntityMetadata> metadataMap=new HashMap<>();
+    private final Map<String, EntityMetadata> metadataMap = new HashMap<>();
     private final Metadata md;
 
     private CompositeMetadata cmd;
@@ -69,54 +69,55 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
     private final class Gmd extends AbstractGetMetadata {
         public Gmd(Projection projection,
                    QueryExpression query) {
-            super(projection,query);
+            super(projection, query);
         }
 
         @Override
         protected EntityMetadata retrieveMetadata(Path injectionPath,
                                                   String entityName,
                                                   String entityVersion) {
-            return DefaultMetadataResolver.this.getMetadata(entityName,entityVersion);
+            return DefaultMetadataResolver.this.getMetadata(entityName, entityVersion);
         }
     }
-    
+
     /**
      * Constructs the metadata resolver with the given metadata implementation
      */
     public DefaultMetadataResolver(Metadata metadata) {
-        this.md=metadata;
+        this.md = metadata;
     }
 
     /**
-     * This method builds the composite metadata for the given top
-     * level entity name and entity version, for the given query and projections
+     * This method builds the composite metadata for the given top level entity
+     * name and entity version, for the given query and projections
      */
     public void initialize(String entityName,
                            String entityVersion,
                            final QueryExpression query,
                            final Projection projection) {
-        if(cmd!=null)
+        if (cmd != null) {
             throw new IllegalStateException("Metadata resolver was already initialized");
-        
-        LOGGER.debug("Initializing with {}:{}",entityName,entityVersion);
-        EntityMetadata emd=getMetadata(entityName,entityVersion);
-        cmd=CompositeMetadata.buildCompositeMetadata(emd,new Gmd(projection,query));
-        LOGGER.debug("Composite metadata:{}",cmd);
-         
+        }
+
+        LOGGER.debug("Initializing with {}:{}", entityName, entityVersion);
+        EntityMetadata emd = getMetadata(entityName, entityVersion);
+        cmd = CompositeMetadata.buildCompositeMetadata(emd, new Gmd(projection, query));
+        LOGGER.debug("Composite metadata:{}", cmd);
+
         LOGGER.debug("Collecting metadata roles");
-        roles=new HashSet<>();
+        roles = new HashSet<>();
         addMetadataRoles(roles, cmd);
         FieldCursor c = cmd.getFieldCursor();
         while (c.next()) {
             FieldTreeNode node = c.getCurrentNode();
             addFieldRoles(roles, node);
             if (node instanceof ResolvedReferenceField) {
-                addMetadataRoles(roles,((ResolvedReferenceField)node).getReferencedMetadata());
+                addMetadataRoles(roles, ((ResolvedReferenceField) node).getReferencedMetadata());
             }
         }
-        LOGGER.debug("Metadata roles:{}",roles);
+        LOGGER.debug("Metadata roles:{}", roles);
     }
-    
+
     /**
      * Returns the top level entity name
      */
@@ -139,7 +140,8 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
     }
 
     /**
-     * Returns the version of the entity metadata relevant in the current operation
+     * Returns the version of the entity metadata relevant in the current
+     * operation
      */
     @Override
     public EntityMetadata getEntityMetadata(String entityName) {
@@ -180,22 +182,22 @@ public class DefaultMetadataResolver implements MetadataResolver, Serializable {
 
     private EntityMetadata getMetadata(String entityName,
                                        String version) {
-        EntityMetadata emd=metadataMap.get(entityName);
-        if(emd!=null) {
+        EntityMetadata emd = metadataMap.get(entityName);
+        if (emd != null) {
             if (!emd.getVersion().getValue().equals(version)) {
-                throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE,entityName + ":" + version + 
-                                " and " + emd.getVersion().getValue());
+                throw Error.get(CrudConstants.ERR_METADATA_APPEARS_TWICE, entityName + ":" + version
+                        + " and " + emd.getVersion().getValue());
             }
         } else {
-            LOGGER.debug("Retrieving entity metadata {}:{}",entityName,version);
-            emd=md.getEntityMetadata(entityName,version);
+            LOGGER.debug("Retrieving entity metadata {}:{}", entityName, version);
+            emd = md.getEntityMetadata(entityName, version);
             if (emd == null || emd.getEntitySchema() == null) {
                 throw Error.get(CrudConstants.ERR_UNKNOWN_ENTITY, entityName + ":" + version);
             }
             if (emd.getEntitySchema().getStatus() == MetadataStatus.DISABLED) {
-                throw Error.get(CrudConstants.ERR_DISABLED_METADATA,entityName + ":" + version);
+                throw Error.get(CrudConstants.ERR_DISABLED_METADATA, entityName + ":" + version);
             }
-            metadataMap.put(entityName,emd);
+            metadataMap.put(entityName, emd);
         }
         return emd;
     }

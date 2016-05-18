@@ -23,18 +23,17 @@ import com.redhat.lightblue.util.Path;
 import java.io.Serializable;
 
 /**
- * Base class for a bound value. The bound value cam be a primitive
- * (BoundValue) or a list (BoundValueList). When a field is bound to a
- * value, that query clause is replaced with another one containing a
- * BoundValue or BoundValueList. The FieldBinding for this instance
- * keeps the field path, the value it is bound to, the original query
- * expression (originalQuery), and the new query expression containing
- * the bound value (boundQuery). For instance, consider the following
- * expression: 
+ * Base class for a bound value. The bound value cam be a primitive (BoundValue)
+ * or a list (BoundValueList). When a field is bound to a value, that query
+ * clause is replaced with another one containing a BoundValue or
+ * BoundValueList. The FieldBinding for this instance keeps the field path, the
+ * value it is bound to, the original query expression (originalQuery), and the
+ * new query expression containing the bound value (boundQuery). For instance,
+ * consider the following expression:
  *
- * <pre> 
+ * <pre>
  *  { "field":"field1","op":"=","rfield":"field2" }
- * </pre> 
+ * </pre>
  *
  * When <code>field1</code> is bound to a value, the FieldBinding is:
  * <pre> field: field1 originalQuery: {

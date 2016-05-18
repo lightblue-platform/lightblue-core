@@ -69,52 +69,55 @@ public final class OperationContext extends CRUDOperationContext {
                             Factory factory,
                             CRUDOperation CRUDOperation) {
         super(CRUDOperation,
-              request.getEntityVersion().getEntity(), 
-              factory, 
-              request instanceof DocRequest ? JsonDoc.docList( JsonDoc.filterNulls( ((DocRequest)request).getEntityData())):null,
-              request.getExecution());
+                request.getEntityVersion().getEntity(),
+                factory,
+                request instanceof DocRequest ? JsonDoc.docList(JsonDoc.filterNulls(((DocRequest) request).getEntityData())) : null,
+                request.getExecution());
         this.request = request;
         this.metadata = metadata;
         this.resolver = new DefaultMetadataResolver(metadata);
 
         QueryExpression query;
         Projection projection;
-        if(request instanceof WithQuery)
-            query=((WithQuery)request).getQuery();
-        else
-            query=null;
-        if(request instanceof WithProjection)
-            projection=((WithProjection)request).getProjection();
-        else
-            projection=null;
+        if (request instanceof WithQuery) {
+            query = ((WithQuery) request).getQuery();
+        } else {
+            query = null;
+        }
+        if (request instanceof WithProjection) {
+            projection = ((WithProjection) request).getProjection();
+        } else {
+            projection = null;
+        }
         resolver.initialize(request.getEntityVersion().getEntity(),
-                            request.getEntityVersion().getVersion(),
-                            query,projection);
+                request.getEntityVersion().getVersion(),
+                query, projection);
         addCallerRoles(getCallerRoles(resolver.getMetadataRoles(), request.getClientId()));
         LOGGER.debug("Caller roles:{}", getCallerRoles());
     }
 
     /**
-     * Construct operation context based on an existing one, with a different request and operation
+     * Construct operation context based on an existing one, with a different
+     * request and operation
      */
     public OperationContext(Request request,
                             CRUDOperation op,
                             OperationContext ctx) {
         super(op,
-              request.getEntityVersion().getEntity(),
-              ctx.getFactory(),
-              ctx.getCallerRoles(),
-              ctx.getHookManager(),
-              request instanceof DocRequest ? JsonDoc.docList( ((DocRequest)request).getEntityData()):null,
-              request.getExecution());
-        this.request=request;
-        this.metadata=ctx.metadata;
-        this.resolver=ctx.resolver;
+                request.getEntityVersion().getEntity(),
+                ctx.getFactory(),
+                ctx.getCallerRoles(),
+                ctx.getHookManager(),
+                request instanceof DocRequest ? JsonDoc.docList(((DocRequest) request).getEntityData()) : null,
+                request.getExecution());
+        this.request = request;
+        this.metadata = ctx.metadata;
+        this.resolver = ctx.resolver;
     }
-                            
 
     /**
      * Construct an operation context drived from another operation context
+     *
      * @param request The top-level request
      * @param metadata Metadata manager
      * @param factory The factory to get validators and controllers
@@ -133,35 +136,35 @@ public final class OperationContext extends CRUDOperationContext {
                              Set<String> callerRoles,
                              HookManager hookManager) {
         super(CRUDOperation,
-              request.getEntityVersion().getEntity(),
-              factory,
-              docs,
-              callerRoles,
-              hookManager,
-              request.getExecution());
+                request.getEntityVersion().getEntity(),
+                factory,
+                docs,
+                callerRoles,
+                hookManager,
+                request.getExecution());
 
-        this.request=request;
-        this.metadata=metadata;
-        this.resolver=resolver;
+        this.request = request;
+        this.metadata = metadata;
+        this.resolver = resolver;
     }
 
-    public OperationContext getDerivedOperationContext(String entityName,CRUDFindRequest req) {
+    public OperationContext getDerivedOperationContext(String entityName, CRUDFindRequest req) {
         // Create a new request with same header information, but different query information
-        FindRequest newReq=new FindRequest();
-        newReq.shallowCopyFrom( (Request)request, req );
-        newReq.setEntityVersion(new EntityVersion(entityName,resolver.getEntityMetadata(entityName).getVersion().getValue()));
+        FindRequest newReq = new FindRequest();
+        newReq.shallowCopyFrom((Request) request, req);
+        newReq.setEntityVersion(new EntityVersion(entityName, resolver.getEntityMetadata(entityName).getVersion().getValue()));
         // At this point, newReq has header information from the
         // original request, but query information from the argument
         // 'req'
 
         return new OperationContext(newReq,
-                                    metadata,
-                                    getFactory(),
-                                    CRUDOperation.FIND,
-                                    resolver,
-                                    new ArrayList<DocCtx>(),
-                                    getCallerRoles(),
-                                    getHookManager());
+                metadata,
+                getFactory(),
+                CRUDOperation.FIND,
+                resolver,
+                new ArrayList<DocCtx>(),
+                getCallerRoles(),
+                getHookManager());
     }
 
     /**
@@ -200,8 +203,8 @@ public final class OperationContext extends CRUDOperationContext {
     }
 
     /**
-     * Returns true if the operation context is for a simple entity,
-     * an entity with no associations
+     * Returns true if the operation context is for a simple entity, an entity
+     * with no associations
      */
     public boolean isSimple() {
         return resolver.getCompositeMetadata().isSimple();

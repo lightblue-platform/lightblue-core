@@ -344,8 +344,8 @@ public class Path implements Comparable<Path>, Serializable {
     }
 
     /**
-     * Returns a path with all possible $parent and $this references removed. 
-     * If there are prefixing $parents, they will remain.
+     * Returns a path with all possible $parent and $this references removed. If
+     * there are prefixing $parents, they will remain.
      */
     public Path normalize() {
         boolean parentThisPresent = false;
@@ -362,7 +362,7 @@ public class Path implements Comparable<Path>, Serializable {
             dataItr = data.iterator();
             while (dataItr.hasNext()) {
                 String s = dataItr.next();
-                if (PARENT.equals(s)&&p.numSegments()>0) {
+                if (PARENT.equals(s) && p.numSegments() > 0) {
                     p.pop();
                 } else if (!THIS.equals(s)) {
                     p.push(s);

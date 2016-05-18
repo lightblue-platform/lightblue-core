@@ -192,11 +192,11 @@ public class EntityMetadata extends MetadataObject {
      */
     public void validate() {
         // Check enum in schema against entity info
-        FieldCursor cursor=getEntitySchema().getFieldCursor();
-        while(cursor.next()) {
-            FieldTreeNode node=cursor.getCurrentNode();
-            if(node instanceof Field) {
-                Field field=(Field)node;
+        FieldCursor cursor = getEntitySchema().getFieldCursor();
+        while (cursor.next()) {
+            FieldTreeNode node = cursor.getCurrentNode();
+            if (node instanceof Field) {
+                Field field = (Field) node;
                 for (FieldConstraint fc : field.getConstraints()) {
                     if (fc instanceof EnumConstraint) {
                         // check that this field's enum name is valid
@@ -211,10 +211,9 @@ public class EntityMetadata extends MetadataObject {
     }
 
     /**
-     * Builds a document comparator for comparing documents of this
-     * type. That involves registering all array element identities
-     * with the comparator so array comparisons can be done corectly
-     * and efficiently.
+     * Builds a document comparator for comparing documents of this type. That
+     * involves registering all array element identities with the comparator so
+     * array comparisons can be done corectly and efficiently.
      */
     public JsonCompare getDocComparator() {
         return schema.getDocComparator();

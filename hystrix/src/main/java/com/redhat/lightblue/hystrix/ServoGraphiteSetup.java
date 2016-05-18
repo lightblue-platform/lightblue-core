@@ -56,7 +56,8 @@ public final class ServoGraphiteSetup {
 
     private static boolean initialized = false;
 
-    private ServoGraphiteSetup() {}
+    private ServoGraphiteSetup() {
+    }
 
     public static void stop() {
         LOGGER.debug("stop() method called, initialized=" + initialized);
@@ -119,7 +120,7 @@ public final class ServoGraphiteSetup {
                         System.getenv("OPENSHIFT_APP_NAME"),
                         System.getenv("OPENSHIFT_NAMESPACE"),
                         System.getenv("OPENSHIFT_GEAR_DNS")
-                        );
+                );
             } else {
                 //default
                 prefix = System.getenv("HOSTNAME");
@@ -237,9 +238,10 @@ public final class ServoGraphiteSetup {
     }
 
     /**
-     * Looks for the value of the key as a key firstly as a JVM argument, and
-     * if not found, to an environment variable. If still not found, then null
-     * is returned.
+     * Looks for the value of the key as a key firstly as a JVM argument, and if
+     * not found, to an environment variable. If still not found, then null is
+     * returned.
+     *
      * @param key
      * @return
      */

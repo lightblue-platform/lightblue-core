@@ -28,98 +28,106 @@ public class MapQueryFieldsIterator extends QueryIterator {
     /**
      * Override this method to map fields.
      *
-     * The method should return a non-null path if p is to be
-     * modified. It is returns null, the original p in the expression
-     * is used.
+     * The method should return a non-null path if p is to be modified. It is
+     * returns null, the original p in the expression is used.
      */
     protected Path map(Path p) {
         return p;
     }
-    
+
     @Override
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path context) {
-        Path p=map(applyContext(context,q.getField()));
-        if(p!=null)
-            return new ValueComparisonExpression(removeContext(context,p,q.getField()),q.getOp(),q.getRvalue());
-        else
+        Path p = map(applyContext(context, q.getField()));
+        if (p != null) {
+            return new ValueComparisonExpression(removeContext(context, p, q.getField()), q.getOp(), q.getRvalue());
+        } else {
             return q;
+        }
     }
 
     @Override
     protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path context) {
-    	Path r=map(applyContext(context,q.getRfield()));
-        Path l=map(applyContext(context,q.getField()));
-        if(r!=null||l!=null)
-            return new FieldComparisonExpression(l==null?q.getField():removeContext(context,l,q.getField()),
-                                                 q.getOp(),
-                                                 r==null?q.getRfield():removeContext(context,r,q.getRfield()));
-        else
+        Path r = map(applyContext(context, q.getRfield()));
+        Path l = map(applyContext(context, q.getField()));
+        if (r != null || l != null) {
+            return new FieldComparisonExpression(l == null ? q.getField() : removeContext(context, l, q.getField()),
+                    q.getOp(),
+                    r == null ? q.getRfield() : removeContext(context, r, q.getRfield()));
+        } else {
             return q;
+        }
     }
 
     @Override
     protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path context) {
-        Path p=map(applyContext(context,q.getField()));
-        if(p!=null)
-            return new RegexMatchExpression(removeContext(context,p,q.getField()),
-                                            q.getRegex(),q.isCaseInsensitive(),q.isMultiline(),q.isExtended(),q.isDotAll());
-        else
+        Path p = map(applyContext(context, q.getField()));
+        if (p != null) {
+            return new RegexMatchExpression(removeContext(context, p, q.getField()),
+                    q.getRegex(), q.isCaseInsensitive(), q.isMultiline(), q.isExtended(), q.isDotAll());
+        } else {
             return q;
+        }
     }
 
     @Override
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path context) {
-        Path p=map(applyContext(context,q.getField()));
-        if(p!=null)
-            return new NaryValueRelationalExpression(removeContext(context,p,q.getField()),q.getOp(),q.getValues());
-        else
+        Path p = map(applyContext(context, q.getField()));
+        if (p != null) {
+            return new NaryValueRelationalExpression(removeContext(context, p, q.getField()), q.getOp(), q.getValues());
+        } else {
             return q;
+        }
     }
 
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
-        Path r=map(applyContext(context,q.getRfield()));
-        Path l=map(applyContext(context,q.getField()));
-        if(r!=null||l!=null)
-            return new NaryFieldRelationalExpression(l==null?q.getField():removeContext(context,l,q.getField()),
-                                                     q.getOp(),
-                                                     r==null?q.getRfield():removeContext(context,r,q.getRfield()));
-        else
+        Path r = map(applyContext(context, q.getRfield()));
+        Path l = map(applyContext(context, q.getField()));
+        if (r != null || l != null) {
+            return new NaryFieldRelationalExpression(l == null ? q.getField() : removeContext(context, l, q.getField()),
+                    q.getOp(),
+                    r == null ? q.getRfield() : removeContext(context, r, q.getRfield()));
+        } else {
             return q;
+        }
     }
 
     @Override
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path context) {
-        Path p=applyContext(context,q.getArray());
-        if(p!=null)
-            return new ArrayContainsExpression(removeContext(context,p,q.getArray()),q.getOp(),q.getValues());
-        else
+        Path p = applyContext(context, q.getArray());
+        if (p != null) {
+            return new ArrayContainsExpression(removeContext(context, p, q.getArray()), q.getOp(), q.getValues());
+        } else {
             return q;
+        }
     }
 
     @Override
     protected QueryExpression itrArrayMatchExpression(ArrayMatchExpression q, Path context) {
-        ArrayMatchExpression x=(ArrayMatchExpression)super.itrArrayMatchExpression(q,context);
-        Path p=map(applyContext(context,x.getArray()));
-        if(p!=null)
-            return new ArrayMatchExpression(removeContext(context,p,x.getArray()),x.getElemMatch());
-        else
+        ArrayMatchExpression x = (ArrayMatchExpression) super.itrArrayMatchExpression(q, context);
+        Path p = map(applyContext(context, x.getArray()));
+        if (p != null) {
+            return new ArrayMatchExpression(removeContext(context, p, x.getArray()), x.getElemMatch());
+        } else {
             return x;
-    }
-    
-    private Path applyContext(Path context,Path p) {
-    	if(context.isEmpty())
-            return p;
-    	else
-            return new Path(context,p);
+        }
     }
 
-    private Path removeContext(Path context,Path p,Path original) {
-        if(context.isEmpty())
+    private Path applyContext(Path context, Path p) {
+        if (context.isEmpty()) {
             return p;
-        else if(context.matchingPrefix(p))
+        } else {
+            return new Path(context, p);
+        }
+    }
+
+    private Path removeContext(Path context, Path p, Path original) {
+        if (context.isEmpty()) {
+            return p;
+        } else if (context.matchingPrefix(p)) {
             return p.suffix(-context.numSegments());
-        else
-        	return original;
+        } else {
+            return original;
+        }
     }
 }

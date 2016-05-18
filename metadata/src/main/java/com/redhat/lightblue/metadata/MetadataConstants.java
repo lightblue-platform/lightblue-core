@@ -74,7 +74,6 @@ public final class MetadataConstants {
 
     public static final String ERR_DATASOURCE_UNKNOWN = "metadata:DataSourceUnknown";
 
-
     private MetadataConstants() {
     }
 

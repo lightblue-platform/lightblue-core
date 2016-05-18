@@ -69,7 +69,7 @@ public class BindTest {
         q = getq("{'$and':[{'$not':{'field':'x','regex':'value'}},{'field':'x','op':'=','rfield':'y'},{'field':'x','op':'$in','rfield':'y'}]}");
         l = q.getBindableClauses();
         System.out.println(l);
-        Assert.assertEquals(2,l.size());
+        Assert.assertEquals(2, l.size());
         Assert.assertTrue(((NaryLogicalExpression) q).getQueries().get(1) == l.get(0).getQuery());
         Assert.assertTrue(((NaryLogicalExpression) q).getQueries().get(2) == l.get(1).getQuery());
     }
@@ -125,14 +125,14 @@ public class BindTest {
         Assert.assertEquals("y", ((ValueComparisonExpression) newq).getField().toString());
         Assert.assertEquals(BinaryComparisonOperator._eq, ((ValueComparisonExpression) newq).getOp());
         Assert.assertEquals(1, bindingInfo.size());
-        Assert.assertTrue(((ValueBinding)bindingInfo.get(0)).getValue() == ((ValueComparisonExpression) newq).getRvalue());
+        Assert.assertTrue(((ValueBinding) bindingInfo.get(0)).getValue() == ((ValueComparisonExpression) newq).getRvalue());
         Assert.assertTrue(bindingInfo.get(0).getOriginalQuery() == q);
         Assert.assertTrue(bindingInfo.get(0).getBoundQuery() == newq);
         Assert.assertEquals("x", bindingInfo.get(0).getField().toString());
 
         String newValue = "blah";
-        ((ValueBinding)bindingInfo.get(0)).getValue().setValue(newValue);
-        Assert.assertEquals(newValue, ((ValueBinding)bindingInfo.get(0)).getValue().getValue());
+        ((ValueBinding) bindingInfo.get(0)).getValue().setValue(newValue);
+        Assert.assertEquals(newValue, ((ValueBinding) bindingInfo.get(0)).getValue().getValue());
         Assert.assertEquals(newValue, ((ValueComparisonExpression) newq).getRvalue().getValue());
     }
 
@@ -148,14 +148,14 @@ public class BindTest {
         Assert.assertEquals("y", ((ArrayContainsExpression) newq).getArray().toString());
         Assert.assertEquals(ContainsOperator._all, ((ArrayContainsExpression) newq).getOp());
         Assert.assertEquals(1, bindingInfo.size());
-        Assert.assertTrue(((ValueBinding)bindingInfo.get(0)).getValue() == ((ArrayContainsExpression) newq).getValues().get(0));
+        Assert.assertTrue(((ValueBinding) bindingInfo.get(0)).getValue() == ((ArrayContainsExpression) newq).getValues().get(0));
         Assert.assertTrue(bindingInfo.get(0).getOriginalQuery() == q);
         Assert.assertTrue(bindingInfo.get(0).getBoundQuery() == newq);
         Assert.assertEquals("x", bindingInfo.get(0).getField().toString());
 
         String newValue = "blah";
-        ((ValueBinding)bindingInfo.get(0)).getValue().setValue(newValue);
-        Assert.assertEquals(newValue, ((ValueBinding)bindingInfo.get(0)).getValue().getValue());
+        ((ValueBinding) bindingInfo.get(0)).getValue().setValue(newValue);
+        Assert.assertEquals(newValue, ((ValueBinding) bindingInfo.get(0)).getValue().getValue());
         Assert.assertEquals(newValue, ((ArrayContainsExpression) newq).getValues().get(0).getValue());
     }
 
@@ -171,14 +171,14 @@ public class BindTest {
         Assert.assertEquals("x", ((NaryValueRelationalExpression) newq).getField().toString());
         Assert.assertEquals(NaryRelationalOperator._in, ((NaryValueRelationalExpression) newq).getOp());
         Assert.assertEquals(1, bindingInfo.size());
-        Assert.assertTrue(((ListBinding)bindingInfo.get(0)).getList() == ((NaryValueRelationalExpression) newq).getValues());
+        Assert.assertTrue(((ListBinding) bindingInfo.get(0)).getList() == ((NaryValueRelationalExpression) newq).getValues());
         Assert.assertTrue(bindingInfo.get(0).getOriginalQuery() == q);
         Assert.assertTrue(bindingInfo.get(0).getBoundQuery() == newq);
         Assert.assertEquals("y", bindingInfo.get(0).getField().toString());
 
-        List<Value> newValue=new ArrayList<>();
-        ((ListBinding)bindingInfo.get(0)).getList().setList(newValue);
-        Assert.assertEquals(newValue, ((ListBinding)bindingInfo.get(0)).getList());
+        List<Value> newValue = new ArrayList<>();
+        ((ListBinding) bindingInfo.get(0)).getList().setList(newValue);
+        Assert.assertEquals(newValue, ((ListBinding) bindingInfo.get(0)).getList());
         Assert.assertEquals(newValue, ((NaryValueRelationalExpression) newq).getValues());
     }
 
@@ -195,13 +195,13 @@ public class BindTest {
         Assert.assertEquals("y", ((ValueComparisonExpression) newq.getElemMatch()).getField().toString());
         Assert.assertEquals(BinaryComparisonOperator._eq, ((ValueComparisonExpression) newq.getElemMatch()).getOp());
         Assert.assertEquals(1, bindingInfo.size());
-        Assert.assertTrue(((ValueBinding)bindingInfo.get(0)).getValue() == ((ValueComparisonExpression) newq.getElemMatch()).getRvalue());
+        Assert.assertTrue(((ValueBinding) bindingInfo.get(0)).getValue() == ((ValueComparisonExpression) newq.getElemMatch()).getRvalue());
         Assert.assertTrue(bindingInfo.get(0).getOriginalQuery() == q.getElemMatch());
         Assert.assertTrue(bindingInfo.get(0).getBoundQuery() == newq.getElemMatch());
         Assert.assertEquals("a.*.x", bindingInfo.get(0).getField().toString());
 
         String newValue = "blah";
-        ((ValueBinding)bindingInfo.get(0)).getValue().setValue(newValue);
+        ((ValueBinding) bindingInfo.get(0)).getValue().setValue(newValue);
         Assert.assertEquals(newValue, ((ValueComparisonExpression) newq.getElemMatch()).getRvalue().getValue());
     }
 

@@ -36,26 +36,24 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.util.Path;
 
 /**
- * A query clause that cannot be further broken into conjuncts of a
- * conjunctive normal form query. This class also keeps metadata
- * related to that clause, such as the referred nodes of query plan,
- * fieldinfo, etc.
+ * A query clause that cannot be further broken into conjuncts of a conjunctive
+ * normal form query. This class also keeps metadata related to that clause,
+ * such as the referred nodes of query plan, fieldinfo, etc.
  *
- * Object identity of conjuncts are preserved during query plan
- * processing. That is, a Conjunct object created for a particular
- * query plan is used again for other incarnation of that query plan,
- * only node associations are changed. So, it is possible to keep maps
- * that map a Conjunct to some other piece of data. This is important
- * in query scoring. Scoring can process conjuncts, and keep data
- * internally to prevent recomputing the cost associated with the
- * conjunct for every possible query plan.
+ * Object identity of conjuncts are preserved during query plan processing. That
+ * is, a Conjunct object created for a particular query plan is used again for
+ * other incarnation of that query plan, only node associations are changed. So,
+ * it is possible to keep maps that map a Conjunct to some other piece of data.
+ * This is important in query scoring. Scoring can process conjuncts, and keep
+ * data internally to prevent recomputing the cost associated with the conjunct
+ * for every possible query plan.
  */
 public class Conjunct implements Serializable {
 
-    private static final long serialVersionUID=1l;
-    
-    private static final Logger LOGGER=LoggerFactory.getLogger(Conjunct.class);
-    
+    private static final long serialVersionUID = 1l;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Conjunct.class);
+
     /**
      * The original query clause
      */
@@ -65,34 +63,35 @@ public class Conjunct implements Serializable {
      * Field info for the fields in the clause
      */
     private final ResolvedFieldInfo[] fieldInfo;
-    
+
     /**
      * The list of distinct query plan nodes referred by the clause
      */
-    private final Set<QueryPlanNode> referredNodes=new HashSet<>();
+    private final Set<QueryPlanNode> referredNodes = new HashSet<>();
 
     /**
-     * Specifies if the query belongs to the request, or one of the reference fields
+     * Specifies if the query belongs to the request, or one of the reference
+     * fields
      */
     private final boolean requestQuery;
 
-    
     public Conjunct(QueryExpression q,
                     CompositeMetadata compositeMetadata,
                     QueryPlan qplan,
                     ResolvedReferenceField context) {
-        this.clause=q;
-        this.requestQuery=context==null;
-        List<ResolvedFieldInfo> finfo=ResolvedFieldInfo.getQueryFields(clause,compositeMetadata,context,qplan);
-        LOGGER.debug("Conjunct for query {} with fields {}",q,finfo);
-        fieldInfo=finfo.toArray(new ResolvedFieldInfo[finfo.size()]);
-        for(ResolvedFieldInfo rfi:fieldInfo) {
+        this.clause = q;
+        this.requestQuery = context == null;
+        List<ResolvedFieldInfo> finfo = ResolvedFieldInfo.getQueryFields(clause, compositeMetadata, context, qplan);
+        LOGGER.debug("Conjunct for query {} with fields {}", q, finfo);
+        fieldInfo = finfo.toArray(new ResolvedFieldInfo[finfo.size()]);
+        for (ResolvedFieldInfo rfi : fieldInfo) {
             referredNodes.add(rfi.getFieldQueryPlanNode());
         }
     }
 
     /**
-     * Returns true if the clause belongs to a request query, not to a reference field
+     * Returns true if the clause belongs to a request query, not to a reference
+     * field
      */
     public boolean isRequestQuery() {
         return requestQuery;
@@ -102,11 +101,12 @@ public class Conjunct implements Serializable {
      * Return the relative field name based on the original field name
      */
     public Path mapOriginalFieldName(Path originalFieldName) {
-        ResolvedFieldInfo fi=getFieldInfoByOriginalFieldName(originalFieldName);
-        if(fi==null)
+        ResolvedFieldInfo fi = getFieldInfoByOriginalFieldName(originalFieldName);
+        if (fi == null) {
             return originalFieldName;
-        else
+        } else {
             return fi.getEntityRelativeFieldName();
+        }
     }
 
     /**
@@ -116,7 +116,6 @@ public class Conjunct implements Serializable {
         return referredNodes;
     }
 
-
     /**
      * Returns the field information about the fields in the conjunct
      */
@@ -125,22 +124,28 @@ public class Conjunct implements Serializable {
     }
 
     /**
-     * Return the field info by the field name of the field as used in the unmodified query
+     * Return the field info by the field name of the field as used in the
+     * unmodified query
      */
     public ResolvedFieldInfo getFieldInfoByOriginalFieldName(Path p) {
-        for(ResolvedFieldInfo fi:fieldInfo)
-            if(fi.getFieldName().equals(p))
+        for (ResolvedFieldInfo fi : fieldInfo) {
+            if (fi.getFieldName().equals(p)) {
                 return fi;
+            }
+        }
         return null;
     }
 
     /**
-     * Returns the field info by the field name as it appears in the entity-relative query
+     * Returns the field info by the field name as it appears in the
+     * entity-relative query
      */
     public ResolvedFieldInfo getFieldInfoByRelativeFieldName(Path p) {
-        for(ResolvedFieldInfo fi:fieldInfo)
-            if(fi.getEntityRelativeFieldName().equals(p))
+        for (ResolvedFieldInfo fi : fieldInfo) {
+            if (fi.getEntityRelativeFieldName().equals(p)) {
                 return fi;
+            }
+        }
         return null;
     }
 
@@ -152,12 +157,13 @@ public class Conjunct implements Serializable {
     }
 
     public String toString() {
-        StringBuilder bld=new StringBuilder();
+        StringBuilder bld = new StringBuilder();
         bld.append("clause=").append(clause.toString()).
-            append(" entities=");
-        for(QueryPlanNode n:referredNodes)
+                append(" entities=");
+        for (QueryPlanNode n : referredNodes) {
             bld.append(' ').append(n.getName());
-        
+        }
+
         return bld.toString();
     }
 }

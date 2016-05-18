@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
-
 import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.query.FieldInfo;
 import com.redhat.lightblue.query.Projection;
@@ -64,32 +63,32 @@ import com.redhat.lightblue.util.Error;
 
 public class CompositeFindImpl implements Finder {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(CompositeFindImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompositeFindImpl.class);
 
     private final CompositeMetadata root;
     private final Factory factory;
 
-    private final List<Error> errors=new ArrayList<>();
+    private final List<Error> errors = new ArrayList<>();
 
     public CompositeFindImpl(CompositeMetadata md,
                              Factory factory) {
-        this.root=md;
-        this.factory=factory;
+        this.root = md;
+        this.factory = factory;
     }
-
 
     private void init(QueryPlan qplan) {
         // We need two separate for loops below. First associates an
         // QueryPlanNodeExecutor to each query plan node. Second adds
         // the edges between those execution data. Setting up the
         // edges requires all execution information readily available.
-        
+
         //  Setup execution data for each node
-        for(QueryPlanNode x:qplan.getAllNodes())
-            x.setProperty(QueryPlanNodeExecutor.class,new QueryPlanNodeExecutor(x,factory,root));
-        
+        for (QueryPlanNode x : qplan.getAllNodes()) {
+            x.setProperty(QueryPlanNodeExecutor.class, new QueryPlanNodeExecutor(x, factory, root));
+        }
+
         // setup edges between execution data
-        for(QueryPlanNode x:qplan.getAllNodes()) {
+        for (QueryPlanNode x : qplan.getAllNodes()) {
             x.getProperty(QueryPlanNodeExecutor.class).init(qplan);
         }
     }
@@ -99,21 +98,22 @@ public class CompositeFindImpl implements Finder {
      */
     private Set<CompositeMetadata> findMinimalSetOfQueryEntities(QueryExpression query,
                                                                  CompositeMetadata md) {
-        Set<CompositeMetadata> entities=new HashSet<>();
-        if(query!=null) {
-            List<FieldInfo> lfi=query.getQueryFields();
-            for(FieldInfo fi:lfi) {
-                CompositeMetadata e=md.getEntityOfPath(fi.getFieldName());
-                if(e!=md)
+        Set<CompositeMetadata> entities = new HashSet<>();
+        if (query != null) {
+            List<FieldInfo> lfi = query.getQueryFields();
+            for (FieldInfo fi : lfi) {
+                CompositeMetadata e = md.getEntityOfPath(fi.getFieldName());
+                if (e != md) {
                     entities.add(e);
+                }
             }
             // All entities on the path from every entity to the root
             // should also be included
-            for(CompositeMetadata x:entities.toArray(new CompositeMetadata[entities.size()])) {
-                CompositeMetadata trc=x.getParent();
-                while(trc!=null) {
+            for (CompositeMetadata x : entities.toArray(new CompositeMetadata[entities.size()])) {
+                CompositeMetadata trc = x.getParent();
+                while (trc != null) {
                     entities.add(trc);
-                    trc=trc.getParent();
+                    trc = trc.getParent();
                 }
             }
         }
@@ -123,8 +123,8 @@ public class CompositeFindImpl implements Finder {
     }
 
     /**
-     * The operation starts by evaluating source nodes, and
-     * moves on by going to the destination nodes.
+     * The operation starts by evaluating source nodes, and moves on by going to
+     * the destination nodes.
      */
     @Override
     public CRUDFindResponse find(OperationContext ctx,
@@ -134,169 +134,167 @@ public class CompositeFindImpl implements Finder {
         // First: determine a minimal entity tree containing the nodes
         // sufficient to evaluate the query. Then, retrieve using the
         // complete set of entities.
-        Set<CompositeMetadata> minimalTree=findMinimalSetOfQueryEntities(req.getQuery(),
-                                                                         ctx.getTopLevelEntityMetadata());
+        Set<CompositeMetadata> minimalTree = findMinimalSetOfQueryEntities(req.getQuery(),
+                ctx.getTopLevelEntityMetadata());
 
-        LOGGER.debug("Minimal find tree size={}",minimalTree.size());
-        QueryPlan searchQPlan=null;
-        QueryPlanNode searchQPlanRoot=null;
-        SortAndLimit sortAndLimit=new SortAndLimit(root,null,null,null);
+        LOGGER.debug("Minimal find tree size={}", minimalTree.size());
+        QueryPlan searchQPlan = null;
+        QueryPlanNode searchQPlanRoot = null;
+        SortAndLimit sortAndLimit = new SortAndLimit(root, null, null, null);
         // Need to keep the matchCount, because the root node evaluator will only return the documents in the range
-        CRUDFindResponse rootResponse=null;
+        CRUDFindResponse rootResponse = null;
 
-        if(minimalTree.size()>1) {
+        if (minimalTree.size() > 1) {
             // The query depends on several entities. so, we query first, and then retrieve
-            QueryPlanChooser qpChooser=new QueryPlanChooser(root,
-                                                            new BruteForceQueryPlanIterator(),
-                                                            new IndexedFieldScorer(),
-                                                            req.getQuery(),
-                                                            minimalTree);
-            searchQPlan=qpChooser.choose();
-            LOGGER.debug("Chosen query plan:{}",searchQPlan);
-            ctx.setProperty(Mediator.CTX_QPLAN,searchQPlan);
+            QueryPlanChooser qpChooser = new QueryPlanChooser(root,
+                    new BruteForceQueryPlanIterator(),
+                    new IndexedFieldScorer(),
+                    req.getQuery(),
+                    minimalTree);
+            searchQPlan = qpChooser.choose();
+            LOGGER.debug("Chosen query plan:{}", searchQPlan);
+            ctx.setProperty(Mediator.CTX_QPLAN, searchQPlan);
             init(searchQPlan);
             // At this stage, we have Execution objects assigned to query plan nodes
-            
+
             // Put the executions in order
-            QueryPlanNode[] nodeOrdering=searchQPlan.getBreadthFirstNodeOrdering();
+            QueryPlanNode[] nodeOrdering = searchQPlan.getBreadthFirstNodeOrdering();
             // Execute nodes.
-            for(QueryPlanNode node:nodeOrdering) {
-                LOGGER.debug("Composite find: {}",node.getName());
-                QueryPlanNodeExecutor exec=node.getProperty(QueryPlanNodeExecutor.class);
-                if(node.getMetadata().getParent()==null) {
-                    searchQPlanRoot=node;
-                    boolean hasSources=node.getSources().length>0;
-                    if(hasSources) {
-                        sortAndLimit=new SortAndLimit(root,req.getSort(),req.getFrom(),req.getTo());
-                    } else {
-                        if (req.getTo() != null && req.getFrom() != null) {
-                            exec.setRange(req.getFrom(), req.getTo());
-                        }
+            for (QueryPlanNode node : nodeOrdering) {
+                LOGGER.debug("Composite find: {}", node.getName());
+                QueryPlanNodeExecutor exec = node.getProperty(QueryPlanNodeExecutor.class);
+                if (node.getMetadata().getParent() == null) {
+                    searchQPlanRoot = node;
+                    boolean hasSources = node.getSources().length > 0;
+                    if (hasSources) {
+                        sortAndLimit = new SortAndLimit(root, req.getSort(), req.getFrom(), req.getTo());
+                    } else if (req.getTo() != null && req.getFrom() != null) {
+                        exec.setRange(req.getFrom(), req.getTo());
                     }
-                    if(hasSources) {
-                    	exec.execute(ctx,req.getSort());
+                    if (hasSources) {
+                        exec.execute(ctx, req.getSort());
                     } else {
-                    	rootResponse=exec.execute(ctx, req.getSort());
+                        rootResponse = exec.execute(ctx, req.getSort());
                     }
                 } else {
-                    exec.execute(ctx,null);
+                    exec.execute(ctx, null);
                 }
             }
             LOGGER.debug("Composite find: search complete");
         }
-        
+
         LOGGER.debug("Composite find: retrieving documents");
 
         // Create a new query plan for retrieval. This one will have
         // the root document at the root.
         QueryPlan retrievalQPlan;
-        if(searchQPlan==null) {
+        if (searchQPlan == null) {
             // No search was performed. We have to search now.
-            retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),req.getQuery(),null).choose();
-            ctx.setProperty(Mediator.CTX_QPLAN,retrievalQPlan);
+            retrievalQPlan = new QueryPlanChooser(root, new First(), new SimpleScorer(), req.getQuery(), null).choose();
+            ctx.setProperty(Mediator.CTX_QPLAN, retrievalQPlan);
         } else {
-            retrievalQPlan=new QueryPlanChooser(root,new First(),new SimpleScorer(),null,null).choose();
+            retrievalQPlan = new QueryPlanChooser(root, new First(), new SimpleScorer(), null, null).choose();
         }
         init(retrievalQPlan);
         // This query plan has only one source
-        QueryPlanNode retrievalQPlanRoot=retrievalQPlan.getSources()[0];
+        QueryPlanNode retrievalQPlanRoot = retrievalQPlan.getSources()[0];
         // Now execute rest of the retrieval plan
-        QueryPlanNode[] nodeOrdering=retrievalQPlan.getBreadthFirstNodeOrdering();
+        QueryPlanNode[] nodeOrdering = retrievalQPlan.getBreadthFirstNodeOrdering();
 
-        
-        List<ResultDoc> rootDocs=null;
-        for(int i=0;i<nodeOrdering.length;i++) {
-            if(nodeOrdering[i].getMetadata().getParent()==null) {
+        List<ResultDoc> rootDocs = null;
+        for (int i = 0; i < nodeOrdering.length; i++) {
+            if (nodeOrdering[i].getMetadata().getParent() == null) {
                 // This is the root node. If we know the result docs, assign them, otherwise, search
                 LOGGER.debug("Retrieving root node documents");
-                if(searchQPlan!=null) {
+                if (searchQPlan != null) {
                     LOGGER.debug("Retrieving root node documents from previous search");
-                    rootDocs=searchQPlanRoot.getProperty(QueryPlanNodeExecutor.class).getDocs();
+                    rootDocs = searchQPlanRoot.getProperty(QueryPlanNodeExecutor.class).getDocs();
                     // Filter duplicates, recreate ResultDoc objects
-                    Set<DocId> ids=new HashSet<>();
-                    List<ResultDoc> filteredDocs=new ArrayList<>(rootDocs.size());
-                    for(ResultDoc doc:rootDocs) {
-                        if(!ids.contains(doc.getId())) {
+                    Set<DocId> ids = new HashSet<>();
+                    List<ResultDoc> filteredDocs = new ArrayList<>(rootDocs.size());
+                    for (ResultDoc doc : rootDocs) {
+                        if (!ids.contains(doc.getId())) {
                             ids.add(doc.getId());
-                            filteredDocs.add(new ResultDoc(doc.getDoc(),doc.getId(),nodeOrdering[i]));
+                            filteredDocs.add(new ResultDoc(doc.getDoc(), doc.getId(), nodeOrdering[i]));
                         }
                     }
-                    LOGGER.debug("Retrieving {} docs",filteredDocs.size());
+                    LOGGER.debug("Retrieving {} docs", filteredDocs.size());
                     nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class).setDocs(filteredDocs);
-                    if(rootResponse==null) {
-                        rootResponse=new CRUDFindResponse();
+                    if (rootResponse == null) {
+                        rootResponse = new CRUDFindResponse();
                         rootResponse.setSize(filteredDocs.size());
                     }
-                    rootDocs=sortAndLimit.process(filteredDocs);
+                    rootDocs = sortAndLimit.process(filteredDocs);
                 } else {
                     LOGGER.debug("Performing search for retrieval");
                     // Perform search
-                    QueryPlanNodeExecutor exec=nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
+                    QueryPlanNodeExecutor exec = nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
                     if (req.getTo() != null && req.getFrom() != null) {
                         exec.setRange(req.getFrom(), req.getTo());
-                    }                    
-                    rootResponse=exec.execute(ctx,req.getSort());
-                    rootDocs=exec.getDocs();
+                    }
+                    rootResponse = exec.execute(ctx, req.getSort());
+                    rootDocs = exec.getDocs();
                 }
             } else {
-                LOGGER.debug("Composite retrieval: {}",nodeOrdering[i].getName());
-                QueryPlanNodeExecutor exec=nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
-                exec.execute(ctx,null);
+                LOGGER.debug("Composite retrieval: {}", nodeOrdering[i].getName());
+                QueryPlanNodeExecutor exec = nodeOrdering[i].getProperty(QueryPlanNodeExecutor.class);
+                exec.execute(ctx, null);
             }
         }
 
-        if(rootDocs != null && ctx.hasErrors())
+        if (rootDocs != null && ctx.hasErrors()) {
             rootDocs.clear();
-        LOGGER.debug("Root docs:{}",rootDocs == null ? 0 : rootDocs.size());
-        List<DocCtx> resultDocuments=new ArrayList<>(rootDocs == null ? 0 : rootDocs.size());
+        }
+        LOGGER.debug("Root docs:{}", rootDocs == null ? 0 : rootDocs.size());
+        List<DocCtx> resultDocuments = new ArrayList<>(rootDocs == null ? 0 : rootDocs.size());
         if (rootDocs != null) {
-            for(ResultDoc dgd:rootDocs) {
+            for (ResultDoc dgd : rootDocs) {
                 retrieveFragments(dgd);
-                DocCtx dctx=new DocCtx(dgd.getDoc());
+                DocCtx dctx = new DocCtx(dgd.getDoc());
                 dctx.setOutputDocument(dgd.getDoc());
                 resultDocuments.add(dctx);
             }
         }
-        CRUDFindResponse response=new CRUDFindResponse();
+        CRUDFindResponse response = new CRUDFindResponse();
 
         response.setSize(rootResponse == null ? 0 : rootResponse.getSize());
-        ctx.setDocuments(projectResults(ctx,resultDocuments,req.getProjection()));
+        ctx.setDocuments(projectResults(ctx, resultDocuments, req.getProjection()));
         ctx.addErrors(errors);
-        
+
         LOGGER.debug("Composite find: end");
         return response;
     }
 
     private List<DocCtx> projectResults(OperationContext ctx,
-                                List<DocCtx> resultDocuments,
-                                Projection projection) {
+                                        List<DocCtx> resultDocuments,
+                                        Projection projection) {
         // Project results
-        LOGGER.debug("Projecting association result using {}",projection.toString());
+        LOGGER.debug("Projecting association result using {}", projection.toString());
         FieldAccessRoleEvaluator roleEval = new FieldAccessRoleEvaluator(root, ctx.getCallerRoles());
-        Projector projector = Projector.getInstance(Projection.add(projection, 
-                                                                   roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), root);
+        Projector projector = Projector.getInstance(Projection.add(projection,
+                roleEval.getExcludedFields(FieldAccessRoleEvaluator.Operation.find)), root);
         for (DocCtx document : resultDocuments) {
-            LOGGER.debug("Projecting {}",document);
+            LOGGER.debug("Projecting {}", document);
             document.setOutputDocument(projector.project(document, ctx.getFactory().getNodeFactory()));
-            LOGGER.debug("Result:{}",document.getOutputDocument());
+            LOGGER.debug("Result:{}", document.getOutputDocument());
         }
         return resultDocuments;
     }
 
     private void retrieveFragments(ResultDoc doc) {
-        for(List<DocReference> children:doc.getChildren().values()) {
-            if(children!=null) {
-                for(DocReference cref:children) {
-                    if(cref instanceof ChildDocReference) {
-                        ChildDocReference ref=(ChildDocReference)cref;
-                        Path insertInto=ref.getReferenceField();
-                        JsonNode insertionNode=doc.getDoc().get(insertInto);
-                        LOGGER.debug("Inserting reference {} to {} with {} docs",ref,insertInto,ref.getChildren().size());
-                        if(insertionNode==null || insertionNode instanceof NullNode) {
-                            doc.getDoc().modify(insertInto,insertionNode=factory.getNodeFactory().arrayNode(),true);
+        for (List<DocReference> children : doc.getChildren().values()) {
+            if (children != null) {
+                for (DocReference cref : children) {
+                    if (cref instanceof ChildDocReference) {
+                        ChildDocReference ref = (ChildDocReference) cref;
+                        Path insertInto = ref.getReferenceField();
+                        JsonNode insertionNode = doc.getDoc().get(insertInto);
+                        LOGGER.debug("Inserting reference {} to {} with {} docs", ref, insertInto, ref.getChildren().size());
+                        if (insertionNode == null || insertionNode instanceof NullNode) {
+                            doc.getDoc().modify(insertInto, insertionNode = factory.getNodeFactory().arrayNode(), true);
                         }
-                        for(ResultDoc child:ref.getChildren()) {
-                            ((ArrayNode)insertionNode).add(child.getDoc().getRoot());
+                        for (ResultDoc child : ref.getChildren()) {
+                            ((ArrayNode) insertionNode).add(child.getDoc().getRoot());
                             retrieveFragments(child);
                         }
                     }

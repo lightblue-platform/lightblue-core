@@ -36,7 +36,7 @@ import com.redhat.lightblue.util.Path;
 public class IdentifyCheckerTest {
 
     @Test
-    public void testCheckConstraint_NoErrors(){
+    public void testCheckConstraint_NoErrors() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         Path path = mock(Path.class);
@@ -51,7 +51,7 @@ public class IdentifyCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_WithErrors(){
+    public void testCheckConstraint_WithErrors() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         Path path = mock(Path.class);

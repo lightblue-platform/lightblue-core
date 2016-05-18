@@ -6,7 +6,7 @@ import com.redhat.lightblue.metadata.ValueGenerator;
 import com.redhat.lightblue.metadata.EntityMetadata;
 
 /**
- * Value generation interface. 
+ * Value generation interface.
  *
  */
 public interface ValueGeneratorSupport extends Extension {
@@ -20,6 +20,6 @@ public interface ValueGeneratorSupport extends Extension {
      * Generates a new value. The returned value is a Java value object.
      *
      */
-    Object generateValue(EntityMetadata md,ValueGenerator generator);
+    Object generateValue(EntityMetadata md, ValueGenerator generator);
 
 }

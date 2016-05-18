@@ -39,7 +39,7 @@ public class ObjectField extends Field {
 
     @Override
     public boolean hasChildren() {
-        return fields.getNumChildren()>0;
+        return fields.getNumChildren() > 0;
     }
 
     @Override

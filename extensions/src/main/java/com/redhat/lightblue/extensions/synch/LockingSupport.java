@@ -21,16 +21,15 @@ package com.redhat.lightblue.extensions.synch;
 import com.redhat.lightblue.extensions.Extension;
 
 /**
- * This is the locking extension. It is a factory interface that
- * prodives locking implementation based on a given domain.
+ * This is the locking extension. It is a factory interface that prodives
+ * locking implementation based on a given domain.
  *
- * Different locking implementations can be provided by different
- * backends. A single backend can also provide multiple locking
- * implementations. The domain is used to distinguish between
- * different locking implenentatios. For instance, for MongoDB
- * backend, domain is associated with a MongoDB datasource, and
- * locking information is kept in that datasource. Dufferent domains
- * select different datasources,
+ * Different locking implementations can be provided by different backends. A
+ * single backend can also provide multiple locking implementations. The domain
+ * is used to distinguish between different locking implenentatios. For
+ * instance, for MongoDB backend, domain is associated with a MongoDB
+ * datasource, and locking information is kept in that datasource. Dufferent
+ * domains select different datasources,
  */
 public interface LockingSupport extends Extension {
     /**

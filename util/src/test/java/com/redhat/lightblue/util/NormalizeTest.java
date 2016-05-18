@@ -35,7 +35,7 @@ public class NormalizeTest {
 
     @Test
     public void manyParentTest() {
-        Assert.assertEquals("$parent.three.four",new Path("zero.one.$parent.$parent.$parent.three.four").normalize().toString());
+        Assert.assertEquals("$parent.three.four", new Path("zero.one.$parent.$parent.$parent.three.four").normalize().toString());
     }
 
     @Test
@@ -52,12 +52,13 @@ public class NormalizeTest {
     public void thisTest2() {
         Assert.assertEquals("zero.one.two.three.four", new Path("$this.zero.one.two.$this.three.$this.four").normalize().toString());
     }
+
     @Test
     public void normalizeTest() {
-        Assert.assertEquals("x.z",new Path("x.y.$parent.z").normalize().toString());
-        Assert.assertEquals("z",new Path("x.z.$parent.$parent.z").normalize().toString());
-        Assert.assertEquals("$parent.z",new Path("x.z.$parent.$parent.$parent.z").normalize().toString());
-        Assert.assertEquals("z",new Path("x.*.$parent.$parent.z").normalize().toString());
-        Assert.assertEquals("$parent.z",new Path("$parent.z").normalize().toString());
+        Assert.assertEquals("x.z", new Path("x.y.$parent.z").normalize().toString());
+        Assert.assertEquals("z", new Path("x.z.$parent.$parent.z").normalize().toString());
+        Assert.assertEquals("$parent.z", new Path("x.z.$parent.$parent.$parent.z").normalize().toString());
+        Assert.assertEquals("z", new Path("x.*.$parent.$parent.z").normalize().toString());
+        Assert.assertEquals("$parent.z", new Path("$parent.z").normalize().toString());
     }
 }

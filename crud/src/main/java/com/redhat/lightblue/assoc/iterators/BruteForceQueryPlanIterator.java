@@ -30,14 +30,13 @@ import com.redhat.lightblue.assoc.QueryPlanNode;
 /**
  * Iterates over possible query plans by rearranging the query plan graph.
  *
- * The given query plan is taken as an initial state. Every successive
- * call to <code>next</code> will modify the query plan into a unique
- * tree. Once all possible query plans are iterated, <code>next</code>
- * returns false.
+ * The given query plan is taken as an initial state. Every successive call to
+ * <code>next</code> will modify the query plan into a unique tree. Once all
+ * possible query plans are iterated, <code>next</code> returns false.
  */
 public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private QueryPlan qp;
 
@@ -50,63 +49,63 @@ public class BruteForceQueryPlanIterator implements QueryPlanIterator, Serializa
 
         public Edge(QueryPlanNode n1,
                     QueryPlanNode n2) {
-            this.n1=n1;
-            this.n2=n2;
+            this.n1 = n1;
+            this.n2 = n2;
         }
 
         public void flip() {
-            v=!v;
-            qp.flip(n1,n2);
+            v = !v;
+            qp.flip(n1, n2);
         }
     }
 
-    private void findEdges(List<Edge> l,QueryPlanNode from) {
-        QueryPlanNode[] dests=from.getDestinations();
-        for(QueryPlanNode to:dests) {
-            l.add(new Edge(from,to));
-            findEdges(l,to);
+    private void findEdges(List<Edge> l, QueryPlanNode from) {
+        QueryPlanNode[] dests = from.getDestinations();
+        for (QueryPlanNode to : dests) {
+            l.add(new Edge(from, to));
+            findEdges(l, to);
         }
     }
 
     /**
-     * Construct a query plan iterator that operates on the given
-     * query plan
+     * Construct a query plan iterator that operates on the given query plan
      */
     @Override
     public void reset(QueryPlan qp) {
-        this.qp=qp;
-        List<Edge> edgeList=new ArrayList<>(16);
-        QueryPlanNode[] sources=qp.getSources();
-        for(QueryPlanNode x:sources)
-            findEdges(edgeList,x);
-        edges=edgeList.toArray(new Edge[edgeList.size()]);
+        this.qp = qp;
+        List<Edge> edgeList = new ArrayList<>(16);
+        QueryPlanNode[] sources = qp.getSources();
+        for (QueryPlanNode x : sources) {
+            findEdges(edgeList, x);
+        }
+        edges = edgeList.toArray(new Edge[edgeList.size()]);
     }
 
     /**
      * Modifies the query plan into a unique tree.
      *
-     * @return If true, the query plan is configured into a unique
-     * tree. If false, query plan is now returned back to its original
-     * state during iterator construction, and the iteration is
-     * expected to stop.
+     * @return If true, the query plan is configured into a unique tree. If
+     * false, query plan is now returned back to its original state during
+     * iterator construction, and the iteration is expected to stop.
      */
     @Override
     public boolean next() {
         int i;
-        for(i=edges.length-1;i>=0;i--) {
+        for (i = edges.length - 1; i >= 0; i--) {
             edges[i].flip();
-            if(edges[i].v)
+            if (edges[i].v) {
                 break;
+            }
         }
-        return i>=0;
+        return i >= 0;
     }
-    
+
     @Override
     public String toString() {
-        StringBuilder bld=new StringBuilder();
-        for(Edge e:edges)
-            bld.append(e.v?'0':'1');
+        StringBuilder bld = new StringBuilder();
+        for (Edge e : edges) {
+            bld.append(e.v ? '0' : '1');
+        }
         return bld.toString();
     }
 }
-

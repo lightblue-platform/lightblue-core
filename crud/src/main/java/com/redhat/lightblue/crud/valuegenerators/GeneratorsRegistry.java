@@ -27,28 +27,30 @@ import com.redhat.lightblue.extensions.valuegenerator.ValueGeneratorSupport;
 /**
  * Register value generators by type and backend
  */
-public class GeneratorsRegistry extends DefaultRegistry<GeneratorKey,ValueGeneratorSupport> {
+public class GeneratorsRegistry extends DefaultRegistry<GeneratorKey, ValueGeneratorSupport> {
 
     public GeneratorsRegistry() {
         registerDefault(UUIDGenerator.instance);
         registerDefault(CurrentTimeGenerator.instance);
     }
 
-    public void register(ValueGenerator.ValueGeneratorType type,String backend,ValueGeneratorSupport g) {
-        add(new GeneratorKey(type,backend),g);
+    public void register(ValueGenerator.ValueGeneratorType type, String backend, ValueGeneratorSupport g) {
+        add(new GeneratorKey(type, backend), g);
     }
 
-    public ValueGeneratorSupport getValueGenerator(ValueGenerator g,String backend) {
-        ValueGeneratorSupport generator=find(new GeneratorKey(g.getValueGeneratorType(),backend));
+    public ValueGeneratorSupport getValueGenerator(ValueGenerator g, String backend) {
+        ValueGeneratorSupport generator = find(new GeneratorKey(g.getValueGeneratorType(), backend));
         // If the backend does not have a generator of this type,
         // see if we have one in core
-        if(generator==null&&backend!=null)
-            generator=find(new GeneratorKey(g.getValueGeneratorType(),null));
+        if (generator == null && backend != null) {
+            generator = find(new GeneratorKey(g.getValueGeneratorType(), null));
+        }
         return generator;
     }
 
     private void registerDefault(ValueGeneratorSupport vg) {
-        for(ValueGenerator.ValueGeneratorType t:vg.getSupportedGeneratorTypes())
-            register(t,null,vg);
+        for (ValueGenerator.ValueGeneratorType t : vg.getSupportedGeneratorTypes()) {
+            register(t, null, vg);
+        }
     }
 }

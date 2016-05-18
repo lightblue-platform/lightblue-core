@@ -35,57 +35,57 @@ public class CrudValidationTest {
     @Test
     public void testValidInputWithNonValidating() throws Exception {
 
-        LightblueFactory lbf=new LightblueFactory(new DataSourcesConfiguration());
+        LightblueFactory lbf = new LightblueFactory(new DataSourcesConfiguration());
 
         // Emulate configuration
-        lbf.getJsonTranslator().setValidation(Request.class,false);
-        
+        lbf.getJsonTranslator().setValidation(Request.class, false);
+
         String jsonString = FileUtil.readFile("valid-deletion-req.json");
         JsonNode node = json(jsonString);
-        DeleteRequest req=lbf.getJsonTranslator().parse(DeleteRequest.class,node);
+        DeleteRequest req = lbf.getJsonTranslator().parse(DeleteRequest.class, node);
         Assert.assertNotNull(req);
     }
 
     @Test
     public void testInvalidInputWithNonValidating() throws Exception {
 
-        LightblueFactory lbf=new LightblueFactory(new DataSourcesConfiguration());
+        LightblueFactory lbf = new LightblueFactory(new DataSourcesConfiguration());
 
         // Emulate configuration
-        lbf.getJsonTranslator().setValidation(Request.class,false);
-        
+        lbf.getJsonTranslator().setValidation(Request.class, false);
+
         String jsonString = FileUtil.readFile("invalid-deletion-req.json");
         JsonNode node = json(jsonString);
-        DeleteRequest req=lbf.getJsonTranslator().parse(DeleteRequest.class,node);
+        DeleteRequest req = lbf.getJsonTranslator().parse(DeleteRequest.class, node);
         Assert.assertNotNull(req);
     }
 
     @Test
     public void testValidInputWithValidating() throws Exception {
 
-        LightblueFactory lbf=new LightblueFactory(new DataSourcesConfiguration());
+        LightblueFactory lbf = new LightblueFactory(new DataSourcesConfiguration());
 
         // Emulate configuration
-        lbf.getJsonTranslator().setValidation(Request.class,true);
-        
+        lbf.getJsonTranslator().setValidation(Request.class, true);
+
         String jsonString = FileUtil.readFile("valid-deletion-req.json");
         JsonNode node = json(jsonString);
-        DeleteRequest req=lbf.getJsonTranslator().parse(DeleteRequest.class,node);
+        DeleteRequest req = lbf.getJsonTranslator().parse(DeleteRequest.class, node);
         Assert.assertNotNull(req);
     }
 
     @Test
     public void testInvalidInputWithValidating() throws Exception {
 
-        LightblueFactory lbf=new LightblueFactory(new DataSourcesConfiguration());
+        LightblueFactory lbf = new LightblueFactory(new DataSourcesConfiguration());
 
         // Emulate configuration
-        lbf.getJsonTranslator().setValidation(Request.class,true);
-        
+        lbf.getJsonTranslator().setValidation(Request.class, true);
+
         String jsonString = FileUtil.readFile("invalid-deletion-req.json");
         JsonNode node = json(jsonString);
         try {
-            lbf.getJsonTranslator().parse(DeleteRequest.class,node);
+            lbf.getJsonTranslator().parse(DeleteRequest.class, node);
             Assert.fail();
         } catch (Exception e) {
             System.out.println(e);

@@ -28,23 +28,25 @@ class GeneratorKey {
     private final ValueGenerator.ValueGeneratorType type;
     private final String backend;
 
-    public GeneratorKey(ValueGenerator.ValueGeneratorType type,String backend) {
-        this.type=type;
-        this.backend=backend;
+    public GeneratorKey(ValueGenerator.ValueGeneratorType type, String backend) {
+        this.type = type;
+        this.backend = backend;
     }
 
     public boolean equals(Object x) {
-        if(x!=null)
+        if (x != null) {
             try {
-                return ((GeneratorKey)x).type==type&&
-                    (  (backend==null&& ((GeneratorKey)x).backend==null) ||
-                       (backend!=null&&backend.equals( ((GeneratorKey)x).backend) ) );
-            } catch (Exception e) {}
+                return ((GeneratorKey) x).type == type
+                        && ((backend == null && ((GeneratorKey) x).backend == null)
+                        || (backend != null && backend.equals(((GeneratorKey) x).backend)));
+            } catch (Exception e) {
+            }
+        }
         return false;
     }
 
     public int hashCode() {
-        return type.hashCode()*(backend==null?1:backend.hashCode());
+        return type.hashCode() * (backend == null ? 1 : backend.hashCode());
     }
 
 }

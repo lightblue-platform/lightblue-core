@@ -23,10 +23,9 @@ package com.redhat.lightblue.extensions;
  *
  * Here's how it all comes together:
  *
- * - XXXCrudController: implement ExtensionSupport
- *       interface. Implement the getExtensionInstance that returns an
- *      instance of the requested extension.
- * - The extension implementation extends Extension interface. 
+ * - XXXCrudController: implement ExtensionSupport interface. Implement the
+ * getExtensionInstance that returns an instance of the requested extension. -
+ * The extension implementation extends Extension interface.
  */
 public interface ExtensionSupport {
     /**
@@ -34,7 +33,8 @@ public interface ExtensionSupport {
      *
      * @param extensionClass The class for the requested extension
      *
-     * @return An instance of the extension, or null if the controller doesn't support this extension
+     * @return An instance of the extension, or null if the controller doesn't
+     * support this extension
      */
-    <E extends Extension> E  getExtensionInstance(Class<? extends Extension> extensionClass);
+    <E extends Extension> E getExtensionInstance(Class<? extends Extension> extensionClass);
 }

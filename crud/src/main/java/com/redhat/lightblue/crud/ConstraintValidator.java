@@ -225,7 +225,7 @@ public class ConstraintValidator {
                 List<FieldConstraint> constraints = null;
                 if (currentFieldNode instanceof Field) {
                     constraints = ((Field) currentFieldNode).getConstraints();
-                } else if(currentFieldNode instanceof SimpleArrayElement) {
+                } else if (currentFieldNode instanceof SimpleArrayElement) {
                     constraints = ((SimpleArrayElement) currentFieldNode).getConstraints();
                 }
                 if (constraints != null && !constraints.isEmpty()) {

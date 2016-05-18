@@ -26,14 +26,13 @@ import com.redhat.lightblue.util.Path;
 public class RelativePathTest {
     @Test
     public void testRelativePaths() throws Exception {
-        Assert.assertEquals(new Path("a.b.c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.c.d"),new Path("$parent.d"),Path.EMPTY));
-        Assert.assertEquals(new Path("a.b.c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.c.d"),new Path("$parent.$parent.d"),Path.EMPTY));
-        Assert.assertEquals(new Path("a.b.c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.c.d"),new Path("$parent.c.d"),Path.EMPTY));
-        Assert.assertEquals(new Path("a.b.1.c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"),new Path("$parent.1.c.d"),Path.EMPTY));
-        Assert.assertEquals(new Path("a.b.*.c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"),new Path("d"),Path.EMPTY));
+        Assert.assertEquals(new Path("a.b.c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.c.d"), new Path("$parent.d"), Path.EMPTY));
+        Assert.assertEquals(new Path("a.b.c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.c.d"), new Path("$parent.$parent.d"), Path.EMPTY));
+        Assert.assertEquals(new Path("a.b.c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.c.d"), new Path("$parent.c.d"), Path.EMPTY));
+        Assert.assertEquals(new Path("a.b.1.c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"), new Path("$parent.1.c.d"), Path.EMPTY));
+        Assert.assertEquals(new Path("a.b.*.c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"), new Path("d"), Path.EMPTY));
 
-        Assert.assertEquals(new Path("c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"),new Path("c.d"),new Path("a.b")));
-        Assert.assertEquals(new Path("c.d"),ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"),new Path("$parent.d"),new Path("a.b")));
+        Assert.assertEquals(new Path("c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"), new Path("c.d"), new Path("a.b")));
+        Assert.assertEquals(new Path("c.d"), ResolvedFieldInfo.getEntityRelativeFieldName(new Path("a.b.*.c.d"), new Path("$parent.d"), new Path("a.b")));
     }
 }
-
