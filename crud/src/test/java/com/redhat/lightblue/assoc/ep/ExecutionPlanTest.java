@@ -108,7 +108,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(left1.get("search"));
 
         JsonNode right1 = assemble1.get("right");
-        JsonNode assemble2 = right1.get(0).get("assemble");
+        JsonNode assemble2 = right1.get(0).get("source").get("assemble");
         Assert.assertEquals("B", assemble2.get("entity").asText());
     }
 
@@ -143,8 +143,8 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(left1.get("copy"));
         JsonNode right1 = assemble1.get("right");
         Assert.assertEquals(2, right1.size());
-        JsonNode assemble2 = right1.get(0).get("assemble");
-        JsonNode assemble3 = right1.get(1).get("assemble");
+        JsonNode assemble2 = right1.get(0).get("source").get("assemble");
+        JsonNode assemble3 = right1.get(1).get("source").get("assemble");
         Assert.assertTrue(assemble2.get("entity").asText().equals("C") || assemble3.get("entity").asText().equals("C"));
         Assert.assertTrue(assemble2.get("entity").asText().equals("B") || assemble3.get("entity").asText().equals("B"));
     }
@@ -191,7 +191,7 @@ public class ExecutionPlanTest extends AbstractJsonNodeTest {
 
         JsonNode right1 = assemble1.get("right");
         Assert.assertEquals(1, right1.size());
-        Assert.assertEquals("C", right1.get(0).get("assemble").get("entity").asText());
+        Assert.assertEquals("C", right1.get(0).get("source").get("assemble").get("entity").asText());
     }
 
     @Test

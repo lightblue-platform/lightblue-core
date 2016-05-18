@@ -198,8 +198,13 @@ public class Assemble extends Step<ResultDocument> {
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
         a.set("right", array);
         for (ExecutionBlock b : destinationBlocks) {
-            array.add(b.toJson());
+            ObjectNode detail=JsonNodeFactory.instance.objectNode();
+            AssociationQuery aq = b.getAssociationQueryForEdge(block);
+            detail.set("associationQuery",aq.getQuery().toJson());
+            detail.set("source",b.toJson());
+            array.add(detail);
         }
         return o;
     }
+
 }
