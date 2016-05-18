@@ -527,13 +527,21 @@ public class Mediator {
             finder.explain(ctx, req.getCRUDFindRequest());
             
             List<JsonDoc> foundDocuments = ctx.getOutputDocumentsWithoutErrors();
-            if (foundDocuments != null && foundDocuments.size() == ctx.getDocuments().size()) {
+            if (foundDocuments != null && !foundDocuments.isEmpty()) {
                 ctx.setStatus(OperationStatus.COMPLETE);
-            } else if (foundDocuments != null && !foundDocuments.isEmpty()) {
-                ctx.setStatus(OperationStatus.PARTIAL);
+                List<DocCtx> documents = ctx.getDocuments();
+                response.setMatchCount(documents.size());
+                if (documents != null) {
+                    List<JsonDoc> resultList = new ArrayList<>(documents.size());
+                    for (DocCtx doc : documents) {
+                        resultList.add(doc.getOutputDocument());
+                    }
+                    response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
+                }
             } else {
                 ctx.setStatus(OperationStatus.ERROR);
-            }            
+            }
+            
             response.setStatus(ctx.getStatus());
             response.getErrors().addAll(ctx.getErrors());
             response.getDataErrors().addAll(ctx.getDataErrors());
