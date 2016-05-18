@@ -31,10 +31,9 @@ import com.redhat.lightblue.eval.SortableItem;
 import com.redhat.lightblue.util.JsonDoc;
 
 /**
- * When associations are evaluated with a query plan that is different
- * from the entity structure, the root entity cannot be sorted or
- * limited. This class gets the result sets, sorts it, and applies the
- * limit to it.
+ * When associations are evaluated with a query plan that is different from the
+ * entity structure, the root entity cannot be sorted or limited. This class
+ * gets the result sets, sorts it, and applies the limit to it.
  */
 public class SortAndLimit {
     private final SortFieldInfo[] sortFields;
@@ -44,21 +43,21 @@ public class SortAndLimit {
     private static class ResultDocSortableItem extends SortableItem {
 
         private final ResultDoc doc;
-        
-        public ResultDocSortableItem(ResultDoc doc,SortFieldInfo[] sortFields) {
-            super(doc.getDoc().getRoot(),sortFields);
-            this.doc=doc;
+
+        public ResultDocSortableItem(ResultDoc doc, SortFieldInfo[] sortFields) {
+            super(doc.getDoc().getRoot(), sortFields);
+            this.doc = doc;
         }
     }
 
-    public SortAndLimit(EntityMetadata md,Sort sort,Long from,Long to) {
-        if(sort!=null) {
-            sortFields=SortFieldInfo.buildSortFields(sort,md);
+    public SortAndLimit(EntityMetadata md, Sort sort, Long from, Long to) {
+        if (sort != null) {
+            sortFields = SortFieldInfo.buildSortFields(sort, md);
         } else {
-            sortFields=null;
+            sortFields = null;
         }
-        this.from=from;
-        this.to=to;
+        this.from = from;
+        this.to = to;
     }
 
     /**
@@ -66,27 +65,30 @@ public class SortAndLimit {
      */
     public List<ResultDoc> process(List<ResultDoc> docs) {
         List<ResultDoc> resultList;
-        if(sortFields!=null) {
-            List<ResultDocSortableItem> sortList=new ArrayList<>(docs.size());
-            for(ResultDoc doc:docs) {
-                sortList.add(new ResultDocSortableItem(doc,sortFields));
+        if (sortFields != null) {
+            List<ResultDocSortableItem> sortList = new ArrayList<>(docs.size());
+            for (ResultDoc doc : docs) {
+                sortList.add(new ResultDocSortableItem(doc, sortFields));
             }
             Collections.sort(sortList);
-            resultList=new ArrayList<>(docs.size());
-            for(ResultDocSortableItem item:sortList)
+            resultList = new ArrayList<>(docs.size());
+            for (ResultDocSortableItem item : sortList) {
                 resultList.add(item.doc);
+            }
         } else {
-            resultList=docs;
+            resultList = docs;
         }
 
-        int size=resultList.size();
-        int f=from==null?0:from.intValue();
-        if(f>=size)
+        int size = resultList.size();
+        int f = from == null ? 0 : from.intValue();
+        if (f >= size) {
             return new ArrayList<>();
-        
-        int t=to==null?size-1:to.intValue();
-        if(t>=size)
-            t=size-1;
-        return resultList.subList(f,t+1);
+        }
+
+        int t = to == null ? size - 1 : to.intValue();
+        if (t >= size) {
+            t = size - 1;
+        }
+        return resultList.subList(f, t + 1);
     }
 }

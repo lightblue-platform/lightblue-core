@@ -59,23 +59,24 @@ public class ResolvedFieldInfo extends FieldInfo {
      */
     private final QueryPlanNode qnode;
 
-    public ResolvedFieldInfo(Path clauseFieldName,Path ctx,QueryExpression clause,
-                             CompositeMetadata root,ResolvedReferenceField context,QueryPlan qplan) {
-        super(clauseFieldName,ctx,clause);
+    public ResolvedFieldInfo(Path clauseFieldName, Path ctx, QueryExpression clause,
+                             CompositeMetadata root, ResolvedReferenceField context, QueryPlan qplan) {
+        super(clauseFieldName, ctx, clause);
         // Get the field node for the field, interpret field name with respect to context
-        fieldNode=context==null?root.resolve(getFieldName()):context.getElement().resolve(getFieldName());
-        ResolvedReferenceField rr=root.getResolvedReferenceOfField(fieldNode);
-        if(rr==null)
-            fieldEntityMetadata=fieldCmd=root;
-        else {
-            fieldEntityMetadata=rr.getOriginalMetadata();
-            fieldCmd=rr.getReferencedMetadata();
+        fieldNode = context == null ? root.resolve(getFieldName()) : context.getElement().resolve(getFieldName());
+        ResolvedReferenceField rr = root.getResolvedReferenceOfField(fieldNode);
+        if (rr == null) {
+            fieldEntityMetadata = fieldCmd = root;
+        } else {
+            fieldEntityMetadata = rr.getOriginalMetadata();
+            fieldCmd = rr.getReferencedMetadata();
         }
-        entityRelativeField=getEntityRelativeFieldName(fieldNode.getFullPath(),getFieldName(),fieldCmd.getEntityPath());
-        qnode=qplan.getNode(fieldCmd);
-        if(qnode==null)
-            throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata."+
-                                               " field:"+getFieldName()+" Composite metadata:"+fieldCmd);
+        entityRelativeField = getEntityRelativeFieldName(fieldNode.getFullPath(), getFieldName(), fieldCmd.getEntityPath());
+        qnode = qplan.getNode(fieldCmd);
+        if (qnode == null) {
+            throw new IllegalArgumentException("An entity referenced in a query is not in composite metadata."
+                    + " field:" + getFieldName() + " Composite metadata:" + fieldCmd);
+        }
     }
 
     /**
@@ -111,55 +112,60 @@ public class ResolvedFieldInfo extends FieldInfo {
     }
 
     /**
-     * Path is a normalized field name, like $parent.1.x.y. $parent can only appear at the beggining.
-     * fullPath is the full name of the same field, something like a.b.*.x.y.
-     * We calculate how many non-$parent segments path has, then we get that suffix of path,
-     * remove that many elements from fullPath, and append to get a.b.1.x.y
+     * Path is a normalized field name, like $parent.1.x.y. $parent can only
+     * appear at the beggining. fullPath is the full name of the same field,
+     * something like a.b.*.x.y. We calculate how many non-$parent segments path
+     * has, then we get that suffix of path, remove that many elements from
+     * fullPath, and append to get a.b.1.x.y
      */
-    private static Path removeParents(Path fullPath,Path path) {
-        path=path.normalize();
-        int pathN=path.numSegments();
+    private static Path removeParents(Path fullPath, Path path) {
+        path = path.normalize();
+        int pathN = path.numSegments();
         // We will go backwards until we see $parent or the beginning
-        int nNonParent=0;
-        for(int n=pathN-1;n>=0;n--) {
-            if(path.head(n).equals(Path.PARENT))
+        int nNonParent = 0;
+        for (int n = pathN - 1; n >= 0; n--) {
+            if (path.head(n).equals(Path.PARENT)) {
                 break;
-            else
+            } else {
                 nNonParent++;
+            }
         }
-        return new Path(fullPath.prefix(-nNonParent),path.suffix(nNonParent));
+        return new Path(fullPath.prefix(-nNonParent), path.suffix(nNonParent));
     }
 
     /**
      * Rewrites a field name relative to its entity.
      *
      * @param fullPath the fullpath of the field name
-     * @param path The field name as it appears in an expression. suffix of this should be the same as fullPath
-     * @param cmdPrefix The metadata entity path for the composite metadata containing the field
+     * @param path The field name as it appears in an expression. suffix of this
+     * should be the same as fullPath
+     * @param cmdPrefix The metadata entity path for the composite metadata
+     * containing the field
      */
-    public static Path getEntityRelativeFieldName(Path fullPath, Path path,Path cmdPrefix) {
-        Path normalized=removeParents(fullPath,path);
-        if(cmdPrefix.numSegments()>0)
-            return normalized.suffix(-(cmdPrefix.numSegments()+1));
-        else
+    public static Path getEntityRelativeFieldName(Path fullPath, Path path, Path cmdPrefix) {
+        Path normalized = removeParents(fullPath, path);
+        if (cmdPrefix.numSegments() > 0) {
+            return normalized.suffix(-(cmdPrefix.numSegments() + 1));
+        } else {
             return normalized;
+        }
     }
 
     private static class GetFields extends GetQueryFields<ResolvedFieldInfo> {
         private final CompositeMetadata root;
         private final ResolvedReferenceField context;
         private final QueryPlan qplan;
-        
-        public GetFields(List<ResolvedFieldInfo> list,CompositeMetadata root,ResolvedReferenceField context,QueryPlan qplan) {
+
+        public GetFields(List<ResolvedFieldInfo> list, CompositeMetadata root, ResolvedReferenceField context, QueryPlan qplan) {
             super(list);
-            this.root=root;
-            this.context=context;
-            this.qplan=qplan;
+            this.root = root;
+            this.context = context;
+            this.qplan = qplan;
         }
 
         @Override
-        protected ResolvedFieldInfo newFieldInfo(Path clauseField,Path ctx,QueryExpression clause) {
-            return new ResolvedFieldInfo(clauseField,ctx,clause,root,context,qplan);
+        protected ResolvedFieldInfo newFieldInfo(Path clauseField, Path ctx, QueryExpression clause) {
+            return new ResolvedFieldInfo(clauseField, ctx, clause, root, context, qplan);
         }
     }
 
@@ -167,8 +173,8 @@ public class ResolvedFieldInfo extends FieldInfo {
                                                          CompositeMetadata root,
                                                          ResolvedReferenceField context,
                                                          QueryPlan qplan) {
-        List<ResolvedFieldInfo> list=new ArrayList<>();
-        new GetFields(list,root,context,qplan).iterate(q);
+        List<ResolvedFieldInfo> list = new ArrayList<>();
+        new GetFields(list, root, context, qplan).iterate(q);
         return list;
     }
 }

@@ -29,42 +29,41 @@ import com.redhat.lightblue.query.NaryFieldRelationalExpression;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$not:{w}}
- * </pre>
- * and w can be negatable, then this rewrites q as
+ * </pre> and w can be negatable, then this rewrites q as
  * <pre>
  *   q=negation of w
  * </pre>
  */
 public class EliminateNOT extends Rewriter {
 
-    public static final Rewriter INSTANCE=new EliminateNOT();
+    public static final Rewriter INSTANCE = new EliminateNOT();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        UnaryLogicalExpression le=dyncast(UnaryLogicalExpression.class,q);
-        if(le!=null&&le.getOp()==UnaryLogicalOperator._not) {
-	    ValueComparisonExpression vce=dyncast(ValueComparisonExpression.class,le.getQuery());
-	    if(vce!=null) {
-		return new ValueComparisonExpression(vce.getField(),vce.getOp().negate(),vce.getRvalue());
-	    } else {
-		FieldComparisonExpression fce=dyncast(FieldComparisonExpression.class,le.getQuery());
-		if(fce!=null) {
-		    return new FieldComparisonExpression(fce.getField(),fce.getOp().negate(),fce.getRfield());
-		} else {
-		    NaryValueRelationalExpression nre=dyncast(NaryValueRelationalExpression.class,le.getQuery());
-		    if(nre!=null) {
-			return new NaryValueRelationalExpression(nre.getField(),nre.getOp().negate(),nre.getValues());
-		    } else {
-                        NaryFieldRelationalExpression nfe=dyncast(NaryFieldRelationalExpression.class,le.getQuery());
-                        if(nfe!=null) {
-                            return new NaryFieldRelationalExpression(nfe.getField(),nfe.getOp().negate(),nfe.getRfield());
+        UnaryLogicalExpression le = dyncast(UnaryLogicalExpression.class, q);
+        if (le != null && le.getOp() == UnaryLogicalOperator._not) {
+            ValueComparisonExpression vce = dyncast(ValueComparisonExpression.class, le.getQuery());
+            if (vce != null) {
+                return new ValueComparisonExpression(vce.getField(), vce.getOp().negate(), vce.getRvalue());
+            } else {
+                FieldComparisonExpression fce = dyncast(FieldComparisonExpression.class, le.getQuery());
+                if (fce != null) {
+                    return new FieldComparisonExpression(fce.getField(), fce.getOp().negate(), fce.getRfield());
+                } else {
+                    NaryValueRelationalExpression nre = dyncast(NaryValueRelationalExpression.class, le.getQuery());
+                    if (nre != null) {
+                        return new NaryValueRelationalExpression(nre.getField(), nre.getOp().negate(), nre.getValues());
+                    } else {
+                        NaryFieldRelationalExpression nfe = dyncast(NaryFieldRelationalExpression.class, le.getQuery());
+                        if (nfe != null) {
+                            return new NaryFieldRelationalExpression(nfe.getField(), nfe.getOp().negate(), nfe.getRfield());
                         }
                     }
-		}
-	    }
+                }
+            }
         }
         return q;
     }

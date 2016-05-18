@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import org.junit.Ignore;
 
-
 public class BulkTest extends AbstractMediatorTest {
 
     public interface FindCb {
@@ -39,43 +38,44 @@ public class BulkTest extends AbstractMediatorTest {
     public interface InsertCb {
         Response call(InsertionRequest req);
     }
-    
+
     public class TestMediator extends Mediator {
 
-        FindCb findCb=null;
-        InsertCb insertCb=null;
-        
-        public TestMediator(Metadata md,Factory f) {
-            super(md,f);
+        FindCb findCb = null;
+        InsertCb insertCb = null;
+
+        public TestMediator(Metadata md, Factory f) {
+            super(md, f);
         }
 
         @Override
         public Response find(FindRequest req) {
-            if(findCb!=null)
+            if (findCb != null) {
                 return findCb.call(req);
-            else
+            } else {
                 return super.find(req);
+            }
         }
 
         @Override
         public Response insert(InsertionRequest req) {
-            if(insertCb!=null)
+            if (insertCb != null) {
                 return insertCb.call(req);
-            else
+            } else {
                 return super.insert(req);
+            }
         }
     }
 
     @Override
-    protected Mediator newMediator(Metadata md,Factory f) {
-        return new TestMediator(md,f);
+    protected Mediator newMediator(Metadata md, Factory f) {
+        return new TestMediator(md, f);
     }
-
 
     @Test
     public void bulkTest() throws Exception {
-        BulkRequest breq=new BulkRequest();
-        
+        BulkRequest breq = new BulkRequest();
+
         InsertionRequest ireq = new InsertionRequest();
         ireq.setEntityVersion(new EntityVersion("test", "1.0"));
         ireq.setEntityData(loadJsonNode("./sample1.json"));
@@ -89,17 +89,17 @@ public class BulkTest extends AbstractMediatorTest {
 
         mdManager.md.getAccess().getFind().setRoles("role1");
 
-        BulkResponse bresp=mediator.bulkRequest(breq);
+        BulkResponse bresp = mediator.bulkRequest(breq);
 
-        Response response=bresp.getEntries().get(0);
+        Response response = bresp.getEntries().get(0);
         Assert.assertEquals(OperationStatus.COMPLETE, response.getStatus());
         Assert.assertEquals(1, response.getModifiedCount());
         Assert.assertEquals(0, response.getMatchCount());
         Assert.assertEquals(0, response.getDataErrors().size());
         Assert.assertEquals(0, response.getErrors().size());
 
-        response=bresp.getEntries().get(1);
-        
+        response = bresp.getEntries().get(1);
+
         Assert.assertEquals(OperationStatus.ERROR, response.getStatus());
         Assert.assertEquals(0, response.getModifiedCount());
         Assert.assertEquals(0, response.getMatchCount());
@@ -107,13 +107,13 @@ public class BulkTest extends AbstractMediatorTest {
         Assert.assertEquals(1, response.getErrors().size());
         Assert.assertEquals(CrudConstants.ERR_NO_ACCESS, response.getErrors().get(0).getErrorCode());
     }
-    
+
     @Test
     @Ignore
     public void bulkTest_fromJson() throws Exception {
         // TODO stop ignoring and finish impl once JSON schema is defined
-        BulkRequest breq=new BulkRequest();
-        
+        BulkRequest breq = new BulkRequest();
+
         InsertionRequest ireq = new InsertionRequest();
         ireq.setEntityVersion(new EntityVersion("test", "1.0"));
         ireq.setEntityData(loadJsonNode("./sample1.json"));
@@ -126,25 +126,24 @@ public class BulkTest extends AbstractMediatorTest {
         breq.add(freq);
 
         // convert to string then parse back.  should be identical
-        
         ObjectNode breqJson = (ObjectNode) breq.toJson();
-        
+
         BulkRequest breqParsed = BulkRequest.fromJson(breqJson);
 
         System.out.println("asdf");
     }
 
     private class PFindCb implements FindCb {
-        Semaphore sem=new Semaphore(0);
-        int nested=0;
-        
+        Semaphore sem = new Semaphore(0);
+        int nested = 0;
+
         @Override
         public Response call(FindRequest req) {
             nested++;
             try {
                 sem.acquire();
                 return new Response();
-            } catch (Exception e) {                
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
                 nested--;
@@ -153,7 +152,7 @@ public class BulkTest extends AbstractMediatorTest {
     }
 
     private class PInsertCb implements InsertCb {
-        Semaphore sem=new Semaphore(0);
+        Semaphore sem = new Semaphore(0);
 
         @Override
         public Response call(InsertionRequest req) {
@@ -169,21 +168,21 @@ public class BulkTest extends AbstractMediatorTest {
     private abstract class ValidatorThread extends Thread {
         PFindCb find;
         PInsertCb insert;
-        boolean valid=false;
+        boolean valid = false;
 
-        public ValidatorThread(PFindCb f,PInsertCb i) {
-            find=f;
-            insert=i;
+        public ValidatorThread(PFindCb f, PInsertCb i) {
+            find = f;
+            insert = i;
         }
-        
+
     }
-    
+
     @Test
     public void parallelBulkTest() throws Exception {
-        BulkRequest breq=new BulkRequest();
+        BulkRequest breq = new BulkRequest();
 
-        FindRequest freq=new FindRequest();
-        freq.setEntityVersion(new EntityVersion("test","1.0"));
+        FindRequest freq = new FindRequest();
+        freq.setEntityVersion(new EntityVersion("test", "1.0"));
         freq.setClientId(new RestClientIdentification(Arrays.asList("test-find")));
 
         InsertionRequest ireq = new InsertionRequest();
@@ -200,52 +199,52 @@ public class BulkTest extends AbstractMediatorTest {
         breq.add(freq);
         breq.add(ireq);
 
-        PFindCb findCb=new PFindCb();
-        PInsertCb insertCb=new PInsertCb();
-        ((TestMediator)mediator).findCb=findCb;
-        ((TestMediator)mediator).insertCb=insertCb;
+        PFindCb findCb = new PFindCb();
+        PInsertCb insertCb = new PInsertCb();
+        ((TestMediator) mediator).findCb = findCb;
+        ((TestMediator) mediator).insertCb = insertCb;
 
-        ValidatorThread validator=new ValidatorThread(findCb,insertCb) {
-                @Override
-                public void run() {
-                    try {
-                        // Check if all 3 finds are waiting
-                        while(find.nested<3) {
-                            Thread.sleep(1);
-                        }
-                        // Let the 3 find requests complete
-                        find.sem.release(3);
-                        // Busy wait
-                        while(find.sem.availablePermits()>0) {
-                            Thread.sleep(1);
-                        }
-                        // Let insert complete
-                        insert.sem.release(1);
-                        while(insert.sem.availablePermits()>0) {
-                            Thread.sleep(1);
-                        }
-                        // Check if all 2 finds are waiting
-                        while(find.nested<2) {
-                            Thread.sleep(1);
-                        }
-                        // Let the remaining 2 find requests complete
-                        find.sem.release(2);
-                        while(find.sem.availablePermits()>0) {
-                            Thread.sleep(1);
-                        }
-                        insert.sem.release(1);
-                        while(insert.sem.availablePermits()>0) {
-                            Thread.sleep(1);
-                        }
-                        valid=true;
-                    } catch (Exception e ){
-                        throw new RuntimeException(e);
+        ValidatorThread validator = new ValidatorThread(findCb, insertCb) {
+            @Override
+            public void run() {
+                try {
+                    // Check if all 3 finds are waiting
+                    while (find.nested < 3) {
+                        Thread.sleep(1);
                     }
+                    // Let the 3 find requests complete
+                    find.sem.release(3);
+                    // Busy wait
+                    while (find.sem.availablePermits() > 0) {
+                        Thread.sleep(1);
+                    }
+                    // Let insert complete
+                    insert.sem.release(1);
+                    while (insert.sem.availablePermits() > 0) {
+                        Thread.sleep(1);
+                    }
+                    // Check if all 2 finds are waiting
+                    while (find.nested < 2) {
+                        Thread.sleep(1);
+                    }
+                    // Let the remaining 2 find requests complete
+                    find.sem.release(2);
+                    while (find.sem.availablePermits() > 0) {
+                        Thread.sleep(1);
+                    }
+                    insert.sem.release(1);
+                    while (insert.sem.availablePermits() > 0) {
+                        Thread.sleep(1);
+                    }
+                    valid = true;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            };
+            }
+        };
         validator.start();
-        
-        BulkResponse bresp=mediator.bulkRequest(breq);
+
+        BulkResponse bresp = mediator.bulkRequest(breq);
         validator.join();
 
         Assert.assertTrue(validator.valid);

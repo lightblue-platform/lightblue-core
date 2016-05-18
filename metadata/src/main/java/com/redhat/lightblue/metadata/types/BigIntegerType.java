@@ -62,7 +62,8 @@ public final class BigIntegerType implements Type, Serializable {
             return null;
         } else if (node instanceof TextNode) {
             return new BigInteger(node.asText());
-        } if (node.isValueNode()) {
+        }
+        if (node.isValueNode()) {
             return node.bigIntegerValue();
         } else {
             throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());

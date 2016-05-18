@@ -28,17 +28,16 @@ import com.redhat.lightblue.assoc.QueryPlan;
  */
 public class First implements QueryPlanIterator, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private QueryPlan qp;
 
     /**
-     * Construct a query plan iterator that operates on the given
-     * query plan
+     * Construct a query plan iterator that operates on the given query plan
      */
     @Override
     public void reset(QueryPlan qp) {
-        this.qp=qp;
+        this.qp = qp;
     }
 
     @Override
@@ -46,4 +45,3 @@ public class First implements QueryPlanIterator, Serializable {
         return false;
     }
 }
-

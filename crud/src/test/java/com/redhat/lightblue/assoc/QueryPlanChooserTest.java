@@ -73,8 +73,8 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
     }
 
     private class GMD extends AbstractGetMetadata {
-        public GMD(Projection p,QueryExpression q) {
-            super(p,q);
+        public GMD(Projection p, QueryExpression q) {
+            super(p, q);
         }
 
         @Override
@@ -82,7 +82,7 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
                                                   String entityName,
                                                   String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -91,134 +91,137 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
 
     @Test
     public void constructionTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'field':'field1','op':'=','rvalue':'s'}"),
-                                                      null);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'field':'field1','op':'=','rvalue':'s'}"),
+                null);
 
-        QueryPlanNode[] nodes=chooser.getQueryPlan().getAllNodes();
-        QueryPlanNode anode=null;
-        QueryPlanNode cnode=null;
-        for(QueryPlanNode node:nodes)
-            if(node.getMetadata().getName().equals("A"))
-                anode=node;
-            else if(node.getMetadata().getName().equals("C"))
-                cnode=node;
+        QueryPlanNode[] nodes = chooser.getQueryPlan().getAllNodes();
+        QueryPlanNode anode = null;
+        QueryPlanNode cnode = null;
+        for (QueryPlanNode node : nodes) {
+            if (node.getMetadata().getName().equals("A")) {
+                anode = node;
+            } else if (node.getMetadata().getName().equals("C")) {
+                cnode = node;
+            }
+        }
         Assert.assertNotNull(anode);
         Assert.assertNotNull(cnode);
-        Assert.assertTrue(chooser.getQueryPlan().isUndirectedConnected(anode,cnode));
-        List<Conjunct> edgeData=chooser.getQueryPlan().getEdgeData(anode,cnode).getConjuncts();
-        Assert.assertEquals(edgeData,chooser.getQueryPlan().getEdgeData(cnode,anode).getConjuncts());
+        Assert.assertTrue(chooser.getQueryPlan().isUndirectedConnected(anode, cnode));
+        List<Conjunct> edgeData = chooser.getQueryPlan().getEdgeData(anode, cnode).getConjuncts();
+        Assert.assertEquals(edgeData, chooser.getQueryPlan().getEdgeData(cnode, anode).getConjuncts());
         // The request query must be associated with A
-        Assert.assertTrue(anode.getData().getConjuncts().size()==1);
+        Assert.assertTrue(anode.getData().getConjuncts().size() == 1);
 
         System.out.println(chooser.getQueryPlan().treeToString());
-        for(QueryPlanNode node:chooser.getQueryPlan().getAllNodes())
-            System.out.println(node.getName()+":"+node.getData().getConjuncts());
+        for (QueryPlanNode node : chooser.getQueryPlan().getAllNodes()) {
+            System.out.println(node.getName() + ":" + node.getData().getConjuncts());
+        }
     }
 
     @Test
     public void iterationTestA() throws Exception {
-        GMD gmd=new GMD(projection("[{'field':'obj1.c','include':1},{'field':'b','include':1}]"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'field':'field1','op':'=','rvalue':'s'}"),
-                                                      null);
+        GMD gmd = new GMD(projection("[{'field':'obj1.c','include':1},{'field':'b','include':1}]"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'field':'field1','op':'=','rvalue':'s'}"),
+                null);
         // choose a plan
         chooser.choose();
         Assert.assertNotNull(chooser.getBestPlan());
-        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
         // Best plan should have A first
-        Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
-        Assert.assertEquals("A",chooser.getBestPlan().getSources()[0].getMetadata().getName());
+        Assert.assertEquals(1, chooser.getBestPlan().getSources().length);
+        Assert.assertEquals("A", chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
 
     @Test
     public void iterationTestC() throws Exception {
-        GMD gmd=new GMD(projection("[{'field':'obj1.c','include':1},{'field':'b','include':1}]"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'field':'obj1.c.*.field1','op':'=','rvalue':'s'}"),
-                                                      null);
+        GMD gmd = new GMD(projection("[{'field':'obj1.c','include':1},{'field':'b','include':1}]"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'field':'obj1.c.*.field1','op':'=','rvalue':'s'}"),
+                null);
         // choose a plan
         chooser.choose();
         Assert.assertNotNull(chooser.getBestPlan());
-        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
-        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
         // Best plan should have C first
-        Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
-        Assert.assertEquals("C",chooser.getBestPlan().getSources()[0].getMetadata().getName());
+        Assert.assertEquals(1, chooser.getBestPlan().getSources().length);
+        Assert.assertEquals("C", chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
 
     @Test
     public void relationshipWithArrayElemMatchTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'relationships'}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/parent_w_elem.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'field':'code1','op':'=','rvalue':'X'}"),
-                                                      null);
+        GMD gmd = new GMD(projection("{'field':'relationships'}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/parent_w_elem.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'field':'code1','op':'=','rvalue':'X'}"),
+                null);
         chooser.choose();
-        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
-        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
-        Assert.assertEquals(1,chooser.getBestPlan().getSources().length);
-        Assert.assertEquals("parent_w_elem",chooser.getBestPlan().getSources()[0].getMetadata().getName());
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
+        Assert.assertEquals(1, chooser.getBestPlan().getSources().length);
+        Assert.assertEquals("parent_w_elem", chooser.getBestPlan().getSources()[0].getMetadata().getName());
 
     }
 
     @Test
     public void preferPrimaryKeys() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'us'}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'$and':[{'field':'_id','op':'$in','values':[1,2]},"+
-                                                            "{'field':'us.*.authentications','op':'=','rvalue':null}]}"),
-                                                      null);
+        GMD gmd = new GMD(projection("{'field':'us'}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'$and':[{'field':'_id','op':'$in','values':[1,2]},"
+                        + "{'field':'us.*.authentications','op':'=','rvalue':null}]}"),
+                null);
         chooser.choose();
-        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
-        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
-        Assert.assertEquals("L",chooser.getBestPlan().getSources()[0].getMetadata().getName());
-       
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
+        Assert.assertEquals("L", chooser.getBestPlan().getSources()[0].getMetadata().getName());
+
     }
 
     @Test
     public void preferQueryOverNothing() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'us'}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'field':'us.*.authentications','op':'=','rvalue':null}"),
-                                                      null);
+        GMD gmd = new GMD(projection("{'field':'us'}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'field':'us.*.authentications','op':'=','rvalue':null}"),
+                null);
         chooser.choose();
-        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
-        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
-        Assert.assertEquals("U",chooser.getBestPlan().getSources()[0].getMetadata().getName());       
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
+        Assert.assertEquals("U", chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
 
     @Test
     public void preferIndexedSearchOverNonIndexed() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'us'}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
-        QueryPlanChooser chooser=new QueryPlanChooser(md,
-                                                      new BruteForceQueryPlanIterator(),
-                                                      new IndexedFieldScorer(),
-                                                      query("{'$and':[{'field':'us.*.authentications.*.principal','op':'=','rvalue':'x'},"+
-                                                            "{'field':'status','op':'=','rvalue':'r'}]}"),
-                                                      null);
+        GMD gmd = new GMD(projection("{'field':'us'}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'$and':[{'field':'us.*.authentications.*.principal','op':'=','rvalue':'x'},"
+                        + "{'field':'status','op':'=','rvalue':'r'}]}"),
+                null);
         chooser.choose();
-        System.out.println("Best plan:"+chooser.getBestPlan().mxToString());
-        System.out.println("Best plan:"+chooser.getBestPlan().treeToString());
-        Assert.assertEquals("U",chooser.getBestPlan().getSources()[0].getMetadata().getName());       
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
+        Assert.assertEquals("U", chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
 }

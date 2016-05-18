@@ -36,13 +36,13 @@ import com.redhat.lightblue.query.NaryValueRelationalExpression;
 
 public abstract class QueryEvaluator {
 
-    public static final QueryEvaluator MATCH_ALL_EVALUATOR=new QueryEvaluator() {
-            public boolean evaluate(QueryEvaluationContext ctx) {
-                ctx.setResult(true);
-                return true;
-            }
-        };
-    
+    public static final QueryEvaluator MATCH_ALL_EVALUATOR = new QueryEvaluator() {
+        public boolean evaluate(QueryEvaluationContext ctx) {
+            ctx.setResult(true);
+            return true;
+        }
+    };
+
     public abstract boolean evaluate(QueryEvaluationContext ctx);
 
     public QueryEvaluationContext evaluate(JsonDoc doc) {

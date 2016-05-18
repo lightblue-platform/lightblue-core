@@ -27,17 +27,17 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 public class CurrentTimeGenerator implements ValueGeneratorSupport {
 
-    public static final ValueGenerator.ValueGeneratorType[] TYPES={ValueGenerator.ValueGeneratorType.CurrentTime};
+    public static final ValueGenerator.ValueGeneratorType[] TYPES = {ValueGenerator.ValueGeneratorType.CurrentTime};
 
-    public static final CurrentTimeGenerator instance=new CurrentTimeGenerator();
-    
+    public static final CurrentTimeGenerator instance = new CurrentTimeGenerator();
+
     @Override
     public ValueGenerator.ValueGeneratorType[] getSupportedGeneratorTypes() {
         return TYPES;
     }
 
     @Override
-    public Object generateValue(EntityMetadata md,ValueGenerator generator) {
+    public Object generateValue(EntityMetadata md, ValueGenerator generator) {
         return new Date();
     }
 }

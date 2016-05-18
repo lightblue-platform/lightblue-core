@@ -53,13 +53,13 @@ public class NaryFieldRelationalExpressionEvaluator extends QueryEvaluator {
         }
         rfield = expr.getRfield();
         FieldTreeNode rf = context.resolve(rfield);
-        if(rf == null) {
+        if (rf == null) {
             throw new EvaluationError(expr, CrudConstants.ERR_FIELD_NOT_THERE + field);
         }
-        if(rf instanceof ArrayField) {
-            rfieldMd=(ArrayField)rf;
+        if (rf instanceof ArrayField) {
+            rfieldMd = (ArrayField) rf;
         } else {
-            throw new EvaluationError(expr,CrudConstants.ERR_REQUIRED_ARRAY + rfield);
+            throw new EvaluationError(expr, CrudConstants.ERR_REQUIRED_ARRAY + rfield);
         }
         operator = expr.getOp();
         LOGGER.debug("ctor {} {} {}", field, operator, rfield);
@@ -81,25 +81,26 @@ public class NaryFieldRelationalExpressionEvaluator extends QueryEvaluator {
             }
             boolean in = false;
             KeyValueCursor<Path, JsonNode> rcursor = ctx.getNodes(rfield);
-            while(rcursor.hasNext()) {
+            while (rcursor.hasNext()) {
                 rcursor.next();
                 JsonNode lnode = rcursor.getCurrentValue();
-                if(lnode!=null&&lnode instanceof ArrayNode) {
-                    ArrayNode listNode=(ArrayNode)lnode;
-                    LOGGER.debug("value={} list={}",valueNode,listNode);
+                if (lnode != null && lnode instanceof ArrayNode) {
+                    ArrayNode listNode = (ArrayNode) lnode;
+                    LOGGER.debug("value={} list={}", valueNode, listNode);
 
-                    for (Iterator<JsonNode> itr=listNode.elements();itr.hasNext();) {
-                        JsonNode rvalue=itr.next();
+                    for (Iterator<JsonNode> itr = listNode.elements(); itr.hasNext();) {
+                        JsonNode rvalue = itr.next();
                         if (docValue == null) {
-                            if (rvalue==null||rvalue instanceof NullNode) 
+                            if (rvalue == null || rvalue instanceof NullNode) {
                                 in = true;
+                            }
                             break;
                         } else if (fieldMd.getType().compare(docValue, rvalue) == 0) {
                             in = true;
                             break;
                         }
                     }
-                    LOGGER.debug("in={}",in);
+                    LOGGER.debug("in={}", in);
                     if (in) {
                         ret = true;
                         break;

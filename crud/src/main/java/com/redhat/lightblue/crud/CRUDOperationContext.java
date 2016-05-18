@@ -67,8 +67,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         // can assume are adding to an empty DocCtx list
         addDocuments(docs);
         this.hookManager = new HookManager(factory.getHookResolver(), factory.getNodeFactory());
-        this.callerRoles=new HashSet<>();
-        this.executionOptions=eo;
+        this.callerRoles = new HashSet<>();
+        this.executionOptions = eo;
     }
 
     public CRUDOperationContext(CRUDOperation op,
@@ -82,14 +82,14 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.entityName = entityName;
         this.factory = f;
         addDocuments(docs);
-        this.callerRoles=callerRoles;
-        this.hookManager=hookManager;
-        this.executionOptions=eo;
+        this.callerRoles = callerRoles;
+        this.hookManager = hookManager;
+        this.executionOptions = eo;
     }
 
     /**
-     * This constructor is used to construct an operation context that
-     * is derived from another existing context.
+     * This constructor is used to construct an operation context that is
+     * derived from another existing context.
      */
     public CRUDOperationContext(CRUDOperation op,
                                 String entityName,
@@ -101,10 +101,10 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
         this.CRUDOperation = op;
         this.entityName = entityName;
         this.factory = f;
-        this.documents =docs;
-        this.callerRoles=callerRoles;
-        this.hookManager=hookManager;
-        this.executionOptions=eo;
+        this.documents = docs;
+        this.callerRoles = callerRoles;
+        this.hookManager = hookManager;
+        this.executionOptions = eo;
     }
 
     /**
@@ -115,8 +115,8 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     /**
-     * Resets the operation context. Clears errors, sets the given
-     * document list as the new document list.
+     * Resets the operation context. Clears errors, sets the given document list
+     * as the new document list.
      */
     public void reset(List<DocCtx> docList) {
         errors.clear();
@@ -160,7 +160,7 @@ public abstract class CRUDOperationContext implements MetadataResolver, Serializ
     }
 
     public void setDocuments(List<DocCtx> docs) {
-        documents=docs;
+        documents = docs;
     }
 
     /**

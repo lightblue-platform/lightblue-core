@@ -60,7 +60,7 @@ public class RelativeRewriteIterator extends QueryIterator {
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path context) {
         return new NaryFieldRelationalExpression(toRelative(q.getField(), context),
-                                                 q.getOp(), toRelative(q.getRfield(),context));
+                q.getOp(), toRelative(q.getRfield(), context));
     }
 
     @Override

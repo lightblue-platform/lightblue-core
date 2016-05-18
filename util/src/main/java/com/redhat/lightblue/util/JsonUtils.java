@@ -49,8 +49,10 @@ import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 public final class JsonUtils {
 
     /**
-     * <p>Returns an object mapper to parse JSON text.</p>
-     * <p><b>NOTE:</b> {@link ObjectMapper} should not be shared among threads.</p>
+     * <p>
+     * Returns an object mapper to parse JSON text.</p>
+     * <p>
+     * <b>NOTE:</b> {@link ObjectMapper} should not be shared among threads.</p>
      */
     public static ObjectMapper getObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -64,13 +66,13 @@ public final class JsonUtils {
      */
     public static JsonNode json(String s)
             throws IOException {
-        return json(s,false);
+        return json(s, false);
     }
 
-    public static JsonNode json(String s,boolean systemPropertySubstitution)
-        throws IOException {
+    public static JsonNode json(String s, boolean systemPropertySubstitution)
+            throws IOException {
         String jsonString;
-        if(systemPropertySubstitution) {
+        if (systemPropertySubstitution) {
             // do system property expansion
             jsonString = StrSubstitutor.replaceSystemProperties(s);
         } else {
@@ -82,8 +84,8 @@ public final class JsonUtils {
     /**
      * Parses a JSON stream
      */
-    public static JsonNode json(InputStream stream,boolean systemPropertySubstitution) throws IOException {
-        return json(new InputStreamReader(stream, Charset.defaultCharset()),systemPropertySubstitution);
+    public static JsonNode json(InputStream stream, boolean systemPropertySubstitution) throws IOException {
+        return json(new InputStreamReader(stream, Charset.defaultCharset()), systemPropertySubstitution);
     }
 
     public static JsonNode json(InputStream stream) throws IOException {
@@ -94,16 +96,16 @@ public final class JsonUtils {
      * Parses a JSON stream
      */
     public static JsonNode json(Reader reader) throws IOException {
-        return json(reader,false);
+        return json(reader, false);
     }
 
-    public static JsonNode json(Reader reader,boolean systemPropertySubstitution) throws IOException {
+    public static JsonNode json(Reader reader, boolean systemPropertySubstitution) throws IOException {
         StringBuilder bld = new StringBuilder(512);
         int c;
         while ((c = reader.read()) >= 0) {
             bld.append((char) c);
         }
-        return json(bld.toString(),systemPropertySubstitution);
+        return json(bld.toString(), systemPropertySubstitution);
     }
 
     /**

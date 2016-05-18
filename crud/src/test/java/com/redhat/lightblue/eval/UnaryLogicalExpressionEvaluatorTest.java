@@ -59,6 +59,7 @@ public class UnaryLogicalExpressionEvaluatorTest extends AbstractJsonNodeTest {
         QueryEvaluationContext ctx = qe.evaluate(jsonDoc);
         Assert.assertFalse(ctx.getResult());
     }
+
     @Test
     public void $not_$or_expression_case_sensitive_returns_true() throws Exception {
         QueryExpression q = EvalTestContext.queryExpressionFromJson("{'$not': { '$or' : [{'field':'field1','regex':'Val.*'},{'field':'field3','op':'$eq','rvalue':4}]}}");

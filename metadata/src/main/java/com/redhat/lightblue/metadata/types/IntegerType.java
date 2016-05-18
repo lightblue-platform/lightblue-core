@@ -58,7 +58,7 @@ public final class IntegerType implements Type, Serializable {
     public Object fromJson(JsonNode node) {
         if (node instanceof NullNode) {
             return null;
-        } else  if (node.isValueNode()) {
+        } else if (node.isValueNode()) {
             return node.asLong();
         } else {
             throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());
@@ -79,7 +79,7 @@ public final class IntegerType implements Type, Serializable {
                 } catch (NumberFormatException e) {
                     throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, obj.toString());
                 }
-            } 
+            }
         }
         return value;
     }

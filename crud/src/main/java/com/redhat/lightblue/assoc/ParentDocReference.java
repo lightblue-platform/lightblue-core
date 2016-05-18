@@ -26,29 +26,29 @@ import java.util.ArrayList;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Represents a reference to a list of parent documents of another entity. 
+ * Represents a reference to a list of parent documents of another entity.
  */
 public class ParentDocReference extends DocReference {
 
-    private final List<ResultDoc> parents=new ArrayList<>();
+    private final List<ResultDoc> parents = new ArrayList<>();
     private final Path field;
     private final ResolvedFieldBinding binding;
-    
+
     /**
      * Constructs a reference for the given document and field
      */
-    public ParentDocReference(ResultDoc document,Path field,ResolvedFieldBinding binding) {
+    public ParentDocReference(ResultDoc document, Path field, ResolvedFieldBinding binding) {
         super(document);
-        this.field=field;
-        this.binding=binding;
+        this.field = field;
+        this.binding = binding;
     }
-    
+
     public Path getField() {
-    	return field;
+        return field;
     }
-    
+
     public ResolvedFieldBinding getBinding() {
-    	return binding;
+        return binding;
     }
 
     /**
@@ -59,6 +59,6 @@ public class ParentDocReference extends DocReference {
     }
 
     public String toString() {
-        return "parent@"+super.toString();
+        return "parent@" + super.toString();
     }
 }

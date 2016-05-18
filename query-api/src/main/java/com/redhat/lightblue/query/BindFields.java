@@ -28,25 +28,25 @@ import com.redhat.lightblue.util.Error;
 public class BindFields<T extends FieldBinding> extends QueryIterator {
     protected final List<T> bindingResult;
     protected final Set<Path> bindRequest;
-    
+
     public BindFields(List<T> result,
                       Set<Path> request) {
-        this.bindingResult=result;
-        this.bindRequest=request;
+        this.bindingResult = result;
+        this.bindRequest = request;
     }
 
     /**
      * Override this method to create a subclass of valueBinding if necessary
      */
-    protected T newValueBinding(Path field,Path ctx,BoundValue value,QueryExpression originalQuery,QueryExpression newQuery) {
-        return (T)new ValueBinding(field,value,originalQuery,newQuery);
+    protected T newValueBinding(Path field, Path ctx, BoundValue value, QueryExpression originalQuery, QueryExpression newQuery) {
+        return (T) new ValueBinding(field, value, originalQuery, newQuery);
     }
 
     /**
      * Override this method to create a subclass of ListBinding if necessary
      */
-    protected T newListBinding(Path field,Path ctx,BoundValueList value,QueryExpression originalQuery,QueryExpression newQuery) {
-        return (T)new ListBinding(field,value,originalQuery,newQuery);
+    protected T newListBinding(Path field, Path ctx, BoundValueList value, QueryExpression originalQuery, QueryExpression newQuery) {
+        return (T) new ListBinding(field, value, originalQuery, newQuery);
     }
 
     protected QueryExpression checkError(QueryExpression q, Path field, Path ctx) {
@@ -55,30 +55,30 @@ public class BindFields<T extends FieldBinding> extends QueryIterator {
         }
         return q;
     }
-    
+
     @Override
     protected QueryExpression itrArrayContainsExpression(ArrayContainsExpression q, Path ctx) {
         return checkError(q, q.getArray(), ctx);
     }
-    
+
     @Override
     protected QueryExpression itrValueComparisonExpression(ValueComparisonExpression q, Path ctx) {
         return checkError(q, q.getField(), ctx);
     }
-    
+
     @Override
     protected QueryExpression itrRegexMatchExpression(RegexMatchExpression q, Path ctx) {
         return checkError(q, q.getField(), ctx);
     }
-    
+
     @Override
     protected QueryExpression itrNaryValueRelationalExpression(NaryValueRelationalExpression q, Path ctx) {
         return checkError(q, q.getField(), ctx);
     }
-    
+
     @Override
     protected QueryExpression itrNaryFieldRelationalExpression(NaryFieldRelationalExpression q, Path ctx) {
-        QueryExpression newq=q;
+        QueryExpression newq = q;
         Path l = new Path(ctx, q.getField());
         Path r = new Path(ctx, q.getRfield());
         boolean bindl = bindRequest.contains(l);
@@ -88,21 +88,21 @@ public class BindFields<T extends FieldBinding> extends QueryIterator {
         }
         if (bindl || bindr) {
             // If we're here, only one of the fields is bound
-            if (bindr) {    
+            if (bindr) {
                 BoundValueList newValue = new BoundValueList();
                 newq = new NaryValueRelationalExpression(q.getField(), q.getOp(), newValue);
                 bindingResult.add(newListBinding(r, ctx, newValue, q, newq));
             } else {
-                BoundValue newValue=new BoundValue();
-                List<Value> list=new ArrayList<>(1);
+                BoundValue newValue = new BoundValue();
+                List<Value> list = new ArrayList<>(1);
                 list.add(newValue);
-                newq = new ArrayContainsExpression(q.getRfield(), q.getOp()==NaryRelationalOperator._in?
-                                                   ContainsOperator._all:ContainsOperator._none, 
-                                                   list);
+                newq = new ArrayContainsExpression(q.getRfield(), q.getOp() == NaryRelationalOperator._in
+                        ? ContainsOperator._all : ContainsOperator._none,
+                        list);
                 bindingResult.add(newValueBinding(l, ctx, newValue, q, newq));
-            }                
+            }
         }
-        return newq; 
+        return newq;
     }
 
     @Override
@@ -110,10 +110,10 @@ public class BindFields<T extends FieldBinding> extends QueryIterator {
         checkError(q, q.getArray(), ctx);
         return super.itrArrayMatchExpression(q, ctx);
     }
-    
+
     @Override
     protected QueryExpression itrFieldComparisonExpression(FieldComparisonExpression q, Path ctx) {
-        QueryExpression newq=q;
+        QueryExpression newq = q;
         Path l = new Path(ctx, q.getField());
         Path r = new Path(ctx, q.getRfield());
         boolean bindl = bindRequest.contains(l);
@@ -138,9 +138,9 @@ public class BindFields<T extends FieldBinding> extends QueryIterator {
     public static <T extends FieldBinding> QueryExpression bind(QueryExpression q,
                                                                 List<T> bindingResult,
                                                                 Set<Path> bindRequest) {
-        return bind(q,Path.EMPTY, bindingResult, bindRequest);
+        return bind(q, Path.EMPTY, bindingResult, bindRequest);
     }
-    
+
     public static <T extends FieldBinding> QueryExpression bind(QueryExpression q,
                                                                 Path ctx,
                                                                 List<T> bindingResult,

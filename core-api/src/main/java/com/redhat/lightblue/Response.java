@@ -59,9 +59,9 @@ public class Response extends JsonObject {
     private final List<Error> errors = new ArrayList<>();
 
     private final JsonNodeFactory jsonNodeFactory;
-    
+
     private static final String HOSTNAME;
-    
+
     static {
         String hostName = "unknown";
         try {
@@ -70,7 +70,7 @@ public class Response extends JsonObject {
                 hostName = localHost.getHostName();
             }
         } catch (UnknownHostException e) {
-            
+
         }
         HOSTNAME = hostName;
     }
@@ -87,7 +87,7 @@ public class Response extends JsonObject {
         this.jsonNodeFactory = jsonNodeFactory;
         this.hostname = HOSTNAME;
     }
-    
+
     /**
      * Status of the completed operation
      */
@@ -101,7 +101,7 @@ public class Response extends JsonObject {
     public void setStatus(OperationStatus s) {
         status = s;
     }
-    
+
     public String getHostname() {
         return hostname;
     }
@@ -224,7 +224,7 @@ public class Response extends JsonObject {
         builder.addErrorsList(PROPERTY_ERRORS, errors);
         return builder.build();
     }
-    
+
     public static class ResponseBuilder {
 
         private OperationStatus status;
@@ -256,13 +256,13 @@ public class Response extends JsonObject {
             jsonNodeFactory = response.jsonNodeFactory;
         }
 
-        public ResponseBuilder withHostname(JsonNode node){
-            if (node != null){
+        public ResponseBuilder withHostname(JsonNode node) {
+            if (node != null) {
                 hostname = node.asText();
             }
             return this;
         }
-        
+
         public ResponseBuilder withStatus(JsonNode node) {
             if (node != null) {
                 try {

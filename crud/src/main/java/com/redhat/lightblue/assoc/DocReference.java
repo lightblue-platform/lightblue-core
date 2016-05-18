@@ -26,19 +26,19 @@ import java.util.ArrayList;
 import com.redhat.lightblue.util.Path;
 
 /**
- * Represents a reference to another document for another entity. 
+ * Represents a reference to another document for another entity.
  */
 public class DocReference implements Serializable {
 
-    private static final long serialVersionUID=1l;
-        
+    private static final long serialVersionUID = 1l;
+
     private final ResultDoc document;
 
     /**
      * Constructs a reference for the given document and field
      */
     public DocReference(ResultDoc document) {
-        this.document=document;
+        this.document = document;
     }
 
     /**

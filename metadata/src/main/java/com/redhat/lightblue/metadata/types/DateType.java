@@ -45,10 +45,11 @@ public final class DateType implements Type, Serializable {
     public static final String NAME = "date";
 
     /**
-     * Returns a DateFormat instance using the DATE_FORMAT_STR. Clone of
-     * the static internal variable, because SimpleDateFormat is not thread safe
+     * Returns a DateFormat instance using the DATE_FORMAT_STR. Clone of the
+     * static internal variable, because SimpleDateFormat is not thread safe
      *
-     * <p>Use: {@link Constants#getDateFormat()}</p>
+     * <p>
+     * Use: {@link Constants#getDateFormat()}</p>
      */
     @Deprecated
     public static DateFormat getDateFormat() {
@@ -79,7 +80,7 @@ public final class DateType implements Type, Serializable {
     public Object fromJson(JsonNode node) {
         if (node instanceof NullNode) {
             return null;
-        } else  if (node.isValueNode()) {
+        } else if (node.isValueNode()) {
             try {
                 return Constants.getDateFormat().parse(node.asText());
             } catch (ParseException e) {

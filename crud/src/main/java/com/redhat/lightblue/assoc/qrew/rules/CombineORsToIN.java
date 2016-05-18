@@ -25,22 +25,21 @@ import com.redhat.lightblue.query.BinaryComparisonOperator;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$or:{...,{field:x,op:=,rvalue=v},..,{field:x,op:=,rvalue=w}...}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q={$or:{...,{$in:{field:x,values:[v,w]}},...}}
  * </pre>
  */
 public class CombineORsToIN extends CombineComparisonsToInNotIn {
 
-    public static final Rewriter INSTANCE=new CombineORsToIN();
+    public static final Rewriter INSTANCE = new CombineORsToIN();
 
     public CombineORsToIN() {
         super(NaryLogicalOperator._or,
-              BinaryComparisonOperator._eq,
-              NaryRelationalOperator._in);
+                BinaryComparisonOperator._eq,
+                NaryRelationalOperator._in);
     }
 }

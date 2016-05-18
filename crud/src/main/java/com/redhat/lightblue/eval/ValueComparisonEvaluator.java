@@ -60,32 +60,32 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
     @Override
     public boolean evaluate(QueryEvaluationContext ctx) {
         ctx.setResult(false);
-        Object value=rvalue.getValue();
+        Object value = rvalue.getValue();
         LOGGER.debug("evaluate {} {} {}", field, operator, value);
         KeyValueCursor<Path, JsonNode> cursor = ctx.getNodes(field);
-        boolean fieldValueExists=false;
+        boolean fieldValueExists = false;
         while (cursor.hasNext()) {
-        	fieldValueExists=true;
+            fieldValueExists = true;
             cursor.next();
             JsonNode valueNode = cursor.getCurrentValue();
             int result;
-            if(value==null) {
+            if (value == null) {
                 // Comparing to null, we don't need the docValue, all we need is if docValue is null or not
-                boolean docValueNull=valueNode==null||valueNode instanceof NullNode;
-                if(docValueNull) {
-                    result=0;
+                boolean docValueNull = valueNode == null || valueNode instanceof NullNode;
+                if (docValueNull) {
+                    result = 0;
                 } else {
-                    result=-1;
+                    result = -1;
                 }
-                
-            } else {            
+
+            } else {
                 Object docValue;
                 if (valueNode != null) {
                     docValue = fieldMd.getType().fromJson(valueNode);
                 } else {
                     docValue = null;
                 }
-                LOGGER.debug(" fieldvalue={} value={} type={}", docValue,value,fieldMd.getType().getName());
+                LOGGER.debug(" fieldvalue={} value={} type={}", docValue, value, fieldMd.getType().getName());
                 result = fieldMd.getType().compare(docValue, value);
             }
             LOGGER.debug(" result={}", result);
@@ -95,8 +95,9 @@ public class ValueComparisonEvaluator extends QueryEvaluator {
             }
         }
         // If we're comparing equivalence to null, nonexistance of a field matches
-        if(value==null&&!fieldValueExists&&operator==BinaryComparisonOperator._eq)
-        	ctx.setResult(true);
+        if (value == null && !fieldValueExists && operator == BinaryComparisonOperator._eq) {
+            ctx.setResult(true);
+        }
         return ctx.getResult();
     }
 }

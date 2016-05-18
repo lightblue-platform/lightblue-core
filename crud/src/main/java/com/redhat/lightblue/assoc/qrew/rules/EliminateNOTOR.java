@@ -30,29 +30,29 @@ import com.redhat.lightblue.query.NaryLogicalOperator;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$not:{$or:[q1,q2,...]}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q={$and:{$not:{q1},$not:{q2}...}}
  * </pre>
  */
 public class EliminateNOTOR extends Rewriter {
 
-    public static final Rewriter INSTANCE=new EliminateNOTOR();
+    public static final Rewriter INSTANCE = new EliminateNOTOR();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        UnaryLogicalExpression le=dyncast(UnaryLogicalExpression.class,q);
-        if(le!=null&&le.getOp()==UnaryLogicalOperator._not) {
-            NaryLogicalExpression oreq=dyncast(NaryLogicalExpression.class,le.getQuery());
-            if(oreq!=null&&oreq.getOp()==NaryLogicalOperator._or) {
-                List<QueryExpression> newList=new ArrayList<>(oreq.getQueries().size());
-                for(QueryExpression x:oreq.getQueries())
-                    newList.add(new UnaryLogicalExpression(UnaryLogicalOperator._not,x));
-                return new NaryLogicalExpression(NaryLogicalOperator._and,newList);
+        UnaryLogicalExpression le = dyncast(UnaryLogicalExpression.class, q);
+        if (le != null && le.getOp() == UnaryLogicalOperator._not) {
+            NaryLogicalExpression oreq = dyncast(NaryLogicalExpression.class, le.getQuery());
+            if (oreq != null && oreq.getOp() == NaryLogicalOperator._or) {
+                List<QueryExpression> newList = new ArrayList<>(oreq.getQueries().size());
+                for (QueryExpression x : oreq.getQueries()) {
+                    newList.add(new UnaryLogicalExpression(UnaryLogicalOperator._not, x));
+                }
+                return new NaryLogicalExpression(NaryLogicalOperator._and, newList);
             }
         }
         return q;

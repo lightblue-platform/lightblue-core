@@ -25,7 +25,6 @@ import com.redhat.lightblue.metadata.FieldConstraint;
 import com.redhat.lightblue.metadata.Type;
 import com.redhat.lightblue.metadata.types.ContainerType;
 
-
 /**
  * Field is part of matches constraint
  */
@@ -33,7 +32,7 @@ public class MatchesConstraint implements FieldConstraint, Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    public static final String MATCHES= "matches";
+    public static final String MATCHES = "matches";
 
     private Pattern value = null;
 

@@ -47,20 +47,20 @@ public class RValueExpression extends JsonObject {
     private final Path path;
     private final RValueType type;
 
-    public static final RValueExpression NULL=new RValueExpression(null,null,RValueType._null);
-    
+    public static final RValueExpression NULL = new RValueExpression(null, null, RValueType._null);
+
     /**
      * Creates an rvalue expression that is a constant value
      */
     public RValueExpression(Value value) {
-        if(value==null||value.getValue()==null) {
-            this.value=null;
-            this.path=null;
-            this.type=RValueType._null;
+        if (value == null || value.getValue() == null) {
+            this.value = null;
+            this.path = null;
+            this.type = RValueType._null;
         } else {
-            this.value=value;
-            this.path=null;
-            this.type=RValueType._value;
+            this.value = value;
+            this.path = null;
+            this.type = RValueType._value;
         }
     }
 
@@ -68,19 +68,19 @@ public class RValueExpression extends JsonObject {
      * Creates an rvalue expression that references another field
      */
     public RValueExpression(Path p) {
-        this(null,p,RValueType._dereference);
+        this(null, p, RValueType._dereference);
     }
 
     public static RValueExpression nullRValue() {
         return NULL;
     }
 
-    private RValueExpression(Value value,Path path,RValueType type) {
-        this.value=value;
-        this.path=path;
-        this.type=type;
+    private RValueExpression(Value value, Path path, RValueType type) {
+        this.value = value;
+        this.path = path;
+        this.type = type;
     }
-    
+
     /**
      * The constant value. Null if this rvalue references a field
      */
@@ -105,14 +105,14 @@ public class RValueExpression extends JsonObject {
     @Override
     public JsonNode toJson() {
         switch (type) {
-        case _value:
-            return value.toJson();
-        case _dereference:
-            ObjectNode node = getFactory().objectNode();
-            node.put("$valueof", path.toString());
-            return node;
-        default:
-            return getFactory().nullNode();
+            case _value:
+                return value.toJson();
+            case _dereference:
+                ObjectNode node = getFactory().objectNode();
+                node.put("$valueof", path.toString());
+                return node;
+            default:
+                return getFactory().nullNode();
         }
     }
 
@@ -131,7 +131,8 @@ public class RValueExpression extends JsonObject {
             } else {
                 return new RValueExpression(new Value(node));
             }
-        } if(node instanceof ArrayNode) {
+        }
+        if (node instanceof ArrayNode) {
             return new RValueExpression(new Value(node));
         } else if (node.isValueNode()) {
             if (node.asText().equals("$null")) {

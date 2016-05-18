@@ -42,16 +42,14 @@ public class StringLengthChecker implements FieldConstraintValueChecker {
                                 JsonNode fieldValue) {
         int value = ((StringLengthConstraint) constraint).getValue();
         String type = ((StringLengthConstraint) constraint).getType();
-        if(!(fieldValue instanceof NullNode)) { 
+        if (!(fieldValue instanceof NullNode)) {
             int len = fieldValue.asText().length();
             if (StringLengthConstraint.MINLENGTH.equals(type)) {
                 if (len < value) {
                     validator.addDocError(Error.get(CrudConstants.ERR_TOO_SHORT, fieldValue.asText()));
                 }
-            } else {
-                if (len > value) {
-                    validator.addDocError(Error.get(CrudConstants.ERR_TOO_LONG, fieldValue.asText()));
-                }
+            } else if (len > value) {
+                validator.addDocError(Error.get(CrudConstants.ERR_TOO_LONG, fieldValue.asText()));
             }
         }
     }

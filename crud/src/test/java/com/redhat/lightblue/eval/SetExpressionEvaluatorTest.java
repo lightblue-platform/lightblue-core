@@ -85,19 +85,19 @@ public class SetExpressionEvaluatorTest extends AbstractJsonNodeTest {
 
     @Test
     public void assign_obj_to_field() throws Exception {
-        UpdateExpression expr=EvalTestContext.updateExpressionFromJson("{'$set': {'field6': { 'nf2':'blah','nf3':5 } } }");
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$set': {'field6': { 'nf2':'blah','nf3':5 } } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals("blah",jsonDoc.get(new Path("field6.nf2")).asText());
-        Assert.assertEquals(5,jsonDoc.get(new Path("field6.nf3")).asInt());
+        Assert.assertEquals("blah", jsonDoc.get(new Path("field6.nf2")).asText());
+        Assert.assertEquals(5, jsonDoc.get(new Path("field6.nf3")).asInt());
     }
 
     @Test
     public void assign_arr_to_field() throws Exception {
-        UpdateExpression expr=EvalTestContext.updateExpressionFromJson("{'$set': {'field6.nf10': [1,2] } }");
+        UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{'$set': {'field6.nf10': [1,2] } }");
         Updater updater = Updater.getInstance(JSON_NODE_FACTORY, md, expr);
         Assert.assertTrue(updater.update(jsonDoc, md.getFieldTreeRoot(), new Path()));
-        Assert.assertEquals("[1,2]",jsonDoc.get(new Path("field6.nf10")).toString());
+        Assert.assertEquals("[1,2]", jsonDoc.get(new Path("field6.nf10")).toString());
 
     }
 }

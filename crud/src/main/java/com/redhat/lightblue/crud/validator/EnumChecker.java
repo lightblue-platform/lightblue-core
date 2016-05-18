@@ -43,10 +43,10 @@ public class EnumChecker implements FieldConstraintValueChecker {
                                 Path valuePath,
                                 JsonDoc doc,
                                 JsonNode fieldValue) {
-        if(fieldValue !=null && !(fieldValue instanceof NullNode) ) {
+        if (fieldValue != null && !(fieldValue instanceof NullNode)) {
             String name = ((EnumConstraint) constraint).getName();
             Set<String> values = null;
-            
+
             if (name != null) {
                 // find value set for this enum
                 Enum e = validator.getEntityMetadata().getEntityInfo().getEnums().getEnum(name);
@@ -54,7 +54,7 @@ public class EnumChecker implements FieldConstraintValueChecker {
                     values = e.getValues();
                 }
             }
-            
+
             if (null == values || !values.contains(fieldValue.asText())) {
                 validator.addDocError(Error.get(CrudConstants.ERR_INVALID_ENUM, fieldValue.asText()));
             }

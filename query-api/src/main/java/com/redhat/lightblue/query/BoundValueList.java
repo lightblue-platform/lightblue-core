@@ -24,11 +24,10 @@ import java.util.Iterator;
 import java.util.ListIterator;
 
 /**
- * A modifiable list of values. When rfield in a
- * NaryFieldRelationalExpression is bound to a value, that expression
- * is rewritten as a NaryValueRelationalExpression with a
- * BoundListValue, so the caller can change the underlying list for
- * every execution.
+ * A modifiable list of values. When rfield in a NaryFieldRelationalExpression
+ * is bound to a value, that expression is rewritten as a
+ * NaryValueRelationalExpression with a BoundListValue, so the caller can change
+ * the underlying list for every execution.
  */
 public class BoundValueList implements List<Value> {
 
@@ -45,14 +44,14 @@ public class BoundValueList implements List<Value> {
      * Creates a BoundValueList with list=l
      */
     public BoundValueList(List<Value> l) {
-        this.list=l;
+        this.list = l;
     }
 
     /**
      * Sets the list
      */
     public void setList(List<Value> l) {
-        this.list=l;
+        this.list = l;
     }
 
     @Override
@@ -61,8 +60,8 @@ public class BoundValueList implements List<Value> {
     }
 
     @Override
-    public void add(int index,Value element) {
-        list.add(index,element);
+    public void add(int index, Value element) {
+        list.add(index, element);
     }
 
     @Override
@@ -71,8 +70,8 @@ public class BoundValueList implements List<Value> {
     }
 
     @Override
-    public boolean addAll(int i,Collection<? extends Value> x) {
-        return list.addAll(i,x);
+    public boolean addAll(int i, Collection<? extends Value> x) {
+        return list.addAll(i, x);
     }
 
     @Override
@@ -92,10 +91,11 @@ public class BoundValueList implements List<Value> {
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof BoundValueList)
-            return list.equals(((BoundValueList)o).list);
-        else
+        if (o instanceof BoundValueList) {
+            return list.equals(((BoundValueList) o).list);
+        } else {
             return list.equals(o);
+        }
     }
 
     @Override
@@ -159,8 +159,8 @@ public class BoundValueList implements List<Value> {
     }
 
     @Override
-    public Value set(int index,Value e) {
-        return list.set(index,e);
+    public Value set(int index, Value e) {
+        return list.set(index, e);
     }
 
     @Override
@@ -169,8 +169,8 @@ public class BoundValueList implements List<Value> {
     }
 
     @Override
-    public List<Value> subList(int fromIndex,int toIndex) {
-        return list.subList(fromIndex,toIndex);
+    public List<Value> subList(int fromIndex, int toIndex) {
+        return list.subList(fromIndex, toIndex);
     }
 
     @Override

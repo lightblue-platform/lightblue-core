@@ -31,8 +31,8 @@ import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
 /**
- * element identity fields are required. This constraint checker makes sure they are
- * present in the doc
+ * element identity fields are required. This constraint checker makes sure they
+ * are present in the doc
  */
 public class ArrayElementIdChecker implements FieldConstraintDocChecker {
 

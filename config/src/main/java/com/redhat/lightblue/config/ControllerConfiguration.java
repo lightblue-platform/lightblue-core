@@ -36,7 +36,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
 
     private static final long serialVersionUID = 1l;
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(ControllerConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControllerConfiguration.class);
 
     private String backend;
     private Class<? extends ControllerFactory> controllerFactory;
@@ -90,7 +90,7 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
      * The configuration for extensions
      */
     public void setExtensions(ObjectNode node) {
-        extensions=node;
+        extensions = node;
     }
 
     @SuppressWarnings("unchecked")
@@ -107,8 +107,8 @@ public class ControllerConfiguration implements JsonInitializable, Serializable 
                     controllerFactory = (Class<ControllerFactory>) Thread.currentThread().getContextClassLoader().loadClass(
                             x.asText());
                 }
-                extensions=(ObjectNode)node.get("extensions");
-                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}",node,backend,controllerFactory,extensions);
+                extensions = (ObjectNode) node.get("extensions");
+                LOGGER.debug("Initialized: source={} backend={} controllerFactory={} extensions={}", node, backend, controllerFactory, extensions);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

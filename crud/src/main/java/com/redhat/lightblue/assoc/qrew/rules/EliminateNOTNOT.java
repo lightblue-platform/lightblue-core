@@ -25,25 +25,24 @@ import com.redhat.lightblue.query.UnaryLogicalOperator;
 import com.redhat.lightblue.assoc.qrew.Rewriter;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$not:{$not:{x}]}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q=x
  * </pre>
  */
 public class EliminateNOTNOT extends Rewriter {
 
-    public static final Rewriter INSTANCE=new EliminateNOTNOT();
+    public static final Rewriter INSTANCE = new EliminateNOTNOT();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        UnaryLogicalExpression le=dyncast(UnaryLogicalExpression.class,q);
-        if(le!=null&&le.getOp()==UnaryLogicalOperator._not) {
-            UnaryLogicalExpression oreq=dyncast(UnaryLogicalExpression.class,le.getQuery());
-            if(oreq!=null&&oreq.getOp()==UnaryLogicalOperator._not) {
+        UnaryLogicalExpression le = dyncast(UnaryLogicalExpression.class, q);
+        if (le != null && le.getOp() == UnaryLogicalOperator._not) {
+            UnaryLogicalExpression oreq = dyncast(UnaryLogicalExpression.class, le.getQuery());
+            if (oreq != null && oreq.getOp() == UnaryLogicalOperator._not) {
                 return oreq.getQuery();
             }
         }
