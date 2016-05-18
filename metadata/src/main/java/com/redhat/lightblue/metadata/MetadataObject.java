@@ -24,16 +24,16 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * Base class for metadata objects, contains properties not recognized
- * by the parser for the metadata object
+ * Base class for metadata objects, contains properties not recognized by the
+ * parser for the metadata object
  */
 public abstract class MetadataObject implements Serializable {
 
     private static final long serialVersionUID = 1l;
 
-    protected final Map<String,Object> properties=new HashMap<>();
+    protected final Map<String, Object> properties = new HashMap<>();
 
-    public Map<String,Object> getProperties() {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 

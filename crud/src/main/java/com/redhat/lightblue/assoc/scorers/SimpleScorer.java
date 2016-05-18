@@ -30,17 +30,17 @@ import com.redhat.lightblue.assoc.QueryPlanChooser;
  */
 public class SimpleScorer implements QueryPlanScorer, Serializable {
 
-    private static final long serialVersionUID=1l;
+    private static final long serialVersionUID = 1l;
 
     private static final class MaxScore implements Comparable {
         @Override
         public int compareTo(Object value) {
-            return (value instanceof MaxScore)?0:1;
+            return (value instanceof MaxScore) ? 0 : 1;
         }
 
         @Override
         public boolean equals(Object x) {
-            return compareTo(x)==0;
+            return compareTo(x) == 0;
         }
 
         @Override
@@ -49,8 +49,7 @@ public class SimpleScorer implements QueryPlanScorer, Serializable {
         }
     }
 
-    public static final Comparable MAX=new MaxScore();
-
+    public static final Comparable MAX = new MaxScore();
 
     @Override
     public QueryPlanData newDataInstance() {

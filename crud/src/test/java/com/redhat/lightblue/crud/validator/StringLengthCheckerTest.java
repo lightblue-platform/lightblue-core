@@ -35,7 +35,7 @@ import com.redhat.lightblue.util.Error;
 public class StringLengthCheckerTest {
 
     @Test
-    public void testCheckConstraint_MINLENGTH_TooShort(){
+    public void testCheckConstraint_MINLENGTH_TooShort() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         StringLengthConstraint constraint = new StringLengthConstraint(StringLengthConstraint.MINLENGTH, 5);
@@ -49,7 +49,7 @@ public class StringLengthCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MINLENGTH(){
+    public void testCheckConstraint_MINLENGTH() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         StringLengthConstraint constraint = new StringLengthConstraint(StringLengthConstraint.MINLENGTH, 5);
@@ -62,7 +62,7 @@ public class StringLengthCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MAXLENGTH_TooLong(){
+    public void testCheckConstraint_MAXLENGTH_TooLong() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         StringLengthConstraint constraint = new StringLengthConstraint("fake type", 5);
@@ -76,7 +76,7 @@ public class StringLengthCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_MAXLENGTH(){
+    public void testCheckConstraint_MAXLENGTH() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         StringLengthConstraint constraint = new StringLengthConstraint("fake type", 5);

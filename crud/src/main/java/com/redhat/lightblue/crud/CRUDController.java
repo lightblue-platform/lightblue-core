@@ -114,15 +114,14 @@ public interface CRUDController {
                           Long to);
 
     /**
-     * Return an implementation of MetadataListener interface to
-     * receive notifications about metadata operations. Returns null
-     * if this implementation is not interested in receiving metadata
-     * notifications
+     * Return an implementation of MetadataListener interface to receive
+     * notifications about metadata operations. Returns null if this
+     * implementation is not interested in receiving metadata notifications
      */
     MetadataListener getMetadataListener();
 
     /**
      * The back end should update the predefined fields of the document
      */
-    void updatePredefinedFields(CRUDOperationContext ctx,JsonDoc doc);
+    void updatePredefinedFields(CRUDOperationContext ctx, JsonDoc doc);
 }

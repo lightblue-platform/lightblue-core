@@ -54,8 +54,8 @@ public class QueryParseTest {
     final String unaryQuery1 = "{ \"$not\": " + valueQuery1 + "}";
     final String unaryQuery2 = "{ \"$not\": " + regexQuery1 + "}";
 
-    final String naryLogQueryAnd1 = "{ \"$and\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + naryQuery3+","+unaryQuery1 + "]}";
-    final String naryLogQueryOr1 = "{ \"$or\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + naryQuery3+","+unaryQuery1 + "]}";
+    final String naryLogQueryAnd1 = "{ \"$and\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + naryQuery3 + "," + unaryQuery1 + "]}";
+    final String naryLogQueryOr1 = "{ \"$or\" : [" + valueQuery1 + "," + fieldQuery1 + "," + naryQuery1 + "," + naryQuery3 + "," + unaryQuery1 + "]}";
 
     final String arrContains1 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[1,2,3,4,5]}";
     final String arrContains2 = "{\"array\":\"x.y\", \"contains\":\"$any\", \"values\":[\"x\", \"y\"]}";
@@ -309,7 +309,7 @@ public class QueryParseTest {
                                                    String field,
                                                    NaryRelationalOperator op,
                                                    Object... value)
-        throws Exception {
+            throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof NaryValueRelationalExpression);
         asserts((NaryValueRelationalExpression) query, field, op, value);
@@ -320,7 +320,7 @@ public class QueryParseTest {
                                                    String field,
                                                    NaryRelationalOperator op,
                                                    String rfield)
-        throws Exception {
+            throws Exception {
         QueryExpression query = QueryExpression.fromJson(JsonUtils.json(q));
         Assert.assertTrue(query instanceof NaryFieldRelationalExpression);
         asserts((NaryFieldRelationalExpression) query, field, op, rfield);
@@ -339,7 +339,7 @@ public class QueryParseTest {
     private static void asserts(NaryFieldRelationalExpression x, String field, NaryRelationalOperator op, String rfield) {
         Assert.assertEquals(field, x.getField().toString());
         Assert.assertEquals(op, x.getOp());
-        Assert.assertEquals(rfield,x.getRfield().toString());
+        Assert.assertEquals(rfield, x.getRfield().toString());
     }
 
     private void testRegexQuery(String q,

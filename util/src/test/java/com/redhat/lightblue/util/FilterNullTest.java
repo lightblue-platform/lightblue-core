@@ -30,24 +30,24 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class FilterNullTest {
 
     private static String esc(String s) {
-        return s.replaceAll("\'","\"");
+        return s.replaceAll("\'", "\"");
     }
-    
+
     private static JsonNode json(String s) throws Exception {
         return JsonUtils.json(esc(s));
     }
 
     @Test
     public void basicRemoval() throws Exception {
-        JsonNode node=json("{'x':'a','y':null}");
+        JsonNode node = json("{'x':'a','y':null}");
         JsonDoc.filterNulls(node);
-        JSONAssert.assertEquals(esc("{'x':'a'}"),node.toString(),false);
+        JSONAssert.assertEquals(esc("{'x':'a'}"), node.toString(), false);
     }
 
     @Test
     public void nestedRemoval() throws Exception {
-        JsonNode node=json("{'x':'a','y':[null,{'z':null,'a':'a','b':['a','b',null]}]}");
+        JsonNode node = json("{'x':'a','y':[null,{'z':null,'a':'a','b':['a','b',null]}]}");
         JsonDoc.filterNulls(node);
-        JSONAssert.assertEquals(esc("{'x':'a','y':[{'a':'a','b':['a','b']}]}"),node.toString(),false);
+        JSONAssert.assertEquals(esc("{'x':'a','y':[{'a':'a','b':['a','b']}]}"), node.toString(), false);
     }
 }

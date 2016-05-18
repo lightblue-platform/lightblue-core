@@ -49,7 +49,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
-    
+
     @Test
     public void array_range_projection_with_match_projection() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[1,2],'projection':{'field':'elemf3'}}");
@@ -71,7 +71,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
-    
+
     @Test
     public void array_range_projection_with_no_match_returns_empty_node_projection() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field7','range':[5,6],'projection':{'field':'elemf3'}}");
@@ -93,7 +93,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
-    
+
     @Test
     public void one_$parent_array_range_projection_with_match_projection() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.$parent.field7','range':[1,2],'projection':{'field':'elemf3'}}");
@@ -105,7 +105,6 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
 
-
     @Test
     public void one_$parent_array_range_projection_with_no_match_returns_empty_node() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.$parent.field7','range':[5,6],'project':{'field':'elemf3'}}");
@@ -116,7 +115,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
-    
+
     @Test
     public void one_$parent_array_range_projection_with_no_match_returns_empty_node_projection() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.$parent.field7','range':[5,6],'projection':{'field':'elemf3'}}");
@@ -138,7 +137,6 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
-    
 
     @Test
     public void two_$parent_array_range_projection_with_match_projection() throws Exception {
@@ -161,7 +159,7 @@ public class ArrayRangeProjectorTest extends AbstractJsonNodeTest {
 
         Assert.assertEquals(expectedNode.toString(), pdoc.toString());
     }
-    
+
     @Test
     public void two_$parent_array_range_projection_with_no_match_returns_empty_node_projection() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("{'field':'field6.nf7.$parent.$parent.field7','range':[5,6],'projection':{'field':'elemf3'}}");

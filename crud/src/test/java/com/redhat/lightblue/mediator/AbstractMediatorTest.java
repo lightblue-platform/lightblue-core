@@ -69,15 +69,15 @@ public abstract class AbstractMediatorTest extends AbstractJsonSchemaTest {
     }
 
     public static class MockValueGeneratorSupport implements ValueGeneratorSupport {
-        public static int v=0;
-        
+        public static int v = 0;
+
         @Override
         public ValueGenerator.ValueGeneratorType[] getSupportedGeneratorTypes() {
-            return new ValueGenerator.ValueGeneratorType[] {ValueGenerator.ValueGeneratorType.IntSequence};
+            return new ValueGenerator.ValueGeneratorType[]{ValueGenerator.ValueGeneratorType.IntSequence};
         }
 
         @Override
-        public Object generateValue(EntityMetadata md,ValueGenerator generator) {
+        public Object generateValue(EntityMetadata md, ValueGenerator generator) {
             return new Integer(v++);
         }
     }
@@ -119,10 +119,10 @@ public abstract class AbstractMediatorTest extends AbstractJsonSchemaTest {
         return md;
     }
 
-    protected Mediator newMediator(Metadata md,Factory f) {
-        return new Mediator(md,f);
+    protected Mediator newMediator(Metadata md, Factory f) {
+        return new Mediator(md, f);
     }
-    
+
     @Before
     public void initMediator() throws Exception {
         Factory factory = new Factory();
@@ -132,6 +132,6 @@ public abstract class AbstractMediatorTest extends AbstractJsonSchemaTest {
         new GeneratedFieldInterceptor().register(factory.getInterceptors());
         factory.addCRUDController("mongo", mockCrudController);
         mdManager.md = getMd("./testMetadata.json");
-        mediator = newMediator(mdManager,factory);
+        mediator = newMediator(mdManager, factory);
     }
 }

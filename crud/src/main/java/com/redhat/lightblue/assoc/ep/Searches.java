@@ -49,123 +49,128 @@ import com.redhat.lightblue.util.Tuples;
  */
 public final class Searches {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(Searches.class);
-    
-    private Searches() {}
+    private static final Logger LOGGER = LoggerFactory.getLogger(Searches.class);
+
+    private Searches() {
+    }
 
     /**
-     * Given a parent document and an association query, returns a query for each slot that will be used to
-     * retrieve the child documents that will be attached to that slot
+     * Given a parent document and an association query, returns a query for
+     * each slot that will be used to retrieve the child documents that will be
+     * attached to that slot
      */
-    public static Map<ChildSlot,QueryExpression> writeChildQueriesFromParentDoc(AssociationQuery aq,
-                                                                                ResultDocument parentDocument) {
-        Map<ChildSlot,BindQuery> binders=parentDocument.getBindersForChild(aq);
-        LOGGER.debug("writeChildQueriesForParentDoc: aq={} binders={}",aq,binders);
-        Map<ChildSlot,QueryExpression> queries=new HashMap<>();
-        for(Map.Entry<ChildSlot,BindQuery> entry:binders.entrySet()) {
-            if(aq.getQuery()!=null) {
-                queries.put(entry.getKey(),entry.getValue().iterate(aq.getQuery()));
+    public static Map<ChildSlot, QueryExpression> writeChildQueriesFromParentDoc(AssociationQuery aq,
+                                                                                 ResultDocument parentDocument) {
+        Map<ChildSlot, BindQuery> binders = parentDocument.getBindersForChild(aq);
+        LOGGER.debug("writeChildQueriesForParentDoc: aq={} binders={}", aq, binders);
+        Map<ChildSlot, QueryExpression> queries = new HashMap<>();
+        for (Map.Entry<ChildSlot, BindQuery> entry : binders.entrySet()) {
+            if (aq.getQuery() != null) {
+                queries.put(entry.getKey(), entry.getValue().iterate(aq.getQuery()));
             } else {
-                queries.put(entry.getKey(),null);
+                queries.put(entry.getKey(), null);
             }
         }
-        LOGGER.debug("Queries:{}",queries);
+        LOGGER.debug("Queries:{}", queries);
         return queries;
     }
 
     /**
      * Writes queries form a join tuple
      */
-    public static List<QueryExpression> writeQueriesForJoinTuple(JoinTuple tuple,ExecutionBlock childBlock) {
-        LOGGER.debug("writeQueriesForJoinTuples tuple:{}, child:{}",tuple,childBlock);
-        Tuples<BindQuery> btuples=new Tuples<>();
-        if(tuple.getParentDocument()!=null) {
-            AssociationQuery aq=childBlock.getAssociationQueryForEdge(tuple.getParentDocument().getBlock());
-            BindQuery parentb=tuple.getParentDocument().getBindersForSlot(tuple.getParentDocumentSlot(),aq);
-            List<BindQuery> l=new ArrayList<>(1);
+    public static List<QueryExpression> writeQueriesForJoinTuple(JoinTuple tuple, ExecutionBlock childBlock) {
+        LOGGER.debug("writeQueriesForJoinTuples tuple:{}, child:{}", tuple, childBlock);
+        Tuples<BindQuery> btuples = new Tuples<>();
+        if (tuple.getParentDocument() != null) {
+            AssociationQuery aq = childBlock.getAssociationQueryForEdge(tuple.getParentDocument().getBlock());
+            BindQuery parentb = tuple.getParentDocument().getBindersForSlot(tuple.getParentDocumentSlot(), aq);
+            List<BindQuery> l = new ArrayList<>(1);
             l.add(parentb);
             btuples.add(l);
         }
-        if(tuple.getChildTuple()!=null) {
+        if (tuple.getChildTuple() != null) {
             // Add the child binders to the b-tuples
-            for(ResultDocument childDoc:tuple.getChildTuple()) {
-                AssociationQuery aq=childBlock.getAssociationQueryForEdge(childDoc.getBlock());
-                List<BindQuery> binders=childDoc.getBindersForParent(aq);
+            for (ResultDocument childDoc : tuple.getChildTuple()) {
+                AssociationQuery aq = childBlock.getAssociationQueryForEdge(childDoc.getBlock());
+                List<BindQuery> binders = childDoc.getBindersForParent(aq);
                 btuples.add(binders);
             }
         }
-        List<QueryExpression> queries=new ArrayList<>();
-        for(ExecutionBlock sourceBlock:tuple.getBlocks()) {
-            AssociationQuery aq=childBlock.getAssociationQueryForEdge(sourceBlock);
-            if(aq.getQuery()!=null)
+        List<QueryExpression> queries = new ArrayList<>();
+        for (ExecutionBlock sourceBlock : tuple.getBlocks()) {
+            AssociationQuery aq = childBlock.getAssociationQueryForEdge(sourceBlock);
+            if (aq.getQuery() != null) {
                 queries.add(aq.getQuery());
+            }
         }
-        QueryExpression query=and(queries);
-        ArrayList<QueryExpression> ret=new ArrayList<>();
-        if(query!=null) {
-            for(Iterator<List<BindQuery>> itr=btuples.tuples();itr.hasNext();) {
-                List<BindQuery> binders=itr.next();
-                BindQuery allBinders=BindQuery.combine(binders);
+        QueryExpression query = and(queries);
+        ArrayList<QueryExpression> ret = new ArrayList<>();
+        if (query != null) {
+            for (Iterator<List<BindQuery>> itr = btuples.tuples(); itr.hasNext();) {
+                List<BindQuery> binders = itr.next();
+                BindQuery allBinders = BindQuery.combine(binders);
                 ret.add(allBinders.iterate(query));
             }
         }
-        LOGGER.debug("queries={}",ret);
+        LOGGER.debug("queries={}", ret);
         return ret;
     }
 
     /**
-     * Associates child documents obtained from 'aq' to all the slots in the parent document
+     * Associates child documents obtained from 'aq' to all the slots in the
+     * parent document
      */
     public static void associateDocs(ResultDocument parentDoc,
                                      List<ResultDocument> childDocs,
                                      AssociationQuery aq) {
-        List<ChildSlot> slots=parentDoc.getSlots().get(aq.getReference());
-        for(ChildSlot slot:slots) {
-            associateDocs(parentDoc,slot,childDocs,aq);
+        List<ChildSlot> slots = parentDoc.getSlots().get(aq.getReference());
+        for (ChildSlot slot : slots) {
+            associateDocs(parentDoc, slot, childDocs, aq);
         }
     }
 
-
     /**
-     * Associate child documents with their parents. The association
-     * query is for the association from the child to the parent, so
-     * caller must flip it before sending it in if necessary. The
-     * caller also make sure parentDocs is a unique stream.
+     * Associate child documents with their parents. The association query is
+     * for the association from the child to the parent, so caller must flip it
+     * before sending it in if necessary. The caller also make sure parentDocs
+     * is a unique stream.
      *
      * @param parentDoc The parent document
-     * @param parentSlot The slot in parent docuemnt to which the results will be attached
+     * @param parentSlot The slot in parent docuemnt to which the results will
+     * be attached
      * @param childDocs The child documents
-     * @param aq The association query from parent to child. This may
-     * not be the same association query between the blocks. If the
-     * child block is before the parent block, a new aq must be
-     * constructed for the association from the parent to the child
+     * @param aq The association query from parent to child. This may not be the
+     * same association query between the blocks. If the child block is before
+     * the parent block, a new aq must be constructed for the association from
+     * the parent to the child
      */
     public static void associateDocs(ResultDocument parentDoc,
                                      ChildSlot parentSlot,
                                      List<ResultDocument> childDocs,
                                      AssociationQuery aq) {
-        if(!childDocs.isEmpty()) {
+        if (!childDocs.isEmpty()) {
             LOGGER.debug("Associating docs");
-            ExecutionBlock childBlock=childDocs.get(0).getBlock();
-            ArrayNode destNode=(ArrayNode)parentDoc.getDoc().get(parentSlot.getSlotFieldName()); 
-            BindQuery binders=parentDoc.getBindersForSlot(parentSlot,aq);
+            ExecutionBlock childBlock = childDocs.get(0).getBlock();
+            ArrayNode destNode = (ArrayNode) parentDoc.getDoc().get(parentSlot.getSlotFieldName());
+            BindQuery binders = parentDoc.getBindersForSlot(parentSlot, aq);
             // No binders means all child docs will be added to the parent            
-            if(binders.getBindings().isEmpty()) {
-                if(destNode==null) {
-                    destNode=JsonNodeFactory.instance.arrayNode();
-                    parentDoc.getDoc().modify(parentSlot.getSlotFieldName(),destNode,true);
+            if (binders.getBindings().isEmpty()) {
+                if (destNode == null) {
+                    destNode = JsonNodeFactory.instance.arrayNode();
+                    parentDoc.getDoc().modify(parentSlot.getSlotFieldName(), destNode, true);
                 }
-                for(ResultDocument d:childDocs)
+                for (ResultDocument d : childDocs) {
                     destNode.add(d.getDoc().getRoot());
+                }
             } else {
-                QueryExpression boundQuery=binders.iterate(aq.getQuery());
-                LOGGER.debug("Association query:{}",boundQuery);
-                QueryEvaluator qeval=QueryEvaluator.getInstance(boundQuery,childBlock.getMetadata());
-                for(ResultDocument childDoc:childDocs) {
-                    if(qeval.evaluate(childDoc.getDoc()).getResult()) {
-                        if(destNode==null) {
-                            destNode=JsonNodeFactory.instance.arrayNode();
-                            parentDoc.getDoc().modify(parentSlot.getSlotFieldName(),destNode,true);
+                QueryExpression boundQuery = binders.iterate(aq.getQuery());
+                LOGGER.debug("Association query:{}", boundQuery);
+                QueryEvaluator qeval = QueryEvaluator.getInstance(boundQuery, childBlock.getMetadata());
+                for (ResultDocument childDoc : childDocs) {
+                    if (qeval.evaluate(childDoc.getDoc()).getResult()) {
+                        if (destNode == null) {
+                            destNode = JsonNodeFactory.instance.arrayNode();
+                            parentDoc.getDoc().modify(parentSlot.getSlotFieldName(), destNode, true);
                         }
                         destNode.add(childDoc.getDoc().getRoot());
                     }
@@ -174,26 +179,27 @@ public final class Searches {
         }
     }
 
-
     /**
-     * Combines queries with AND. Queries can be null, but at least one of them must be non-null
+     * Combines queries with AND. Queries can be null, but at least one of them
+     * must be non-null
      */
     public static QueryExpression and(QueryExpression... q) {
-        return combine(NaryLogicalOperator._and,Arrays.asList(q));
+        return combine(NaryLogicalOperator._and, Arrays.asList(q));
     }
 
     public static QueryExpression and(List<QueryExpression> list) {
-        return combine(NaryLogicalOperator._and,list);
+        return combine(NaryLogicalOperator._and, list);
     }
-    
-    public static QueryExpression combine(NaryLogicalOperator op,List<QueryExpression> list) {
-        List<QueryExpression> l=list.stream().filter(q->q!=null).collect(Collectors.toList());
-        if(l.size()==0)
+
+    public static QueryExpression combine(NaryLogicalOperator op, List<QueryExpression> list) {
+        List<QueryExpression> l = list.stream().filter(q -> q != null).collect(Collectors.toList());
+        if (l.size() == 0) {
             return null;
-        else if(l.size()==1)
+        } else if (l.size() == 1) {
             return l.get(0);
-        else 
-            return new NaryLogicalExpression(op,l);
+        } else {
+            return new NaryLogicalExpression(op, l);
+        }
     }
-    
+
 }

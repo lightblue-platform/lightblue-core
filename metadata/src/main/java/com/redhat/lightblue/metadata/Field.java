@@ -68,11 +68,11 @@ public abstract class Field extends MetadataObject implements FieldTreeNode {
     public String getName() {
         return name;
     }
-    
+
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -131,7 +131,6 @@ public abstract class Field extends MetadataObject implements FieldTreeNode {
     public Path getFullPath() {
         return getFullPath(new MutablePath()).immutableCopy();
     }
-
 
     @Override
     public abstract FieldTreeNode resolve(Path p, int level);

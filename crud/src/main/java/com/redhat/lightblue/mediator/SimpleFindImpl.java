@@ -33,28 +33,27 @@ import com.redhat.lightblue.metadata.EntityMetadata;
 
 public class SimpleFindImpl implements Finder {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(SimpleFindImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleFindImpl.class);
 
     private final EntityMetadata md;
     private final CRUDController controller;
 
-
     public SimpleFindImpl(EntityMetadata md,
                           Factory factory) {
-        this.md=md;
+        this.md = md;
         this.controller = factory.getCRUDController(md);
-        LOGGER.debug("Controller for {}:{}", md.getName(),controller.getClass().getName());
+        LOGGER.debug("Controller for {}:{}", md.getName(), controller.getClass().getName());
     }
 
     @Override
     public CRUDFindResponse find(OperationContext ctx,
                                  CRUDFindRequest req) {
         CRUDFindResponse result = controller.find(ctx,
-                                                  req.getQuery(),
-                                                  req.getProjection(),
-                                                  req.getSort(),
-                                                  req.getFrom(),
-                                                  req.getTo());
+                req.getQuery(),
+                req.getProjection(),
+                req.getSort(),
+                req.getFrom(),
+                req.getTo());
         return result;
     }
 }

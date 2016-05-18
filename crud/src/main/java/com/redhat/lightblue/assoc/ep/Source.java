@@ -19,39 +19,40 @@
 package com.redhat.lightblue.assoc.ep;
 
 /**
- * This class is used to refer to a source step. The source step of
- * another step is sometimes given as a definite step, and sometimes
- * as the result step of an execution block. However, during execution
- * plan construction, not all execution blocks have a result step
- * yet. So, this class defers the initialization of source until it is
- * needed
+ * This class is used to refer to a source step. The source step of another step
+ * is sometimes given as a definite step, and sometimes as the result step of an
+ * execution block. However, during execution plan construction, not all
+ * execution blocks have a result step yet. So, this class defers the
+ * initialization of source until it is needed
  */
 public final class Source<T> {
     private ExecutionBlock sourceBlock;
     private Step<T> sourceStep;
 
     public Source(ExecutionBlock sourceBlock) {
-        this.sourceBlock=sourceBlock;
+        this.sourceBlock = sourceBlock;
     }
 
     public Source(Step<T> step) {
-        this.sourceStep=step;
+        this.sourceStep = step;
     }
 
     public Step<T> getStep() {
-        if(sourceStep==null)
-            sourceStep=(Step<T>)sourceBlock.getResultStep();
+        if (sourceStep == null) {
+            sourceStep = (Step<T>) sourceBlock.getResultStep();
+        }
         return sourceStep;
     }
 
     public ExecutionBlock getBlock() {
-        if(sourceBlock==null)
-            sourceBlock=sourceStep.getBlock();
+        if (sourceBlock == null) {
+            sourceBlock = sourceStep.getBlock();
+        }
         return sourceBlock;
     }
 
     @Override
     public String toString() {
-        return "Step:"+getStep()+" block:"+getBlock();
-    }    
+        return "Step:" + getStep() + " block:" + getBlock();
+    }
 }

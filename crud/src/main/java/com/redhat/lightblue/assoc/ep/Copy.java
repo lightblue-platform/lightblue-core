@@ -31,10 +31,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 public class Copy extends AbstractSearchStep {
 
     private final Source<ResultDocument> source;
-    
-    public Copy(ExecutionBlock block,Source<ResultDocument> source) {
+
+    public Copy(ExecutionBlock block, Source<ResultDocument> source) {
         super(block);
-        this.source=source;
+        this.source = source;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class Copy extends AbstractSearchStep {
             public Stream<ResultDocument> stream() {
                 // Create new documents for each document in the source. This will
                 // create the correct slots based on this execution block
-                return super.stream().map(d->new ResultDocument(block,d.getDoc()));
+                return super.stream().map(d -> new ResultDocument(block, d.getDoc()));
             }
         };
     }
@@ -57,8 +57,8 @@ public class Copy extends AbstractSearchStep {
 
     @Override
     public JsonNode toJson() {
-        ObjectNode node=JsonNodeFactory.instance.objectNode();
-        node.set("copy",source.getStep().toJson());
+        ObjectNode node = JsonNodeFactory.instance.objectNode();
+        node.set("copy", source.getStep().toJson());
         return node;
     }
 }

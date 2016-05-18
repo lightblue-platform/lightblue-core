@@ -29,23 +29,22 @@ import com.redhat.lightblue.metadata.CompositeMetadata;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
 
 /**
- * A query clause that cannot be further broken into conjuncts of a
- * conjunctive normal form query. This class also keeps query
- * analysis information along with the clause
+ * A query clause that cannot be further broken into conjuncts of a conjunctive
+ * normal form query. This class also keeps query analysis information along
+ * with the clause
  *
- * Object identity of conjuncts are preserved during query plan
- * processing. That is, a Conjunct object created for a particular
- * query plan is used again for other incarnation of that query plan,
- * only node associations are changed. So, it is possible to keep maps
- * that map a Conjunct to some other piece of data. This is important
- * in query scoring. Scoring can process conjuncts, and keep data
- * internally to prevent recomputing the cost associated with the
- * conjunct for every possible query plan.
+ * Object identity of conjuncts are preserved during query plan processing. That
+ * is, a Conjunct object created for a particular query plan is used again for
+ * other incarnation of that query plan, only node associations are changed. So,
+ * it is possible to keep maps that map a Conjunct to some other piece of data.
+ * This is important in query scoring. Scoring can process conjuncts, and keep
+ * data internally to prevent recomputing the cost associated with the conjunct
+ * for every possible query plan.
  */
 public class Conjunct implements Serializable {
 
-    private static final long serialVersionUID=1l;
-    
+    private static final long serialVersionUID = 1l;
+
     /**
      * The original query clause
      */
@@ -54,20 +53,21 @@ public class Conjunct implements Serializable {
     private final List<QueryFieldInfo> fieldInfo;
 
     private final ResolvedReferenceField reference;
-    
+
     public Conjunct(QueryExpression q,
                     List<QueryFieldInfo> fieldInfo,
                     ResolvedReferenceField reference) {
-        this.clause=q;
-        this.reference=reference;
-        this.fieldInfo=fieldInfo;
+        this.clause = q;
+        this.reference = reference;
+        this.fieldInfo = fieldInfo;
     }
 
     /**
-     * Returns true if the clause belongs to a request query, not to a reference field
+     * Returns true if the clause belongs to a request query, not to a reference
+     * field
      */
     public boolean isRequestQuery() {
-        return reference==null;
+        return reference == null;
     }
 
     public ResolvedReferenceField getReference() {
@@ -93,9 +93,9 @@ public class Conjunct implements Serializable {
      */
     public Set<CompositeMetadata> getEntities() {
         return fieldInfo.stream().
-            filter(qfi->qfi.isLeaf()).
-            map(QueryFieldInfo::getFieldEntity).
-            collect(Collectors.toSet());
+                filter(qfi -> qfi.isLeaf()).
+                map(QueryFieldInfo::getFieldEntity).
+                collect(Collectors.toSet());
     }
 
     @Override

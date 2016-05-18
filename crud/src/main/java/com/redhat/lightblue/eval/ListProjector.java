@@ -54,14 +54,14 @@ public class ListProjector extends Projector {
     }
 
     /**
-     * Evaluate the list of projections backwards, so the first
-     * projection that decides about the inclusion of the field is the
-     * last projection specified in the list.
+     * Evaluate the list of projections backwards, so the first projection that
+     * decides about the inclusion of the field is the last projection specified
+     * in the list.
      */
     @Override
     public Projection.Inclusion project(Path p, QueryEvaluationContext ctx) {
         nestedProjector = null;
-        ListIterator<Projector> itemsItr=items.listIterator(items.size());
+        ListIterator<Projector> itemsItr = items.listIterator(items.size());
         while (itemsItr.hasPrevious()) {
             Projector projector = itemsItr.previous();
             Projection.Inclusion projectionResult = projector.project(p, ctx);

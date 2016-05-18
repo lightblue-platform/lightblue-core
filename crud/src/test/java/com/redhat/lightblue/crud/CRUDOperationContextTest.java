@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/*
+ /*
  Copyright 2015 Red Hat, Inc. and/or its affiliates.
 
  This file is part of lightblue.
@@ -34,27 +34,27 @@ import org.junit.Test;
  * @author nmalik
  */
 public class CRUDOperationContextTest {
-    
+
     @Test
     public void getOutputDocumentsWithoutErrors_nullOutputDocument() {
         /*
         String entityName,
                                 Factory f,
                                 List<JsonDoc> docs
-        */
-        CRUDOperationContext context =new CRUDOperationContext(CRUDOperation.INSERT, "foo", new Factory(), null,null) {
-            
+         */
+        CRUDOperationContext context = new CRUDOperationContext(CRUDOperation.INSERT, "foo", new Factory(), null, null) {
+
             @Override
             public EntityMetadata getEntityMetadata(String entityName) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
-        
+
         context.addDocument(new JsonDoc(null));
-        
+
         // simulate no output document such as if no fields are projected
         context.getDocuments().get(0).setOutputDocument(null);
-        
+
         Assert.assertTrue(context.getOutputDocumentsWithoutErrors().isEmpty());
     }
 }

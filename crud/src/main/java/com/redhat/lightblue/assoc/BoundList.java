@@ -23,20 +23,19 @@ import java.util.ArrayList;
 import com.redhat.lightblue.query.Value;
 
 /**
- * An extension of List<Value> with empty list, but containing field
- * query field info for the field. When a query is rewritten, all list
- * fields referenced in the query that belong to another entity are
- * replaced with a BoundList instance. When the actual value of the
- * field is determined, the query is rewritten to replace the
- * BoundList with the actual value.
+ * An extension of List<Value> with empty list, but containing field query field
+ * info for the field. When a query is rewritten, all list fields referenced in
+ * the query that belong to another entity are replaced with a BoundList
+ * instance. When the actual value of the field is determined, the query is
+ * rewritten to replace the BoundList with the actual value.
  */
 public class BoundList extends ArrayList<Value> implements BoundObject {
-	private static final long serialVersionUID = 1L;
-	
-	protected final QueryFieldInfo fieldInfo;
-    
+    private static final long serialVersionUID = 1L;
+
+    protected final QueryFieldInfo fieldInfo;
+
     public BoundList(QueryFieldInfo fieldInfo) {
-        this.fieldInfo=fieldInfo;
+        this.fieldInfo = fieldInfo;
     }
 
     @Override

@@ -89,8 +89,9 @@ public abstract class LightblueTestHarness {
     /**
      * Creates an instance of the {@link LightblueFactory}.
      *
-     * @param loadStatically - <code>true</code> loads lightblue statically for the duration of the suite,
-     * otherwise <code>false</code> will load lightblue for each test.
+     * @param loadStatically - <code>true</code> loads lightblue statically for
+     * the duration of the suite, otherwise <code>false</code> will load
+     * lightblue for each test.
      * @return an instance of {@link LightblueFactory}.
      * @throws IOException
      * @throws ClassNotFoundException
@@ -129,6 +130,7 @@ public abstract class LightblueTestHarness {
 
     /**
      * Deep dives to set all access levels to 'anyone'.
+     *
      * @param node - root {@link JsonNode}
      */
     public static void grantAnyoneAccess(JsonNode node) {
@@ -136,10 +138,13 @@ public abstract class LightblueTestHarness {
     }
 
     /**
-     * <p>Recursive Method!!</p>
-     * <p>Iterates over the {@link JsonNode} to determine if it, or any of it's
-     * sub-documents, has an access node. If so, all access settings will be changed to
-     * 'anyone'</p>
+     * <p>
+     * Recursive Method!!</p>
+     * <p>
+     * Iterates over the {@link JsonNode} to determine if it, or any of it's
+     * sub-documents, has an access node. If so, all access settings will be
+     * changed to 'anyone'</p>
+     *
      * @param node - {@link JsonNode} to set the access to anyone on.
      */
     private static void doGrantAnyoneAccess(JsonNode node) {
@@ -168,9 +173,12 @@ public abstract class LightblueTestHarness {
 
     /**
      * Creates and returns an instance of {@link JsonNode} that represents the
-     * relevant lightblue-crud.json. If not set by a subclass, then the default settings will be used.
-     * @return the {@link JsonNode} to use when configuring the lightblue crud controllers, or <code>null</code> to use
-     * the default {@link LightblueFactory} setting.
+     * relevant lightblue-crud.json. If not set by a subclass, then the default
+     * settings will be used.
+     *
+     * @return the {@link JsonNode} to use when configuring the lightblue crud
+     * controllers, or <code>null</code> to use the default
+     * {@link LightblueFactory} setting.
      */
     protected JsonNode getLightblueCrudJson() throws Exception {
         return null;
@@ -178,9 +186,12 @@ public abstract class LightblueTestHarness {
 
     /**
      * Creates and returns an instance of {@link JsonNode} that represents the
-     * relevant lightblue-metadata.json. If not set by a subclass, then the default settings will be used.
-     * @return the {@link JsonNode} to use when configuring the lightblue metadata, or <code>null</code> to use
-     * the default {@link LightblueFactory} setting.
+     * relevant lightblue-metadata.json. If not set by a subclass, then the
+     * default settings will be used.
+     *
+     * @return the {@link JsonNode} to use when configuring the lightblue
+     * metadata, or <code>null</code> to use the default
+     * {@link LightblueFactory} setting.
      */
     protected JsonNode getLightblueMetadataJson() throws Exception {
         return null;
@@ -190,8 +201,8 @@ public abstract class LightblueTestHarness {
      * Creates and returns an instance of {@link JsonNode} that represents the
      * relevant lightblue-datasources.json.
      *
-     * @return the resource name for the json file that contains the datasources. If null,
-     * embedded configuration is used.
+     * @return the resource name for the json file that contains the
+     * datasources. If null, embedded configuration is used.
      */
     protected abstract JsonNode getDatasourcesJson() throws Exception;
 
@@ -214,6 +225,7 @@ public abstract class LightblueTestHarness {
      * Override to set the datasource values for all metadata to the returned
      * value of this method. By default <code>null</code> will be returned
      * disabling this feature.
+     *
      * @return String name of datasource to use in all metadata.
      */
     protected String getDatasource() {
@@ -221,10 +233,12 @@ public abstract class LightblueTestHarness {
     }
 
     /**
-     * Strips out the specified hooks. Pass in 'ALL' or {@link #REMOVE_ALL_HOOKS}
-     * to remove all the hooks on the node.
+     * Strips out the specified hooks. Pass in 'ALL' or
+     * {@link #REMOVE_ALL_HOOKS} to remove all the hooks on the node.
+     *
      * @param node - root {@link JsonNode}
-     * @param hooksToRemove - {@link Set} of hook names to remove from entityInfo.
+     * @param hooksToRemove - {@link Set} of hook names to remove from
+     * entityInfo.
      */
     public static void stripHooks(JsonNode node, Set<String> hooksToRemove) {
         ObjectNode entityInfoNode = (ObjectNode) node.get("entityInfo");
@@ -235,11 +249,9 @@ public abstract class LightblueTestHarness {
 
         if (hooksToRemove == null) {
             return;
-        } 
-        else if (hooksToRemove.contains(REMOVE_ALL_HOOKS)) {
+        } else if (hooksToRemove.contains(REMOVE_ALL_HOOKS)) {
             entityInfoNode.remove("hooks");
-        }
-        else {
+        } else {
             ArrayNode hooksNode = (ArrayNode) entityInfoNode.get("hooks");
             for (int x = hooksNode.size(); x > 0; x--) {
                 JsonNode hookNode = hooksNode.get(x - 1);
@@ -259,8 +271,9 @@ public abstract class LightblueTestHarness {
     }
 
     /**
-     * @return <code>true</code> if access settings on metadata should be altered to
-     * 'anyone', otherwise <code>false</code>. Defaults to <code>true</code>.
+     * @return <code>true</code> if access settings on metadata should be
+     * altered to 'anyone', otherwise <code>false</code>. Defaults to
+     * <code>true</code>.
      */
     public boolean isGrantAnyoneAccess() {
         return true;

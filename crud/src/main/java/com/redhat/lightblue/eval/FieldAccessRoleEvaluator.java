@@ -136,52 +136,53 @@ public final class FieldAccessRoleEvaluator {
      */
     public Set<Path> getInaccessibleFields_Update(JsonDoc newDoc, JsonDoc oldDoc) {
         // Initialize the comparator if not already
-        if(comparator==null) {
-            comparator=md.getEntitySchema().getDocComparator();
+        if (comparator == null) {
+            comparator = md.getEntitySchema().getDocComparator();
         }
         Set<Path> inaccessibleFields = getInaccessibleFields(Operation.update);
-        Set<Path> ret=new HashSet<>();
-        if(!inaccessibleFields.isEmpty()) {
+        Set<Path> ret = new HashSet<>();
+        if (!inaccessibleFields.isEmpty()) {
             try {
-                diff=comparator.compareNodes(oldDoc.getRoot(),newDoc.getRoot());
+                diff = comparator.compareNodes(oldDoc.getRoot(), newDoc.getRoot());
             } catch (Exception e) {
                 // Any exception at this point is a bug
                 throw new RuntimeException(e);
             }
-            for(DocComparator.Delta<JsonNode> d:diff.getDelta()) {
-                if( (d instanceof DocComparator.Addition &&
-                     ((DocComparator.Addition<JsonNode>)d).getAddedNode().isValueNode() ) ||
-                    (d instanceof DocComparator.Removal &&
-                     ((DocComparator.Removal<JsonNode>)d).getRemovedNode().isValueNode()) ||
-                    (d instanceof DocComparator.Modification &&
-                     ((DocComparator.Modification<JsonNode>)d).getUnmodifiedNode().isValueNode()) ) {
-                    FieldTreeNode fieldMd=md.resolve(d.getField());
-                    boolean modified=true;
-                    if(d instanceof JsonCompare.Modification) {
+            for (DocComparator.Delta<JsonNode> d : diff.getDelta()) {
+                if ((d instanceof DocComparator.Addition
+                        && ((DocComparator.Addition<JsonNode>) d).getAddedNode().isValueNode())
+                        || (d instanceof DocComparator.Removal
+                        && ((DocComparator.Removal<JsonNode>) d).getRemovedNode().isValueNode())
+                        || (d instanceof DocComparator.Modification
+                        && ((DocComparator.Modification<JsonNode>) d).getUnmodifiedNode().isValueNode())) {
+                    FieldTreeNode fieldMd = md.resolve(d.getField());
+                    boolean modified = true;
+                    if (d instanceof JsonCompare.Modification) {
                         // Is it really modified
-                        Object o1=fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>)d).getUnmodifiedNode());
-                        Object o2=fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>)d).getModifiedNode());
-                        if(o1.equals(o2)) {
-                            modified=false;
+                        Object o1 = fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>) d).getUnmodifiedNode());
+                        Object o2 = fieldMd.getType().fromJson(((DocComparator.Modification<JsonNode>) d).getModifiedNode());
+                        if (o1.equals(o2)) {
+                            modified = false;
                         }
                     }
-                    if(modified&&inaccessibleFields.contains(fieldMd.getFullPath())) {
+                    if (modified && inaccessibleFields.contains(fieldMd.getFullPath())) {
                         ret.add(d.getField());
                     }
                 }
                 // In case of an addition, removal, or move, check if the parent node is an object or an array
                 // that is not accesible.
-                if(d instanceof DocComparator.Addition ||
-                   d instanceof DocComparator.Removal ||
-                   d instanceof DocComparator.Move) {
-                    Path field=d.getField();
-                    if(field.numSegments()>2) { // Not a top-level or first level variable
+                if (d instanceof DocComparator.Addition
+                        || d instanceof DocComparator.Removal
+                        || d instanceof DocComparator.Move) {
+                    Path field = d.getField();
+                    if (field.numSegments() > 2) { // Not a top-level or first level variable
                         // That means, it's parent is not the root level, so we can check access
                         // to the parent itself.
-                        Path parent=md.resolve(field.prefix(-1)).getFullPath();
-                        
-                        if(inaccessibleFields.contains(parent))
+                        Path parent = md.resolve(field.prefix(-1)).getFullPath();
+
+                        if (inaccessibleFields.contains(parent)) {
                             ret.add(parent);
+                        }
                     }
                 }
             }
@@ -198,16 +199,14 @@ public final class FieldAccessRoleEvaluator {
         Projection ret;
         if (inaccessibleFields.isEmpty()) {
             ret = null;
+        } else if (inaccessibleFields.size() == 1) {
+            ret = new FieldProjection(inaccessibleFields.iterator().next(), false, true);
         } else {
-            if (inaccessibleFields.size() == 1) {
-                ret = new FieldProjection(inaccessibleFields.iterator().next(), false, true);
-            } else {
-                List<Projection> list = new ArrayList<>(inaccessibleFields.size());
-                for (Path x : inaccessibleFields) {
-                    list.add(new FieldProjection(x, false, true));
-                }
-                ret = new ProjectionList(list);
+            List<Projection> list = new ArrayList<>(inaccessibleFields.size());
+            for (Path x : inaccessibleFields) {
+                list.add(new FieldProjection(x, false, true));
             }
+            ret = new ProjectionList(list);
         }
         return ret;
     }

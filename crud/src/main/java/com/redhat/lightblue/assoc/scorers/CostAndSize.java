@@ -21,17 +21,18 @@ package com.redhat.lightblue.assoc.scorers;
 import java.math.BigInteger;
 
 class CostAndSize {
-    BigInteger cost=BigInteger.ONE;
-    BigInteger size=BigInteger.ONE;
+    BigInteger cost = BigInteger.ONE;
+    BigInteger size = BigInteger.ONE;
 
-    public CostAndSize(BigInteger cost,BigInteger size) {
-        this.cost=cost;
-        this.size=size;
+    public CostAndSize(BigInteger cost, BigInteger size) {
+        this.cost = cost;
+        this.size = size;
     }
 
-    public CostAndSize() {}
-    
+    public CostAndSize() {
+    }
+
     public String toString() {
-        return "cost:"+cost+" size:"+size;
+        return "cost:" + cost + " size:" + size;
     }
 }

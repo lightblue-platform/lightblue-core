@@ -45,9 +45,10 @@ public abstract class Projection extends JsonObject {
      * Inclusion status for a field
      *
      * <ul>
-     * <li>explicit_exclusion: the projection excludes this field explicitly</li>
-     * <li>implicit_exzclusion: the projection excludes this field because an ancestor 
-     *       of the field is excluded</li>
+     * <li>explicit_exclusion: the projection excludes this field
+     * explicitly</li>
+     * <li>implicit_exzclusion: the projection excludes this field because an
+     * ancestor of the field is excluded</li>
      * <li>explicit_inclusion: the projection includes the field explicitly</li>
      * <li>explicit_exclusion: the projection excludes the field explicitly</li>
      * <li>undecided: the projection does not decide if the field should be
@@ -153,7 +154,8 @@ public abstract class Projection extends JsonObject {
      * <code>pattern</code> else null
      */
     public static Boolean impliedInclusion(Path field, Path pattern, boolean inclusion) {
-        if (field.numSegments() > pattern.numSegments() && // If we're checking a field deeper than the pattern
+        if (field.numSegments() > pattern.numSegments()
+                && // If we're checking a field deeper than the pattern
                 // And if we're checking a field under the subtree of the pattern
                 field.prefix(pattern.numSegments()).matches(pattern)) {
             return inclusion ? Boolean.TRUE : Boolean.FALSE;
@@ -221,10 +223,10 @@ public abstract class Projection extends JsonObject {
     }
 
     /**
-     * Determine if the field is explicitly included/excluded, implicitly included, or 
-     * the projection does not decide on the field.
+     * Determine if the field is explicitly included/excluded, implicitly
+     * included, or the projection does not decide on the field.
      */
-    public Inclusion getFieldInclusion(Path field,Path ctx) {
+    public Inclusion getFieldInclusion(Path field, Path ctx) {
         Path mfield = toMask(field);
         ctx = toMask(ctx);
         if (this instanceof FieldProjection) {
@@ -248,62 +250,67 @@ public abstract class Projection extends JsonObject {
     /**
      * Returns true if the field is needed to evaluate the projection
      */
-    public boolean isFieldRequiredToEvaluateProjection(Path field,Path ctx) {
+    public boolean isFieldRequiredToEvaluateProjection(Path field, Path ctx) {
         Path mfield = toMask(field);
         ctx = toMask(ctx);
         if (this instanceof FieldProjection) {
-            switch(getFieldInclusion(mfield, (FieldProjection) this, ctx)) {
-            case implicit_inclusion:
-            case explicit_inclusion: return true;
-            default: return false;
+            switch (getFieldInclusion(mfield, (FieldProjection) this, ctx)) {
+                case implicit_inclusion:
+                case explicit_inclusion:
+                    return true;
+                default:
+                    return false;
             }
         } else if (this instanceof ArrayQueryMatchProjection) {
-            if(getFieldInclusion(mfield, (ArrayProjection) this, ctx)==Inclusion.undecided) {
-                LOGGER.debug("whether to include {} is Undecided, checking projection query",mfield);
-                Path absField = new Path(ctx, toMask(((ArrayQueryMatchProjection)this).getField()));
-                Path nestedCtx=new Path(absField,Path.ANYPATH);
-                boolean ret= ((ArrayQueryMatchProjection)this).getMatch().isRequired(field,nestedCtx);
-                LOGGER.debug("isRequired({},{}.*={}",field,absField,ret);
-                if(ret)
+            if (getFieldInclusion(mfield, (ArrayProjection) this, ctx) == Inclusion.undecided) {
+                LOGGER.debug("whether to include {} is Undecided, checking projection query", mfield);
+                Path absField = new Path(ctx, toMask(((ArrayQueryMatchProjection) this).getField()));
+                Path nestedCtx = new Path(absField, Path.ANYPATH);
+                boolean ret = ((ArrayQueryMatchProjection) this).getMatch().isRequired(field, nestedCtx);
+                LOGGER.debug("isRequired({},{}.*={}", field, absField, ret);
+                if (ret) {
                     return true;
+                }
 
-                LOGGER.debug("Query does not require {}, checking nested projection",mfield);
-                if( ((ArrayProjection)this).getProject()!=null)
-                    ret=((ArrayProjection)this).getProject().isFieldRequiredToEvaluateProjection(field,nestedCtx);
-                LOGGER.debug("result:{}",ret);
+                LOGGER.debug("Query does not require {}, checking nested projection", mfield);
+                if (((ArrayProjection) this).getProject() != null) {
+                    ret = ((ArrayProjection) this).getProject().isFieldRequiredToEvaluateProjection(field, nestedCtx);
+                }
+                LOGGER.debug("result:{}", ret);
                 return ret;
             } else {
                 return true;
             }
         } else if (this instanceof ArrayRangeProjection) {
-            return getFieldInclusion(mfield, (ArrayProjection) this, ctx)!=Inclusion.undecided;
+            return getFieldInclusion(mfield, (ArrayProjection) this, ctx) != Inclusion.undecided;
         } else if (this instanceof ProjectionList) {
-            for(Projection x:((ProjectionList)this).getItems()) {
-                if(x.isFieldRequiredToEvaluateProjection(field,ctx))
+            for (Projection x : ((ProjectionList) this).getItems()) {
+                if (x.isFieldRequiredToEvaluateProjection(field, ctx)) {
                     return true;
+                }
             }
         }
         return false;
     }
 
-
     private Inclusion getFieldInclusion(Path field, ArrayProjection p, Path context) {
         Path absField = new Path(context, toMask(p.getField()));
         LOGGER.debug("Checking if array projection on {} projects {}", absField, field);
         Inclusion inc = isFieldIncluded(field, absField, p.isInclude(), false);
-        Inclusion inc2 = p.getProject().getFieldInclusion(field,new Path(absField,Path.ANYPATH));
+        Inclusion inc2 = p.getProject().getFieldInclusion(field, new Path(absField, Path.ANYPATH));
         Inclusion ret;
 
-        if(inc==Inclusion.explicit_inclusion||inc2==Inclusion.explicit_inclusion)
-            ret=Inclusion.explicit_inclusion;
-        else if(inc==Inclusion.implicit_inclusion||inc2==Inclusion.implicit_inclusion)
-            ret=Inclusion.implicit_inclusion;
-        else if(inc==Inclusion.explicit_exclusion||inc2==Inclusion.explicit_exclusion)
-            ret=Inclusion.explicit_exclusion;
-        else if(inc==Inclusion.implicit_exclusion||inc2==Inclusion.implicit_exclusion)
-            ret=Inclusion.implicit_exclusion;
-        else
-            ret=Inclusion.undecided;
+        if (inc == Inclusion.explicit_inclusion || inc2 == Inclusion.explicit_inclusion) {
+            ret = Inclusion.explicit_inclusion;
+        } else if (inc == Inclusion.implicit_inclusion || inc2 == Inclusion.implicit_inclusion) {
+            ret = Inclusion.implicit_inclusion;
+        } else if (inc == Inclusion.explicit_exclusion || inc2 == Inclusion.explicit_exclusion) {
+            ret = Inclusion.explicit_exclusion;
+        } else if (inc == Inclusion.implicit_exclusion || inc2 == Inclusion.implicit_exclusion) {
+            ret = Inclusion.implicit_exclusion;
+        } else {
+            ret = Inclusion.undecided;
+        }
         LOGGER.debug("array projection on {} projects {}: {}", absField, field, ret);
         return ret;
     }
@@ -311,12 +318,12 @@ public abstract class Projection extends JsonObject {
     private Inclusion getFieldInclusion(Path field, ProjectionList p, Path context) {
         LOGGER.debug("Checking if a projection list projects {}", field);
         Inclusion lastResult = Inclusion.undecided;
-        List<Projection> items=p.getItems();
+        List<Projection> items = p.getItems();
         ListIterator<Projection> itemsItr = items.listIterator(items.size());
         while (itemsItr.hasPrevious()) {
             Inclusion ret = itemsItr.previous().getFieldInclusion(field, context);
             if (ret != Inclusion.undecided) {
-                lastResult=ret;
+                lastResult = ret;
                 break;
             }
         }

@@ -17,15 +17,14 @@ import com.redhat.lightblue.metadata.ResolvedReferenceField;
 import com.redhat.lightblue.util.Path;
 
 /**
- * A execution block contains the state information required to
- * evaluate a query plan node. Each block is associated with several
- * execution steps that define a pipeline of operations that will be
- * performed on documents.
+ * A execution block contains the state information required to evaluate a query
+ * plan node. Each block is associated with several execution steps that define
+ * a pipeline of operations that will be performed on documents.
  */
 public class ExecutionBlock {
 
     private final CompositeMetadata rootMd;
-    
+
     /**
      * The query plan node corresponding to this execution block
      */
@@ -34,12 +33,12 @@ public class ExecutionBlock {
     /**
      * Source execution blocks
      */
-    private final List<ExecutionBlock> sourceBlocks=new ArrayList<>();
+    private final List<ExecutionBlock> sourceBlocks = new ArrayList<>();
 
     /**
      * The edge queries
      */
-    private final Map<ExecutionBlock,AssociationQuery> associationQueries=new HashMap<>();
+    private final Map<ExecutionBlock, AssociationQuery> associationQueries = new HashMap<>();
 
     /**
      * Result step of this block
@@ -49,7 +48,7 @@ public class ExecutionBlock {
     /**
      * All steps of this block
      */
-    protected final List<Step<?>> steps=new ArrayList<Step<?>>();
+    protected final List<Step<?>> steps = new ArrayList<Step<?>>();
 
     /**
      * Document ID extractor for the documents of this block
@@ -64,23 +63,24 @@ public class ExecutionBlock {
     /**
      * List of all reference fields pointing to child docs
      */
-    private List<ChildSlot> childSlots=new ArrayList<>();
+    private List<ChildSlot> childSlots = new ArrayList<>();
 
-    private boolean slotsHaveAnys=false;
+    private boolean slotsHaveAnys = false;
 
-    public ExecutionBlock(CompositeMetadata root,QueryPlanNode qpNode) {
-        this.rootMd=root;
-        this.qpNode=qpNode;
-        Field[] f=getMetadata().getEntitySchema().getIdentityFields();
-        Path[] identityFields=new Path[f.length];
-        for(int i=0;i<f.length;i++)
-            identityFields[i]=getMetadata().getEntityRelativeFieldName(f[i]);
-        idx=new DocIdExtractor(identityFields);
-        Path entityPath=getMetadata().getEntityPath();
-        if(entityPath.isEmpty()) {
-            reference=null;
+    public ExecutionBlock(CompositeMetadata root, QueryPlanNode qpNode) {
+        this.rootMd = root;
+        this.qpNode = qpNode;
+        Field[] f = getMetadata().getEntitySchema().getIdentityFields();
+        Path[] identityFields = new Path[f.length];
+        for (int i = 0; i < f.length; i++) {
+            identityFields[i] = getMetadata().getEntityRelativeFieldName(f[i]);
+        }
+        idx = new DocIdExtractor(identityFields);
+        Path entityPath = getMetadata().getEntityPath();
+        if (entityPath.isEmpty()) {
+            reference = null;
         } else {
-            reference=root.getDescendantReference(entityPath);
+            reference = root.getDescendantReference(entityPath);
         }
     }
 
@@ -91,10 +91,10 @@ public class ExecutionBlock {
         // Build a list of all reference fields that need to be populated for the docs produces by this block
         // But to do that, we need the destination nodes of this block. We don't have that.
         // What we have is the sources. So, we populate the reference fields of our sources instead.
-        for(ExecutionBlock source:sourceBlocks) {
-            if(reference!=null) {
+        for (ExecutionBlock source : sourceBlocks) {
+            if (reference != null) {
                 // Is this node really a child of the source node?
-                if(getMetadata().getParent()==source.getMetadata()) {
+                if (getMetadata().getParent() == source.getMetadata()) {
                     source.addChildSlot(reference);
                 }
             }
@@ -109,21 +109,23 @@ public class ExecutionBlock {
     }
 
     /**
-     * This returns true if at least one of the child slots contains an array reference
+     * This returns true if at least one of the child slots contains an array
+     * reference
      */
     public boolean childSlotsHaveArrays() {
         return slotsHaveAnys;
     }
 
     public void addChildSlot(ResolvedReferenceField reference) {
-        ChildSlot slot=new ChildSlot(rootMd,reference);
-        if(slot.hasAnys())
-            slotsHaveAnys=true;
+        ChildSlot slot = new ChildSlot(rootMd, reference);
+        if (slot.hasAnys()) {
+            slotsHaveAnys = true;
+        }
         childSlots.add(slot);
     }
-    
+
     /**
-     * Adds a source block 
+     * Adds a source block
      */
     public void addSourceBlock(ExecutionBlock source) {
         sourceBlocks.add(source);
@@ -165,7 +167,8 @@ public class ExecutionBlock {
     }
 
     /**
-     * Returns an ID extractor for the documents produced by this execution block
+     * Returns an ID extractor for the documents produced by this execution
+     * block
      */
     public DocIdExtractor getIdExtractor() {
         return idx;
@@ -175,9 +178,11 @@ public class ExecutionBlock {
      * Returns a step of the given type
      */
     public <X> X getStep(Class<X> clazz) {
-        for(Step<?> x:steps)
-            if(clazz.isAssignableFrom(x.getClass()))
-                return (X)x;
+        for (Step<?> x : steps) {
+            if (clazz.isAssignableFrom(x.getClass())) {
+                return (X) x;
+            }
+        }
         return null;
     }
 
@@ -196,34 +201,33 @@ public class ExecutionBlock {
      * Sets the result step of this block
      */
     public void setResultStep(Step<ResultDocument> resultStep) {
-        this.resultStep=resultStep;
+        this.resultStep = resultStep;
     }
 
     public void setResultStep(Source<ResultDocument> resultStep) {
-        this.resultStep=resultStep.getStep();
+        this.resultStep = resultStep.getStep();
     }
 
-
     /**
-     * Returns the association query for the edge coming from the
-     * source block into this block
+     * Returns the association query for the edge coming from the source block
+     * into this block
      */
     public AssociationQuery getAssociationQueryForEdge(ExecutionBlock sourceBlock) {
-        return associationQueries.get(sourceBlock);        
+        return associationQueries.get(sourceBlock);
     }
 
     /**
      * Sets an edge query
      */
-    public void setAssociationQuery(ExecutionBlock sourceBlock,AssociationQuery q) {
-        associationQueries.put(sourceBlock,q);
+    public void setAssociationQuery(ExecutionBlock sourceBlock, AssociationQuery q) {
+        associationQueries.put(sourceBlock, q);
     }
 
     @Override
     public String toString() {
         return qpNode.toString();
     }
-    
+
     public JsonNode toJson() {
         return resultStep.toJson();
     }

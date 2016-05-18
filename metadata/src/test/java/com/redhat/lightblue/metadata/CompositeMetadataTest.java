@@ -79,9 +79,10 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
     }
 
     private class NonLimitingGMD extends AbstractGetMetadata {
-        public NonLimitingGMD(Projection p,QueryExpression q) {
-            super(p,q);
+        public NonLimitingGMD(Projection p, QueryExpression q) {
+            super(p, q);
         }
+
         public EntityMetadata retrieveMetadata(Path injectionField,
                                                String entityName,
                                                String version) {
@@ -122,7 +123,7 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
 
         Assert.assertNotNull(c.resolve(new Path("obj1.d")));
     }
-    
+
     @Test
     public void c_test() throws Exception {
         // C has two children, B and D
@@ -240,21 +241,21 @@ public class CompositeMetadataTest extends AbstractJsonNodeTest {
         Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.obj1.c")));
         Assert.assertNotNull(rr.getChildMetadata(new Path("r.*.r")));
     }
-    
+
     @Test
     public void uncontrolled_recursion_test() throws Exception {
         EntityMetadata md = getMd("composite/rel.json");
         CompositeMetadata r = CompositeMetadata.
-            buildCompositeMetadata(md, new NonLimitingGMD(new FieldProjection(new Path("*"),true,true),
-                                                          new ArrayMatchExpression(new Path("skuTree"),
-                                                                                   new NaryLogicalExpression(NaryLogicalOperator._or,
-                                                                                                             new ValueComparisonExpression(new Path("child.skuCode"),BinaryComparisonOperator._eq,new Value("X")),
-                                                                                                             new ValueComparisonExpression(new Path("parent.skuCode"),BinaryComparisonOperator._eq,new Value("X"))))));
-        
+                buildCompositeMetadata(md, new NonLimitingGMD(new FieldProjection(new Path("*"), true, true),
+                        new ArrayMatchExpression(new Path("skuTree"),
+                                new NaryLogicalExpression(NaryLogicalOperator._or,
+                                        new ValueComparisonExpression(new Path("child.skuCode"), BinaryComparisonOperator._eq, new Value("X")),
+                                        new ValueComparisonExpression(new Path("parent.skuCode"), BinaryComparisonOperator._eq, new Value("X"))))));
+
         System.out.println(r.toTreeString());
-        Assert.assertEquals(0,r.getChildPaths().size());
+        Assert.assertEquals(0, r.getChildPaths().size());
     }
-        
+
     @Test
     public void fields_a() throws Exception {
         EntityMetadata md = getMd("composite/A.json");

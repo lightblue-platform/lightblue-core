@@ -40,74 +40,78 @@ import com.redhat.lightblue.assoc.qrew.Rewriter;
 import com.redhat.lightblue.util.Path;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$or:{...,{$in:{field:x,values:[v]},..,{$in:{field:x,values=[w]}...}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q={$or:{...,{$in:{field:x,values:[v w]}},...}}
  * </pre>
  */
 abstract class CombineInsNotIns extends Rewriter {
 
-    private static final Logger LOGGER=LoggerFactory.getLogger(CombineInsNotIns.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CombineInsNotIns.class);
 
     private NaryLogicalOperator logicalOp;
     private NaryRelationalOperator relationalOp;
 
     protected CombineInsNotIns(NaryLogicalOperator logicalOp,
                                NaryRelationalOperator relationalOp) {
-        this.logicalOp=logicalOp;
-        this.relationalOp=relationalOp;
+        this.logicalOp = logicalOp;
+        this.relationalOp = relationalOp;
     }
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) {
-            if(le.getOp()==logicalOp) {
-                LOGGER.debug("Processing q={}",le);
+        NaryLogicalExpression le = dyncast(NaryLogicalExpression.class, q);
+        if (le != null) {
+            if (le.getOp() == logicalOp) {
+                LOGGER.debug("Processing q={}", le);
                 // group in and not_in expressions
-                boolean needCombine=false;
-                Map<Path,List<NaryValueRelationalExpression>> map=new HashMap<>();
-                for(QueryExpression x:le.getQueries()) {
-                    NaryValueRelationalExpression nre=dyncast(NaryValueRelationalExpression.class,x);
-                    if(nre!=null&&nre.getOp()==relationalOp) {
-                        List<NaryValueRelationalExpression> values=map.get(nre.getField());
-                        if(values==null)
-                            map.put(nre.getField(),values=new ArrayList<>());
-                        else 
-                            needCombine=true; // There exists more than one N-ary expression=, so combine
+                boolean needCombine = false;
+                Map<Path, List<NaryValueRelationalExpression>> map = new HashMap<>();
+                for (QueryExpression x : le.getQueries()) {
+                    NaryValueRelationalExpression nre = dyncast(NaryValueRelationalExpression.class, x);
+                    if (nre != null && nre.getOp() == relationalOp) {
+                        List<NaryValueRelationalExpression> values = map.get(nre.getField());
+                        if (values == null) {
+                            map.put(nre.getField(), values = new ArrayList<>());
+                        } else {
+                            needCombine = true; // There exists more than one N-ary expression=, so combine
+                        }
                         values.add(nre);
                     }
                 }
-                LOGGER.debug("Grouped expressions={}",map);
-                if(needCombine) {
+                LOGGER.debug("Grouped expressions={}", map);
+                if (needCombine) {
                     LOGGER.debug("Query expressions can be combined");
-                    List<QueryExpression> newList=new ArrayList<>(le.getQueries().size());
-                    for(Map.Entry<Path,List<NaryValueRelationalExpression>> entry:map.entrySet()) {
-                        if(entry.getValue().size()>1) {
+                    List<QueryExpression> newList = new ArrayList<>(le.getQueries().size());
+                    for (Map.Entry<Path, List<NaryValueRelationalExpression>> entry : map.entrySet()) {
+                        if (entry.getValue().size() > 1) {
                             // Combine expressions
-                            Set<Value> valueList=new HashSet<>();
-                            for(NaryValueRelationalExpression x:entry.getValue())
+                            Set<Value> valueList = new HashSet<>();
+                            for (NaryValueRelationalExpression x : entry.getValue()) {
                                 valueList.addAll(x.getValues());
+                            }
                             newList.add(new NaryValueRelationalExpression(entry.getKey(),
-                                                                          relationalOp,
-                                                                          new ArrayList<>(valueList)));
+                                    relationalOp,
+                                    new ArrayList<>(valueList)));
                         } else {
                             newList.addAll(entry.getValue());
                         }
                     }
                     // Add all the expressions that are not n-ary relational expressions
-                    for(QueryExpression x:le.getQueries())
-                        if(x instanceof NaryValueRelationalExpression) {
-                            if( ((NaryValueRelationalExpression)x).getOp()!=relationalOp)
+                    for (QueryExpression x : le.getQueries()) {
+                        if (x instanceof NaryValueRelationalExpression) {
+                            if (((NaryValueRelationalExpression) x).getOp() != relationalOp) {
                                 newList.add(x);
-                        } else
+                            }
+                        } else {
                             newList.add(x);
-                    LOGGER.debug("Combined expression list={}",newList);
-                    return new NaryLogicalExpression(logicalOp,newList);
+                        }
+                    }
+                    LOGGER.debug("Combined expression list={}", newList);
+                    return new NaryLogicalExpression(logicalOp, newList);
                 }
             }
         }

@@ -25,8 +25,7 @@ import com.redhat.lightblue.util.Path;
 public class IsQueriedTest {
     @Test
     public void elemMatch() throws Exception {
-        QueryExpression q=new ArrayMatchExpression(new Path("arr"),new
-                                                   ValueComparisonExpression(new Path("X"),BinaryComparisonOperator._eq,new Value("a")));
+        QueryExpression q = new ArrayMatchExpression(new Path("arr"), new ValueComparisonExpression(new Path("X"), BinaryComparisonOperator._eq, new Value("a")));
         Assert.assertTrue(q.isRequired(new Path("arr")));
         Assert.assertTrue(q.isRequired(new Path("arr.0.X")));
         Assert.assertFalse(q.isRequired(new Path("X")));

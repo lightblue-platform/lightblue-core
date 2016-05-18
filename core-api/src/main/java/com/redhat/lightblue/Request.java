@@ -94,8 +94,9 @@ public abstract class Request extends JsonObject {
     public JsonNode toJson() {
         ObjectNode node = getFactory().objectNode();
         node.put("entity", entityVersion.getEntity());
-        if(entityVersion.getVersion()!=null)
+        if (entityVersion.getVersion() != null) {
             node.put("entityVersion", entityVersion.getVersion());
+        }
         if (client != null) {
             node.set("client", client.toJson());
         }
@@ -115,7 +116,7 @@ public abstract class Request extends JsonObject {
     protected void parse(ObjectNode node) {
         entityVersion = new EntityVersion();
         JsonNode x = node.get("entity");
-        if (x != null && !(x instanceof NullNode) ) {
+        if (x != null && !(x instanceof NullNode)) {
             entityVersion.setEntity(x.asText());
         }
         x = node.get("entityVersion");

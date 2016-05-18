@@ -42,8 +42,8 @@ import com.redhat.lightblue.DataError;
  * returned. Initially it points to DocCtx instance, and must be explicitly set
  * to point to something else if projections are applied, or null if document
  * will not appear in the output.</li>
- * <li>updatedDoc: This is the copy of the unprojected updated document .
- * This has to be explicitly set (expected on the update & save operations). </li>
+ * <li>updatedDoc: This is the copy of the unprojected updated document . This
+ * has to be explicitly set (expected on the update & save operations). </li>
  * </ul>
  */
 public class DocCtx extends JsonDoc {
@@ -116,12 +116,11 @@ public class DocCtx extends JsonDoc {
     }
 
     /**
-     * This method is to be called before starting making
-     * modifications on the document, so that a copy of the original
-     * can be saved. It'll create a copy of the current status of the
-     * document if there isn't one set already. If the output
-     * document has already set, it will also make a copy to the
-     * updated document field
+     * This method is to be called before starting making modifications on the
+     * document, so that a copy of the original can be saved. It'll create a
+     * copy of the current status of the document if there isn't one set
+     * already. If the output document has already set, it will also make a copy
+     * to the updated document field
      */
     public void startModifications() {
         if (originalDoc == null || originalDoc == this) {
@@ -180,8 +179,8 @@ public class DocCtx extends JsonDoc {
     }
 
     /**
-     * Returns the copy of the unprojected output document. To access the projected output document,
-     * see getOutputDocument() method
+     * Returns the copy of the unprojected output document. To access the
+     * projected output document, see getOutputDocument() method
      */
     public JsonDoc getUpdatedDocument() {
         return updatedDoc;
@@ -191,7 +190,7 @@ public class DocCtx extends JsonDoc {
      * Sets the unprojected output document to a copy of output document
      */
     public void copyUpdatedDocFromOutputDoc() {
-        if(outputDoc != null) {
+        if (outputDoc != null) {
             updatedDoc = outputDoc.copy();
         }
     }

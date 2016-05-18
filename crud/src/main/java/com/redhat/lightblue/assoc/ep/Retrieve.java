@@ -26,31 +26,30 @@ import com.redhat.lightblue.query.QueryExpression;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 
 /**
- * Performs search for doc retrieval. Provides the 'setQuery' API to
- * modify search criteria for every retrieval
- * 
- * Input: n/a
- * Output: ResultDocument
+ * Performs search for doc retrieval. Provides the 'setQuery' API to modify
+ * search criteria for every retrieval
+ *
+ * Input: n/a Output: ResultDocument
  */
 public class Retrieve extends Search {
-    
-    private static final Logger LOGGER=LoggerFactory.getLogger(Retrieve.class);
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Retrieve.class);
 
     private QueryExpression searchQuery;
-    
+
     public Retrieve(ExecutionBlock block) {
         super(block);
     }
 
     public void setQuery(QueryExpression q) {
-        this.searchQuery=q;
+        this.searchQuery = q;
     }
-    
-    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {                   
-        CRUDFindRequest findRequest=new CRUDFindRequest();
-        findRequest.setQuery(Searches.and(query,searchQuery));
+
+    protected CRUDFindRequest buildFindRequest(ExecutionContext ctx) {
+        CRUDFindRequest findRequest = new CRUDFindRequest();
+        findRequest.setQuery(Searches.and(query, searchQuery));
         LOGGER.debug("Building find request with q={}",
-                     findRequest.getQuery());
+                findRequest.getQuery());
         findRequest.setProjection(projection);
         findRequest.setSort(sort);
         findRequest.setFrom(from);
@@ -58,4 +57,3 @@ public class Retrieve extends Search {
         return findRequest;
     }
 }
-

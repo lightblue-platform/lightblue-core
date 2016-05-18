@@ -31,11 +31,11 @@ public class Limit<T> extends Step<T> {
 
     private final int limit;
     private final Source<T> source;
-    
-    public Limit(ExecutionBlock block,int n,Source<T> source) {
+
+    public Limit(ExecutionBlock block, int n, Source<T> source) {
         super(block);
-        this.source=source;
-        limit=n;
+        this.source = source;
+        limit = n;
     }
 
     @Override
@@ -45,14 +45,14 @@ public class Limit<T> extends Step<T> {
             public Stream<T> stream() {
                 return super.stream().limit(limit);
             }
-        };        
+        };
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("limit",JsonNodeFactory.instance.numberNode(limit));
-        o.set("source",source.getStep().toJson());
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("limit", JsonNodeFactory.instance.numberNode(limit));
+        o.set("source", source.getStep().toJson());
         return o;
     }
 }

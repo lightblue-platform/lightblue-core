@@ -169,55 +169,55 @@ public class PredefinedFieldsTest {
     @Test
     public void testDocModify() throws Exception {
         JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(false);
-        ObjectNode node = factory.objectNode();        
+        ObjectNode node = factory.objectNode();
         JsonDoc doc = new JsonDoc(node);
 
         ObjectNode obj1;
-        node.put("obj1",obj1=factory.objectNode());
-        node.put("simpleString",factory.textNode("str"));
+        node.put("obj1", obj1 = factory.objectNode());
+        node.put("simpleString", factory.textNode("str"));
         ArrayNode a1;
-        obj1.put("simpleArr",a1=factory.arrayNode());
+        obj1.put("simpleArr", a1 = factory.arrayNode());
         a1.add(factory.textNode("a"));
         ObjectNode o;
-        obj1.put("nested",o=factory.objectNode());
+        obj1.put("nested", o = factory.objectNode());
 
         ArrayNode a2;
-        o.put("objArr",a2=factory.arrayNode());
-        a2.add(factory.objectNode());        
-        
-        PredefinedFields.updateArraySizes(getMD2(),factory, doc);
+        o.put("objArr", a2 = factory.arrayNode());
+        a2.add(factory.objectNode());
+
+        PredefinedFields.updateArraySizes(getMD2(), factory, doc);
         System.out.println(doc);
 
         Assert.assertNotNull(doc.get(new Path("obj1.simpleArr")));
         Assert.assertNull(doc.get(new Path("obj1.simpleArr#")));
-        Assert.assertEquals(1,doc.get(new Path("obj1.nested.objArr#")).intValue());
+        Assert.assertEquals(1, doc.get(new Path("obj1.nested.objArr#")).intValue());
     }
 
     @Test
     public void testDocModify_ovrLength() throws Exception {
         JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(false);
-        ObjectNode node = factory.objectNode();        
+        ObjectNode node = factory.objectNode();
         JsonDoc doc = new JsonDoc(node);
 
         ObjectNode obj1;
-        node.put("obj1",obj1=factory.objectNode());
-        node.put("simpleString",factory.textNode("str"));
+        node.put("obj1", obj1 = factory.objectNode());
+        node.put("simpleString", factory.textNode("str"));
         ArrayNode a1;
-        obj1.put("simpleArr",a1=factory.arrayNode());        
+        obj1.put("simpleArr", a1 = factory.arrayNode());
         a1.add(factory.textNode("a"));
         ObjectNode o;
-        obj1.put("nested",o=factory.objectNode());
+        obj1.put("nested", o = factory.objectNode());
 
         ArrayNode a2;
-        o.put("objArr",a2=factory.arrayNode());
-        o.put("objArr#",factory.numberNode(100));
-        a2.add(factory.objectNode());        
-        
-        PredefinedFields.updateArraySizes(getMD2(),factory, doc);
+        o.put("objArr", a2 = factory.arrayNode());
+        o.put("objArr#", factory.numberNode(100));
+        a2.add(factory.objectNode());
+
+        PredefinedFields.updateArraySizes(getMD2(), factory, doc);
         System.out.println(doc);
 
         Assert.assertNotNull(doc.get(new Path("obj1.simpleArr")));
         Assert.assertNull(doc.get(new Path("obj1.simpleArr#")));
-        Assert.assertEquals(1,doc.get(new Path("obj1.nested.objArr#")).intValue());
+        Assert.assertEquals(1, doc.get(new Path("obj1.nested.objArr#")).intValue());
     }
 }

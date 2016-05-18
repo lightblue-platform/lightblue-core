@@ -51,14 +51,14 @@ public abstract class QueryExpression extends JsonObject {
      * @param fields The call adds the field information to this list
      */
     public void getQueryFields(List<FieldInfo> fields) {
-        GetQueryFields.getQueryFields(fields,this);
+        GetQueryFields.getQueryFields(fields, this);
     }
 
     /**
      * The implementation should populate the list with the field information
      */
     public void getQueryFields(List<FieldInfo> fields, Path ctx) {
-        GetQueryFields.getQueryFields(fields,this,ctx);
+        GetQueryFields.getQueryFields(fields, this, ctx);
     }
 
     /**
@@ -120,8 +120,8 @@ public abstract class QueryExpression extends JsonObject {
     }
 
     private static boolean isFieldQueried(Path field, Path qField, Path context) {
-        LOGGER.debug("Checking if field {} is included in qfield={} with context={}",field,qField,context);
-        Path absField = context.isEmpty()?qField:new Path(context, qField);
+        LOGGER.debug("Checking if field {} is included in qfield={} with context={}", field, qField, context);
+        Path absField = context.isEmpty() ? qField : new Path(context, qField);
         if (field.matchingPrefix(absField)) {
             LOGGER.debug("Field {} is queried", absField);
             return true;

@@ -72,7 +72,6 @@ public class ForEachExpressionEvaluatorTest extends AbstractJsonNodeTest {
         Assert.assertEquals("1234", jsonDoc.get(new Path("field12.nf1.nnf1.1.nnnf1.arr.0.narr.0.lastobject.elemf3")).asText());
     }
 
-
     @Test
     public void array_foreach_removeone() throws Exception {
         UpdateExpression expr = EvalTestContext.updateExpressionFromJson("{ '$foreach' : { 'field7' : { 'field':'elemf1','op':'=','rvalue':'elvalue0_1'} , '$update' : '$remove' } }");

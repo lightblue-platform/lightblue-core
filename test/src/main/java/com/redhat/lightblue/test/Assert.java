@@ -35,32 +35,35 @@ public final class Assert {
 
     /**
      * Asserts no Errors are on a {@link Response} from lightblue.
+     *
      * @param response - {@link Response} to check.
      * @throws MultipleFailureException
      */
-    public static void assertNoErrors(Response response) throws MultipleFailureException{
+    public static void assertNoErrors(Response response) throws MultipleFailureException {
         List<Throwable> errors = new ArrayList<Throwable>(response.getErrors());
-        if(!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             throw new MultipleFailureException(errors);
         }
     }
 
     /**
      * Asserts no DataErrors are on a {@link Response} from lightblue.
+     *
      * @param response - {@link Response} to check.
      * @throws MultipleFailureException
      */
-    public static void assertNoDataErrors(Response response) throws MultipleFailureException{
+    public static void assertNoDataErrors(Response response) throws MultipleFailureException {
         List<Throwable> errors = new ArrayList<>();
-        for(DataError error : response.getDataErrors()){
+        for (DataError error : response.getDataErrors()) {
             errors.add(new Exception("DataError: " + error.toJson().toString()));
         }
 
-        if(!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             throw new MultipleFailureException(errors);
         }
     }
 
-    private Assert(){}
+    private Assert() {
+    }
 
 }

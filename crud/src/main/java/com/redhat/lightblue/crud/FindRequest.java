@@ -30,7 +30,7 @@ import com.redhat.lightblue.query.Sort;
  */
 public class FindRequest extends Request implements WithQuery, WithProjection, WithRange {
 
-    private final CRUDFindRequest cfr=new CRUDFindRequest();
+    private final CRUDFindRequest cfr = new CRUDFindRequest();
 
     /**
      * The query

@@ -70,6 +70,6 @@ public class CRUDUpdateResponse implements Serializable {
      * Number of documents matched the update criteria
      */
     public void setNumMatched(int n) {
-        numMatched=n;
+        numMatched = n;
     }
 }

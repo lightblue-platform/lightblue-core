@@ -93,9 +93,9 @@ public final class DoubleType implements Type, Serializable {
 
     @Override
     public Object fromJson(JsonNode node) {
-        if (node==null||node instanceof NullNode) {
+        if (node == null || node instanceof NullNode) {
             return null;
-        } else  if (node.isValueNode()) {
+        } else if (node.isValueNode()) {
             return node.asDouble();
         } else {
             throw Error.get(NAME, MetadataConstants.ERR_INCOMPATIBLE_VALUE, node.toString());

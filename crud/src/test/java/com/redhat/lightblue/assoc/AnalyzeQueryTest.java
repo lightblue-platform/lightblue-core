@@ -27,8 +27,8 @@ import com.redhat.lightblue.util.test.AbstractJsonNodeTest;
 public class AnalyzeQueryTest extends AbstractJsonNodeTest {
 
     private class GMD extends AbstractGetMetadata {
-        public GMD(Projection p,QueryExpression q) {
-            super(p,q);
+        public GMD(Projection p, QueryExpression q) {
+            super(p, q);
         }
 
         @Override
@@ -36,7 +36,7 @@ public class AnalyzeQueryTest extends AbstractJsonNodeTest {
                                                   String entityName,
                                                   String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -69,124 +69,124 @@ public class AnalyzeQueryTest extends AbstractJsonNodeTest {
 
     @Test
     public void testReqQueryInfo() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
 
         // Process request query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        QueryExpression q=query("{'$and':[ { 'field':'field1','op':'=','rvalue':'x'},{'field':'obj1.c.*.field1','op':'=','rvalue':'y'}]}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, null);
+        QueryExpression q = query("{'$and':[ { 'field':'field1','op':'=','rvalue':'x'},{'field':'obj1.c.*.field1','op':'=','rvalue':'y'}]}");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
-        Assert.assertEquals(new Path("field1"),list.get(0).getFieldNameInClause());
-        Assert.assertEquals(new Path("field1"),list.get(0).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("field1"))==list.get(0).getFieldMd());
-        Assert.assertTrue(md==list.get(0).getFieldEntity());
-        Assert.assertEquals(new Path("field1"),list.get(0).getEntityRelativeFieldName());
-        
-        Assert.assertEquals(new Path("obj1.c.*.field1"),list.get(1).getFieldNameInClause());
-        Assert.assertEquals(new Path("obj1.c.*.field1"),list.get(1).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c.*.field1"))==list.get(1).getFieldMd());
-        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(1).getFieldEntity());
-        Assert.assertEquals(new Path("field1"),list.get(1).getEntityRelativeFieldName());
+        List<QueryFieldInfo> list = pq.getFieldInfo();
+        Assert.assertEquals(new Path("field1"), list.get(0).getFieldNameInClause());
+        Assert.assertEquals(new Path("field1"), list.get(0).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("field1")) == list.get(0).getFieldMd());
+        Assert.assertTrue(md == list.get(0).getFieldEntity());
+        Assert.assertEquals(new Path("field1"), list.get(0).getEntityRelativeFieldName());
+
+        Assert.assertEquals(new Path("obj1.c.*.field1"), list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*.field1"), list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*.field1")) == list.get(1).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c")) == list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("field1"), list.get(1).getEntityRelativeFieldName());
     }
-    
+
     @Test
     public void testAssocQueryInfo() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
 
         // Process query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,md.getResolvedReferenceOfField(new Path("obj1.c")));
-        QueryExpression q=query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, md.getResolvedReferenceOfField(new Path("obj1.c")));
+        QueryExpression q = query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
         pq.iterate(q);
-        
-        List<QueryFieldInfo> list=pq.getFieldInfo();
-        Assert.assertEquals(new Path("_id"),list.get(0).getFieldNameInClause());
-        Assert.assertEquals(new Path("_id"),list.get(0).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(0).getFieldMd());
-        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(0).getFieldEntity());
-        Assert.assertEquals(new Path("_id"),list.get(0).getEntityRelativeFieldName());
-        
-        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFieldNameInClause());
-        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(1).getFieldMd());
-        Assert.assertTrue(md==list.get(1).getFieldEntity());
-        Assert.assertEquals(new Path("obj1.c_ref"),list.get(1).getEntityRelativeFieldName());
+
+        List<QueryFieldInfo> list = pq.getFieldInfo();
+        Assert.assertEquals(new Path("_id"), list.get(0).getFieldNameInClause());
+        Assert.assertEquals(new Path("_id"), list.get(0).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id")) == list.get(0).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c")) == list.get(0).getFieldEntity());
+        Assert.assertEquals(new Path("_id"), list.get(0).getEntityRelativeFieldName());
+
+        Assert.assertEquals(new Path("$parent.c_ref"), list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("$parent.c_ref"), list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c_ref")) == list.get(1).getFieldMd());
+        Assert.assertTrue(md == list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("obj1.c_ref"), list.get(1).getEntityRelativeFieldName());
     }
 
     @Test
     public void testAssocQueryInfo_secondNode() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
 
         // Process query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,md.getResolvedReferenceOfField(new Path("obj1.c")));
-        QueryExpression q=query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, md.getResolvedReferenceOfField(new Path("obj1.c")));
+        QueryExpression q = query("{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}");
         pq.iterate(q);
-        
-        List<QueryFieldInfo> list=pq.getFieldInfo();
-        Assert.assertEquals(new Path("_id"),list.get(0).getFieldNameInClause());
-        Assert.assertEquals(new Path("_id"),list.get(0).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(0).getFieldMd());
-        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(0).getFieldEntity());
-        Assert.assertEquals(new Path("_id"),list.get(0).getEntityRelativeFieldName());
-        
-        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFieldNameInClause());
-        Assert.assertEquals(new Path("$parent.c_ref"),list.get(1).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(1).getFieldMd());
-        Assert.assertTrue(md==list.get(1).getFieldEntity());
-        Assert.assertEquals(new Path("obj1.c_ref"),list.get(1).getEntityRelativeFieldName());
+
+        List<QueryFieldInfo> list = pq.getFieldInfo();
+        Assert.assertEquals(new Path("_id"), list.get(0).getFieldNameInClause());
+        Assert.assertEquals(new Path("_id"), list.get(0).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id")) == list.get(0).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c")) == list.get(0).getFieldEntity());
+        Assert.assertEquals(new Path("_id"), list.get(0).getEntityRelativeFieldName());
+
+        Assert.assertEquals(new Path("$parent.c_ref"), list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("$parent.c_ref"), list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c_ref")) == list.get(1).getFieldMd());
+        Assert.assertTrue(md == list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("obj1.c_ref"), list.get(1).getEntityRelativeFieldName());
     }
 
     @Test
     public void testReqQueryInfo_forEach() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
 
         // Process query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        QueryExpression q=query("{'array' : 'obj1.c', 'elemMatch':{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, null);
+        QueryExpression q = query("{'array' : 'obj1.c', 'elemMatch':{'field':'_id','op':'$eq','rfield':'$parent.c_ref'}}");
         pq.iterate(q);
-        
-        List<QueryFieldInfo> list=pq.getFieldInfo();
-        Assert.assertEquals(new Path("_id"),list.get(1).getFieldNameInClause());
-        Assert.assertEquals(new Path("obj1.c.*._id"),list.get(1).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id"))==list.get(1).getFieldMd());
-        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c"))==list.get(1).getFieldEntity());
-        Assert.assertEquals(new Path("_id"),list.get(1).getEntityRelativeFieldName());
-        
-        Assert.assertEquals(new Path("$parent.c_ref"),list.get(2).getFieldNameInClause());
-        Assert.assertEquals(new Path("obj1.c.*.$parent.c_ref"),list.get(2).getFullFieldName());
-        Assert.assertTrue(md.resolve(new Path("obj1.c_ref"))==list.get(2).getFieldMd());
-        Assert.assertTrue(md==list.get(2).getFieldEntity());
-        Assert.assertEquals(new Path("obj1.c_ref"),list.get(2).getEntityRelativeFieldName());
+
+        List<QueryFieldInfo> list = pq.getFieldInfo();
+        Assert.assertEquals(new Path("_id"), list.get(1).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*._id"), list.get(1).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c.*._id")) == list.get(1).getFieldMd());
+        Assert.assertTrue(md.getChildMetadata(new Path("obj1.c")) == list.get(1).getFieldEntity());
+        Assert.assertEquals(new Path("_id"), list.get(1).getEntityRelativeFieldName());
+
+        Assert.assertEquals(new Path("$parent.c_ref"), list.get(2).getFieldNameInClause());
+        Assert.assertEquals(new Path("obj1.c.*.$parent.c_ref"), list.get(2).getFullFieldName());
+        Assert.assertTrue(md.resolve(new Path("obj1.c_ref")) == list.get(2).getFieldMd());
+        Assert.assertTrue(md == list.get(2).getFieldEntity());
+        Assert.assertEquals(new Path("obj1.c_ref"), list.get(2).getEntityRelativeFieldName());
     }
 
     @Test
     public void testNestedElemMatch() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'us','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"),gmd);
+        GMD gmd = new GMD(projection("{'field':'us','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"), gmd);
 
         // Process query at root
-        AnalyzeQuery pq=new AnalyzeQuery(md,null);
-        QueryExpression q=query("{'array':'us','elemMatch':{'array':'authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }}");
+        AnalyzeQuery pq = new AnalyzeQuery(md, null);
+        QueryExpression q = query("{'array':'us','elemMatch':{'array':'authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }}");
         pq.iterate(q);
-        List<QueryFieldInfo> list=pq.getFieldInfo();
+        List<QueryFieldInfo> list = pq.getFieldInfo();
         System.out.println(list);
-        Assert.assertEquals(new Path("us"),list.get(0).getFullFieldName());
-        Assert.assertEquals(new Path("us"),list.get(0).getEntityRelativeFieldNameWithContext());
+        Assert.assertEquals(new Path("us"), list.get(0).getFullFieldName());
+        Assert.assertEquals(new Path("us"), list.get(0).getEntityRelativeFieldNameWithContext());
         Assert.assertFalse(list.get(0).isLeaf());
 
-        Assert.assertEquals(new Path("us.*.authentications"),list.get(1).getFullFieldName());
-        Assert.assertEquals(new Path("authentications"),list.get(1).getEntityRelativeFieldNameWithContext());
+        Assert.assertEquals(new Path("us.*.authentications"), list.get(1).getFullFieldName());
+        Assert.assertEquals(new Path("authentications"), list.get(1).getEntityRelativeFieldNameWithContext());
         Assert.assertFalse(list.get(1).isLeaf());
 
-        Assert.assertEquals(new Path("us.*.authentications.*.principal"),list.get(2).getFullFieldName());
-        Assert.assertEquals(new Path("authentications.*.principal"),list.get(2).getEntityRelativeFieldNameWithContext());
+        Assert.assertEquals(new Path("us.*.authentications.*.principal"), list.get(2).getFullFieldName());
+        Assert.assertEquals(new Path("authentications.*.principal"), list.get(2).getEntityRelativeFieldNameWithContext());
         Assert.assertTrue(list.get(2).isLeaf());
 
-        Assert.assertEquals(new Path("us.*.authentications.*.providerName"),list.get(3).getFullFieldName());
-        Assert.assertEquals(new Path("authentications.*.providerName"),list.get(3).getEntityRelativeFieldNameWithContext ());
+        Assert.assertEquals(new Path("us.*.authentications.*.providerName"), list.get(3).getFullFieldName());
+        Assert.assertEquals(new Path("authentications.*.providerName"), list.get(3).getEntityRelativeFieldNameWithContext());
         Assert.assertTrue(list.get(3).isLeaf());
     }
 

@@ -45,11 +45,11 @@ import com.redhat.lightblue.util.Path;
 public class RequiredCheckerTest {
 
     /**
-     * If {@link RequiredConstraint#getValue()} method returns false, then
-     * do not perform this check
+     * If {@link RequiredConstraint#getValue()} method returns false, then do
+     * not perform this check
      */
     @Test
-    public void testCheckConstraint_Deactivated(){
+    public void testCheckConstraint_Deactivated() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         RequiredConstraint constraint = new RequiredConstraint();
@@ -62,23 +62,23 @@ public class RequiredCheckerTest {
 
     @Test
     public void getMissingFields_missingParent() {
-        JsonDoc doc=new JsonDoc(JsonNodeFactory.instance.objectNode());
-        List<Path> l=RequiredChecker.getMissingFields(new Path("parent.child"),doc);
-        Assert.assertEquals(0,l.size());
+        JsonDoc doc = new JsonDoc(JsonNodeFactory.instance.objectNode());
+        List<Path> l = RequiredChecker.getMissingFields(new Path("parent.child"), doc);
+        Assert.assertEquals(0, l.size());
     }
 
     @Test
     public void getMissingFields_withParent() {
-        ObjectNode on=JsonNodeFactory.instance.objectNode();
-        on.set("parent",JsonNodeFactory.instance.objectNode());
-        JsonDoc doc=new JsonDoc(on);
-        List<Path> l=RequiredChecker.getMissingFields(new Path("parent.child"),doc);
-        Assert.assertEquals(1,l.size());
-        Assert.assertEquals(new Path("parent.child"),l.get(0));
+        ObjectNode on = JsonNodeFactory.instance.objectNode();
+        on.set("parent", JsonNodeFactory.instance.objectNode());
+        JsonDoc doc = new JsonDoc(on);
+        List<Path> l = RequiredChecker.getMissingFields(new Path("parent.child"), doc);
+        Assert.assertEquals(1, l.size());
+        Assert.assertEquals(new Path("parent.child"), l.get(0));
     }
 
     @Test
-    public void testCheckConstraint_NoErrors(){
+    public void testCheckConstraint_NoErrors() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         Path path = mock(Path.class);
@@ -96,7 +96,7 @@ public class RequiredCheckerTest {
     }
 
     @Test
-    public void testCheckConstraint_WithErrors(){
+    public void testCheckConstraint_WithErrors() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         Path path = mock(Path.class);
@@ -113,9 +113,8 @@ public class RequiredCheckerTest {
         verify(validator, times(1)).addDocError(any(Error.class));
     }
 
-
     @Test
-    public void testCheckConstraint_WithNullParent(){
+    public void testCheckConstraint_WithNullParent() {
         ConstraintValidator validator = mock(ConstraintValidator.class);
 
         Path path = mock(Path.class);
@@ -132,12 +131,11 @@ public class RequiredCheckerTest {
         verify(validator, times(1)).addDocError(any(Error.class));
     }
 
-
     /**
      * When all the paths exist, then no errors will be thrown.
      */
     @Test
-    public void testGetMissingFields_WithoutAnys_PathExists(){
+    public void testGetMissingFields_WithoutAnys_PathExists() {
         Path path = mock(Path.class);
         when(path.nAnys()).thenReturn(0);
 
@@ -154,7 +152,7 @@ public class RequiredCheckerTest {
      * When an field is missing, then an error should be returned.
      */
     @Test
-    public void testGetMissingFields_WithoutAnys_PathNotExist(){
+    public void testGetMissingFields_WithoutAnys_PathNotExist() {
         Path path = mock(Path.class);
         when(path.nAnys()).thenReturn(0);
 
@@ -172,7 +170,7 @@ public class RequiredCheckerTest {
      * When an field is missing, then an error should be returned.
      */
     @Test
-    public void testGetMissingFields_WithAnys_PathNotExist(){
+    public void testGetMissingFields_WithAnys_PathNotExist() {
         String fieldName = "FAKE_FIELD_NAME";
         String parentPath = "FAKE_PATH";
 
@@ -204,7 +202,7 @@ public class RequiredCheckerTest {
     }
 
     @Test
-    public void testMissinParent_anys(){
+    public void testMissinParent_anys() {
         String fieldName = "FAKE_FIELD_NAME";
         String parentPath = "FAKE_PATH";
 
@@ -235,7 +233,7 @@ public class RequiredCheckerTest {
      * When all the paths exist, then no errors will be thrown.
      */
     @Test
-    public void testGetMissingFields_WithAnys_PathExists(){
+    public void testGetMissingFields_WithAnys_PathExists() {
         String fieldName = "FAKE_FIELD_NAME";
 
         Path path = mock(Path.class);
@@ -262,7 +260,7 @@ public class RequiredCheckerTest {
     }
 
     @Test
-    public void testGetMissingFields_WithAnys_EmptyCursor(){
+    public void testGetMissingFields_WithAnys_EmptyCursor() {
         Path path = mock(Path.class);
         when(path.nAnys()).thenReturn(1);
         when(path.prefix(-1)).thenReturn(mock(Path.class));

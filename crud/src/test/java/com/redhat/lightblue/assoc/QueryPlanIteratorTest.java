@@ -74,8 +74,8 @@ public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
     }
 
     private class GMD extends AbstractGetMetadata {
-        public GMD(Projection p,QueryExpression q) {
-            super(p,q);
+        public GMD(Projection p, QueryExpression q) {
+            super(p, q);
         }
 
         @Override
@@ -83,7 +83,7 @@ public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
                                                   String entityName,
                                                   String version) {
             try {
-                return getMd("composite/"+entityName+".json");
+                return getMd("composite/" + entityName + ".json");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -92,38 +92,37 @@ public class QueryPlanIteratorTest extends AbstractJsonNodeTest {
 
     @Test
     public void simpleTest() throws Exception {
-        GMD gmd=new GMD(projection("{'field':'obj1.c','include':1}"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
-        QueryPlanIterator itr=new BruteForceQueryPlanIterator();
+        GMD gmd = new GMD(projection("{'field':'obj1.c','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/A.json"), gmd);
+        QueryPlan qp = new QueryPlan(md, new IndexedFieldScorer());
+        QueryPlanIterator itr = new BruteForceQueryPlanIterator();
         itr.reset(qp);
 
         // There is only one edge, two iterations are possible
         System.out.println(qp.treeToString());
-        Assert.assertEquals("A",qp.getSources()[0].getMetadata().getName());
+        Assert.assertEquals("A", qp.getSources()[0].getMetadata().getName());
 
         Assert.assertTrue(itr.next());
         System.out.println(qp.treeToString());
-        Assert.assertEquals("C",qp.getSources()[0].getMetadata().getName());
+        Assert.assertEquals("C", qp.getSources()[0].getMetadata().getName());
 
         Assert.assertFalse(itr.next());
     }
 
     @Test
     public void two_level_test() throws Exception {
-        GMD gmd=new GMD(projection("[{'field':'r.*.r.*','include':1},{'field':'b.*.','include':1}]"),null);
-        CompositeMetadata md=CompositeMetadata.buildCompositeMetadata(getMd("composite/R.json"),gmd);
-        QueryPlan qp=new QueryPlan(md,new IndexedFieldScorer());
-        QueryPlanIterator itr=new BruteForceQueryPlanIterator();
+        GMD gmd = new GMD(projection("[{'field':'r.*.r.*','include':1},{'field':'b.*.','include':1}]"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/R.json"), gmd);
+        QueryPlan qp = new QueryPlan(md, new IndexedFieldScorer());
+        QueryPlanIterator itr = new BruteForceQueryPlanIterator();
         itr.reset(qp);
 
         // 3 edges, 8 query plans
         System.out.println(qp.treeToString());
-        for(int i=0;i<7;i++) {
+        for (int i = 0; i < 7; i++) {
             Assert.assertTrue(itr.next());
             System.out.println(qp.treeToString());
         }
         Assert.assertFalse(itr.next());
     }
 }
-

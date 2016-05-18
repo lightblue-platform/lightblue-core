@@ -35,12 +35,12 @@ public class Filter extends Step<ResultDocument> {
     private final QueryEvaluator qe;
     private final QueryExpression q;
     private final Source<ResultDocument> source;
-    
-    public Filter(ExecutionBlock block,Source<ResultDocument> source,QueryExpression q) {
+
+    public Filter(ExecutionBlock block, Source<ResultDocument> source, QueryExpression q) {
         super(block);
-        this.source=source;
-        this.q=q;
-        this.qe=QueryEvaluator.getInstance(q,block.getMetadata());
+        this.source = source;
+        this.q = q;
+        this.qe = QueryEvaluator.getInstance(q, block.getMetadata());
     }
 
     @Override
@@ -48,16 +48,16 @@ public class Filter extends Step<ResultDocument> {
         return new StepResultWrapper<ResultDocument>(source.getStep().getResults(ctx)) {
             @Override
             public Stream<ResultDocument> stream() {
-                return super.stream().filter(doc->qe.evaluate(doc.getDoc()).getResult());
+                return super.stream().filter(doc -> qe.evaluate(doc.getDoc()).getResult());
             }
-        };        
+        };
     }
 
     @Override
     public JsonNode toJson() {
-        ObjectNode o=JsonNodeFactory.instance.objectNode();
-        o.set("filter",q.toJson());
-        o.set("source",source.getStep().toJson());
+        ObjectNode o = JsonNodeFactory.instance.objectNode();
+        o.set("filter", q.toJson());
+        o.set("source", source.getStep().toJson());
         return o;
     }
 }

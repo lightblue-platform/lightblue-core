@@ -27,36 +27,36 @@ import com.redhat.lightblue.assoc.qrew.Rewriter;
 import com.redhat.lightblue.util.CopyOnWriteIterator;
 
 /**
- * If 
+ * If
  * <pre>
  *   q={$and:{q1,q2,...,{$and:{x1,x2...}},...,qn}}
- * </pre>
- * this rewrites q as
+ * </pre> this rewrites q as
  * <pre>
  *   q={$and:{q1,q2,...,qn,x1,x2,...}}
  * </pre>
  */
 public class PromoteNestedAND extends Rewriter {
 
-    public static final Rewriter INSTANCE=new PromoteNestedAND();
+    public static final Rewriter INSTANCE = new PromoteNestedAND();
 
     @Override
     public QueryExpression rewrite(QueryExpression q) {
-        NaryLogicalExpression le=dyncast(NaryLogicalExpression.class,q);
-        if(le!=null) {
-            if(le.getOp()==NaryLogicalOperator._and) {
-                CopyOnWriteIterator<QueryExpression> itr=new CopyOnWriteIterator<>(le.getQueries());
-                while(itr.hasNext()) {
-                    QueryExpression x=itr.next();
-                    NaryLogicalExpression nested=dyncast(NaryLogicalExpression.class,x);
-                    if(nested!=null&&nested.getOp()==NaryLogicalOperator._and) {
+        NaryLogicalExpression le = dyncast(NaryLogicalExpression.class, q);
+        if (le != null) {
+            if (le.getOp() == NaryLogicalOperator._and) {
+                CopyOnWriteIterator<QueryExpression> itr = new CopyOnWriteIterator<>(le.getQueries());
+                while (itr.hasNext()) {
+                    QueryExpression x = itr.next();
+                    NaryLogicalExpression nested = dyncast(NaryLogicalExpression.class, x);
+                    if (nested != null && nested.getOp() == NaryLogicalOperator._and) {
                         // Remove this element, and add all its queries to the parent query
                         itr.remove();
                         itr.getCopiedList().addAll(nested.getQueries());
                     }
                 }
-                if(itr.isCopied())
-                    return new NaryLogicalExpression(NaryLogicalOperator._and,itr.getCopiedList());
+                if (itr.isCopied()) {
+                    return new NaryLogicalExpression(NaryLogicalOperator._and, itr.getCopiedList());
+                }
             }
         }
         return q;

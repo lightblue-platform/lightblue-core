@@ -65,15 +65,15 @@ public class ArrayAddExpressionEvaluator extends Updater {
         private final Value value;
         private RValueExpression.RValueType rvalueType;
 
-        public RValueData(Path refPath, Type refType, Value value,RValueExpression.RValueType rvType) {
+        public RValueData(Path refPath, Type refType, Value value, RValueExpression.RValueType rvType) {
             this.refPath = refPath;
             this.refType = refType;
             this.value = value;
-            this.rvalueType=rvType;
+            this.rvalueType = rvType;
         }
 
         public String toString() {
-            return "refPath:"+refPath+" refType:"+refType+" value:"+value+" rvType:"+rvalueType;
+            return "refPath:" + refPath + " refType:" + refType + " value:" + value + " rvType:" + rvalueType;
         }
     }
 
@@ -135,24 +135,20 @@ public class ArrayAddExpressionEvaluator extends Updater {
         if (element instanceof ObjectArrayElement) {
             if (refMd != null && !refMd.getType().equals(element.getType())) {
                 throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + " <- " + refPath);
-            } else {
-                if(rvalue.getType()==RValueExpression.RValueType._value) {
-                    Value v=rvalue.getValue();
-                    if(!(v.getValue() instanceof ObjectNode) &&
-                       !(v.getValue() instanceof ArrayNode) )
-                        throw new EvaluationError(CrudConstants.ERR_EXPECTED_OBJECT_VALUE + arrayField);
+            } else if (rvalue.getType() == RValueExpression.RValueType._value) {
+                Value v = rvalue.getValue();
+                if (!(v.getValue() instanceof ObjectNode)
+                        && !(v.getValue() instanceof ArrayNode)) {
+                    throw new EvaluationError(CrudConstants.ERR_EXPECTED_OBJECT_VALUE + arrayField);
                 }
             }
-        } else {
-            if (refMd != null && !refMd.getType().equals(element.getType())) {
-                throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + "<-" + refPath);
-            } else {
-                if(rvalue.getType()==RValueExpression.RValueType._value) {
-                    Value v=rvalue.getValue();
-                    if(v.getValue() instanceof ObjectNode ||
-                       v.getValue() instanceof ArrayNode) 
-                        throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE + arrayField);
-                }
+        } else if (refMd != null && !refMd.getType().equals(element.getType())) {
+            throw new EvaluationError(CrudConstants.ERR_INVALID_ASSIGNMENT + arrayField + "<-" + refPath);
+        } else if (rvalue.getType() == RValueExpression.RValueType._value) {
+            Value v = rvalue.getValue();
+            if (v.getValue() instanceof ObjectNode
+                    || v.getValue() instanceof ArrayNode) {
+                throw new EvaluationError(CrudConstants.ERR_EXPECTED_VALUE + arrayField);
             }
         }
     }
@@ -169,13 +165,13 @@ public class ArrayAddExpressionEvaluator extends Updater {
         Path absPath = new Path(contextPath, arrayField);
         JsonNode node = doc.get(absPath);
         int insertTo = insertionIndex;
-        if(node==null||node instanceof NullNode) {
-            doc.modify(absPath,node=factory.arrayNode(),true);
+        if (node == null || node instanceof NullNode) {
+            doc.modify(absPath, node = factory.arrayNode(), true);
         }
         if (node instanceof ArrayNode) {
             ArrayNode arrayNode = (ArrayNode) node;
             for (RValueData rvalueData : values) {
-                LOGGER.debug("add element to {} rvalue:{}", absPath,rvalueData);
+                LOGGER.debug("add element to {} rvalue:{}", absPath, rvalueData);
                 Object newValue = null;
                 Type newValueType = null;
                 JsonNode newValueNode = null;
@@ -188,12 +184,12 @@ public class ArrayAddExpressionEvaluator extends Updater {
                     }
                 } else if (rvalueData.value != null) {
                     newValue = rvalueData.value.getValue();
-                    newValueNode = newValue instanceof JsonNode?(JsonNode)newValue:fieldMd.getElement().getType().toJson(factory, newValue);
+                    newValueNode = newValue instanceof JsonNode ? (JsonNode) newValue : fieldMd.getElement().getType().toJson(factory, newValue);
                     newValueType = fieldMd.getElement().getType();
-                } else if (rvalueData.rvalueType==RValueExpression.RValueType._null) {
+                } else if (rvalueData.rvalueType == RValueExpression.RValueType._null) {
                     newValueNode = factory.nullNode();
                 }
-                LOGGER.debug("newValueType:{}, newValue:{}, newValueNode:{} ",newValueType, newValue, newValueNode);
+                LOGGER.debug("newValueType:{}, newValue:{}, newValueNode:{} ", newValueType, newValue, newValueNode);
 
                 if (insertTo >= 0) {
                     // If we're inserting, make sure we have that many elements

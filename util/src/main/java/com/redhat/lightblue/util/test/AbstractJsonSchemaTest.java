@@ -72,7 +72,7 @@ public abstract class AbstractJsonSchemaTest extends AbstractJsonNodeTest {
 
         // if report isn't null it's a failure and the value of report is the detail of why
         String report = JsonUtils.jsonSchemaValidation(schema, instance);
-        if(report != null){
+        if (report != null) {
             Assert.fail("Expected validation to succeed! Resource: " + documentResourceName + " Messages: " + report.replaceAll("\n", " "));
         }
     }

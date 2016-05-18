@@ -34,7 +34,7 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
     private List<T> copiedList = null;
     private int ix;
     private final Iterator<T> readItr;
-    private boolean deleted=false;
+    private boolean deleted = false;
 
     /**
      * Constructs an iterator for the given list
@@ -55,9 +55,10 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
         // If pointer is invalid, don't skip. The element under
         // pointer is deleted, so it is already pointing to the next
         // one
-        if(!deleted)
+        if (!deleted) {
             ix++;
-        deleted=false;
+        }
+        deleted = false;
         return readItr.next();
     }
 
@@ -68,11 +69,12 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
     @Override
     public void remove() {
         // Removing an element makes the current pointer invalid.
-        if(deleted)
+        if (deleted) {
             throw new NoSuchElementException();
+        }
         copy();
         copiedList.remove(ix);
-        deleted=true;
+        deleted = true;
     }
 
     /**
@@ -82,8 +84,9 @@ public class CopyOnWriteIterator<T> implements Iterator<T> {
      * sets 0th element to x not the 1st element
      */
     public void set(T object) {
-        if(deleted)
+        if (deleted) {
             throw new NoSuchElementException();
+        }
         copy();
         copiedList.set(ix, object);
     }

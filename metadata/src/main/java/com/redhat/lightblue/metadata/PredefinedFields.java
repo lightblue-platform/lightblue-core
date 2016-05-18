@@ -80,23 +80,25 @@ public final class PredefinedFields {
     /**
      * Updates all array size values in the given document
      */
-    public static void updateArraySizes(EntityMetadata md,JsonNodeFactory factory, JsonDoc doc) {
-        FieldCursor cursor=md.getFieldCursor();
-        while(cursor.next()) {
-            FieldTreeNode f=cursor.getCurrentNode();
-            if(f.getName().endsWith("#")) {
-                Path lengthField=cursor.getCurrentPath();
-                String ls=lengthField.toString();
-                Path arrField=new Path(ls.substring(0,ls.length()-1));
+    public static void updateArraySizes(EntityMetadata md, JsonNodeFactory factory, JsonDoc doc) {
+        FieldCursor cursor = md.getFieldCursor();
+        while (cursor.next()) {
+            FieldTreeNode f = cursor.getCurrentNode();
+            if (f.getName().endsWith("#")) {
+                Path lengthField = cursor.getCurrentPath();
+                String ls = lengthField.toString();
+                Path arrField = new Path(ls.substring(0, ls.length() - 1));
                 try {
-                    if(md.resolve(arrField)!=null) {
-                        JsonNode arrNode=doc.get(arrField);
-                        if(arrNode==null||arrNode instanceof NullNode)
-                            doc.modify(lengthField,null,false);
-                        else
-                            doc.modify(lengthField,factory.numberNode(arrNode.size()),false);
+                    if (md.resolve(arrField) != null) {
+                        JsonNode arrNode = doc.get(arrField);
+                        if (arrNode == null || arrNode instanceof NullNode) {
+                            doc.modify(lengthField, null, false);
+                        } else {
+                            doc.modify(lengthField, factory.numberNode(arrNode.size()), false);
+                        }
                     }
-                } catch(Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
     }

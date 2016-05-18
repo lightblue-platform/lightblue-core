@@ -41,8 +41,8 @@ public class NaryFieldRelationalExpression extends NaryRelationalExpression {
     public NaryFieldRelationalExpression(Path field,
                                          NaryRelationalOperator op,
                                          Path rfield) {
-        super(field,op);
-        this.rfield=rfield;
+        super(field, op);
+        this.rfield = rfield;
     }
 
     /**
@@ -58,8 +58,8 @@ public class NaryFieldRelationalExpression extends NaryRelationalExpression {
     @Override
     public JsonNode toJson() {
         return getFactory().objectNode().put("field", getField().toString()).
-            put("op", getOp().toString()).
-            put("rfield", rfield.toString());
+                put("op", getOp().toString()).
+                put("rfield", rfield.toString());
     }
 
     /**
@@ -76,7 +76,7 @@ public class NaryFieldRelationalExpression extends NaryRelationalExpression {
                     if (x != null) {
                         Path field = new Path(x.asText());
                         x = node.get("rfield");
-                        if(x!=null) {
+                        if (x != null) {
                             return new NaryFieldRelationalExpression(field, op, new Path(x.asText()));
                         }
                     }

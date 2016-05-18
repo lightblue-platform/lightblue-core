@@ -26,22 +26,21 @@ import java.util.ArrayList;
 import com.redhat.lightblue.metadata.ResolvedReferenceField;
 
 /**
- * Instances of this class is used to associate additional data to
- * query plan nodes and edges. The actual implementation of
- * QueryPlanData is determined by the caller based on the iterator and
- * scorer used. It is expected that particular iterator and scorers
- * will need different types of data associated with nodes to process
- * the query plan. 
+ * Instances of this class is used to associate additional data to query plan
+ * nodes and edges. The actual implementation of QueryPlanData is determined by
+ * the caller based on the iterator and scorer used. It is expected that
+ * particular iterator and scorers will need different types of data associated
+ * with nodes to process the query plan.
  *
  * Subclasses should override the newInstance and copyFrom methods
  */
 public class QueryPlanData implements Serializable {
 
-    private static final long serialVersionUID=1l;
-    
-    private List<Conjunct> conjuncts=new ArrayList<>();
+    private static final long serialVersionUID = 1l;
+
+    private List<Conjunct> conjuncts = new ArrayList<>();
     private ResolvedReferenceField referenceField;
-    
+
     /**
      * The query clauses associated with this node/edge
      */
@@ -53,33 +52,34 @@ public class QueryPlanData implements Serializable {
      * The query clauses associated with this node/edge
      */
     public void setConjuncts(List<Conjunct> l) {
-        conjuncts=l;
+        conjuncts = l;
     }
 
     /**
-     * For edges, the reference field 
+     * For edges, the reference field
      */
     public ResolvedReferenceField getReference() {
         return referenceField;
     }
 
     /**
-     * For edges, the reference field 
+     * For edges, the reference field
      */
     public void setReference(ResolvedReferenceField reference) {
-        this.referenceField=reference;
+        this.referenceField = reference;
     }
 
-    
     /**
-     * Copies contents of <code>source</code> into this. Subclasses should override this
+     * Copies contents of <code>source</code> into this. Subclasses should
+     * override this
      */
     public void copyFrom(QueryPlanData source) {
-        if(source.conjuncts!=null)
-            conjuncts=new ArrayList<>(source.conjuncts);
-        else
-            conjuncts=null;
-        referenceField=source.referenceField;
+        if (source.conjuncts != null) {
+            conjuncts = new ArrayList<>(source.conjuncts);
+        } else {
+            conjuncts = null;
+        }
+        referenceField = source.referenceField;
     }
 
     /**
@@ -91,6 +91,6 @@ public class QueryPlanData implements Serializable {
 
     @Override
     public String toString() {
-        return "Conjuncts:"+conjuncts;
+        return "Conjuncts:" + conjuncts;
     }
 }
