@@ -23,13 +23,21 @@ import java.util.ArrayList;
 
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.redhat.lightblue.mediator.OperationContext;
+import com.redhat.lightblue.mediator.SimpleFindImpl;
 
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.DocCtx;
+
+import com.redhat.lightblue.util.JsonDoc;
 
 /**
  * Performs search
@@ -77,6 +85,28 @@ public class Search extends AbstractSearchStep {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public JsonNode explain(ExecutionContext ctx) {
+        ObjectNode node=(ObjectNode)toJson();
+        CRUDFindRequest req=buildFindRequest(ctx);
+        OperationContext searchCtx = ctx.getOperationContext().
+            getDerivedOperationContext(block.getMetadata().getName(), req);
+        new SimpleFindImpl(block.getMetadata(), searchCtx.getFactory()).explain(searchCtx,req);
+        List<JsonDoc> docs = searchCtx.getOutputDocumentsWithoutErrors();
+        if(docs!=null&&!docs.isEmpty()) {
+            if(docs.size()==1) {
+                node.set("implementation",docs.get(0).getRoot());
+            } else {
+                ArrayNode arr=JsonNodeFactory.instance.arrayNode();
+                for(JsonDoc doc:docs) {
+                    arr.add(doc.getRoot());
+                }
+                node.set("implementation",arr);
+            }
+        }
+        return node;
     }
 
 }

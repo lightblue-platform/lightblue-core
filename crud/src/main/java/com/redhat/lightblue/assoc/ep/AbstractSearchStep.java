@@ -100,6 +100,7 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
         return search(block, ctx, req);
     }
 
+
     public OperationContext search(ExecutionBlock block, ExecutionContext ctx, CRUDFindRequest req) {
         OperationContext searchCtx = ctx.getOperationContext().
                 getDerivedOperationContext(block.getMetadata().getName(), req);
@@ -152,4 +153,5 @@ public abstract class AbstractSearchStep extends Step<ResultDocument> {
         }
         return o;
     }
+
 }

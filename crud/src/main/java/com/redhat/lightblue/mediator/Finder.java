@@ -25,4 +25,6 @@ import com.redhat.lightblue.crud.CRUDFindResponse;
 public interface Finder {
 
     CRUDFindResponse find(OperationContext ctx, CRUDFindRequest req);
+
+    void explain(OperationContext ctx, CRUDFindRequest req);
 }

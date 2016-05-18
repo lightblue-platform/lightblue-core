@@ -73,7 +73,7 @@ public class Assemble extends Step<ResultDocument> {
     }
 
     @Override
-    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+    public void initialize() {
         destinations = new HashMap<ExecutionBlock, Assemble>();
         for (ExecutionBlock x : destinationBlocks) {
             Assemble a = x.getStep(Assemble.class);
@@ -83,6 +83,10 @@ public class Assemble extends Step<ResultDocument> {
                 throw new IllegalArgumentException("No assemble step in " + x);
             }
         }
+    }
+    
+    @Override
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
         LOGGER.debug("getResults, source:{}, destinations={}", source, destinations);
         // Get the results from the source
         StepResult<ResultDocument> sourceResults = source.getStep().getResults(ctx);
@@ -194,8 +198,13 @@ public class Assemble extends Step<ResultDocument> {
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
         a.set("right", array);
         for (ExecutionBlock b : destinationBlocks) {
-            array.add(b.toJson());
+            ObjectNode detail=JsonNodeFactory.instance.objectNode();
+            AssociationQuery aq = b.getAssociationQueryForEdge(block);
+            detail.set("associationQuery",aq.getQuery().toJson());
+            detail.set("source",b.toJson());
+            array.add(detail);
         }
         return o;
     }
+
 }
