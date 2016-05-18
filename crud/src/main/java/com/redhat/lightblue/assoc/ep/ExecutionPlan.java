@@ -301,7 +301,10 @@ public class ExecutionPlan {
         }
 
         for (ExecutionBlock block : qp2BlockMap.values()) {
-            block.initialize();
+            block.linkBlocks();
+        }
+        for (ExecutionBlock block : qp2BlockMap.values()) {
+            block.initializeSteps();
         }
     }
 
@@ -453,5 +456,9 @@ public class ExecutionPlan {
     @Override
     public String toString() {
         return toJson().toString();
+    }
+
+    public JsonNode explain(ExecutionContext ctx) {
+        return resultStep.explain(ctx);
     }
 }

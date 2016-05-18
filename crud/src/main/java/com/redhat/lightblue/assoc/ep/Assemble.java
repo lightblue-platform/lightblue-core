@@ -73,7 +73,7 @@ public class Assemble extends Step<ResultDocument> {
     }
 
     @Override
-    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
+    public void initialize() {
         destinations = new HashMap<ExecutionBlock, Assemble>();
         for (ExecutionBlock x : destinationBlocks) {
             Assemble a = x.getStep(Assemble.class);
@@ -83,6 +83,10 @@ public class Assemble extends Step<ResultDocument> {
                 throw new IllegalArgumentException("No assemble step in " + x);
             }
         }
+    }
+    
+    @Override
+    public StepResult<ResultDocument> getResults(ExecutionContext ctx) {
         LOGGER.debug("getResults, source:{}, destinations={}", source, destinations);
         // Get the results from the source
         StepResult<ResultDocument> sourceResults = source.getStep().getResults(ctx);

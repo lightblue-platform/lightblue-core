@@ -49,6 +49,8 @@ import com.redhat.lightblue.assoc.ep.StepResult;
 import com.redhat.lightblue.assoc.ep.ResultDocument;
 import com.redhat.lightblue.assoc.ep.ExecutionContext;
 
+import com.redhat.lightblue.util.JsonDoc;
+
 /**
  * Finder for searches involving composite entities
  *
@@ -102,34 +104,51 @@ public class CompositeFindImpl implements Finder {
         }
     }
 
+    private void initialize(OperationContext ctx,
+                            CRUDFindRequest req) {
+        if(executionPlan==null) {
+            // Composite find algorithm works like this:
+            //   1) Find the minimal entity tree required to evaluate the request.query
+            //   2) Find a query plan for that minimal entity tree
+            //   3) If the query plan root is also the root entity, then expand that query
+            //      plan to include all nodes
+            //   4) Execute search based on query plan
+            //   5) If query plan node is not the entity root, find documents found for entity root,
+            //      and re-retrieve the documents
+            // First: detemine minimal entity tree containing the nodes sufficient to
+            // evaluate the query
+            Set<CompositeMetadata> minimalTree = findMinimalSetOfQueryEntities(req.getQuery(),
+                                                                               ctx.getTopLevelEntityMetadata());
+            
+            selectQueryPlan(req.getQuery(), minimalTree);
+            LOGGER.debug("Search query plan:{}, retrieval query plan:{}", searchQPlan, retrievalQPlan);
+            
+            executionPlan = new ExecutionPlan(req.getProjection(),
+                                              req.getSort(),
+                                              req.getFrom(),
+                                              req.getTo(),
+                                              root,
+                                              searchQPlan,
+                                              retrievalQPlan);
+        }
+    }
+    
+    @Override
+    public void explain(OperationContext ctx,
+                        CRUDFindRequest req) {
+        initialize(ctx,req);
+        ExecutionContext executionContext = new ExecutionContext(ctx,null);
+        JsonDoc doc=new JsonDoc(executionPlan.explain(executionContext));
+        ctx.addDocument(doc);        
+    }
+    
     @Override
     public CRUDFindResponse find(OperationContext ctx,
                                  CRUDFindRequest req) {
         LOGGER.debug("Composite find: start");
+        
+        initialize(ctx,req);
 
-        // Composite find algorithm works like this:
-        //   1) Find the minimal entity tree required to evaluate the request.query
-        //   2) Find a query plan for that minimal entity tree
-        //   3) If the query plan root is also the root entity, then expand that query
-        //      plan to include all nodes
-        //   4) Execute search based on query plan
-        //   5) If query plan node is not the entity root, find documents found for entity root,
-        //      and re-retrieve the documents
-        // First: detemine minimal entity tree containing the nodes sufficient to
-        // evaluate the query
-        Set<CompositeMetadata> minimalTree = findMinimalSetOfQueryEntities(req.getQuery(),
-                ctx.getTopLevelEntityMetadata());
-
-        selectQueryPlan(req.getQuery(), minimalTree);
-        LOGGER.debug("Search query plan:{}, retrieval query plan:{}", searchQPlan, retrievalQPlan);
-
-        executionPlan = new ExecutionPlan(req.getProjection(),
-                req.getSort(),
-                req.getFrom(),
-                req.getTo(),
-                root,
-                searchQPlan,
-                retrievalQPlan);
         ctx.setProperty(Mediator.CTX_QPLAN, searchQPlan == null ? retrievalQPlan : searchQPlan);
         LOGGER.debug("Execution plan:{}", executionPlan);
 

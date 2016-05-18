@@ -45,6 +45,13 @@ public abstract class Step<R> {
 
     public abstract JsonNode toJson();
 
+    public void initialize() {
+    }
+
+    public JsonNode explain(ExecutionContext ctx) {
+        return toJson();
+    }
+
     /**
      * Returns the associated block of this step
      */

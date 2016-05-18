@@ -28,8 +28,11 @@ import com.redhat.lightblue.crud.CRUDController;
 import com.redhat.lightblue.crud.CRUDFindRequest;
 import com.redhat.lightblue.crud.CRUDFindResponse;
 import com.redhat.lightblue.crud.Factory;
+import com.redhat.lightblue.crud.ExplainQuerySupport;
 
 import com.redhat.lightblue.metadata.EntityMetadata;
+
+import com.redhat.lightblue.util.JsonDoc;
 
 public class SimpleFindImpl implements Finder {
 
@@ -55,5 +58,21 @@ public class SimpleFindImpl implements Finder {
                 req.getFrom(),
                 req.getTo());
         return result;
+    }
+
+    @Override
+    public void explain(OperationContext ctx,
+                        CRUDFindRequest req) {
+        if(controller instanceof ExplainQuerySupport) {
+            JsonDoc doc=new JsonDoc(ctx.getFactory().getNodeFactory().objectNode());
+            ((ExplainQuerySupport)controller).explain(ctx,
+                                                      req.getQuery(),
+                                                      req.getProjection(),
+                                                      req.getSort(),
+                                                      req.getFrom(),
+                                                      req.getTo(),
+                                                      doc);
+            ctx.addDocument(doc);
+        }
     }
 }

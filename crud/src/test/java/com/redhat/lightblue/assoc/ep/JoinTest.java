@@ -139,9 +139,9 @@ public class JoinTest extends AbstractJsonSchemaTest {
         cblock.addSourceBlock(ablock);
         cblock.addSourceBlock(bblock);
 
-        ablock.initialize();
-        bblock.initialize();
-        cblock.initialize();
+        ablock.linkBlocks();
+        bblock.linkBlocks();
+        cblock.linkBlocks();
 
         TestStep a = new TestStep(ablock,
                 resultDoc(ablock, "{'_id':1}"),
@@ -193,8 +193,8 @@ public class JoinTest extends AbstractJsonSchemaTest {
                 new ArrayList<Conjunct>()));
         /// a -> c
         cblock.addSourceBlock(ablock);
-        ablock.initialize();
-        cblock.initialize();
+        ablock.linkBlocks();
+        cblock.linkBlocks();
         TestStep a = new TestStep(ablock,
                 resultDoc(ablock, "{'_id':1}"),
                 resultDoc(ablock, "{'_id':2}"),

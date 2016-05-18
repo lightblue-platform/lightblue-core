@@ -87,7 +87,7 @@ public class ExecutionBlock {
     /**
      * This should be called after all execution blocks are built
      */
-    public void initialize() {
+    public void linkBlocks() {
         // Build a list of all reference fields that need to be populated for the docs produces by this block
         // But to do that, we need the destination nodes of this block. We don't have that.
         // What we have is the sources. So, we populate the reference fields of our sources instead.
@@ -99,6 +99,10 @@ public class ExecutionBlock {
                 }
             }
         }
+    }
+
+    public void initializeSteps() {
+        steps.stream().forEach(Step::initialize);
     }
 
     /**

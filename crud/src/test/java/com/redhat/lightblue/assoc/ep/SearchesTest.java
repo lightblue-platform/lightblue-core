@@ -145,9 +145,9 @@ public class SearchesTest extends AbstractJsonSchemaTest {
         cblock.addSourceBlock(ablock);
         cblock.addSourceBlock(bblock);
 
-        ablock.initialize();
-        bblock.initialize();
-        cblock.initialize();
+        ablock.linkBlocks();
+        bblock.linkBlocks();
+        cblock.linkBlocks();
 
         Map<ChildSlot, QueryExpression> map = Searches.
                 writeChildQueriesFromParentDoc(a1, resultDoc(ablock, "{'id':'a','obj1':{'c_ref':'ref'}}"));
@@ -176,8 +176,8 @@ public class SearchesTest extends AbstractJsonSchemaTest {
 
         lblock.addSourceBlock(ublock);
 
-        ublock.initialize();
-        lblock.initialize();
+        ublock.linkBlocks();
+        lblock.linkBlocks();
 
         Map<ChildSlot, QueryExpression> map = Searches.
                 writeChildQueriesFromParentDoc(a1, resultDoc(ublock, "{'_id':1,'legalEntities':[{'legalEntityId':1,'title':'a'},{'legalEntityId':2,'title':'b'}]}"));
@@ -210,8 +210,8 @@ public class SearchesTest extends AbstractJsonSchemaTest {
 
         ublock.addSourceBlock(lblock);
 
-        ublock.initialize();
-        lblock.initialize();
+        ublock.linkBlocks();
+        lblock.linkBlocks();
 
         ArrayList<ResultDocument> l = new ArrayList<>();
         l.add(resultDoc(lblock, "{'_id':1,'name':'a'}"));
@@ -250,9 +250,9 @@ public class SearchesTest extends AbstractJsonSchemaTest {
         lblock.addSourceBlock(ublock);
         lblock.addSourceBlock(u2block);
 
-        ublock.initialize();
-        u2block.initialize();
-        lblock.initialize();
+        ublock.linkBlocks();
+        u2block.linkBlocks();
+        lblock.linkBlocks();
 
         ResultDocument parentDoc = resultDoc(ublock, "{'_id':1,'legalEntities':[{'legalEntityId':1},{'legalEntityId':2}]}");
         ArrayList<ResultDocument> ulist = new ArrayList<>();
