@@ -224,4 +224,21 @@ public class QueryPlanChooserTest extends AbstractJsonNodeTest {
         System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
         Assert.assertEquals("U", chooser.getBestPlan().getSources()[0].getMetadata().getName());
     }
+
+    @Test
+    public void testNestedElemMatchAssignedToNode() throws Exception {
+        GMD gmd = new GMD(projection("{'field':'us','include':1}"), null);
+        CompositeMetadata md = CompositeMetadata.buildCompositeMetadata(getMd("composite/L.json"), gmd);
+        QueryPlanChooser chooser = new QueryPlanChooser(md,
+                new BruteForceQueryPlanIterator(),
+                new IndexedFieldScorer(),
+                query("{'array':'us','elemMatch':{'array':'authentications','elemMatch':{ '$and':[ { 'field':'principal','op':'$in','values':['a']}, {'field':'providerName','op':'$eq','rvalue':'p'} ] } }}"),
+                null);
+        chooser.choose();
+        System.out.println("Best plan:" + chooser.getBestPlan().mxToString());
+        System.out.println("Best plan:" + chooser.getBestPlan().treeToString());
+        System.out.println("Conjunct:" + chooser.getBestPlan().getSources()[0].getData().getConjuncts());
+        Assert.assertEquals("U", chooser.getBestPlan().getSources()[0].getMetadata().getName());
+        Assert.assertEquals(1, chooser.getBestPlan().getSources()[0].getData().getConjuncts().size());
+    }
 }

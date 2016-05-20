@@ -74,6 +74,8 @@ import com.redhat.lightblue.util.Error;
 import com.redhat.lightblue.util.JsonDoc;
 import com.redhat.lightblue.util.Path;
 
+import com.redhat.lightblue.assoc.CompositeFindImpl;
+
 /**
  * The mediator looks at a request, performs basic validation, and passes the
  * operation to one or more of the controllers based on the request attributes.
@@ -386,7 +388,8 @@ public class Mediator {
         LOGGER.debug("Query:{} projection:{}", freq.getQuery(), freq.getProjection());
 
         OperationContext findCtx = new OperationContext(freq, CRUDOperation.FIND, ctx);
-        Finder finder = new CompositeFindImpl(md, factory);
+        CompositeFindImpl finder = new CompositeFindImpl(md);
+        finder.setParallelism(9);
         CRUDFindResponse response = finder.find(findCtx, freq.getCRUDFindRequest());
         List<JsonDoc> docs = findCtx.getOutputDocumentsWithoutErrors();
         LOGGER.debug("Found documents:{}", docs.size());
@@ -448,7 +451,9 @@ public class Mediator {
                     finder = new SimpleFindImpl(md, factory);
                 } else {
                     LOGGER.debug("Composite entity");
-                    finder = new CompositeFindImpl(md, factory);
+                    finder = new CompositeFindImpl(md);
+                    // This can be read from a configuration
+                    ((CompositeFindImpl) finder).setParallelism(9);
                 }
 
                 CRUDFindResponse result = finder.find(ctx, req.getCRUDFindRequest());
@@ -493,6 +498,63 @@ public class Mediator {
             Error.pop();
         }
         return response;
+    }
+
+    /**
+     * Explains the query. Part of the implementation is done here at
+     * the core level, and then passed to the backend to fill in
+     * back-end specifics
+     */
+    public Response explain(FindRequest req) {
+        LOGGER.debug("explain {}", req.getEntityVersion());
+        Error.push("explain(" + req.getEntityVersion().toString() + ")");
+        Response response = new Response(factory.getNodeFactory());
+        response.setStatus(OperationStatus.ERROR);
+        try {
+            OperationContext ctx = newCtx(req, CRUDOperation.FIND);
+            CompositeMetadata md = ctx.getTopLevelEntityMetadata();
+            Finder finder;
+            if (ctx.isSimple()) {
+                LOGGER.debug("Simple entity");
+                finder = new SimpleFindImpl(md, factory);
+            } else {
+                LOGGER.debug("Composite entity");
+                finder = new CompositeFindImpl(md);
+                // This can be read from a configuration
+                ((CompositeFindImpl) finder).setParallelism(9);
+            }
+            
+            finder.explain(ctx, req.getCRUDFindRequest());
+            
+            List<JsonDoc> foundDocuments = ctx.getOutputDocumentsWithoutErrors();
+            if (foundDocuments != null && !foundDocuments.isEmpty()) {
+                ctx.setStatus(OperationStatus.COMPLETE);
+                List<DocCtx> documents = ctx.getDocuments();
+                response.setMatchCount(documents.size());
+                if (documents != null) {
+                    List<JsonDoc> resultList = new ArrayList<>(documents.size());
+                    for (DocCtx doc : documents) {
+                        resultList.add(doc.getOutputDocument());
+                    }
+                    response.setEntityData(JsonDoc.listToDoc(resultList, factory.getNodeFactory()));
+                }
+            } else {
+                ctx.setStatus(OperationStatus.ERROR);
+            }
+            
+            response.setStatus(ctx.getStatus());
+            response.getErrors().addAll(ctx.getErrors());
+            response.getDataErrors().addAll(ctx.getDataErrors());
+        } catch (Error e) {
+            LOGGER.debug("Error during explain:{}", e);
+            response.getErrors().add(e);
+        } catch (Exception e) {
+            LOGGER.debug("Exception during explain:{}", e);
+            response.getErrors().add(Error.get(CrudConstants.ERR_CRUD, e));
+        } finally {
+            Error.pop();
+        }
+        return response;        
     }
 
     public static class BulkExecutionContext {

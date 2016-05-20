@@ -1,0 +1,80 @@
+{
+    "entityInfo": {
+        "name": "UC",
+        "datastore": {
+            "datasource": "mongodata",
+            "collection": "UC",
+            "backend": "mongo"
+        }
+    },
+    "schema": {
+        "name": "UC",
+        "version": {
+            "value": "0.0.1",
+            "changelog": "log"
+        },
+        "status": {
+            "value": "active"
+        },
+        "access": {
+            "insert": [
+                "anyone"
+            ],
+            "update": [
+                "anyone"
+            ],
+            "find": [
+                "anyone"
+            ],
+            "delete": [
+                "anyone"
+            ]
+        },
+        "fields": {
+            "_id": { "type":"integer","constraints":{"identity":true}},
+            "userId": {
+                "type": "integer",
+                "constraints": {
+                    "identity": true
+                }
+            },
+            "userRedHatPrincipal": {
+                "type": "string",
+                "constraints": {
+                    "identity": true
+                }
+            },
+            "users": {
+                "type": "reference",
+                "entity": "U",
+                "versionValue": "0.0.1",
+                "query": {
+                    "$and": [
+                        {
+                            "field": "_id",
+                            "op": "$eq",
+                            "rfield": "$parent.userId"
+                        },
+                        {
+                            "array": "authentications",
+                            "elemMatch": {
+                                "$and": [
+                                    {
+                                        "field": "providerName",
+                                        "op": "$eq",
+                                        "rvalue": "p"
+                                    },
+                                    {
+                                        "field": "principal",
+                                        "op": "$eq",
+                                        "rfield": "$parent.$parent.userRedHatPrincipal"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

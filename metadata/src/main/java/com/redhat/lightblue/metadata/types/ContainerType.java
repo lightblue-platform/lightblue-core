@@ -81,7 +81,7 @@ public abstract class ContainerType implements Type {
 
     @Override
     public Object fromJson(JsonNode value) {
-        if (value instanceof NullNode || value == null) {
+        if (value == null || value instanceof NullNode) {
             return null;
         } else {
             throw new UnsupportedOperationException(MetadataConstants.ERR_FROM_JSON_NOT_SUPPORTED);

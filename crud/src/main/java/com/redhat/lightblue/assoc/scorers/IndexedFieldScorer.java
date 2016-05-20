@@ -39,11 +39,11 @@ import com.redhat.lightblue.metadata.Field;
 
 import com.redhat.lightblue.assoc.Conjunct;
 import com.redhat.lightblue.assoc.QueryPlanScorer;
+import com.redhat.lightblue.assoc.QueryFieldInfo;
 import com.redhat.lightblue.assoc.QueryPlan;
 import com.redhat.lightblue.assoc.QueryPlanNode;
 import com.redhat.lightblue.assoc.QueryPlanData;
 import com.redhat.lightblue.assoc.QueryPlanChooser;
-import com.redhat.lightblue.assoc.ResolvedFieldInfo;
 import com.redhat.lightblue.assoc.AssocConstants;
 
 import com.redhat.lightblue.util.Path;
@@ -185,10 +185,10 @@ public class IndexedFieldScorer implements QueryPlanScorer, Serializable {
 
             Set<Path> indexableFields = new HashSet<>();
             for (Conjunct cj : data.getConjuncts()) {
-                ResolvedFieldInfo[] cjFields = cj.getFieldInfo();
+                List<QueryFieldInfo> cjFields = cj.getFieldInfo();
                 // If conjunct has one field, index can be used to retrieve it
-                if (cjFields.length == 1) {
-                    indexableFields.add(cjFields[0].getEntityRelativeFieldName());
+                if (cjFields.size() == 1) {
+                    indexableFields.add(cjFields.get(0).getEntityRelativeFieldNameWithContext());
                 }
             }
             data.setIndexableFields(indexableFields);

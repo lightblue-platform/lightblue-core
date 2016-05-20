@@ -127,14 +127,14 @@ public final class OperationContext extends CRUDOperationContext {
      * @param callerRoles Roles of the current caller
      * @param hookManager the hook manager
      */
-    private OperationContext(Request request,
-                             Metadata metadata,
-                             Factory factory,
-                             CRUDOperation CRUDOperation,
-                             DefaultMetadataResolver resolver,
-                             List<DocCtx> docs,
-                             Set<String> callerRoles,
-                             HookManager hookManager) {
+    public OperationContext(Request request,
+                            Metadata metadata,
+                            Factory factory,
+                            CRUDOperation CRUDOperation,
+                            DefaultMetadataResolver resolver,
+                            List<DocCtx> docs,
+                            Set<String> callerRoles,
+                            HookManager hookManager) {
         super(CRUDOperation,
                 request.getEntityVersion().getEntity(),
                 factory,

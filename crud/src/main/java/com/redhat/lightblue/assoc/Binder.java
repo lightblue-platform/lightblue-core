@@ -18,37 +18,26 @@
  */
 package com.redhat.lightblue.assoc;
 
-import java.io.Serializable;
-
-import java.util.List;
-import java.util.ArrayList;
-
-import com.redhat.lightblue.util.Path;
-
 /**
- * Represents a reference to another document for another entity.
+ * A binder contains a field binding and its value
  */
-public class DocReference implements Serializable {
+public class Binder {
+    private final BoundObject binding;
+    private final Object value;
 
-    private static final long serialVersionUID = 1l;
+    public Binder(BoundObject binding, Object value) {
+        this.binding = binding;
+        this.value = value;
+    }
 
-    private final ResultDoc document;
-
-    /**
-     * Constructs a reference for the given document and field
-     */
-    public DocReference(ResultDoc document) {
-        this.document = document;
+    public BoundObject getBinding() {
+        return binding;
     }
 
     /**
-     * Returns the source document
+     * This is either a Value or a List<Value>
      */
-    public ResultDoc getDocument() {
-        return document;
-    }
-
-    public String toString() {
-        return document.getId().toString();
+    public Object getValue() {
+        return value;
     }
 }

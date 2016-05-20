@@ -58,7 +58,7 @@ public final class BigIntegerType implements Type, Serializable {
 
     @Override
     public Object fromJson(JsonNode node) {
-        if (node instanceof NullNode) {
+        if (node == null || node instanceof NullNode) {
             return null;
         } else if (node instanceof TextNode) {
             return new BigInteger(node.asText());

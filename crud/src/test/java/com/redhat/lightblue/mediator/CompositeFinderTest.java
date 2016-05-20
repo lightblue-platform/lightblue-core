@@ -576,6 +576,29 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
         Response response = mediator.find(fr);
         System.out.println(response.getEntityData());
         Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals(2, response.getEntityData().get(0).get("us").size());
+    }
+
+    @Test
+    public void elem_match_forward() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'userRedHatPrincipal','op':'=','rvalue':'a'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'users','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
+        Response response = mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
+    }
+
+    @Test
+    public void elem_match_backward() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'array':'users.*.legalEntities.*.emails','elemMatch':{'field':'address','op':'=','rvalue':'email@x.com'}}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'users','recursive':1}]"));
+        fr.setEntityVersion(new EntityVersion("UC", "0.0.1"));
+        Response response = mediator.find(fr);
+        System.out.println(response.getEntityData());
+        Assert.assertEquals(1, response.getEntityData().size());
     }
 
     // Errors during association retrieval should propagate

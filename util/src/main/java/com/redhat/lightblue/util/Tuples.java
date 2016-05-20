@@ -101,7 +101,7 @@ public class Tuples<T> {
             }
             if (nextExists) {
                 nextExists = null;
-                return tuple;
+                return new ArrayList<X>(tuple);
             } else {
                 throw new NoSuchElementException();
             }

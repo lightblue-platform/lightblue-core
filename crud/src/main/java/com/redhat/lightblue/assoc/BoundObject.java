@@ -16,29 +16,11 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.redhat.lightblue.query;
-
-import com.redhat.lightblue.util.Path;
+package com.redhat.lightblue.assoc;
 
 /**
- * This class keeps the mutable simple value a field can be bound to.
+ * Interface definition for BoundObject
  */
-public class ValueBinding extends FieldBinding {
-    private final BoundValue value;
-
-    public ValueBinding(Path field,
-                        BoundValue value,
-                        QueryExpression originalQ,
-                        QueryExpression boundQ) {
-        super(field, originalQ, boundQ);
-        this.value = value;
-    }
-
-    /**
-     * Returns the bound value
-     */
-    public BoundValue getValue() {
-        return value;
-    }
-
+public interface BoundObject {
+    QueryFieldInfo getFieldInfo();
 }
