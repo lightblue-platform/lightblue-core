@@ -50,6 +50,12 @@
             "name": {
                 "type": "string"
             },
+            "arr": {
+                "type":"array",
+                "items": {
+                    "type":"string"
+                }
+            },
             "us": {
                 "type":"reference",
                 "entity":"U",

@@ -535,6 +535,19 @@ public class CompositeFinderTest extends AbstractJsonSchemaTest {
     }
 
     @Test
+    public void projectSimpleArrayElements() throws Exception {
+        FindRequest fr = new FindRequest();
+        fr.setQuery(query("{'field':'_id','op':'=','rvalue':'1'}"));
+        fr.setProjection(projection("[{'field':'*','recursive':1},{'field':'legalEntities.*.legalEntity' }]"));
+        fr.setEntityVersion(new EntityVersion("U", "0.0.1"));
+
+        Response response = mediator.find(fr);
+        Assert.assertEquals(1, response.getEntityData().size());
+        Assert.assertEquals("l1", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.name")).asText());
+        Assert.assertEquals("arr0", JsonDoc.get(response.getEntityData().get(0), new Path("legalEntities.0.legalEntity.0.arr.0")).asText());
+    }
+
+    @Test
     public void updateWithAssocq() throws Exception {
         UpdateRequest urq = new UpdateRequest();
         urq.setQuery(query("{'array':'level1.arr1', 'elemMatch': {'field':'ref.*.field1','op':'=','rvalue':'bdeep1'}}"));

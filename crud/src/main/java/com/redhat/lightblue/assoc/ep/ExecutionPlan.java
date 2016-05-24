@@ -43,6 +43,7 @@ import com.redhat.lightblue.metadata.ObjectField;
 import com.redhat.lightblue.metadata.ArrayField;
 import com.redhat.lightblue.metadata.ArrayElement;
 import com.redhat.lightblue.metadata.ObjectArrayElement;
+import com.redhat.lightblue.metadata.SimpleArrayElement;
 import com.redhat.lightblue.metadata.ReferenceField;
 import com.redhat.lightblue.metadata.FieldTreeNode;
 import com.redhat.lightblue.metadata.FieldCursor;
@@ -404,6 +405,8 @@ public class ExecutionPlan {
                         || (node instanceof ArrayField && ((ArrayField) node).getElement() instanceof ObjectArrayElement)
                         || (node instanceof ArrayElement)) {
                     // include its member fields
+                } else if(node instanceof ArrayField && ((ArrayField) node).getElement() instanceof SimpleArrayElement) {
+                    fields.add(new Path(localField,Path.ANYPATH));
                 } else {
                     if (localProjection != null && localProjection.isFieldRequiredToEvaluateProjection(localField)) {
                         LOGGER.debug("{}: required", localField);
