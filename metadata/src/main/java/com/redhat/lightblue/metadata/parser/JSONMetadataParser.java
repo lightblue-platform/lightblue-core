@@ -85,6 +85,9 @@ public class JSONMetadataParser extends MetadataParser<JsonNode> {
 
     @Override
     public int getListSize(JsonNode list) {
+        if (list == null) {
+            return 0;
+        }
         return ((ArrayNode) list).size();
     }
 
