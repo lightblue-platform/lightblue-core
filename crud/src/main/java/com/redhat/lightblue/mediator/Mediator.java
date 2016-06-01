@@ -530,8 +530,8 @@ public class Mediator {
             if (foundDocuments != null && !foundDocuments.isEmpty()) {
                 ctx.setStatus(OperationStatus.COMPLETE);
                 List<DocCtx> documents = ctx.getDocuments();
-                response.setMatchCount(documents.size());
                 if (documents != null) {
+                    response.setMatchCount(documents.size());
                     List<JsonDoc> resultList = new ArrayList<>(documents.size());
                     for (DocCtx doc : documents) {
                         resultList.add(doc.getOutputDocument());
