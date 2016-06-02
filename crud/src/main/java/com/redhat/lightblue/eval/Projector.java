@@ -205,6 +205,8 @@ public abstract class Projector {
                                     project(factory, contextPath, cursor, ctx, true);
                             cursor.parent();
                             LOGGER.debug("Child object:{}", newNode);
+                        } else {
+                            newNode=factory.arrayNode();
                         }
                     } else {
                         newNode = fieldNode;
