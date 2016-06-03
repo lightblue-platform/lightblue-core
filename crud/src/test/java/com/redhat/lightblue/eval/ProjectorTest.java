@@ -412,6 +412,18 @@ public class ProjectorTest extends AbstractJsonNodeTest {
     }
 
     @Test
+    public void project_wanted_emptyArray() throws Exception {
+        // Set nf5 to an empty array
+        jsonDoc.modify(new Path("field6.nf5"), JSON_NODE_FACTORY.arrayNode(), true);
+        Projection p = EvalTestContext.projectionFromJson("{'field':'field6.*'}");
+        Projector projector = Projector.getInstance(p, md);
+        JsonDoc pdoc = projector.project(jsonDoc, JSON_NODE_FACTORY);
+        System.out.println(pdoc);
+        Assert.assertNotNull(pdoc.get(new Path("field6")));
+        Assert.assertNotNull(pdoc.get(new Path("field6.nf5")));
+    }
+
+    @Test
     public void include_then_exclude_626() throws Exception {
         Projection p = EvalTestContext.projectionFromJson("[ {'field':'field7','include':true,'match':{'field':'elemf3','op':'>','rvalue':3}},"
                 + "  {'field':'field7','include':false,'match':{'field':'elemf2','op':'=','rvalue':'elvalue1_2'}},"
