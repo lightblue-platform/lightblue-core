@@ -92,7 +92,7 @@ public final class PredefinedFields {
                     if (md.resolve(arrField) != null) {
                         JsonNode arrNode = doc.get(arrField);
                         if (arrNode == null || arrNode instanceof NullNode) {
-                            doc.modify(lengthField, null, false);
+                            doc.modify(lengthField, factory.numberNode(0), false);
                         } else {
                             doc.modify(lengthField, factory.numberNode(arrNode.size()), false);
                         }

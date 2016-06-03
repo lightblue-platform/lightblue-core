@@ -220,4 +220,27 @@ public class PredefinedFieldsTest {
         Assert.assertNull(doc.get(new Path("obj1.simpleArr#")));
         Assert.assertEquals(1, doc.get(new Path("obj1.nested.objArr#")).intValue());
     }
+
+    @Test
+    public void testRemoveArray() throws Exception {
+        JsonNodeFactory factory = JsonNodeFactory.withExactBigDecimals(false);
+        ObjectNode node = factory.objectNode();
+        JsonDoc doc = new JsonDoc(node);
+
+        ObjectNode obj1;
+        node.put("obj1", obj1 = factory.objectNode());
+        node.put("simpleString", factory.textNode("str"));
+        ArrayNode a1;
+        obj1.put("simpleArr", a1 = factory.arrayNode());
+        a1.add(factory.textNode("a"));
+        ObjectNode o;
+        obj1.put("nested", o = factory.objectNode());
+
+        o.put("objArr#", factory.numberNode(100));
+
+        System.out.println(doc);
+        PredefinedFields.updateArraySizes(getMD2(), factory, doc);
+
+        Assert.assertEquals(0,doc.get(new Path("obj1.nested.objArr#")).intValue());
+    }
 }
