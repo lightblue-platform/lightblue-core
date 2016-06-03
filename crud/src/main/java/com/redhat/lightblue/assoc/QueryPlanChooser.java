@@ -146,21 +146,24 @@ public class QueryPlanChooser {
             QueryPlanNode sourceNode = qplan.getNode(root);
             for (Path childPath : childPaths) {
                 ResolvedReferenceField rrf = root.getDescendantReference(childPath);
-                QueryPlanNode destNode = qplan.getNode(rrf.getReferencedMetadata());
-                QueryPlanData qd = qplan.getEdgeData(sourceNode, destNode);
-                if (qd == null) {
-                    qplan.setEdgeData(sourceNode, destNode, qd = qplan.newData());
-                }
-                qd.setReference(rrf);
-                ReferenceField ref = rrf.getReferenceField();
-                if (ref.getQuery() != null) {
-                    LOGGER.debug("Association query:{}", ref.getQuery());
-                    List<Conjunct> refQueryClauses = new ArrayList<>();
-                    rewriteQuery(ref.getQuery(), refQueryClauses, qplan, rrf);
-                    LOGGER.debug("Association query clauses:{}", refQueryClauses);
-                    assignQueriesToPlanNodesAndEdges(refQueryClauses, unassignedClauses);
-                }
-                iterateReferences(rrf.getReferencedMetadata(), unassignedClauses);
+                if(rrf!=null) {
+                    QueryPlanNode destNode = qplan.getNode(rrf.getReferencedMetadata());
+                    QueryPlanData qd = qplan.getEdgeData(sourceNode, destNode);
+                    if (qd == null) {
+                        qplan.setEdgeData(sourceNode, destNode, qd = qplan.newData());
+                    }
+                    qd.setReference(rrf);
+                    ReferenceField ref = rrf.getReferenceField();
+                    if (ref.getQuery() != null) {
+                        LOGGER.debug("Association query:{}", ref.getQuery());
+                        List<Conjunct> refQueryClauses = new ArrayList<>();
+                        rewriteQuery(ref.getQuery(), refQueryClauses, qplan, rrf);
+                        LOGGER.debug("Association query clauses:{}", refQueryClauses);
+                        assignQueriesToPlanNodesAndEdges(refQueryClauses, unassignedClauses);
+                    }
+                    iterateReferences(rrf.getReferencedMetadata(), unassignedClauses);
+                } else
+                    throw new RuntimeException("Cannot retrieve descendant reference for "+childPath);
             }
         } catch (Error e) {
             // rethrow lightblue error
