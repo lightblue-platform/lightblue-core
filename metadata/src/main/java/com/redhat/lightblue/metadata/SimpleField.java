@@ -69,6 +69,8 @@ public class SimpleField extends Field {
             return this;
         } else if (Path.PARENT.equals(p.head(level))) {
             return this.getParent().resolve(p, level + 1);
+        } if (p.head(level).equals(Path.THIS)) {
+            return this.resolve(p,level+1);
         } else {
             throw Error.get(MetadataConstants.ERR_INVALID_FIELD_REFERENCE, p.head(level) + " in " + p.toString());
         }

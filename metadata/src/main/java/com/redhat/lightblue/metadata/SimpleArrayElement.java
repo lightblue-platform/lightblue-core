@@ -69,6 +69,8 @@ public class SimpleArrayElement extends ArrayElement {
             return this;
         } else if (p.head(level).equals(Path.PARENT)) {
             return this.getParent().getParent().resolve(p, level + 1);
+        } else if (p.head(level).equals(Path.THIS)) {
+            return this.resolve(p,level+1);
         } else {
             throw Error.get(MetadataConstants.ERR_INVALID_ARRAY_REFERENCE);
         }
